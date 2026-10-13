@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Shape =
@@ -61,11 +61,12 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "kind": __mf_member(value, "kind") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -134,7 +135,7 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["kind"];
+        const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
             if (__typeName === "circle") {
                 return { "kind": "circle", ...__mf_decodeObject(value, ctx, { radius: __mf_decodeNumber }) } as Shape;
@@ -152,8 +153,8 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 }
 export function shapeHasShape(value: unknown): boolean {
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["kind"];
-                    if (["circle", "event"].includes(__typeName)) return true;
+                    const __typeName = __mf_member(value, "kind");
+                    if (["circle", "event"].some((tag) => tag === __typeName)) return true;
                 }
                 return false;
 }
@@ -234,12 +235,12 @@ export {};
 
 ## Mapping
 
-original 61..165 -> expanded 593..697
-original 165..166 -> expanded 6847..6848
-generated 0..593 <- imports
-generated 697..2756 <- Encode
-generated 2756..6235 <- Decode
-generated 6235..6847 <- __convenience_const
+original 61..165 -> expanded 616..720
+original 165..166 -> expanded 6938..6939
+generated 0..616 <- imports
+generated 720..2826 <- Encode
+generated 2826..6326 <- Decode
+generated 6326..6938 <- __convenience_const
 
 ## Metadata
 

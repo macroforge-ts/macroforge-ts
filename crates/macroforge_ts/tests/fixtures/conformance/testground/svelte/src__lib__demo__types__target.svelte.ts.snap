@@ -29,7 +29,7 @@ import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, se
 import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -95,7 +95,7 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
@@ -136,11 +136,12 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -209,7 +210,7 @@ export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Account") {
                 return accountDecodeWithContext(value, ctx) as Target;
@@ -444,7 +445,7 @@ export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 export function targetHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered";
                     }
@@ -1154,15 +1155,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2727..3614
-original 936..1209 -> expanded 3614..3887
-original 1209..1210 -> expanded 38005..38006
-generated 0..2727 <- imports
-generated 3887..3971 <- Default
-generated 3971..9832 <- Encode
-generated 9832..23623 <- Decode
-generated 23623..37253 <- Gigaform
-generated 37253..38005 <- __convenience_const
+original 0..887 -> expanded 2750..3637
+original 936..1209 -> expanded 3637..3910
+original 1209..1210 -> expanded 38087..38088
+generated 0..2750 <- imports
+generated 3910..3994 <- Default
+generated 3994..9906 <- Encode
+generated 9906..23705 <- Decode
+generated 23705..37335 <- Gigaform
+generated 37335..38087 <- __convenience_const
 
 ## Metadata
 

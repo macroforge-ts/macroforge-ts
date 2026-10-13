@@ -727,6 +727,19 @@ export function holds(raw: object, key: string): boolean {
 }
 
 /**
+ * What `raw` gives for `key`, and `undefined` for a value that is no object.
+ * A member it inherits counts: the tag of a class may be a getter of it.
+ */
+export function member(raw: unknown, key: string): unknown {
+  return isKeyed(raw) ? raw[key] : undefined;
+}
+
+/** Whether `raw` is a value members can be read off by their keys. */
+function isKeyed(raw: unknown): raw is Record<string, unknown> {
+  return typeof raw === "object" && raw !== null;
+}
+
+/**
  * The members `raw` holds itself, as an object that has no others: a key is
  * then there only when the input has it.
  */

@@ -13,7 +13,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export type RecordLink<T> = /** @default */ string | T;
 
@@ -42,11 +42,12 @@ export function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -185,13 +186,13 @@ export declare const RecordLink: {
 
 ## Mapping
 
-original 39..95 -> expanded 509..565
-original 95..96 -> expanded 5285..5286
-generated 0..509 <- imports
-generated 565..644 <- Default
-generated 644..2106 <- Encode
-generated 2106..4641 <- Decode
-generated 4641..5285 <- __convenience_const
+original 39..95 -> expanded 532..588
+original 95..96 -> expanded 5355..5356
+generated 0..532 <- imports
+generated 588..667 <- Default
+generated 667..2176 <- Encode
+generated 2176..4711 <- Decode
+generated 4711..5355 <- __convenience_const
 
 ## Metadata
 

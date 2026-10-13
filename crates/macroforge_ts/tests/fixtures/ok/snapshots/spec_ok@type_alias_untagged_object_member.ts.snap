@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
@@ -56,11 +56,12 @@ export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unk
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -204,13 +205,13 @@ export declare const Link: {
 
 ## Mapping
 
-original 0..185 -> expanded 550..735
-original 215..275 -> expanded 735..795
-original 275..276 -> expanded 5696..5697
-generated 0..550 <- imports
-generated 795..2491 <- Encode
-generated 2491..5226 <- Decode
-generated 5226..5696 <- __convenience_const
+original 0..185 -> expanded 573..758
+original 215..275 -> expanded 758..818
+original 275..276 -> expanded 5766..5767
+generated 0..573 <- imports
+generated 818..2561 <- Encode
+generated 2561..5296 <- Decode
+generated 5296..5766 <- __convenience_const
 
 ## Metadata
 

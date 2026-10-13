@@ -248,7 +248,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                 {#if has_ser_variants}
                 if (!__matched && value !== null && typeof value === "object") {
                     {#if dispatch_by_tag}
-                    const __tag = (value as any)["@{tag_field}"];
+                    const __tag = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                     {#for v in &ser_variants}
                     if (!__matched && __tag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                     {/for}
@@ -261,7 +261,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                 {/if}
                 {#if has_ref_variants}
                 if (!__matched && value !== null && typeof value === "object") {
-                    const __refTag = (value as any)["@{tag_field}"];
+                    const __refTag = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                     {#for v in &ref_variants}
                     if (!__matched && __refTag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                     {/for}
@@ -310,34 +310,35 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     // from the value's own tag field, falling back to `__type`
                     // only when the value carries no tag. A passed-through value
                     // already carries the tag field.
-                    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-                        const { __type: __typeName, ...fields } = __variant as any;
-                        const __tagged = { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
+                    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+                        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+                        const __tagged = { "@{tag_field}": @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}") ?? __typeName, ...fields };
                         // What a later reference to this value stands for is
                         // the member as the union tags it.
-                        return typeof fields.__id === "number" ? @{&encoded_as}(ctx, fields.__id, __tagged) : __tagged;
+                        const __idVal = fields["__id"];
+                        return typeof __idVal === "number" ? @{&encoded_as}(ctx, __idVal, __tagged) : __tagged;
                     }
                     return __variant;
                 {:else}
                     // Non-internally-tagged modes: restructure the variant output
                     if (typeof __variant !== "object" || __variant === null) return __variant;
-                    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
                     if (typeof __typeName !== "string") return __variant;
 
                     {#if is_externally_tagged}
                         // Externally tagged: { "TypeName": { ...fields } }
                         const __outer: Record<string, unknown> = { [__typeName]: fields };
-                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
+                        if (typeof __idVal === "number") @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_adjacently_tagged}
                         // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
                         const __outer: Record<string, unknown> = { "@{tag_field}": __typeName, "@{content_field}": fields };
-                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
+                        if (typeof __idVal === "number") @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_untagged}
                         // Untagged: just the raw fields
                         const __outer: Record<string, unknown> = { ...fields };
-                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
+                        if (typeof __idVal === "number") @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {/if}
                 {/if}
@@ -362,7 +363,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                 {#if has_ser_variants}
                 if (!__matched && value !== null && typeof value === "object") {
                     {#if dispatch_by_tag}
-                    const __tag = (value as any)["@{tag_field}"];
+                    const __tag = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                     {#for v in &ser_variants}
                     if (!__matched && __tag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                     {/for}
@@ -375,7 +376,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                 {/if}
                 {#if has_ref_variants}
                 if (!__matched && value !== null && typeof value === "object") {
-                    const __refTag = (value as any)["@{tag_field}"];
+                    const __refTag = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                     {#for v in &ref_variants}
                     if (!__matched && __refTag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                     {/for}
@@ -418,34 +419,35 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     // from the value's own tag field, falling back to `__type`
                     // only when the value carries no tag. A passed-through value
                     // already carries the tag field.
-                    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-                        const { __type: __typeName, ...fields } = __variant as any;
-                        const __tagged = { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
+                    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+                        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+                        const __tagged = { "@{tag_field}": @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}") ?? __typeName, ...fields };
                         // What a later reference to this value stands for is
                         // the member as the union tags it.
-                        return typeof fields.__id === "number" ? @{&encoded_as}(ctx, fields.__id, __tagged) : __tagged;
+                        const __idVal = fields["__id"];
+                        return typeof __idVal === "number" ? @{&encoded_as}(ctx, __idVal, __tagged) : __tagged;
                     }
                     return __variant;
                 {:else}
                     // Non-internally-tagged modes: restructure the variant output
                     if (typeof __variant !== "object" || __variant === null) return __variant;
-                    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
                     if (typeof __typeName !== "string") return __variant;
 
                     {#if is_externally_tagged}
                         // Externally tagged: { "TypeName": { ...fields } }
                         const __outer: Record<string, unknown> = { [__typeName]: fields };
-                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
+                        if (typeof __idVal === "number") @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_adjacently_tagged}
                         // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
                         const __outer: Record<string, unknown> = { "@{tag_field}": __typeName, "@{content_field}": fields };
-                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
+                        if (typeof __idVal === "number") @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_untagged}
                         // Untagged: just the raw fields
                         const __outer: Record<string, unknown> = { ...fields };
-                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
+                        if (typeof __idVal === "number") @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {/if}
                 {/if}

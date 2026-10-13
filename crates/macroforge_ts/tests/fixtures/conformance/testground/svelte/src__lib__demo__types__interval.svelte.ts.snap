@@ -16,7 +16,7 @@ import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dail
 import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -56,7 +56,7 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "DailyRecurrenceRule") { __variant = dailyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "WeeklyRecurrenceRule") { __variant = weeklyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "MonthlyRecurrenceRule") { __variant = monthlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
@@ -71,11 +71,12 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -144,7 +145,7 @@ export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "DailyRecurrenceRule") {
                 return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
@@ -223,7 +224,7 @@ export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 export function intervalHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule";
                     }
@@ -543,15 +544,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1384..1751
-original 416..564 -> expanded 1751..1899
-original 564..565 -> expanded 18643..18644
-generated 0..1384 <- imports
-generated 1899..1999 <- Default
-generated 1999..4736 <- Encode
-generated 4736..11233 <- Decode
-generated 11233..17853 <- Gigaform
-generated 17853..18643 <- __convenience_const
+original 0..367 -> expanded 1407..1774
+original 416..564 -> expanded 1774..1922
+original 564..565 -> expanded 18725..18726
+generated 0..1407 <- imports
+generated 1922..2022 <- Default
+generated 2022..4810 <- Encode
+generated 4810..11315 <- Decode
+generated 11315..17935 <- Gigaform
+generated 17935..18725 <- __convenience_const
 
 ## Metadata
 

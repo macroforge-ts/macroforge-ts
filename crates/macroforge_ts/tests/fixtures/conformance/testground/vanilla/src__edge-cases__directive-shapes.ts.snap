@@ -1110,7 +1110,7 @@ function directiveFlatEncodeFields(value: DirectiveFlat, ctx: __mf_EncodeContext
     if (__fields === undefined || __fields.keeps("inner")) {
         if (value.inner !== undefined && value.inner !== null) {
             const __flattened = directiveInnerEncodePartialWithContext(value.inner, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
             Object.assign(result, rest);
         }
     }
@@ -1627,7 +1627,7 @@ original 1414..1665 -> expanded 28700..28951
 original 1665..1666 -> expanded 36721..36722
 original 1666..1753 -> expanded 40169..40256
 original 1753..1900 -> expanded 49140..49287
-original 1900..1901 -> expanded 59114..59115
+original 1900..1901 -> expanded 59134..59135
 generated 0..937 <- imports
 generated 1615..2110 <- Debug
 generated 2110..2302 <- Default
@@ -1653,9 +1653,9 @@ generated 38192..40169 <- Decode
 generated 40256..42479 <- Encode
 generated 42479..48016 <- Decode
 generated 48016..49140 <- __convenience_const
-generated 49287..51844 <- Encode
-generated 51844..58011 <- Decode
-generated 58011..59114 <- __convenience_const
+generated 49287..51864 <- Encode
+generated 51864..58031 <- Decode
+generated 58031..59134 <- __convenience_const
 
 ## Metadata
 

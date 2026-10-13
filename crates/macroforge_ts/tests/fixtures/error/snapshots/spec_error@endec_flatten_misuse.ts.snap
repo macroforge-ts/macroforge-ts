@@ -41,7 +41,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Inner {
@@ -269,11 +269,12 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -514,27 +515,27 @@ Error [533..541]: @derive(Decode): field 'held': `flatten` holds a value's field
 
 ## Mapping
 
-original 30..73 -> expanded 860..903
-original 73..75 -> expanded 9063..9065
-original 105..178 -> expanded 9065..9138
-original 178..180 -> expanded 14983..14985
-original 210..247 -> expanded 14985..15022
-original 269..292 -> expanded 15022..15045
-original 314..338 -> expanded 15045..15069
-original 360..395 -> expanded 15069..15104
-original 417..451 -> expanded 15104..15138
-original 473..505 -> expanded 15138..15170
-original 527..545 -> expanded 15170..15188
-original 567..590 -> expanded 15188..15211
-original 612..642 -> expanded 15211..15241
-original 664..701 -> expanded 15241..15278
-generated 0..860 <- imports
-generated 903..2979 <- Encode
-generated 2979..8128 <- Decode
-generated 8128..9063 <- __convenience_const
-generated 9138..11157 <- Encode
-generated 11157..14500 <- Decode
-generated 14500..14983 <- __convenience_const
+original 30..73 -> expanded 883..926
+original 73..75 -> expanded 9086..9088
+original 105..178 -> expanded 9088..9161
+original 178..180 -> expanded 15053..15055
+original 210..247 -> expanded 15055..15092
+original 269..292 -> expanded 15092..15115
+original 314..338 -> expanded 15115..15139
+original 360..395 -> expanded 15139..15174
+original 417..451 -> expanded 15174..15208
+original 473..505 -> expanded 15208..15240
+original 527..545 -> expanded 15240..15258
+original 567..590 -> expanded 15258..15281
+original 612..642 -> expanded 15281..15311
+original 664..701 -> expanded 15311..15348
+generated 0..883 <- imports
+generated 926..3002 <- Encode
+generated 3002..8151 <- Decode
+generated 8151..9086 <- __convenience_const
+generated 9161..11227 <- Encode
+generated 11227..14570 <- Decode
+generated 14570..15053 <- __convenience_const
 
 ## Metadata
 

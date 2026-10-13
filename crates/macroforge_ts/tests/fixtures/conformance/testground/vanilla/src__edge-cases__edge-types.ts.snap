@@ -1304,7 +1304,7 @@ function edgeLabeledEncodeFields(value: EdgeLabeled, ctx: __mf_EncodeContext, re
     if (__fields === undefined || __fields.keeps("origin")) {
         if (value.origin !== undefined) {
             const __flattened = edgeItemEncodePartialWithContext(value.origin, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
             Object.assign(result, rest);
         }
     }
@@ -2146,8 +2146,8 @@ original 463..464 -> expanded 23398..23399
 original 464..822 -> expanded 27012..27370
 original 822..994 -> expanded 44655..44827
 original 994..1158 -> expanded 55700..55864
-original 1158..1296 -> expanded 66847..66985
-original 1296..1297 -> expanded 78351..78352
+original 1158..1296 -> expanded 66867..67005
+original 1296..1297 -> expanded 78371..78372
 generated 0..1042 <- imports
 generated 1356..1657 <- Debug
 generated 1657..1812 <- Clone
@@ -2192,16 +2192,16 @@ generated 55864..56192 <- Debug
 generated 56192..56382 <- Clone
 generated 56382..56592 <- PartialEq
 generated 56592..56940 <- Hash
-generated 56940..59440 <- Encode
-generated 59440..65478 <- Decode
-generated 65478..66847 <- __convenience_const
-generated 66985..67342 <- Debug
-generated 67342..67548 <- Clone
-generated 67548..67800 <- PartialEq
-generated 67800..68164 <- Hash
-generated 68164..70510 <- Encode
-generated 70510..77069 <- Decode
-generated 77069..78351 <- __convenience_const
+generated 56940..59460 <- Encode
+generated 59460..65498 <- Decode
+generated 65498..66867 <- __convenience_const
+generated 67005..67362 <- Debug
+generated 67362..67568 <- Clone
+generated 67568..67820 <- PartialEq
+generated 67820..68184 <- Hash
+generated 68184..70530 <- Encode
+generated 70530..77089 <- Decode
+generated 77089..78371 <- __convenience_const
 
 ## Metadata
 

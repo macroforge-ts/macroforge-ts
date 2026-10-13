@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedLiteral as __mf_decodedLiteral, decodeTuple as __mf_decodeTuple, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedLiteral as __mf_decodedLiteral, decodeTuple as __mf_decodeTuple, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -36934,7 +36934,7 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "DailyRecurrenceRule") { __variant = dailyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "WeeklyRecurrenceRule") { __variant = weeklyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "MonthlyRecurrenceRule") { __variant = monthlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
@@ -36949,11 +36949,12 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -37022,7 +37023,7 @@ export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "DailyRecurrenceRule") {
                 return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
@@ -37101,7 +37102,7 @@ export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 export function intervalHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule";
                     }
@@ -37349,11 +37350,12 @@ export function pageEncodeWithContext(value: Page, ctx: __mf_EncodeContext): unk
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -38017,11 +38019,12 @@ export function userRoleEncodeWithContext(value: UserRole, ctx: __mf_EncodeConte
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -38313,7 +38316,7 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
@@ -38354,11 +38357,12 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -38427,7 +38431,7 @@ export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Account") {
                 return accountDecodeWithContext(value, ctx) as Target;
@@ -38662,7 +38666,7 @@ export function targetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 export function targetHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered";
                     }
@@ -39106,11 +39110,12 @@ export function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -39372,11 +39377,12 @@ export function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -39598,11 +39604,12 @@ export function intervalUnitEncodeWithContext(value: IntervalUnit, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -39862,11 +39869,12 @@ export function sectorEncodeWithContext(value: Sector, ctx: __mf_EncodeContext):
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -40095,11 +40103,12 @@ export function weekdayEncodeWithContext(value: Weekday, ctx: __mf_EncodeContext
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -40416,11 +40425,12 @@ export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext):
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -40665,11 +40675,12 @@ export function nextStepEncodeWithContext(value: NextStep, ctx: __mf_EncodeConte
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -40934,11 +40945,12 @@ export function leadStageEncodeWithContext(value: LeadStage, ctx: __mf_EncodeCon
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -41213,7 +41225,7 @@ export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_Encod
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "CompanyName") { __variant = companyNameEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "PersonName") { __variant = personNameEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && companyNameHasShape(value)) { __variant = companyNameEncodeWithContext(value as any, ctx); __matched = true; }
@@ -41224,11 +41236,12 @@ export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_Encod
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -41297,7 +41310,7 @@ export function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "CompanyName") {
                 return companyNameDecodeWithContext(value, ctx) as AccountName;
@@ -41352,7 +41365,7 @@ export function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 export function accountNameHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "CompanyName" || __typeName === "PersonName";
                     }
@@ -41541,11 +41554,12 @@ export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeConte
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -41793,11 +41807,12 @@ export function applicationsEncodeWithContext(value: Applications, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -42118,11 +42133,12 @@ export function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeConte
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -42382,7 +42398,7 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Cardinal") { __variant = cardinalEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Ordinal") { __variant = ordinalEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Custom") { __variant = customEncodeWithContext(value as any, ctx); __matched = true; }
@@ -42397,11 +42413,12 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -42470,7 +42487,7 @@ export function colorsConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Cardinal") {
                 return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
@@ -42549,7 +42566,7 @@ export function colorsConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 export function colorsConfigHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Cardinal" || __typeName === "Ordinal" || __typeName === "Custom" || __typeName === "Gradient";
                     }
@@ -42777,11 +42794,12 @@ export function weekOfMonthEncodeWithContext(value: WeekOfMonth, ctx: __mf_Encod
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -43062,7 +43080,7 @@ export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_Enc
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Created") { __variant = createdEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Edited") { __variant = editedEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Sent") { __variant = sentEncodeWithContext(value as any, ctx); __matched = true; }
@@ -43081,11 +43099,12 @@ export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -43154,7 +43173,7 @@ export function activityTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Created") {
                 return createdDecodeWithContext(value, ctx) as ActivityType;
@@ -43257,7 +43276,7 @@ export function activityTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 export function activityTypeHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Created" || __typeName === "Edited" || __typeName === "Sent" || __typeName === "Viewed" || __typeName === "Commented" || __typeName === "Paid";
                     }
@@ -43518,11 +43537,12 @@ export function rowHeightEncodeWithContext(value: RowHeight, ctx: __mf_EncodeCon
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -43782,11 +43802,12 @@ export function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeC
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -44045,11 +44066,12 @@ export function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): u
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -44571,7 +44593,7 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
         if (!__matched && recordLinkHasShape(value)) { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
@@ -44582,11 +44604,12 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -44655,7 +44678,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "RecordLink<Product>") {
                 return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
@@ -44710,7 +44733,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 export function itemHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>";
                     }
@@ -44899,11 +44922,12 @@ export function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -45027,7 +45051,7 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
@@ -45040,11 +45064,12 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -45113,7 +45138,7 @@ export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "User") {
                 return userDecodeWithContext(value, ctx) as Actor;
@@ -45180,7 +45205,7 @@ export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 export function actorHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
                     }
@@ -54814,865 +54839,865 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..58 -> expanded 1192..1250
-original 107..178 -> expanded 1250..1321
-original 219..247 -> expanded 1321..1349
-original 288..399 -> expanded 1349..1460
-original 431..672 -> expanded 1460..1701
-original 672..674 -> expanded 48479..48481
-original 723..755 -> expanded 48481..48513
-original 783..804 -> expanded 48513..48534
-original 845..850 -> expanded 48534..48539
-original 891..914 -> expanded 48539..48562
-original 961..966 -> expanded 48562..48567
-original 1007..1035 -> expanded 48567..48595
-original 1100..1131 -> expanded 48595..48626
-original 1199..1233 -> expanded 48626..48660
-original 1297..1327 -> expanded 48660..48690
-original 1372..1398 -> expanded 48690..48716
-original 1447..1477 -> expanded 48716..48746
-original 1524..1552 -> expanded 48746..48774
-original 1601..1666 -> expanded 48774..48839
-original 1666..1668 -> expanded 84043..84045
-original 1717..1757 -> expanded 84045..84085
-original 1821..1845 -> expanded 84085..84109
-original 1897..1902 -> expanded 84109..84114
-original 1943..1970 -> expanded 84114..84141
-original 1970..1972 -> expanded 100313..100315
-original 2021..2049 -> expanded 100315..100343
-original 2068..2097 -> expanded 100343..100372
-original 2116..2244 -> expanded 100372..100500
-original 2244..2246 -> expanded 124520..124522
-original 2295..2330 -> expanded 124522..124557
-original 2377..2382 -> expanded 124557..124562
-original 2423..2451 -> expanded 124562..124590
-original 2497..2502 -> expanded 124590..124595
-original 2543..2567 -> expanded 124595..124619
-original 2567..2569 -> expanded 141043..141045
-original 2618..2683 -> expanded 141045..141110
-original 2683..2685 -> expanded 154997..154999
-original 2734..2779 -> expanded 154999..155044
-original 2820..2922 -> expanded 155044..155146
-original 2963..3080 -> expanded 155146..155263
-original 3121..3164 -> expanded 155263..155306
-original 3205..3231 -> expanded 155306..155332
-original 3272..3365 -> expanded 155332..155425
-original 3365..3367 -> expanded 198651..198653
-original 3416..3548 -> expanded 198653..198785
-original 3548..3550 -> expanded 218377..218379
-original 3599..3636 -> expanded 218379..218416
-original 3677..3724 -> expanded 218416..218463
-original 3724..3726 -> expanded 235244..235246
-original 3775..3811 -> expanded 235246..235282
-original 3854..3878 -> expanded 235282..235306
-original 3948..3953 -> expanded 235306..235311
-original 3994..4022 -> expanded 235311..235339
-original 4065..4070 -> expanded 235339..235344
-original 4111..4136 -> expanded 235344..235369
-original 4183..4210 -> expanded 235369..235396
-original 4257..4281 -> expanded 235396..235420
-original 4281..4283 -> expanded 257989..257991
-original 4332..4384 -> expanded 257991..258043
-original 4384..4386 -> expanded 270460..270462
-original 4435..4467 -> expanded 270462..270494
-original 4495..4516 -> expanded 270494..270515
-original 4557..4562 -> expanded 270515..270520
-original 4603..4626 -> expanded 270520..270543
-original 4673..4678 -> expanded 270543..270548
-original 4719..4747 -> expanded 270548..270576
-original 4812..4843 -> expanded 270576..270607
-original 4911..4945 -> expanded 270607..270641
-original 5009..5039 -> expanded 270641..270671
-original 5084..5110 -> expanded 270671..270697
-original 5159..5189 -> expanded 270697..270727
-original 5236..5292 -> expanded 270727..270783
-original 5292..5294 -> expanded 303851..303853
-original 5343..5414 -> expanded 303853..303924
-original 5414..5416 -> expanded 317908..317910
-original 5465..5514 -> expanded 317910..317959
-original 5555..5609 -> expanded 317959..318013
-original 5650..5696 -> expanded 318013..318059
-original 5696..5698 -> expanded 338957..338959
-original 5747..5819 -> expanded 338959..339031
-original 5819..5821 -> expanded 353814..353816
-original 5870..5963 -> expanded 353816..353909
-original 6004..6024 -> expanded 353909..353929
-original 6024..6026 -> expanded 372893..372895
-original 6075..6110 -> expanded 372895..372930
-original 6129..6161 -> expanded 372930..372962
-original 6180..6250 -> expanded 372962..373032
-original 6250..6252 -> expanded 392416..392418
-original 6301..6364 -> expanded 392418..392481
-original 6364..6366 -> expanded 406160..406162
-original 6415..6963 -> expanded 406162..406710
-original 6990..7012 -> expanded 406710..406732
-original 7012..7014 -> expanded 463892..463894
-original 7063..7144 -> expanded 463894..463975
-original 7144..7146 -> expanded 479974..479976
-original 7195..7231 -> expanded 479976..480012
-original 7280..7285 -> expanded 480012..480017
-original 7326..7353 -> expanded 480017..480044
-original 7353..7355 -> expanded 493682..493684
-original 7404..7440 -> expanded 493684..493720
-original 7468..7489 -> expanded 493720..493741
-original 7531..7536 -> expanded 493741..493746
-original 7577..7601 -> expanded 493746..493770
-original 7780..7785 -> expanded 493770..493775
-original 7813..7838 -> expanded 493775..493800
-original 7885..7910 -> expanded 493800..493825
-original 7965..7992 -> expanded 493825..493852
-original 8038..8065 -> expanded 493852..493879
-original 8093..8120 -> expanded 493879..493906
-original 8166..8192 -> expanded 493906..493932
-original 8240..8268 -> expanded 493932..493960
-original 8357..8403 -> expanded 493960..494006
-original 8456..8461 -> expanded 494006..494011
-original 8480..8514 -> expanded 494011..494045
-original 8566..8603 -> expanded 494045..494082
-original 8631..8636 -> expanded 494082..494087
-original 8709..8734 -> expanded 494087..494112
-original 8762..8807 -> expanded 494112..494157
-original 8807..8809 -> expanded 540646..540648
-original 8858..8890 -> expanded 540648..540680
-original 8918..8939 -> expanded 540680..540701
-original 8984..9004 -> expanded 540701..540721
-original 9004..9006 -> expanded 554400..554402
-original 9055..9121 -> expanded 554402..554468
-original 9146..9236 -> expanded 554468..554558
-original 9236..9238 -> expanded 577263..577265
-original 9287..9356 -> expanded 577265..577334
-original 9356..9358 -> expanded 591167..591169
-original 9407..9568 -> expanded 591169..591330
-original 9568..9570 -> expanded 617710..617712
-original 9619..9660 -> expanded 617712..617753
-original 9685..9716 -> expanded 617753..617784
-original 9740..9835 -> expanded 617784..617879
-original 9835..9837 -> expanded 642346..642348
-original 9886..9920 -> expanded 642348..642382
-original 9961..9981 -> expanded 642382..642402
-original 9981..9983 -> expanded 655407..655409
-original 10032..10064 -> expanded 655409..655441
-original 10092..10113 -> expanded 655441..655462
-original 10213..10218 -> expanded 655462..655467
-original 10237..10273 -> expanded 655467..655503
-original 10322..10327 -> expanded 655503..655508
-original 10346..10376 -> expanded 655508..655538
-original 10465..10510 -> expanded 655538..655583
-original 10538..10571 -> expanded 655583..655616
-original 10599..10630 -> expanded 655616..655647
-original 10690..10738 -> expanded 655647..655695
-original 10870..10905 -> expanded 655695..655730
-original 11086..11091 -> expanded 655730..655735
-original 11121..11146 -> expanded 655735..655760
-original 11191..11221 -> expanded 655760..655790
-original 11274..11311 -> expanded 655790..655827
-original 11359..11382 -> expanded 655827..655850
-original 11453..11458 -> expanded 655850..655855
-original 11499..11528 -> expanded 655855..655884
-original 11556..11581 -> expanded 655884..655909
-original 11632..11663 -> expanded 655909..655940
-original 11711..11739 -> expanded 655940..655968
-original 11811..11816 -> expanded 655968..655973
-original 11857..11887 -> expanded 655973..656003
-original 11954..11959 -> expanded 656003..656008
-original 12000..12026 -> expanded 656008..656034
-original 12075..12106 -> expanded 656034..656065
-original 12179..12184 -> expanded 656065..656070
-original 12225..12256 -> expanded 656070..656101
-original 12297..12327 -> expanded 656101..656131
-original 12355..12380 -> expanded 656131..656156
-original 12380..12382 -> expanded 733149..733151
-original 12431..12462 -> expanded 733151..733182
-original 12503..12586 -> expanded 733182..733265
-original 12586..12588 -> expanded 750274..750276
-original 12637..12667 -> expanded 750276..750306
-original 12695..12716 -> expanded 750306..750327
-original 12814..12819 -> expanded 750327..750332
-original 12838..12874 -> expanded 750332..750368
-original 13049..13054 -> expanded 750368..750373
-original 13081..13109 -> expanded 750373..750401
-original 13137..13162 -> expanded 750401..750426
-original 13190..13234 -> expanded 750426..750470
-original 13282..13287 -> expanded 750470..750475
-original 13328..13358 -> expanded 750475..750505
-original 13404..13409 -> expanded 750505..750510
-original 13450..13478 -> expanded 750510..750538
-original 13549..13554 -> expanded 750538..750543
-original 13595..13624 -> expanded 750543..750572
-original 13725..13730 -> expanded 750572..750577
-original 13749..13787 -> expanded 750577..750615
-original 13852..13857 -> expanded 750615..750620
-original 13898..13922 -> expanded 750620..750644
-original 13990..13995 -> expanded 750644..750649
-original 14036..14063 -> expanded 750649..750676
-original 14108..14136 -> expanded 750676..750704
-original 14187..14218 -> expanded 750704..750735
-original 14266..14271 -> expanded 750735..750740
-original 14312..14341 -> expanded 750740..750769
-original 14369..14394 -> expanded 750769..750794
-original 14422..14452 -> expanded 750794..750824
-original 14558..14563 -> expanded 750824..750829
-original 14582..14626 -> expanded 750829..750873
-original 14717..14763 -> expanded 750873..750919
-original 14791..14841 -> expanded 750919..750969
-original 14869..14923 -> expanded 750969..751023
-original 14951..14977 -> expanded 751023..751049
-original 15021..15043 -> expanded 751049..751071
-original 15071..15095 -> expanded 751071..751095
-original 15144..15149 -> expanded 751095..751100
-original 15168..15198 -> expanded 751100..751130
-original 15257..15298 -> expanded 751130..751171
-original 15343..15348 -> expanded 751171..751176
-original 15389..15412 -> expanded 751176..751199
-original 15440..15467 -> expanded 751199..751226
-original 15495..15517 -> expanded 751226..751248
-original 15545..15579 -> expanded 751248..751282
-original 15579..15581 -> expanded 840534..840536
-original 15630..15664 -> expanded 840536..840570
-original 15705..15756 -> expanded 840570..840621
-original 15756..15758 -> expanded 855779..855781
-original 15807..15870 -> expanded 855781..855844
-original 15870..15872 -> expanded 870114..870116
-original 15921..15952 -> expanded 870116..870147
-original 15993..16016 -> expanded 870147..870170
-original 16057..16081 -> expanded 870170..870194
-original 16122..16144 -> expanded 870194..870216
-original 16144..16146 -> expanded 888561..888563
-original 16195..16235 -> expanded 888563..888603
-original 16299..16323 -> expanded 888603..888627
-original 16375..16380 -> expanded 888627..888632
-original 16421..16448 -> expanded 888632..888659
-original 16448..16450 -> expanded 904831..904833
-original 16499..16590 -> expanded 904833..904924
-original 16590..16592 -> expanded 919403..919405
-original 16641..16742 -> expanded 919405..919506
-original 16742..16744 -> expanded 937771..937773
-original 16793..16909 -> expanded 937773..937889
-original 16909..16911 -> expanded 954028..954030
-original 16960..16992 -> expanded 954030..954062
-original 17020..17041 -> expanded 954062..954083
-original 17082..17087 -> expanded 954083..954088
-original 17128..17151 -> expanded 954088..954111
-original 17198..17203 -> expanded 954111..954116
-original 17244..17272 -> expanded 954116..954144
-original 17322..17344 -> expanded 954144..954166
-original 17385..17390 -> expanded 954166..954171
-original 17431..17454 -> expanded 954171..954194
-original 17497..17502 -> expanded 954194..954199
-original 17543..17568 -> expanded 954199..954224
-original 17610..17615 -> expanded 954224..954229
-original 17656..17680 -> expanded 954229..954253
-original 17725..17753 -> expanded 954253..954281
-original 17805..17810 -> expanded 954281..954286
-original 17851..17881 -> expanded 954286..954316
-original 17909..17914 -> expanded 954316..954321
-original 17933..17981 -> expanded 954321..954369
-original 17981..17983 -> expanded 990716..990718
-original 18032..18064 -> expanded 990718..990750
-original 18105..18130 -> expanded 990750..990775
-original 18171..18194 -> expanded 990775..990798
-original 18235..18259 -> expanded 990798..990822
-original 18300..18323 -> expanded 990822..990845
-original 18323..18325 -> expanded 1012239..1012241
-original 18374..18403 -> expanded 1012241..1012270
-original 18431..18452 -> expanded 1012270..1012291
-original 18480..18512 -> expanded 1012291..1012323
-original 18540..18568 -> expanded 1012323..1012351
-original 18636..18666 -> expanded 1012351..1012381
-original 18859..18864 -> expanded 1012381..1012386
-original 18889..18918 -> expanded 1012386..1012415
-original 18967..19000 -> expanded 1012415..1012448
-original 19051..19086 -> expanded 1012448..1012483
-original 19150..19174 -> expanded 1012483..1012507
-original 19471..19476 -> expanded 1012507..1012512
-original 19499..19526 -> expanded 1012512..1012539
-original 19569..19574 -> expanded 1012539..1012544
-original 19615..19640 -> expanded 1012544..1012569
-original 19692..19729 -> expanded 1012569..1012606
-original 19757..19762 -> expanded 1012606..1012611
-original 19795..19824 -> expanded 1012611..1012640
-original 19871..19899 -> expanded 1012640..1012668
-original 19927..19962 -> expanded 1012668..1012703
-original 20062..20107 -> expanded 1012703..1012748
-original 20288..20293 -> expanded 1012748..1012753
-original 20323..20348 -> expanded 1012753..1012778
-original 20480..20512 -> expanded 1012778..1012810
-original 20565..20602 -> expanded 1012810..1012847
-original 20650..20673 -> expanded 1012847..1012870
-original 20744..20780 -> expanded 1012870..1012906
-original 20829..20834 -> expanded 1012906..1012911
-original 20853..20883 -> expanded 1012911..1012941
-original 20928..20933 -> expanded 1012941..1012946
-original 20974..20997 -> expanded 1012946..1012969
-original 21048..21079 -> expanded 1012969..1013000
-original 21127..21155 -> expanded 1013000..1013028
-original 21244..21289 -> expanded 1013028..1013073
-original 21317..21348 -> expanded 1013073..1013104
-original 21420..21425 -> expanded 1013104..1013109
-original 21466..21496 -> expanded 1013109..1013139
-original 21563..21568 -> expanded 1013139..1013144
-original 21609..21635 -> expanded 1013144..1013170
-original 21684..21715 -> expanded 1013170..1013201
-original 21788..21793 -> expanded 1013201..1013206
-original 21834..21865 -> expanded 1013206..1013237
-original 21906..21936 -> expanded 1013237..1013267
-original 21996..22041 -> expanded 1013267..1013312
-original 22041..22043 -> expanded 1108723..1108725
-original 22092..22215 -> expanded 1108725..1108848
-original 22215..22217 -> expanded 1132247..1132249
-original 22266..22314 -> expanded 1132249..1132297
-original 22355..22383 -> expanded 1132297..1132325
-original 22402..22472 -> expanded 1132325..1132395
-original 22513..22535 -> expanded 1132395..1132417
-original 22576..22600 -> expanded 1132417..1132441
-original 22641..22667 -> expanded 1132441..1132467
-original 22708..22761 -> expanded 1132467..1132520
-original 22802..22859 -> expanded 1132520..1132577
-original 22878..22917 -> expanded 1132577..1132616
-original 22958..23024 -> expanded 1132616..1132682
-original 23065..23102 -> expanded 1132682..1132719
-original 23143..23178 -> expanded 1132719..1132754
-original 23219..23299 -> expanded 1132754..1132834
-original 23340..23730 -> expanded 1132834..1133224
-original 23730..23732 -> expanded 1228596..1228598
-original 23781..23976 -> expanded 1228598..1228793
-original 23976..23978 -> expanded 1256312..1256314
-original 24027..24060 -> expanded 1256314..1256347
-original 24101..24125 -> expanded 1256347..1256371
-original 24125..24127 -> expanded 1269510..1269512
-original 24176..24237 -> expanded 1269512..1269573
-original 24237..24239 -> expanded 1281781..1281783
-original 24288..24366 -> expanded 1281783..1281861
-original 24407..24462 -> expanded 1281861..1281916
-original 24503..24526 -> expanded 1281916..1281939
-original 24555..24599 -> expanded 1281939..1281983
-original 24640..24666 -> expanded 1281983..1282009
-original 24707..24734 -> expanded 1282009..1282036
-original 24753..24999 -> expanded 1282036..1282282
-original 24999..25001 -> expanded 1340685..1340687
-original 25050..25086 -> expanded 1340687..1340723
-original 25127..25156 -> expanded 1340723..1340752
-original 25197..25221 -> expanded 1340752..1340776
-original 25221..25223 -> expanded 1357372..1357374
-original 25272..25303 -> expanded 1357374..1357405
-original 25344..25374 -> expanded 1357405..1357435
-original 25415..25442 -> expanded 1357435..1357462
-original 25483..25510 -> expanded 1357462..1357489
-original 25510..25512 -> expanded 1376734..1376736
-original 25561..25646 -> expanded 1376736..1376821
-original 25646..25648 -> expanded 1392165..1392167
-original 25697..25808 -> expanded 1392167..1392278
-original 25849..25872 -> expanded 1392278..1392301
-original 25913..25937 -> expanded 1392301..1392325
-original 25978..26139 -> expanded 1392325..1392486
-original 26139..26141 -> expanded 1429577..1429579
-original 26190..26225 -> expanded 1429579..1429614
-original 26266..26290 -> expanded 1429614..1429638
-original 26331..26360 -> expanded 1429638..1429667
-original 26401..26431 -> expanded 1429667..1429697
-original 26431..26433 -> expanded 1449370..1449372
-original 26482..26565 -> expanded 1449372..1449455
-original 26565..26567 -> expanded 1463205..1463207
-original 26616..26651 -> expanded 1463207..1463242
-original 26762..26767 -> expanded 1463242..1463247
-original 26786..26807 -> expanded 1463247..1463268
-original 26871..26898 -> expanded 1463268..1463295
-original 26942..26967 -> expanded 1463295..1463320
-original 27012..27035 -> expanded 1463320..1463343
-original 27035..27037 -> expanded 1483062..1483064
-original 27086..27153 -> expanded 1483064..1483131
-original 27153..27155 -> expanded 1497614..1497616
-original 27204..27252 -> expanded 1497616..1497664
-original 27271..27302 -> expanded 1497664..1497695
-original 27321..27366 -> expanded 1497695..1497740
-original 27366..27368 -> expanded 1516497..1516499
-original 27417..27447 -> expanded 1516499..1516529
-original 27495..27523 -> expanded 1516529..1516557
-original 27565..27570 -> expanded 1516557..1516562
-original 27620..27647 -> expanded 1516562..1516589
-original 27647..27649 -> expanded 1532208..1532210
-original 27698..27923 -> expanded 1532210..1532435
-original 27923..27925 -> expanded 1558660..1558662
-original 27974..28007 -> expanded 1558662..1558695
-original 28048..28068 -> expanded 1558695..1558715
-original 28068..28070 -> expanded 1571614..1571616
-original 28119..28223 -> expanded 1571616..1571720
-original 28223..28225 -> expanded 1590183..1590185
-original 28274..28422 -> expanded 1590185..1590333
-original 28422..28424 -> expanded 1607077..1607079
-original 28473..29237 -> expanded 1607079..1607843
-original 29237..29239 -> expanded 1640732..1640734
-original 29288..29450 -> expanded 1640734..1640896
-original 29450..29452 -> expanded 1652470..1652472
-original 29501..29774 -> expanded 1652472..1652745
-original 29774..29776 -> expanded 1686863..1686865
-original 29825..29889 -> expanded 1686865..1686929
-original 29889..29891 -> expanded 1696362..1696364
-original 29940..30004 -> expanded 1696364..1696428
-original 30004..30006 -> expanded 1705139..1705141
-original 30055..30133 -> expanded 1705141..1705219
-original 30133..30135 -> expanded 1715035..1715037
-original 30184..30251 -> expanded 1715037..1715104
-original 30251..30253 -> expanded 1723338..1723340
-original 30302..30454 -> expanded 1723340..1723492
-original 30454..30456 -> expanded 1735345..1735347
-original 30505..30578 -> expanded 1735347..1735420
-original 30578..30580 -> expanded 1744224..1744226
-original 30629..30747 -> expanded 1744226..1744344
-original 30747..30749 -> expanded 1754445..1754447
-original 30798..30930 -> expanded 1754447..1754579
-original 30930..30932 -> expanded 1765434..1765436
-original 31114..31182 -> expanded 1765436..1765504
-original 31182..31184 -> expanded 1777834..1777836
-original 31233..31299 -> expanded 1777836..1777902
-original 31299..31301 -> expanded 1786659..1786661
-original 31350..31517 -> expanded 1786661..1786828
-original 31517..31519 -> expanded 1799588..1799590
-original 31568..31708 -> expanded 1799590..1799730
-original 31708..31710 -> expanded 1810391..1810393
-original 31759..31860 -> expanded 1810393..1810494
-original 31860..31862 -> expanded 1825849..1825851
-original 31911..32025 -> expanded 1825851..1825965
-original 32025..32027 -> expanded 1836531..1836533
-original 32076..32198 -> expanded 1836533..1836655
-original 32198..32200 -> expanded 1854907..1854909
-original 32249..32352 -> expanded 1854909..1855012
-original 32352..32354 -> expanded 1864787..1864789
-original 32403..32479 -> expanded 1864789..1864865
-original 32479..32481 -> expanded 1874032..1874034
-original 32530..32848 -> expanded 1874034..1874352
-original 32848..32850 -> expanded 1893704..1893706
-original 32899..32977 -> expanded 1893706..1893784
-original 32977..32979 -> expanded 1907145..1907147
-original 33018..33074 -> expanded 1907147..1907203
-original 33074..33076 -> expanded 1911923..1911925
-original 33125..33188 -> expanded 1911925..1911988
-original 33188..33189 -> expanded 1924884..1924885
-generated 0..1192 <- imports
-generated 1701..2189 <- Default
-generated 2189..6841 <- Encode
-generated 6841..25491 <- Decode
-generated 25491..47321 <- Gigaform
-generated 47321..48479 <- __convenience_const
-generated 48839..49184 <- Default
-generated 49184..53030 <- Encode
-generated 53030..67328 <- Decode
-generated 67328..82804 <- Gigaform
-generated 82804..84043 <- __convenience_const
-generated 84141..84272 <- Default
-generated 84272..86695 <- Encode
-generated 86695..94043 <- Decode
-generated 94043..98858 <- Gigaform
-generated 98858..100313 <- __convenience_const
-generated 100500..100710 <- Default
-generated 100710..103781 <- Encode
-generated 103781..114006 <- Decode
-generated 114006..123389 <- Gigaform
-generated 123389..124520 <- __convenience_const
-generated 124619..124742 <- Default
-generated 124742..127094 <- Encode
-generated 127094..135181 <- Decode
-generated 135181..139723 <- Gigaform
-generated 139723..141043 <- __convenience_const
-generated 141110..141220 <- Default
-generated 141220..143513 <- Encode
-generated 143513..149421 <- Decode
-generated 149421..153704 <- Gigaform
-generated 153704..154997 <- __convenience_const
-generated 155425..155859 <- Default
-generated 155859..160165 <- Encode
-generated 160165..179561 <- Decode
-generated 179561..197493 <- Gigaform
-generated 197493..198651 <- __convenience_const
-generated 198785..198951 <- Default
-generated 198951..201611 <- Encode
-generated 201611..209613 <- Decode
-generated 209613..217111 <- Gigaform
-generated 217111..218377 <- __convenience_const
-generated 218463..218608 <- Default
-generated 218608..221013 <- Encode
-generated 221013..228590 <- Decode
-generated 228590..233870 <- Gigaform
-generated 233870..235244 <- __convenience_const
-generated 235420..235612 <- Default
-generated 235612..238466 <- Encode
-generated 238466..248521 <- Decode
-generated 248521..256642 <- Gigaform
-generated 256642..257989 <- __convenience_const
-generated 258043..258138 <- Default
-generated 258138..260283 <- Encode
-generated 260283..265673 <- Decode
-generated 265673..269194 <- Gigaform
-generated 269194..270460 <- __convenience_const
-generated 270783..271101 <- Default
-generated 271101..274762 <- Encode
-generated 274762..288343 <- Decode
-generated 288343..302612 <- Gigaform
-generated 302612..303851 <- __convenience_const
-generated 303924..304050 <- Default
-generated 304050..306403 <- Encode
-generated 306403..312308 <- Decode
-generated 312308..316318 <- Gigaform
-generated 316318..317908 <- __convenience_const
-generated 318059..318258 <- Default
-generated 318258..321012 <- Encode
-generated 321012..331347 <- Decode
-generated 331347..337259 <- Gigaform
-generated 337259..338957 <- __convenience_const
-generated 339031..339149 <- Default
-generated 339149..341503 <- Encode
-generated 341503..347663 <- Decode
-generated 347663..352440 <- Gigaform
-generated 352440..353814 <- __convenience_const
-generated 353929..354092 <- Default
-generated 354092..356774 <- Encode
-generated 356774..364963 <- Decode
-generated 364963..371276 <- Gigaform
-generated 371276..372893 <- __convenience_const
-generated 373032..373184 <- Default
-generated 373184..375974 <- Encode
-generated 375974..384565 <- Decode
-generated 384565..391096 <- Gigaform
-generated 391096..392416 <- __convenience_const
-generated 392481..392587 <- Default
-generated 392587..394850 <- Encode
-generated 394850..400690 <- Decode
-generated 400690..404921 <- Gigaform
-generated 404921..406160 <- __convenience_const
-generated 406732..407480 <- Default
-generated 407480..412667 <- Encode
-generated 412667..434251 <- Decode
-generated 434251..462626 <- Gigaform
-generated 462626..463892 <- __convenience_const
-generated 463975..464094 <- Default
-generated 464094..466492 <- Encode
-generated 466492..473045 <- Decode
-generated 473045..478789 <- Gigaform
-generated 478789..479974 <- __convenience_const
-generated 480044..480149 <- Default
-generated 480149..482351 <- Encode
-generated 482351..488859 <- Decode
-generated 488859..492335 <- Gigaform
-generated 492335..493682 <- __convenience_const
-generated 494157..494647 <- Default
-generated 494647..499378 <- Encode
-generated 499378..517725 <- Decode
-generated 517725..539299 <- Gigaform
-generated 539299..540646 <- __convenience_const
-generated 540721..540827 <- Default
-generated 540827..543090 <- Encode
-generated 543090..548930 <- Decode
-generated 548930..553161 <- Gigaform
-generated 553161..554400 <- __convenience_const
-generated 554558..554758 <- Default
-generated 554758..557630 <- Encode
-generated 557630..566724 <- Decode
-generated 566724..575781 <- Gigaform
-generated 575781..577263 <- __convenience_const
-generated 577334..577457 <- Default
-generated 577457..579791 <- Encode
-generated 579791..585646 <- Decode
-generated 585646..589604 <- Gigaform
-generated 589604..591167 <- __convenience_const
-generated 591330..591618 <- Default
-generated 591618..594720 <- Encode
-generated 594720..605042 <- Decode
-generated 605042..616201 <- Gigaform
-generated 616201..617710 <- __convenience_const
-generated 617879..618073 <- Default
-generated 618073..621014 <- Encode
-generated 621014..630506 <- Decode
-generated 630506..640864 <- Gigaform
-generated 640864..642346 <- __convenience_const
-generated 642402..642496 <- Default
-generated 642496..644640 <- Encode
-generated 644640..650836 <- Decode
-generated 650836..654114 <- Gigaform
-generated 654114..655407 <- __convenience_const
-generated 656156..656786 <- Default
-generated 656786..663065 <- Encode
-generated 663065..694191 <- Decode
-generated 694191..731910 <- Gigaform
-generated 731910..733149 <- __convenience_const
-generated 733265..733406 <- Default
-generated 733406..735871 <- Encode
-generated 735871..743470 <- Decode
-generated 743470..749062 <- Gigaform
-generated 749062..750274 <- __convenience_const
-generated 751282..751985 <- Default
-generated 751985..759773 <- Encode
-generated 759773..798842 <- Decode
-generated 798842..839349 <- Gigaform
-generated 839349..840534 <- __convenience_const
-generated 840621..840741 <- Default
-generated 840741..843066 <- Encode
-generated 843066..850021 <- Decode
-generated 850021..854486 <- Gigaform
-generated 854486..855779 <- __convenience_const
-generated 855844..855936 <- Default
-generated 855936..858112 <- Encode
-generated 858112..864068 <- Decode
-generated 864068..868902 <- Gigaform
-generated 868902..870114 <- __convenience_const
-generated 870216..870343 <- Default
-generated 870343..872768 <- Encode
-generated 872768..881995 <- Decode
-generated 881995..887349 <- Gigaform
-generated 887349..888561 <- __convenience_const
-generated 888659..888790 <- Default
-generated 888790..891213 <- Encode
-generated 891213..898561 <- Decode
-generated 898561..903376 <- Gigaform
-generated 903376..904831 <- __convenience_const
-generated 904924..905047 <- Default
-generated 905047..907355 <- Encode
-generated 907355..913417 <- Decode
-generated 913417..918191 <- Gigaform
-generated 918191..919403 <- __convenience_const
-generated 919506..919654 <- Default
-generated 919654..922236 <- Encode
-generated 922236..929506 <- Decode
-generated 929506..936181 <- Gigaform
-generated 936181..937771 <- __convenience_const
-generated 937889..938030 <- Default
-generated 938030..940473 <- Encode
-generated 940473..947104 <- Decode
-generated 947104..952870 <- Gigaform
-generated 952870..954028 <- __convenience_const
-generated 954369..954650 <- Default
-generated 954650..958277 <- Encode
-generated 958277..976013 <- Decode
-generated 976013..989477 <- Gigaform
-generated 989477..990716 <- __convenience_const
-generated 990845..990995 <- Default
-generated 990995..993604 <- Encode
-generated 993604..1004511 <- Decode
-generated 1004511..1011000 <- Gigaform
-generated 1011000..1012239 <- __convenience_const
-generated 1013312..1014174 <- Default
-generated 1014174..1022103 <- Encode
-generated 1022103..1059544 <- Decode
-generated 1059544..1107565 <- Gigaform
-generated 1107565..1108723 <- __convenience_const
-generated 1108848..1108997 <- Default
-generated 1108997..1111736 <- Encode
-generated 1111736..1120602 <- Decode
-generated 1120602..1130819 <- Gigaform
-generated 1130819..1132247 <- __convenience_const
-generated 1133224..1134174 <- Default
-generated 1134174..1142199 <- Encode
-generated 1142199..1184019 <- Decode
-generated 1184019..1227357 <- Gigaform
-generated 1227357..1228596 <- __convenience_const
-generated 1228793..1229023 <- Default
-generated 1229023..1232324 <- Encode
-generated 1232324..1242656 <- Decode
-generated 1242656..1255073 <- Gigaform
-generated 1255073..1256312 <- __convenience_const
-generated 1256371..1256467 <- Default
-generated 1256467..1258612 <- Encode
-generated 1258612..1264907 <- Decode
-generated 1264907..1268244 <- Gigaform
-generated 1268244..1269510 <- __convenience_const
-generated 1269573..1269672 <- Default
-generated 1269672..1271814 <- Encode
-generated 1271814..1277153 <- Decode
-generated 1277153..1280542 <- Gigaform
-generated 1280542..1281781 <- __convenience_const
-generated 1282282..1282802 <- Default
-generated 1282802..1288076 <- Encode
-generated 1288076..1312102 <- Decode
-generated 1312102..1339419 <- Gigaform
-generated 1339419..1340685 <- __convenience_const
-generated 1340776..1340902 <- Default
-generated 1340902..1343273 <- Encode
-generated 1343273..1351438 <- Decode
-generated 1351438..1356025 <- Gigaform
-generated 1356025..1357372 <- __convenience_const
-generated 1357489..1357631 <- Default
-generated 1357631..1360116 <- Encode
-generated 1360116..1369853 <- Decode
-generated 1369853..1375522 <- Gigaform
-generated 1375522..1376734 <- __convenience_const
-generated 1376821..1376938 <- Default
-generated 1376938..1379244 <- Encode
-generated 1379244..1385828 <- Decode
-generated 1385828..1390899 <- Gigaform
-generated 1390899..1392165 <- __convenience_const
-generated 1392486..1392794 <- Default
-generated 1392794..1396701 <- Encode
-generated 1396701..1412908 <- Decode
-generated 1412908..1428392 <- Gigaform
-generated 1428392..1429577 <- __convenience_const
-generated 1429697..1429846 <- Default
-generated 1429846..1432387 <- Encode
-generated 1432387..1442294 <- Decode
-generated 1442294..1448050 <- Gigaform
-generated 1448050..1449370 <- __convenience_const
-generated 1449455..1449568 <- Default
-generated 1449568..1451822 <- Encode
-generated 1451822..1457677 <- Decode
-generated 1457677..1462047 <- Gigaform
-generated 1462047..1463205 <- __convenience_const
-generated 1463343..1463505 <- Default
-generated 1463505..1466190 <- Encode
-generated 1466190..1474052 <- Decode
-generated 1474052..1481742 <- Gigaform
-generated 1481742..1483062 <- __convenience_const
-generated 1483131..1483243 <- Default
-generated 1483243..1485566 <- Encode
-generated 1485566..1491624 <- Decode
-generated 1491624..1496267 <- Gigaform
-generated 1496267..1497614 <- __convenience_const
-generated 1497740..1497879 <- Default
-generated 1497879..1500593 <- Encode
-generated 1500593..1508964 <- Decode
-generated 1508964..1515258 <- Gigaform
-generated 1515258..1516497 <- __convenience_const
-generated 1516589..1516707 <- Default
-generated 1516707..1518992 <- Encode
-generated 1518992..1526446 <- Decode
-generated 1526446..1531023 <- Gigaform
-generated 1531023..1532208 <- __convenience_const
-generated 1532435..1532692 <- Default
-generated 1532692..1535866 <- Encode
-generated 1535866..1547656 <- Decode
-generated 1547656..1557232 <- Gigaform
-generated 1557232..1558660 <- __convenience_const
-generated 1558715..1558807 <- Default
-generated 1558807..1560936 <- Encode
-generated 1560936..1567095 <- Decode
-generated 1567095..1570348 <- Gigaform
-generated 1570348..1571614 <- __convenience_const
-generated 1571720..1571864 <- Default
-generated 1571864..1574472 <- Encode
-generated 1574472..1581832 <- Decode
-generated 1581832..1588917 <- Gigaform
-generated 1588917..1590183 <- __convenience_const
-generated 1590333..1590433 <- Default
-generated 1590433..1593170 <- Encode
-generated 1593170..1599667 <- Decode
-generated 1599667..1606287 <- Gigaform
-generated 1606287..1607077 <- __convenience_const
-generated 1607843..1607922 <- Default
-generated 1607922..1609273 <- Encode
-generated 1609273..1614745 <- Decode
-generated 1614745..1640018 <- Gigaform
-generated 1640018..1640732 <- __convenience_const
-generated 1640896..1640978 <- Default
-generated 1640978..1642349 <- Encode
-generated 1642349..1644563 <- Decode
-generated 1644563..1651680 <- Gigaform
-generated 1651680..1652470 <- __convenience_const
-generated 1652745..1652829 <- Default
-generated 1652829..1658690 <- Encode
-generated 1658690..1672481 <- Decode
-generated 1672481..1686111 <- Gigaform
-generated 1686111..1686863 <- __convenience_const
-generated 1686929..1687007 <- Default
-generated 1687007..1688403 <- Encode
-generated 1688403..1691068 <- Decode
-generated 1691068..1695477 <- Gigaform
-generated 1695477..1696362 <- __convenience_const
-generated 1696428..1696515 <- Default
-generated 1696515..1697921 <- Encode
-generated 1697921..1699709 <- Decode
-generated 1699709..1704216 <- Gigaform
-generated 1704216..1705139 <- __convenience_const
-generated 1705219..1705299 <- Default
-generated 1705299..1706690 <- Encode
-generated 1706690..1708592 <- Decode
-generated 1708592..1714169 <- Gigaform
-generated 1714169..1715035 <- __convenience_const
-generated 1715104..1715180 <- Default
-generated 1715180..1716541 <- Encode
-generated 1716541..1718272 <- Decode
-generated 1718272..1722586 <- Gigaform
-generated 1722586..1723338 <- __convenience_const
-generated 1723492..1723565 <- Default
-generated 1723565..1724931 <- Encode
-generated 1724931..1727115 <- Decode
-generated 1727115..1734574 <- Gigaform
-generated 1734574..1735345 <- __convenience_const
-generated 1735420..1735494 <- Default
-generated 1735494..1736855 <- Encode
-generated 1736855..1738650 <- Decode
-generated 1738650..1743472 <- Gigaform
-generated 1743472..1744224 <- __convenience_const
-generated 1744344..1744427 <- Default
-generated 1744427..1745798 <- Encode
-generated 1745798..1747778 <- Decode
-generated 1747778..1753655 <- Gigaform
-generated 1753655..1754445 <- __convenience_const
-generated 1754579..1754654 <- Default
-generated 1754654..1756030 <- Encode
-generated 1756030..1758102 <- Decode
-generated 1758102..1764625 <- Gigaform
-generated 1764625..1765434 <- __convenience_const
-generated 1765504..1765602 <- Default
-generated 1765602..1767658 <- Encode
-generated 1767658..1772434 <- Decode
-generated 1772434..1776987 <- Gigaform
-generated 1776987..1777834 <- __convenience_const
-generated 1777902..1777977 <- Default
-generated 1777977..1779348 <- Encode
-generated 1779348..1781124 <- Decode
-generated 1781124..1785869 <- Gigaform
-generated 1785869..1786659 <- __convenience_const
-generated 1786828..1786910 <- Default
-generated 1786910..1788301 <- Encode
-generated 1788301..1790600 <- Decode
-generated 1790600..1798722 <- Gigaform
-generated 1798722..1799588 <- __convenience_const
-generated 1799730..1799809 <- Default
-generated 1799809..1801180 <- Encode
-generated 1801180..1803270 <- Decode
-generated 1803270..1809601 <- Gigaform
-generated 1809601..1810391 <- __convenience_const
-generated 1810494..1810591 <- Default
-generated 1810591..1813144 <- Encode
-generated 1813144..1819137 <- Decode
-generated 1819137..1824983 <- Gigaform
-generated 1824983..1825849 <- __convenience_const
-generated 1825965..1826045 <- Default
-generated 1826045..1827431 <- Encode
-generated 1827431..1829429 <- Decode
-generated 1829429..1835684 <- Gigaform
-generated 1835684..1836531 <- __convenience_const
-generated 1836655..1836751 <- Default
-generated 1836751..1839792 <- Encode
-generated 1839792..1846969 <- Decode
-generated 1846969..1854041 <- Gigaform
-generated 1854041..1854907 <- __convenience_const
-generated 1855012..1855089 <- Default
-generated 1855089..1856465 <- Encode
-generated 1856465..1858378 <- Decode
-generated 1858378..1863978 <- Gigaform
-generated 1863978..1864787 <- __convenience_const
-generated 1864865..1864946 <- Default
-generated 1864946..1866327 <- Encode
-generated 1866327..1868169 <- Decode
-generated 1868169..1873204 <- Gigaform
-generated 1873204..1874032 <- __convenience_const
-generated 1874352..1874422 <- Default
-generated 1874422..1875778 <- Encode
-generated 1875778..1878930 <- Decode
-generated 1878930..1892971 <- Gigaform
-generated 1892971..1893704 <- __convenience_const
-generated 1893784..1893845 <- Default
-generated 1893845..1896410 <- Encode
-generated 1896410..1901903 <- Decode
-generated 1901903..1906431 <- Gigaform
-generated 1906431..1907145 <- __convenience_const
-generated 1907203..1907282 <- Default
-generated 1907282..1908744 <- Encode
-generated 1908744..1911279 <- Decode
-generated 1911279..1911923 <- __convenience_const
-generated 1911988..1912067 <- Default
-generated 1912067..1914315 <- Encode
-generated 1914315..1919470 <- Decode
-generated 1919470..1924151 <- Gigaform
-generated 1924151..1924884 <- __convenience_const
+original 0..58 -> expanded 1215..1273
+original 107..178 -> expanded 1273..1344
+original 219..247 -> expanded 1344..1372
+original 288..399 -> expanded 1372..1483
+original 431..672 -> expanded 1483..1724
+original 672..674 -> expanded 48502..48504
+original 723..755 -> expanded 48504..48536
+original 783..804 -> expanded 48536..48557
+original 845..850 -> expanded 48557..48562
+original 891..914 -> expanded 48562..48585
+original 961..966 -> expanded 48585..48590
+original 1007..1035 -> expanded 48590..48618
+original 1100..1131 -> expanded 48618..48649
+original 1199..1233 -> expanded 48649..48683
+original 1297..1327 -> expanded 48683..48713
+original 1372..1398 -> expanded 48713..48739
+original 1447..1477 -> expanded 48739..48769
+original 1524..1552 -> expanded 48769..48797
+original 1601..1666 -> expanded 48797..48862
+original 1666..1668 -> expanded 84066..84068
+original 1717..1757 -> expanded 84068..84108
+original 1821..1845 -> expanded 84108..84132
+original 1897..1902 -> expanded 84132..84137
+original 1943..1970 -> expanded 84137..84164
+original 1970..1972 -> expanded 100336..100338
+original 2021..2049 -> expanded 100338..100366
+original 2068..2097 -> expanded 100366..100395
+original 2116..2244 -> expanded 100395..100523
+original 2244..2246 -> expanded 124543..124545
+original 2295..2330 -> expanded 124545..124580
+original 2377..2382 -> expanded 124580..124585
+original 2423..2451 -> expanded 124585..124613
+original 2497..2502 -> expanded 124613..124618
+original 2543..2567 -> expanded 124618..124642
+original 2567..2569 -> expanded 141066..141068
+original 2618..2683 -> expanded 141068..141133
+original 2683..2685 -> expanded 155020..155022
+original 2734..2779 -> expanded 155022..155067
+original 2820..2922 -> expanded 155067..155169
+original 2963..3080 -> expanded 155169..155286
+original 3121..3164 -> expanded 155286..155329
+original 3205..3231 -> expanded 155329..155355
+original 3272..3365 -> expanded 155355..155448
+original 3365..3367 -> expanded 198674..198676
+original 3416..3548 -> expanded 198676..198808
+original 3548..3550 -> expanded 218400..218402
+original 3599..3636 -> expanded 218402..218439
+original 3677..3724 -> expanded 218439..218486
+original 3724..3726 -> expanded 235267..235269
+original 3775..3811 -> expanded 235269..235305
+original 3854..3878 -> expanded 235305..235329
+original 3948..3953 -> expanded 235329..235334
+original 3994..4022 -> expanded 235334..235362
+original 4065..4070 -> expanded 235362..235367
+original 4111..4136 -> expanded 235367..235392
+original 4183..4210 -> expanded 235392..235419
+original 4257..4281 -> expanded 235419..235443
+original 4281..4283 -> expanded 258012..258014
+original 4332..4384 -> expanded 258014..258066
+original 4384..4386 -> expanded 270483..270485
+original 4435..4467 -> expanded 270485..270517
+original 4495..4516 -> expanded 270517..270538
+original 4557..4562 -> expanded 270538..270543
+original 4603..4626 -> expanded 270543..270566
+original 4673..4678 -> expanded 270566..270571
+original 4719..4747 -> expanded 270571..270599
+original 4812..4843 -> expanded 270599..270630
+original 4911..4945 -> expanded 270630..270664
+original 5009..5039 -> expanded 270664..270694
+original 5084..5110 -> expanded 270694..270720
+original 5159..5189 -> expanded 270720..270750
+original 5236..5292 -> expanded 270750..270806
+original 5292..5294 -> expanded 303874..303876
+original 5343..5414 -> expanded 303876..303947
+original 5414..5416 -> expanded 317931..317933
+original 5465..5514 -> expanded 317933..317982
+original 5555..5609 -> expanded 317982..318036
+original 5650..5696 -> expanded 318036..318082
+original 5696..5698 -> expanded 338980..338982
+original 5747..5819 -> expanded 338982..339054
+original 5819..5821 -> expanded 353837..353839
+original 5870..5963 -> expanded 353839..353932
+original 6004..6024 -> expanded 353932..353952
+original 6024..6026 -> expanded 372916..372918
+original 6075..6110 -> expanded 372918..372953
+original 6129..6161 -> expanded 372953..372985
+original 6180..6250 -> expanded 372985..373055
+original 6250..6252 -> expanded 392439..392441
+original 6301..6364 -> expanded 392441..392504
+original 6364..6366 -> expanded 406183..406185
+original 6415..6963 -> expanded 406185..406733
+original 6990..7012 -> expanded 406733..406755
+original 7012..7014 -> expanded 463915..463917
+original 7063..7144 -> expanded 463917..463998
+original 7144..7146 -> expanded 479997..479999
+original 7195..7231 -> expanded 479999..480035
+original 7280..7285 -> expanded 480035..480040
+original 7326..7353 -> expanded 480040..480067
+original 7353..7355 -> expanded 493705..493707
+original 7404..7440 -> expanded 493707..493743
+original 7468..7489 -> expanded 493743..493764
+original 7531..7536 -> expanded 493764..493769
+original 7577..7601 -> expanded 493769..493793
+original 7780..7785 -> expanded 493793..493798
+original 7813..7838 -> expanded 493798..493823
+original 7885..7910 -> expanded 493823..493848
+original 7965..7992 -> expanded 493848..493875
+original 8038..8065 -> expanded 493875..493902
+original 8093..8120 -> expanded 493902..493929
+original 8166..8192 -> expanded 493929..493955
+original 8240..8268 -> expanded 493955..493983
+original 8357..8403 -> expanded 493983..494029
+original 8456..8461 -> expanded 494029..494034
+original 8480..8514 -> expanded 494034..494068
+original 8566..8603 -> expanded 494068..494105
+original 8631..8636 -> expanded 494105..494110
+original 8709..8734 -> expanded 494110..494135
+original 8762..8807 -> expanded 494135..494180
+original 8807..8809 -> expanded 540669..540671
+original 8858..8890 -> expanded 540671..540703
+original 8918..8939 -> expanded 540703..540724
+original 8984..9004 -> expanded 540724..540744
+original 9004..9006 -> expanded 554423..554425
+original 9055..9121 -> expanded 554425..554491
+original 9146..9236 -> expanded 554491..554581
+original 9236..9238 -> expanded 577286..577288
+original 9287..9356 -> expanded 577288..577357
+original 9356..9358 -> expanded 591190..591192
+original 9407..9568 -> expanded 591192..591353
+original 9568..9570 -> expanded 617733..617735
+original 9619..9660 -> expanded 617735..617776
+original 9685..9716 -> expanded 617776..617807
+original 9740..9835 -> expanded 617807..617902
+original 9835..9837 -> expanded 642369..642371
+original 9886..9920 -> expanded 642371..642405
+original 9961..9981 -> expanded 642405..642425
+original 9981..9983 -> expanded 655430..655432
+original 10032..10064 -> expanded 655432..655464
+original 10092..10113 -> expanded 655464..655485
+original 10213..10218 -> expanded 655485..655490
+original 10237..10273 -> expanded 655490..655526
+original 10322..10327 -> expanded 655526..655531
+original 10346..10376 -> expanded 655531..655561
+original 10465..10510 -> expanded 655561..655606
+original 10538..10571 -> expanded 655606..655639
+original 10599..10630 -> expanded 655639..655670
+original 10690..10738 -> expanded 655670..655718
+original 10870..10905 -> expanded 655718..655753
+original 11086..11091 -> expanded 655753..655758
+original 11121..11146 -> expanded 655758..655783
+original 11191..11221 -> expanded 655783..655813
+original 11274..11311 -> expanded 655813..655850
+original 11359..11382 -> expanded 655850..655873
+original 11453..11458 -> expanded 655873..655878
+original 11499..11528 -> expanded 655878..655907
+original 11556..11581 -> expanded 655907..655932
+original 11632..11663 -> expanded 655932..655963
+original 11711..11739 -> expanded 655963..655991
+original 11811..11816 -> expanded 655991..655996
+original 11857..11887 -> expanded 655996..656026
+original 11954..11959 -> expanded 656026..656031
+original 12000..12026 -> expanded 656031..656057
+original 12075..12106 -> expanded 656057..656088
+original 12179..12184 -> expanded 656088..656093
+original 12225..12256 -> expanded 656093..656124
+original 12297..12327 -> expanded 656124..656154
+original 12355..12380 -> expanded 656154..656179
+original 12380..12382 -> expanded 733172..733174
+original 12431..12462 -> expanded 733174..733205
+original 12503..12586 -> expanded 733205..733288
+original 12586..12588 -> expanded 750297..750299
+original 12637..12667 -> expanded 750299..750329
+original 12695..12716 -> expanded 750329..750350
+original 12814..12819 -> expanded 750350..750355
+original 12838..12874 -> expanded 750355..750391
+original 13049..13054 -> expanded 750391..750396
+original 13081..13109 -> expanded 750396..750424
+original 13137..13162 -> expanded 750424..750449
+original 13190..13234 -> expanded 750449..750493
+original 13282..13287 -> expanded 750493..750498
+original 13328..13358 -> expanded 750498..750528
+original 13404..13409 -> expanded 750528..750533
+original 13450..13478 -> expanded 750533..750561
+original 13549..13554 -> expanded 750561..750566
+original 13595..13624 -> expanded 750566..750595
+original 13725..13730 -> expanded 750595..750600
+original 13749..13787 -> expanded 750600..750638
+original 13852..13857 -> expanded 750638..750643
+original 13898..13922 -> expanded 750643..750667
+original 13990..13995 -> expanded 750667..750672
+original 14036..14063 -> expanded 750672..750699
+original 14108..14136 -> expanded 750699..750727
+original 14187..14218 -> expanded 750727..750758
+original 14266..14271 -> expanded 750758..750763
+original 14312..14341 -> expanded 750763..750792
+original 14369..14394 -> expanded 750792..750817
+original 14422..14452 -> expanded 750817..750847
+original 14558..14563 -> expanded 750847..750852
+original 14582..14626 -> expanded 750852..750896
+original 14717..14763 -> expanded 750896..750942
+original 14791..14841 -> expanded 750942..750992
+original 14869..14923 -> expanded 750992..751046
+original 14951..14977 -> expanded 751046..751072
+original 15021..15043 -> expanded 751072..751094
+original 15071..15095 -> expanded 751094..751118
+original 15144..15149 -> expanded 751118..751123
+original 15168..15198 -> expanded 751123..751153
+original 15257..15298 -> expanded 751153..751194
+original 15343..15348 -> expanded 751194..751199
+original 15389..15412 -> expanded 751199..751222
+original 15440..15467 -> expanded 751222..751249
+original 15495..15517 -> expanded 751249..751271
+original 15545..15579 -> expanded 751271..751305
+original 15579..15581 -> expanded 840557..840559
+original 15630..15664 -> expanded 840559..840593
+original 15705..15756 -> expanded 840593..840644
+original 15756..15758 -> expanded 855802..855804
+original 15807..15870 -> expanded 855804..855867
+original 15870..15872 -> expanded 870137..870139
+original 15921..15952 -> expanded 870139..870170
+original 15993..16016 -> expanded 870170..870193
+original 16057..16081 -> expanded 870193..870217
+original 16122..16144 -> expanded 870217..870239
+original 16144..16146 -> expanded 888584..888586
+original 16195..16235 -> expanded 888586..888626
+original 16299..16323 -> expanded 888626..888650
+original 16375..16380 -> expanded 888650..888655
+original 16421..16448 -> expanded 888655..888682
+original 16448..16450 -> expanded 904854..904856
+original 16499..16590 -> expanded 904856..904947
+original 16590..16592 -> expanded 919426..919428
+original 16641..16742 -> expanded 919428..919529
+original 16742..16744 -> expanded 937794..937796
+original 16793..16909 -> expanded 937796..937912
+original 16909..16911 -> expanded 954051..954053
+original 16960..16992 -> expanded 954053..954085
+original 17020..17041 -> expanded 954085..954106
+original 17082..17087 -> expanded 954106..954111
+original 17128..17151 -> expanded 954111..954134
+original 17198..17203 -> expanded 954134..954139
+original 17244..17272 -> expanded 954139..954167
+original 17322..17344 -> expanded 954167..954189
+original 17385..17390 -> expanded 954189..954194
+original 17431..17454 -> expanded 954194..954217
+original 17497..17502 -> expanded 954217..954222
+original 17543..17568 -> expanded 954222..954247
+original 17610..17615 -> expanded 954247..954252
+original 17656..17680 -> expanded 954252..954276
+original 17725..17753 -> expanded 954276..954304
+original 17805..17810 -> expanded 954304..954309
+original 17851..17881 -> expanded 954309..954339
+original 17909..17914 -> expanded 954339..954344
+original 17933..17981 -> expanded 954344..954392
+original 17981..17983 -> expanded 990739..990741
+original 18032..18064 -> expanded 990741..990773
+original 18105..18130 -> expanded 990773..990798
+original 18171..18194 -> expanded 990798..990821
+original 18235..18259 -> expanded 990821..990845
+original 18300..18323 -> expanded 990845..990868
+original 18323..18325 -> expanded 1012262..1012264
+original 18374..18403 -> expanded 1012264..1012293
+original 18431..18452 -> expanded 1012293..1012314
+original 18480..18512 -> expanded 1012314..1012346
+original 18540..18568 -> expanded 1012346..1012374
+original 18636..18666 -> expanded 1012374..1012404
+original 18859..18864 -> expanded 1012404..1012409
+original 18889..18918 -> expanded 1012409..1012438
+original 18967..19000 -> expanded 1012438..1012471
+original 19051..19086 -> expanded 1012471..1012506
+original 19150..19174 -> expanded 1012506..1012530
+original 19471..19476 -> expanded 1012530..1012535
+original 19499..19526 -> expanded 1012535..1012562
+original 19569..19574 -> expanded 1012562..1012567
+original 19615..19640 -> expanded 1012567..1012592
+original 19692..19729 -> expanded 1012592..1012629
+original 19757..19762 -> expanded 1012629..1012634
+original 19795..19824 -> expanded 1012634..1012663
+original 19871..19899 -> expanded 1012663..1012691
+original 19927..19962 -> expanded 1012691..1012726
+original 20062..20107 -> expanded 1012726..1012771
+original 20288..20293 -> expanded 1012771..1012776
+original 20323..20348 -> expanded 1012776..1012801
+original 20480..20512 -> expanded 1012801..1012833
+original 20565..20602 -> expanded 1012833..1012870
+original 20650..20673 -> expanded 1012870..1012893
+original 20744..20780 -> expanded 1012893..1012929
+original 20829..20834 -> expanded 1012929..1012934
+original 20853..20883 -> expanded 1012934..1012964
+original 20928..20933 -> expanded 1012964..1012969
+original 20974..20997 -> expanded 1012969..1012992
+original 21048..21079 -> expanded 1012992..1013023
+original 21127..21155 -> expanded 1013023..1013051
+original 21244..21289 -> expanded 1013051..1013096
+original 21317..21348 -> expanded 1013096..1013127
+original 21420..21425 -> expanded 1013127..1013132
+original 21466..21496 -> expanded 1013132..1013162
+original 21563..21568 -> expanded 1013162..1013167
+original 21609..21635 -> expanded 1013167..1013193
+original 21684..21715 -> expanded 1013193..1013224
+original 21788..21793 -> expanded 1013224..1013229
+original 21834..21865 -> expanded 1013229..1013260
+original 21906..21936 -> expanded 1013260..1013290
+original 21996..22041 -> expanded 1013290..1013335
+original 22041..22043 -> expanded 1108746..1108748
+original 22092..22215 -> expanded 1108748..1108871
+original 22215..22217 -> expanded 1132270..1132272
+original 22266..22314 -> expanded 1132272..1132320
+original 22355..22383 -> expanded 1132320..1132348
+original 22402..22472 -> expanded 1132348..1132418
+original 22513..22535 -> expanded 1132418..1132440
+original 22576..22600 -> expanded 1132440..1132464
+original 22641..22667 -> expanded 1132464..1132490
+original 22708..22761 -> expanded 1132490..1132543
+original 22802..22859 -> expanded 1132543..1132600
+original 22878..22917 -> expanded 1132600..1132639
+original 22958..23024 -> expanded 1132639..1132705
+original 23065..23102 -> expanded 1132705..1132742
+original 23143..23178 -> expanded 1132742..1132777
+original 23219..23299 -> expanded 1132777..1132857
+original 23340..23730 -> expanded 1132857..1133247
+original 23730..23732 -> expanded 1228619..1228621
+original 23781..23976 -> expanded 1228621..1228816
+original 23976..23978 -> expanded 1256335..1256337
+original 24027..24060 -> expanded 1256337..1256370
+original 24101..24125 -> expanded 1256370..1256394
+original 24125..24127 -> expanded 1269533..1269535
+original 24176..24237 -> expanded 1269535..1269596
+original 24237..24239 -> expanded 1281804..1281806
+original 24288..24366 -> expanded 1281806..1281884
+original 24407..24462 -> expanded 1281884..1281939
+original 24503..24526 -> expanded 1281939..1281962
+original 24555..24599 -> expanded 1281962..1282006
+original 24640..24666 -> expanded 1282006..1282032
+original 24707..24734 -> expanded 1282032..1282059
+original 24753..24999 -> expanded 1282059..1282305
+original 24999..25001 -> expanded 1340708..1340710
+original 25050..25086 -> expanded 1340710..1340746
+original 25127..25156 -> expanded 1340746..1340775
+original 25197..25221 -> expanded 1340775..1340799
+original 25221..25223 -> expanded 1357395..1357397
+original 25272..25303 -> expanded 1357397..1357428
+original 25344..25374 -> expanded 1357428..1357458
+original 25415..25442 -> expanded 1357458..1357485
+original 25483..25510 -> expanded 1357485..1357512
+original 25510..25512 -> expanded 1376757..1376759
+original 25561..25646 -> expanded 1376759..1376844
+original 25646..25648 -> expanded 1392188..1392190
+original 25697..25808 -> expanded 1392190..1392301
+original 25849..25872 -> expanded 1392301..1392324
+original 25913..25937 -> expanded 1392324..1392348
+original 25978..26139 -> expanded 1392348..1392509
+original 26139..26141 -> expanded 1429600..1429602
+original 26190..26225 -> expanded 1429602..1429637
+original 26266..26290 -> expanded 1429637..1429661
+original 26331..26360 -> expanded 1429661..1429690
+original 26401..26431 -> expanded 1429690..1429720
+original 26431..26433 -> expanded 1449393..1449395
+original 26482..26565 -> expanded 1449395..1449478
+original 26565..26567 -> expanded 1463228..1463230
+original 26616..26651 -> expanded 1463230..1463265
+original 26762..26767 -> expanded 1463265..1463270
+original 26786..26807 -> expanded 1463270..1463291
+original 26871..26898 -> expanded 1463291..1463318
+original 26942..26967 -> expanded 1463318..1463343
+original 27012..27035 -> expanded 1463343..1463366
+original 27035..27037 -> expanded 1483085..1483087
+original 27086..27153 -> expanded 1483087..1483154
+original 27153..27155 -> expanded 1497637..1497639
+original 27204..27252 -> expanded 1497639..1497687
+original 27271..27302 -> expanded 1497687..1497718
+original 27321..27366 -> expanded 1497718..1497763
+original 27366..27368 -> expanded 1516520..1516522
+original 27417..27447 -> expanded 1516522..1516552
+original 27495..27523 -> expanded 1516552..1516580
+original 27565..27570 -> expanded 1516580..1516585
+original 27620..27647 -> expanded 1516585..1516612
+original 27647..27649 -> expanded 1532231..1532233
+original 27698..27923 -> expanded 1532233..1532458
+original 27923..27925 -> expanded 1558683..1558685
+original 27974..28007 -> expanded 1558685..1558718
+original 28048..28068 -> expanded 1558718..1558738
+original 28068..28070 -> expanded 1571637..1571639
+original 28119..28223 -> expanded 1571639..1571743
+original 28223..28225 -> expanded 1590206..1590208
+original 28274..28422 -> expanded 1590208..1590356
+original 28422..28424 -> expanded 1607159..1607161
+original 28473..29237 -> expanded 1607161..1607925
+original 29237..29239 -> expanded 1640861..1640863
+original 29288..29450 -> expanded 1640863..1641025
+original 29450..29452 -> expanded 1652646..1652648
+original 29501..29774 -> expanded 1652648..1652921
+original 29774..29776 -> expanded 1687098..1687100
+original 29825..29889 -> expanded 1687100..1687164
+original 29889..29891 -> expanded 1696644..1696646
+original 29940..30004 -> expanded 1696646..1696710
+original 30004..30006 -> expanded 1705468..1705470
+original 30055..30133 -> expanded 1705470..1705548
+original 30133..30135 -> expanded 1715411..1715413
+original 30184..30251 -> expanded 1715413..1715480
+original 30251..30253 -> expanded 1723761..1723763
+original 30302..30454 -> expanded 1723763..1723915
+original 30454..30456 -> expanded 1735815..1735817
+original 30505..30578 -> expanded 1735817..1735890
+original 30578..30580 -> expanded 1744741..1744743
+original 30629..30747 -> expanded 1744743..1744861
+original 30747..30749 -> expanded 1755009..1755011
+original 30798..30930 -> expanded 1755011..1755143
+original 30930..30932 -> expanded 1766045..1766047
+original 31114..31182 -> expanded 1766047..1766115
+original 31182..31184 -> expanded 1778504..1778506
+original 31233..31299 -> expanded 1778506..1778572
+original 31299..31301 -> expanded 1787376..1787378
+original 31350..31517 -> expanded 1787378..1787545
+original 31517..31519 -> expanded 1800352..1800354
+original 31568..31708 -> expanded 1800354..1800494
+original 31708..31710 -> expanded 1811202..1811204
+original 31759..31860 -> expanded 1811204..1811305
+original 31860..31862 -> expanded 1826719..1826721
+original 31911..32025 -> expanded 1826721..1826835
+original 32025..32027 -> expanded 1837448..1837450
+original 32076..32198 -> expanded 1837450..1837572
+original 32198..32200 -> expanded 1855883..1855885
+original 32249..32352 -> expanded 1855885..1855988
+original 32352..32354 -> expanded 1865810..1865812
+original 32403..32479 -> expanded 1865812..1865888
+original 32479..32481 -> expanded 1875102..1875104
+original 32530..32848 -> expanded 1875104..1875422
+original 32848..32850 -> expanded 1894821..1894823
+original 32899..32977 -> expanded 1894823..1894901
+original 32977..32979 -> expanded 1908321..1908323
+original 33018..33074 -> expanded 1908323..1908379
+original 33074..33076 -> expanded 1913146..1913148
+original 33125..33188 -> expanded 1913148..1913211
+original 33188..33189 -> expanded 1926166..1926167
+generated 0..1215 <- imports
+generated 1724..2212 <- Default
+generated 2212..6864 <- Encode
+generated 6864..25514 <- Decode
+generated 25514..47344 <- Gigaform
+generated 47344..48502 <- __convenience_const
+generated 48862..49207 <- Default
+generated 49207..53053 <- Encode
+generated 53053..67351 <- Decode
+generated 67351..82827 <- Gigaform
+generated 82827..84066 <- __convenience_const
+generated 84164..84295 <- Default
+generated 84295..86718 <- Encode
+generated 86718..94066 <- Decode
+generated 94066..98881 <- Gigaform
+generated 98881..100336 <- __convenience_const
+generated 100523..100733 <- Default
+generated 100733..103804 <- Encode
+generated 103804..114029 <- Decode
+generated 114029..123412 <- Gigaform
+generated 123412..124543 <- __convenience_const
+generated 124642..124765 <- Default
+generated 124765..127117 <- Encode
+generated 127117..135204 <- Decode
+generated 135204..139746 <- Gigaform
+generated 139746..141066 <- __convenience_const
+generated 141133..141243 <- Default
+generated 141243..143536 <- Encode
+generated 143536..149444 <- Decode
+generated 149444..153727 <- Gigaform
+generated 153727..155020 <- __convenience_const
+generated 155448..155882 <- Default
+generated 155882..160188 <- Encode
+generated 160188..179584 <- Decode
+generated 179584..197516 <- Gigaform
+generated 197516..198674 <- __convenience_const
+generated 198808..198974 <- Default
+generated 198974..201634 <- Encode
+generated 201634..209636 <- Decode
+generated 209636..217134 <- Gigaform
+generated 217134..218400 <- __convenience_const
+generated 218486..218631 <- Default
+generated 218631..221036 <- Encode
+generated 221036..228613 <- Decode
+generated 228613..233893 <- Gigaform
+generated 233893..235267 <- __convenience_const
+generated 235443..235635 <- Default
+generated 235635..238489 <- Encode
+generated 238489..248544 <- Decode
+generated 248544..256665 <- Gigaform
+generated 256665..258012 <- __convenience_const
+generated 258066..258161 <- Default
+generated 258161..260306 <- Encode
+generated 260306..265696 <- Decode
+generated 265696..269217 <- Gigaform
+generated 269217..270483 <- __convenience_const
+generated 270806..271124 <- Default
+generated 271124..274785 <- Encode
+generated 274785..288366 <- Decode
+generated 288366..302635 <- Gigaform
+generated 302635..303874 <- __convenience_const
+generated 303947..304073 <- Default
+generated 304073..306426 <- Encode
+generated 306426..312331 <- Decode
+generated 312331..316341 <- Gigaform
+generated 316341..317931 <- __convenience_const
+generated 318082..318281 <- Default
+generated 318281..321035 <- Encode
+generated 321035..331370 <- Decode
+generated 331370..337282 <- Gigaform
+generated 337282..338980 <- __convenience_const
+generated 339054..339172 <- Default
+generated 339172..341526 <- Encode
+generated 341526..347686 <- Decode
+generated 347686..352463 <- Gigaform
+generated 352463..353837 <- __convenience_const
+generated 353952..354115 <- Default
+generated 354115..356797 <- Encode
+generated 356797..364986 <- Decode
+generated 364986..371299 <- Gigaform
+generated 371299..372916 <- __convenience_const
+generated 373055..373207 <- Default
+generated 373207..375997 <- Encode
+generated 375997..384588 <- Decode
+generated 384588..391119 <- Gigaform
+generated 391119..392439 <- __convenience_const
+generated 392504..392610 <- Default
+generated 392610..394873 <- Encode
+generated 394873..400713 <- Decode
+generated 400713..404944 <- Gigaform
+generated 404944..406183 <- __convenience_const
+generated 406755..407503 <- Default
+generated 407503..412690 <- Encode
+generated 412690..434274 <- Decode
+generated 434274..462649 <- Gigaform
+generated 462649..463915 <- __convenience_const
+generated 463998..464117 <- Default
+generated 464117..466515 <- Encode
+generated 466515..473068 <- Decode
+generated 473068..478812 <- Gigaform
+generated 478812..479997 <- __convenience_const
+generated 480067..480172 <- Default
+generated 480172..482374 <- Encode
+generated 482374..488882 <- Decode
+generated 488882..492358 <- Gigaform
+generated 492358..493705 <- __convenience_const
+generated 494180..494670 <- Default
+generated 494670..499401 <- Encode
+generated 499401..517748 <- Decode
+generated 517748..539322 <- Gigaform
+generated 539322..540669 <- __convenience_const
+generated 540744..540850 <- Default
+generated 540850..543113 <- Encode
+generated 543113..548953 <- Decode
+generated 548953..553184 <- Gigaform
+generated 553184..554423 <- __convenience_const
+generated 554581..554781 <- Default
+generated 554781..557653 <- Encode
+generated 557653..566747 <- Decode
+generated 566747..575804 <- Gigaform
+generated 575804..577286 <- __convenience_const
+generated 577357..577480 <- Default
+generated 577480..579814 <- Encode
+generated 579814..585669 <- Decode
+generated 585669..589627 <- Gigaform
+generated 589627..591190 <- __convenience_const
+generated 591353..591641 <- Default
+generated 591641..594743 <- Encode
+generated 594743..605065 <- Decode
+generated 605065..616224 <- Gigaform
+generated 616224..617733 <- __convenience_const
+generated 617902..618096 <- Default
+generated 618096..621037 <- Encode
+generated 621037..630529 <- Decode
+generated 630529..640887 <- Gigaform
+generated 640887..642369 <- __convenience_const
+generated 642425..642519 <- Default
+generated 642519..644663 <- Encode
+generated 644663..650859 <- Decode
+generated 650859..654137 <- Gigaform
+generated 654137..655430 <- __convenience_const
+generated 656179..656809 <- Default
+generated 656809..663088 <- Encode
+generated 663088..694214 <- Decode
+generated 694214..731933 <- Gigaform
+generated 731933..733172 <- __convenience_const
+generated 733288..733429 <- Default
+generated 733429..735894 <- Encode
+generated 735894..743493 <- Decode
+generated 743493..749085 <- Gigaform
+generated 749085..750297 <- __convenience_const
+generated 751305..752008 <- Default
+generated 752008..759796 <- Encode
+generated 759796..798865 <- Decode
+generated 798865..839372 <- Gigaform
+generated 839372..840557 <- __convenience_const
+generated 840644..840764 <- Default
+generated 840764..843089 <- Encode
+generated 843089..850044 <- Decode
+generated 850044..854509 <- Gigaform
+generated 854509..855802 <- __convenience_const
+generated 855867..855959 <- Default
+generated 855959..858135 <- Encode
+generated 858135..864091 <- Decode
+generated 864091..868925 <- Gigaform
+generated 868925..870137 <- __convenience_const
+generated 870239..870366 <- Default
+generated 870366..872791 <- Encode
+generated 872791..882018 <- Decode
+generated 882018..887372 <- Gigaform
+generated 887372..888584 <- __convenience_const
+generated 888682..888813 <- Default
+generated 888813..891236 <- Encode
+generated 891236..898584 <- Decode
+generated 898584..903399 <- Gigaform
+generated 903399..904854 <- __convenience_const
+generated 904947..905070 <- Default
+generated 905070..907378 <- Encode
+generated 907378..913440 <- Decode
+generated 913440..918214 <- Gigaform
+generated 918214..919426 <- __convenience_const
+generated 919529..919677 <- Default
+generated 919677..922259 <- Encode
+generated 922259..929529 <- Decode
+generated 929529..936204 <- Gigaform
+generated 936204..937794 <- __convenience_const
+generated 937912..938053 <- Default
+generated 938053..940496 <- Encode
+generated 940496..947127 <- Decode
+generated 947127..952893 <- Gigaform
+generated 952893..954051 <- __convenience_const
+generated 954392..954673 <- Default
+generated 954673..958300 <- Encode
+generated 958300..976036 <- Decode
+generated 976036..989500 <- Gigaform
+generated 989500..990739 <- __convenience_const
+generated 990868..991018 <- Default
+generated 991018..993627 <- Encode
+generated 993627..1004534 <- Decode
+generated 1004534..1011023 <- Gigaform
+generated 1011023..1012262 <- __convenience_const
+generated 1013335..1014197 <- Default
+generated 1014197..1022126 <- Encode
+generated 1022126..1059567 <- Decode
+generated 1059567..1107588 <- Gigaform
+generated 1107588..1108746 <- __convenience_const
+generated 1108871..1109020 <- Default
+generated 1109020..1111759 <- Encode
+generated 1111759..1120625 <- Decode
+generated 1120625..1130842 <- Gigaform
+generated 1130842..1132270 <- __convenience_const
+generated 1133247..1134197 <- Default
+generated 1134197..1142222 <- Encode
+generated 1142222..1184042 <- Decode
+generated 1184042..1227380 <- Gigaform
+generated 1227380..1228619 <- __convenience_const
+generated 1228816..1229046 <- Default
+generated 1229046..1232347 <- Encode
+generated 1232347..1242679 <- Decode
+generated 1242679..1255096 <- Gigaform
+generated 1255096..1256335 <- __convenience_const
+generated 1256394..1256490 <- Default
+generated 1256490..1258635 <- Encode
+generated 1258635..1264930 <- Decode
+generated 1264930..1268267 <- Gigaform
+generated 1268267..1269533 <- __convenience_const
+generated 1269596..1269695 <- Default
+generated 1269695..1271837 <- Encode
+generated 1271837..1277176 <- Decode
+generated 1277176..1280565 <- Gigaform
+generated 1280565..1281804 <- __convenience_const
+generated 1282305..1282825 <- Default
+generated 1282825..1288099 <- Encode
+generated 1288099..1312125 <- Decode
+generated 1312125..1339442 <- Gigaform
+generated 1339442..1340708 <- __convenience_const
+generated 1340799..1340925 <- Default
+generated 1340925..1343296 <- Encode
+generated 1343296..1351461 <- Decode
+generated 1351461..1356048 <- Gigaform
+generated 1356048..1357395 <- __convenience_const
+generated 1357512..1357654 <- Default
+generated 1357654..1360139 <- Encode
+generated 1360139..1369876 <- Decode
+generated 1369876..1375545 <- Gigaform
+generated 1375545..1376757 <- __convenience_const
+generated 1376844..1376961 <- Default
+generated 1376961..1379267 <- Encode
+generated 1379267..1385851 <- Decode
+generated 1385851..1390922 <- Gigaform
+generated 1390922..1392188 <- __convenience_const
+generated 1392509..1392817 <- Default
+generated 1392817..1396724 <- Encode
+generated 1396724..1412931 <- Decode
+generated 1412931..1428415 <- Gigaform
+generated 1428415..1429600 <- __convenience_const
+generated 1429720..1429869 <- Default
+generated 1429869..1432410 <- Encode
+generated 1432410..1442317 <- Decode
+generated 1442317..1448073 <- Gigaform
+generated 1448073..1449393 <- __convenience_const
+generated 1449478..1449591 <- Default
+generated 1449591..1451845 <- Encode
+generated 1451845..1457700 <- Decode
+generated 1457700..1462070 <- Gigaform
+generated 1462070..1463228 <- __convenience_const
+generated 1463366..1463528 <- Default
+generated 1463528..1466213 <- Encode
+generated 1466213..1474075 <- Decode
+generated 1474075..1481765 <- Gigaform
+generated 1481765..1483085 <- __convenience_const
+generated 1483154..1483266 <- Default
+generated 1483266..1485589 <- Encode
+generated 1485589..1491647 <- Decode
+generated 1491647..1496290 <- Gigaform
+generated 1496290..1497637 <- __convenience_const
+generated 1497763..1497902 <- Default
+generated 1497902..1500616 <- Encode
+generated 1500616..1508987 <- Decode
+generated 1508987..1515281 <- Gigaform
+generated 1515281..1516520 <- __convenience_const
+generated 1516612..1516730 <- Default
+generated 1516730..1519015 <- Encode
+generated 1519015..1526469 <- Decode
+generated 1526469..1531046 <- Gigaform
+generated 1531046..1532231 <- __convenience_const
+generated 1532458..1532715 <- Default
+generated 1532715..1535889 <- Encode
+generated 1535889..1547679 <- Decode
+generated 1547679..1557255 <- Gigaform
+generated 1557255..1558683 <- __convenience_const
+generated 1558738..1558830 <- Default
+generated 1558830..1560959 <- Encode
+generated 1560959..1567118 <- Decode
+generated 1567118..1570371 <- Gigaform
+generated 1570371..1571637 <- __convenience_const
+generated 1571743..1571887 <- Default
+generated 1571887..1574495 <- Encode
+generated 1574495..1581855 <- Decode
+generated 1581855..1588940 <- Gigaform
+generated 1588940..1590206 <- __convenience_const
+generated 1590356..1590456 <- Default
+generated 1590456..1593244 <- Encode
+generated 1593244..1599749 <- Decode
+generated 1599749..1606369 <- Gigaform
+generated 1606369..1607159 <- __convenience_const
+generated 1607925..1608004 <- Default
+generated 1608004..1609402 <- Encode
+generated 1609402..1614874 <- Decode
+generated 1614874..1640147 <- Gigaform
+generated 1640147..1640861 <- __convenience_const
+generated 1641025..1641107 <- Default
+generated 1641107..1642525 <- Encode
+generated 1642525..1644739 <- Decode
+generated 1644739..1651856 <- Gigaform
+generated 1651856..1652646 <- __convenience_const
+generated 1652921..1653005 <- Default
+generated 1653005..1658917 <- Encode
+generated 1658917..1672716 <- Decode
+generated 1672716..1686346 <- Gigaform
+generated 1686346..1687098 <- __convenience_const
+generated 1687164..1687242 <- Default
+generated 1687242..1688685 <- Encode
+generated 1688685..1691350 <- Decode
+generated 1691350..1695759 <- Gigaform
+generated 1695759..1696644 <- __convenience_const
+generated 1696710..1696797 <- Default
+generated 1696797..1698250 <- Encode
+generated 1698250..1700038 <- Decode
+generated 1700038..1704545 <- Gigaform
+generated 1704545..1705468 <- __convenience_const
+generated 1705548..1705628 <- Default
+generated 1705628..1707066 <- Encode
+generated 1707066..1708968 <- Decode
+generated 1708968..1714545 <- Gigaform
+generated 1714545..1715411 <- __convenience_const
+generated 1715480..1715556 <- Default
+generated 1715556..1716964 <- Encode
+generated 1716964..1718695 <- Decode
+generated 1718695..1723009 <- Gigaform
+generated 1723009..1723761 <- __convenience_const
+generated 1723915..1723988 <- Default
+generated 1723988..1725401 <- Encode
+generated 1725401..1727585 <- Decode
+generated 1727585..1735044 <- Gigaform
+generated 1735044..1735815 <- __convenience_const
+generated 1735890..1735964 <- Default
+generated 1735964..1737372 <- Encode
+generated 1737372..1739167 <- Decode
+generated 1739167..1743989 <- Gigaform
+generated 1743989..1744741 <- __convenience_const
+generated 1744861..1744944 <- Default
+generated 1744944..1746362 <- Encode
+generated 1746362..1748342 <- Decode
+generated 1748342..1754219 <- Gigaform
+generated 1754219..1755009 <- __convenience_const
+generated 1755143..1755218 <- Default
+generated 1755218..1756641 <- Encode
+generated 1756641..1758713 <- Decode
+generated 1758713..1765236 <- Gigaform
+generated 1765236..1766045 <- __convenience_const
+generated 1766115..1766213 <- Default
+generated 1766213..1768320 <- Encode
+generated 1768320..1773104 <- Decode
+generated 1773104..1777657 <- Gigaform
+generated 1777657..1778504 <- __convenience_const
+generated 1778572..1778647 <- Default
+generated 1778647..1780065 <- Encode
+generated 1780065..1781841 <- Decode
+generated 1781841..1786586 <- Gigaform
+generated 1786586..1787376 <- __convenience_const
+generated 1787545..1787627 <- Default
+generated 1787627..1789065 <- Encode
+generated 1789065..1791364 <- Decode
+generated 1791364..1799486 <- Gigaform
+generated 1799486..1800352 <- __convenience_const
+generated 1800494..1800573 <- Default
+generated 1800573..1801991 <- Encode
+generated 1801991..1804081 <- Decode
+generated 1804081..1810412 <- Gigaform
+generated 1810412..1811202 <- __convenience_const
+generated 1811305..1811402 <- Default
+generated 1811402..1814006 <- Encode
+generated 1814006..1820007 <- Decode
+generated 1820007..1825853 <- Gigaform
+generated 1825853..1826719 <- __convenience_const
+generated 1826835..1826915 <- Default
+generated 1826915..1828348 <- Encode
+generated 1828348..1830346 <- Decode
+generated 1830346..1836601 <- Gigaform
+generated 1836601..1837448 <- __convenience_const
+generated 1837572..1837668 <- Default
+generated 1837668..1840760 <- Encode
+generated 1840760..1847945 <- Decode
+generated 1847945..1855017 <- Gigaform
+generated 1855017..1855883 <- __convenience_const
+generated 1855988..1856065 <- Default
+generated 1856065..1857488 <- Encode
+generated 1857488..1859401 <- Decode
+generated 1859401..1865001 <- Gigaform
+generated 1865001..1865810 <- __convenience_const
+generated 1865888..1865969 <- Default
+generated 1865969..1867397 <- Encode
+generated 1867397..1869239 <- Decode
+generated 1869239..1874274 <- Gigaform
+generated 1874274..1875102 <- __convenience_const
+generated 1875422..1875492 <- Default
+generated 1875492..1876895 <- Encode
+generated 1876895..1880047 <- Decode
+generated 1880047..1894088 <- Gigaform
+generated 1894088..1894821 <- __convenience_const
+generated 1894901..1894962 <- Default
+generated 1894962..1897578 <- Encode
+generated 1897578..1903079 <- Decode
+generated 1903079..1907607 <- Gigaform
+generated 1907607..1908321 <- __convenience_const
+generated 1908379..1908458 <- Default
+generated 1908458..1909967 <- Encode
+generated 1909967..1912502 <- Decode
+generated 1912502..1913146 <- __convenience_const
+generated 1913211..1913290 <- Default
+generated 1913290..1915589 <- Encode
+generated 1915589..1920752 <- Decode
+generated 1920752..1925433 <- Gigaform
+generated 1925433..1926166 <- __convenience_const
 
 ## Metadata
 

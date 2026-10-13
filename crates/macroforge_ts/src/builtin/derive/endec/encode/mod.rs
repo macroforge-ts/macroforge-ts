@@ -167,7 +167,7 @@
 //!         if (__fields === undefined || __fields.keeps('metadata')) {
 //!             if (value.metadata !== undefined) {
 //!                 const __flattened = userMetadataEncodePartialWithContext(value.metadata, ctx);
-//!                 const { ['__type']: _, __id: __, ...rest } = __flattened as any;
+//!                 const { ['__type']: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
 //!                 Object.assign(result, rest);
 //!             }
 //!         }

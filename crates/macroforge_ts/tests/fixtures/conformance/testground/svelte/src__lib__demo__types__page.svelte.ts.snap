@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -72,11 +72,12 @@ export function pageEncodeWithContext(value: Page, ctx: __mf_EncodeContext): unk
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1080,15 +1081,15 @@ export declare const Page: {
 
 ## Mapping
 
-original 0..58 -> expanded 618..676
-original 107..871 -> expanded 676..1440
-original 871..872 -> expanded 34329..34330
-generated 0..618 <- imports
-generated 1440..1519 <- Default
-generated 1519..2870 <- Encode
-generated 2870..8342 <- Decode
-generated 8342..33615 <- Gigaform
-generated 33615..34329 <- __convenience_const
+original 0..58 -> expanded 641..699
+original 107..871 -> expanded 699..1463
+original 871..872 -> expanded 34399..34400
+generated 0..641 <- imports
+generated 1463..1542 <- Default
+generated 1542..2940 <- Encode
+generated 2940..8412 <- Decode
+generated 8412..33685 <- Gigaform
+generated 33685..34399 <- __convenience_const
 
 ## Metadata
 

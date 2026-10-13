@@ -51,7 +51,7 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
         export function @{fn_has_shape_ident}(@{value_param}: unknown): boolean {
                         {#if *is_literal_only}
                             const allowedValues = [@{literals.join(", ")}] as const;
-                            return allowedValues.includes(value as any);
+                            return allowedValues.some((allowed) => allowed === value);
                         {:else if *is_primitive_only}
                             return @{primitive_check_condition};
                         {:else if *is_encodable_only}
@@ -82,8 +82,8 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                             {:else if *is_adjacently_tagged}
                                 // Adjacently tagged: check for tag and content fields
                                 if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["@{tag_field}"];
-                                    if (typeof __typeName === "string" && "@{content_field}" in (value as any)) {
+                                    const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
+                                    if (typeof __typeName === "string" && "@{content_field}" in value) {
                                         return @{encodable_type_check_condition};
                                     }
                                 }
@@ -98,7 +98,7 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                             {:else}
                                 // Internally tagged (default): tag-based + shape matching
                                 if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["@{tag_field}"];
+                                    const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                     if (typeof __typeName === "string") {
                                         return @{encodable_type_check_condition};
                                     }
@@ -116,7 +116,7 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                         {:else}
                             {#if *has_literals}
                                 const allowedLiterals = [@{literals.join(", ")}] as const;
-                                if (allowedLiterals.includes(value as any)) return true;
+                                if (allowedLiterals.some((allowed) => allowed === value)) return true;
                             {/if}
                             {#if *has_primitives}
                                 {#for prim in primitive_types}
@@ -146,8 +146,8 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                                 {:else if *is_adjacently_tagged}
                                     // Adjacently tagged: check for tag and content fields
                                     if (typeof value === "object" && value !== null) {
-                                        const __typeName = (value as any)["@{tag_field}"];
-                                        if (typeof __typeName === "string" && "@{content_field}" in (value as any)) {
+                                        const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
+                                        if (typeof __typeName === "string" && "@{content_field}" in value) {
                                             if (@{encodable_type_check_condition}) return true;
                                         }
                                     }
@@ -160,13 +160,13 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                                 {:else if regular_encodables.is_empty()}
                                     // Internally tagged (default), with no member told by its shape
                                     if (typeof value === "object" && value !== null) {
-                                        const __typeName = (value as any)["@{tag_field}"];
+                                        const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                         if (typeof __typeName === "string" && (@{encodable_type_check_condition})) return true;
                                     }
                                 {:else}
                                     // Internally tagged (default)
                                     if (typeof value === "object" && value !== null) {
-                                        const __typeName = (value as any)["@{tag_field}"];
+                                        const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                         if (typeof __typeName === "string") {
                                             if (@{encodable_type_check_condition}) return true;
                                         } else {
@@ -197,9 +197,9 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                             {/if}
                             {#if *has_object_variants || *has_intersection_variants}
                                 if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["@{tag_field}"];
+                                    const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                     {$let all_tag_values: Vec<String> = object_variants.iter().map(|ov| js_string(&ov.tag_value)).chain(intersection_variants.iter().map(|iv| js_string(&iv.tag_value))).collect()}
-                                    if ([@{all_tag_values.join(", ")}].includes(__typeName)) return true;
+                                    if ([@{all_tag_values.join(", ")}].some((tag) => tag === __typeName)) return true;
                                 }
                             {/if}
                             {#if !external_object_variants.is_empty() && *is_externally_tagged && !*has_encodables}

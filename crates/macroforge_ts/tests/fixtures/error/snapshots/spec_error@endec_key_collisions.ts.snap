@@ -304,7 +304,7 @@ function flatEncodeFields(value: Flat, ctx: __mf_EncodeContext, result: Record<s
     if (__fields === undefined || __fields.keeps("inner")) {
         if (value.inner !== undefined) {
             const __flattened = innerEncodePartialWithContext(value.inner, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
             Object.assign(result, rest);
         }
     }
@@ -569,14 +569,14 @@ original 299..353 -> expanded 855..909
 original 353..355 -> expanded 9842..9844
 original 385..423 -> expanded 9844..9882
 original 445..465 -> expanded 9882..9902
-original 465..466 -> expanded 18976..18977
+original 465..466 -> expanded 18996..18997
 generated 0..679 <- imports
 generated 909..3142 <- Encode
 generated 3142..8914 <- Decode
 generated 8914..9842 <- __convenience_const
-generated 9902..12279 <- Encode
-generated 12279..18069 <- Decode
-generated 18069..18976 <- __convenience_const
+generated 9902..12299 <- Encode
+generated 12299..18089 <- Decode
+generated 18089..18996 <- __convenience_const
 
 ## Metadata
 

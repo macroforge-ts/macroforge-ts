@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Values at the edges of their types: numbers that are not ordinary numbers,
@@ -570,7 +570,7 @@ export function specialEitherEncodeWithContext(value: SpecialEither, ctx: __mf_E
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "SpecialCarried") { __variant = specialCarriedEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && specialCarriedHasShape(value)) { __variant = specialCarriedEncodeWithContext(value as any, ctx); __matched = true; }
     }
@@ -579,11 +579,12 @@ export function specialEitherEncodeWithContext(value: SpecialEither, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -655,7 +656,7 @@ export function specialEitherDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "SpecialCarried") {
                 return specialCarriedDecodeWithContext(value, ctx) as SpecialEither;
@@ -690,7 +691,7 @@ export function specialEitherHasShape(value: unknown): boolean {
                 if ((typeof value === "number" && globalThis.Number.isFinite(value))) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "SpecialCarried") return true;
                     } else {
@@ -2250,48 +2251,48 @@ export declare const SpecialHoles: {
 
 ## Mapping
 
-original 0..456 -> expanded 1447..1903
-original 456..524 -> expanded 22557..22625
-original 524..609 -> expanded 25958..26043
-original 609..789 -> expanded 32814..32994
-original 789..1079 -> expanded 45523..45813
-original 1079..1534 -> expanded 66937..67392
-original 1534..1535 -> expanded 93636..93637
-generated 0..1447 <- imports
-generated 1903..2422 <- Debug
-generated 2422..2700 <- Clone
-generated 2700..3345 <- PartialEq
-generated 3345..4275 <- Hash
-generated 4275..6238 <- PartialOrd
-generated 6238..7835 <- Ord
-generated 7835..8037 <- Default
-generated 8037..11067 <- Encode
-generated 11067..20801 <- Decode
-generated 20801..22557 <- __convenience_const
-generated 22625..23389 <- Encode
-generated 23389..25371 <- Decode
-generated 25371..25958 <- __convenience_const
-generated 26043..27851 <- Encode
-generated 27851..32227 <- Decode
-generated 32227..32814 <- __convenience_const
-generated 32994..35700 <- Encode
-generated 35700..44399 <- Decode
-generated 44399..45523 <- __convenience_const
-generated 45813..46410 <- Debug
-generated 46410..47057 <- Clone
-generated 47057..48477 <- PartialEq
-generated 48477..50175 <- Hash
-generated 50175..50390 <- Default
-generated 50390..53740 <- Encode
-generated 53740..65253 <- Decode
-generated 65253..66937 <- __convenience_const
-generated 67392..68166 <- Debug
-generated 68166..68606 <- Clone
-generated 68606..69926 <- PartialEq
-generated 69926..71647 <- Hash
-generated 71647..75599 <- Encode
-generated 75599..92238 <- Decode
-generated 92238..93636 <- __convenience_const
+original 0..456 -> expanded 1470..1926
+original 456..524 -> expanded 22580..22648
+original 524..609 -> expanded 25981..26066
+original 609..789 -> expanded 32896..33076
+original 789..1079 -> expanded 45605..45895
+original 1079..1534 -> expanded 67019..67474
+original 1534..1535 -> expanded 93718..93719
+generated 0..1470 <- imports
+generated 1926..2445 <- Debug
+generated 2445..2723 <- Clone
+generated 2723..3368 <- PartialEq
+generated 3368..4298 <- Hash
+generated 4298..6261 <- PartialOrd
+generated 6261..7858 <- Ord
+generated 7858..8060 <- Default
+generated 8060..11090 <- Encode
+generated 11090..20824 <- Decode
+generated 20824..22580 <- __convenience_const
+generated 22648..23412 <- Encode
+generated 23412..25394 <- Decode
+generated 25394..25981 <- __convenience_const
+generated 26066..27925 <- Encode
+generated 27925..32309 <- Decode
+generated 32309..32896 <- __convenience_const
+generated 33076..35782 <- Encode
+generated 35782..44481 <- Decode
+generated 44481..45605 <- __convenience_const
+generated 45895..46492 <- Debug
+generated 46492..47139 <- Clone
+generated 47139..48559 <- PartialEq
+generated 48559..50257 <- Hash
+generated 50257..50472 <- Default
+generated 50472..53822 <- Encode
+generated 53822..65335 <- Decode
+generated 65335..67019 <- __convenience_const
+generated 67474..68248 <- Debug
+generated 68248..68688 <- Clone
+generated 68688..70008 <- PartialEq
+generated 70008..71729 <- Hash
+generated 71729..75681 <- Encode
+generated 75681..92320 <- Decode
+generated 92320..93718 <- __convenience_const
 
 ## Metadata
 

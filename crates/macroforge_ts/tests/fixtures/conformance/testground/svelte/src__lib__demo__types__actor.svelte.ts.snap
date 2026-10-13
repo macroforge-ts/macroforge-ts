@@ -15,7 +15,7 @@ true
 import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
 import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -50,7 +50,7 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
@@ -63,11 +63,12 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -136,7 +137,7 @@ export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "User") {
                 return userDecodeWithContext(value, ctx) as Actor;
@@ -203,7 +204,7 @@ export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 export function actorHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
                     }
@@ -493,15 +494,15 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..202 -> expanded 981..1183
-original 251..314 -> expanded 1183..1246
-original 314..315 -> expanded 14142..14143
-generated 0..981 <- imports
-generated 1246..1325 <- Default
-generated 1325..3573 <- Encode
-generated 3573..8728 <- Decode
-generated 8728..13409 <- Gigaform
-generated 13409..14142 <- __convenience_const
+original 0..202 -> expanded 1004..1206
+original 251..314 -> expanded 1206..1269
+original 314..315 -> expanded 14224..14225
+generated 0..1004 <- imports
+generated 1269..1348 <- Default
+generated 1348..3647 <- Encode
+generated 3647..8810 <- Decode
+generated 8810..13491 <- Gigaform
+generated 13491..14224 <- __convenience_const
 
 ## Metadata
 

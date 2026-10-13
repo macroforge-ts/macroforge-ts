@@ -14,7 +14,7 @@ true
 
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 /**
  * A generic alias over a foreign type, declared apart from the types that use
@@ -52,11 +52,12 @@ export function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeC
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -125,7 +126,7 @@ export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "DateTime.DateTime") {
                 return __foreign__dateTimeDateTimeDecode(value) as Stamped<T>;
@@ -342,23 +343,23 @@ export {};
 
 ## Mapping
 
-original 0..251 -> expanded 730..981
-original 290..354 -> expanded 981..1045
-original 354..356 -> expanded 6120..6122
-original 447..467 -> expanded 6122..6142
-original 483..484 -> expanded 6186..6187
-original 484..485 -> expanded 9518..9519
-generated 0..685 <- imports
-generated 685..730 <- $Newtype
-generated 1045..1152 <- Default
-generated 1152..2599 <- Encode
-generated 2599..5521 <- Decode
-generated 5521..6120 <- __convenience_const
-generated 6142..6186 <- $Newtype
-generated 6187..6264 <- Default
-generated 6264..6956 <- Encode
-generated 6956..8964 <- Decode
-generated 8964..9518 <- __convenience_const
+original 0..251 -> expanded 753..1004
+original 290..354 -> expanded 1004..1068
+original 354..356 -> expanded 6194..6196
+original 447..467 -> expanded 6196..6216
+original 483..484 -> expanded 6260..6261
+original 484..485 -> expanded 9592..9593
+generated 0..708 <- imports
+generated 708..753 <- $Newtype
+generated 1068..1175 <- Default
+generated 1175..2669 <- Encode
+generated 2669..5595 <- Decode
+generated 5595..6194 <- __convenience_const
+generated 6216..6260 <- $Newtype
+generated 6261..6338 <- Default
+generated 6338..7030 <- Encode
+generated 7030..9038 <- Decode
+generated 9038..9592 <- __convenience_const
 
 ## Metadata
 

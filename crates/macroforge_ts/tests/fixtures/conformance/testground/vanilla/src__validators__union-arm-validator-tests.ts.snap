@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, member as __mf_member } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Untagged unions whose primitive arms carry their own validators.
@@ -341,7 +341,7 @@ export function reachableDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Phone") {
                 return phoneDecodeWithContext(value, ctx) as Reachable;
@@ -376,7 +376,7 @@ export function reachableHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "Phone") return true;
                     } else {
@@ -474,7 +474,7 @@ export function fallbackDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     
     const allowedLiterals = ['none'] as const;
-    if (allowedLiterals.includes(value as any)) {
+    if (allowedLiterals.some((allowed) => allowed === value)) {
         return value as Fallback;
     }
     if (typeof value === "string") {
@@ -491,7 +491,7 @@ export function fallbackDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 }
 export function fallbackHasShape(value: unknown): boolean {
                 const allowedLiterals = ['none'] as const;
-                if (allowedLiterals.includes(value as any)) return true;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
                 if (typeof value === "string") return true;
                 return false;
 }
@@ -632,20 +632,20 @@ export declare const Fallback: {
 
 ## Mapping
 
-original 0..159 -> expanded 466..625
-original 159..230 -> expanded 3795..3866
-original 230..343 -> expanded 9712..9825
-original 343..428 -> expanded 14640..14725
-original 428..429 -> expanded 18040..18041
-generated 0..466 <- imports
-generated 625..3462 <- Decode
-generated 3462..3795 <- __convenience_const
-generated 3866..9079 <- Decode
-generated 9079..9712 <- __convenience_const
-generated 9825..14289 <- Decode
-generated 14289..14640 <- __convenience_const
-generated 14725..17698 <- Decode
-generated 17698..18040 <- __convenience_const
+original 0..159 -> expanded 489..648
+original 159..230 -> expanded 3818..3889
+original 230..343 -> expanded 9735..9848
+original 343..428 -> expanded 14671..14756
+original 428..429 -> expanded 18099..18100
+generated 0..489 <- imports
+generated 648..3485 <- Decode
+generated 3485..3818 <- __convenience_const
+generated 3889..9102 <- Decode
+generated 9102..9735 <- __convenience_const
+generated 9848..14320 <- Decode
+generated 14320..14671 <- __convenience_const
+generated 14756..17757 <- Decode
+generated 17757..18099 <- __convenience_const
 
 ## Metadata
 

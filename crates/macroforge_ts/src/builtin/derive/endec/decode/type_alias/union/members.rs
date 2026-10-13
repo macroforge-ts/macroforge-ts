@@ -488,7 +488,7 @@ impl<'a> Union<'a> {
                 parts.push(format!("{{ {}: '{}' }}", tag_field, ov.tag_value));
             }
             for ov in &external_object_variants {
-                parts.push(format!("{{ {}: any }}", ov.name));
+                parts.push(format!("{{ {}: unknown }}", ov.name));
             }
             for iv in &intersection_variants {
                 parts.push(format!(

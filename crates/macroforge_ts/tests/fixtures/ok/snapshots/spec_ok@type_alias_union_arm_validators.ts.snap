@@ -24,7 +24,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, member as __mf_member } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 type Contact = /** @endec(email) */ string | number;
@@ -349,7 +349,7 @@ export function reachableDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Phone") {
                 return phoneDecodeWithContext(value, ctx) as Reachable;
@@ -384,7 +384,7 @@ export function reachableHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "Phone") return true;
                     } else {
@@ -488,19 +488,19 @@ export {};
 
 ## Mapping
 
-original 22..75 -> expanded 466..519
-original 75..77 -> expanded 3682..3684
-original 99..137 -> expanded 3684..3722
-original 137..139 -> expanded 9561..9563
-original 161..239 -> expanded 9563..9641
-original 239..240 -> expanded 14449..14450
-generated 0..466 <- imports
-generated 519..3356 <- Decode
-generated 3356..3682 <- __convenience_const
-generated 3722..8935 <- Decode
-generated 8935..9561 <- __convenience_const
-generated 9641..14105 <- Decode
-generated 14105..14449 <- __convenience_const
+original 22..75 -> expanded 489..542
+original 75..77 -> expanded 3705..3707
+original 99..137 -> expanded 3707..3745
+original 137..139 -> expanded 9584..9586
+original 161..239 -> expanded 9586..9664
+original 239..240 -> expanded 14480..14481
+generated 0..489 <- imports
+generated 542..3379 <- Decode
+generated 3379..3705 <- __convenience_const
+generated 3745..8958 <- Decode
+generated 8958..9584 <- __convenience_const
+generated 9664..14136 <- Decode
+generated 14136..14480 <- __convenience_const
 
 ## Metadata
 

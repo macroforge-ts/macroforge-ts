@@ -62,7 +62,7 @@ pub(super) fn variant_guards(u: &Union) -> TsStream {
         let fn_ident = ts_ident!("{}{}Is", camel_name, variant_pascal);
         let key = ov.name.as_str();
         guards.push(ts_template! {
-            export function @{fn_ident}(__v: unknown): __v is Extract<@{full_type_name}, { @{key}: any }> {
+            export function @{fn_ident}(__v: unknown): __v is Extract<@{full_type_name}, { @{key}: unknown }> {
                 return __v !== null
                     && typeof __v === "object"
                     && "@{key}" in __v;

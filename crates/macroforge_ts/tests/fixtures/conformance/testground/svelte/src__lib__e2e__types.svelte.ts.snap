@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, member as __mf_member } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 /**
@@ -4474,7 +4474,7 @@ export function momentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Holiday") {
                 return holidayDecodeWithContext(value, ctx) as Moment;
@@ -4530,7 +4530,7 @@ export function momentHasShape(value: unknown): boolean {
                 if (__foreign__dateTimeDateTimeHasShape(value)) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "DateTime.DateTime" || __typeName === "Holiday";
                     }
@@ -5473,97 +5473,97 @@ export declare const Moment: {
 
 ## Mapping
 
-original 0..1354 -> expanded 879..2233
-original 1384..1508 -> expanded 2233..2357
-original 1508..1510 -> expanded 13923..13925
-original 1540..1627 -> expanded 13925..14012
-original 1627..1629 -> expanded 24226..24228
-original 1659..1758 -> expanded 24228..24327
-original 1758..1760 -> expanded 35159..35161
-original 1790..1865 -> expanded 35161..35236
-original 1865..1867 -> expanded 45143..45145
-original 1897..1981 -> expanded 45145..45229
-original 1981..1983 -> expanded 55234..55236
-original 2013..2081 -> expanded 55236..55304
-original 2081..2083 -> expanded 64771..64773
-original 2113..2176 -> expanded 64773..64836
-original 2176..2178 -> expanded 74140..74142
-original 2208..2300 -> expanded 74142..74234
-original 2300..2330 -> expanded 84598..84628
-original 2360..2515 -> expanded 84628..84783
-original 2515..2517 -> expanded 98336..98338
-original 2547..2752 -> expanded 98338..98543
-original 2752..2754 -> expanded 115331..115333
-original 2784..2875 -> expanded 115333..115424
-original 2875..2904 -> expanded 126344..126373
-original 2934..3088 -> expanded 126373..126527
-original 3088..3090 -> expanded 141170..141172
-original 3120..3280 -> expanded 141172..141332
-original 3280..3313 -> expanded 156358..156391
-original 3343..3452 -> expanded 156391..156500
-original 3452..3454 -> expanded 167884..167886
-original 3484..3583 -> expanded 167886..167985
-original 3583..3585 -> expanded 181433..181435
-original 3615..3718 -> expanded 181435..181538
-original 3718..3760 -> expanded 195105..195147
-original 3790..3837 -> expanded 195147..195194
-original 3837..3892 -> expanded 203532..203587
-original 3914..3964 -> expanded 203587..203637
-original 3964..3965 -> expanded 208844..208845
-generated 0..879 <- imports
-generated 2357..5119 <- Encode
-generated 5119..12946 <- Decode
-generated 12946..13923 <- __convenience_const
-generated 14012..16456 <- Encode
-generated 16456..23291 <- Decode
-generated 23291..24226 <- __convenience_const
-generated 24327..26893 <- Encode
-generated 26893..34140 <- Decode
-generated 34140..35159 <- __convenience_const
-generated 35236..37635 <- Encode
-generated 37635..44040 <- Decode
-generated 44040..45143 <- __convenience_const
-generated 45229..47639 <- Encode
-generated 47639..54341 <- Decode
-generated 54341..55234 <- __convenience_const
-generated 55304..57609 <- Encode
-generated 57609..63794 <- Decode
-generated 63794..64771 <- __convenience_const
-generated 64836..67099 <- Encode
-generated 67099..73205 <- Decode
-generated 73205..74140 <- __convenience_const
-generated 74234..76709 <- Encode
-generated 76709..83642 <- Decode
-generated 83642..84598 <- __convenience_const
-generated 84783..87760 <- Encode
-generated 87760..97359 <- Decode
-generated 97359..98336 <- __convenience_const
-generated 98543..102066 <- Encode
-generated 102066..114333 <- Decode
-generated 114333..115331 <- __convenience_const
-generated 115424..117916 <- Encode
-generated 117916..125325 <- Decode
-generated 125325..126344 <- __convenience_const
-generated 126527..129644 <- Encode
-generated 129644..140130 <- Decode
-generated 140130..141170 <- __convenience_const
-generated 141332..144513 <- Encode
-generated 144513..155276 <- Decode
-generated 155276..156358 <- __convenience_const
-generated 156500..159183 <- Encode
-generated 159183..166823 <- Decode
-generated 166823..167884 <- __convenience_const
-generated 167985..171071 <- Encode
-generated 171071..180309 <- Decode
-generated 180309..181433 <- __convenience_const
-generated 181538..184647 <- Encode
-generated 184647..193960 <- Decode
-generated 193960..195105 <- __convenience_const
-generated 195194..197308 <- Encode
-generated 197308..202555 <- Decode
-generated 202555..203532 <- __convenience_const
-generated 203637..208520 <- Decode
-generated 208520..208844 <- __convenience_const
+original 0..1354 -> expanded 902..2256
+original 1384..1508 -> expanded 2256..2380
+original 1508..1510 -> expanded 13946..13948
+original 1540..1627 -> expanded 13948..14035
+original 1627..1629 -> expanded 24249..24251
+original 1659..1758 -> expanded 24251..24350
+original 1758..1760 -> expanded 35182..35184
+original 1790..1865 -> expanded 35184..35259
+original 1865..1867 -> expanded 45166..45168
+original 1897..1981 -> expanded 45168..45252
+original 1981..1983 -> expanded 55257..55259
+original 2013..2081 -> expanded 55259..55327
+original 2081..2083 -> expanded 64794..64796
+original 2113..2176 -> expanded 64796..64859
+original 2176..2178 -> expanded 74163..74165
+original 2208..2300 -> expanded 74165..74257
+original 2300..2330 -> expanded 84621..84651
+original 2360..2515 -> expanded 84651..84806
+original 2515..2517 -> expanded 98359..98361
+original 2547..2752 -> expanded 98361..98566
+original 2752..2754 -> expanded 115354..115356
+original 2784..2875 -> expanded 115356..115447
+original 2875..2904 -> expanded 126367..126396
+original 2934..3088 -> expanded 126396..126550
+original 3088..3090 -> expanded 141193..141195
+original 3120..3280 -> expanded 141195..141355
+original 3280..3313 -> expanded 156381..156414
+original 3343..3452 -> expanded 156414..156523
+original 3452..3454 -> expanded 167907..167909
+original 3484..3583 -> expanded 167909..168008
+original 3583..3585 -> expanded 181456..181458
+original 3615..3718 -> expanded 181458..181561
+original 3718..3760 -> expanded 195128..195170
+original 3790..3837 -> expanded 195170..195217
+original 3837..3892 -> expanded 203555..203610
+original 3914..3964 -> expanded 203610..203660
+original 3964..3965 -> expanded 208875..208876
+generated 0..902 <- imports
+generated 2380..5142 <- Encode
+generated 5142..12969 <- Decode
+generated 12969..13946 <- __convenience_const
+generated 14035..16479 <- Encode
+generated 16479..23314 <- Decode
+generated 23314..24249 <- __convenience_const
+generated 24350..26916 <- Encode
+generated 26916..34163 <- Decode
+generated 34163..35182 <- __convenience_const
+generated 35259..37658 <- Encode
+generated 37658..44063 <- Decode
+generated 44063..45166 <- __convenience_const
+generated 45252..47662 <- Encode
+generated 47662..54364 <- Decode
+generated 54364..55257 <- __convenience_const
+generated 55327..57632 <- Encode
+generated 57632..63817 <- Decode
+generated 63817..64794 <- __convenience_const
+generated 64859..67122 <- Encode
+generated 67122..73228 <- Decode
+generated 73228..74163 <- __convenience_const
+generated 74257..76732 <- Encode
+generated 76732..83665 <- Decode
+generated 83665..84621 <- __convenience_const
+generated 84806..87783 <- Encode
+generated 87783..97382 <- Decode
+generated 97382..98359 <- __convenience_const
+generated 98566..102089 <- Encode
+generated 102089..114356 <- Decode
+generated 114356..115354 <- __convenience_const
+generated 115447..117939 <- Encode
+generated 117939..125348 <- Decode
+generated 125348..126367 <- __convenience_const
+generated 126550..129667 <- Encode
+generated 129667..140153 <- Decode
+generated 140153..141193 <- __convenience_const
+generated 141355..144536 <- Encode
+generated 144536..155299 <- Decode
+generated 155299..156381 <- __convenience_const
+generated 156523..159206 <- Encode
+generated 159206..166846 <- Decode
+generated 166846..167907 <- __convenience_const
+generated 168008..171094 <- Encode
+generated 171094..180332 <- Decode
+generated 180332..181456 <- __convenience_const
+generated 181561..184670 <- Encode
+generated 184670..193983 <- Decode
+generated 193983..195128 <- __convenience_const
+generated 195217..197331 <- Encode
+generated 197331..202578 <- Decode
+generated 202578..203555 <- __convenience_const
+generated 203660..208551 <- Decode
+generated 208551..208875 <- __convenience_const
 
 ## Metadata
 

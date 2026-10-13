@@ -22,6 +22,7 @@ use crate::ts_syn::abi::ir::{
     split_top_level_union, substitute_tokens, typeof_primitive,
 };
 use crate::ts_syn::config::ForeignHandler;
+use crate::ts_syn::ts_ident;
 
 use super::decode::helpers::{primitive_accepts, structural_accepts};
 use super::nested::NestedType;
@@ -1081,6 +1082,12 @@ pub(crate) fn endec_helper(name: &str) -> String {
         registry.request_import(&alias, Some(name), crate::package::ENDEC, false);
     });
     alias
+}
+
+/// A helper of the endec runtime as an expression to call, imported where
+/// the code that calls it is written.
+pub(crate) fn endec_call(name: &str) -> crate::ast::Expr {
+    ts_ident!(endec_helper(name)).into()
 }
 
 /// A function decoding one raw value of `ts_type`, to hand to a collection's

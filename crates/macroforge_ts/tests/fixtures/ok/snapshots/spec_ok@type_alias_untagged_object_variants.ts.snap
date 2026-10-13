@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Outcome = { ok: true; at: Date; tags: Set<string> } | { ok: false; reason: string };
@@ -58,11 +58,12 @@ export function outcomeEncodeWithContext(value: Outcome, ctx: __mf_EncodeContext
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -207,11 +208,11 @@ export function looseEncodeWithContext(value: Loose, ctx: __mf_EncodeContext): u
     }
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { ...fields };
-    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -378,17 +379,17 @@ export {};
 
 ## Mapping
 
-original 30..120 -> expanded 680..770
-original 120..122 -> expanded 6896..6898
-original 186..272 -> expanded 6898..6984
-original 272..273 -> expanded 12981..12982
-generated 0..680 <- imports
-generated 770..2886 <- Encode
-generated 2886..6394 <- Decode
-generated 6394..6896 <- __convenience_const
-generated 6984..9108 <- Encode
-generated 9108..12505 <- Decode
-generated 12505..12981 <- __convenience_const
+original 30..120 -> expanded 703..793
+original 120..122 -> expanded 6966..6968
+original 186..272 -> expanded 6968..7054
+original 272..273 -> expanded 13077..13078
+generated 0..703 <- imports
+generated 793..2956 <- Encode
+generated 2956..6464 <- Decode
+generated 6464..6966 <- __convenience_const
+generated 7054..9204 <- Encode
+generated 9204..12601 <- Decode
+generated 12601..13077 <- __convenience_const
 
 ## Metadata
 

@@ -42,7 +42,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Marked {
@@ -106,11 +106,12 @@ export function taggingEncodeWithContext(value: Tagging, ctx: __mf_EncodeContext
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__proto__": (value as any)["__proto__"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__proto__": __mf_member(value, "__proto__") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -258,19 +259,19 @@ Error [481..494]: @derive(Decode): field 'held' is read from the key `__proto__`
 
 ## Mapping
 
-original 30..109 -> expanded 583..662
-original 139..159 -> expanded 662..682
-original 193..220 -> expanded 682..709
-original 250..323 -> expanded 709..782
-original 357..381 -> expanded 782..806
-original 411..437 -> expanded 806..832
-original 475..497 -> expanded 832..854
-original 563..609 -> expanded 854..900
-original 609..610 -> expanded 6224..6225
-generated 0..583 <- imports
-generated 900..2773 <- Encode
-generated 2773..5722 <- Decode
-generated 5722..6224 <- __convenience_const
+original 30..109 -> expanded 606..685
+original 139..159 -> expanded 685..705
+original 193..220 -> expanded 705..732
+original 250..323 -> expanded 732..805
+original 357..381 -> expanded 805..829
+original 411..437 -> expanded 829..855
+original 475..497 -> expanded 855..877
+original 563..609 -> expanded 877..923
+original 609..610 -> expanded 6294..6295
+generated 0..606 <- imports
+generated 923..2843 <- Encode
+generated 2843..5792 <- Decode
+generated 5792..6294 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -47,11 +47,12 @@ export function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -342,15 +343,15 @@ export declare const OverviewDisplay: {
 
 ## Mapping
 
-original 0..58 -> expanded 618..676
-original 107..171 -> expanded 676..740
-original 171..172 -> expanded 9451..9452
-generated 0..618 <- imports
-generated 740..827 <- Default
-generated 827..2233 <- Encode
-generated 2233..4021 <- Decode
-generated 4021..8528 <- Gigaform
-generated 8528..9451 <- __convenience_const
+original 0..58 -> expanded 641..699
+original 107..171 -> expanded 699..763
+original 171..172 -> expanded 9521..9522
+generated 0..641 <- imports
+generated 763..850 <- Default
+generated 850..2303 <- Encode
+generated 2303..4091 <- Decode
+generated 4091..8598 <- Gigaform
+generated 8598..9521 <- __convenience_const
 
 ## Metadata
 

@@ -16,7 +16,7 @@ import { cardinalDecodeWithContext, cardinalHasShape, cardinalEncodeWithContext,
 import { customDecodeWithContext, customHasShape, customEncodeWithContext, customDefaultValue } from "./custom.svelte";
 import { gradientDecodeWithContext, gradientHasShape, gradientEncodeWithContext, gradientDefaultValue } from "./gradient.svelte";
 import { ordinalDecodeWithContext, ordinalHasShape, ordinalEncodeWithContext, ordinalDefaultValue } from "./ordinal.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -56,7 +56,7 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Cardinal") { __variant = cardinalEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Ordinal") { __variant = ordinalEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Custom") { __variant = customEncodeWithContext(value as any, ctx); __matched = true; }
@@ -71,11 +71,12 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -144,7 +145,7 @@ export function colorsConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Cardinal") {
                 return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
@@ -223,7 +224,7 @@ export function colorsConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 export function colorsConfigHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Cardinal" || __typeName === "Ordinal" || __typeName === "Custom" || __typeName === "Gradient";
                     }
@@ -543,15 +544,15 @@ export declare const ColorsConfig: {
 
 ## Mapping
 
-original 0..257 -> expanded 1121..1378
-original 306..407 -> expanded 1378..1479
-original 407..408 -> expanded 16834..16835
-generated 0..1121 <- imports
-generated 1479..1576 <- Default
-generated 1576..4129 <- Encode
-generated 4129..10122 <- Decode
-generated 10122..15968 <- Gigaform
-generated 15968..16834 <- __convenience_const
+original 0..257 -> expanded 1144..1401
+original 306..407 -> expanded 1401..1502
+original 407..408 -> expanded 16916..16917
+generated 0..1144 <- imports
+generated 1502..1599 <- Default
+generated 1599..4203 <- Encode
+generated 4203..10204 <- Decode
+generated 10204..16050 <- Gigaform
+generated 16050..16916 <- __convenience_const
 
 ## Metadata
 

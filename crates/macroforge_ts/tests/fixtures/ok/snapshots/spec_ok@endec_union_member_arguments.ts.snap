@@ -32,7 +32,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -444,7 +444,7 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Box") { __variant = ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "Circle") { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && boxHasShape(value)) { __variant = ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(value as any, ctx); __matched = true; }
@@ -455,11 +455,12 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -528,7 +529,7 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Box<Date>") {
                 return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<Date>(__member, ctx, __mf_decodeDate))(value, ctx) as Shape;
@@ -583,7 +584,7 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 export function shapeHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "Box<Date>" || __typeName === "Circle";
                     }
@@ -632,7 +633,7 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Box") { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
         if (!__matched && boxHasShape(value)) { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
     }
@@ -641,11 +642,12 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -713,12 +715,12 @@ export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
 
     
     const allowedLiterals = ['none'] as const;
-    if (allowedLiterals.includes(value as any)) {
+    if (allowedLiterals.some((allowed) => allowed === value)) {
         return value as Outcome<T>;
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Box<T>") {
                 return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx) as Outcome<T>;
@@ -751,10 +753,10 @@ export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
 }
 export function outcomeHasShape(value: unknown): boolean {
                 const allowedLiterals = ['none'] as const;
-                if (allowedLiterals.includes(value as any)) return true;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "Box<T>") return true;
                     } else {
@@ -810,7 +812,7 @@ export function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeCon
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __tag = (value as any)["kind"];
+        const __tag = __mf_member(value, "kind");
         if (!__matched && __tag === "box") { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
         if (!__matched && __tag === "circle") { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
     }
@@ -819,11 +821,12 @@ export function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeCon
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "kind": __mf_member(value, "kind") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -892,15 +895,15 @@ export function taggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeConte
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["kind"];
+        const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
             if (__typeName === "box") {
                 const __inner = ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx);
-                return { ...(__inner as any), "kind": "box" } as Tagged<T>;
+                return { ...__inner, "kind": "box" } as Tagged<T>;
             }
             if (__typeName === "circle") {
                 const __inner = circleDecodeWithContext(value, ctx);
-                return { ...(__inner as any), "kind": "circle" } as Tagged<T>;
+                return { ...__inner, "kind": "circle" } as Tagged<T>;
             }
         }
     }
@@ -912,8 +915,8 @@ export function taggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeConte
 }
 export function taggedHasShape(value: unknown): boolean {
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["kind"];
-                    if (["box", "circle"].includes(__typeName)) return true;
+                    const __typeName = __mf_member(value, "kind");
+                    if (["box", "circle"].some((tag) => tag === __typeName)) return true;
                 }
                 return false;
 }
@@ -1106,32 +1109,32 @@ export {};
 
 ## Mapping
 
-original 30..64 -> expanded 832..866
-original 64..66 -> expanded 9926..9928
-original 96..137 -> expanded 9928..9969
-original 137..139 -> expanded 18315..18317
-original 169..202 -> expanded 18317..18350
-original 202..204 -> expanded 25830..25832
-original 234..269 -> expanded 25832..25867
-original 269..271 -> expanded 33192..33194
-original 332..409 -> expanded 33194..33271
-original 409..410 -> expanded 39588..39589
-generated 0..832 <- imports
-generated 866..3164 <- Encode
-generated 3164..9040 <- Decode
-generated 9040..9926 <- __convenience_const
-generated 9969..12076 <- Encode
-generated 12076..17366 <- Decode
-generated 17366..18315 <- __convenience_const
-generated 18350..20542 <- Encode
-generated 20542..25354 <- Decode
-generated 25354..25830 <- __convenience_const
-generated 25867..27962 <- Encode
-generated 27962..32690 <- Decode
-generated 32690..33192 <- __convenience_const
-generated 33271..35212 <- Encode
-generated 35212..38967 <- Decode
-generated 38967..39588 <- __convenience_const
+original 30..64 -> expanded 855..889
+original 64..66 -> expanded 9949..9951
+original 96..137 -> expanded 9951..9992
+original 137..139 -> expanded 18338..18340
+original 169..202 -> expanded 18340..18373
+original 202..204 -> expanded 25912..25914
+original 234..269 -> expanded 25914..25949
+original 269..271 -> expanded 33361..33363
+original 332..409 -> expanded 33363..33440
+original 409..410 -> expanded 39811..39812
+generated 0..855 <- imports
+generated 889..3187 <- Encode
+generated 3187..9063 <- Decode
+generated 9063..9949 <- __convenience_const
+generated 9992..12099 <- Encode
+generated 12099..17389 <- Decode
+generated 17389..18338 <- __convenience_const
+generated 18373..20616 <- Encode
+generated 20616..25436 <- Decode
+generated 25436..25912 <- __convenience_const
+generated 25949..28095 <- Encode
+generated 28095..32859 <- Decode
+generated 32859..33361 <- __convenience_const
+generated 33440..35432 <- Encode
+generated 35432..39190 <- Decode
+generated 39190..39811 <- __convenience_const
 
 ## Metadata
 

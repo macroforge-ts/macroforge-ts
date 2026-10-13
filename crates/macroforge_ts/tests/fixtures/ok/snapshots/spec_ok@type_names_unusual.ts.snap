@@ -33,7 +33,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A type's functions are named after it whatever its name opens with. */
 
@@ -512,11 +512,12 @@ export function httpStatusEncodeWithContext(value: HTTPStatus, ctx: __mf_EncodeC
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1108,43 +1109,43 @@ Error [297..354]: @derive(Default) on union type 'HTTPStatus' requires @default 
 
 ## Mapping
 
-original 0..75 -> expanded 1025..1100
-original 139..184 -> expanded 1100..1145
-original 184..186 -> expanded 10355..10357
-original 250..290 -> expanded 10357..10397
-original 290..292 -> expanded 19162..19164
-original 356..396 -> expanded 19164..19204
-original 396..398 -> expanded 23359..23361
-original 462..557 -> expanded 23361..23456
-original 557..558 -> expanded 36472..36473
-generated 0..1025 <- imports
-generated 1145..1394 <- Debug
-generated 1394..1523 <- Clone
-generated 1523..1677 <- PartialEq
-generated 1677..1765 <- Default
-generated 1765..3871 <- Encode
-generated 3871..9086 <- Decode
-generated 9086..10355 <- __convenience_const
-generated 10397..10631 <- Debug
-generated 10631..10740 <- Clone
-generated 10740..10879 <- PartialEq
-generated 10879..10957 <- Default
-generated 10957..12988 <- Encode
-generated 12988..18038 <- Decode
-generated 18038..19162 <- __convenience_const
-generated 19204..19319 <- Debug
-generated 19319..19405 <- Clone
-generated 19405..19502 <- PartialEq
-generated 19502..20883 <- Encode
-generated 20883..22591 <- Decode
-generated 22591..23359 <- __convenience_const
-generated 23456..23852 <- Debug
-generated 23852..24096 <- Clone
-generated 24096..24363 <- PartialEq
-generated 24363..24527 <- Default
-generated 24527..27081 <- Encode
-generated 27081..35232 <- Decode
-generated 35232..36472 <- __convenience_const
+original 0..75 -> expanded 1048..1123
+original 139..184 -> expanded 1123..1168
+original 184..186 -> expanded 10378..10380
+original 250..290 -> expanded 10380..10420
+original 290..292 -> expanded 19185..19187
+original 356..396 -> expanded 19187..19227
+original 396..398 -> expanded 23429..23431
+original 462..557 -> expanded 23431..23526
+original 557..558 -> expanded 36542..36543
+generated 0..1048 <- imports
+generated 1168..1417 <- Debug
+generated 1417..1546 <- Clone
+generated 1546..1700 <- PartialEq
+generated 1700..1788 <- Default
+generated 1788..3894 <- Encode
+generated 3894..9109 <- Decode
+generated 9109..10378 <- __convenience_const
+generated 10420..10654 <- Debug
+generated 10654..10763 <- Clone
+generated 10763..10902 <- PartialEq
+generated 10902..10980 <- Default
+generated 10980..13011 <- Encode
+generated 13011..18061 <- Decode
+generated 18061..19185 <- __convenience_const
+generated 19227..19342 <- Debug
+generated 19342..19428 <- Clone
+generated 19428..19525 <- PartialEq
+generated 19525..20953 <- Encode
+generated 20953..22661 <- Decode
+generated 22661..23429 <- __convenience_const
+generated 23526..23922 <- Debug
+generated 23922..24166 <- Clone
+generated 24166..24433 <- PartialEq
+generated 24433..24597 <- Default
+generated 24597..27151 <- Encode
+generated 27151..35302 <- Decode
+generated 35302..36542 <- __convenience_const
 
 ## Metadata
 

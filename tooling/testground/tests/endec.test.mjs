@@ -1584,7 +1584,7 @@ describe('Enum tagging modes: expansion', () => {
         );
         // Decode: should check __type tag field
         assert.ok(
-            result.code.includes('(value as any)["__type"]'),
+            result.code.includes('__mf_member(value, "__type")'),
             'InternallyTagged decode should check __type field'
         );
     });
@@ -1599,7 +1599,7 @@ describe('Enum tagging modes: expansion', () => {
 
         // Decode: should check custom "kind" field
         assert.ok(
-            result.code.includes('(value as any)["kind"]'),
+            result.code.includes('__mf_member(value, "kind")'),
             'InternallyTagged with custom tag should check "kind" field'
         );
     });
@@ -1656,11 +1656,11 @@ describe('Enum tagging modes: expansion', () => {
         );
         // Decode: should read tag and content fields
         assert.ok(
-            result.code.includes('(value as any)["t"]'),
+            result.code.includes('__mf_member(value, "t")'),
             'AdjacentlyTagged decode should read tag field "t"'
         );
         assert.ok(
-            result.code.includes('(value as any)["c"]'),
+            result.code.includes('__mf_member(value, "c")'),
             'AdjacentlyTagged decode should read content field "c"'
         );
         assert.ok(

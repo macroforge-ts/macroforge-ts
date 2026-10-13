@@ -25,7 +25,7 @@ pub(super) fn encode_flattened_field(field: &EncodeField, tag_field: &str) -> Ts
     } else {
         ts_template! {
             const __flattened = @{encoded};
-            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as any;
+            const { ["@{tag_field}"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
             Object.assign(result, rest);
         }
     };

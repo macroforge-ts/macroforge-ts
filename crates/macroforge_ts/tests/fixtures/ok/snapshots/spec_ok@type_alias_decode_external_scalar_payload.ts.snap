@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An externally-tagged variant whose payload is a link type: encodable in
 // its own right, but carried as a bare id string as often as an object. The
@@ -59,11 +59,12 @@ export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unkno
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -199,11 +200,11 @@ export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): u
     }
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { [__typeName]: fields };
-    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -270,7 +271,7 @@ export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     
     const allowedLiterals = ['Active'] as const;
-    if (allowedLiterals.includes(value as any)) {
+    if (allowedLiterals.some((allowed) => allowed === value)) {
         return value as Stage;
     }
 
@@ -278,7 +279,7 @@ export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
         const __keys = Object.keys(value);
         const __variantName = __keys[0];
         if (__variantName !== undefined) {
-            const __inner = (value as any)[__variantName];
+            const __inner = __mf_member(value, __variantName);
             if (__variantName === "Invoice") {
                 return ({ "Invoice": refDecodeWithContext(__inner ?? {}, ctx) }) as Stage;
             }
@@ -292,7 +293,7 @@ export function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 }
 export function stageHasShape(value: unknown): boolean {
                 const allowedLiterals = ['Active'] as const;
-                if (allowedLiterals.includes(value as any)) return true;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
                 if (typeof value === "object" && value !== null) {
                     const __keys = Object.keys(value);
                     const __variantName = __keys[0];
@@ -305,7 +306,7 @@ export function stageHasShape(value: unknown): boolean {
 export function stageIs(value: unknown): value is Stage {
     return stageHasShape(value);
 }
-export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: any }> {
+export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: unknown }> {
     return __v !== null
         && typeof __v === "object"
         && "Invoice" in __v;
@@ -384,7 +385,7 @@ export declare function stageDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 export declare function stageHasShape(value: unknown): boolean;
 export declare function stageIs(value: unknown): value is Stage;
 export declare function stageInvoiceIs(__v: unknown): __v is Extract<Stage, {
-	Invoice: any;
+	Invoice: unknown;
 }>;
 export declare const Stage: {
 	readonly encode: typeof stageEncode;
@@ -402,18 +403,18 @@ export declare const Stage: {
 
 ## Mapping
 
-original 0..278 -> expanded 550..828
-original 308..351 -> expanded 828..871
-original 351..353 -> expanded 5607..5609
-original 425..474 -> expanded 5609..5658
-original 474..475 -> expanded 11342..11343
-generated 0..550 <- imports
-generated 871..2468 <- Encode
-generated 2468..5150 <- Decode
-generated 5150..5607 <- __convenience_const
-generated 5658..7324 <- Encode
-generated 7324..10785 <- Decode
-generated 10785..11342 <- __convenience_const
+original 0..278 -> expanded 573..851
+original 308..351 -> expanded 851..894
+original 351..353 -> expanded 5677..5679
+original 425..474 -> expanded 5679..5728
+original 474..475 -> expanded 11474..11475
+generated 0..573 <- imports
+generated 894..2538 <- Encode
+generated 2538..5220 <- Decode
+generated 5220..5677 <- __convenience_const
+generated 5728..7420 <- Encode
+generated 7420..10917 <- Decode
+generated 10917..11474 <- __convenience_const
 
 ## Metadata
 

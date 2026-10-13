@@ -15,7 +15,7 @@ true
 import { productDecodeWithContext, productEncodeWithContext } from "./product.svelte";
 import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkEncodeWithContext, recordLinkDefaultValue } from "./record-link.svelte";
 import { serviceDecodeWithContext, serviceEncodeWithContext } from "./service.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -50,7 +50,7 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
         if (!__matched && recordLinkHasShape(value)) { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
@@ -61,11 +61,12 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -134,7 +135,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "RecordLink<Product>") {
                 return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
@@ -189,7 +190,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 export function itemHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>";
                     }
@@ -450,15 +451,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 931..1144
-original 262..340 -> expanded 1144..1222
-original 340..341 -> expanded 14583..14584
-generated 0..931 <- imports
-generated 1222..1283 <- Default
-generated 1283..3848 <- Encode
-generated 3848..9341 <- Decode
-generated 9341..13869 <- Gigaform
-generated 13869..14583 <- __convenience_const
+original 0..213 -> expanded 954..1167
+original 262..340 -> expanded 1167..1245
+original 340..341 -> expanded 14665..14666
+generated 0..954 <- imports
+generated 1245..1306 <- Default
+generated 1306..3922 <- Encode
+generated 3922..9423 <- Decode
+generated 9423..13951 <- Gigaform
+generated 13951..14665 <- __convenience_const
 
 ## Metadata
 

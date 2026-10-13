@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Nested values encoded and decoded through an interface and an object type
@@ -536,7 +536,7 @@ function labeledEncodeFields(value: Labeled, ctx: __mf_EncodeContext, result: Re
     if (__fields === undefined || __fields.keeps("origin")) {
         if (value.origin !== undefined) {
             const __flattened = pointEncodePartialWithContext(value.origin, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
             Object.assign(result, rest);
         }
     }
@@ -1180,7 +1180,7 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "Box") { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
         if (!__matched && boxHasShape(value)) { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
     }
@@ -1189,11 +1189,12 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1261,12 +1262,12 @@ export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
 
     
     const allowedLiterals = ['none'] as const;
-    if (allowedLiterals.includes(value as any)) {
+    if (allowedLiterals.some((allowed) => allowed === value)) {
         return value as Outcome<T>;
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "Box<T>") {
                 return ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx) as Outcome<T>;
@@ -1299,10 +1300,10 @@ export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
 }
 export function outcomeHasShape(value: unknown): boolean {
                 const allowedLiterals = ['none'] as const;
-                if (allowedLiterals.includes(value as any)) return true;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "Box<T>") return true;
                     } else {
@@ -1669,32 +1670,32 @@ export declare const Outcome: {
 
 ## Mapping
 
-original 0..255 -> expanded 933..1188
-original 255..400 -> expanded 10162..10307
-original 400..526 -> expanded 22240..22366
-original 526..619 -> expanded 31680..31773
-original 619..710 -> expanded 41660..41751
-original 710..784 -> expanded 52725..52799
-original 784..785 -> expanded 60131..60132
-generated 0..933 <- imports
-generated 1188..3260 <- Encode
-generated 3260..9227 <- Decode
-generated 9227..10162 <- __convenience_const
-generated 10307..12939 <- Encode
-generated 12939..21305 <- Decode
-generated 21305..22240 <- __convenience_const
-generated 22366..24803 <- Encode
-generated 24803..30703 <- Decode
-generated 30703..31680 <- __convenience_const
-generated 31773..34237 <- Encode
-generated 34237..40767 <- Decode
-generated 40767..41660 <- __convenience_const
-generated 41751..44481 <- Encode
-generated 44481..51811 <- Decode
-generated 51811..52725 <- __convenience_const
-generated 52799..54894 <- Encode
-generated 54894..59622 <- Decode
-generated 59622..60131 <- __convenience_const
+original 0..255 -> expanded 956..1211
+original 255..400 -> expanded 10185..10330
+original 400..526 -> expanded 22263..22389
+original 526..619 -> expanded 31723..31816
+original 619..710 -> expanded 41703..41794
+original 710..784 -> expanded 52768..52842
+original 784..785 -> expanded 60261..60262
+generated 0..956 <- imports
+generated 1211..3283 <- Encode
+generated 3283..9250 <- Decode
+generated 9250..10185 <- __convenience_const
+generated 10330..12962 <- Encode
+generated 12962..21328 <- Decode
+generated 21328..22263 <- __convenience_const
+generated 22389..24846 <- Encode
+generated 24846..30746 <- Decode
+generated 30746..31723 <- __convenience_const
+generated 31816..34280 <- Encode
+generated 34280..40810 <- Decode
+generated 40810..41703 <- __convenience_const
+generated 41794..44524 <- Encode
+generated 44524..51854 <- Decode
+generated 51854..52768 <- __convenience_const
+generated 52842..54988 <- Encode
+generated 54988..59752 <- Decode
+generated 59752..60261 <- __convenience_const
 
 ## Metadata
 

@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemDecodePartialWithContext, edgeItemEncodePartialWithContext, edgeItemHasShape, edgeCardDecodeWithContext, edgeCardHasShape, edgeCardEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Type aliases of every body a derive has to dispatch on: objects, tuples,
@@ -1879,11 +1879,12 @@ export function aliasLiteralsEncodeWithContext(value: AliasLiterals, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2006,11 +2007,12 @@ export function aliasMixedLiteralsEncodeWithContext(value: AliasMixedLiterals, c
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2078,7 +2080,7 @@ export function aliasMixedLiteralsDecodeWithContext(value: unknown, ctx: __mf_De
 
     
     const allowedLiterals = ['auto', 0, 1, true] as const;
-    if (allowedLiterals.includes(value as any)) {
+    if (allowedLiterals.some((allowed) => allowed === value)) {
         return value as AliasMixedLiterals;
     }
     if (value === null) {
@@ -2092,7 +2094,7 @@ export function aliasMixedLiteralsDecodeWithContext(value: unknown, ctx: __mf_De
 }
 export function aliasMixedLiteralsHasShape(value: unknown): boolean {
                 const allowedLiterals = ['auto', 0, 1, true] as const;
-                if (allowedLiterals.includes(value as any)) return true;
+                if (allowedLiterals.some((allowed) => allowed === value)) return true;
                 if (value === null) return true;
                 return false;
 }
@@ -2163,7 +2165,7 @@ export function aliasNullableEncodeWithContext(value: AliasNullable, ctx: __mf_E
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
     }
@@ -2172,11 +2174,12 @@ export function aliasNullableEncodeWithContext(value: AliasNullable, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2248,7 +2251,7 @@ export function aliasNullableDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "EdgeItem") {
                 return edgeItemDecodeWithContext(value, ctx) as AliasNullable;
@@ -2283,7 +2286,7 @@ export function aliasNullableHasShape(value: unknown): boolean {
                 if (value === null) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "EdgeItem") return true;
                     } else {
@@ -2364,7 +2367,7 @@ export function aliasOptionalEncodeWithContext(value: AliasOptional, ctx: __mf_E
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
     }
@@ -2373,11 +2376,12 @@ export function aliasOptionalEncodeWithContext(value: AliasOptional, ctx: __mf_E
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2449,7 +2453,7 @@ export function aliasOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "EdgeItem") {
                 return edgeItemDecodeWithContext(value, ctx) as AliasOptional;
@@ -2484,7 +2488,7 @@ export function aliasOptionalHasShape(value: unknown): boolean {
                 if (value === undefined) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "EdgeItem") return true;
                     } else {
@@ -2708,11 +2712,12 @@ export function aliasDateOrNullEncodeWithContext(value: AliasDateOrNull, ctx: __
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2867,7 +2872,7 @@ export function aliasMembersEncodeWithContext(value: AliasMembers, ctx: __mf_Enc
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
@@ -2878,11 +2883,12 @@ export function aliasMembersEncodeWithContext(value: AliasMembers, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2951,7 +2957,7 @@ export function aliasMembersDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "EdgeItem") {
                 return edgeItemDecodeWithContext(value, ctx) as AliasMembers;
@@ -3006,7 +3012,7 @@ export function aliasMembersDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 export function aliasMembersHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         return __typeName === "EdgeItem" || __typeName === "EdgeCard";
                     }
@@ -3109,11 +3115,12 @@ export function aliasTaggedEncodeWithContext(value: AliasTagged, ctx: __mf_Encod
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "kind": __mf_member(value, "kind") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -3182,7 +3189,7 @@ export function aliasTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["kind"];
+        const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
             if (__typeName === "circle") {
                 return { "kind": "circle", ...__mf_decodeObject(value, ctx, { radius: __mf_decodeNumber }) } as AliasTagged;
@@ -3203,8 +3210,8 @@ export function aliasTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 }
 export function aliasTaggedHasShape(value: unknown): boolean {
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["kind"];
-                    if (["circle", "square", "group"].includes(__typeName)) return true;
+                    const __typeName = __mf_member(value, "kind");
+                    if (["circle", "square", "group"].some((tag) => tag === __typeName)) return true;
                 }
                 return false;
 }
@@ -3295,7 +3302,7 @@ export function aliasAdjacentEncodeWithContext(value: AliasAdjacent, ctx: __mf_E
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["type"];
+        const __refTag = __mf_member(value, "type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
@@ -3307,11 +3314,11 @@ export function aliasAdjacentEncodeWithContext(value: AliasAdjacent, ctx: __mf_E
     }
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
-    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -3379,9 +3386,9 @@ export function aliasAdjacentDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["type"];
+        const __typeName = __mf_member(value, "type");
         if (typeof __typeName === "string") {
-            const __content = (value as any)["value"];
+            const __content = __mf_member(value, "value");
             if (__typeName === "EdgeItem") {
                 return edgeItemDecodeWithContext(__content != null && typeof __content === "object" ? __content : {}, ctx) as AliasAdjacent;
             }
@@ -3402,8 +3409,8 @@ export function aliasAdjacentDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 export function aliasAdjacentHasShape(value: unknown): boolean {
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["type"];
-                    if (typeof __typeName === "string" && "value" in (value as any)) {
+                    const __typeName = __mf_member(value, "type");
+                    if (typeof __typeName === "string" && "value" in value) {
                         return __typeName === "EdgeItem" || __typeName === "EdgeCard";
                     }
                 }
@@ -3475,7 +3482,7 @@ export function aliasExternalEncodeWithContext(value: AliasExternal, ctx: __mf_E
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
@@ -3487,11 +3494,11 @@ export function aliasExternalEncodeWithContext(value: AliasExternal, ctx: __mf_E
     }
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { [__typeName]: fields };
-    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -3562,7 +3569,7 @@ export function aliasExternalDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         const __keys = Object.keys(value);
         const __variantName = __keys[0];
         if (__variantName !== undefined) {
-            const __inner = (value as any)[__variantName];
+            const __inner = __mf_member(value, __variantName);
             if (__variantName === "EdgeItem") {
                 return edgeItemDecodeWithContext(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as AliasExternal;
             }
@@ -3669,7 +3676,7 @@ export function aliasUntaggedEncodeWithContext(value: AliasUntagged, ctx: __mf_E
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
@@ -3681,11 +3688,11 @@ export function aliasUntaggedEncodeWithContext(value: AliasUntagged, ctx: __mf_E
     }
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { ...fields };
-    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -3841,7 +3848,7 @@ export function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeCon
         __matched = true;
     }
     if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = (value as any)["__type"];
+        const __refTag = __mf_member(value, "__type");
         if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && __refTag === "AliasArray") { __variant = aliasArrayEncodeWithContext(value as any, ctx); __matched = true; }
         if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
@@ -3852,11 +3859,12 @@ export function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeCon
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -3946,7 +3954,7 @@ export function aliasDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     }
 
     if (typeof value === "object" && value !== null) {
-        const __typeName = (value as any)["__type"];
+        const __typeName = __mf_member(value, "__type");
         if (typeof __typeName === "string") {
             if (__typeName === "EdgeItem") {
                 return edgeItemDecodeWithContext(value, ctx) as AliasDeep;
@@ -3996,7 +4004,7 @@ export function aliasDeepHasShape(value: unknown): boolean {
                 if (value instanceof Date) return true;
 
                 if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
+                    const __typeName = __mf_member(value, "__type");
                     if (typeof __typeName === "string") {
                         if (__typeName === "EdgeItem" || __typeName === "AliasArray") return true;
                     } else {
@@ -5205,11 +5213,12 @@ export function aliasOutcomeEncodeWithContext(value: AliasOutcome, ctx: __mf_Enc
         __variant = value;
     }
 
-    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
-        const { __type: __typeName, ...fields } = __variant as any;
-        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
 
-        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -5377,11 +5386,11 @@ export function aliasLooseEncodeWithContext(value: AliasLoose, ctx: __mf_EncodeC
     }
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
-    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { ...fields };
-    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -7752,243 +7761,243 @@ export declare const AliasInline: {
 
 ## Mapping
 
-original 0..469 -> expanded 1819..2288
-original 469..590 -> expanded 16469..16590
-original 590..690 -> expanded 24846..24946
-original 690..786 -> expanded 30669..30765
-original 786..901 -> expanded 36595..36710
-original 901..1010 -> expanded 42458..42567
-original 1010..1111 -> expanded 48613..48714
-original 1111..1236 -> expanded 54337..54462
-original 1236..1378 -> expanded 66927..67069
-original 1378..1545 -> expanded 79373..79540
-original 1545..1696 -> expanded 84786..84937
-original 1696..1804 -> expanded 90936..91044
-original 1804..1917 -> expanded 98460..98573
-original 1917..2010 -> expanded 105999..106092
-original 2010..2116 -> expanded 111164..111270
-original 2116..2227 -> expanded 117026..117137
-original 2227..2486 -> expanded 125317..125576
-original 2486..2647 -> expanded 133677..133838
-original 2647..2801 -> expanded 140923..141077
-original 2801..2956 -> expanded 148657..148812
-original 2956..3108 -> expanded 155242..155394
-original 3108..3609 -> expanded 164426..164927
-original 3609..4003 -> expanded 191655..192049
-original 4003..4196 -> expanded 217331..217524
-original 4196..4390 -> expanded 224791..224985
-original 4390..4454 -> expanded 231915..231979
-original 4454..4709 -> expanded 235078..235333
-original 4709..4798 -> expanded 251362..251451
-original 4798..4887 -> expanded 256247..256336
-original 4887..4995 -> expanded 261158..261266
-original 4995..4996 -> expanded 271625..271626
-generated 0..1819 <- imports
-generated 2288..2645 <- Debug
-generated 2645..2909 <- Clone
-generated 2909..3310 <- PartialEq
-generated 3310..3845 <- Hash
-generated 3845..4747 <- PartialOrd
-generated 4747..5523 <- Ord
-generated 5523..5639 <- Default
-generated 5639..8137 <- Encode
-generated 8137..14818 <- Decode
-generated 14818..16469 <- __convenience_const
-generated 16590..16719 <- Debug
-generated 16719..16877 <- Clone
-generated 16877..17162 <- PartialEq
-generated 17162..17527 <- Hash
-generated 17527..18998 <- Encode
-generated 18998..23998 <- Decode
-generated 23998..24846 <- __convenience_const
-generated 24946..25075 <- Debug
-generated 25075..25209 <- Clone
-generated 25209..25519 <- PartialEq
-generated 25519..25693 <- Hash
-generated 25693..26681 <- Encode
-generated 26681..29821 <- Decode
-generated 29821..30669 <- __convenience_const
-generated 30765..30894 <- Debug
-generated 30894..31026 <- Clone
-generated 31026..31428 <- PartialEq
-generated 31428..31597 <- Hash
-generated 31597..32636 <- Encode
-generated 32636..35747 <- Decode
-generated 35747..36595 <- __convenience_const
-generated 36710..36842 <- Debug
-generated 36842..36953 <- Clone
-generated 36953..37103 <- PartialEq
-generated 37103..37211 <- Hash
-generated 37211..38300 <- Encode
-generated 38300..41589 <- Decode
-generated 41589..42458 <- __convenience_const
-generated 42567..42690 <- Debug
-generated 42690..42920 <- Clone
-generated 42920..43253 <- PartialEq
-generated 43253..43536 <- Hash
-generated 43536..44573 <- Encode
-generated 44573..47807 <- Decode
-generated 47807..48613 <- __convenience_const
-generated 48714..48837 <- Debug
-generated 48837..48982 <- Clone
-generated 48982..49245 <- PartialEq
-generated 49245..49422 <- Hash
-generated 49422..50411 <- Encode
-generated 50411..53531 <- Decode
-generated 53531..54337 <- __convenience_const
-generated 54462..54839 <- Debug
-generated 54839..55051 <- Clone
-generated 55051..55329 <- PartialEq
-generated 55329..55916 <- Hash
-generated 55916..58494 <- Encode
-generated 58494..65384 <- Decode
-generated 65384..66927 <- __convenience_const
-generated 67069..67428 <- Debug
-generated 67428..67659 <- Clone
-generated 67659..67945 <- PartialEq
-generated 67945..68432 <- Hash
-generated 68432..70992 <- Encode
-generated 70992..77569 <- Decode
-generated 77569..79373 <- __convenience_const
-generated 79540..79664 <- Debug
-generated 79664..79759 <- Clone
-generated 79759..79865 <- PartialEq
-generated 79865..79977 <- Hash
-generated 79977..80118 <- PartialOrd
-generated 80118..80245 <- Ord
-generated 80245..80329 <- Default
-generated 80329..81725 <- Encode
-generated 81725..83581 <- Decode
-generated 83581..84786 <- __convenience_const
-generated 84937..85076 <- Debug
-generated 85076..85186 <- Clone
-generated 85186..85307 <- PartialEq
-generated 85307..85429 <- Hash
-generated 85429..85522 <- Default
-generated 85522..86943 <- Encode
-generated 86943..89808 <- Decode
-generated 89808..90936 <- __convenience_const
-generated 91044..91182 <- Debug
-generated 91182..91299 <- Clone
-generated 91299..91455 <- PartialEq
-generated 91455..91567 <- Hash
-generated 91567..93351 <- Encode
-generated 93351..97549 <- Decode
-generated 97549..98460 <- __convenience_const
-generated 98573..98711 <- Debug
-generated 98711..98828 <- Clone
-generated 98828..98984 <- PartialEq
-generated 98984..99096 <- Hash
-generated 99096..100880 <- Encode
-generated 100880..105088 <- Decode
-generated 105088..105999 <- __convenience_const
-generated 106092..106204 <- Debug
-generated 106204..106307 <- Clone
-generated 106307..106517 <- PartialEq
-generated 106517..106614 <- Hash
-generated 106614..107618 <- Encode
-generated 107618..110337 <- Decode
-generated 110337..111164 <- __convenience_const
-generated 111270..111414 <- Debug
-generated 111414..111537 <- Clone
-generated 111537..111699 <- PartialEq
-generated 111699..111815 <- Hash
-generated 111815..113221 <- Encode
-generated 113221..116073 <- Decode
-generated 116073..117026 <- __convenience_const
-generated 117137..117272 <- Debug
-generated 117272..117386 <- Clone
-generated 117386..117539 <- PartialEq
-generated 117539..117649 <- Hash
-generated 117649..119690 <- Encode
-generated 119690..124427 <- Decode
-generated 124427..125317 <- __convenience_const
-generated 125576..125708 <- Debug
-generated 125708..125819 <- Clone
-generated 125819..125969 <- PartialEq
-generated 125969..126077 <- Hash
-generated 126077..128483 <- Encode
-generated 128483..132566 <- Decode
-generated 132566..133677 <- __convenience_const
-generated 133838..133976 <- Debug
-generated 133976..134093 <- Clone
-generated 134093..134249 <- PartialEq
-generated 134249..134361 <- Hash
-generated 134361..136410 <- Encode
-generated 136410..140012 <- Decode
-generated 140012..140923 <- __convenience_const
-generated 141077..141215 <- Debug
-generated 141215..141332 <- Clone
-generated 141332..141488 <- PartialEq
-generated 141488..141600 <- Hash
-generated 141600..143636 <- Encode
-generated 143636..147746 <- Decode
-generated 147746..148657 <- __convenience_const
-generated 148812..148950 <- Debug
-generated 148950..149067 <- Clone
-generated 149067..149223 <- PartialEq
-generated 149223..149335 <- Hash
-generated 149335..151360 <- Encode
-generated 151360..154331 <- Decode
-generated 154331..155242 <- __convenience_const
-generated 155394..155520 <- Debug
-generated 155520..155625 <- Clone
-generated 155625..155769 <- PartialEq
-generated 155769..155873 <- Hash
-generated 155873..157907 <- Encode
-generated 157907..163599 <- Decode
-generated 163599..164426 <- __convenience_const
-generated 164927..165977 <- Debug
-generated 165977..166677 <- Clone
-generated 166677..167603 <- PartialEq
-generated 167603..168926 <- Hash
-generated 168926..173452 <- Encode
-generated 173452..190199 <- Decode
-generated 190199..191655 <- __convenience_const
-generated 192049..193005 <- Debug
-generated 193005..193644 <- Clone
-generated 193644..194804 <- PartialEq
-generated 194804..195815 <- Hash
-generated 195815..196122 <- Default
-generated 196122..200051 <- Encode
-generated 200051..215864 <- Decode
-generated 215864..217331 <- __convenience_const
-generated 217524..217659 <- Debug
-generated 217659..217773 <- Clone
-generated 217773..217926 <- PartialEq
-generated 217926..218036 <- Hash
-generated 218036..220277 <- Encode
-generated 220277..223901 <- Decode
-generated 223901..224791 <- __convenience_const
-generated 224985..225114 <- Debug
-generated 225114..225222 <- Clone
-generated 225222..225369 <- PartialEq
-generated 225369..225475 <- Hash
-generated 225475..227566 <- Encode
-generated 227566..231067 <- Decode
-generated 231067..231915 <- __convenience_const
-generated 231979..232711 <- Encode
-generated 232711..234543 <- Decode
-generated 234543..235078 <- __convenience_const
-generated 235333..235871 <- Debug
-generated 235871..236223 <- Clone
-generated 236223..236592 <- PartialEq
-generated 236592..237085 <- Hash
-generated 237085..239926 <- Encode
-generated 239926..249964 <- Decode
-generated 249964..251362 <- __convenience_const
-generated 251451..251575 <- Default
-generated 251575..252577 <- Encode
-generated 252577..255588 <- Decode
-generated 255588..256247 <- __convenience_const
-generated 256336..256476 <- Default
-generated 256476..257461 <- Encode
-generated 257461..260469 <- Decode
-generated 260469..261158 <- __convenience_const
-generated 261266..261384 <- Default
-generated 261384..263870 <- Encode
-generated 263870..270466 <- Decode
-generated 270466..271625 <- __convenience_const
+original 0..469 -> expanded 1842..2311
+original 469..590 -> expanded 16492..16613
+original 590..690 -> expanded 24869..24969
+original 690..786 -> expanded 30692..30788
+original 786..901 -> expanded 36618..36733
+original 901..1010 -> expanded 42481..42590
+original 1010..1111 -> expanded 48636..48737
+original 1111..1236 -> expanded 54360..54485
+original 1236..1378 -> expanded 66950..67092
+original 1378..1545 -> expanded 79396..79563
+original 1545..1696 -> expanded 84856..85007
+original 1696..1804 -> expanded 91081..91189
+original 1804..1917 -> expanded 98664..98777
+original 1917..2010 -> expanded 106262..106355
+original 2010..2116 -> expanded 111427..111533
+original 2116..2227 -> expanded 117336..117447
+original 2227..2486 -> expanded 125686..125945
+original 2486..2647 -> expanded 134114..134275
+original 2647..2801 -> expanded 141393..141547
+original 2801..2956 -> expanded 149161..149316
+original 2956..3108 -> expanded 155776..155928
+original 3108..3609 -> expanded 165019..165520
+original 3609..4003 -> expanded 192248..192642
+original 4003..4196 -> expanded 217924..218117
+original 4196..4390 -> expanded 225431..225625
+original 4390..4454 -> expanded 232581..232645
+original 4454..4709 -> expanded 235744..235999
+original 4709..4798 -> expanded 252028..252117
+original 4798..4887 -> expanded 256913..257002
+original 4887..4995 -> expanded 261824..261932
+original 4995..4996 -> expanded 272291..272292
+generated 0..1842 <- imports
+generated 2311..2668 <- Debug
+generated 2668..2932 <- Clone
+generated 2932..3333 <- PartialEq
+generated 3333..3868 <- Hash
+generated 3868..4770 <- PartialOrd
+generated 4770..5546 <- Ord
+generated 5546..5662 <- Default
+generated 5662..8160 <- Encode
+generated 8160..14841 <- Decode
+generated 14841..16492 <- __convenience_const
+generated 16613..16742 <- Debug
+generated 16742..16900 <- Clone
+generated 16900..17185 <- PartialEq
+generated 17185..17550 <- Hash
+generated 17550..19021 <- Encode
+generated 19021..24021 <- Decode
+generated 24021..24869 <- __convenience_const
+generated 24969..25098 <- Debug
+generated 25098..25232 <- Clone
+generated 25232..25542 <- PartialEq
+generated 25542..25716 <- Hash
+generated 25716..26704 <- Encode
+generated 26704..29844 <- Decode
+generated 29844..30692 <- __convenience_const
+generated 30788..30917 <- Debug
+generated 30917..31049 <- Clone
+generated 31049..31451 <- PartialEq
+generated 31451..31620 <- Hash
+generated 31620..32659 <- Encode
+generated 32659..35770 <- Decode
+generated 35770..36618 <- __convenience_const
+generated 36733..36865 <- Debug
+generated 36865..36976 <- Clone
+generated 36976..37126 <- PartialEq
+generated 37126..37234 <- Hash
+generated 37234..38323 <- Encode
+generated 38323..41612 <- Decode
+generated 41612..42481 <- __convenience_const
+generated 42590..42713 <- Debug
+generated 42713..42943 <- Clone
+generated 42943..43276 <- PartialEq
+generated 43276..43559 <- Hash
+generated 43559..44596 <- Encode
+generated 44596..47830 <- Decode
+generated 47830..48636 <- __convenience_const
+generated 48737..48860 <- Debug
+generated 48860..49005 <- Clone
+generated 49005..49268 <- PartialEq
+generated 49268..49445 <- Hash
+generated 49445..50434 <- Encode
+generated 50434..53554 <- Decode
+generated 53554..54360 <- __convenience_const
+generated 54485..54862 <- Debug
+generated 54862..55074 <- Clone
+generated 55074..55352 <- PartialEq
+generated 55352..55939 <- Hash
+generated 55939..58517 <- Encode
+generated 58517..65407 <- Decode
+generated 65407..66950 <- __convenience_const
+generated 67092..67451 <- Debug
+generated 67451..67682 <- Clone
+generated 67682..67968 <- PartialEq
+generated 67968..68455 <- Hash
+generated 68455..71015 <- Encode
+generated 71015..77592 <- Decode
+generated 77592..79396 <- __convenience_const
+generated 79563..79687 <- Debug
+generated 79687..79782 <- Clone
+generated 79782..79888 <- PartialEq
+generated 79888..80000 <- Hash
+generated 80000..80141 <- PartialOrd
+generated 80141..80268 <- Ord
+generated 80268..80352 <- Default
+generated 80352..81795 <- Encode
+generated 81795..83651 <- Decode
+generated 83651..84856 <- __convenience_const
+generated 85007..85146 <- Debug
+generated 85146..85256 <- Clone
+generated 85256..85377 <- PartialEq
+generated 85377..85499 <- Hash
+generated 85499..85592 <- Default
+generated 85592..87060 <- Encode
+generated 87060..89953 <- Decode
+generated 89953..91081 <- __convenience_const
+generated 91189..91327 <- Debug
+generated 91327..91444 <- Clone
+generated 91444..91600 <- PartialEq
+generated 91600..91712 <- Hash
+generated 91712..93547 <- Encode
+generated 93547..97753 <- Decode
+generated 97753..98664 <- __convenience_const
+generated 98777..98915 <- Debug
+generated 98915..99032 <- Clone
+generated 99032..99188 <- PartialEq
+generated 99188..99300 <- Hash
+generated 99300..101135 <- Encode
+generated 101135..105351 <- Decode
+generated 105351..106262 <- __convenience_const
+generated 106355..106467 <- Debug
+generated 106467..106570 <- Clone
+generated 106570..106780 <- PartialEq
+generated 106780..106877 <- Hash
+generated 106877..107881 <- Encode
+generated 107881..110600 <- Decode
+generated 110600..111427 <- __convenience_const
+generated 111533..111677 <- Debug
+generated 111677..111800 <- Clone
+generated 111800..111962 <- PartialEq
+generated 111962..112078 <- Hash
+generated 112078..113531 <- Encode
+generated 113531..116383 <- Decode
+generated 116383..117336 <- __convenience_const
+generated 117447..117582 <- Debug
+generated 117582..117696 <- Clone
+generated 117696..117849 <- PartialEq
+generated 117849..117959 <- Hash
+generated 117959..120051 <- Encode
+generated 120051..124796 <- Decode
+generated 124796..125686 <- __convenience_const
+generated 125945..126077 <- Debug
+generated 126077..126188 <- Clone
+generated 126188..126338 <- PartialEq
+generated 126338..126446 <- Hash
+generated 126446..128899 <- Encode
+generated 128899..133003 <- Decode
+generated 133003..134114 <- __convenience_const
+generated 134275..134413 <- Debug
+generated 134413..134530 <- Clone
+generated 134530..134686 <- PartialEq
+generated 134686..134798 <- Hash
+generated 134798..136877 <- Encode
+generated 136877..140482 <- Decode
+generated 140482..141393 <- __convenience_const
+generated 141547..141685 <- Debug
+generated 141685..141802 <- Clone
+generated 141802..141958 <- PartialEq
+generated 141958..142070 <- Hash
+generated 142070..144136 <- Encode
+generated 144136..148250 <- Decode
+generated 148250..149161 <- __convenience_const
+generated 149316..149454 <- Debug
+generated 149454..149571 <- Clone
+generated 149571..149727 <- PartialEq
+generated 149727..149839 <- Hash
+generated 149839..151894 <- Encode
+generated 151894..154865 <- Decode
+generated 154865..155776 <- __convenience_const
+generated 155928..156054 <- Debug
+generated 156054..156159 <- Clone
+generated 156159..156303 <- PartialEq
+generated 156303..156407 <- Hash
+generated 156407..158492 <- Encode
+generated 158492..164192 <- Decode
+generated 164192..165019 <- __convenience_const
+generated 165520..166570 <- Debug
+generated 166570..167270 <- Clone
+generated 167270..168196 <- PartialEq
+generated 168196..169519 <- Hash
+generated 169519..174045 <- Encode
+generated 174045..190792 <- Decode
+generated 190792..192248 <- __convenience_const
+generated 192642..193598 <- Debug
+generated 193598..194237 <- Clone
+generated 194237..195397 <- PartialEq
+generated 195397..196408 <- Hash
+generated 196408..196715 <- Default
+generated 196715..200644 <- Encode
+generated 200644..216457 <- Decode
+generated 216457..217924 <- __convenience_const
+generated 218117..218252 <- Debug
+generated 218252..218366 <- Clone
+generated 218366..218519 <- PartialEq
+generated 218519..218629 <- Hash
+generated 218629..220917 <- Encode
+generated 220917..224541 <- Decode
+generated 224541..225431 <- __convenience_const
+generated 225625..225754 <- Debug
+generated 225754..225862 <- Clone
+generated 225862..226009 <- PartialEq
+generated 226009..226115 <- Hash
+generated 226115..228232 <- Encode
+generated 228232..231733 <- Decode
+generated 231733..232581 <- __convenience_const
+generated 232645..233377 <- Encode
+generated 233377..235209 <- Decode
+generated 235209..235744 <- __convenience_const
+generated 235999..236537 <- Debug
+generated 236537..236889 <- Clone
+generated 236889..237258 <- PartialEq
+generated 237258..237751 <- Hash
+generated 237751..240592 <- Encode
+generated 240592..250630 <- Decode
+generated 250630..252028 <- __convenience_const
+generated 252117..252241 <- Default
+generated 252241..253243 <- Encode
+generated 253243..256254 <- Decode
+generated 256254..256913 <- __convenience_const
+generated 257002..257142 <- Default
+generated 257142..258127 <- Encode
+generated 258127..261135 <- Decode
+generated 261135..261824 <- __convenience_const
+generated 261932..262050 <- Default
+generated 262050..264536 <- Encode
+generated 264536..271132 <- Decode
+generated 271132..272291 <- __convenience_const
 
 ## Metadata
 
