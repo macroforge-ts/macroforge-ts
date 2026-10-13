@@ -68,6 +68,35 @@ describe('script preprocessor', () => {
         assert.ok(true, 'Should attempt to process JavaScript blocks');
     });
 
+    test('a built-in derive in a JavaScript block is refused, not left as TypeScript', async () => {
+        const typed = await macroforgePreprocess().script({
+            content: '/** @derive(Debug) */ class Foo {}',
+            filename: 'test.svelte',
+            attributes: { lang: 'ts' }
+        });
+        // Without the native binding nothing is expanded, and there is
+        // nothing to compare.
+        if (typed === undefined) return;
+
+        const logged = [];
+        const original = console.error;
+        console.error = (...parts) => logged.push(parts.join(' '));
+        try {
+            const result = await macroforgePreprocess({ processJavaScript: true }).script({
+                content: '/** @derive(Debug) */ class Foo {}',
+                filename: 'test.svelte',
+                attributes: {}
+            });
+            assert.strictEqual(result, undefined, 'a refused block is left as it was');
+        } finally {
+            console.error = original;
+        }
+        assert.ok(
+            logged.some((line) => line.includes('is a JavaScript file')),
+            `expected the refusal to be logged, got: ${logged.join(' | ')}`
+        );
+    });
+
     test('processes TypeScript blocks with lang="ts"', async () => {
         const preprocessor = macroforgePreprocess();
 

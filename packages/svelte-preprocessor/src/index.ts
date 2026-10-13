@@ -447,8 +447,14 @@ export function macroforgePreprocess(
             return;
         }
 
+        // A JavaScript block is expanded under a JavaScript name, so that a
+        // macro that writes TypeScript is refused there instead of leaving
+        // types in a script Svelte reads as JavaScript.
+        const component = filename || 'component.svelte';
+        const expandedAs = isTypeScript ? component : `${component}.js`;
+
         // A block with nothing to expand never reaches the engine.
-        if (!loaded.hasMacroAnnotations(content, filename || 'component.svelte')) {
+        if (!loaded.hasMacroAnnotations(content, expandedAs)) {
             return;
         }
 
@@ -459,7 +465,7 @@ export function macroforgePreprocess(
              * Call the native engine to parse the TypeScript, find @derive decorators,
              * and generate the expanded code with all macro-derived methods/properties.
              */
-            const result = loaded.expandSync(content, filename || 'component.svelte', {
+            const result = loaded.expandSync(content, expandedAs, {
                 keepDecorators,
                 emitMetadata: false
             });
