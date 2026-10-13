@@ -1661,7 +1661,7 @@ impl MacroExpander {
                             |registry| registry.borrowed_modules(),
                         ));
                         // A default or a namespace import names no export.
-                        let exported_names: HashMap<String, String> =
+                        let mut exported_names: HashMap<String, String> =
                             crate::host::import_registry::with_registry(|registry| {
                                 registry.aliases()
                             })
@@ -1671,15 +1671,22 @@ impl MacroExpander {
                         // A type the registry holds is the project's own,
                         // by whatever path the file imports it.
                         let file_imports = ctx.import_registry.file_import_entries();
-                        let project_types: std::collections::HashSet<String> = import_sources
-                            .keys()
-                            .filter(|name| {
-                                self.type_registry
-                                    .resolve_in_file(name, &ctx.file_name, &file_imports)
-                                    .is_some()
-                            })
-                            .cloned()
-                            .collect();
+                        let mut project_types = std::collections::HashSet::new();
+                        for name in import_sources.keys() {
+                            let Some(entry) = self.type_registry.resolve_in_file(
+                                name,
+                                &ctx.file_name,
+                                &file_imports,
+                            ) else {
+                                continue;
+                            };
+                            project_types.insert(name.clone());
+                            // Its functions carry the name it is declared
+                            // under, whatever it is exported or imported as.
+                            if entry.name != *name {
+                                exported_names.insert(name.clone(), entry.name.clone());
+                            }
+                        }
                         let external_imports = external_type_function_import_patches(
                             tokens,
                             &import_sources,

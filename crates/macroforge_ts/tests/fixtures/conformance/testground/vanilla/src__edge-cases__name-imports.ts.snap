@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/name-imports.ts
-sha256 de6c33cc2513cde9dccc226afbfa5c5f7f166f942159b910f88fbbb83f499537
+sha256 22b3d7a255ebe4aaf4e4adc92662bd60858599b25e3f8bdfa73180f6500cf51f
 
 ## Changed
 
@@ -12,6 +12,7 @@ true
 
 ## Output
 
+import { nameModelDecodeWithContext as chosenDecodeWithContext, nameLateDecodeWithContext as nameShownDecodeWithContext, nameModelEncodeWithContext as chosenEncodeWithContext, nameLateEncodeWithContext as nameShownEncodeWithContext, nameModelDefaultValue as chosenDefaultValue, nameLateDefaultValue as nameShownDefaultValue } from "./name-exports";
 import { edgeItemDecodePartialWithContext as itemDecodePartialWithContext, edgeItemDecodeWithContext as itemDecodeWithContext, edgeItemEncodePartialWithContext as itemEncodePartialWithContext, edgeItemEncodeWithContext as itemEncodeWithContext, edgeItemDefaultValue as itemDefaultValue } from "./edge-types";
 import { point2DDecodeWithContext, point2DEncodeWithContext, point2DDefaultValue, point2DHashCode, point2DEquals, point2DClone, point2DToString } from "./name-shapes";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
@@ -19,11 +20,15 @@ import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_enc
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types held from another module under names that do not lead to their
- * functions by themselves: one named in lowercase, and one imported under
- * another name. Their functions are imported like any other type's.
+ * functions by themselves: one named in lowercase, one imported under
+ * another name, one exported under another name, and a default export
+ * imported under a name of this module's own. Their functions are imported
+ * like any other type's.
  */
 
 import type { EdgeItem as Item } from './edge-types';
+import type Chosen from './name-exports';
+import type { NameShown } from './name-exports';
 import type { point2D } from './name-shapes';
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -758,14 +763,380 @@ export const NameRenamed: {
   is: nameRenamedIs
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameExported {
+    chosen: Chosen;
+    shown: NameShown;
+    listed: NameShown[];
+    maybe: Chosen | null;
+}
+
+export function nameExportedToString(value: NameExported): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("chosen: " + __mf_structuralDebug(value.chosen));
+    parts.push("shown: " + __mf_structuralDebug(value.shown));
+    parts.push("listed: " + __mf_structuralDebug(value.listed));
+    parts.push("maybe: " + __mf_structuralDebug(value.maybe));
+        return "NameExported { " + parts.join(", ") + " }";
+    });
+}
+
+export function nameExportedClone(value: NameExported): NameExported {
+    return __mf_clonedWith(value, (): NameExported => ({
+	chosen: __mf_structuralClone(value.chosen),
+	shown: __mf_structuralClone(value.shown),
+	listed: value.listed.map((__item0) => __mf_structuralClone(__item0)),
+	maybe: __mf_structuralClone(value.maybe)
+}));
+}
+
+export function nameExportedEquals(a: NameExported, b: NameExported): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.chosen, b.chosen) && __mf_structuralEquals(a.shown, b.shown) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+	const __other0 = b.listed[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+}) && __mf_structuralEquals(a.maybe, b.maybe));
+}
+
+export function nameExportedHashCode(value: NameExported): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.chosen))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.shown))) | 0;
+    hash = (hash * 31 + (value.listed.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.maybe))) | 0;
+        return hash;
+    });
+}
+
+export function nameExportedDefaultValue(): NameExported {
+    return {
+        chosen: chosenDefaultValue(),
+        shown: nameShownDefaultValue(),
+        listed: [],
+        maybe: null,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function nameExportedEncode(value: NameExported, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = nameExportedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function nameExportedEncodeWithContext(value: NameExported, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameExported" });
+    nameExportedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function nameExportedEncodePartialWithContext(value: Partial<NameExported>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameExported>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NameExported" };
+        nameExportedEncodeFields(value as NameExported, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function nameExportedEncodeFields(value: NameExported, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("chosen")) {
+        if (value.chosen !== undefined) {
+            result["chosen"] = chosenEncodeWithContext(value.chosen, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("shown")) {
+        if (value.shown !== undefined) {
+            result["shown"] = nameShownEncodeWithContext(value.shown, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("listed")) {
+        if (value.listed !== undefined) {
+            result["listed"] = value.listed.map((__item0) => nameShownEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result["maybe"] = value.maybe === null ? null : chosenEncodeWithContext(value.maybe, ctx);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function nameExportedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameExported } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = nameExportedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NameExported.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameExported | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameExported> | __mf_PendingRef;
+export function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NameExported> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameExported.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NameExported.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NameExported") as NameExported | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameExported.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("chosen")) && !("chosen" in obj)) {
+        errors.push({ field: "chosen", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("shown")) && !("shown" in obj)) {
+        errors.push({ field: "shown", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj)) {
+        errors.push({ field: "listed", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NameExported");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("chosen")) ? "chosen" in obj : (__fields.keeps("chosen") && obj["chosen"] !== undefined)) {
+        const __raw_chosen = obj["chosen"] as Chosen;
+
+        ctx.pushScope("chosen");
+        try {
+            const __result = chosenDecodeWithContext(__raw_chosen, ctx);
+            ctx.assignOrDefer(instance, "chosen", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "chosen" : "chosen." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "chosen", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("shown")) ? "shown" in obj : (__fields.keeps("shown") && obj["shown"] !== undefined)) {
+        const __raw_shown = obj["shown"] as NameShown;
+
+        ctx.pushScope("shown");
+        try {
+            const __result = nameShownDecodeWithContext(__raw_shown, ctx);
+            ctx.assignOrDefer(instance, "shown", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "shown" : "shown." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "shown", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
+        const __raw_listed = obj["listed"] as NameShown[];
+        if (Array.isArray(__raw_listed)) {
+            ctx.pushScope("listed");
+            try {
+                instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => nameShownDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "listed" : "listed." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "listed", message: __raw_listed == null ? "NameExported.listed is required" : "expected NameShown[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as Chosen | null;
+
+        if (__raw_maybe === null) {
+            instance.maybe = null;
+        } else {
+            ctx.pushScope("maybe");
+            try {
+                const __result = chosenDecodeWithContext(__raw_maybe, ctx);
+                ctx.assignOrDefer(instance, "maybe", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NameExported;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function nameExportedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameExported>): Partial<NameExported> | __mf_PendingRef {
+    return nameExportedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function nameExportedValidateField<K extends keyof NameExported>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function nameExportedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function nameExportedValidateFields(partial: { readonly [K in keyof NameExported]?: unknown }): Array<{ field: string; message: string }>;
+export function nameExportedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function nameExportedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "chosen") && __mf_holds(obj, "shown") && __mf_holds(obj, "listed") && __mf_holds(obj, "maybe");
+}
+
+export function nameExportedIs(obj: unknown): obj is NameExported {
+    return nameExportedHasShape(obj) && nameExportedDecode(obj).success;
+}
+
+export const NameExported: {
+  readonly toString: typeof nameExportedToString;
+  readonly clone: typeof nameExportedClone;
+  readonly equals: typeof nameExportedEquals;
+  readonly hashCode: typeof nameExportedHashCode;
+  readonly defaultValue: typeof nameExportedDefaultValue;
+  readonly encode: typeof nameExportedEncode;
+  readonly encodeWithContext: typeof nameExportedEncodeWithContext;
+  readonly encodePartialWithContext: typeof nameExportedEncodePartialWithContext;
+  readonly decode: typeof nameExportedDecode;
+  readonly decodeWithContext: typeof nameExportedDecodeWithContext;
+  readonly decodePartialWithContext: typeof nameExportedDecodePartialWithContext;
+  readonly validateField: typeof nameExportedValidateField;
+  readonly validateFields: typeof nameExportedValidateFields;
+  readonly hasShape: typeof nameExportedHasShape;
+  readonly is: typeof nameExportedIs;
+} = {
+  toString: nameExportedToString,
+  clone: nameExportedClone,
+  equals: nameExportedEquals,
+  hashCode: nameExportedHashCode,
+  defaultValue: nameExportedDefaultValue,
+  encode: nameExportedEncode,
+  encodeWithContext: nameExportedEncodeWithContext,
+  encodePartialWithContext: nameExportedEncodePartialWithContext,
+  decode: nameExportedDecode,
+  decodeWithContext: nameExportedDecodeWithContext,
+  decodePartialWithContext: nameExportedDecodePartialWithContext,
+  validateField: nameExportedValidateField,
+  validateFields: nameExportedValidateFields,
+  hasShape: nameExportedHasShape,
+  is: nameExportedIs
+};
+
 ## DTS
 
 /**
 * Types held from another module under names that do not lead to their
-* functions by themselves: one named in lowercase, and one imported under
-* another name. Their functions are imported like any other type's.
+* functions by themselves: one named in lowercase, one imported under
+* another name, one exported under another name, and a default export
+* imported under a name of this module's own. Their functions are imported
+* like any other type's.
 */
 import type { EdgeItem as Item } from "./edge-types";
+import type Chosen from "./name-exports";
+import type { NameShown } from "./name-exports";
 import type { point2D } from "./name-shapes";
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface NameImports {
@@ -891,6 +1262,68 @@ export declare const NameRenamed: {
 	readonly hasShape: typeof nameRenamedHasShape;
 	readonly is: typeof nameRenamedIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameExported {
+	chosen: Chosen;
+	shown: NameShown;
+	listed: NameShown[];
+	maybe: Chosen | null;
+}
+export declare function nameExportedToString(value: NameExported): string;
+export declare function nameExportedClone(value: NameExported): NameExported;
+export declare function nameExportedEquals(a: NameExported, b: NameExported): boolean;
+export declare function nameExportedHashCode(value: NameExported): number;
+export declare function nameExportedDefaultValue(): NameExported;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function nameExportedEncode(value: NameExported, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function nameExportedEncodeWithContext(value: NameExported, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function nameExportedEncodePartialWithContext(value: Partial<NameExported>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameExported>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function nameExportedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NameExported;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameExported | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameExported> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function nameExportedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameExported>): Partial<NameExported> | __mf_PendingRef;
+export declare function nameExportedValidateField<K extends keyof NameExported>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameExportedValidateFields(partial: { readonly [K in keyof NameExported]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameExportedHasShape(obj: unknown): boolean;
+export declare function nameExportedIs(obj: unknown): obj is NameExported;
+export declare const NameExported: {
+	readonly toString: typeof nameExportedToString;
+	readonly clone: typeof nameExportedClone;
+	readonly equals: typeof nameExportedEquals;
+	readonly hashCode: typeof nameExportedHashCode;
+	readonly defaultValue: typeof nameExportedDefaultValue;
+	readonly encode: typeof nameExportedEncode;
+	readonly encodeWithContext: typeof nameExportedEncodeWithContext;
+	readonly encodePartialWithContext: typeof nameExportedEncodePartialWithContext;
+	readonly decode: typeof nameExportedDecode;
+	readonly decodeWithContext: typeof nameExportedDecodeWithContext;
+	readonly decodePartialWithContext: typeof nameExportedDecodePartialWithContext;
+	readonly validateField: typeof nameExportedValidateField;
+	readonly validateFields: typeof nameExportedValidateFields;
+	readonly hasShape: typeof nameExportedHasShape;
+	readonly is: typeof nameExportedIs;
+};
 
 ## Diagnostics
 
@@ -898,38 +1331,53 @@ export declare const NameRenamed: {
 
 ## Mapping
 
-original 0..532 -> expanded 1566..2098
-original 532..722 -> expanded 18925..19115
-original 722..723 -> expanded 34917..34918
-generated 0..1566 <- imports
-generated 2098..2628 <- Debug
-generated 2628..3102 <- Clone
-generated 3102..3840 <- PartialEq
-generated 3840..4525 <- Hash
-generated 4525..4710 <- Default
-generated 4710..7628 <- Encode
-generated 7628..17458 <- Decode
-generated 17458..18925 <- __convenience_const
-generated 19115..19583 <- Debug
-generated 19583..19910 <- Clone
-generated 19910..20406 <- PartialEq
-generated 20406..20898 <- Hash
-generated 20898..21073 <- Default
-generated 21073..23904 <- Encode
-generated 23904..33450 <- Decode
-generated 33450..34917 <- __convenience_const
+original 0..723 -> expanded 1915..2638
+original 723..913 -> expanded 19465..19655
+original 913..1112 -> expanded 35457..35656
+original 1112..1113 -> expanded 51680..51681
+generated 0..1915 <- imports
+generated 2638..3168 <- Debug
+generated 3168..3642 <- Clone
+generated 3642..4380 <- PartialEq
+generated 4380..5065 <- Hash
+generated 5065..5250 <- Default
+generated 5250..8168 <- Encode
+generated 8168..17998 <- Decode
+generated 17998..19465 <- __convenience_const
+generated 19655..20123 <- Debug
+generated 20123..20450 <- Clone
+generated 20450..20946 <- PartialEq
+generated 20946..21438 <- Hash
+generated 21438..21613 <- Default
+generated 21613..24444 <- Encode
+generated 24444..33990 <- Decode
+generated 33990..35457 <- __convenience_const
+generated 35656..36133 <- Debug
+generated 36133..36470 <- Clone
+generated 36470..36975 <- PartialEq
+generated 36975..37472 <- Hash
+generated 37472..37673 <- Default
+generated 37673..40538 <- Encode
+generated 40538..50182 <- Decode
+generated 50182..51680 <- __convenience_const
 
 ## Metadata
 
-interface NameImports: {"body_span":{"end":533,"start":427},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":397,"start":327}}],"fields":[{"decorators":[],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":449,"start":433},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"path","optional":false,"readonly":false,"span":{"end":470,"start":454},"ts_type":"point2D[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":504,"start":475},"ts_type":"Map<string, point2D>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":531,"start":509},"ts_type":"point2D | null"}],"heritage":[],"methods":[],"name":"NameImports","span":{"end":533,"start":405},"type_params":[]}
-interface NameRenamed: {"body_span":{"end":723,"start":635},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":605,"start":535}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":652,"start":641},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":672,"start":657},"ts_type":"Item[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":696,"start":677},"ts_type":"Item | null"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":721,"start":701},"ts_type":"Partial<Item>"}],"heritage":[],"methods":[],"name":"NameRenamed","span":{"end":723,"start":613},"type_params":[]}
+interface NameImports: {"body_span":{"end":724,"start":618},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":588,"start":518}}],"fields":[{"decorators":[],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":640,"start":624},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"path","optional":false,"readonly":false,"span":{"end":661,"start":645},"ts_type":"point2D[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":695,"start":666},"ts_type":"Map<string, point2D>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":722,"start":700},"ts_type":"point2D | null"}],"heritage":[],"methods":[],"name":"NameImports","span":{"end":724,"start":596},"type_params":[]}
+interface NameRenamed: {"body_span":{"end":914,"start":826},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":796,"start":726}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":843,"start":832},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":863,"start":848},"ts_type":"Item[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":887,"start":868},"ts_type":"Item | null"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":912,"start":892},"ts_type":"Partial<Item>"}],"heritage":[],"methods":[],"name":"NameRenamed","span":{"end":914,"start":804},"type_params":[]}
+interface NameExported: {"body_span":{"end":1113,"start":1017},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":986,"start":916}}],"fields":[{"decorators":[],"key":"Named","name":"chosen","optional":false,"readonly":false,"span":{"end":1038,"start":1023},"ts_type":"Chosen"},{"decorators":[],"key":"Named","name":"shown","optional":false,"readonly":false,"span":{"end":1060,"start":1043},"ts_type":"NameShown"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"NameShown[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1111,"start":1090},"ts_type":"Chosen | null"}],"heritage":[],"methods":[],"name":"NameExported","span":{"end":1113,"start":994},"type_params":[]}
 
 ## Registry reads
 
+Name("Chosen")
 Name("EdgeItem")
 Name("Item")
 Name("Map")
+Name("NameLate")
+Name("NameModel")
+Name("NameShown")
 Name("Partial")
+Name("default")
 Name("point2D")
 
 ## Buildtime dependencies

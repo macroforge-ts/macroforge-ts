@@ -1243,6 +1243,44 @@ pub fn lower_targets(
     Ok(targets)
 }
 
+/// The names a module exports its own declarations under besides their own:
+/// `default` for a default export (`export default class User`, `export
+/// default User`) and the alias of `export { User as Member }`, each as the
+/// declared name and the exported one. A re-export from another module
+/// exports no declaration of this one.
+pub fn collect_export_aliases(program: &Program<'_>) -> Vec<(String, String)> {
+    let mut aliases = Vec::new();
+    for statement in &program.body {
+        match statement {
+            Statement::ExportNamedDeclaration(export) => {
+                for specifier in &export.specifiers {
+                    let (declared, exported) = (specifier.local.name(), specifier.exported.name());
+                    if declared != exported {
+                        aliases.push((declared.to_string(), exported.to_string()));
+                    }
+                }
+            }
+            Statement::ExportDefaultDeclaration(export) => {
+                let declared = match &export.declaration {
+                    ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+                        class.id.as_ref().map(|id| id.name.to_string())
+                    }
+                    ExportDefaultDeclarationKind::TSInterfaceDeclaration(interface) => {
+                        Some(interface.id.name.to_string())
+                    }
+                    ExportDefaultDeclarationKind::Identifier(name) => Some(name.name.to_string()),
+                    _ => None,
+                };
+                if let Some(declared) = declared {
+                    aliases.push((declared, "default".to_string()));
+                }
+            }
+            _ => {}
+        }
+    }
+    aliases
+}
+
 /// Collect names of exported declarations from a parsed Oxc program.
 pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
     let mut names = HashSet::new();

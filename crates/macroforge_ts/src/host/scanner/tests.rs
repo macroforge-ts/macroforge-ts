@@ -85,6 +85,33 @@ fn test_collect_exported_names() {
 }
 
 #[test]
+fn a_module_exports_a_declaration_under_other_names() {
+    let source = r#"
+        export default class User { name: string = ""; }
+        interface Late { note: string; }
+        class Held {}
+        export type { Late as Shown };
+        export { Held as Kept, Held };
+        export default Held;
+        export { Elsewhere as Renamed } from './elsewhere';
+    "#;
+
+    let allocator = Allocator::default();
+    let mut aliases = crate::ts_syn::collect_export_aliases(&parse(&allocator, source, "test.ts"));
+    aliases.sort();
+    let named = |declared: &str, exported: &str| (declared.to_string(), exported.to_string());
+    assert_eq!(
+        aliases,
+        vec![
+            named("Held", "Kept"),
+            named("Held", "default"),
+            named("Late", "Shown"),
+            named("User", "default"),
+        ]
+    );
+}
+
+#[test]
 fn test_scanner_svelte_ts_interface_with_derive() {
     use crate::ts_syn::abi::ir::type_registry::{
         TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
@@ -123,6 +150,7 @@ export interface PhoneNumber {
             name: iface.name.clone(),
             file_path: "phone-number.svelte.ts".to_string(),
             is_exported: true,
+            exported_as: Vec::new(),
             definition: TypeDefinitionIR::Interface(iface.clone()),
             file_imports: vec![],
         },

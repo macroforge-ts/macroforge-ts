@@ -84,6 +84,7 @@ fn registry_of(definitions: Vec<TypeDefinitionIR>) -> TypeRegistry {
                 name,
                 file_path: FILE.to_string(),
                 is_exported: true,
+                exported_as: Vec::new(),
                 definition,
                 file_imports: vec![],
             },

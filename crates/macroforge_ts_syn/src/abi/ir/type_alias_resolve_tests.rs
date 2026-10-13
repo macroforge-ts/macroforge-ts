@@ -18,6 +18,7 @@ fn alias_entry(
         name: name.to_string(),
         file_path: file_path.to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
         definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
             name: name.to_string(),
             span: SpanIR::new(0, 0),

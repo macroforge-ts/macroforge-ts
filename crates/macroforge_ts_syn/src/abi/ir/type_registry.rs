@@ -75,6 +75,11 @@ pub struct TypeRegistryEntry {
     /// Whether this type is exported from its module.
     pub is_exported: bool,
 
+    /// The names its module exports it under besides its own: `default` for
+    /// a default export, and the alias of `export { User as Member }`.
+    #[serde(default)]
+    pub exported_as: Vec<String>,
+
     /// The full IR of the type.
     pub definition: TypeDefinitionIR,
 
@@ -529,9 +534,16 @@ struct WireEntry<'a> {
     name: &'a str,
     file_path: &'a str,
     is_exported: bool,
+    #[serde(skip_serializing_if = "no_names")]
+    exported_as: &'a [String],
     definition: &'a TypeDefinitionIR,
     #[serde(skip_serializing_if = "Option::is_none")]
     file_imports: Option<&'a [FileImportEntry]>,
+}
+
+/// Whether an entry has no other names to write.
+fn no_names(names: &&[String]) -> bool {
+    names.is_empty()
 }
 
 /// An entry read from the wire, before its file's imports are filled in.
@@ -540,6 +552,8 @@ struct WireEntryData {
     name: String,
     file_path: String,
     is_exported: bool,
+    #[serde(default)]
+    exported_as: Vec<String>,
     definition: TypeDefinitionIR,
     #[serde(default)]
     file_imports: Option<Vec<FileImportEntry>>,
@@ -561,6 +575,7 @@ impl WireEntryData {
             name: self.name,
             file_path: self.file_path,
             is_exported: self.is_exported,
+            exported_as: self.exported_as,
             definition: self.definition,
             file_imports: imports,
         })
@@ -615,6 +630,7 @@ impl<'a> WireEntry<'a> {
             name: &entry.name,
             file_path: &entry.file_path,
             is_exported: entry.is_exported,
+            exported_as: entry.exported_as.as_slice(),
             definition: &entry.definition,
             file_imports: inline_imports.then_some(entry.file_imports.as_slice()),
         }
@@ -971,14 +987,25 @@ impl TypeRegistry {
         file_imports: &[FileImportEntry],
     ) -> Option<&TypeRegistryEntry> {
         self.log.note(|| RegistryRead::Name(name.to_string()));
-        // A name the file imports under another (`import { User as Member }`)
-        // is the type its module exports, never one declared elsewhere under
-        // the local name.
-        let renamed = file_imports
-            .iter()
-            .find(|import| import.local_name == name)
-            .and_then(|import| import.original_name.as_deref())
-            .filter(|exported| !matches!(*exported, "default" | "*") && *exported != name);
+        let import = file_imports.iter().find(|import| import.local_name == name);
+        // What the module a name is imported from exports it as: the name
+        // itself, another (`import { User as Member }`), or `default`. A
+        // namespace import names no export.
+        let exported = import
+            .map(|import| import.original_name.as_deref().unwrap_or(name))
+            .filter(|exported| *exported != "*");
+        // The module's own declaration under that name, when the module is
+        // one of the project's.
+        if let (Some(import), Some(exported)) = (import, exported)
+            && let Some(module_path) =
+                resolve_relative_module(caller_file_path, &import.module_specifier)
+            && let Some(entry) = self.exported_by(&module_path, exported)
+        {
+            return Some(entry);
+        }
+        // A name imported under another is the type its module exports,
+        // never one declared elsewhere under the local name.
+        let renamed = exported.filter(|exported| *exported != "default" && *exported != name);
         if let Some(exported) = renamed {
             self.log.note(|| RegistryRead::Name(exported.to_string()));
         }
@@ -1027,6 +1054,35 @@ impl TypeRegistry {
             .filter(|entry| file_path_module_matches(&entry.file_path, needle));
         let first = matches.next()?;
         matches.next().is_none().then_some(first)
+    }
+
+    /// The declaration the module at `module_path` exports as `exported`:
+    /// one declared under that name, or one it exports under it (`export {
+    /// User as Member }`, `export default class User`).
+    fn exported_by(&self, module_path: &str, exported: &str) -> Option<&TypeRegistryEntry> {
+        if let Some(entry) = self
+            .candidates(exported)
+            .into_iter()
+            .find(|entry| file_path_is_module(&entry.file_path, module_path))
+        {
+            return Some(entry);
+        }
+        // Qualified keys are ordered, so two declarations a module exports
+        // under one name give the same one each time.
+        let mut renamed: Vec<(&String, &TypeRegistryEntry)> = self
+            .qualified_types
+            .entries
+            .by_key
+            .iter()
+            .filter(|(_, entry)| {
+                entry.exported_as.iter().any(|name| name == exported)
+                    && file_path_is_module(&entry.file_path, module_path)
+            })
+            .collect();
+        renamed.sort_by_key(|(key, _)| *key);
+        let (_, entry) = renamed.into_iter().next()?;
+        self.log.note(|| RegistryRead::Name(entry.name.clone()));
+        Some(entry)
     }
 
     /// Every definition named `name`, in qualified-key order, so a lookup
@@ -1213,6 +1269,7 @@ mod tests {
             name: name.to_string(),
             file_path: file_path.to_string(),
             is_exported: true,
+            exported_as: Vec::new(),
             definition: TypeDefinitionIR::Interface(InterfaceIR {
                 name: name.to_string(),
                 span: SpanIR::new(0, 0),
@@ -1240,6 +1297,7 @@ mod tests {
             name: name.to_string(),
             file_path: "/project/src/aliases.ts".to_string(),
             is_exported: true,
+            exported_as: Vec::new(),
             definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
                 name: name.to_string(),
                 span: SpanIR::new(0, 0),
@@ -1343,6 +1401,56 @@ mod tests {
         }];
         let resolved = registry.resolve_in_file("User", "/project/src/page.ts", &defaulted);
         assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
+    }
+
+    /// An import is the declaration its module exports under the imported
+    /// name: one exported under another name, or as the default.
+    #[test]
+    fn an_import_resolves_by_the_name_its_module_exports_a_type_as() {
+        let exported_as = |name: &str, file_path: &str, exported: &[&str]| TypeRegistryEntry {
+            exported_as: exported.iter().map(|name| name.to_string()).collect(),
+            ..make_interface_entry(name, file_path, vec![])
+        };
+        let mut registry = TypeRegistry::default();
+        registry.insert(
+            exported_as("Late", "/project/src/models.ts", &["Shown"]),
+            "/project",
+        );
+        registry.insert(
+            exported_as("Model", "/project/src/models.ts", &["default"]),
+            "/project",
+        );
+        registry.insert(
+            exported_as("Shown", "/project/src/other.ts", &[]),
+            "/project",
+        );
+        let import = |local: &str, exported: Option<&str>| FileImportEntry {
+            local_name: local.to_string(),
+            module_specifier: "./models".to_string(),
+            original_name: exported.map(str::to_string),
+            is_type_only: true,
+        };
+        let resolve = |name: &str, imports: &[FileImportEntry]| {
+            registry
+                .resolve_in_file(name, "/project/src/page.ts", imports)
+                .map(|entry| (entry.name.as_str(), entry.file_path.as_str()))
+        };
+
+        // `export type { Late as Shown }`, though another module declares a `Shown`.
+        assert_eq!(
+            resolve("Shown", &[import("Shown", None)]),
+            Some(("Late", "/project/src/models.ts"))
+        );
+        // The same export, renamed again on import.
+        assert_eq!(
+            resolve("Seen", &[import("Seen", Some("Shown"))]),
+            Some(("Late", "/project/src/models.ts"))
+        );
+        // `export default class Model`, imported under a name of the file's own.
+        assert_eq!(
+            resolve("Anything", &[import("Anything", Some("default"))]),
+            Some(("Model", "/project/src/models.ts"))
+        );
     }
 
     #[test]

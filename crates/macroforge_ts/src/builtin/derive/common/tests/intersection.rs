@@ -72,6 +72,7 @@ fn test_flatten_intersection_with_type_ref_resolved() {
         name: "Account".to_string(),
         file_path: "/project/src/account.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "Account".to_string(),
             span: zero_span(),
@@ -238,6 +239,7 @@ fn flatten_intersection_stops_at_a_circular_alias() {
                 name: name.to_string(),
                 file_path: "/project/src/cycle.ts".to_string(),
                 is_exported: true,
+                exported_as: Vec::new(),
                 definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
                     name: name.to_string(),
                     span: zero_span(),

@@ -482,6 +482,7 @@ fn declared_elsewhere() -> TypeRegistry {
         registry.insert(
             TypeRegistryEntry {
                 is_exported: declared.name != "Hidden",
+                exported_as: Vec::new(),
                 name: declared.name.clone(),
                 file_path: "/project/src/item.ts".to_string(),
                 definition: TypeDefinitionIR::Interface(declared),

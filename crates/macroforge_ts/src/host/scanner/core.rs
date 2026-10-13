@@ -8,8 +8,8 @@ use crate::host::declarative::ProjectDeclarativeRegistry;
 use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
 
 use crate::ts_syn::{
-    collect_exported_names, collect_file_imports, lower_classes, lower_enums, lower_interfaces,
-    lower_type_aliases,
+    collect_export_aliases, collect_exported_names, collect_file_imports, lower_classes,
+    lower_enums, lower_interfaces, lower_type_aliases,
 };
 
 use super::cache::{CacheEntry, FileStamp, ScanCache, file_stamp, splice_declarative};
@@ -277,6 +277,12 @@ impl ProjectScanner {
                     name: name.clone(),
                     file_path: file_name.to_string(),
                     is_exported,
+                    exported_as: entry
+                        .export_aliases
+                        .iter()
+                        .filter(|(declared, _)| declared == name)
+                        .map(|(_, exported)| exported.clone())
+                        .collect(),
                     definition,
                     file_imports: entry.file_imports.clone(),
                 },
@@ -360,6 +366,7 @@ fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntr
         declarative_macros,
         file_imports: collect_file_imports(&ret.program),
         exported_names: collect_exported_names(&ret.program),
+        export_aliases: collect_export_aliases(&ret.program),
         uses_macros,
     })
 }

@@ -3,15 +3,15 @@ source: crates/macroforge_ts/tests/conformance.rs
 ---
 ## Types (3)
 
-Customer 1ba87a54e87f9b84
-Order a6ad67d9bb0b1a88
-PersonName b61fa3211a84746b
+Customer 0105f486e2898a03
+Order 579fe810e1a30714
+PersonName c07765ed2b633a9b
 
 ## Qualified types (3)
 
-src/lib/types/customer.svelte.ts::Customer 1ba87a54e87f9b84
-src/lib/types/order.svelte.ts::Order a6ad67d9bb0b1a88
-src/lib/types/person-name.ts::PersonName b61fa3211a84746b
+src/lib/types/customer.svelte.ts::Customer 0105f486e2898a03
+src/lib/types/order.svelte.ts::Order 579fe810e1a30714
+src/lib/types/person-name.ts::PersonName c07765ed2b633a9b
 
 ## Ambiguous names
 

@@ -297,3 +297,40 @@ Deno.test('a type imported under another name is coded through its own functions
     assertStrictEquals(imports.nameRenamedHashCode(source), imports.nameRenamedHashCode(copy));
     assertEquals(imports.nameRenamedDefaultValue().held, { id: '', score: 0 });
 });
+
+Deno.test('a type its module exports under another name is coded through its own functions', async () => {
+    const imports = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'name-imports.ts')
+    );
+    const at = new Date(1000);
+    const source = {
+        chosen: { title: 't', at },
+        shown: { note: 'n', at },
+        listed: [{ note: 'm', at }],
+        maybe: null
+    };
+    const encoded = JSON.parse(imports.nameExportedEncode(source));
+    assertEquals(encoded.shown, { note: 'n', at: at.toISOString() });
+    assertEquals(encoded.chosen.at, at.toISOString());
+
+    const value = decoded(imports.nameExportedDecode(encoded));
+    assert(value.shown.at instanceof Date);
+    assert(value.chosen.at instanceof Date);
+    assertEquals(value.listed, source.listed);
+    assertEquals(
+        errorFields(
+            imports.nameExportedDecode({ ...encoded, shown: { note: 1, at: at.toISOString() } })
+        ),
+        ['shown.note']
+    );
+    assertEquals(
+        errorFields(
+            imports.nameExportedDecode({ ...encoded, chosen: { title: 't', at: 'never' } })
+        ),
+        ['chosen.at']
+    );
+
+    const blank = imports.nameExportedDefaultValue();
+    assertStrictEquals(blank.shown.note, '');
+    assertStrictEquals(blank.chosen.title, '');
+});

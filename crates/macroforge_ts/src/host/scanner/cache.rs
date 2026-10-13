@@ -56,6 +56,9 @@ pub struct CacheEntry {
     /// Names exported from the file, used by the scanner's `exported_only`
     /// filter.
     pub exported_names: HashSet<String>,
+    /// The other names the file exports its declarations under, each as the
+    /// declared name and the exported one.
+    pub export_aliases: Vec<(String, String)>,
     /// Whether the file contains anything the engine expands.
     pub uses_macros: bool,
 }
@@ -261,6 +264,7 @@ mod tests {
             declarative_macros: Arc::default(),
             file_imports: Vec::new(),
             exported_names: HashSet::new(),
+            export_aliases: Vec::new(),
             uses_macros: false,
         })
     }

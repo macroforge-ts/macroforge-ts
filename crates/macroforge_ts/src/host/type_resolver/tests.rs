@@ -13,6 +13,7 @@ fn make_test_registry() -> TypeRegistry {
         name: "User".to_string(),
         file_path: "/project/src/models/user.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
         definition: TypeDefinitionIR::Class(ClassIR {
             name: "User".to_string(),
             span: zero_span,
@@ -35,6 +36,7 @@ fn make_test_registry() -> TypeRegistry {
         name: "Order".to_string(),
         file_path: "/project/src/models/order.ts".to_string(),
         is_exported: true,
+        exported_as: Vec::new(),
         definition: TypeDefinitionIR::Interface(crate::ts_syn::abi::InterfaceIR {
             name: "Order".to_string(),
             span: zero_span,

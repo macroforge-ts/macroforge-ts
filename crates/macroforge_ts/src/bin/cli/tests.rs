@@ -1098,6 +1098,7 @@ fn registry_of(types: &[(&str, bool)]) -> TypeRegistry {
                 name: (*name).to_string(),
                 file_path: format!("/project/src/{name}.ts"),
                 is_exported: *is_exported,
+                exported_as: Vec::new(),
                 definition: TypeDefinitionIR::Interface(InterfaceIR {
                     name: (*name).to_string(),
                     span: SpanIR::new(0, 0),
