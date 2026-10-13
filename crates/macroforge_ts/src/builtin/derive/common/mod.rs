@@ -52,11 +52,11 @@ mod value_type;
 #[cfg(test)]
 mod tests;
 
-pub(crate) use args::find_named_value;
 pub use args::{
-    bigint_literal, extract_named_string, has_flag, js_string, js_string_text,
-    parse_string_literal, regex_literal,
+    DecoratorOption, OptionValue, bigint_literal, decorator_options, extract_named_string,
+    has_flag, js_string, js_string_text, parse_string_literal, regex_literal, whole_string_literal,
 };
+pub(crate) use args::{Takes, find_named_value, find_option, split_top_level_items, unwrapped};
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
 pub use ordering::{OrdField, Ordering, generate_field_order, generate_value_order};
 pub use property::{

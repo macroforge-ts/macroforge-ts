@@ -8,6 +8,10 @@ use crate::ts_syn::import_registry::SourceImportEntry;
 
 use super::DERIVE_MODULE_PATH;
 use super::derive_targets::{DeriveTarget, DeriveTargetIR, diagnostic_span_for_derive};
+use crate::builtin::derive::common::{
+    DecoratorOption, Takes, decorator_options, extract_named_string, has_flag,
+};
+use crate::builtin::derive::endec::{ENDEC_OPTIONS, KNOWN_VALIDATORS, Placement, endec_option};
 
 /// The global types a derive reads a field's type as by its name, and writes
 /// in the code it generates. A module that declares a type of one of these
@@ -273,62 +277,54 @@ pub(super) fn imported_names(
     })
 }
 
-/// The options each of these built-in decorators takes. `default` takes a
-/// value, and `endec` on a field reports what it does not know where its
-/// options are read.
-const DECORATOR_OPTIONS: &[(&str, &[&str])] = &[
-    ("debug", &["skip", "rename"]),
-    ("hash", &["skip"]),
-    ("partialEq", &["skip"]),
-    ("ord", &["skip"]),
+/// The options each value-trait decorator takes on a field.
+const DECORATOR_OPTIONS: &[(&str, &[(&str, Takes)])] = &[
+    ("debug", &[("skip", Takes::Flag), ("rename", Takes::Text)]),
+    ("hash", &[("skip", Takes::Flag)]),
+    ("partialEq", &[("skip", Takes::Flag)]),
+    ("ord", &[("skip", Takes::Flag)]),
 ];
 
-/// The name each option in a decorator's arguments is written under: the
-/// word before a `:`, an `=` or a `(`, or a word on its own.
-fn option_names(args: &str) -> Vec<&str> {
-    let args = args.trim();
-    let args = args
-        .strip_prefix('{')
-        .and_then(|inner| inner.strip_suffix('}'))
-        .unwrap_or(args);
-    let mut names = Vec::new();
-    let (mut depth, mut quote, mut start) = (0usize, None, 0usize);
-    let mut close = |from: usize, to: usize| {
-        let item = args.get(from..to).unwrap_or_default().trim();
-        let name = item
-            .split(|letter: char| !(letter.is_alphanumeric() || letter == '_'))
-            .next()
-            .unwrap_or_default();
-        if !item.is_empty() {
-            names.push(name);
-        }
-    };
-    for (at, letter) in args.char_indices() {
-        match (quote, letter) {
-            (Some(open), _) if letter == open => quote = None,
-            (Some(_), _) => {}
-            (None, '"' | '\'' | '`') => quote = Some(letter),
-            (None, '(' | '[' | '{') => depth += 1,
-            (None, ')' | ']' | '}') => depth = depth.saturating_sub(1),
-            (None, ',') if depth == 0 => {
-                close(start, at);
-                start = at + 1;
-            }
-            (None, _) => {}
-        }
-    }
-    close(start, args.len());
-    names
+/// The options the value-trait decorator `decorator` takes, when it is one.
+fn trait_options(decorator: &DecoratorIR) -> Option<&'static [(&'static str, Takes)]> {
+    DECORATOR_OPTIONS
+        .iter()
+        .find(|(name, _)| decorator.name.eq_ignore_ascii_case(name))
+        .map(|(_, takes)| *takes)
 }
 
-/// The decorators on `target`'s members, at any depth of an alias's body.
-fn member_decorators(target: &DeriveTargetIR) -> Vec<&DecoratorIR> {
-    fn of_fields<'a>(fields: &'a [InterfaceFieldIR], found: &mut Vec<&'a DecoratorIR>) {
-        found.extend(fields.iter().flat_map(|field| &field.decorators));
+fn is_endec(decorator: &&DecoratorIR) -> bool {
+    decorator.name.eq_ignore_ascii_case("endec")
+}
+
+/// What a message calls an option: its name, or all of it when it has none.
+fn written<'a>(option: &DecoratorOption<'a>) -> &'a str {
+    if option.name.is_empty() {
+        option.text
+    } else {
+        option.name
     }
-    fn of_members<'a>(members: &'a [TypeMember], found: &mut Vec<&'a DecoratorIR>) {
+}
+
+fn option_error(decorator: &DecoratorIR, message: String) -> Diagnostic {
+    Diagnostic {
+        level: DiagnosticLevel::Error,
+        message,
+        span: Some(decorator.span),
+        notes: vec![],
+        help: None,
+    }
+}
+
+/// The decorators of each member of `target`, at any depth of an alias's
+/// body: one slice a member.
+fn member_decorators(target: &DeriveTargetIR) -> Vec<&[DecoratorIR]> {
+    fn of_fields<'a>(fields: &'a [InterfaceFieldIR], found: &mut Vec<&'a [DecoratorIR]>) {
+        found.extend(fields.iter().map(|field| field.decorators.as_slice()));
+    }
+    fn of_members<'a>(members: &'a [TypeMember], found: &mut Vec<&'a [DecoratorIR]>) {
         for member in members {
-            found.extend(&member.decorators);
+            found.push(&member.decorators);
             match &member.kind {
                 TypeMemberKind::Object { fields } => of_fields(fields, found),
                 TypeMemberKind::Intersection(members) => of_members(members, found),
@@ -338,7 +334,7 @@ fn member_decorators(target: &DeriveTargetIR) -> Vec<&DecoratorIR> {
             }
         }
     }
-    fn of_body<'a>(body: &'a TypeBody, found: &mut Vec<&'a DecoratorIR>) {
+    fn of_body<'a>(body: &'a TypeBody, found: &mut Vec<&'a [DecoratorIR]>) {
         match body {
             TypeBody::Object { fields } => of_fields(fields, found),
             TypeBody::Union(members) | TypeBody::Intersection(members) => {
@@ -351,7 +347,7 @@ fn member_decorators(target: &DeriveTargetIR) -> Vec<&DecoratorIR> {
     let mut found = Vec::new();
     match target {
         DeriveTargetIR::Class(class) => {
-            found.extend(class.fields.iter().flat_map(|field| &field.decorators));
+            found.extend(class.fields.iter().map(|field| field.decorators.as_slice()));
         }
         DeriveTargetIR::Interface(interface) => {
             of_fields(&interface.fields, &mut found);
@@ -359,7 +355,7 @@ fn member_decorators(target: &DeriveTargetIR) -> Vec<&DecoratorIR> {
                 interface
                     .methods
                     .iter()
-                    .flat_map(|method| &method.decorators),
+                    .map(|method| method.decorators.as_slice()),
             );
         }
         DeriveTargetIR::Enum(declared) => {
@@ -367,7 +363,7 @@ fn member_decorators(target: &DeriveTargetIR) -> Vec<&DecoratorIR> {
                 declared
                     .variants
                     .iter()
-                    .flat_map(|variant| &variant.decorators),
+                    .map(|variant| variant.decorators.as_slice()),
             );
         }
         DeriveTargetIR::TypeAlias(alias) => of_body(&alias.body, &mut found),
@@ -384,67 +380,267 @@ fn type_decorators(target: &DeriveTargetIR) -> &[DecoratorIR] {
     }
 }
 
-/// An error for each option a built-in decorator is given that it does not
-/// take, on a type with a built-in derive or on a member of one. A
-/// misspelled `skip` would otherwise skip nothing, and a misspelled `tag`
-/// tag nothing.
-pub(super) fn check_decorator_options(targets: &[DeriveTarget]) -> Vec<Diagnostic> {
-    use crate::builtin::derive::endec::{KNOWN_OPTIONS, KNOWN_VALIDATORS};
+/// The name of the type `target` declares, and where its declaration starts.
+fn declared(target: &DeriveTargetIR) -> (&str, u32) {
+    match target {
+        DeriveTargetIR::Class(class) => (&class.name, class.span.start),
+        DeriveTargetIR::Interface(interface) => (&interface.name, interface.span.start),
+        DeriveTargetIR::Enum(declared) => (&declared.name, declared.span.start),
+        DeriveTargetIR::TypeAlias(alias) => (&alias.name, alias.span.start),
+    }
+}
 
+/// An error for each option of a built-in decorator that the decorator does
+/// not take, is given a value of the wrong kind, is given twice or is
+/// written where it does nothing, on a type with a built-in derive or on a
+/// member of one. A misspelled `skip` would otherwise skip nothing, and a
+/// `skip: "no"` skip what it was told to keep.
+pub(super) fn check_decorator_options(targets: &[DeriveTarget]) -> Vec<Diagnostic> {
     let mut checked = Vec::new();
     let mut diagnostics = Vec::new();
-    let mut refuse = |decorator: &DecoratorIR, takes: &[&str], also: &[&str]| {
-        // A declaration's `@derive` directives each make a target.
-        if checked.contains(&decorator.span.start) {
-            return;
-        }
-        checked.push(decorator.span.start);
-        let known = |option: &str| {
-            takes
-                .iter()
-                .chain(also)
-                .any(|known| known.eq_ignore_ascii_case(option))
-        };
-        for option in option_names(&decorator.args_src) {
-            if !known(option) {
-                diagnostics.push(Diagnostic {
-                    level: DiagnosticLevel::Error,
-                    message: format!(
-                        "`@{}` takes `{}`, not `{option}`",
-                        decorator.name,
-                        takes.join("`, `")
-                    ),
-                    span: Some(decorator.span),
-                    notes: vec![],
-                    help: None,
-                });
-            }
-        }
-    };
     for target in targets.iter().filter(|target| is_builtin(target)) {
-        let on_type = type_decorators(&target.target_ir);
-        for decorator in on_type.iter().chain(member_decorators(&target.target_ir)) {
-            if let Some((_, takes)) = DECORATOR_OPTIONS
-                .iter()
-                .find(|(name, _)| decorator.name.eq_ignore_ascii_case(name))
-            {
-                refuse(decorator, takes, &[]);
-            }
+        // A declaration's `@derive` directives each make a target.
+        let (_, declared_at) = declared(&target.target_ir);
+        if checked.contains(&declared_at) {
+            continue;
         }
-        // `Decode` reads an alias's own `@endec` for validators, and reports
-        // what it does not know there.
-        let read_by_decode = matches!(target.target_ir, DeriveTargetIR::TypeAlias(_))
-            && target.macro_names.iter().any(|(name, _)| name == "Decode");
-        if !read_by_decode {
-            for decorator in on_type
+        checked.push(declared_at);
+        let on_type = type_decorators(&target.target_ir);
+        let on_members = member_decorators(&target.target_ir);
+        for group in std::iter::once(on_type).chain(on_members.iter().copied()) {
+            for decorator in group {
+                let Some(takes) = trait_options(decorator) else {
+                    continue;
+                };
+                for option in decorator_options(&decorator.args_src) {
+                    let known = takes
+                        .iter()
+                        .find(|(known, _)| known.eq_ignore_ascii_case(option.name));
+                    let message = match known {
+                        Some((known, takes)) => takes
+                            .refuses(option.value)
+                            .map(|why| format!("`@{}`: `{known}` {why}", decorator.name)),
+                        None => Some(format!(
+                            "`@{}` takes `{}`, not `{}`",
+                            decorator.name,
+                            takes
+                                .iter()
+                                .map(|(known, _)| *known)
+                                .collect::<Vec<_>>()
+                                .join("`, `"),
+                            written(&option)
+                        )),
+                    };
+                    diagnostics.extend(message.map(|message| option_error(decorator, message)));
+                }
+            }
+            diagnostics.extend(repeated_options(group));
+        }
+        check_endec_options(target, on_type, &on_members, &mut diagnostics);
+    }
+    diagnostics
+}
+
+/// An error for each option the decorators of one member, or of the type
+/// itself, give more than once: which of the two holds is not said.
+fn repeated_options(group: &[DecoratorIR]) -> Vec<Diagnostic> {
+    let mut given: Vec<(&str, &str)> = Vec::new();
+    let mut diagnostics = Vec::new();
+    for decorator in group {
+        let endec = is_endec(&decorator);
+        let takes = trait_options(decorator);
+        for option in decorator_options(&decorator.args_src) {
+            let known = match takes {
+                Some(takes) => takes
+                    .iter()
+                    .map(|(known, _)| *known)
+                    .find(|known| known.eq_ignore_ascii_case(option.name)),
+                None if endec => endec_option(option.name).map(|known| known.name),
+                None => None,
+            };
+            let Some(known) = known else {
+                continue;
+            };
+            let entry = (decorator.name.as_str(), known);
+            if given
                 .iter()
-                .filter(|decorator| decorator.name.eq_ignore_ascii_case("endec"))
+                .any(|(name, option)| name.eq_ignore_ascii_case(entry.0) && *option == known)
             {
-                refuse(decorator, KNOWN_OPTIONS, KNOWN_VALIDATORS);
+                diagnostics.push(option_error(
+                    decorator,
+                    format!("`@{}` is given `{known}` more than once", decorator.name),
+                ));
+            } else {
+                given.push(entry);
             }
         }
     }
     diagnostics
+}
+
+/// The errors of `@endec` options on `target` and its members: a value of
+/// the wrong kind, an option of a field on the type or of the type on a
+/// field, and ways of telling a union's members apart that exclude one
+/// another or have no union to apply to.
+fn check_endec_options(
+    target: &DeriveTarget,
+    on_type: &[DecoratorIR],
+    on_members: &[&[DecoratorIR]],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let (type_name, _) = declared(&target.target_ir);
+    let endec_on_type: Vec<&DecoratorIR> = on_type.iter().filter(is_endec).collect();
+    let endec_on_members = || {
+        on_members
+            .iter()
+            .flat_map(|group| group.iter())
+            .filter(is_endec)
+    };
+    if matches!(target.target_ir, DeriveTargetIR::Enum(_)) {
+        // An enum's values are coded as they are.
+        diagnostics.extend(
+            endec_on_type
+                .iter()
+                .copied()
+                .chain(endec_on_members())
+                .filter(|decorator| !decorator.args_src.trim().is_empty())
+                .map(|decorator| {
+                    option_error(
+                        decorator,
+                        format!(
+                            "`@endec` configures the fields of a type and the members of a union, and the enum '{type_name}' has neither"
+                        ),
+                    )
+                }),
+        );
+        return;
+    }
+    // `Decode` reads an alias's own `@endec` for validators, and reports
+    // what it does not know there.
+    let read_by_decode = matches!(target.target_ir, DeriveTargetIR::TypeAlias(_))
+        && target.macro_names.iter().any(|(name, _)| name == "Decode");
+    for decorator in &endec_on_type {
+        for option in decorator_options(&decorator.args_src) {
+            let message = match endec_option(option.name) {
+                Some(known) if known.placement == Placement::Field => Some(format!(
+                    "`@endec`: `{}` is an option of a field, and does nothing on the type '{type_name}'",
+                    known.name
+                )),
+                Some(known) => known
+                    .takes
+                    .refuses(option.value)
+                    .map(|why| format!("`@endec`: `{}` {why}", known.name)),
+                None if read_by_decode
+                    || KNOWN_VALIDATORS
+                        .iter()
+                        .any(|known| known.eq_ignore_ascii_case(option.name)) =>
+                {
+                    None
+                }
+                None => Some(format!(
+                    "`@endec` takes `{}` on a type, not `{}`",
+                    ENDEC_OPTIONS
+                        .iter()
+                        .filter(|known| known.placement != Placement::Field)
+                        .map(|known| known.name)
+                        .collect::<Vec<_>>()
+                        .join("`, `"),
+                    written(&option)
+                )),
+            };
+            diagnostics.extend(message.map(|message| option_error(decorator, message)));
+        }
+    }
+    for decorator in endec_on_members() {
+        for option in decorator_options(&decorator.args_src) {
+            let Some(known) = endec_option(option.name) else {
+                continue;
+            };
+            let message = if known.placement == Placement::Type {
+                Some(format!(
+                    "`@endec`: `{}` is an option of a type, and does nothing on a member of '{type_name}'",
+                    known.name
+                ))
+            } else {
+                known
+                    .takes
+                    .refuses(option.value)
+                    .map(|why| format!("`@endec`: `{}` {why}", known.name))
+            };
+            diagnostics.extend(message.map(|message| option_error(decorator, message)));
+        }
+    }
+
+    let Some(first) = endec_on_type.first() else {
+        return;
+    };
+    let on = |flag: &str| {
+        endec_on_type
+            .iter()
+            .any(|decorator| has_flag(&decorator.args_src, flag))
+    };
+    let text = |name: &str| {
+        endec_on_type
+            .iter()
+            .find_map(|decorator| extract_named_string(&decorator.args_src, name))
+    };
+    let (tag, content) = (text("tag"), text("content"));
+    let modes: Vec<&str> = [
+        ("untagged", on("untagged")),
+        ("externallyTagged", on("externallyTagged")),
+        ("tag", tag.is_some()),
+    ]
+    .into_iter()
+    .filter_map(|(mode, given)| given.then_some(mode))
+    .collect();
+    if modes.len() > 1 {
+        diagnostics.push(option_error(
+            first,
+            format!(
+                "`@endec`: `{}` each say how the members of a union are told apart; give one of them",
+                modes.join("` and `")
+            ),
+        ));
+    }
+    match (&tag, &content) {
+        (None, Some(_)) => diagnostics.push(option_error(
+            first,
+            "`@endec`: `content` names the key a tagged member's value is held under, and is given without `tag`"
+                .to_string(),
+        )),
+        (Some(tag), Some(content)) if tag == content => diagnostics.push(option_error(
+            first,
+            format!(
+                "`@endec`: `tag` and `content` are both \"{tag}\", and a member's tag and its value cannot be held under one key"
+            ),
+        )),
+        (None, None) | (Some(_), None) | (Some(_), Some(_)) => {}
+    }
+    // An object type is one shape: it is tagged, and that is all.
+    let is_one_shape = match &target.target_ir {
+        DeriveTargetIR::Class(_) | DeriveTargetIR::Interface(_) => true,
+        DeriveTargetIR::TypeAlias(alias) => {
+            matches!(alias.body.unbranded(), TypeBody::Object { .. })
+        }
+        DeriveTargetIR::Enum(_) => false,
+    };
+    if is_one_shape {
+        let unions_only = [
+            ("untagged", on("untagged")),
+            ("externallyTagged", on("externallyTagged")),
+            ("content", content.is_some()),
+        ];
+        diagnostics.extend(unions_only.into_iter().filter(|(_, given)| *given).map(
+            |(option, _)| {
+                option_error(
+                    first,
+                    format!(
+                        "`@endec`: `{option}` says how the members of a union are told apart, and '{type_name}' is not a union"
+                    ),
+                )
+            },
+        ));
+    }
 }
 
 /// An error for each `declare enum` with a built-in derive. The functions a

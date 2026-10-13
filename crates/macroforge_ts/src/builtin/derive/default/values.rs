@@ -7,8 +7,8 @@ use convert_case::{Case, Casing};
 use super::literal::decode_literal_default;
 use crate::builtin::derive::common::undefaultable;
 use crate::builtin::derive::common::{
-    TypeNames, get_type_default_with_registry, is_primitive_type, js_string, rendered,
-    type_has_derive,
+    TypeNames, extract_named_string, get_type_default_with_registry, is_primitive_type, js_string,
+    rendered, type_has_derive,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
@@ -150,7 +150,7 @@ fn wrap_string_for_tagged_union(
     let tag = alias
         .decorators
         .iter()
-        .find_map(|d| (d.name == "endec").then(|| extract_tag_from_endec_args(&d.args_src)))
+        .find_map(|d| (d.name == "endec").then(|| extract_named_string(&d.args_src, "tag")))
         .flatten()?;
 
     for member in members {
@@ -216,26 +216,6 @@ pub(super) fn contains_top_level_pipe(s: &str) -> bool {
         }
     }
     false
-}
-
-/// Extract `"value"` out of `tag: "value"` or `tag = "value"` inside the
-/// raw arguments of `@endec(...)`. Returns the unquoted variant tag name.
-fn extract_tag_from_endec_args(args: &str) -> Option<String> {
-    let s = args.trim();
-    let idx = s.find("tag")?;
-    let after = &s[idx + 3..];
-    let after = after.trim_start();
-    let after = after
-        .strip_prefix(':')
-        .or_else(|| after.strip_prefix('='))?
-        .trim_start();
-    let quote = after.chars().next()?;
-    if quote != '"' && quote != '\'' {
-        return None;
-    }
-    let rest = &after[1..];
-    let end = rest.find(quote)?;
-    Some(rest[..end].to_string())
 }
 
 /// An error at each required field with no default to fall back on, as

@@ -4,7 +4,6 @@ mod extract;
 pub(super) mod parse;
 mod suggest;
 
-pub(crate) use extract::KNOWN_OPTIONS;
 pub use extract::extract_validators;
 pub(crate) use suggest::KNOWN_VALIDATORS;
 use suggest::find_similar_validator;
@@ -312,6 +311,17 @@ impl ValidatorParseError {
         Self {
             message: format!("unknown validator '{}'", name),
             help: similar.map(|s| format!("did you mean '{}'?", s)),
+        }
+    }
+
+    /// The error for an item of a validator list written as neither of the
+    /// forms a validator has.
+    pub fn not_a_validator(written: &str) -> Self {
+        Self {
+            message: format!(
+                "`{written}` is no validator: one is written as a string, such as \"email\", or as {{ validate: \"...\", message: \"...\" }}"
+            ),
+            help: None,
         }
     }
 

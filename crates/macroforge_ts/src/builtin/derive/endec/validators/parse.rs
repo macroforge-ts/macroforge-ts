@@ -1,20 +1,18 @@
 //! Parsing one validator: its name, arguments and custom message.
 
 use super::{CustomValidator, Validator, ValidatorParseError, ValidatorSpec};
-use crate::builtin::derive::common::parse_string_literal;
+use crate::builtin::derive::common::{parse_string_literal, unwrapped};
 use crate::builtin::derive::endec::helpers::extract_named_value;
-
-use super::extract::extract_bracket_content;
 
 /// Parse object form: { validate: "email", message: "Invalid email" }
 pub(super) fn parse_validator_object(input: &str) -> Result<ValidatorSpec, ValidatorParseError> {
-    let content = extract_bracket_content(input, '{', '}')
+    let content = unwrapped(input, '{', '}')
         .ok_or_else(|| ValidatorParseError::invalid_args("object", "malformed validator object"))?;
 
-    let validator_str = extract_named_value(&content, "validate")
+    let validator_str = extract_named_value(content, "validate")
         .ok_or_else(|| ValidatorParseError::invalid_args("object", "missing 'validate' field"))?;
     let validator = parse_validator_string(&validator_str)?;
-    let custom_message = extract_named_value(&content, "message");
+    let custom_message = extract_named_value(content, "message");
 
     Ok(ValidatorSpec {
         validator,
@@ -100,6 +98,12 @@ pub(super) fn parse_validator_with_args(
                     let max = parts[1].trim().parse().map_err(|_| {
                         ValidatorParseError::invalid_args(name, "expected two positive integers")
                     })?;
+                    if min > max {
+                        return Err(ValidatorParseError::invalid_args(
+                            name,
+                            "the first length is the least and cannot be above the second",
+                        ));
+                    }
                     Ok(Validator::LengthRange(min, max))
                 }
                 _ => Err(ValidatorParseError::invalid_args(
@@ -151,6 +155,12 @@ pub(super) fn parse_validator_with_args(
                     .trim()
                     .parse()
                     .map_err(|_| ValidatorParseError::invalid_args(name, "expected two numbers"))?;
+                if min > max {
+                    return Err(ValidatorParseError::invalid_args(
+                        name,
+                        "the first number is the least and cannot be above the second",
+                    ));
+                }
                 Ok(Validator::Between(min, max))
             } else {
                 Err(ValidatorParseError::invalid_args(

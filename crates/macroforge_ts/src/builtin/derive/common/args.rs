@@ -1,63 +1,191 @@
-//! Reading values out of a decorator's argument text, such as the
+//! Reading the options out of a decorator's argument text, such as the
 //! `skip, rename: "id"` in `@endec(skip, rename: "id")`, and writing string
 //! values back out as JavaScript.
 
-/// Check if a decorator argument string contains the given flag.
-///
-/// Splits the argument string on non-alphanumeric characters and checks if
-/// any token matches `flag` (case-insensitive). Returns `false` if the flag
-/// is explicitly set to `false` (e.g., `skip: false` or `skip=false`).
-pub fn has_flag(args: &str, flag: &str) -> bool {
-    if flag_explicit_false(args, flag) {
-        return false;
+use crate::ts_syn::jsdoc::Nesting;
+
+/// The pieces of `text` between its top-level commas, trimmed, the empty
+/// ones left out. A comma inside a bracket or a string literal separates
+/// nothing.
+pub(crate) fn split_top_level_items(text: &str) -> Vec<&str> {
+    let mut items = Vec::new();
+    let mut nesting = Nesting::default();
+    let mut start = 0;
+    for (at, letter) in text.char_indices() {
+        if letter == ',' && nesting.is_top_level() {
+            items.push(text.get(start..at).unwrap_or_default());
+            start = at + 1;
+        }
+        nesting.feed(letter);
     }
-
-    args.split(|c: char| !c.is_alphanumeric() && c != '_')
-        .any(|token| token.eq_ignore_ascii_case(flag))
+    items.push(text.get(start..).unwrap_or_default());
+    items
+        .into_iter()
+        .map(str::trim)
+        .filter(|item| !item.is_empty())
+        .collect()
 }
 
-fn flag_explicit_false(args: &str, flag: &str) -> bool {
-    let lower = args.to_ascii_lowercase();
-    let condensed: String = lower.chars().filter(|c| !c.is_whitespace()).collect();
-    condensed.contains(&format!("{flag}:false")) || condensed.contains(&format!("{flag}=false"))
-}
-
-/// The text following the option `name` in `args`: what comes after
-/// `name:` or `name =`, or what is inside `name(...)`. The name matches
-/// case-insensitively and only as a whole word, so `name` is not found inside
-/// `rename`.
-pub(crate) fn find_named_value<'a>(args: &'a str, name: &str) -> Option<&'a str> {
-    let mut search_start = 0;
-    while let Some(found) = args[search_start..]
-        .char_indices()
-        .map(|(offset, _)| search_start + offset)
-        .find(|&idx| {
-            args[idx..]
-                .get(..name.len())
-                .is_some_and(|candidate| candidate.eq_ignore_ascii_case(name))
+/// What stands inside the brackets `open` and `close`, when they are around
+/// all of `text`: `[a], [b]` opens and ends with a bracket and is not this.
+pub(crate) fn unwrapped(text: &str, open: char, close: char) -> Option<&str> {
+    let inner = text.trim().strip_prefix(open)?.strip_suffix(close)?;
+    let mut nesting = Nesting::default();
+    inner
+        .chars()
+        .all(|letter| {
+            let closes_early = letter == close && nesting.is_top_level();
+            nesting.feed(letter);
+            !closes_early
         })
-    {
-        let starts_word = args[..found]
-            .chars()
-            .next_back()
-            .is_none_or(|previous| !is_identifier_char(previous));
-        let after = &args[found + name.len()..];
-        let ends_word = after
+        .then_some(inner)
+}
+
+/// What an option of a decorator is given.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OptionValue<'a> {
+    /// Nothing: the name stands alone, as `skip` does.
+    Bare,
+    /// What follows the name's `:` or `=`.
+    Assigned(&'a str),
+    /// What stands in the parentheses after the name, as in `minLength(2)`.
+    Called(&'a str),
+}
+
+/// One option of a decorator's arguments.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DecoratorOption<'a> {
+    /// The option as written.
+    pub text: &'a str,
+    /// The word it opens with, which a key may write quoted. Empty when the
+    /// option opens with none, as a number or a lone string does.
+    pub name: &'a str,
+    pub value: OptionValue<'a>,
+}
+
+impl<'a> DecoratorOption<'a> {
+    fn read(text: &'a str) -> Self {
+        let unnamed = Self {
+            text,
+            name: "",
+            value: OptionValue::Bare,
+        };
+        let quoted = text
             .chars()
             .next()
-            .is_none_or(|next| !is_identifier_char(next));
-        if starts_word && ends_word {
-            let after = after.trim_start();
-            if let Some(value) = after.strip_prefix(':').or_else(|| after.strip_prefix('=')) {
-                return Some(value.trim_start());
+            .filter(|first| matches!(first, '"' | '\''))
+            .and_then(|quote| text.get(1..)?.split_once(quote));
+        let (name, after) = quoted.unwrap_or_else(|| {
+            text.split_at(
+                text.find(|letter: char| !is_identifier_char(letter))
+                    .unwrap_or(text.len()),
+            )
+        });
+        let after = after.trim_start();
+        let assigned = after.strip_prefix(':').or_else(|| {
+            after
+                .strip_prefix('=')
+                .filter(|rest| !rest.starts_with('>'))
+        });
+        let value = match assigned {
+            Some(value) => OptionValue::Assigned(value.trim()),
+            // A string on its own is a value, not the name of an option.
+            None if quoted.is_some() => return unnamed,
+            None if after.is_empty() => OptionValue::Bare,
+            None => match unwrapped(after, '(', ')') {
+                Some(inner) => OptionValue::Called(inner.trim()),
+                None => return unnamed,
+            },
+        };
+        if name.is_empty() || name.starts_with(|first: char| first.is_ascii_digit()) {
+            return unnamed;
+        }
+        Self { text, name, value }
+    }
+}
+
+/// The options a decorator's arguments list, in order: its top-level items,
+/// with the braces of an object literal around them set aside.
+pub fn decorator_options(args: &str) -> Vec<DecoratorOption<'_>> {
+    let args = args.trim();
+    split_top_level_items(unwrapped(args, '{', '}').unwrap_or(args))
+        .into_iter()
+        .map(DecoratorOption::read)
+        .collect()
+}
+
+/// The option `name` of `args`, its name matched in any case. A word inside
+/// another option's value is not one: `rename: "skip"` holds no `skip`.
+pub(crate) fn find_option<'a>(args: &'a str, name: &str) -> Option<DecoratorOption<'a>> {
+    decorator_options(args)
+        .into_iter()
+        .find(|option| option.name.eq_ignore_ascii_case(name))
+}
+
+/// How the flag `flag` is written in `args`: on when it stands alone or is
+/// given `true`, off when given `false`. `Err` holds anything else it is
+/// given, which turns nothing on.
+fn flag_value<'a>(args: &'a str, flag: &str) -> Option<Result<bool, &'a str>> {
+    Some(match find_option(args, flag)?.value {
+        OptionValue::Bare | OptionValue::Assigned("true") => Ok(true),
+        OptionValue::Assigned("false") => Ok(false),
+        OptionValue::Assigned(other) | OptionValue::Called(other) => Err(other),
+    })
+}
+
+/// Whether a decorator's arguments turn `flag` on: `skip`, `skip: true` or
+/// `skip = true`.
+pub fn has_flag(args: &str, flag: &str) -> bool {
+    matches!(flag_value(args, flag), Some(Ok(true)))
+}
+
+/// What the option `name` of `args` is given: what comes after `name:` or
+/// `name =`, or what is inside `name(...)`.
+pub(crate) fn find_named_value<'a>(args: &'a str, name: &str) -> Option<&'a str> {
+    match find_option(args, name)?.value {
+        OptionValue::Assigned(value) | OptionValue::Called(value) => Some(value),
+        OptionValue::Bare => None,
+    }
+}
+
+/// What an option of a built-in decorator is given.
+#[derive(Clone, Copy)]
+pub(crate) enum Takes {
+    /// `true` or `false`, or nothing at all.
+    Flag,
+    /// A string literal that is not empty.
+    Text,
+    /// A string literal naming one of a known set: whether a text names
+    /// one, and the set as a message lists it.
+    Named(fn(&str) -> bool, &'static str),
+    /// Anything: an expression, a list of validators.
+    Anything,
+}
+
+impl Takes {
+    /// Why `value` is not what the option takes, when it is not.
+    pub(crate) fn refuses(self, value: OptionValue<'_>) -> Option<String> {
+        let written = match value {
+            OptionValue::Bare => None,
+            OptionValue::Assigned(written) | OptionValue::Called(written) => Some(written),
+        };
+        let text = written.and_then(whole_string_literal);
+        match (self, written, text.as_deref()) {
+            (Self::Anything, _, _) | (Self::Flag, None | Some("true" | "false"), _) => None,
+            (Self::Flag, Some(written), _) => {
+                Some(format!("takes `true` or `false`, not `{written}`"))
             }
-            if let Some(inner) = after.strip_prefix('(') {
-                return Some(inner.trim_start());
+            (Self::Text | Self::Named(_, _), None, _) => Some("takes a string".to_string()),
+            (Self::Text | Self::Named(_, _), Some(written), None) => {
+                Some(format!("takes a string literal, not `{written}`"))
+            }
+            (Self::Text, _, Some("")) => Some("takes a string that is not empty".to_string()),
+            (Self::Text, _, Some(_)) => None,
+            (Self::Named(names, known), Some(written), Some(text)) => {
+                (!names(text)).then(|| format!("takes {known}, not `{written}`"))
             }
         }
-        search_start = found + name.len();
     }
-    None
 }
 
 fn is_identifier_char(c: char) -> bool {
@@ -72,7 +200,7 @@ fn is_identifier_char(c: char) -> bool {
 ///
 /// Returns `None` if the name is not found or the value is not a string literal.
 pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
-    find_named_value(args, name).and_then(parse_string_literal)
+    find_named_value(args, name).and_then(whole_string_literal)
 }
 
 /// The value of the JavaScript string literal that `input` starts with,
@@ -80,6 +208,19 @@ pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
 /// `input` does not start with a complete string literal or an escape is
 /// malformed.
 pub fn parse_string_literal(input: &str) -> Option<String> {
+    leading_string_literal(input).map(|(value, _)| value)
+}
+
+/// The value of the string literal `input` is, when it is one and nothing
+/// more: `"a" + "b"` is an expression, not the text `a`.
+pub fn whole_string_literal(input: &str) -> Option<String> {
+    leading_string_literal(input)
+        .filter(|(_, rest)| rest.trim().is_empty())
+        .map(|(value, _)| value)
+}
+
+/// The string literal `input` starts with, and what follows it.
+fn leading_string_literal(input: &str) -> Option<(String, &str)> {
     let mut chars = input.trim_start().chars();
     let quote = chars.next().filter(|c| *c == '"' || *c == '\'')?;
     let mut value = String::new();
@@ -91,7 +232,7 @@ pub fn parse_string_literal(input: &str) -> Option<String> {
                 }
             }
             '\n' | '\r' => return None,
-            c if c == quote => return Some(value),
+            c if c == quote => return Some((value, chars.as_str())),
             c => value.push(c),
         }
     }
@@ -199,7 +340,110 @@ pub fn regex_literal(pattern: &str, flags: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{extract_named_string, find_named_value, js_string, parse_string_literal};
+    use super::{
+        DecoratorOption, OptionValue, Takes, decorator_options, extract_named_string,
+        find_named_value, flag_value, has_flag, js_string, parse_string_literal,
+        split_top_level_items, unwrapped, whole_string_literal,
+    };
+
+    #[test]
+    fn options_are_the_top_level_items_of_the_arguments() {
+        let option = |text, name, value| DecoratorOption { text, name, value };
+        assert_eq!(
+            decorator_options(r#"{ skip, rename: "a, b", minLength(2), "tag" : 'x', 5, "lone" }"#),
+            vec![
+                option("skip", "skip", OptionValue::Bare),
+                option(
+                    r#"rename: "a, b""#,
+                    "rename",
+                    OptionValue::Assigned(r#""a, b""#)
+                ),
+                option("minLength(2)", "minLength", OptionValue::Called("2")),
+                option(r#""tag" : 'x'"#, "tag", OptionValue::Assigned("'x'")),
+                option("5", "", OptionValue::Bare),
+                option(r#""lone""#, "", OptionValue::Bare),
+            ]
+        );
+        assert_eq!(
+            decorator_options("encodeWith = (value) => [value, 1], skip = false"),
+            vec![
+                option(
+                    "encodeWith = (value) => [value, 1]",
+                    "encodeWith",
+                    OptionValue::Assigned("(value) => [value, 1]")
+                ),
+                option("skip = false", "skip", OptionValue::Assigned("false")),
+            ]
+        );
+        assert_eq!(
+            split_top_level_items(r#"pattern("^[a,b]\"$"), 'it\'s, one', [1, 2]"#),
+            vec![r#"pattern("^[a,b]\"$")"#, r"'it\'s, one'", "[1, 2]"]
+        );
+        assert_eq!(unwrapped("{ a }, { b }", '{', '}'), None);
+        assert_eq!(unwrapped(r#"[ "]", 1 ]"#, '[', ']'), Some(r#" "]", 1 "#));
+    }
+
+    #[test]
+    fn a_flag_is_on_alone_or_given_true() {
+        assert!(has_flag("skip", "skip"));
+        assert!(has_flag("{ skip: true }", "skip"));
+        assert!(has_flag("Skip = true", "skip"));
+        assert!(!has_flag("{ skip: false }", "skip"));
+        // A word in another option's value turns nothing on.
+        assert!(!has_flag(r#"{ rename: "skip" }"#, "skip"));
+        assert!(!has_flag(r#"{ default: "flatten, skip" }"#, "skip"));
+        assert!(!has_flag("{ skipDecoding: true }", "skip"));
+        // Neither does a value that is no `true`.
+        assert_eq!(
+            flag_value(r#"{ skip: "yes" }"#, "skip"),
+            Some(Err(r#""yes""#))
+        );
+        assert_eq!(flag_value("{ skip: 1 }", "skip"), Some(Err("1")));
+        assert!(!has_flag("{ skip: null }", "skip"));
+        assert_eq!(flag_value("{ rename: 1 }", "skip"), None);
+    }
+
+    #[test]
+    fn an_option_refuses_a_value_of_the_wrong_kind() {
+        let refused = |takes: Takes, value| takes.refuses(value);
+        for accepted in [
+            OptionValue::Bare,
+            OptionValue::Assigned("true"),
+            OptionValue::Assigned("false"),
+        ] {
+            assert_eq!(refused(Takes::Flag, accepted), None);
+        }
+        for wrong in [r#""yes""#, "1", "null", r#""false""#] {
+            assert!(
+                refused(Takes::Flag, OptionValue::Assigned(wrong)).is_some(),
+                "{wrong}"
+            );
+        }
+        assert_eq!(refused(Takes::Text, OptionValue::Assigned(r#""id""#)), None);
+        assert_eq!(refused(Takes::Text, OptionValue::Called("'id'")), None);
+        for wrong in [
+            OptionValue::Bare,
+            OptionValue::Assigned("5"),
+            OptionValue::Assigned("\"\""),
+        ] {
+            assert!(refused(Takes::Text, wrong).is_some(), "{wrong:?}");
+        }
+        let named = Takes::Named(|text| text == "decimal", "\"decimal\"");
+        assert_eq!(refused(named, OptionValue::Assigned(r#""decimal""#)), None);
+        assert_eq!(
+            refused(named, OptionValue::Assigned(r#""hex""#)).as_deref(),
+            Some(r#"takes "decimal", not `"hex"`"#)
+        );
+        assert_eq!(refused(Takes::Anything, OptionValue::Assigned("(")), None);
+    }
+
+    #[test]
+    fn a_string_literal_is_whole_when_nothing_follows_it() {
+        assert_eq!(whole_string_literal(r#" "a" "#).as_deref(), Some("a"));
+        assert_eq!(whole_string_literal(r#""a" + "b""#), None);
+        assert_eq!(parse_string_literal(r#""a" + "b""#).as_deref(), Some("a"));
+        assert_eq!(extract_named_string("rename: 5", "rename"), None);
+    }
 
     #[test]
     fn escapes_are_decoded() {
@@ -246,6 +490,10 @@ mod tests {
             Some("a")
         );
         assert_eq!(find_named_value("default = 5", "default"), Some("5"));
+        assert_eq!(
+            find_named_value(r#"default: [1, 2], rename: "a""#, "default"),
+            Some("[1, 2]")
+        );
         assert_eq!(
             extract_named_string(r#"label: "ünï", name: "x""#, "name").as_deref(),
             Some("x")

@@ -2,8 +2,74 @@
 
 use super::helpers::extract_named_value;
 use super::validators::{ValidatorSpec, extract_validators};
-use crate::builtin::derive::common::{find_named_value, has_flag};
+use crate::builtin::derive::common::{Takes, extract_named_string, find_named_value, has_flag};
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector};
+
+/// Where an `@endec` option is written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Placement {
+    /// On a field, or on a member of a union.
+    Field,
+    /// On the type itself.
+    Type,
+    /// On either.
+    Either,
+}
+
+/// One option `@endec` takes.
+pub(crate) struct EndecOption {
+    pub(crate) name: &'static str,
+    pub(crate) takes: Takes,
+    pub(crate) placement: Placement,
+}
+
+const fn option(name: &'static str, takes: Takes, placement: Placement) -> EndecOption {
+    EndecOption {
+        name,
+        takes,
+        placement,
+    }
+}
+
+fn names_convention(text: &str) -> bool {
+    text.parse::<RenameAll>().is_ok()
+}
+
+const CONVENTIONS: &str =
+    "\"camelCase\", \"snake_case\", \"SCREAMING_SNAKE_CASE\", \"kebab-case\" or \"PascalCase\"";
+
+/// Every option `@endec` takes. Any other name in its arguments is a
+/// validator.
+pub(crate) const ENDEC_OPTIONS: &[EndecOption] = &[
+    option("skip", Takes::Flag, Placement::Field),
+    option("skipEncoding", Takes::Flag, Placement::Field),
+    option("skipDecoding", Takes::Flag, Placement::Field),
+    option("flatten", Takes::Flag, Placement::Field),
+    option("default", Takes::Anything, Placement::Field),
+    option("rename", Takes::Text, Placement::Field),
+    option("encodeWith", Takes::Anything, Placement::Field),
+    option("decodeWith", Takes::Anything, Placement::Field),
+    option("format", Takes::Anything, Placement::Field),
+    option("validate", Takes::Anything, Placement::Either),
+    option("message", Takes::Anything, Placement::Either),
+    option(
+        "renameAll",
+        Takes::Named(names_convention, CONVENTIONS),
+        Placement::Type,
+    ),
+    option("denyUnknownFields", Takes::Flag, Placement::Type),
+    option("tag", Takes::Text, Placement::Type),
+    option("content", Takes::Text, Placement::Type),
+    option("untagged", Takes::Flag, Placement::Type),
+    option("externallyTagged", Takes::Flag, Placement::Type),
+];
+
+/// The option of `@endec` written `name`, in any case.
+pub(crate) fn endec_option(name: &str) -> Option<&'static EndecOption> {
+    ENDEC_OPTIONS
+        .iter()
+        .find(|option| option.name.eq_ignore_ascii_case(name))
+}
 
 /// Naming convention for JSON field renaming
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -110,7 +176,7 @@ impl EndecContainerOptions {
             }
             let args = decorator.args_src.trim();
 
-            if let Some(rename_all) = extract_named_value(args, "renameAll")
+            if let Some(rename_all) = extract_named_string(args, "renameAll")
                 && let Ok(convention) = rename_all.parse::<RenameAll>()
             {
                 opts.rename_all = convention;
@@ -121,8 +187,8 @@ impl EndecContainerOptions {
             }
 
             // Resolve tagging mode from combination of attributes
-            let tag = extract_named_value(args, "tag");
-            let content = extract_named_value(args, "content");
+            let tag = extract_named_string(args, "tag");
+            let content = extract_named_string(args, "content");
             let untagged = has_flag(args, "untagged");
             let externally_tagged = has_flag(args, "externallyTagged");
 
@@ -281,7 +347,7 @@ impl EndecFieldOptions {
                 opts.default = true;
             }
 
-            if let Some(rename) = extract_named_value(args, "rename") {
+            if let Some(rename) = extract_named_string(args, "rename") {
                 opts.rename = Some(rename);
             }
 

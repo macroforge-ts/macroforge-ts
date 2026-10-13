@@ -2028,9 +2028,18 @@ impl MacroExpander {
             .with_prefix(import_block.len() as u32, "imports");
         let source_mapping = (!source_mapping.is_empty()).then_some(source_mapping);
 
+        // Derives that read a declaration alike each report what is wrong
+        // with it, and once says it.
+        let mut reported: Vec<Diagnostic> = Vec::new();
+        for diagnostic in std::mem::take(diagnostics) {
+            if !reported.contains(&diagnostic) {
+                reported.push(diagnostic);
+            }
+        }
+
         let mut expansion = MacroExpansion {
             code,
-            diagnostics: std::mem::take(diagnostics),
+            diagnostics: reported,
             changed: has_patches,
             type_output,
             type_output_diagnostics,

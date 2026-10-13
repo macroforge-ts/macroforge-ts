@@ -61,6 +61,14 @@
 //! | `format = "decimal"` | Encode a number field as a string |
 //! | `validate: [...]` | Run validators during decoding (see below) |
 //!
+//! An option's value is read as written. A flag (`skip`, `flatten`,
+//! `denyUnknownFields`, `untagged`, ...) stands alone or takes `true` or
+//! `false`; `rename`, `tag` and `content` take a string literal that is not
+//! empty; `renameAll` one of the conventions below. Anything else is an
+//! expansion error, as are an option given twice, a field's option on a
+//! type or a type's on a field, and any option on an enum, whose values are
+//! coded as they are.
+//!
 //! ## Container-Level Options
 //!
 //! | Option | Description |
@@ -71,6 +79,12 @@
 //! | `content = "fieldName"` | With `tag`, selects adjacently-tagged union representation |
 //! | `untagged` | Untagged union representation (raw value, no discriminator) |
 //! | `externallyTagged` | Externally-tagged union representation (`{ "TypeName": {...} }`) |
+//!
+//! `tag`, `untagged` and `externallyTagged` each say how the members of a
+//! union are told apart, so a type takes one of them; `content` goes with
+//! `tag`, under another key; and `untagged`, `externallyTagged` and `content`
+//! are expansion errors on a class, an interface or an object type, which is
+//! no union.
 //!
 //! The tagging options combine into four modes mirroring Rust endec: internally tagged
 //! (the default, `tag` only), adjacently tagged (`tag` + `content`), externally tagged,
@@ -250,10 +264,11 @@ pub use crate::host::import_registry::{
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::derive::endec::*`) keep working.
 pub(crate) use coder::inline_object_fields;
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types};
+pub(crate) use options::{ENDEC_OPTIONS, Placement, endec_option};
 pub use options::{
     EndecContainerOptions, EndecFieldOptions, EndecFieldParseResult, EndecFormat, RenameAll,
     TaggingMode, decorator_validators,
 };
 pub use type_category::{TypeCategory, WrapperFields};
-pub(crate) use validators::{KNOWN_OPTIONS, KNOWN_VALIDATORS};
+pub(crate) use validators::KNOWN_VALIDATORS;
 pub use validators::{Validator, ValidatorSpec, extract_validators};

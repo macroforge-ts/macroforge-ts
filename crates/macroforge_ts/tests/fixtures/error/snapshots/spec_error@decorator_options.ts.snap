@@ -285,7 +285,7 @@ Error [108..136]: `@debug` takes `skip`, `rename`, not `skp`
 Error [165..200]: `@partialEq` takes `skip`, not `ignore`
 Error [226..254]: `@ord` takes `skip`, not `skipp`
 Error [280..307]: `@ord` takes `skip`, not `nonsense`
-Error [610..666]: `@endec` takes `skip`, `skipEncoding`, `skipDecoding`, `flatten`, `default`, `rename`, `validate`, `message`, `encodeWith`, `decodeWith`, `format`, `renameAll`, `denyUnknownFields`, `tag`, `content`, `untagged`, `externallyTagged`, not `tagg`
+Error [610..666]: `@endec` takes `validate`, `message`, `renameAll`, `denyUnknownFields`, `tag`, `content`, `untagged`, `externallyTagged` on a type, not `tagg`
 Error [5..73]: @default(1, 2) writes several values, and a default is one; write an object or an array in its brackets
 
 ## Mapping

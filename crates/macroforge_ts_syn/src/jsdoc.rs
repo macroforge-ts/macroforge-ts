@@ -101,6 +101,67 @@ pub fn stacked_jsdoc_above(source: &str, floor: usize, block: JsDocBlock) -> Opt
     })
 }
 
+/// Where a scan of a directive's arguments stands: how many brackets of each
+/// kind are open, and the quote of the string literal it is inside. A bracket
+/// or a comma in a string is text, as the `(` of `@default(":(")` is.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct Nesting {
+    parens: u32,
+    braces: u32,
+    brackets: u32,
+    quote: Option<char>,
+    escaped: bool,
+}
+
+impl Nesting {
+    /// Takes the next character of the text scanned.
+    pub fn feed(&mut self, letter: char) {
+        if let Some(quote) = self.quote {
+            if self.escaped {
+                self.escaped = false;
+            } else if letter == '\\' {
+                self.escaped = true;
+            } else if letter == quote {
+                self.quote = None;
+            }
+            return;
+        }
+        match letter {
+            '"' | '\'' | '`' => self.quote = Some(letter),
+            '(' => self.parens += 1,
+            ')' => self.parens = self.parens.saturating_sub(1),
+            '{' => self.braces += 1,
+            '}' => self.braces = self.braces.saturating_sub(1),
+            '[' => self.brackets += 1,
+            ']' => self.brackets = self.brackets.saturating_sub(1),
+            _ => {}
+        }
+    }
+
+    /// Takes a whole line. A `"` or `'` string does not run past its line.
+    fn feed_line(&mut self, line: &str) {
+        line.chars().for_each(|letter| self.feed(letter));
+        if self.quote != Some('`') {
+            self.quote = None;
+        }
+        self.escaped = false;
+    }
+
+    /// Whether the scan stands outside every bracket and string.
+    pub fn is_top_level(&self) -> bool {
+        self.quote.is_none() && !self.has_open_bracket()
+    }
+
+    /// Whether the scan stands inside a string literal.
+    pub fn in_string(&self) -> bool {
+        self.quote.is_some()
+    }
+
+    fn has_open_bracket(&self) -> bool {
+        self.parens > 0 || self.braces > 0 || self.brackets > 0
+    }
+}
+
 /// Parse the macro directives of a JSDoc comment body as `(name, args)` pairs.
 /// A directive opens a line, several may follow one another on it
 /// (`@derive(X) @default(Y)`), parentheses are optional (`@default`) and
@@ -118,13 +179,11 @@ pub fn parse_all_macro_directives(
         .collect();
 
     let mut accumulated = String::new();
-    let mut paren_depth: i32 = 0;
-    let mut brace_depth: i32 = 0;
-    let mut bracket_depth: i32 = 0;
+    let mut nesting = Nesting::default();
 
     let mut in_fence = false;
     for line in &lines {
-        let in_continuation = paren_depth > 0 || brace_depth > 0 || bracket_depth > 0;
+        let in_continuation = nesting.has_open_bracket();
 
         // A fenced block is example code; its `@` lines are not directives.
         if !in_continuation && line.starts_with("```") {
@@ -138,23 +197,11 @@ pub fn parse_all_macro_directives(
         if in_continuation {
             accumulated.push(' ');
             accumulated.push_str(line);
-            for c in line.chars() {
-                match c {
-                    '(' => paren_depth += 1,
-                    ')' => paren_depth -= 1,
-                    '{' => brace_depth += 1,
-                    '}' => brace_depth -= 1,
-                    '[' => bracket_depth += 1,
-                    ']' => bracket_depth -= 1,
-                    _ => {}
-                }
-            }
-            if paren_depth <= 0 && brace_depth <= 0 && bracket_depth <= 0 {
+            nesting.feed_line(line);
+            if !nesting.has_open_bracket() {
                 parse_directives_from_text(&accumulated, valid_annotations, &mut results);
                 accumulated.clear();
-                paren_depth = 0;
-                brace_depth = 0;
-                bracket_depth = 0;
+                nesting = Nesting::default();
             }
             continue;
         }
@@ -163,26 +210,13 @@ pub fn parse_all_macro_directives(
             continue;
         }
 
-        for c in line.chars() {
-            match c {
-                '(' => paren_depth += 1,
-                ')' => paren_depth -= 1,
-                '{' => brace_depth += 1,
-                '}' => brace_depth -= 1,
-                '[' => bracket_depth += 1,
-                ']' => bracket_depth -= 1,
-                _ => {}
-            }
-        }
-
-        if paren_depth > 0 || brace_depth > 0 || bracket_depth > 0 {
+        nesting.feed_line(line);
+        if nesting.has_open_bracket() {
             accumulated = line.to_string();
             continue;
         }
 
-        paren_depth = 0;
-        brace_depth = 0;
-        bracket_depth = 0;
+        nesting = Nesting::default();
         parse_directives_from_text(line, valid_annotations, &mut results);
     }
 
@@ -237,26 +271,15 @@ pub fn parse_directives_from_text(
 }
 
 /// The offset of the `)` that closes a directive's argument list, given the
-/// text after its `(`. Parentheses, braces and brackets nest.
+/// text after its `(`. Parentheses, braces and brackets nest, and none of
+/// them counts inside a string literal.
 fn closing_paren(args: &str) -> Option<usize> {
-    let mut depth: i32 = 1;
-    let mut brace_depth: i32 = 0;
-    let mut bracket_depth: i32 = 0;
-    for (offset, c) in args.char_indices() {
-        match c {
-            '(' => depth += 1,
-            ')' => {
-                depth -= 1;
-                if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
-                    return Some(offset);
-                }
-            }
-            '{' => brace_depth += 1,
-            '}' => brace_depth = brace_depth.saturating_sub(1),
-            '[' => bracket_depth += 1,
-            ']' => bracket_depth = bracket_depth.saturating_sub(1),
-            _ => {}
+    let mut nesting = Nesting::default();
+    for (offset, letter) in args.char_indices() {
+        if letter == ')' && nesting.is_top_level() {
+            return Some(offset);
         }
+        nesting.feed(letter);
     }
     None
 }
@@ -319,6 +342,39 @@ mod adjacency_tests {
         assert!(
             directives.is_empty(),
             "the example is not a directive: {directives:?}"
+        );
+    }
+
+    #[test]
+    fn a_bracket_in_a_string_literal_is_text() {
+        let directives = |body: &str| parse_all_macro_directives(body, None);
+        let pair = |name: &str, args: &str| (name.to_string(), args.to_string());
+        assert_eq!(
+            directives(r#" @default(":(") @endec({ rename: "a)" }) "#),
+            vec![
+                pair("default", r#"":(""#),
+                pair("endec", r#"{ rename: "a)" }"#)
+            ]
+        );
+        assert_eq!(
+            directives(" @endec({ default: \"[\" })\n * @debug({ rename: 'it\\'s {' }) "),
+            vec![
+                pair("endec", r#"{ default: "[" }"#),
+                pair("debug", r"{ rename: 'it\'s {' }"),
+            ]
+        );
+        // Arguments run over lines until their brackets close.
+        assert_eq!(
+            directives(" @endec({ rename: \"a\",\n *   skip: true })\n * @default(1) "),
+            vec![
+                pair("endec", r#"{ rename: "a", skip: true }"#),
+                pair("default", "1"),
+            ]
+        );
+        // An apostrophe in prose opens no string that outlives its line.
+        assert_eq!(
+            directives(" @remarks the user's (first\n * @default(1) "),
+            vec![pair("remarks", ""), pair("default", "1")]
         );
     }
 

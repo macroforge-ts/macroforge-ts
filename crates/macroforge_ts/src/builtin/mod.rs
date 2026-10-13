@@ -112,6 +112,11 @@
 //! }
 //! ```
 //!
+//! A decorator's arguments are read as written: an option it does not take,
+//! a value of the wrong kind (`skip: "no"`, `rename: 5`) and an option given
+//! twice are expansion errors, and text in a string is only text, whatever
+//! brackets, commas or option names it holds.
+//!
 //! ## Example Usage
 //!
 //! ```typescript
