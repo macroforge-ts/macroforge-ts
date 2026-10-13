@@ -130,6 +130,9 @@ fn value_equality(
         None => (left, right),
     };
     let equality = match classified.kind {
+        // `NaN` is the one number `===` holds unequal to itself, which would
+        // leave a value unequal to its own copy.
+        ValueType::Primitive("number") => return same_number(left, right),
         // `===` and the structural helper already treat `null` and `undefined`.
         ValueType::Primitive(_) | ValueType::Opaque => {
             return rendered(ts_template! { @{left} === @{right} });
@@ -195,9 +198,22 @@ fn value_equality(
     }
 }
 
+/// Whether two numbers are the same one, `NaN` being the same as `NaN`.
+fn same_number(left: &str, right: &str) -> String {
+    rendered(ts_template! {
+        (@{left} === @{right} || (@{left} !== @{left} && @{right} !== @{right}))
+    })
+}
+
 fn builtin_equality(builtin: Builtin, left: &str, right: &str) -> String {
     rendered(match builtin {
-        Builtin::Date => ts_template! { @{left}.getTime() === @{right}.getTime() },
+        // An invalid date's time is `NaN`.
+        Builtin::Date => {
+            return same_number(
+                &rendered(ts_template! { @{left}.getTime() }),
+                &rendered(ts_template! { @{right}.getTime() }),
+            );
+        }
         Builtin::RegExp => ts_template! {
             (@{left}.source === @{right}.source && @{left}.flags === @{right}.flags)
         },

@@ -137,6 +137,6 @@ fn optional_field_guards_absent_values() {
         generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert_eq!(
         result,
-        "(a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime())"
+        "(a.at == null || b.at == null ? a.at === b.at : (a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime())))"
     );
 }

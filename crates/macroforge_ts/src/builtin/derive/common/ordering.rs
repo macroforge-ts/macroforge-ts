@@ -183,12 +183,17 @@ fn value_order(
     }
 }
 
+/// The order of two numbers. `NaN` is equal to itself, as `PartialEq` holds
+/// it. Against a number it is unordered under `PartialOrd`, and comes after
+/// every number under `Ord`, which has to order every pair.
 fn number_order(ordering: Ordering, left: &str, right: &str) -> String {
     match ordering {
         Ordering::Partial => rendered(ts_template! {
-            (@{left} < @{right} ? -1 : @{left} > @{right} ? 1 : @{left} === @{right} ? 0 : null)
+            (@{left} < @{right} ? -1 : @{left} > @{right} ? 1 : @{left} === @{right} || (@{left} !== @{left} && @{right} !== @{right}) ? 0 : null)
         }),
-        Ordering::Total => text_order(left, right),
+        Ordering::Total => rendered(ts_template! {
+            (@{left} < @{right} ? -1 : @{left} > @{right} ? 1 : @{left} === @{right} ? 0 : @{left} !== @{left} ? (@{right} !== @{right} ? 0 : 1) : -1)
+        }),
     }
 }
 

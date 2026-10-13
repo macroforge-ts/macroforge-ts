@@ -59,8 +59,14 @@ export function structuralEquals(left: unknown, right: unknown): boolean {
   return equalsWithin(left, right, new Map());
 }
 
+/** Whether two numbers are the same one, `NaN` being the same as `NaN`. */
+function sameNumber(left: number, right: number): boolean {
+  return left === right || (Number.isNaN(left) && Number.isNaN(right));
+}
+
 function equalsWithin(left: unknown, right: unknown, seen: Map<object, Set<object>>): boolean {
   if (left === right) return true;
+  if (typeof left === 'number' && typeof right === 'number') return sameNumber(left, right);
   if (typeof left !== 'object' || typeof right !== 'object' || left === null || right === null) {
     return false;
   }
@@ -72,7 +78,9 @@ function equalsWithin(left: unknown, right: unknown, seen: Map<object, Set<objec
 
   const equals = classTrait(left, 'equals');
   if (equals) return equals(left, right) === true;
-  if (left instanceof Date && right instanceof Date) return left.getTime() === right.getTime();
+  if (left instanceof Date && right instanceof Date) {
+    return sameNumber(left.getTime(), right.getTime());
+  }
   if (left instanceof RegExp && right instanceof RegExp) {
     return left.source === right.source && left.flags === right.flags;
   }

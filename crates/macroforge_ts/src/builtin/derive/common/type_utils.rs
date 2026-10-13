@@ -24,11 +24,18 @@ pub fn is_primitive_type(ts_type: &str) -> bool {
 
 /// Statements comparing `a` and `b` of one primitive base and returning
 /// -1, 0 or 1: strings by UTF-16 code units, so the order is `0` exactly when
-/// `===` holds. With `partial`, an unordered number pair (NaN) returns `null`.
+/// `===` holds. `NaN` is equal to itself; against a number it is unordered,
+/// `null`, with `partial`, and after every number without.
 pub fn primitive_compare_statements(base: &str, partial: bool) -> String {
     rendered(match base {
         "boolean" => ts_template! { return a === b ? 0 : a ? 1 : -1; },
-        "number" if partial => ts_template! { return a < b ? -1 : a > b ? 1 : a === b ? 0 : null; },
+        "number" if partial => ts_template! {
+            return a < b ? -1 : a > b ? 1 : a === b || (a !== a && b !== b) ? 0 : null;
+        },
+        // `NaN` after every number, and equal to itself.
+        "number" => ts_template! {
+            return a < b ? -1 : a > b ? 1 : a === b ? 0 : a !== a ? (b !== b ? 0 : 1) : -1;
+        },
         _ => ts_template! { return a < b ? -1 : a > b ? 1 : 0; },
     })
 }
