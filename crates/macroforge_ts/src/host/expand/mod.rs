@@ -1131,6 +1131,22 @@ impl MacroExpander {
             .map(|ta| (SpanKey::from(ta.span), ta))
             .collect();
 
+        // A name this file declares is this file's type, whether the scan
+        // read the file or not.
+        let type_registry = self.type_registry.declaring(
+            file_name,
+            class_map
+                .values()
+                .map(|class| class.name.clone())
+                .chain(
+                    interface_map
+                        .values()
+                        .map(|interface| interface.name.clone()),
+                )
+                .chain(enum_map.values().map(|declared| declared.name.clone()))
+                .chain(type_alias_map.values().map(|alias| alias.name.clone())),
+        );
+
         let function_map: HashMap<SpanKey, FunctionIR> = functions
             .into_iter()
             .map(|f| (SpanKey::from(f.span), f))
@@ -1283,8 +1299,7 @@ impl MacroExpander {
             // its references would recurse forever.
             if let DeriveTargetIR::TypeAlias(alias) = &target.target_ir
                 && let Some(cycle) =
-                    self.type_registry
-                        .alias_cycle(&alias.name, file_name, &file_imports)
+                    type_registry.alias_cycle(&alias.name, file_name, &file_imports)
             {
                 diagnostics.push(Diagnostic {
                     level: DiagnosticLevel::Error,
@@ -1494,14 +1509,14 @@ impl MacroExpander {
                 // Enrich context with project-wide type awareness. The
                 // registry is always present (empty when no scan ran) so
                 // macros can call `resolve` unconditionally.
-                ctx.type_registry = self.type_registry.clone();
+                ctx.type_registry = type_registry.clone();
                 // The file's imports disambiguate type names that several
                 // files declare, for field resolution and for the macros.
                 ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
                 let resolved_fields = target_fields.get_or_insert_with(|| {
                     let file_imports = ctx.import_registry.file_import_entries();
                     let resolver = crate::host::type_resolver::TypeResolver::new(
-                        &self.type_registry,
+                        &type_registry,
                         &ctx.file_name,
                         &file_imports,
                     );
@@ -1687,11 +1702,9 @@ impl MacroExpander {
                         let mut project_types = std::collections::HashSet::new();
                         let imported: Vec<String> = import_sources.keys().cloned().collect();
                         for name in imported {
-                            let Some(entry) = self.type_registry.resolve_in_file(
-                                &name,
-                                &ctx.file_name,
-                                &file_imports,
-                            ) else {
+                            let Some(entry) =
+                                type_registry.resolve_in_file(&name, &ctx.file_name, &file_imports)
+                            else {
                                 continue;
                             };
                             project_types.insert(name.clone());
@@ -1931,11 +1944,11 @@ impl MacroExpander {
 
                 // Enrich with type registry (always present; empty when no
                 // pre-scan ran so resolve sites stay unconditional).
-                ctx.type_registry = self.type_registry.clone();
+                ctx.type_registry = type_registry.clone();
                 ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
                 let file_imports = ctx.import_registry.file_import_entries();
                 let resolver = crate::host::type_resolver::TypeResolver::new(
-                    &self.type_registry,
+                    &type_registry,
                     &ctx.file_name,
                     &file_imports,
                 );

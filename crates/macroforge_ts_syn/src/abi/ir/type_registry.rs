@@ -442,6 +442,33 @@ pub struct TypeRegistry {
     /// When set, this registry serializes as a reference to the resident
     /// registry of this generation instead of its contents.
     resident_reference: Option<RegistryGeneration>,
+
+    /// The file being expanded and the names it declares, when the host has
+    /// said: see [`Self::declaring`]. It is one expansion's knowledge, and no
+    /// part of what a registry serializes.
+    declaring: Option<Arc<DeclaringFile>>,
+}
+
+/// A file, and the names of the types it declares itself.
+#[derive(Debug)]
+struct DeclaringFile {
+    file_path: String,
+    names: std::collections::HashSet<String>,
+}
+
+/// Whether two paths name one file, where one may be written from a root the
+/// other is written below: `src/user.ts` and `/project/src/user.ts`.
+fn same_file(left: &str, right: &str) -> bool {
+    let (left, right) = (
+        left.trim_start_matches("./"),
+        right.trim_start_matches("./"),
+    );
+    let ends_in = |whole: &str, end: &str| {
+        whole
+            .strip_suffix(end)
+            .is_some_and(|before| before.ends_with('/'))
+    };
+    left == right || ends_in(left, right) || ends_in(right, left)
 }
 
 /// Identifies a registry's contents within one process: any insert, through
@@ -850,6 +877,27 @@ impl TypeRegistry {
             },
             log,
             resident_reference: None,
+            declaring: None,
+        }
+    }
+
+    /// This registry as the file at `file_path` reads it while it is being
+    /// expanded: a name among `names`, which the file declares, is the
+    /// file's own type and none another file declares under it. A file the
+    /// scan has not read, a component or one newer than the scan, has no
+    /// entry for what it declares, and its names would else be answered for
+    /// by whatever the project declares under them.
+    pub fn declaring(
+        &self,
+        file_path: &str,
+        names: impl IntoIterator<Item = String>,
+    ) -> TypeRegistry {
+        TypeRegistry {
+            declaring: Some(Arc::new(DeclaringFile {
+                file_path: file_path.to_string(),
+                names: names.into_iter().collect(),
+            })),
+            ..self.clone()
         }
     }
 
@@ -920,6 +968,7 @@ impl TypeRegistry {
             },
             log,
             resident_reference: self.resident_reference,
+            declaring: self.declaring.clone(),
         }
     }
 
@@ -1048,6 +1097,17 @@ impl TypeRegistry {
         file_imports: &[FileImportEntry],
     ) -> Option<&TypeRegistryEntry> {
         self.log.note(|| RegistryRead::Name(name.to_string()));
+        // A name the calling file declares itself is that file's type,
+        // whether the scan has read the file or not.
+        if let Some(declaring) = &self.declaring
+            && declaring.names.contains(name)
+            && same_file(&declaring.file_path, caller_file_path)
+        {
+            return self
+                .candidates(name)
+                .into_iter()
+                .find(|entry| same_file(&entry.file_path, caller_file_path));
+        }
         let import = file_imports.iter().find(|import| import.local_name == name);
         // What the module a name is imported from exports it as: the name
         // itself, another (`import { User as Member }`), or `default`. A
@@ -1662,6 +1722,57 @@ mod tests {
         }];
         let resolved = registry.resolve_in_file("User", "/project/src/page.ts", &defaulted);
         assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
+    }
+
+    /// A name a file declares is that file's type: its own entry where the
+    /// scan read the file, and no other file's where it did not.
+    #[test]
+    fn a_name_a_file_declares_is_not_another_files_type() {
+        let mut registry = TypeRegistry::default();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Page", "/project/src/page.ts", vec![]),
+            "/project",
+        );
+        let resolve = |registry: &TypeRegistry, name: &str, file: &str| {
+            registry
+                .resolve_in_file(name, file, &[])
+                .map(|entry| entry.file_path.clone())
+        };
+
+        // Unsaid, a name is the one type the project declares under it.
+        let component = "/project/src/routes/+page.svelte";
+        assert_eq!(
+            resolve(&registry, "User", component).as_deref(),
+            Some("/project/src/user.ts")
+        );
+
+        // A component the scan did not read declares a `User` of its own.
+        let unscanned = registry.declaring(component, ["User".to_string()]);
+        assert_eq!(resolve(&unscanned, "User", component), None);
+        assert_eq!(
+            resolve(&unscanned, "Page", component).as_deref(),
+            Some("/project/src/page.ts")
+        );
+        // What it says holds for the file it is said of.
+        assert_eq!(
+            resolve(&unscanned, "User", "/project/src/other.ts").as_deref(),
+            Some("/project/src/user.ts")
+        );
+
+        // A scanned file's own entry is found by either spelling of its path.
+        let scanned = registry.declaring("src/page.ts", ["Page".to_string()]);
+        assert_eq!(
+            resolve(&scanned, "Page", "src/page.ts").as_deref(),
+            Some("/project/src/page.ts")
+        );
+        assert!(!same_file(
+            "/project/src/page.ts",
+            "/project/src/homepage.ts"
+        ));
     }
 
     /// A module the scan found types in exports those and no others: a name

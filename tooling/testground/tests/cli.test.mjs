@@ -790,6 +790,36 @@ Deno.test('CLI expand: a source that ends its lines with CRLF gets generated cod
     }
 });
 
+Deno.test("CLI expand: a type a file the scan skips declares is not the project's type of its name", () => {
+    // `dist` is a directory the scan skips, in a project that declares one
+    // `EdgeItem`, which derives every value trait.
+    const vanillaRoot = path.join(repoRoot, 'tooling', 'testground', 'vanilla');
+    const skipped = path.join(vanillaRoot, 'dist', 'macroforge-cli-local-type');
+    fs.mkdirSync(skipped, { recursive: true });
+    try {
+        const inputFile = path.join(skipped, 'local.ts');
+        const outputFile = path.join(skipped, 'local.out.ts');
+        fs.writeFileSync(
+            inputFile,
+            `export interface EdgeItem { other: boolean; }
+
+/** @derive(Clone, PartialEq, Hash) */
+export interface LocalHolder { held: EdgeItem; all: EdgeItem[]; }`
+        );
+
+        const result = runCli(['expand', inputFile, '--out', outputFile], { cwd: vanillaRoot });
+
+        assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+        const written = fs.readFileSync(outputFile, 'utf8');
+        for (const called of ['edgeItemClone', 'edgeItemEquals', 'edgeItemHashCode']) {
+            assert(!written.includes(called), `the local type is not coded by ${called}`);
+        }
+        assert(written.includes('localHolderClone'), 'the holder is expanded');
+    } finally {
+        fs.rmSync(skipped, { recursive: true, force: true });
+    }
+});
+
 Deno.test('CLI expand: respects --out flag for custom output path', () => {
     setupTmpDir();
     try {
