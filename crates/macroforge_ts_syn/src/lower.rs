@@ -508,6 +508,10 @@ pub fn lower_interfaces(
                 Declaration::TSInterfaceDeclaration(d) => Some(d.as_ref()),
                 _ => None,
             },
+            Statement::ExportDefaultDeclaration(d) => match &d.declaration {
+                ExportDefaultDeclarationKind::TSInterfaceDeclaration(d) => Some(d.as_ref()),
+                _ => None,
+            },
             _ => None,
         };
         if let Some(d) = decl {
@@ -1273,13 +1277,17 @@ pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
                     names.insert(spec.local.name().to_string());
                 }
             }
-            Statement::ExportDefaultDeclaration(decl) => {
-                if let ExportDefaultDeclarationKind::ClassDeclaration(c) = &decl.declaration
-                    && let Some(id) = &c.id
-                {
-                    names.insert(id.name.to_string());
+            Statement::ExportDefaultDeclaration(decl) => match &decl.declaration {
+                ExportDefaultDeclarationKind::ClassDeclaration(c) => {
+                    if let Some(id) = &c.id {
+                        names.insert(id.name.to_string());
+                    }
                 }
-            }
+                ExportDefaultDeclarationKind::TSInterfaceDeclaration(i) => {
+                    names.insert(i.id.name.to_string());
+                }
+                _ => {}
+            },
             _ => {}
         }
     }

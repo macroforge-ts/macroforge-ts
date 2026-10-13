@@ -841,7 +841,17 @@ pub(super) fn check_unattached_derives(
             let declares_type = ["class", "interface", "enum", "type"]
                 .iter()
                 .any(|keyword| after_word(follows, keyword).is_some());
-            let (message, help) = if declares_type {
+            // `export default class {` and `class extends Base {` name nothing.
+            let unnamed_class = follows.strip_prefix("class").is_some_and(|rest| {
+                let rest = rest.trim_start();
+                rest.starts_with('{') || after_word(rest, "extends").is_some()
+            });
+            let (message, help) = if unnamed_class {
+                (
+                    "this `@derive` is on a class without a name, and the functions a derive generates are named after their type, so it would generate nothing",
+                    "name the class",
+                )
+            } else if declares_type {
                 (
                     "this `@derive` is on a type declared inside a namespace or a block, where a derive does not reach, so it would generate nothing",
                     "declare the type at the top level of its module",

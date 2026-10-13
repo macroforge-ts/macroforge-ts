@@ -1,0 +1,95 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/default_export_interface.ts
+---
+## Input
+
+/** @derive(Clone, PartialEq, Default) */
+export default interface Shape {
+    x: number;
+    y: number;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+
+export default interface Shape {
+    x: number;
+    y: number;
+}
+
+export function shapeClone(value: Shape): Shape {
+    return __mf_clonedWith(value, (): Shape => ({
+	x: value.x,
+	y: value.y
+}));
+}
+
+export function shapeEquals(a: Shape, b: Shape): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+}
+
+export function shapeDefaultValue(): Shape {
+    return {
+        x: 0,
+        y: 0,
+    };
+}
+
+export const Shape: {
+  readonly clone: typeof shapeClone;
+  readonly equals: typeof shapeEquals;
+  readonly defaultValue: typeof shapeDefaultValue;
+} = {
+  clone: shapeClone,
+  equals: shapeEquals,
+  defaultValue: shapeDefaultValue
+};
+
+## DTS
+
+export default interface Shape {
+	x: number;
+	y: number;
+}
+export declare function shapeClone(value: Shape): Shape;
+export declare function shapeEquals(a: Shape, b: Shape): boolean;
+export declare function shapeDefaultValue(): Shape;
+export declare const Shape: {
+	readonly clone: typeof shapeClone;
+	readonly equals: typeof shapeEquals;
+	readonly defaultValue: typeof shapeDefaultValue;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 41..106 -> expanded 110..175
+original 106..107 -> expanded 866..867
+generated 0..110 <- imports
+generated 175..308 <- Clone
+generated 308..533 <- PartialEq
+generated 533..629 <- Default
+generated 629..866 <- __convenience_const
+
+## Metadata
+
+interface Shape: {"body_span":{"end":107,"start":74},"decorators":[{"args_src":"Clone, PartialEq, Default","name":"Derive","span":{"end":42,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":90,"start":80},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":105,"start":95},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Shape","span":{"end":107,"start":58},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
