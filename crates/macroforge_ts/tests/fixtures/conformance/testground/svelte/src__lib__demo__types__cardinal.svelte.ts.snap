@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -66,22 +66,22 @@ export function cardinalEncodePartialWithContext(value: Partial<Cardinal>, ctx: 
 function cardinalEncodeFields(value: Cardinal, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("north")) {
         if (value.north !== undefined) {
-            result.north = value.north;
+            result["north"] = value.north;
         }
     }
     if (__fields === undefined || __fields.keeps("east")) {
         if (value.east !== undefined) {
-            result.east = value.east;
+            result["east"] = value.east;
         }
     }
     if (__fields === undefined || __fields.keeps("south")) {
         if (value.south !== undefined) {
-            result.south = value.south;
+            result["south"] = value.south;
         }
     }
     if (__fields === undefined || __fields.keeps("west")) {
         if (value.west !== undefined) {
-            result.west = value.west;
+            result["west"] = value.west;
         }
     }
 }
@@ -158,7 +158,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Cardinal.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("north")) && !("north" in obj)) {
         errors.push({ field: "north", message: "missing required field" });
@@ -240,8 +240,7 @@ export function cardinalHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "north" in o && "east" in o && "south" in o && "west" in o;
+    return __mf_holds(obj, "north") && __mf_holds(obj, "east") && __mf_holds(obj, "south") && __mf_holds(obj, "west");
 }
 
 export function cardinalIs(obj: unknown): obj is Cardinal {
@@ -583,15 +582,15 @@ export declare const Cardinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..211 -> expanded 813..917
-original 211..212 -> expanded 19195..19196
-generated 0..755 <- imports
-generated 917..1061 <- Default
-generated 1061..3657 <- Encode
-generated 3657..10844 <- Decode
-generated 10844..17929 <- Gigaform
-generated 17929..19195 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..211 -> expanded 865..969
+original 211..212 -> expanded 19251..19252
+generated 0..807 <- imports
+generated 969..1113 <- Default
+generated 1113..3721 <- Encode
+generated 3721..10900 <- Decode
+generated 10900..17985 <- Gigaform
+generated 17985..19251 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { directionHueDecodeWithContext, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -63,7 +63,7 @@ export function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf
 function customEncodeFields(value: Custom, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("mappings")) {
         if (value.mappings !== undefined) {
-            result.mappings = value.mappings.map((__item0) => directionHueEncodeWithContext(__item0, ctx));
+            result["mappings"] = value.mappings.map((__item0) => directionHueEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -140,7 +140,7 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Custom.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("mappings")) && !("mappings" in obj)) {
         errors.push({ field: "mappings", message: "missing required field" });
@@ -201,8 +201,7 @@ export function customHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "mappings" in o;
+    return __mf_holds(obj, "mappings");
 }
 
 export function customIs(obj: unknown): obj is Custom {
@@ -464,15 +463,15 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 913..1032
-original 168..231 -> expanded 1032..1095
-original 231..232 -> expanded 15395..15396
-generated 0..913 <- imports
-generated 1095..1187 <- Default
-generated 1187..3360 <- Encode
-generated 3360..9349 <- Decode
-generated 9349..14183 <- Gigaform
-generated 14183..15395 <- __convenience_const
+original 0..119 -> expanded 965..1084
+original 168..231 -> expanded 1084..1147
+original 231..232 -> expanded 15406..15407
+generated 0..965 <- imports
+generated 1147..1239 <- Default
+generated 1239..3415 <- Encode
+generated 3415..9360 <- Decode
+generated 9360..14194 <- Gigaform
+generated 14194..15406 <- __convenience_const
 
 ## Metadata
 

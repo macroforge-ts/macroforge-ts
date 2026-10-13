@@ -49,7 +49,7 @@ static encodePartialWithContext(value: Partial<Data>, ctx: __mf_EncodeContext, f
 static #encodeFields(value: Data, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("val")) {
         if (value.val !== undefined) {
-            result.val = value.val;
+            result["val"] = value.val;
         }
     }
 }
@@ -104,16 +104,16 @@ export {};
 
 original 0..41 -> expanded 458..499
 original 63..94 -> expanded 499..530
-original 94..95 -> expanded 2343..2344
-original 95..96 -> expanded 3644..3645
+original 94..95 -> expanded 2346..2347
+original 95..96 -> expanded 3647..3648
 generated 0..458 <- imports
-generated 530..2028 <- Encode
-generated 2028..2343 <- Encode
-generated 2344..3644 <- Encode
+generated 530..2031 <- Encode
+generated 2031..2346 <- Encode
+generated 2347..3647 <- Encode
 
 ## Metadata
 
-class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
+class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

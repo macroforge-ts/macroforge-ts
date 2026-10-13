@@ -32,7 +32,7 @@ true
 
 import { setDecodeWithContext, setEncodeWithContext } from "./collections";
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Set } from './collections';
 
@@ -97,12 +97,12 @@ export function indexEncodePartialWithContext(value: Partial<Index>, ctx: __mf_E
 function indexEncodeFields(value: Index, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = mapEncodeWithContext(value.byName, ctx);
+            result["byName"] = mapEncodeWithContext(value.byName, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("seen")) {
         if (value.seen !== undefined) {
-            result.seen = setEncodeWithContext(value.seen, ctx);
+            result["seen"] = setEncodeWithContext(value.seen, ctx);
         }
     }
 }
@@ -179,7 +179,7 @@ export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Index.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
         errors.push({ field: "byName", message: "missing required field" });
@@ -265,8 +265,7 @@ export function indexHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "byName" in o && "seen" in o;
+    return __mf_holds(obj, "byName") && __mf_holds(obj, "seen");
 }
 
 export function indexIs(obj: unknown): obj is Index {
@@ -362,21 +361,21 @@ Error [133..140]: this module gives the name `Partial` to something of its own, 
 
 ## Mapping
 
-original 0..38 -> expanded 757..795
-original 59..96 -> expanded 795..832
-original 96..161 -> expanded 1175..1240
-original 191..243 -> expanded 1240..1292
-original 243..244 -> expanded 11315..11316
-generated 0..757 <- imports
-generated 832..1078 <- Debug
-generated 1078..1175 <- __convenience_const
-generated 1292..3588 <- Encode
-generated 3588..10387 <- Decode
-generated 10387..11315 <- __convenience_const
+original 0..38 -> expanded 809..847
+original 59..96 -> expanded 847..884
+original 96..161 -> expanded 1227..1292
+original 191..243 -> expanded 1292..1344
+original 243..244 -> expanded 11341..11342
+generated 0..809 <- imports
+generated 884..1130 <- Debug
+generated 1130..1227 <- __convenience_const
+generated 1344..3646 <- Encode
+generated 3646..10413 <- Decode
+generated 10413..11341 <- __convenience_const
 
 ## Metadata
 
-class Map: {"body_span":{"end":126,"start":109},"decorators":[],"fields":[{"decorators":[],"initializer":"0","key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":124,"start":115},"ts_type":"any","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Map","span":{"end":126,"start":99},"superclass":null,"type_params":[]}
+class Map: {"body_span":{"end":126,"start":109},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":124,"start":115},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Map","span":{"end":126,"start":99},"superclass":null,"type_params":[]}
 interface Record: {"body_span":{"end":97,"start":78},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":60,"start":39}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":95,"start":84},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Record","span":{"end":97,"start":61},"type_params":[]}
 interface Index: {"body_span":{"end":244,"start":209},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":192,"start":162}}],"fields":[{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":227,"start":215},"ts_type":"Map"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":242,"start":232},"ts_type":"Set"}],"heritage":[],"methods":[],"name":"Index","span":{"end":244,"start":193},"type_params":[]}
 type Partial: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"part","optional":false,"readonly":false,"span":{"end":157,"start":145},"ts_type":"number"}]}},"decorators":[],"name":"Partial","span":{"end":160,"start":128},"type_params":[]}

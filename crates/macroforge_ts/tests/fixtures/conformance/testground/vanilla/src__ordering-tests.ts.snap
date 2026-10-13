@@ -27,7 +27,7 @@ export function scoresEquals(a: Scores, b: Scores): boolean {
     if (a === b) return true;
     return __mf_equalWithin(a, b, () => a.values.length === b.values.length && a.values.every((__item0, __index0) => {
 	const __other0 = b.values[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
 }));
 }
 
@@ -43,7 +43,7 @@ export function scoresPartialCompare(a: Scores, b: Scores): number | null {
             const __other0 = __right0[__index0];
             const __order0 = __item0 === undefined || __other0 === undefined
                 ? __mf_structuralCompare(__item0, __other0)
-                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : null);
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 || (__item0 !== __item0 && __other0 !== __other0) ? 0 : null);
             if (__order0 !== 0) return __order0;
         }
         return __left0.length < __right0.length ? -1
@@ -65,7 +65,7 @@ export function scoresCompare(a: Scores, b: Scores): number {
 	for (let __index0 = 0; __index0 < __shared0; __index0++) {
 		const __item0 = __left0[__index0];
 		const __other0 = __right0[__index0];
-		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0;
+		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : __item0 !== __item0 ? __other0 !== __other0 ? 0 : 1 : -1;
 		if (__order0 !== 0) return __order0;
 	}
 	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
@@ -101,7 +101,7 @@ export function entryPartialCompare(a: Entry, b: Entry): number | null {
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
-    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : null);
+    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 || (left1 !== left1 && right1 !== right1) ? 0 : null);
     if (cmp1 !== 0) return cmp1;
     const left2 = a.slice(2);
     const right2 = b.slice(2);
@@ -132,7 +132,7 @@ export function entryCompare(a: Entry, b: Entry): number {
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
-    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : left1 !== left1 ? (right1 !== right1 ? 0 : 1) : -1);
     if (cmp1 !== 0) return cmp1;
     const left2 = a.slice(2);
     const right2 = b.slice(2);
@@ -177,13 +177,13 @@ export function spanPartialCompare(a: Span, b: Span): number | null {
     if (a === b) return 0;
     const left0 = a[0];
     const right0 = b[0];
-    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : left0 === right0 ? 0 : null);
+    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : left0 === right0 || (left0 !== left0 && right0 !== right0) ? 0 : null);
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
     const cmp1 = left1 === undefined || right1 === undefined
         ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1)
-        : (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : null);
+        : (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 || (left1 !== left1 && right1 !== right1) ? 0 : null);
     if (cmp1 !== 0) return cmp1;
     return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
 }
@@ -192,13 +192,13 @@ export function spanCompare(a: Span, b: Span): number {
     if (a === b) return 0;
     const left0 = a[0];
     const right0 = b[0];
-    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : left0 === right0 ? 0 : left0 !== left0 ? (right0 !== right0 ? 0 : 1) : -1);
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
     const cmp1 = left1 === undefined || right1 === undefined
         ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1)
-        : (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+        : (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : left1 !== left1 ? (right1 !== right1 ? 0 : 1) : -1);
     if (cmp1 !== 0) return cmp1;
     return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
 }
@@ -218,7 +218,7 @@ export type Grid = [number[], Date];
 
 export function gridEquals(a: Grid, b: Grid): boolean {
     if (a === b) return true;
-    return (a[0].length === b[0].length && a[0].every((__item0, __index0) => { const __other0 = b[0][__index0]; return __other0 === undefined ? __item0 === undefined : __item0 === __other0; })) && a[1].getTime() === b[1].getTime();
+    return (a[0].length === b[0].length && a[0].every((__item0, __index0) => { const __other0 = b[0][__index0]; return __other0 === undefined ? __item0 === undefined : (__item0 === __other0 || (__item0 !== __item0 && __other0 !== __other0)); })) && (a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime()));
 }
 
 export function gridPartialCompare(a: Grid, b: Grid): number | null {
@@ -234,7 +234,7 @@ export function gridPartialCompare(a: Grid, b: Grid): number | null {
             const __other0 = __right0[__index0];
             const __order0 = __item0 === undefined || __other0 === undefined
                 ? __mf_structuralCompare(__item0, __other0)
-                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : null);
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 || (__item0 !== __item0 && __other0 !== __other0) ? 0 : null);
             if (__order0 !== 0) return __order0;
         }
         return __left0.length < __right0.length ? -1
@@ -243,7 +243,7 @@ export function gridPartialCompare(a: Grid, b: Grid): number | null {
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
-    const cmp1 = (left1.getTime() < right1.getTime() ? -1 : left1.getTime() > right1.getTime() ? 1 : left1.getTime() === right1.getTime() ? 0 : null);
+    const cmp1 = (left1.getTime() < right1.getTime() ? -1 : left1.getTime() > right1.getTime() ? 1 : left1.getTime() === right1.getTime() || (left1.getTime() !== left1.getTime() && right1.getTime() !== right1.getTime()) ? 0 : null);
     if (cmp1 !== 0) return cmp1;
     return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
 }
@@ -261,7 +261,7 @@ export function gridCompare(a: Grid, b: Grid): number {
             const __other0 = __right0[__index0];
             const __order0 = __item0 === undefined || __other0 === undefined
                 ? __mf_structuralCompare(__item0, __other0)
-                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : __item0 !== __item0 ? (__other0 !== __other0 ? 0 : 1) : -1);
             if (__order0 !== 0) return __order0;
         }
         return __left0.length < __right0.length ? -1
@@ -270,7 +270,7 @@ export function gridCompare(a: Grid, b: Grid): number {
     if (cmp0 !== 0) return cmp0;
     const left1 = a[1];
     const right1 = b[1];
-    const cmp1 = (left1.getTime() < right1.getTime() ? -1 : left1.getTime() > right1.getTime() ? 1 : 0);
+    const cmp1 = (left1.getTime() < right1.getTime() ? -1 : left1.getTime() > right1.getTime() ? 1 : left1.getTime() === right1.getTime() ? 0 : left1.getTime() !== left1.getTime() ? (right1.getTime() !== right1.getTime() ? 0 : 1) : -1);
     if (cmp1 !== 0) return cmp1;
     return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
 }
@@ -292,16 +292,16 @@ export class Version {
 
     static equals(a: Version, b: Version): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.major === b.major && a.minor === b.minor);
+        return __mf_equalWithin(a, b, () => (a.major === b.major || a.major !== a.major && b.major !== b.major) && (a.minor === b.minor || a.minor !== a.minor && b.minor !== b.minor));
     }
 
     static partialCompare(a: Version, b: Version): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : null);
+        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major || (a.major !== a.major && b.major !== b.major) ? 0 : null);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : null);
+        const cmp1 = (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor || (a.minor !== a.minor && b.minor !== b.minor) ? 0 : null);
         if (cmp1 === null) return null;
         if (cmp1 !== 0) return cmp1;
             return 0;
@@ -311,9 +311,9 @@ export class Version {
     static compare(a: Version, b: Version): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : a.major !== a.major ? b.major !== b.major ? 0 : 1 : -1;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+        const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : a.minor !== a.minor ? b.minor !== b.minor ? 0 : 1 : -1;
         if (cmp1 !== 0) return cmp1;
             return 0;
         });
@@ -478,48 +478,48 @@ export declare function releaseCompare(a: Release, b: Release): number;
 ## Mapping
 
 original 0..235 -> expanded 206..441
-original 235..352 -> expanded 2809..2926
-original 352..450 -> expanded 5755..5853
-original 450..535 -> expanded 7424..7509
-original 535..653 -> expanded 10432..10550
-original 653..654 -> expanded 11677..11678
-original 654..756 -> expanded 12004..12106
-original 756..757 -> expanded 14392..14393
-original 757..758 -> expanded 14719..14720
+original 235..352 -> expanded 2989..3106
+original 352..450 -> expanded 6049..6147
+original 450..535 -> expanded 7946..8031
+original 535..653 -> expanded 11432..11550
+original 653..654 -> expanded 13027..13028
+original 654..756 -> expanded 13354..13456
+original 756..757 -> expanded 15742..15743
+original 757..758 -> expanded 16069..16070
 generated 0..206 <- imports
-generated 441..777 <- PartialEq
-generated 777..1769 <- PartialOrd
-generated 1769..2549 <- Ord
-generated 2549..2809 <- __convenience_const
-generated 2926..3058 <- PartialEq
-generated 3058..4300 <- PartialOrd
-generated 4300..5502 <- Ord
-generated 5502..5755 <- __convenience_const
-generated 5853..5982 <- PartialEq
-generated 5982..6613 <- PartialOrd
-generated 6613..7178 <- Ord
-generated 7178..7424 <- __convenience_const
-generated 7509..7830 <- PartialEq
-generated 7830..9053 <- PartialOrd
-generated 9053..10186 <- Ord
-generated 10186..10432 <- __convenience_const
-generated 10550..10733 <- PartialEq
-generated 10733..11283 <- PartialOrd
-generated 11283..11677 <- Ord
-generated 11678..11779 <- PartialEq
-generated 11779..11902 <- PartialOrd
-generated 11902..12004 <- Ord
-generated 12106..12489 <- PartialEq
-generated 12489..13520 <- PartialOrd
-generated 13520..14392 <- Ord
-generated 14393..14494 <- PartialEq
-generated 14494..14617 <- PartialOrd
-generated 14617..14719 <- Ord
+generated 441..825 <- PartialEq
+generated 825..1867 <- PartialOrd
+generated 1867..2729 <- Ord
+generated 2729..2989 <- __convenience_const
+generated 3106..3238 <- PartialEq
+generated 3238..4522 <- PartialOrd
+generated 4522..5796 <- Ord
+generated 5796..6049 <- __convenience_const
+generated 6147..6276 <- PartialEq
+generated 6276..6991 <- PartialOrd
+generated 6991..7700 <- Ord
+generated 7700..7946 <- __convenience_const
+generated 8031..8482 <- PartialEq
+generated 8482..9837 <- PartialOrd
+generated 9837..11186 <- Ord
+generated 11186..11432 <- __convenience_const
+generated 11550..11829 <- PartialEq
+generated 11829..12475 <- PartialOrd
+generated 12475..13027 <- Ord
+generated 13028..13129 <- PartialEq
+generated 13129..13252 <- PartialOrd
+generated 13252..13354 <- Ord
+generated 13456..13839 <- PartialEq
+generated 13839..14870 <- PartialOrd
+generated 14870..15742 <- Ord
+generated 15743..15844 <- PartialEq
+generated 15844..15967 <- PartialOrd
+generated 15967..16069 <- Ord
 
 ## Metadata
 
-class Version: {"body_span":{"end":655,"start":606},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":584,"start":538}}],"fields":[{"decorators":[],"initializer":"0","key":"Named","name":"major","optional":false,"readonly":false,"span":{"end":630,"start":612},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Named","name":"minor","optional":false,"readonly":false,"span":{"end":653,"start":635},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":655,"start":592},"superclass":null,"type_params":[]}
-class Release: {"body_span":{"end":758,"start":725},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":703,"start":657}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"versions","optional":false,"readonly":false,"span":{"end":756,"start":731},"ts_type":"Version[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":758,"start":711},"superclass":null,"type_params":[]}
+class Version: {"body_span":{"end":655,"start":606},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":584,"start":538}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"major","optional":false,"readonly":false,"span":{"end":630,"start":612},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"minor","optional":false,"readonly":false,"span":{"end":653,"start":635},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":655,"start":592},"superclass":null,"type_params":[]}
+class Release: {"body_span":{"end":758,"start":725},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":703,"start":657}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"versions","optional":false,"readonly":false,"span":{"end":756,"start":731},"ts_type":"Version[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":758,"start":711},"superclass":null,"type_params":[]}
 interface Scores: {"body_span":{"end":236,"start":211},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":186,"start":140}}],"fields":[{"decorators":[],"key":"Named","name":"values","optional":false,"readonly":false,"span":{"end":234,"start":217},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"Scores","span":{"end":236,"start":194},"type_params":[]}
 type Entry: {"body":{"Tuple":["name: string","rank: number","...tags: string[]"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":284,"start":238}}],"name":"Entry","span":{"end":353,"start":292},"type_params":[]}
 type Span: {"body":{"Tuple":["start: number","end?: number"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":401,"start":355}}],"name":"Span","span":{"end":451,"start":409},"type_params":[]}

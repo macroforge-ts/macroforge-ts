@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Nested values encoded and decoded through an interface and an object type
@@ -55,7 +55,7 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
 function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
         if (value.x !== undefined) {
-            result.x = value.x;
+            result["x"] = value.x;
         }
     }
 }
@@ -132,7 +132,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
         errors.push({ field: "x", message: "missing required field" });
@@ -193,8 +193,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "x" in o;
+    return __mf_holds(obj, "x");
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -262,17 +261,17 @@ export function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_E
 function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("stops")) {
         if (value.stops !== undefined) {
-            result.stops = value.stops.map((__item0) => pointEncodeWithContext(__item0, ctx));
+            result["stops"] = value.stops.map((__item0) => pointEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("named")) {
         if (value.named !== undefined) {
-            result.named = Object.fromEntries(Object.entries(value.named).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
+            result["named"] = Object.fromEntries(Object.entries(value.named).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("visits")) {
         if (value.visits !== undefined) {
-            result.visits = Object.fromEntries(value.visits.entries());
+            result["visits"] = Object.fromEntries(value.visits.entries());
         }
     }
 }
@@ -349,7 +348,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Route.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("stops")) && !("stops" in obj)) {
         errors.push({ field: "stops", message: "missing required field" });
@@ -463,8 +462,7 @@ export function routeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "stops" in o && "named" in o;
+    return __mf_holds(obj, "stops") && __mf_holds(obj, "named");
 }
 
 export function routeIs(obj: unknown): obj is Route {
@@ -532,7 +530,7 @@ export function labeledEncodePartialWithContext(value: Partial<Labeled>, ctx: __
 function labeledEncodeFields(value: Labeled, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result["label"] = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("origin")) {
@@ -616,7 +614,7 @@ export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Labeled.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
         errors.push({ field: "label", message: "missing required field" });
@@ -678,8 +676,7 @@ export function labeledHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "label" in o;
+    return __mf_holds(obj, "label");
 }
 
 export function labeledIs(obj: unknown): obj is Labeled {
@@ -746,12 +743,12 @@ export function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf
 function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result["label"] = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("value")) {
         if (value.value !== undefined) {
-            result.value = (__encodeT === undefined ? value.value : __encodeT(value.value, ctx));
+            result["value"] = (__encodeT === undefined ? value.value : __encodeT(value.value, ctx));
         }
     }
 }
@@ -828,7 +825,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Box.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
         errors.push({ field: "label", message: "missing required field" });
@@ -899,8 +896,7 @@ export function boxHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "label" in o && "value" in o;
+    return __mf_holds(obj, "label") && __mf_holds(obj, "value");
 }
 
 export function boxIs<T>(obj: unknown): obj is Box<T> {
@@ -967,12 +963,12 @@ export function pairEncodePartialWithContext<A, B>(value: Partial<Pair<A, B>>, c
 function pairEncodeFields<A, B>(value: Pair<A, B>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeA?: __mf_Encoder<A>, __encodeB?: __mf_Encoder<B>): void {
     if (__fields === undefined || __fields.keeps("first")) {
         if (value.first !== undefined) {
-            result.first = (__encodeA === undefined ? value.first : __encodeA(value.first, ctx));
+            result["first"] = (__encodeA === undefined ? value.first : __encodeA(value.first, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("second")) {
         if (value.second !== undefined) {
-            result.second = (__encodeB === undefined ? value.second : __encodeB(value.second, ctx));
+            result["second"] = (__encodeB === undefined ? value.second : __encodeB(value.second, ctx));
         }
     }
 }
@@ -1049,7 +1045,7 @@ export function pairDecodeWithContext<A, B>(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "Pair.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
         errors.push({ field: "first", message: "missing required field" });
@@ -1133,8 +1129,7 @@ export function pairHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "first" in o && "second" in o;
+    return __mf_holds(obj, "first") && __mf_holds(obj, "second");
 }
 
 export function pairIs<A, B>(obj: unknown): obj is Pair<A, B> {
@@ -1674,32 +1669,32 @@ export declare const Outcome: {
 
 ## Mapping
 
-original 0..255 -> expanded 850..1105
-original 255..400 -> expanded 10070..10215
-original 400..526 -> expanded 22137..22263
-original 526..619 -> expanded 31607..31700
-original 619..710 -> expanded 41602..41693
-original 710..784 -> expanded 52682..52756
-original 784..785 -> expanded 60088..60089
-generated 0..850 <- imports
-generated 1105..3174 <- Encode
-generated 3174..9135 <- Decode
-generated 9135..10070 <- __convenience_const
-generated 10215..12815 <- Encode
-generated 12815..21202 <- Decode
-generated 21202..22137 <- __convenience_const
-generated 22263..24697 <- Encode
-generated 24697..30630 <- Decode
-generated 30630..31607 <- __convenience_const
-generated 31700..34158 <- Encode
-generated 34158..40709 <- Decode
-generated 40709..41602 <- __convenience_const
-generated 41693..44417 <- Encode
-generated 44417..51768 <- Decode
-generated 51768..52682 <- __convenience_const
-generated 52756..54851 <- Encode
-generated 54851..59579 <- Decode
-generated 59579..60088 <- __convenience_const
+original 0..255 -> expanded 902..1157
+original 255..400 -> expanded 10081..10226
+original 400..526 -> expanded 22125..22251
+original 526..619 -> expanded 31554..31647
+original 619..710 -> expanded 41523..41614
+original 710..784 -> expanded 52577..52651
+original 784..785 -> expanded 59983..59984
+generated 0..902 <- imports
+generated 1157..3229 <- Encode
+generated 3229..9146 <- Decode
+generated 9146..10081 <- __convenience_const
+generated 10226..12835 <- Encode
+generated 12835..21190 <- Decode
+generated 21190..22125 <- __convenience_const
+generated 22251..24688 <- Encode
+generated 24688..30577 <- Decode
+generated 30577..31554 <- __convenience_const
+generated 31647..34111 <- Encode
+generated 34111..40630 <- Decode
+generated 40630..41523 <- __convenience_const
+generated 41614..44344 <- Encode
+generated 44344..51663 <- Decode
+generated 51663..52577 <- __convenience_const
+generated 52651..54746 <- Encode
+generated 54746..59474 <- Decode
+generated 59474..59983 <- __convenience_const
 
 ## Metadata
 

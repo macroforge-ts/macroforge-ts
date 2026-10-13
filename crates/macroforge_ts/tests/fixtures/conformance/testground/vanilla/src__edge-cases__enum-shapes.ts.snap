@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/enum-shapes.ts
-sha256 ad1fc4e54504dc6ef2f51b7948f6f18ce004b3e97ccf05a6ef5f4f31291f3154
+sha256 bd6210609229664ee8d04e1dc27a62a704f7b47521b63c92953dc3934cbf8073
 
 ## Changed
 
@@ -12,13 +12,14 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Enums by how their values come about: counted, negative, fractional,
- * computed, of both kinds at once, repeated, lone and with text that needs
- * escaping, and the fields and collections that hold them.
+ * computed, of both kinds at once, repeated, lone, with text that needs
+ * escaping, inlined and named like one another's values, and the fields and
+ * collections that hold them.
  */
 
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
@@ -30,9 +31,16 @@ export enum EnumCounted {
 }
 
 export function enumCountedToString(value: EnumCounted): string {
-    const key = EnumCounted[value as unknown as keyof typeof EnumCounted];
-    if (key !== undefined) {
-        return "EnumCounted." + key;
+
+    const held: unknown = value;
+    if (held === EnumCounted["First"]) {
+        return "EnumCounted.First";
+    }
+    if (held === EnumCounted["Second"]) {
+        return "EnumCounted.Second";
+    }
+    if (held === EnumCounted["Third"]) {
+        return "EnumCounted.Third";
     }
     return "EnumCounted(" + String(value) + ")";
 }
@@ -137,9 +145,19 @@ export enum EnumSigned {
 }
 
 export function enumSignedToString(value: EnumSigned): string {
-    const key = EnumSigned[value as unknown as keyof typeof EnumSigned];
-    if (key !== undefined) {
-        return "EnumSigned." + key;
+
+    const held: unknown = value;
+    if (held === EnumSigned["Below"]) {
+        return "EnumSigned.Below";
+    }
+    if (held === EnumSigned["Level"]) {
+        return "EnumSigned.Level";
+    }
+    if (held === EnumSigned["Above"]) {
+        return "EnumSigned.Above";
+    }
+    if (held === EnumSigned["Half"]) {
+        return "EnumSigned.Half";
     }
     return "EnumSigned(" + String(value) + ")";
 }
@@ -250,9 +268,19 @@ export enum EnumFlags {
 }
 
 export function enumFlagsToString(value: EnumFlags): string {
-    const key = EnumFlags[value as unknown as keyof typeof EnumFlags];
-    if (key !== undefined) {
-        return "EnumFlags." + key;
+
+    const held: unknown = value;
+    if (held === EnumFlags["None"]) {
+        return "EnumFlags.None";
+    }
+    if (held === EnumFlags["Read"]) {
+        return "EnumFlags.Read";
+    }
+    if (held === EnumFlags["Write"]) {
+        return "EnumFlags.Write";
+    }
+    if (held === EnumFlags["All"]) {
+        return "EnumFlags.All";
     }
     return "EnumFlags(" + String(value) + ")";
 }
@@ -363,9 +391,19 @@ export enum EnumMixed {
 }
 
 export function enumMixedToString(value: EnumMixed): string {
-    const key = EnumMixed[value as unknown as keyof typeof EnumMixed];
-    if (key !== undefined) {
-        return "EnumMixed." + key;
+
+    const held: unknown = value;
+    if (held === EnumMixed["Zero"]) {
+        return "EnumMixed.Zero";
+    }
+    if (held === EnumMixed["Text"]) {
+        return "EnumMixed.Text";
+    }
+    if (held === EnumMixed["Five"]) {
+        return "EnumMixed.Five";
+    }
+    if (held === EnumMixed["Other"]) {
+        return "EnumMixed.Other";
     }
     return "EnumMixed(" + String(value) + ")";
 }
@@ -483,9 +521,16 @@ export enum EnumRepeated {
 }
 
 export function enumRepeatedToString(value: EnumRepeated): string {
-    const key = EnumRepeated[value as unknown as keyof typeof EnumRepeated];
-    if (key !== undefined) {
-        return "EnumRepeated." + key;
+
+    const held: unknown = value;
+    if (held === EnumRepeated["One"]) {
+        return "EnumRepeated.One";
+    }
+    if (held === EnumRepeated["Uno"]) {
+        return "EnumRepeated.Uno";
+    }
+    if (held === EnumRepeated["Two"]) {
+        return "EnumRepeated.Two";
     }
     return "EnumRepeated(" + String(value) + ")";
 }
@@ -587,9 +632,10 @@ export enum EnumLone {
 }
 
 export function enumLoneToString(value: EnumLone): string {
-    const key = EnumLone[value as unknown as keyof typeof EnumLone];
-    if (key !== undefined) {
-        return "EnumLone." + key;
+
+    const held: unknown = value;
+    if (held === EnumLone["Only"]) {
+        return "EnumLone.Only";
     }
     return "EnumLone(" + String(value) + ")";
 }
@@ -682,9 +728,19 @@ export enum EnumText {
 }
 
 export function enumTextToString(value: EnumText): string {
-    const key = EnumText[value as unknown as keyof typeof EnumText];
-    if (key !== undefined) {
-        return "EnumText." + key;
+
+    const held: unknown = value;
+    if (held === EnumText["Empty"]) {
+        return "EnumText.Empty";
+    }
+    if (held === EnumText["Quoted"]) {
+        return "EnumText.Quoted";
+    }
+    if (held === EnumText["Spaced"]) {
+        return "EnumText.Spaced";
+    }
+    if (held === EnumText["Slashed"]) {
+        return "EnumText.Slashed";
     }
     return "EnumText(" + String(value) + ")";
 }
@@ -785,6 +841,197 @@ export namespace EnumText {
   export const is: typeof enumTextIs = enumTextIs;
 }
 
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export const enum EnumConstant {
+    /** @default */
+    Low = 'low',
+    High = 'high'
+}
+
+export function enumConstantToString(value: EnumConstant): string {
+
+    const held: unknown = value;
+    if (held === EnumConstant["Low"]) {
+        return "EnumConstant.Low";
+    }
+    if (held === EnumConstant["High"]) {
+        return "EnumConstant.High";
+    }
+    return "EnumConstant(" + String(value) + ")";
+}
+
+export function enumConstantClone(value: EnumConstant): EnumConstant {
+    return value;
+}
+
+export function enumConstantEquals(a: EnumConstant, b: EnumConstant): boolean {
+    return a === b;
+}
+
+export function enumConstantHashCode(value: EnumConstant): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function enumConstantPartialCompare(a: EnumConstant, b: EnumConstant): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumConstantCompare(a: EnumConstant, b: EnumConstant): number {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumConstantDefaultValue(): EnumConstant {
+    return EnumConstant.Low;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumConstantEncode(value: EnumConstant): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumConstantEncodeWithContext(value: EnumConstant, ctx: __mf_EncodeContext): string | number;
+export function enumConstantEncodeWithContext(value: EnumConstant): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumConstantDecode(input: unknown): EnumConstant {
+
+    return enumConstantDecodeWithContext(__mf_textOrValue(input, enumConstantIs));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumConstantDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumConstant;
+export function enumConstantDecodeWithContext(data: unknown): EnumConstant {
+    if (EnumConstant["Low"] === data) {
+        return EnumConstant["Low"];
+    }
+    if (EnumConstant["High"] === data) {
+        return EnumConstant["High"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumConstant value: " + JSON.stringify(data) }]);
+}
+
+export function enumConstantIs(value: unknown): value is EnumConstant {
+    if (EnumConstant["Low"] === value) {
+        return true;
+    }
+    if (EnumConstant["High"] === value) {
+        return true;
+    }
+    return false;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumCrossed {
+    /** @default */
+    A = 'B',
+    B = 'A'
+}
+
+export function enumCrossedToString(value: EnumCrossed): string {
+
+    const held: unknown = value;
+    if (held === EnumCrossed["A"]) {
+        return "EnumCrossed.A";
+    }
+    if (held === EnumCrossed["B"]) {
+        return "EnumCrossed.B";
+    }
+    return "EnumCrossed(" + String(value) + ")";
+}
+
+export function enumCrossedClone(value: EnumCrossed): EnumCrossed {
+    return value;
+}
+
+export function enumCrossedEquals(a: EnumCrossed, b: EnumCrossed): boolean {
+    return a === b;
+}
+
+export function enumCrossedHashCode(value: EnumCrossed): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function enumCrossedPartialCompare(a: EnumCrossed, b: EnumCrossed): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumCrossedCompare(a: EnumCrossed, b: EnumCrossed): number {
+    if (typeof a === "string" && typeof b === "string") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function enumCrossedDefaultValue(): EnumCrossed {
+    return EnumCrossed.A;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function enumCrossedEncode(value: EnumCrossed): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function enumCrossedEncodeWithContext(value: EnumCrossed, ctx: __mf_EncodeContext): string | number;
+export function enumCrossedEncodeWithContext(value: EnumCrossed): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function enumCrossedDecode(input: unknown): EnumCrossed {
+
+    return enumCrossedDecodeWithContext(__mf_textOrValue(input, enumCrossedIs));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function enumCrossedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCrossed;
+export function enumCrossedDecodeWithContext(data: unknown): EnumCrossed {
+    if (EnumCrossed["A"] === data) {
+        return EnumCrossed["A"];
+    }
+    if (EnumCrossed["B"] === data) {
+        return EnumCrossed["B"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid EnumCrossed value: " + JSON.stringify(data) }]);
+}
+
+export function enumCrossedIs(value: unknown): value is EnumCrossed {
+    if (EnumCrossed["A"] === value) {
+        return true;
+    }
+    if (EnumCrossed["B"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace EnumCrossed {
+  export const toString: typeof enumCrossedToString = enumCrossedToString;
+  export const clone: typeof enumCrossedClone = enumCrossedClone;
+  export const equals: typeof enumCrossedEquals = enumCrossedEquals;
+  export const hashCode: typeof enumCrossedHashCode = enumCrossedHashCode;
+  export const partialCompare: typeof enumCrossedPartialCompare = enumCrossedPartialCompare;
+  export const compare: typeof enumCrossedCompare = enumCrossedCompare;
+  export const defaultValue: typeof enumCrossedDefaultValue = enumCrossedDefaultValue;
+  export const encode: typeof enumCrossedEncode = enumCrossedEncode;
+  export const encodeWithContext: typeof enumCrossedEncodeWithContext = enumCrossedEncodeWithContext;
+  export const decode: typeof enumCrossedDecode = enumCrossedDecode;
+  export const decodeWithContext: typeof enumCrossedDecodeWithContext = enumCrossedDecodeWithContext;
+  export const is: typeof enumCrossedIs = enumCrossedIs;
+}
+
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface EnumHolder {
     counted: EnumCounted;
@@ -799,6 +1046,7 @@ export interface EnumHolder {
     byKind: Map<EnumText, number>;
     labels: Record<string, EnumSigned>;
     pair: [EnumCounted, EnumText];
+    constant: EnumConstant;
 }
 
 export function enumHolderToString(value: EnumHolder): string {
@@ -816,6 +1064,7 @@ export function enumHolderToString(value: EnumHolder): string {
     parts.push("byKind: " + __mf_structuralDebug(value.byKind));
     parts.push("labels: " + __mf_structuralDebug(value.labels));
     parts.push("pair: " + __mf_structuralDebug(value.pair));
+    parts.push("constant: " + enumConstantToString(value.constant));
         return "EnumHolder { " + parts.join(", ") + " }";
     });
 }
@@ -837,7 +1086,8 @@ export function enumHolderClone(value: EnumHolder): EnumHolder {
 	})(),
 	byKind: new Map(value.byKind),
 	labels: __mf_structuralClone(value.labels),
-	pair: __mf_structuralClone(value.pair)
+	pair: __mf_structuralClone(value.pair),
+	constant: enumConstantClone(value.constant)
 }));
 }
 
@@ -851,8 +1101,8 @@ export function enumHolderEquals(a: EnumHolder, b: EnumHolder): boolean {
 	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : enumTextEquals(__item0, __other0));
 }) && a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
 	const __other0 = b.byKind.get(__key0);
-	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}) && __mf_structuralEquals(a.labels, b.labels) && __mf_structuralEquals(a.pair, b.pair));
+	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+}) && __mf_structuralEquals(a.labels, b.labels) && __mf_structuralEquals(a.pair, b.pair) && enumConstantEquals(a.constant, b.constant));
 }
 
 export function enumHolderHashCode(value: EnumHolder): number {
@@ -870,6 +1120,7 @@ export function enumHolderHashCode(value: EnumHolder): number {
     hash = (hash * 31 + (Array.from(value.byKind).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.labels))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    hash = (hash * 31 + (enumConstantHashCode(value.constant))) | 0;
         return hash;
     });
 }
@@ -887,6 +1138,7 @@ export function enumHolderDefaultValue(): EnumHolder {
         byKind: new Map(),
         labels: ({}),
         pair: [enumCountedDefaultValue(), enumTextDefaultValue()],
+        constant: enumConstantDefaultValue(),
     };
 }
 
@@ -920,62 +1172,67 @@ export function enumHolderEncodePartialWithContext(value: Partial<EnumHolder>, c
 function enumHolderEncodeFields(value: EnumHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("counted")) {
         if (value.counted !== undefined) {
-            result.counted = enumCountedEncodeWithContext(value.counted, ctx);
+            result["counted"] = enumCountedEncodeWithContext(value.counted, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("mixed")) {
         if (value.mixed !== undefined) {
-            result.mixed = enumMixedEncodeWithContext(value.mixed, ctx);
+            result["mixed"] = enumMixedEncodeWithContext(value.mixed, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("flags")) {
         if (value.flags !== undefined) {
-            result.flags = enumFlagsEncodeWithContext(value.flags, ctx);
+            result["flags"] = enumFlagsEncodeWithContext(value.flags, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : enumCountedEncodeWithContext(value.maybe, ctx);
+            result["maybe"] = value.maybe === null ? null : enumCountedEncodeWithContext(value.maybe, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("later")) {
         if (value.later !== undefined) {
-            result.later = enumTextEncodeWithContext(value.later, ctx);
+            result["later"] = enumTextEncodeWithContext(value.later, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("optional")) {
         if (value.optional !== undefined) {
-            result.optional = enumSignedEncodeWithContext(value.optional, ctx);
+            result["optional"] = enumSignedEncodeWithContext(value.optional, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list.map((__item0) => enumMixedEncodeWithContext(__item0, ctx));
+            result["list"] = value.list.map((__item0) => enumMixedEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("set")) {
         if (value.set !== undefined) {
-            result.set = Array.from(value.set, (__item0) => enumCountedEncodeWithContext(__item0, ctx));
+            result["set"] = Array.from(value.set, (__item0) => enumCountedEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, enumTextEncodeWithContext(__item0, ctx)]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, enumTextEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("byKind")) {
         if (value.byKind !== undefined) {
-            result.byKind = Object.fromEntries(value.byKind.entries());
+            result["byKind"] = Object.fromEntries(value.byKind.entries());
         }
     }
     if (__fields === undefined || __fields.keeps("labels")) {
         if (value.labels !== undefined) {
-            result.labels = Object.fromEntries(Object.entries(value.labels).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
+            result["labels"] = Object.fromEntries(Object.entries(value.labels).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = [enumCountedEncodeWithContext(value.pair[0], ctx), enumTextEncodeWithContext(value.pair[1], ctx)];
+            result["pair"] = [enumCountedEncodeWithContext(value.pair[0], ctx), enumTextEncodeWithContext(value.pair[1], ctx)];
+        }
+    }
+    if (__fields === undefined || __fields.keeps("constant")) {
+        if (value.constant !== undefined) {
+            result["constant"] = enumConstantEncodeWithContext(value.constant, ctx);
         }
     }
 }
@@ -1052,7 +1309,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "EnumHolder.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("counted")) && !("counted" in obj)) {
         errors.push({ field: "counted", message: "missing required field" });
@@ -1083,6 +1340,9 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     }
     if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
         errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("constant")) && !("constant" in obj)) {
+        errors.push({ field: "constant", message: "missing required field" });
     }
 
     const instance: any = {};
@@ -1385,6 +1645,29 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "pair", message: __raw_pair == null ? "EnumHolder.pair is required" : "expected [EnumCounted, EnumText]" });
         }
     }
+    if ((__fields === undefined || __fields.requires("constant")) ? "constant" in obj : (__fields.keeps("constant") && obj["constant"] !== undefined)) {
+        const __raw_constant = obj["constant"] as EnumConstant;
+
+        ctx.pushScope("constant");
+        try {
+            const __result = enumConstantDecodeWithContext(__raw_constant, ctx);
+            ctx.assignOrDefer(instance, "constant", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "constant" : "constant." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "constant", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
 
     ctx.pushErrors(errors);
 
@@ -1408,8 +1691,7 @@ export function enumHolderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "counted" in o && "mixed" in o && "flags" in o && "maybe" in o && "list" in o && "set" in o && "byName" in o && "byKind" in o && "labels" in o && "pair" in o;
+    return __mf_holds(obj, "counted") && __mf_holds(obj, "mixed") && __mf_holds(obj, "flags") && __mf_holds(obj, "maybe") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "byName") && __mf_holds(obj, "byKind") && __mf_holds(obj, "labels") && __mf_holds(obj, "pair") && __mf_holds(obj, "constant");
 }
 
 export function enumHolderIs(obj: unknown): obj is EnumHolder {
@@ -1527,8 +1809,9 @@ export const EnumOrdered: {
 
 /**
 * Enums by how their values come about: counted, negative, fractional,
-* computed, of both kinds at once, repeated, lone and with text that needs
-* escaping, and the fields and collections that hold them.
+* computed, of both kinds at once, repeated, lone, with text that needs
+* escaping, inlined and named like one another's values, and the fields and
+* collections that hold them.
 */
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export declare enum EnumCounted {
@@ -1791,6 +2074,64 @@ export declare namespace EnumText {
 	const decodeWithContext: typeof enumTextDecodeWithContext;
 	const is: typeof enumTextIs;
 }
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare const enum EnumConstant {
+	/** @default */
+	Low = "low",
+	High = "high"
+}
+export declare function enumConstantToString(value: EnumConstant): string;
+export declare function enumConstantClone(value: EnumConstant): EnumConstant;
+export declare function enumConstantEquals(a: EnumConstant, b: EnumConstant): boolean;
+export declare function enumConstantHashCode(value: EnumConstant): number;
+export declare function enumConstantPartialCompare(a: EnumConstant, b: EnumConstant): number | null;
+export declare function enumConstantCompare(a: EnumConstant, b: EnumConstant): number;
+export declare function enumConstantDefaultValue(): EnumConstant;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumConstantEncode(value: EnumConstant): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumConstantEncodeWithContext(value: EnumConstant, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumConstantDecode(input: unknown): EnumConstant;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumConstantDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumConstant;
+export declare function enumConstantIs(value: unknown): value is EnumConstant;
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum EnumCrossed {
+	/** @default */
+	A = "B",
+	B = "A"
+}
+export declare function enumCrossedToString(value: EnumCrossed): string;
+export declare function enumCrossedClone(value: EnumCrossed): EnumCrossed;
+export declare function enumCrossedEquals(a: EnumCrossed, b: EnumCrossed): boolean;
+export declare function enumCrossedHashCode(value: EnumCrossed): number;
+export declare function enumCrossedPartialCompare(a: EnumCrossed, b: EnumCrossed): number | null;
+export declare function enumCrossedCompare(a: EnumCrossed, b: EnumCrossed): number;
+export declare function enumCrossedDefaultValue(): EnumCrossed;
+/** Encodes this enum value to a JSON string.  */
+export declare function enumCrossedEncode(value: EnumCrossed): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function enumCrossedEncodeWithContext(value: EnumCrossed, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function enumCrossedDecode(input: unknown): EnumCrossed;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function enumCrossedDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): EnumCrossed;
+export declare function enumCrossedIs(value: unknown): value is EnumCrossed;
+export declare namespace EnumCrossed {
+	const toString: typeof enumCrossedToString;
+	const clone: typeof enumCrossedClone;
+	const equals: typeof enumCrossedEquals;
+	const hashCode: typeof enumCrossedHashCode;
+	const partialCompare: typeof enumCrossedPartialCompare;
+	const compare: typeof enumCrossedCompare;
+	const defaultValue: typeof enumCrossedDefaultValue;
+	const encode: typeof enumCrossedEncode;
+	const encodeWithContext: typeof enumCrossedEncodeWithContext;
+	const decode: typeof enumCrossedDecode;
+	const decodeWithContext: typeof enumCrossedDecodeWithContext;
+	const is: typeof enumCrossedIs;
+}
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface EnumHolder {
 	counted: EnumCounted;
@@ -1805,6 +2146,7 @@ export interface EnumHolder {
 	byKind: Map<EnumText, number>;
 	labels: Record<string, EnumSigned>;
 	pair: [EnumCounted, EnumText];
+	constant: EnumConstant;
 }
 export declare function enumHolderToString(value: EnumHolder): string;
 export declare function enumHolderClone(value: EnumHolder): EnumHolder;
@@ -1886,116 +2228,140 @@ export declare const EnumOrdered: {
 
 ## Mapping
 
-original 0..389 -> expanded 1210..1599
-original 389..590 -> expanded 5401..5602
-original 590..805 -> expanded 9474..9689
-original 805..1011 -> expanded 13474..13680
-original 1011..1191 -> expanded 17856..18036
-original 1191..1347 -> expanded 21889..22045
-original 1347..1586 -> expanded 25287..25526
-original 1586..2046 -> expanded 29216..29676
-original 2046..2209 -> expanded 60907..61070
-original 2209..2210 -> expanded 63447..63448
-generated 0..1210 <- imports
-generated 1599..1864 <- Debug
-generated 1864..1953 <- Clone
-generated 1953..2053 <- PartialEq
-generated 2053..2261 <- Hash
-generated 2261..2476 <- PartialOrd
-generated 2476..2677 <- Ord
-generated 2677..2767 <- Default
-generated 2767..3207 <- Encode
-generated 3207..4431 <- Decode
-generated 4431..5401 <- __convenience_const
-generated 5602..5861 <- Debug
-generated 5861..5947 <- Clone
-generated 5947..6044 <- PartialEq
-generated 6044..6250 <- Hash
-generated 6250..6462 <- PartialOrd
-generated 6462..6660 <- Ord
-generated 6660..6747 <- Default
-generated 6747..7181 <- Encode
-generated 7181..8529 <- Decode
-generated 8529..9474 <- __convenience_const
-generated 9689..9942 <- Debug
-generated 9942..10025 <- Clone
-generated 10025..10119 <- PartialEq
-generated 10119..10323 <- Hash
-generated 10323..10532 <- PartialOrd
-generated 10532..10727 <- Ord
-generated 10727..10810 <- Default
-generated 10810..11238 <- Encode
-generated 11238..12554 <- Decode
-generated 12554..13474 <- __convenience_const
-generated 13680..13933 <- Debug
-generated 13933..14016 <- Clone
-generated 14016..14110 <- PartialEq
-generated 14110..14428 <- Hash
-generated 14428..14774 <- PartialOrd
-generated 14774..15106 <- Ord
-generated 15106..15189 <- Default
-generated 15189..15617 <- Encode
-generated 15617..16936 <- Decode
-generated 16936..17856 <- __convenience_const
-generated 18036..18307 <- Debug
-generated 18307..18399 <- Clone
-generated 18399..18502 <- PartialEq
-generated 18502..18712 <- Hash
-generated 18712..18930 <- PartialOrd
-generated 18930..19134 <- Ord
-generated 19134..19225 <- Default
-generated 19225..19671 <- Encode
-generated 19671..20894 <- Decode
-generated 20894..21889 <- __convenience_const
-generated 22045..22292 <- Debug
-generated 22292..22372 <- Clone
-generated 22372..22463 <- PartialEq
-generated 22463..22622 <- Hash
-generated 22622..22828 <- PartialOrd
-generated 22828..23020 <- Ord
-generated 23020..23100 <- Default
-generated 23100..23522 <- Encode
-generated 23522..24392 <- Decode
-generated 24392..25287 <- __convenience_const
-generated 25526..25773 <- Debug
-generated 25773..25853 <- Clone
-generated 25853..25944 <- PartialEq
-generated 25944..26103 <- Hash
-generated 26103..26309 <- PartialOrd
-generated 26309..26501 <- Ord
-generated 26501..26582 <- Default
-generated 26582..27004 <- Encode
-generated 27004..28321 <- Decode
-generated 28321..29216 <- __convenience_const
-generated 29676..30809 <- Debug
-generated 30809..31754 <- Clone
-generated 31754..33281 <- PartialEq
-generated 33281..34848 <- Hash
-generated 34848..35282 <- Default
-generated 35282..39894 <- Encode
-generated 39894..59471 <- Decode
-generated 59471..60907 <- __convenience_const
-generated 61070..61471 <- Debug
-generated 61471..61716 <- Clone
-generated 61716..61979 <- PartialEq
-generated 61979..62561 <- PartialOrd
-generated 62561..63000 <- Ord
-generated 63000..63447 <- __convenience_const
+original 0..434 -> expanded 1262..1696
+original 434..635 -> expanded 5636..5837
+original 635..850 -> expanded 9921..10136
+original 850..1056 -> expanded 14122..14328
+original 1056..1236 -> expanded 18707..18887
+original 1236..1392 -> expanded 22867..23023
+original 1392..1631 -> expanded 26236..26475
+original 1631..1814 -> expanded 30377..30560
+original 1814..1980 -> expanded 33276..33442
+original 1980..2468 -> expanded 37054..37542
+original 2468..2631 -> expanded 70582..70745
+original 2631..2632 -> expanded 73122..73123
+generated 0..1262 <- imports
+generated 1696..2099 <- Debug
+generated 2099..2188 <- Clone
+generated 2188..2288 <- PartialEq
+generated 2288..2496 <- Hash
+generated 2496..2711 <- PartialOrd
+generated 2711..2912 <- Ord
+generated 2912..3002 <- Default
+generated 3002..3442 <- Encode
+generated 3442..4666 <- Decode
+generated 4666..5636 <- __convenience_const
+generated 5837..6308 <- Debug
+generated 6308..6394 <- Clone
+generated 6394..6491 <- PartialEq
+generated 6491..6697 <- Hash
+generated 6697..6909 <- PartialOrd
+generated 6909..7107 <- Ord
+generated 7107..7194 <- Default
+generated 7194..7628 <- Encode
+generated 7628..8976 <- Decode
+generated 8976..9921 <- __convenience_const
+generated 10136..10590 <- Debug
+generated 10590..10673 <- Clone
+generated 10673..10767 <- PartialEq
+generated 10767..10971 <- Hash
+generated 10971..11180 <- PartialOrd
+generated 11180..11375 <- Ord
+generated 11375..11458 <- Default
+generated 11458..11886 <- Encode
+generated 11886..13202 <- Decode
+generated 13202..14122 <- __convenience_const
+generated 14328..14784 <- Debug
+generated 14784..14867 <- Clone
+generated 14867..14961 <- PartialEq
+generated 14961..15279 <- Hash
+generated 15279..15625 <- PartialOrd
+generated 15625..15957 <- Ord
+generated 15957..16040 <- Default
+generated 16040..16468 <- Encode
+generated 16468..17787 <- Decode
+generated 17787..18707 <- __convenience_const
+generated 18887..19285 <- Debug
+generated 19285..19377 <- Clone
+generated 19377..19480 <- PartialEq
+generated 19480..19690 <- Hash
+generated 19690..19908 <- PartialOrd
+generated 19908..20112 <- Ord
+generated 20112..20203 <- Default
+generated 20203..20649 <- Encode
+generated 20649..21872 <- Decode
+generated 21872..22867 <- __convenience_const
+generated 23023..23241 <- Debug
+generated 23241..23321 <- Clone
+generated 23321..23412 <- PartialEq
+generated 23412..23571 <- Hash
+generated 23571..23777 <- PartialOrd
+generated 23777..23969 <- Ord
+generated 23969..24049 <- Default
+generated 24049..24471 <- Encode
+generated 24471..25341 <- Decode
+generated 25341..26236 <- __convenience_const
+generated 26475..26934 <- Debug
+generated 26934..27014 <- Clone
+generated 27014..27105 <- PartialEq
+generated 27105..27264 <- Hash
+generated 27264..27470 <- PartialOrd
+generated 27470..27662 <- Ord
+generated 27662..27743 <- Default
+generated 27743..28165 <- Encode
+generated 28165..29482 <- Decode
+generated 29482..30377 <- __convenience_const
+generated 30560..30879 <- Debug
+generated 30879..30971 <- Clone
+generated 30971..31074 <- PartialEq
+generated 31074..31241 <- Hash
+generated 31241..31459 <- PartialOrd
+generated 31459..31663 <- Ord
+generated 31663..31754 <- Default
+generated 31754..32200 <- Encode
+generated 32200..33276 <- Decode
+generated 33442..33744 <- Debug
+generated 33744..33833 <- Clone
+generated 33833..33933 <- PartialEq
+generated 33933..34098 <- Hash
+generated 34098..34313 <- PartialOrd
+generated 34313..34514 <- Ord
+generated 34514..34600 <- Default
+generated 34600..35040 <- Encode
+generated 35040..36084 <- Decode
+generated 36084..37054 <- __convenience_const
+generated 37542..38744 <- Debug
+generated 38744..39735 <- Clone
+generated 39735..41356 <- PartialEq
+generated 41356..42992 <- Hash
+generated 42992..43472 <- Default
+generated 43472..48329 <- Encode
+generated 48329..69146 <- Decode
+generated 69146..70582 <- __convenience_const
+generated 70745..71146 <- Debug
+generated 71146..71391 <- Clone
+generated 71391..71654 <- PartialEq
+generated 71654..72236 <- PartialOrd
+generated 72236..72675 <- Ord
+generated 72675..73122 <- __convenience_const
 
 ## Metadata
 
-interface EnumHolder: {"body_span":{"end":2047,"start":1688},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1659,"start":1589}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1715,"start":1694},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":1737,"start":1720},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"flags","optional":false,"readonly":false,"span":{"end":1759,"start":1742},"ts_type":"EnumFlags"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1790,"start":1764},"ts_type":"EnumCounted | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":1823,"start":1795},"ts_type":"EnumText | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1850,"start":1828},"ts_type":"EnumSigned"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1873,"start":1855},"ts_type":"EnumMixed[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":1900,"start":1878},"ts_type":"Set<EnumCounted>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":1935,"start":1905},"ts_type":"Map<string, EnumText>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":1970,"start":1940},"ts_type":"Map<EnumText, number>"},{"decorators":[],"key":"Named","name":"labels","optional":false,"readonly":false,"span":{"end":2010,"start":1975},"ts_type":"Record<string, EnumSigned>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2045,"start":2015},"ts_type":"[EnumCounted, EnumText]"}],"heritage":[],"methods":[],"name":"EnumHolder","span":{"end":2047,"start":1667},"type_params":[]}
-interface EnumOrdered: {"body_span":{"end":2210,"start":2139},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2109,"start":2049}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":2166,"start":2145},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":2188,"start":2171},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":2208,"start":2193},"ts_type":"EnumText"}],"heritage":[],"methods":[],"name":"EnumOrdered","span":{"end":2210,"start":2117},"type_params":[]}
-enum EnumCounted: {"body_span":{"end":390,"start":334},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":309,"start":218}}],"is_const":false,"name":"EnumCounted","span":{"end":390,"start":317},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":355,"start":340}}],"name":"First","span":{"end":365,"start":360},"value":{"Number":0.0}},{"decorators":[],"name":"Second","span":{"end":377,"start":371},"value":{"Number":1.0}},{"decorators":[],"name":"Third","span":{"end":388,"start":383},"value":{"Number":2.0}}]}
-enum EnumSigned: {"body_span":{"end":591,"start":507},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":483,"start":392}}],"is_const":false,"name":"EnumSigned","span":{"end":591,"start":491},"variants":[{"decorators":[],"name":"Below","span":{"end":523,"start":513},"value":{"Number":-1.0}},{"decorators":[{"args_src":"","name":"default","span":{"end":544,"start":529}}],"name":"Level","span":{"end":558,"start":549},"value":{"Number":0.0}},{"decorators":[],"name":"Above","span":{"end":573,"start":564},"value":{"Number":1.0}},{"decorators":[],"name":"Half","span":{"end":589,"start":579},"value":{"Number":0.5}}]}
-enum EnumFlags: {"body_span":{"end":806,"start":707},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":684,"start":593}}],"is_const":false,"name":"EnumFlags","span":{"end":806,"start":692},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":728,"start":713}}],"name":"None","span":{"end":741,"start":733},"value":{"Number":0.0}},{"decorators":[],"name":"Read","span":{"end":760,"start":747},"value":{"Expr":"1 << 0"}},{"decorators":[],"name":"Write","span":{"end":780,"start":766},"value":{"Expr":"1 << 1"}},{"decorators":[],"name":"All","span":{"end":804,"start":786},"value":{"Expr":"Read | Write"}}]}
-enum EnumMixed: {"body_span":{"end":1012,"start":922},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":899,"start":808}}],"is_const":false,"name":"EnumMixed","span":{"end":1012,"start":907},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":943,"start":928}}],"name":"Zero","span":{"end":956,"start":948},"value":{"Number":0.0}},{"decorators":[],"name":"Text","span":{"end":975,"start":962},"value":{"String":"text"}},{"decorators":[],"name":"Five","span":{"end":989,"start":981},"value":{"Number":5.0}},{"decorators":[],"name":"Other","span":{"end":1010,"start":995},"value":{"String":"other"}}]}
-enum EnumRepeated: {"body_span":{"end":1192,"start":1131},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1105,"start":1014}}],"is_const":false,"name":"EnumRepeated","span":{"end":1192,"start":1113},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1152,"start":1137}}],"name":"One","span":{"end":1164,"start":1157},"value":{"Number":1.0}},{"decorators":[],"name":"Uno","span":{"end":1177,"start":1170},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":1190,"start":1183},"value":{"Number":2.0}}]}
-enum EnumLone: {"body_span":{"end":1348,"start":1307},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1285,"start":1194}}],"is_const":false,"name":"EnumLone","span":{"end":1348,"start":1293},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1328,"start":1313}}],"name":"Only","span":{"end":1346,"start":1333},"value":{"String":"only"}}]}
-enum EnumText: {"body_span":{"end":1587,"start":1463},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1441,"start":1350}}],"is_const":false,"name":"EnumText","span":{"end":1587,"start":1449},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1484,"start":1469}}],"name":"Empty","span":{"end":1499,"start":1489},"value":{"String":""}},{"decorators":[],"name":"Quoted","span":{"end":1530,"start":1505},"value":{"String":"it's \"quoted\""}},{"decorators":[],"name":"Spaced","span":{"end":1556,"start":1536},"value":{"String":"two words"}},{"decorators":[],"name":"Slashed","span":{"end":1585,"start":1562},"value":{"String":"back\\slash"}}]}
+interface EnumHolder: {"body_span":{"end":2469,"start":2082},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2053,"start":1983}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":2109,"start":2088},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":2131,"start":2114},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"flags","optional":false,"readonly":false,"span":{"end":2153,"start":2136},"ts_type":"EnumFlags"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2184,"start":2158},"ts_type":"EnumCounted | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":2217,"start":2189},"ts_type":"EnumText | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":2244,"start":2222},"ts_type":"EnumSigned"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":2267,"start":2249},"ts_type":"EnumMixed[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":2294,"start":2272},"ts_type":"Set<EnumCounted>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2329,"start":2299},"ts_type":"Map<string, EnumText>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":2364,"start":2334},"ts_type":"Map<EnumText, number>"},{"decorators":[],"key":"Named","name":"labels","optional":false,"readonly":false,"span":{"end":2404,"start":2369},"ts_type":"Record<string, EnumSigned>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2439,"start":2409},"ts_type":"[EnumCounted, EnumText]"},{"decorators":[],"key":"Named","name":"constant","optional":false,"readonly":false,"span":{"end":2467,"start":2444},"ts_type":"EnumConstant"}],"heritage":[],"methods":[],"name":"EnumHolder","span":{"end":2469,"start":2061},"type_params":[]}
+interface EnumOrdered: {"body_span":{"end":2632,"start":2561},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2531,"start":2471}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":2588,"start":2567},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":2610,"start":2593},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":2630,"start":2615},"ts_type":"EnumText"}],"heritage":[],"methods":[],"name":"EnumOrdered","span":{"end":2632,"start":2539},"type_params":[]}
+enum EnumCounted: {"body_span":{"end":435,"start":379},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":354,"start":263}}],"is_const":false,"is_declare":false,"name":"EnumCounted","span":{"end":435,"start":362},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":400,"start":385}}],"name":"First","span":{"end":410,"start":405},"value":{"Number":0.0}},{"decorators":[],"name":"Second","span":{"end":422,"start":416},"value":{"Number":1.0}},{"decorators":[],"name":"Third","span":{"end":433,"start":428},"value":{"Number":2.0}}]}
+enum EnumSigned: {"body_span":{"end":636,"start":552},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":528,"start":437}}],"is_const":false,"is_declare":false,"name":"EnumSigned","span":{"end":636,"start":536},"variants":[{"decorators":[],"name":"Below","span":{"end":568,"start":558},"value":{"Number":-1.0}},{"decorators":[{"args_src":"","name":"default","span":{"end":589,"start":574}}],"name":"Level","span":{"end":603,"start":594},"value":{"Number":0.0}},{"decorators":[],"name":"Above","span":{"end":618,"start":609},"value":{"Number":1.0}},{"decorators":[],"name":"Half","span":{"end":634,"start":624},"value":{"Number":0.5}}]}
+enum EnumFlags: {"body_span":{"end":851,"start":752},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":729,"start":638}}],"is_const":false,"is_declare":false,"name":"EnumFlags","span":{"end":851,"start":737},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":773,"start":758}}],"name":"None","span":{"end":786,"start":778},"value":{"Number":0.0}},{"decorators":[],"name":"Read","span":{"end":805,"start":792},"value":{"Expr":"1 << 0"}},{"decorators":[],"name":"Write","span":{"end":825,"start":811},"value":{"Expr":"1 << 1"}},{"decorators":[],"name":"All","span":{"end":849,"start":831},"value":{"Expr":"Read | Write"}}]}
+enum EnumMixed: {"body_span":{"end":1057,"start":967},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":944,"start":853}}],"is_const":false,"is_declare":false,"name":"EnumMixed","span":{"end":1057,"start":952},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":988,"start":973}}],"name":"Zero","span":{"end":1001,"start":993},"value":{"Number":0.0}},{"decorators":[],"name":"Text","span":{"end":1020,"start":1007},"value":{"String":"text"}},{"decorators":[],"name":"Five","span":{"end":1034,"start":1026},"value":{"Number":5.0}},{"decorators":[],"name":"Other","span":{"end":1055,"start":1040},"value":{"String":"other"}}]}
+enum EnumRepeated: {"body_span":{"end":1237,"start":1176},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1150,"start":1059}}],"is_const":false,"is_declare":false,"name":"EnumRepeated","span":{"end":1237,"start":1158},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1197,"start":1182}}],"name":"One","span":{"end":1209,"start":1202},"value":{"Number":1.0}},{"decorators":[],"name":"Uno","span":{"end":1222,"start":1215},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":1235,"start":1228},"value":{"Number":2.0}}]}
+enum EnumLone: {"body_span":{"end":1393,"start":1352},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1330,"start":1239}}],"is_const":false,"is_declare":false,"name":"EnumLone","span":{"end":1393,"start":1338},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1373,"start":1358}}],"name":"Only","span":{"end":1391,"start":1378},"value":{"String":"only"}}]}
+enum EnumText: {"body_span":{"end":1632,"start":1508},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1486,"start":1395}}],"is_const":false,"is_declare":false,"name":"EnumText","span":{"end":1632,"start":1494},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1529,"start":1514}}],"name":"Empty","span":{"end":1544,"start":1534},"value":{"String":""}},{"decorators":[],"name":"Quoted","span":{"end":1575,"start":1550},"value":{"String":"it's \"quoted\""}},{"decorators":[],"name":"Spaced","span":{"end":1601,"start":1581},"value":{"String":"two words"}},{"decorators":[],"name":"Slashed","span":{"end":1630,"start":1607},"value":{"String":"back\\slash"}}]}
+enum EnumConstant: {"body_span":{"end":1815,"start":1757},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1725,"start":1634}}],"is_const":true,"is_declare":false,"name":"EnumConstant","span":{"end":1815,"start":1733},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1778,"start":1763}}],"name":"Low","span":{"end":1794,"start":1783},"value":{"String":"low"}},{"decorators":[],"name":"High","span":{"end":1813,"start":1800},"value":{"String":"high"}}]}
+enum EnumCrossed: {"body_span":{"end":1981,"start":1933},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1908,"start":1817}}],"is_const":false,"is_declare":false,"name":"EnumCrossed","span":{"end":1981,"start":1916},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":1954,"start":1939}}],"name":"A","span":{"end":1966,"start":1959},"value":{"String":"B"}},{"decorators":[],"name":"B","span":{"end":1979,"start":1972},"value":{"String":"A"}}]}
 
 ## Registry reads
 
+Name("EnumConstant")
 Name("EnumCounted")
 Name("EnumFlags")
 Name("EnumMixed")

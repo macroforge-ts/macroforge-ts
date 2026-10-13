@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,12 +62,12 @@ export function paymentEncodePartialWithContext(value: Partial<Payment>, ctx: __
 function paymentEncodeFields(value: Payment, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("date")) {
         if (value.date !== undefined) {
-            result.date = value.date;
+            result["date"] = value.date;
         }
     }
 }
@@ -144,7 +144,7 @@ export function paymentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Payment.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -202,8 +202,7 @@ export function paymentHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "date" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "date");
 }
 
 export function paymentIs(obj: unknown): obj is Payment {
@@ -463,15 +462,15 @@ export declare const Payment: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..170 -> expanded 813..876
-original 170..171 -> expanded 14570..14571
-generated 0..755 <- imports
-generated 876..982 <- Default
-generated 982..3239 <- Encode
-generated 3239..9100 <- Decode
-generated 9100..13331 <- Gigaform
-generated 13331..14570 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..170 -> expanded 865..928
+original 170..171 -> expanded 14596..14597
+generated 0..807 <- imports
+generated 928..1034 <- Default
+generated 1034..3297 <- Encode
+generated 3297..9126 <- Decode
+generated 9126..13357 <- Gigaform
+generated 13357..14596 <- __convenience_const
 
 ## Metadata
 

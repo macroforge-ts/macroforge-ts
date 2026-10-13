@@ -17,8 +17,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type Settings = {
     theme: string;
@@ -97,7 +97,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
         errors.push({ field: "theme", message: "missing required field" });
@@ -155,8 +155,7 @@ export function settingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "theme" in o && "language" in o;
+    return __mf_holds(obj, "theme") && __mf_holds(obj, "language");
 }
 
 export function settingsIs(obj: unknown): obj is Settings {
@@ -222,11 +221,11 @@ export {};
 
 ## Mapping
 
-original 22..84 -> expanded 350..412
-original 84..85 -> expanded 7090..7091
-generated 0..350 <- imports
-generated 412..6419 <- Decode
-generated 6419..7090 <- __convenience_const
+original 22..84 -> expanded 402..464
+original 84..85 -> expanded 7110..7111
+generated 0..402 <- imports
+generated 464..6439 <- Decode
+generated 6439..7110 <- __convenience_const
 
 ## Metadata
 

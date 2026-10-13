@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Order {
@@ -57,12 +57,12 @@ export function orderEncodePartialWithContext(value: Partial<Order>, ctx: __mf_E
 function orderEncodeFields(value: Order, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("quantity")) {
         if (value.quantity !== undefined) {
-            result.quantity = value.quantity;
+            result["quantity"] = value.quantity;
         }
     }
 }
@@ -139,7 +139,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Order.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -197,8 +197,7 @@ export function orderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "quantity" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "quantity");
 }
 
 export function orderIs(obj: unknown): obj is Order {
@@ -291,13 +290,13 @@ export declare const Order: {
 
 ## Mapping
 
-original 39..104 -> expanded 596..661
-original 104..105 -> expanded 9887..9888
-generated 0..596 <- imports
-generated 661..766 <- Default
-generated 766..3009 <- Encode
-generated 3009..8866 <- Decode
-generated 8866..9887 <- __convenience_const
+original 39..104 -> expanded 648..713
+original 104..105 -> expanded 9913..9914
+generated 0..648 <- imports
+generated 713..818 <- Default
+generated 818..3067 <- Encode
+generated 3067..8892 <- Decode
+generated 8892..9913 <- __convenience_const
 
 ## Metadata
 

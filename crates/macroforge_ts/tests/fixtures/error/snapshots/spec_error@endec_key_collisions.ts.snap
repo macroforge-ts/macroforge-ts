@@ -1,0 +1,594 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_key_collisions.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+interface Renamed {
+    /** @endec({ rename: "name" }) */
+    title: string;
+    name: string;
+}
+
+/** @derive(Encode, Decode) */
+/** @endec({ renameAll: "snake_case" }) */
+interface Cased {
+    userName: string;
+    user_name: string;
+}
+
+/** @derive(Encode, Decode) */
+interface Inner {
+    id: string;
+    note: string;
+}
+
+/** @derive(Encode, Decode) */
+interface Flat {
+    id: number;
+    /** @endec(flatten) */
+    inner: Inner;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+interface Renamed {
+    
+    title: string;
+    name: string;
+}
+
+
+/** @endec({ renameAll: "snake_case" }) */
+interface Cased {
+    userName: string;
+    user_name: string;
+}
+
+
+interface Inner {
+    id: string;
+    note: string;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function innerEncode(value: Inner, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = innerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function innerEncodeWithContext(value: Inner, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Inner" });
+    innerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function innerEncodePartialWithContext(value: Partial<Inner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Inner>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Inner" };
+        innerEncodeFields(value as Inner, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function innerEncodeFields(value: Inner, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("note")) {
+        if (value.note !== undefined) {
+            result["note"] = value.note;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = innerDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Inner.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Inner> | __mf_PendingRef;
+export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Inner> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Inner.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Inner") as Inner | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
+        errors.push({ field: "note", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "Inner");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Inner.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+        const __raw_note = obj["note"] as string;
+
+        if (!(typeof __raw_note === "string")) {
+            errors.push({ field: "note", message: __raw_note == null ? "Inner.note is required" : "expected string" });
+        } else {
+            instance.note = __raw_note;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Inner;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function innerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Inner>): Partial<Inner> | __mf_PendingRef {
+    return innerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function innerValidateField<K extends keyof Inner>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function innerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function innerValidateFields(partial: { readonly [K in keyof Inner]?: unknown }): Array<{ field: string; message: string }>;
+export function innerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function innerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id") && __mf_holds(obj, "note");
+}
+
+export function innerIs(obj: unknown): obj is Inner {
+    return innerHasShape(obj) && innerDecode(obj).success;
+}
+
+const Inner: {
+  readonly encode: typeof innerEncode;
+  readonly encodeWithContext: typeof innerEncodeWithContext;
+  readonly encodePartialWithContext: typeof innerEncodePartialWithContext;
+  readonly decode: typeof innerDecode;
+  readonly decodeWithContext: typeof innerDecodeWithContext;
+  readonly decodePartialWithContext: typeof innerDecodePartialWithContext;
+  readonly validateField: typeof innerValidateField;
+  readonly validateFields: typeof innerValidateFields;
+  readonly hasShape: typeof innerHasShape;
+  readonly is: typeof innerIs;
+} = {
+  encode: innerEncode,
+  encodeWithContext: innerEncodeWithContext,
+  encodePartialWithContext: innerEncodePartialWithContext,
+  decode: innerDecode,
+  decodeWithContext: innerDecodeWithContext,
+  decodePartialWithContext: innerDecodePartialWithContext,
+  validateField: innerValidateField,
+  validateFields: innerValidateFields,
+  hasShape: innerHasShape,
+  is: innerIs
+};
+
+
+interface Flat {
+    id: number;
+    
+    inner: Inner;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function flatEncode(value: Flat, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = flatEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function flatEncodeWithContext(value: Flat, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Flat" });
+    flatEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function flatEncodePartialWithContext(value: Partial<Flat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Flat>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Flat" };
+        flatEncodeFields(value as Flat, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function flatEncodeFields(value: Flat, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("inner")) {
+        if (value.inner !== undefined) {
+            const __flattened = innerEncodePartialWithContext(value.inner, ctx);
+            const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+            Object.assign(result, rest);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function flatDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Flat } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = flatDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Flat.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Flat | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Flat> | __mf_PendingRef;
+export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Flat> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Flat.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Flat.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Flat") as Flat | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Flat.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "Flat");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as number;
+
+        if (!(typeof __raw_id === "number")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Flat.id is required" : "expected number" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("inner"))) {
+        if ((__fields === undefined || __fields.requires("inner")) || innerHasShape(obj)) {
+            try {
+                const __result = innerDecodePartialWithContext(obj, ctx, { except: [] });
+                ctx.assignOrDefer(instance, "inner", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push(__err);
+                    }
+                } else {
+                    throw __e;
+                }
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Flat;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function flatDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Flat>): Partial<Flat> | __mf_PendingRef {
+    return flatDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function flatValidateField<K extends keyof Flat>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function flatValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function flatValidateFields(partial: { readonly [K in keyof Flat]?: unknown }): Array<{ field: string; message: string }>;
+export function flatValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function flatHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id");
+}
+
+export function flatIs(obj: unknown): obj is Flat {
+    return flatHasShape(obj) && flatDecode(obj).success;
+}
+
+const Flat: {
+  readonly encode: typeof flatEncode;
+  readonly encodeWithContext: typeof flatEncodeWithContext;
+  readonly encodePartialWithContext: typeof flatEncodePartialWithContext;
+  readonly decode: typeof flatDecode;
+  readonly decodeWithContext: typeof flatDecodeWithContext;
+  readonly decodePartialWithContext: typeof flatDecodePartialWithContext;
+  readonly validateField: typeof flatValidateField;
+  readonly validateFields: typeof flatValidateFields;
+  readonly hasShape: typeof flatHasShape;
+  readonly is: typeof flatIs;
+} = {
+  encode: flatEncode,
+  encodeWithContext: flatEncodeWithContext,
+  encodePartialWithContext: flatEncodePartialWithContext,
+  decode: flatDecode,
+  decodeWithContext: flatDecodeWithContext,
+  decodePartialWithContext: flatDecodePartialWithContext,
+  validateField: flatValidateField,
+  validateFields: flatValidateFields,
+  hasShape: flatHasShape,
+  is: flatIs
+};
+
+## DTS
+
+interface Inner {
+	id: string;
+	note: string;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function innerEncode(value: Inner, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function innerEncodeWithContext(value: Inner, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function innerEncodePartialWithContext(value: Partial<Inner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Inner>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function innerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Inner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Inner> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function innerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Inner>): Partial<Inner> | __mf_PendingRef;
+export declare function innerValidateField<K extends keyof Inner>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function innerValidateFields(partial: { readonly [K in keyof Inner]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function innerHasShape(obj: unknown): boolean;
+export declare function innerIs(obj: unknown): obj is Inner;
+interface Flat {
+	id: number;
+	inner: Inner;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function flatEncode(value: Flat, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function flatEncodeWithContext(value: Flat, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function flatEncodePartialWithContext(value: Partial<Flat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Flat>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function flatDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Flat;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Flat | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Flat> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function flatDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Flat>): Partial<Flat> | __mf_PendingRef;
+export declare function flatValidateField<K extends keyof Flat>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function flatValidateFields(partial: { readonly [K in keyof Flat]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function flatHasShape(obj: unknown): boolean;
+export declare function flatIs(obj: unknown): obj is Flat;
+export {};
+
+## Diagnostics
+
+Error [113..126]: @derive(Encode): fields 'title' and 'name' are both written under the key `name`, so one would overwrite the other; give one another key with `@endec({ rename: "..." })`
+Error [113..126]: @derive(Decode): fields 'title' and 'name' are both read from the key `name`, so one would overwrite the other; give one another key with `@endec({ rename: "..." })`
+Error [248..266]: @derive(Encode): fields 'userName' and 'user_name' are both written under the key `user_name`, so one would overwrite the other; give one another key with `@endec({ rename: "..." })`
+Error [248..266]: @derive(Decode): fields 'userName' and 'user_name' are both read from the key `user_name`, so one would overwrite the other; give one another key with `@endec({ rename: "..." })`
+
+## Mapping
+
+original 30..55 -> expanded 648..673
+original 88..129 -> expanded 673..714
+original 159..269 -> expanded 714..824
+original 299..353 -> expanded 824..878
+original 353..355 -> expanded 9800..9802
+original 385..423 -> expanded 9802..9840
+original 445..465 -> expanded 9840..9860
+original 465..466 -> expanded 18883..18884
+generated 0..648 <- imports
+generated 878..3111 <- Encode
+generated 3111..8872 <- Decode
+generated 8872..9800 <- __convenience_const
+generated 9860..12237 <- Encode
+generated 12237..17976 <- Decode
+generated 17976..18883 <- __convenience_const
+
+## Metadata
+
+interface Renamed: {"body_span":{"end":128,"start":50},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: \"name\" }","name":"endec","span":{"end":89,"start":56}}],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":108,"start":94},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":126,"start":113},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Renamed","span":{"end":128,"start":32},"type_params":[]}
+interface Cased: {"body_span":{"end":268,"start":220},"decorators":[{"args_src":"{ renameAll: \"snake_case\" }","name":"endec","span":{"end":203,"start":161}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":160,"start":130}}],"fields":[{"decorators":[],"key":"Named","name":"userName","optional":false,"readonly":false,"span":{"end":243,"start":226},"ts_type":"string"},{"decorators":[],"key":"Named","name":"user_name","optional":false,"readonly":false,"span":{"end":266,"start":248},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Cased","span":{"end":268,"start":204},"type_params":[]}
+interface Inner: {"body_span":{"end":354,"start":317},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":300,"start":270}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":334,"start":323},"ts_type":"string"},{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":352,"start":339},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":354,"start":301},"type_params":[]}
+interface Flat: {"body_span":{"end":466,"start":402},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":386,"start":356}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":419,"start":408},"ts_type":"number"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":446,"start":424}}],"key":"Named","name":"inner","optional":false,"readonly":false,"span":{"end":464,"start":451},"ts_type":"Inner"}],"heritage":[],"methods":[],"name":"Flat","span":{"end":466,"start":387},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

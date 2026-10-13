@@ -18,7 +18,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export class Account {
@@ -56,12 +56,12 @@ static encodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext
 static #encodeFields(value: Account, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = value.balance;
+            result["balance"] = value.balance;
         }
     }
 }
@@ -150,7 +150,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -204,8 +204,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "balance" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "balance");
 }
 
 static is(obj: unknown): obj is Account {
@@ -341,21 +340,21 @@ export declare function accountIs(value: unknown): value is Account;
 
 ## Mapping
 
-original 39..111 -> expanded 673..745
-original 111..112 -> expanded 8570..8571
-original 112..113 -> expanded 11755..11756
-generated 0..673 <- imports
-generated 745..965 <- Default
-generated 965..2660 <- Encode
-generated 2660..2981 <- Encode
-generated 2981..8570 <- Decode
-generated 8571..8658 <- Default
-generated 8658..9988 <- Encode
-generated 9988..11755 <- Decode
+original 39..111 -> expanded 725..797
+original 111..112 -> expanded 8596..8597
+original 112..113 -> expanded 11781..11782
+generated 0..725 <- imports
+generated 797..1017 <- Default
+generated 1017..2718 <- Encode
+generated 2718..3039 <- Encode
+generated 3039..8596 <- Decode
+generated 8597..8684 <- Default
+generated 8684..10014 <- Encode
+generated 10014..11781 <- Decode
 
 ## Metadata
 
-class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"initializer":"\"\"","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"superclass":null,"type_params":[]}
+class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"\"\"","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

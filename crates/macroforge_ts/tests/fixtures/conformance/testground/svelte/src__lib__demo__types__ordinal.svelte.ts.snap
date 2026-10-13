@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -74,42 +74,42 @@ export function ordinalEncodePartialWithContext(value: Partial<Ordinal>, ctx: __
 function ordinalEncodeFields(value: Ordinal, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("north")) {
         if (value.north !== undefined) {
-            result.north = value.north;
+            result["north"] = value.north;
         }
     }
     if (__fields === undefined || __fields.keeps("northeast")) {
         if (value.northeast !== undefined) {
-            result.northeast = value.northeast;
+            result["northeast"] = value.northeast;
         }
     }
     if (__fields === undefined || __fields.keeps("east")) {
         if (value.east !== undefined) {
-            result.east = value.east;
+            result["east"] = value.east;
         }
     }
     if (__fields === undefined || __fields.keeps("southeast")) {
         if (value.southeast !== undefined) {
-            result.southeast = value.southeast;
+            result["southeast"] = value.southeast;
         }
     }
     if (__fields === undefined || __fields.keeps("south")) {
         if (value.south !== undefined) {
-            result.south = value.south;
+            result["south"] = value.south;
         }
     }
     if (__fields === undefined || __fields.keeps("southwest")) {
         if (value.southwest !== undefined) {
-            result.southwest = value.southwest;
+            result["southwest"] = value.southwest;
         }
     }
     if (__fields === undefined || __fields.keeps("west")) {
         if (value.west !== undefined) {
-            result.west = value.west;
+            result["west"] = value.west;
         }
     }
     if (__fields === undefined || __fields.keeps("northwest")) {
         if (value.northwest !== undefined) {
-            result.northwest = value.northwest;
+            result["northwest"] = value.northwest;
         }
     }
 }
@@ -186,7 +186,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Ordinal.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("north")) && !("north" in obj)) {
         errors.push({ field: "north", message: "missing required field" });
@@ -316,8 +316,7 @@ export function ordinalHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "north" in o && "northeast" in o && "east" in o && "southeast" in o && "south" in o && "southwest" in o && "west" in o && "northwest" in o;
+    return __mf_holds(obj, "north") && __mf_holds(obj, "northeast") && __mf_holds(obj, "east") && __mf_holds(obj, "southeast") && __mf_holds(obj, "south") && __mf_holds(obj, "southwest") && __mf_holds(obj, "west") && __mf_holds(obj, "northwest");
 }
 
 export function ordinalIs(obj: unknown): obj is Ordinal {
@@ -807,15 +806,15 @@ export declare const Ordinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..302 -> expanded 813..1008
-original 302..303 -> expanded 28094..28095
-generated 0..755 <- imports
-generated 1008..1238 <- Default
-generated 1238..4515 <- Encode
-generated 4515..14438 <- Decode
-generated 14438..26855 <- Gigaform
-generated 26855..28094 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..302 -> expanded 865..1060
+original 302..303 -> expanded 28210..28211
+generated 0..807 <- imports
+generated 1060..1290 <- Default
+generated 1290..4591 <- Encode
+generated 4591..14554 <- Decode
+generated 14554..26971 <- Gigaform
+generated 26971..28210 <- __convenience_const
 
 ## Metadata
 

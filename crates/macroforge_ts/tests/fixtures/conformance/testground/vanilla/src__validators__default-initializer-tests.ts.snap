@@ -13,7 +13,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 // Default on classes whose fields have initializers, derived beside Decode,
 // whose constructor takes arguments.
@@ -127,7 +127,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
         errors.push({ field: "theme", message: "missing required field" });
@@ -242,8 +242,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "theme" in o && "tags" in o && "limit" in o && "createdAt" in o;
+    return __mf_holds(obj, "theme") && __mf_holds(obj, "tags") && __mf_holds(obj, "limit") && __mf_holds(obj, "createdAt");
 }
 
 static is(obj: unknown): obj is Settings {
@@ -328,7 +327,7 @@ export class Counter {
 
     static equals(a: Counter, b: Counter): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.count === b.count);
+        return __mf_equalWithin(a, b, () => a.count === b.count || a.count !== a.count && b.count !== b.count);
     }
 
     static hashCode(value: Counter): number {
@@ -342,7 +341,7 @@ export class Counter {
     static partialCompare(a: Counter, b: Counter): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : null);
+        const cmp0 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count || (a.count !== a.count && b.count !== b.count) ? 0 : null);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
             return 0;
@@ -352,7 +351,7 @@ export class Counter {
     static compare(a: Counter, b: Counter): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.count < b.count ? -1 : a.count > b.count ? 1 : 0;
+        const cmp0 = a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : a.count !== a.count ? b.count !== b.count ? 0 : 1 : -1;
         if (cmp0 !== 0) return cmp0;
             return 0;
         });
@@ -381,7 +380,7 @@ static encodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext
 static #encodeFields(value: Counter, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("count")) {
         if (value.count !== undefined) {
-            result.count = value.count;
+            result["count"] = value.count;
         }
     }
 }
@@ -469,7 +468,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Counter.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
         errors.push({ field: "count", message: "missing required field" });
@@ -511,8 +510,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "count" in o;
+    return __mf_holds(obj, "count");
 }
 
 static is(obj: unknown): obj is Counter {
@@ -763,45 +761,45 @@ export declare function counterDefaultValue(): Counter;
 
 ## Mapping
 
-original 0..396 -> expanded 918..1314
-original 396..397 -> expanded 10319..10320
-original 397..579 -> expanded 12192..12374
-original 579..580 -> expanded 12647..12648
-original 580..752 -> expanded 12735..12907
-original 752..753 -> expanded 21381..21382
-original 753..754 -> expanded 25178..25179
-generated 0..918 <- imports
-generated 1314..1680 <- Default
-generated 1680..10319 <- Decode
-generated 10320..10410 <- Default
-generated 10410..12192 <- Decode
-generated 12374..12647 <- Default
-generated 12648..12735 <- Default
-generated 12907..13174 <- Debug
-generated 13174..13296 <- Clone
-generated 13296..13456 <- PartialEq
-generated 13456..13798 <- Hash
-generated 13798..14167 <- PartialOrd
-generated 14167..14451 <- Ord
-generated 14451..15984 <- Encode
-generated 15984..16305 <- Encode
-generated 16305..21201 <- Decode
-generated 21201..21381 <- Default
-generated 21382..21479 <- Debug
-generated 21479..21571 <- Clone
-generated 21571..21672 <- PartialEq
-generated 21672..21769 <- Hash
-generated 21769..21892 <- PartialOrd
-generated 21892..21994 <- Ord
-generated 21994..23324 <- Encode
-generated 23324..25091 <- Decode
-generated 25091..25178 <- Default
+original 0..396 -> expanded 970..1366
+original 396..397 -> expanded 10363..10364
+original 397..579 -> expanded 12236..12418
+original 579..580 -> expanded 12691..12692
+original 580..752 -> expanded 12779..12951
+original 752..753 -> expanded 21557..21558
+original 753..754 -> expanded 25354..25355
+generated 0..970 <- imports
+generated 1366..1732 <- Default
+generated 1732..10363 <- Decode
+generated 10364..10454 <- Default
+generated 10454..12236 <- Decode
+generated 12418..12691 <- Default
+generated 12692..12779 <- Default
+generated 12951..13218 <- Debug
+generated 13218..13340 <- Clone
+generated 13340..13546 <- PartialEq
+generated 13546..13888 <- Hash
+generated 13888..14305 <- PartialOrd
+generated 14305..14668 <- Ord
+generated 14668..16204 <- Encode
+generated 16204..16525 <- Encode
+generated 16525..21377 <- Decode
+generated 21377..21557 <- Default
+generated 21558..21655 <- Debug
+generated 21655..21747 <- Clone
+generated 21747..21848 <- PartialEq
+generated 21848..21945 <- Hash
+generated 21945..22068 <- PartialOrd
+generated 22068..22170 <- Ord
+generated 22170..23500 <- Encode
+generated 23500..25267 <- Decode
+generated 25267..25354 <- Default
 
 ## Metadata
 
-class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"decorators":[],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"3","key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"['general']","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","visibility":"Public"},{"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","key":"Named","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"Date.now()","key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"superclass":null,"type_params":[]}
-class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"decorators":[],"initializer":"'world'","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","key":"Named","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"superclass":null,"type_params":[]}
-class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"decorators":[],"initializer":"1","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"superclass":null,"type_params":[]}
+class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"3","key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"['general']","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","key":"Named","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"Date.now()","key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"superclass":null,"type_params":[]}
+class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'world'","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","key":"Named","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"superclass":null,"type_params":[]}
+class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

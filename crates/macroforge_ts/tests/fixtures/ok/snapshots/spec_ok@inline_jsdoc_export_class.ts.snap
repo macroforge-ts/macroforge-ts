@@ -55,7 +55,7 @@ generated 384..472 <- Debug
 
 ## Metadata
 
-class User: {"body_span":{"end":62,"start":41},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":60,"start":47},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":62,"start":30},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":62,"start":41},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":60,"start":47},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":62,"start":30},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

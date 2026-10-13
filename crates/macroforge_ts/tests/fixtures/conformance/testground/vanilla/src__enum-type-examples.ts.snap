@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -34,9 +34,16 @@ export enum Status {
 }
 
 export function statusToString(value: Status): string {
-    const key = Status[value as unknown as keyof typeof Status];
-    if (key !== undefined) {
-        return "Status." + key;
+
+    const held: unknown = value;
+    if (held === Status["Active"]) {
+        return "Status.Active";
+    }
+    if (held === Status["Inactive"]) {
+        return "Status.Inactive";
+    }
+    if (held === Status["Pending"]) {
+        return "Status.Pending";
     }
     return "Status(" + String(value) + ")";
 }
@@ -119,9 +126,19 @@ export enum Priority {
 }
 
 export function priorityToString(value: Priority): string {
-    const key = Priority[value as unknown as keyof typeof Priority];
-    if (key !== undefined) {
-        return "Priority." + key;
+
+    const held: unknown = value;
+    if (held === Priority["Low"]) {
+        return "Priority.Low";
+    }
+    if (held === Priority["Medium"]) {
+        return "Priority.Medium";
+    }
+    if (held === Priority["High"]) {
+        return "Priority.High";
+    }
+    if (held === Priority["Critical"]) {
+        return "Priority.Critical";
     }
     return "Priority(" + String(value) + ")";
 }
@@ -209,9 +226,16 @@ export enum Color {
 }
 
 export function colorToString(value: Color): string {
-    const key = Color[value as unknown as keyof typeof Color];
-    if (key !== undefined) {
-        return "Color." + key;
+
+    const held: unknown = value;
+    if (held === Color["Red"]) {
+        return "Color.Red";
+    }
+    if (held === Color["Green"]) {
+        return "Color.Green";
+    }
+    if (held === Color["Blue"]) {
+        return "Color.Blue";
     }
     return "Color(" + String(value) + ")";
 }
@@ -256,7 +280,7 @@ export function pointClone(value: Point): Point {
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y);
+    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
 }
 
 export function pointHashCode(value: Point): number {
@@ -298,12 +322,12 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
 function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
         if (value.x !== undefined) {
-            result.x = value.x;
+            result["x"] = value.x;
         }
     }
     if (__fields === undefined || __fields.keeps("y")) {
         if (value.y !== undefined) {
-            result.y = value.y;
+            result["y"] = value.y;
         }
     }
 }
@@ -380,7 +404,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
         errors.push({ field: "x", message: "missing required field" });
@@ -438,8 +462,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "x" in o && "y" in o;
+    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -511,7 +534,7 @@ export function userProfileClone(value: UserProfile): UserProfile {
 
 export function userProfileEquals(a: UserProfile, b: UserProfile): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.username === b.username && a.email === b.email && a.age === b.age && a.isVerified === b.isVerified);
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.username === b.username && a.email === b.email && (a.age === b.age || a.age !== a.age && b.age !== b.age) && a.isVerified === b.isVerified);
 }
 
 export function userProfileHashCode(value: UserProfile): number {
@@ -556,27 +579,27 @@ export function userProfileEncodePartialWithContext(value: Partial<UserProfile>,
 function userProfileEncodeFields(value: UserProfile, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("username")) {
         if (value.username !== undefined) {
-            result.username = value.username;
+            result["username"] = value.username;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = value.email;
+            result["email"] = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("age")) {
         if (value.age !== undefined) {
-            result.age = value.age;
+            result["age"] = value.age;
         }
     }
     if (__fields === undefined || __fields.keeps("isVerified")) {
         if (value.isVerified !== undefined) {
-            result.isVerified = value.isVerified;
+            result["isVerified"] = value.isVerified;
         }
     }
 }
@@ -653,7 +676,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -747,8 +770,7 @@ export function userProfileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "username" in o && "email" in o && "age" in o && "isVerified" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "username") && __mf_holds(obj, "email") && __mf_holds(obj, "age") && __mf_holds(obj, "isVerified");
 }
 
 export function userProfileIs(obj: unknown): obj is UserProfile {
@@ -814,7 +836,7 @@ export function coordinate3DClone(value: Coordinate3D): Coordinate3D {
 
 export function coordinate3DEquals(a: Coordinate3D, b: Coordinate3D): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y && a.z === b.z);
+    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y) && (a.z === b.z || a.z !== a.z && b.z !== b.z));
 }
 
 export function coordinate3DHashCode(value: Coordinate3D): number {
@@ -1185,62 +1207,62 @@ export declare function demoTypeFunctions();
 
 ## Mapping
 
-original 0..527 -> expanded 852..1379
-original 527..675 -> expanded 4100..4248
-original 675..766 -> expanded 7259..7350
-original 766..950 -> expanded 8068..8252
-original 950..1143 -> expanded 18438..18631
-original 1143..1267 -> expanded 32566..32690
-original 1267..1364 -> expanded 34409..34506
-original 1364..3696 -> expanded 35107..37439
-generated 0..852 <- imports
-generated 1379..1614 <- Debug
-generated 1614..1688 <- Clone
-generated 1688..1773 <- PartialEq
-generated 1773..1928 <- Hash
-generated 1928..2338 <- Encode
-generated 2338..3477 <- Decode
-generated 3477..4100 <- __convenience_const
-generated 4248..4495 <- Debug
-generated 4495..4575 <- Clone
-generated 4575..4666 <- PartialEq
-generated 4666..4868 <- Hash
-generated 4868..5290 <- Encode
-generated 5290..6598 <- Decode
-generated 6598..7259 <- __convenience_const
-generated 7350..7579 <- Debug
-generated 7579..7661 <- PartialEq
-generated 7661..7857 <- Hash
-generated 7857..8068 <- __convenience_const
-generated 8252..8534 <- Debug
-generated 8534..8667 <- Clone
-generated 8667..8828 <- PartialEq
-generated 8828..9303 <- Hash
-generated 9303..11514 <- Encode
-generated 11514..17243 <- Decode
-generated 17243..18438 <- __convenience_const
-generated 18631..19100 <- Debug
-generated 19100..19342 <- Clone
-generated 19342..19612 <- PartialEq
-generated 19612..20367 <- Hash
-generated 20367..23186 <- Encode
-generated 23186..31197 <- Decode
-generated 31197..32566 <- __convenience_const
-generated 32690..33034 <- Debug
-generated 33034..33208 <- Clone
-generated 33208..33405 <- PartialEq
-generated 33405..34055 <- Hash
-generated 34055..34409 <- __convenience_const
-generated 34506..34618 <- Debug
-generated 34618..34742 <- PartialEq
-generated 34742..34846 <- Hash
-generated 34846..35107 <- __convenience_const
+original 0..527 -> expanded 904..1431
+original 527..675 -> expanded 4285..4433
+original 675..766 -> expanded 7650..7741
+original 766..950 -> expanded 8571..8755
+original 950..1143 -> expanded 18979..19172
+original 1143..1267 -> expanded 33166..33290
+original 1267..1364 -> expanded 35105..35202
+original 1364..3696 -> expanded 35803..38135
+generated 0..904 <- imports
+generated 1431..1799 <- Debug
+generated 1799..1873 <- Clone
+generated 1873..1958 <- PartialEq
+generated 1958..2113 <- Hash
+generated 2113..2523 <- Encode
+generated 2523..3662 <- Decode
+generated 3662..4285 <- __convenience_const
+generated 4433..4886 <- Debug
+generated 4886..4966 <- Clone
+generated 4966..5057 <- PartialEq
+generated 5057..5259 <- Hash
+generated 5259..5681 <- Encode
+generated 5681..6989 <- Decode
+generated 6989..7650 <- __convenience_const
+generated 7741..8082 <- Debug
+generated 8082..8164 <- PartialEq
+generated 8164..8360 <- Hash
+generated 8360..8571 <- __convenience_const
+generated 8755..9037 <- Debug
+generated 9037..9170 <- Clone
+generated 9170..9395 <- PartialEq
+generated 9395..9870 <- Hash
+generated 9870..12087 <- Encode
+generated 12087..17784 <- Decode
+generated 17784..18979 <- __convenience_const
+generated 19172..19641 <- Debug
+generated 19641..19883 <- Clone
+generated 19883..20193 <- PartialEq
+generated 20193..20948 <- Hash
+generated 20948..23782 <- Encode
+generated 23782..31797 <- Decode
+generated 31797..33166 <- __convenience_const
+generated 33290..33634 <- Debug
+generated 33634..33808 <- Clone
+generated 33808..34101 <- PartialEq
+generated 34101..34751 <- Hash
+generated 34751..35105 <- __convenience_const
+generated 35202..35314 <- Debug
+generated 35314..35438 <- PartialEq
+generated 35438..35542 <- Hash
+generated 35542..35803 <- __convenience_const
 
 ## Metadata
 
-enum Status: {"body_span":{"end":528,"start":451},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":431,"start":370}}],"is_const":false,"name":"Status","span":{"end":528,"start":439},"variants":[{"decorators":[],"name":"Active","span":{"end":474,"start":457},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":501,"start":480},"value":{"String":"inactive"}},{"decorators":[],"name":"Pending","span":{"end":526,"start":507},"value":{"String":"pending"}}]}
-enum Priority: {"body_span":{"end":676,"start":613},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":591,"start":530}}],"is_const":false,"name":"Priority","span":{"end":676,"start":599},"variants":[{"decorators":[],"name":"Low","span":{"end":626,"start":619},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":642,"start":632},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":656,"start":648},"value":{"Number":3.0}},{"decorators":[],"name":"Critical","span":{"end":674,"start":662},"value":{"Number":4.0}}]}
-enum Color: {"body_span":{"end":767,"start":735},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":716,"start":678}}],"is_const":false,"name":"Color","span":{"end":767,"start":724},"variants":[{"decorators":[],"name":"Red","span":{"end":744,"start":741},"value":{"Number":0.0}},{"decorators":[],"name":"Green","span":{"end":755,"start":750},"value":{"Number":1.0}},{"decorators":[],"name":"Blue","span":{"end":765,"start":761},"value":{"Number":2.0}}]}
+enum Status: {"body_span":{"end":528,"start":451},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":431,"start":370}}],"is_const":false,"is_declare":false,"name":"Status","span":{"end":528,"start":439},"variants":[{"decorators":[],"name":"Active","span":{"end":474,"start":457},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":501,"start":480},"value":{"String":"inactive"}},{"decorators":[],"name":"Pending","span":{"end":526,"start":507},"value":{"String":"pending"}}]}
+enum Priority: {"body_span":{"end":676,"start":613},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":591,"start":530}}],"is_const":false,"is_declare":false,"name":"Priority","span":{"end":676,"start":599},"variants":[{"decorators":[],"name":"Low","span":{"end":626,"start":619},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":642,"start":632},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":656,"start":648},"value":{"Number":3.0}},{"decorators":[],"name":"Critical","span":{"end":674,"start":662},"value":{"Number":4.0}}]}
+enum Color: {"body_span":{"end":767,"start":735},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":716,"start":678}}],"is_const":false,"is_declare":false,"name":"Color","span":{"end":767,"start":724},"variants":[{"decorators":[],"name":"Red","span":{"end":744,"start":741},"value":{"Number":0.0}},{"decorators":[],"name":"Green","span":{"end":755,"start":750},"value":{"Number":1.0}},{"decorators":[],"name":"Blue","span":{"end":765,"start":761},"value":{"Number":2.0}}]}
 type Point: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":933,"start":923},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":948,"start":938},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":896,"start":835}}],"name":"Point","span":{"end":951,"start":904},"type_params":[]}
 type UserProfile: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1058,"start":1047},"ts_type":"string"},{"decorators":[],"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":1080,"start":1063},"ts_type":"string"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":1099,"start":1085},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":1116,"start":1104},"ts_type":"number"},{"decorators":[],"key":"Named","name":"isVerified","optional":false,"readonly":false,"span":{"end":1141,"start":1121},"ts_type":"boolean"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1014,"start":953}}],"name":"UserProfile","span":{"end":1144,"start":1022},"type_params":[]}
 type Coordinate3D: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":1235,"start":1225},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":1250,"start":1240},"ts_type":"number"},{"decorators":[],"key":"Named","name":"z","optional":false,"readonly":false,"span":{"end":1265,"start":1255},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":1191,"start":1146}}],"name":"Coordinate3D","span":{"end":1268,"start":1199},"type_params":[]}

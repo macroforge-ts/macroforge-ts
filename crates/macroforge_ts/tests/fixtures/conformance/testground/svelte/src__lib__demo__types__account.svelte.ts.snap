@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -151,112 +151,112 @@ export function accountEncodePartialWithContext(value: Partial<Account>, ctx: __
 function accountEncodeFields(value: Account, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("taxRate")) {
         if (value.taxRate !== undefined) {
-            result.taxRate = (typeof value.taxRate === "string" ? value.taxRate : taxRateEncodeWithContext(value.taxRate, ctx));
+            result["taxRate"] = (typeof value.taxRate === "string" ? value.taxRate : taxRateEncodeWithContext(value.taxRate, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("site")) {
         if (value.site !== undefined) {
-            result.site = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
+            result["site"] = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("salesRep")) {
         if (value.salesRep !== undefined) {
-            result.salesRep = value.salesRep === null ? null : value.salesRep.map((__item0) => representsEncodeWithContext(__item0, ctx));
+            result["salesRep"] = value.salesRep === null ? null : value.salesRep.map((__item0) => representsEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("orders")) {
         if (value.orders !== undefined) {
-            result.orders = value.orders.map((__item0) => orderedEncodeWithContext(__item0, ctx));
+            result["orders"] = value.orders.map((__item0) => orderedEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("activity")) {
         if (value.activity !== undefined) {
-            result.activity = value.activity.map((__item0) => didEncodeWithContext(__item0, ctx));
+            result["activity"] = value.activity.map((__item0) => didEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("customFields")) {
         if (value.customFields !== undefined) {
-            result.customFields = value.customFields;
+            result["customFields"] = value.customFields;
         }
     }
     if (__fields === undefined || __fields.keeps("accountName")) {
         if (value.accountName !== undefined) {
-            result.accountName = accountNameEncodeWithContext(value.accountName, ctx);
+            result["accountName"] = accountNameEncodeWithContext(value.accountName, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("sector")) {
         if (value.sector !== undefined) {
-            result.sector = sectorEncodeWithContext(value.sector, ctx);
+            result["sector"] = sectorEncodeWithContext(value.sector, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("memo")) {
         if (value.memo !== undefined) {
-            result.memo = value.memo;
+            result["memo"] = value.memo;
         }
     }
     if (__fields === undefined || __fields.keeps("phones")) {
         if (value.phones !== undefined) {
-            result.phones = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
+            result["phones"] = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = emailEncodeWithContext(value.email, ctx);
+            result["email"] = emailEncodeWithContext(value.email, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("leadSource")) {
         if (value.leadSource !== undefined) {
-            result.leadSource = value.leadSource;
+            result["leadSource"] = value.leadSource;
         }
     }
     if (__fields === undefined || __fields.keeps("colors")) {
         if (value.colors !== undefined) {
-            result.colors = colorsEncodeWithContext(value.colors, ctx);
+            result["colors"] = colorsEncodeWithContext(value.colors, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("needsReview")) {
         if (value.needsReview !== undefined) {
-            result.needsReview = value.needsReview;
+            result["needsReview"] = value.needsReview;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAlert")) {
         if (value.hasAlert !== undefined) {
-            result.hasAlert = value.hasAlert;
+            result["hasAlert"] = value.hasAlert;
         }
     }
     if (__fields === undefined || __fields.keeps("accountType")) {
         if (value.accountType !== undefined) {
-            result.accountType = value.accountType;
+            result["accountType"] = value.accountType;
         }
     }
     if (__fields === undefined || __fields.keeps("subtype")) {
         if (value.subtype !== undefined) {
-            result.subtype = value.subtype;
+            result["subtype"] = value.subtype;
         }
     }
     if (__fields === undefined || __fields.keeps("isTaxExempt")) {
         if (value.isTaxExempt !== undefined) {
-            result.isTaxExempt = value.isTaxExempt;
+            result["isTaxExempt"] = value.isTaxExempt;
         }
     }
     if (__fields === undefined || __fields.keeps("paymentTerms")) {
         if (value.paymentTerms !== undefined) {
-            result.paymentTerms = value.paymentTerms;
+            result["paymentTerms"] = value.paymentTerms;
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags;
+            result["tags"] = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("dateAdded")) {
         if (value.dateAdded !== undefined) {
-            result.dateAdded = value.dateAdded;
+            result["dateAdded"] = value.dateAdded;
         }
     }
 }
@@ -333,7 +333,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -878,8 +878,7 @@ export function accountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "taxRate" in o && "site" in o && "salesRep" in o && "orders" in o && "activity" in o && "customFields" in o && "accountName" in o && "sector" in o && "memo" in o && "phones" in o && "email" in o && "leadSource" in o && "colors" in o && "needsReview" in o && "hasAlert" in o && "accountType" in o && "subtype" in o && "isTaxExempt" in o && "paymentTerms" in o && "tags" in o && "dateAdded" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "taxRate") && __mf_holds(obj, "site") && __mf_holds(obj, "salesRep") && __mf_holds(obj, "orders") && __mf_holds(obj, "activity") && __mf_holds(obj, "customFields") && __mf_holds(obj, "accountName") && __mf_holds(obj, "sector") && __mf_holds(obj, "memo") && __mf_holds(obj, "phones") && __mf_holds(obj, "email") && __mf_holds(obj, "leadSource") && __mf_holds(obj, "colors") && __mf_holds(obj, "needsReview") && __mf_holds(obj, "hasAlert") && __mf_holds(obj, "accountType") && __mf_holds(obj, "subtype") && __mf_holds(obj, "isTaxExempt") && __mf_holds(obj, "paymentTerms") && __mf_holds(obj, "tags") && __mf_holds(obj, "dateAdded");
 }
 
 export function accountIs(obj: unknown): obj is Account {
@@ -2066,44 +2065,44 @@ export declare const Account: {
 
 ## Mapping
 
-original 0..551 -> expanded 1815..2366
-original 600..632 -> expanded 2366..2398
-original 660..681 -> expanded 2398..2419
-original 781..786 -> expanded 2419..2424
-original 805..841 -> expanded 2424..2460
-original 890..895 -> expanded 2460..2465
-original 914..944 -> expanded 2465..2495
-original 1033..1078 -> expanded 2495..2540
-original 1106..1139 -> expanded 2540..2573
-original 1167..1198 -> expanded 2573..2604
-original 1258..1306 -> expanded 2604..2652
-original 1438..1473 -> expanded 2652..2687
-original 1654..1659 -> expanded 2687..2692
-original 1689..1714 -> expanded 2692..2717
-original 1759..1789 -> expanded 2717..2747
-original 1842..1879 -> expanded 2747..2784
-original 1927..1950 -> expanded 2784..2807
-original 2021..2026 -> expanded 2807..2812
-original 2067..2096 -> expanded 2812..2841
-original 2124..2149 -> expanded 2841..2866
-original 2200..2231 -> expanded 2866..2897
-original 2279..2307 -> expanded 2897..2925
-original 2379..2384 -> expanded 2925..2930
-original 2425..2455 -> expanded 2930..2960
-original 2522..2527 -> expanded 2960..2965
-original 2568..2594 -> expanded 2965..2991
-original 2643..2674 -> expanded 2991..3022
-original 2747..2752 -> expanded 3022..3027
-original 2793..2824 -> expanded 3027..3058
-original 2865..2895 -> expanded 3058..3088
-original 2923..2948 -> expanded 3088..3113
-original 2948..2949 -> expanded 79821..79822
-generated 0..1815 <- imports
-generated 3113..3743 <- Default
-generated 3743..9956 <- Encode
-generated 9956..40863 <- Decode
-generated 40863..78582 <- Gigaform
-generated 78582..79821 <- __convenience_const
+original 0..551 -> expanded 1867..2418
+original 600..632 -> expanded 2418..2450
+original 660..681 -> expanded 2450..2471
+original 781..786 -> expanded 2471..2476
+original 805..841 -> expanded 2476..2512
+original 890..895 -> expanded 2512..2517
+original 914..944 -> expanded 2517..2547
+original 1033..1078 -> expanded 2547..2592
+original 1106..1139 -> expanded 2592..2625
+original 1167..1198 -> expanded 2625..2656
+original 1258..1306 -> expanded 2656..2704
+original 1438..1473 -> expanded 2704..2739
+original 1654..1659 -> expanded 2739..2744
+original 1689..1714 -> expanded 2744..2769
+original 1759..1789 -> expanded 2769..2799
+original 1842..1879 -> expanded 2799..2836
+original 1927..1950 -> expanded 2836..2859
+original 2021..2026 -> expanded 2859..2864
+original 2067..2096 -> expanded 2864..2893
+original 2124..2149 -> expanded 2893..2918
+original 2200..2231 -> expanded 2918..2949
+original 2279..2307 -> expanded 2949..2977
+original 2379..2384 -> expanded 2977..2982
+original 2425..2455 -> expanded 2982..3012
+original 2522..2527 -> expanded 3012..3017
+original 2568..2594 -> expanded 3017..3043
+original 2643..2674 -> expanded 3043..3074
+original 2747..2752 -> expanded 3074..3079
+original 2793..2824 -> expanded 3079..3110
+original 2865..2895 -> expanded 3110..3140
+original 2923..2948 -> expanded 3140..3165
+original 2948..2949 -> expanded 80147..80148
+generated 0..1867 <- imports
+generated 3165..3795 <- Default
+generated 3795..10074 <- Encode
+generated 10074..41189 <- Decode
+generated 41189..78908 <- Gigaform
+generated 78908..80147 <- __convenience_const
 
 ## Metadata
 

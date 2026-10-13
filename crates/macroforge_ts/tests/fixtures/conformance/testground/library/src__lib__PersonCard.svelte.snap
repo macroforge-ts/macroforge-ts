@@ -56,7 +56,7 @@ export function cardLabelsEncodePartialWithContext(value: Partial<CardLabels>, c
 function cardLabelsEncodeFields(value: CardLabels, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("heading")) {
         if (value.heading !== undefined) {
-            result.heading = value.heading;
+            result["heading"] = value.heading;
         }
     }
 }
@@ -100,11 +100,11 @@ export declare const CardLabels: {
 
 original 0..5 -> expanded 458..463
 original 36..101 -> expanded 463..528
-original 101..102 -> expanded 3259..3260
+original 101..102 -> expanded 3262..3263
 generated 0..458 <- imports
 generated 528..627 <- Default
-generated 627..2795 <- Encode
-generated 2795..3259 <- __convenience_const
+generated 627..2798 <- Encode
+generated 2798..3262 <- __convenience_const
 
 ## Metadata
 

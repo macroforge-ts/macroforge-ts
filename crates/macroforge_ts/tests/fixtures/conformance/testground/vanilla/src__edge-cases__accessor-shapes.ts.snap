@@ -1,0 +1,190 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/accessor-shapes.ts
+sha256 7d3c85f9e0b74a05650532325f5e05d0840a2428c4fb2101439a7ef5bd3f7158
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+/**
+ * A class that keeps fields behind `accessor`, under the derives that read
+ * an instance. It has a module of its own because a runtime that takes no
+ * `accessor` as written cannot load one that declares it.
+ */
+
+/** @derive(Debug, PartialEq, Hash, Encode) */
+export class ClassAccessors {
+    accessor count = 0;
+    accessor label: string = 'a';
+    plain: number = 1;
+
+    static toString(value: ClassAccessors): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("count: " + String(value.count));
+        parts.push("label: " + String(value.label));
+        parts.push("plain: " + String(value.plain));
+            return "ClassAccessors { " + parts.join(", ") + " }";
+        });
+    }
+
+    static equals(a: ClassAccessors, b: ClassAccessors): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => (a.count === b.count || a.count !== a.count && b.count !== b.count) && a.label === b.label && (a.plain === b.plain || a.plain !== a.plain && b.plain !== b.plain));
+    }
+
+    static hashCode(value: ClassAccessors): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.plain) ? value.plain | 0 : value.plain.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: ClassAccessors, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassAccessors" });
+    ClassAccessors.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<ClassAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassAccessors>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ClassAccessors" };
+        ClassAccessors.#encodeFields(value as ClassAccessors, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: ClassAccessors, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result["count"] = value.count;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("label")) {
+        if (value.label !== undefined) {
+            result["label"] = value.label;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("plain")) {
+        if (value.plain !== undefined) {
+            result["plain"] = value.plain;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: ClassAccessors, keepMetadata?: boolean): string {
+        return classAccessorsEncode(value, keepMetadata);
+    }
+}
+
+export function classAccessorsToString(value: ClassAccessors): string {
+    return ClassAccessors.toString(value);
+}
+
+export function classAccessorsEquals(a: ClassAccessors, b: ClassAccessors): boolean {
+    return ClassAccessors.equals(a, b);
+}
+
+export function classAccessorsHashCode(value: ClassAccessors): number {
+    return ClassAccessors.hashCode(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function classAccessorsEncode(value: ClassAccessors, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = classAccessorsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function classAccessorsEncodeWithContext(value: ClassAccessors, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return ClassAccessors.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function classAccessorsEncodePartialWithContext(value: Partial<ClassAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassAccessors>): Record<string, unknown> {
+    return ClassAccessors.encodePartialWithContext(value, ctx, fields);
+}
+
+## DTS
+
+/**
+* A class that keeps fields behind `accessor`, under the derives that read
+* an instance. It has a module of its own because a runtime that takes no
+* `accessor` as written cannot load one that declares it.
+*/
+/** @derive(Debug, PartialEq, Hash, Encode) */
+export declare class ClassAccessors {
+	#private;
+	accessor count;
+	accessor label: string;
+	plain: number;
+	static toString(value: ClassAccessors): string;
+	static equals(a: ClassAccessors, b: ClassAccessors): boolean;
+	static hashCode(value: ClassAccessors): number;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: ClassAccessors, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<ClassAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassAccessors>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: ClassAccessors, keepMetadata?: boolean): string;
+}
+export declare function classAccessorsToString(value: ClassAccessors): string;
+export declare function classAccessorsEquals(a: ClassAccessors, b: ClassAccessors): boolean;
+export declare function classAccessorsHashCode(value: ClassAccessors): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function classAccessorsEncode(value: ClassAccessors, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function classAccessorsEncodeWithContext(value: ClassAccessors, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function classAccessorsEncodePartialWithContext(value: Partial<ClassAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassAccessors>): Record<string, unknown>;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..377 -> expanded 611..988
+original 377..378 -> expanded 4597..4598
+original 378..379 -> expanded 6363..6364
+generated 0..611 <- imports
+generated 988..1375 <- Debug
+generated 1375..1691 <- PartialEq
+generated 1691..2341 <- Hash
+generated 2341..4262 <- Encode
+generated 4262..4597 <- Encode
+generated 4598..4716 <- Debug
+generated 4716..4845 <- PartialEq
+generated 4845..4963 <- Hash
+generated 4963..6363 <- Encode
+
+## Metadata
+
+class ClassAccessors: {"body_span":{"end":379,"start":295},"decorators":[{"args_src":"Debug, PartialEq, Hash, Encode","name":"Derive","span":{"end":266,"start":220}}],"fields":[{"accessor":true,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":320,"start":301},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":true,"decorators":[],"initializer":"'a'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":354,"start":325},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":377,"start":359},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassAccessors","span":{"end":379,"start":274},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

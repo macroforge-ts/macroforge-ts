@@ -18,7 +18,7 @@ import { recurrenceRuleDecodeWithContext, recurrenceRuleEncodeWithContext } from
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { statusDecodeWithContext, statusEncodeWithContext } from "./status.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -121,72 +121,72 @@ export function appointmentEncodePartialWithContext(value: Partial<Appointment>,
 function appointmentEncodeFields(value: Appointment, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("title")) {
         if (value.title !== undefined) {
-            result.title = value.title;
+            result["title"] = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("status")) {
         if (value.status !== undefined) {
-            result.status = statusEncodeWithContext(value.status, ctx);
+            result["status"] = statusEncodeWithContext(value.status, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("begins")) {
         if (value.begins !== undefined) {
-            result.begins = __foreign__dateTimeDateTimeEncode(value.begins);
+            result["begins"] = __foreign__dateTimeDateTimeEncode(value.begins);
         }
     }
     if (__fields === undefined || __fields.keeps("duration")) {
         if (value.duration !== undefined) {
-            result.duration = value.duration;
+            result["duration"] = value.duration;
         }
     }
     if (__fields === undefined || __fields.keeps("timeZone")) {
         if (value.timeZone !== undefined) {
-            result.timeZone = value.timeZone;
+            result["timeZone"] = value.timeZone;
         }
     }
     if (__fields === undefined || __fields.keeps("offsetMs")) {
         if (value.offsetMs !== undefined) {
-            result.offsetMs = value.offsetMs;
+            result["offsetMs"] = value.offsetMs;
         }
     }
     if (__fields === undefined || __fields.keeps("allDay")) {
         if (value.allDay !== undefined) {
-            result.allDay = value.allDay;
+            result["allDay"] = value.allDay;
         }
     }
     if (__fields === undefined || __fields.keeps("multiDay")) {
         if (value.multiDay !== undefined) {
-            result.multiDay = value.multiDay;
+            result["multiDay"] = value.multiDay;
         }
     }
     if (__fields === undefined || __fields.keeps("employees")) {
         if (value.employees !== undefined) {
-            result.employees = value.employees.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
+            result["employees"] = value.employees.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("location")) {
         if (value.location !== undefined) {
-            result.location = (typeof value.location === "string" ? value.location : siteEncodeWithContext(value.location, ctx));
+            result["location"] = (typeof value.location === "string" ? value.location : siteEncodeWithContext(value.location, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("description")) {
         if (value.description !== undefined) {
-            result.description = __foreign__optionOptionEncode(value.description);
+            result["description"] = __foreign__optionOptionEncode(value.description);
         }
     }
     if (__fields === undefined || __fields.keeps("colors")) {
         if (value.colors !== undefined) {
-            result.colors = colorsEncodeWithContext(value.colors, ctx);
+            result["colors"] = colorsEncodeWithContext(value.colors, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("recurrenceRule")) {
         if (value.recurrenceRule !== undefined) {
-            result.recurrenceRule = value.recurrenceRule === null ? null : recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
+            result["recurrenceRule"] = value.recurrenceRule === null ? null : recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
         }
     }
 }
@@ -263,7 +263,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "Appointment.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -555,8 +555,7 @@ export function appointmentHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "title" in o && "status" in o && "begins" in o && "duration" in o && "timeZone" in o && "offsetMs" in o && "allDay" in o && "multiDay" in o && "employees" in o && "location" in o && "description" in o && "colors" in o && "recurrenceRule" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "title") && __mf_holds(obj, "status") && __mf_holds(obj, "begins") && __mf_holds(obj, "duration") && __mf_holds(obj, "timeZone") && __mf_holds(obj, "offsetMs") && __mf_holds(obj, "allDay") && __mf_holds(obj, "multiDay") && __mf_holds(obj, "employees") && __mf_holds(obj, "location") && __mf_holds(obj, "description") && __mf_holds(obj, "colors") && __mf_holds(obj, "recurrenceRule");
 }
 
 export function appointmentIs(obj: unknown): obj is Appointment {
@@ -1344,33 +1343,33 @@ export declare const Appointment: {
 
 ## Mapping
 
-original 0..359 -> expanded 1537..1896
-original 408..444 -> expanded 1896..1932
-original 472..493 -> expanded 1932..1953
-original 535..540 -> expanded 1953..1958
-original 581..605 -> expanded 1958..1982
-original 784..789 -> expanded 1982..1987
-original 817..842 -> expanded 1987..2012
-original 889..925 -> expanded 2012..2048
-original 980..1007 -> expanded 2048..2075
-original 1053..1080 -> expanded 2075..2102
-original 1108..1135 -> expanded 2102..2129
-original 1181..1207 -> expanded 2129..2155
-original 1255..1283 -> expanded 2155..2183
-original 1372..1418 -> expanded 2183..2229
-original 1471..1476 -> expanded 2229..2234
-original 1495..1529 -> expanded 2234..2268
-original 1581..1626 -> expanded 2268..2313
-original 1654..1659 -> expanded 2313..2318
-original 1732..1757 -> expanded 2318..2343
-original 1785..1830 -> expanded 2343..2388
-original 1830..1831 -> expanded 50109..50110
-generated 0..1537 <- imports
-generated 2388..2940 <- Default
-generated 2940..7695 <- Encode
-generated 7695..25702 <- Decode
-generated 25702..48762 <- Gigaform
-generated 48762..50109 <- __convenience_const
+original 0..359 -> expanded 1589..1948
+original 408..444 -> expanded 1948..1984
+original 472..493 -> expanded 1984..2005
+original 535..540 -> expanded 2005..2010
+original 581..605 -> expanded 2010..2034
+original 784..789 -> expanded 2034..2039
+original 817..842 -> expanded 2039..2064
+original 889..925 -> expanded 2064..2100
+original 980..1007 -> expanded 2100..2127
+original 1053..1080 -> expanded 2127..2154
+original 1108..1135 -> expanded 2154..2181
+original 1181..1207 -> expanded 2181..2207
+original 1255..1283 -> expanded 2207..2235
+original 1372..1418 -> expanded 2235..2281
+original 1471..1476 -> expanded 2281..2286
+original 1495..1529 -> expanded 2286..2320
+original 1581..1626 -> expanded 2320..2365
+original 1654..1659 -> expanded 2365..2370
+original 1732..1757 -> expanded 2370..2395
+original 1785..1830 -> expanded 2395..2440
+original 1830..1831 -> expanded 50315..50316
+generated 0..1589 <- imports
+generated 2440..2992 <- Default
+generated 2992..7789 <- Encode
+generated 7789..25908 <- Decode
+generated 25908..48968 <- Gigaform
+generated 48968..50315 <- __convenience_const
 
 ## Metadata
 

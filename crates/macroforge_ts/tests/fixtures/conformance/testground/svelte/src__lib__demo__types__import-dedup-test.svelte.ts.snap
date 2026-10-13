@@ -12,8 +12,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { equalWithin as __mf_equalWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 /**
  * Stress test for aliased imports and tree-shaking.
@@ -115,7 +115,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
         throw new __mf_DecodeError([{ field: "_root", message: "UserWithDecode.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -185,8 +185,7 @@ export function userWithDecodeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o && "email" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "age") && __mf_holds(obj, "email");
 }
 
 export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
@@ -220,13 +219,13 @@ export interface ComparableItem {
 
 export function comparableItemEquals(a: ComparableItem, b: ComparableItem): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.priority === b.priority && a.name === b.name);
+    return __mf_equalWithin(a, b, () => (a.priority === b.priority || a.priority !== a.priority && b.priority !== b.priority) && a.name === b.name);
 }
 
 export function comparableItemPartialCompare(a: ComparableItem, b: ComparableItem): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : a.priority === b.priority ? 0 : null);
+    const cmp0 = (a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : a.priority === b.priority || (a.priority !== a.priority && b.priority !== b.priority) ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
@@ -324,7 +323,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "FullFeaturedType.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -394,8 +393,7 @@ export function fullFeaturedTypeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "value" in o && "score" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "value") && __mf_holds(obj, "score");
 }
 
 export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
@@ -404,19 +402,19 @@ export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
 
 export function fullFeaturedTypeEquals(a: FullFeaturedType, b: FullFeaturedType): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.value === b.value && a.score === b.score);
+    return __mf_equalWithin(a, b, () => (a.id === b.id || a.id !== a.id && b.id !== b.id) && a.value === b.value && (a.score === b.score || a.score !== a.score && b.score !== b.score));
 }
 
 export function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeaturedType): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
+    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.value < b.value ? -1 : a.value > b.value ? 1 : 0);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
-    const cmp2 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
+    const cmp2 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null);
     if (cmp2 === null) return null;
     if (cmp2 !== 0) return cmp2;
         return 0;
@@ -523,7 +521,7 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "TypeA.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("fieldA")) && !("fieldA" in obj)) {
         errors.push({ field: "fieldA", message: "missing required field" });
@@ -569,8 +567,7 @@ export function typeAHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "fieldA" in o;
+    return __mf_holds(obj, "fieldA");
 }
 
 export function typeAIs(obj: unknown): obj is TypeA {
@@ -672,7 +669,7 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "TypeB.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("fieldB")) && !("fieldB" in obj)) {
         errors.push({ field: "fieldB", message: "missing required field" });
@@ -718,8 +715,7 @@ export function typeBHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "fieldB" in o;
+    return __mf_holds(obj, "fieldB");
 }
 
 export function typeBIs(obj: unknown): obj is TypeB {
@@ -751,13 +747,13 @@ export interface TypeC {
 
 export function typeCEquals(a: TypeC, b: TypeC): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.fieldC === b.fieldC);
+    return __mf_equalWithin(a, b, () => a.fieldC === b.fieldC || a.fieldC !== a.fieldC && b.fieldC !== b.fieldC);
 }
 
 export function typeCPartialCompare(a: TypeC, b: TypeC): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : a.fieldC === b.fieldC ? 0 : null);
+    const cmp0 = (a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : a.fieldC === b.fieldC || (a.fieldC !== a.fieldC && b.fieldC !== b.fieldC) ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
         return 0;
@@ -983,36 +979,36 @@ export declare function verifyImports(): void;
 
 ## Mapping
 
-original 0..745 -> expanded 468..1213
-original 767..857 -> expanded 1213..1303
-original 857..921 -> expanded 8822..8886
-original 958..1034 -> expanded 8886..8962
-original 1034..1084 -> expanded 9926..9976
-original 1129..1221 -> expanded 9976..10068
-original 1221..1291 -> expanded 18781..18851
-original 1313..1360 -> expanded 18851..18898
-original 1360..1362 -> expanded 24777..24779
-original 1384..1431 -> expanded 24779..24826
-original 1431..1433 -> expanded 30705..30707
-original 1470..1517 -> expanded 30707..30754
-original 1517..2163 -> expanded 31446..32092
-generated 0..468 <- imports
-generated 1303..8054 <- Decode
-generated 8054..8822 <- __convenience_const
-generated 8962..9170 <- PartialEq
-generated 9170..9694 <- PartialOrd
-generated 9694..9926 <- __convenience_const
-generated 10068..16889 <- Decode
-generated 16889..17116 <- PartialEq
-generated 17116..17783 <- PartialOrd
-generated 17783..18781 <- __convenience_const
-generated 18898..24144 <- Decode
-generated 24144..24777 <- __convenience_const
-generated 24826..30072 <- Decode
-generated 30072..30705 <- __convenience_const
-generated 30754..30910 <- PartialEq
-generated 30910..31259 <- PartialOrd
-generated 31259..31446 <- __convenience_const
+original 0..745 -> expanded 520..1265
+original 767..857 -> expanded 1265..1355
+original 857..921 -> expanded 8854..8918
+original 958..1034 -> expanded 8918..8994
+original 1034..1084 -> expanded 10078..10128
+original 1129..1221 -> expanded 10128..10220
+original 1221..1291 -> expanded 19081..19151
+original 1313..1360 -> expanded 19151..19198
+original 1360..1362 -> expanded 25033..25035
+original 1384..1431 -> expanded 25035..25082
+original 1431..1433 -> expanded 30917..30919
+original 1470..1517 -> expanded 30919..30966
+original 1517..2163 -> expanded 31760..32406
+generated 0..520 <- imports
+generated 1355..8086 <- Decode
+generated 8086..8854 <- __convenience_const
+generated 8994..9262 <- PartialEq
+generated 9262..9846 <- PartialOrd
+generated 9846..10078 <- __convenience_const
+generated 10220..17021 <- Decode
+generated 17021..17332 <- PartialEq
+generated 17332..18083 <- PartialOrd
+generated 18083..19081 <- __convenience_const
+generated 19198..24400 <- Decode
+generated 24400..25033 <- __convenience_const
+generated 25082..30284 <- Decode
+generated 30284..30917 <- __convenience_const
+generated 30966..31172 <- PartialEq
+generated 31172..31573 <- PartialOrd
+generated 31573..31760 <- __convenience_const
 
 ## Metadata
 

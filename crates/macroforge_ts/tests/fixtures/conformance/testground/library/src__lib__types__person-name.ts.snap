@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface PersonName {
@@ -59,12 +59,12 @@ export function personNameEncodePartialWithContext(value: Partial<PersonName>, c
 function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("firstName")) {
         if (value.firstName !== undefined) {
-            result.firstName = value.firstName;
+            result["firstName"] = value.firstName;
         }
     }
     if (__fields === undefined || __fields.keeps("lastName")) {
         if (value.lastName !== undefined) {
-            result.lastName = value.lastName;
+            result["lastName"] = value.lastName;
         }
     }
 }
@@ -141,7 +141,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "PersonName.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("firstName")) && !("firstName" in obj)) {
         errors.push({ field: "firstName", message: "missing required field" });
@@ -229,8 +229,7 @@ export function personNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "firstName" in o && "lastName" in o;
+    return __mf_holds(obj, "firstName") && __mf_holds(obj, "lastName");
 }
 
 export function personNameIs(obj: unknown): obj is PersonName {
@@ -323,15 +322,15 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 39..74 -> expanded 596..631
-original 115..143 -> expanded 631..659
-original 184..208 -> expanded 659..683
-original 208..209 -> expanded 12396..12397
-generated 0..596 <- imports
-generated 683..806 <- Default
-generated 806..3152 <- Encode
-generated 3152..11260 <- Decode
-generated 11260..12396 <- __convenience_const
+original 39..74 -> expanded 648..683
+original 115..143 -> expanded 683..711
+original 184..208 -> expanded 711..735
+original 208..209 -> expanded 12422..12423
+generated 0..648 <- imports
+generated 735..858 <- Default
+generated 858..3210 <- Encode
+generated 3210..11286 <- Decode
+generated 11286..12422 <- __convenience_const
 
 ## Metadata
 

@@ -5,7 +5,10 @@
  */
 
 import { assert, assertEquals, assertNotStrictEquals, assertStrictEquals } from '@std/assert';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import ts from 'typescript';
+import { expandSync } from '@macroforge/core';
 import { expandAndCompile } from './validators/helpers.mjs';
 import { vanillaRoot } from './test-utils.mjs';
 
@@ -240,6 +243,107 @@ Deno.test('a function held in a field is carried by reference', () => {
     other.onChange = () => {};
     assert(!mod.ClassCallback.equals(blank, other));
     assert(mod.ClassCallback.toString(blank).includes('name'));
+});
+
+Deno.test('a field without an annotation is coded by the type its initializer makes plain', () => {
+    const blank = mod.ClassInferred.defaultValue();
+    assert(blank instanceof mod.ClassInferred);
+    assertEquals(
+        { ...blank },
+        {
+            count: 0,
+            label: 'none',
+            active: false,
+            big: 10n,
+            offset: -1,
+            note: 'n1',
+            at: new Date(0),
+            tags: new Set(),
+            ratio: 0.5,
+            kind: 'inferred',
+            rank: 3,
+            id: '',
+            secret: 7
+        }
+    );
+
+    blank.tags.add('a');
+    const encoded = JSON.parse(mod.ClassInferred.encode(blank));
+    assertEquals(encoded, {
+        count: 0,
+        label: 'none',
+        active: false,
+        big: '10',
+        offset: -1,
+        note: 'n1',
+        at: '1970-01-01T00:00:00.000Z',
+        tags: ['a'],
+        ratio: 0.5,
+        kind: 'inferred',
+        rank: 3,
+        id: '',
+        secret: 7
+    });
+    const value = decoded(mod.ClassInferred.decode(encoded));
+    assert(value instanceof mod.ClassInferred);
+    assert(value.at instanceof Date);
+    assert(value.tags instanceof Set);
+    assertStrictEquals(value.big, 10n);
+    assertStrictEquals(value.reveal(), 7);
+    assert(mod.ClassInferred.equals(value, blank));
+    assertStrictEquals(mod.ClassInferred.hashCode(value), mod.ClassInferred.hashCode(blank));
+
+    const copy = mod.ClassInferred.clone(blank);
+    assertNotStrictEquals(copy.at, blank.at);
+    assertNotStrictEquals(copy.tags, blank.tags);
+    copy.tags.add('b');
+    assert(!mod.ClassInferred.equals(copy, blank));
+
+    // Each field refuses what its initializer's type does not hold.
+    const fieldsOf = (change) => errorFields(mod.ClassInferred.decode({ ...encoded, ...change }));
+    assertEquals(fieldsOf({ count: '0' }), ['count']);
+    assertEquals(fieldsOf({ label: 1 }), ['label']);
+    assertEquals(fieldsOf({ active: 'no' }), ['active']);
+    assertEquals(fieldsOf({ big: 'ten' }), ['big']);
+    assertEquals(fieldsOf({ offset: null }), ['offset']);
+    assertEquals(fieldsOf({ note: 5 }), ['note']);
+    assertEquals(fieldsOf({ at: 'never' }), ['at']);
+    assertEquals(fieldsOf({ tags: [1] }), ['tags[0]']);
+    assertEquals(fieldsOf({ ratio: 'half' }), ['ratio']);
+    assertEquals(fieldsOf({ kind: 'other' }), ['kind']);
+    assertEquals(fieldsOf({ rank: 4 }), ['rank']);
+    assertEquals(fieldsOf({ id: 1 }), ['id']);
+    assertEquals(fieldsOf({ secret: '7' }), ['secret']);
+});
+
+Deno.test('an accessor field is read like any other', async () => {
+    // Deno takes no `accessor` as written, so the expansion is lowered first.
+    const source = join(vanillaRoot, 'src', 'edge-cases', 'accessor-shapes.ts');
+    const expanded = expandSync(readFileSync(source, 'utf8'), source);
+    assertEquals(expanded.diagnostics.filter((diagnostic) => diagnostic.level === 'error'), []);
+    const lowered = ts.transpileModule(expanded.code, {
+        compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }
+    });
+    const directory = join(import.meta.dirname, 'validators', '.temp');
+    mkdirSync(directory, { recursive: true });
+    const file = join(directory, 'accessor-shapes.mjs');
+    writeFileSync(file, lowered.outputText);
+    const { ClassAccessors } = await import(file);
+
+    const one = new ClassAccessors();
+    one.count = 2;
+    const other = new ClassAccessors();
+    assert(!ClassAccessors.equals(one, other));
+    other.count = 2;
+    assert(ClassAccessors.equals(one, other));
+    assertStrictEquals(ClassAccessors.hashCode(one), ClassAccessors.hashCode(other));
+    other.label = 'b';
+    assert(!ClassAccessors.equals(one, other));
+    assertStrictEquals(
+        ClassAccessors.toString(one),
+        'ClassAccessors { count: 2, label: a, plain: 1 }'
+    );
+    assertEquals(JSON.parse(ClassAccessors.encode(one)), { count: 2, label: 'a', plain: 1 });
 });
 
 Deno.test('an interface is coded, cloned and compared with the fields of what it extends', () => {

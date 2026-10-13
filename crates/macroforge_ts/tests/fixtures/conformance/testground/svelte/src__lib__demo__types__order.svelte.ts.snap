@@ -22,7 +22,7 @@ import { paymentDecodeWithContext, paymentEncodeWithContext } from "./payment.sv
 import { promotionDecodeWithContext, promotionEncodeWithContext } from "./promotion.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -177,147 +177,147 @@ export function orderEncodePartialWithContext(value: Partial<Order>, ctx: __mf_E
 function orderEncodeFields(value: Order, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("account")) {
         if (value.account !== undefined) {
-            result.account = (typeof value.account === "string" ? value.account : accountEncodeWithContext(value.account, ctx));
+            result["account"] = (typeof value.account === "string" ? value.account : accountEncodeWithContext(value.account, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("stage")) {
         if (value.stage !== undefined) {
-            result.stage = orderStageEncodeWithContext(value.stage, ctx);
+            result["stage"] = orderStageEncodeWithContext(value.stage, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("number")) {
         if (value.number !== undefined) {
-            result.number = value.number;
+            result["number"] = value.number;
         }
     }
     if (__fields === undefined || __fields.keeps("payments")) {
         if (value.payments !== undefined) {
-            result.payments = value.payments.map((__item0) => (typeof __item0 === "string" ? __item0 : paymentEncodeWithContext(__item0, ctx)));
+            result["payments"] = value.payments.map((__item0) => (typeof __item0 === "string" ? __item0 : paymentEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("opportunity")) {
         if (value.opportunity !== undefined) {
-            result.opportunity = value.opportunity;
+            result["opportunity"] = value.opportunity;
         }
     }
     if (__fields === undefined || __fields.keeps("reference")) {
         if (value.reference !== undefined) {
-            result.reference = value.reference;
+            result["reference"] = value.reference;
         }
     }
     if (__fields === undefined || __fields.keeps("leadSource")) {
         if (value.leadSource !== undefined) {
-            result.leadSource = value.leadSource;
+            result["leadSource"] = value.leadSource;
         }
     }
     if (__fields === undefined || __fields.keeps("salesRep")) {
         if (value.salesRep !== undefined) {
-            result.salesRep = (typeof value.salesRep === "string" ? value.salesRep : employeeEncodeWithContext(value.salesRep, ctx));
+            result["salesRep"] = (typeof value.salesRep === "string" ? value.salesRep : employeeEncodeWithContext(value.salesRep, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("group")) {
         if (value.group !== undefined) {
-            result.group = value.group;
+            result["group"] = value.group;
         }
     }
     if (__fields === undefined || __fields.keeps("subgroup")) {
         if (value.subgroup !== undefined) {
-            result.subgroup = value.subgroup;
+            result["subgroup"] = value.subgroup;
         }
     }
     if (__fields === undefined || __fields.keeps("isPosted")) {
         if (value.isPosted !== undefined) {
-            result.isPosted = value.isPosted;
+            result["isPosted"] = value.isPosted;
         }
     }
     if (__fields === undefined || __fields.keeps("needsReview")) {
         if (value.needsReview !== undefined) {
-            result.needsReview = value.needsReview;
+            result["needsReview"] = value.needsReview;
         }
     }
     if (__fields === undefined || __fields.keeps("actionItem")) {
         if (value.actionItem !== undefined) {
-            result.actionItem = value.actionItem;
+            result["actionItem"] = value.actionItem;
         }
     }
     if (__fields === undefined || __fields.keeps("upsale")) {
         if (value.upsale !== undefined) {
-            result.upsale = value.upsale;
+            result["upsale"] = value.upsale;
         }
     }
     if (__fields === undefined || __fields.keeps("dateCreated")) {
         if (value.dateCreated !== undefined) {
-            result.dateCreated = __foreign__dateTimeDateTimeEncode(value.dateCreated);
+            result["dateCreated"] = __foreign__dateTimeDateTimeEncode(value.dateCreated);
         }
     }
     if (__fields === undefined || __fields.keeps("appointment")) {
         if (value.appointment !== undefined) {
-            result.appointment = (typeof value.appointment === "string" ? value.appointment : appointmentEncodeWithContext(value.appointment, ctx));
+            result["appointment"] = (typeof value.appointment === "string" ? value.appointment : appointmentEncodeWithContext(value.appointment, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("lastTechs")) {
         if (value.lastTechs !== undefined) {
-            result.lastTechs = value.lastTechs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
+            result["lastTechs"] = value.lastTechs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("package")) {
         if (value.package !== undefined) {
-            result.package = value.package === null ? null : value.package.map((__item0) => (typeof __item0 === "string" ? __item0 : packageEncodeWithContext(__item0, ctx)));
+            result["package"] = value.package === null ? null : value.package.map((__item0) => (typeof __item0 === "string" ? __item0 : packageEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("promotion")) {
         if (value.promotion !== undefined) {
-            result.promotion = value.promotion === null ? null : value.promotion.map((__item0) => (typeof __item0 === "string" ? __item0 : promotionEncodeWithContext(__item0, ctx)));
+            result["promotion"] = value.promotion === null ? null : value.promotion.map((__item0) => (typeof __item0 === "string" ? __item0 : promotionEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = value.balance;
+            result["balance"] = value.balance;
         }
     }
     if (__fields === undefined || __fields.keeps("due")) {
         if (value.due !== undefined) {
-            result.due = __foreign__dateTimeDateTimeEncode(value.due);
+            result["due"] = __foreign__dateTimeDateTimeEncode(value.due);
         }
     }
     if (__fields === undefined || __fields.keeps("total")) {
         if (value.total !== undefined) {
-            result.total = value.total;
+            result["total"] = value.total;
         }
     }
     if (__fields === undefined || __fields.keeps("site")) {
         if (value.site !== undefined) {
-            result.site = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
+            result["site"] = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("billedItems")) {
         if (value.billedItems !== undefined) {
-            result.billedItems = value.billedItems.map((__item0) => billedItemEncodeWithContext(__item0, ctx));
+            result["billedItems"] = value.billedItems.map((__item0) => billedItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("memo")) {
         if (value.memo !== undefined) {
-            result.memo = __foreign__optionOptionEncode(value.memo);
+            result["memo"] = __foreign__optionOptionEncode(value.memo);
         }
     }
     if (__fields === undefined || __fields.keeps("discount")) {
         if (value.discount !== undefined) {
-            result.discount = value.discount;
+            result["discount"] = value.discount;
         }
     }
     if (__fields === undefined || __fields.keeps("tip")) {
         if (value.tip !== undefined) {
-            result.tip = value.tip;
+            result["tip"] = value.tip;
         }
     }
     if (__fields === undefined || __fields.keeps("commissions")) {
         if (value.commissions !== undefined) {
-            result.commissions = value.commissions;
+            result["commissions"] = value.commissions;
         }
     }
 }
@@ -394,7 +394,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Order.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -1046,8 +1046,7 @@ export function orderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "account" in o && "stage" in o && "number" in o && "payments" in o && "opportunity" in o && "reference" in o && "leadSource" in o && "salesRep" in o && "group" in o && "subgroup" in o && "isPosted" in o && "needsReview" in o && "actionItem" in o && "upsale" in o && "dateCreated" in o && "appointment" in o && "lastTechs" in o && "package" in o && "promotion" in o && "balance" in o && "due" in o && "total" in o && "site" in o && "billedItems" in o && "memo" in o && "discount" in o && "tip" in o && "commissions" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "account") && __mf_holds(obj, "stage") && __mf_holds(obj, "number") && __mf_holds(obj, "payments") && __mf_holds(obj, "opportunity") && __mf_holds(obj, "reference") && __mf_holds(obj, "leadSource") && __mf_holds(obj, "salesRep") && __mf_holds(obj, "group") && __mf_holds(obj, "subgroup") && __mf_holds(obj, "isPosted") && __mf_holds(obj, "needsReview") && __mf_holds(obj, "actionItem") && __mf_holds(obj, "upsale") && __mf_holds(obj, "dateCreated") && __mf_holds(obj, "appointment") && __mf_holds(obj, "lastTechs") && __mf_holds(obj, "package") && __mf_holds(obj, "promotion") && __mf_holds(obj, "balance") && __mf_holds(obj, "due") && __mf_holds(obj, "total") && __mf_holds(obj, "site") && __mf_holds(obj, "billedItems") && __mf_holds(obj, "memo") && __mf_holds(obj, "discount") && __mf_holds(obj, "tip") && __mf_holds(obj, "commissions");
 }
 
 export function orderIs(obj: unknown): obj is Order {
@@ -2388,55 +2387,55 @@ export declare const Order: {
 
 ## Mapping
 
-original 0..570 -> expanded 1889..2459
-original 619..649 -> expanded 2459..2489
-original 677..698 -> expanded 2489..2510
-original 796..801 -> expanded 2510..2515
-original 820..856 -> expanded 2515..2551
-original 1031..1036 -> expanded 2551..2556
-original 1063..1091 -> expanded 2556..2584
-original 1119..1144 -> expanded 2584..2609
-original 1172..1216 -> expanded 2609..2653
-original 1264..1269 -> expanded 2653..2658
-original 1310..1340 -> expanded 2658..2688
-original 1386..1391 -> expanded 2688..2693
-original 1432..1460 -> expanded 2693..2721
-original 1531..1536 -> expanded 2721..2726
-original 1577..1606 -> expanded 2726..2755
-original 1707..1712 -> expanded 2755..2760
-original 1731..1769 -> expanded 2760..2798
-original 1834..1839 -> expanded 2798..2803
-original 1880..1904 -> expanded 2803..2827
-original 1972..1977 -> expanded 2827..2832
-original 2018..2045 -> expanded 2832..2859
-original 2090..2118 -> expanded 2859..2887
-original 2169..2200 -> expanded 2887..2918
-original 2248..2253 -> expanded 2918..2923
-original 2294..2323 -> expanded 2923..2952
-original 2351..2376 -> expanded 2952..2977
-original 2404..2445 -> expanded 2977..3018
-original 2551..2556 -> expanded 3018..3023
-original 2575..2619 -> expanded 3023..3067
-original 2710..2756 -> expanded 3067..3113
-original 2784..2834 -> expanded 3113..3163
-original 2862..2916 -> expanded 3163..3217
-original 2944..2970 -> expanded 3217..3243
-original 3014..3047 -> expanded 3243..3276
-original 3075..3099 -> expanded 3276..3300
-original 3148..3153 -> expanded 3300..3305
-original 3172..3202 -> expanded 3305..3335
-original 3261..3302 -> expanded 3335..3376
-original 3347..3385 -> expanded 3376..3414
-original 3413..3440 -> expanded 3414..3441
-original 3468..3490 -> expanded 3441..3463
-original 3518..3552 -> expanded 3463..3497
-original 3552..3553 -> expanded 93455..93456
-generated 0..1889 <- imports
-generated 3497..4298 <- Default
-generated 4298..12100 <- Encode
-generated 12100..49547 <- Decode
-generated 49547..92270 <- Gigaform
-generated 92270..93455 <- __convenience_const
+original 0..570 -> expanded 1941..2511
+original 619..649 -> expanded 2511..2541
+original 677..698 -> expanded 2541..2562
+original 796..801 -> expanded 2562..2567
+original 820..856 -> expanded 2567..2603
+original 1031..1036 -> expanded 2603..2608
+original 1063..1091 -> expanded 2608..2636
+original 1119..1144 -> expanded 2636..2661
+original 1172..1216 -> expanded 2661..2705
+original 1264..1269 -> expanded 2705..2710
+original 1310..1340 -> expanded 2710..2740
+original 1386..1391 -> expanded 2740..2745
+original 1432..1460 -> expanded 2745..2773
+original 1531..1536 -> expanded 2773..2778
+original 1577..1606 -> expanded 2778..2807
+original 1707..1712 -> expanded 2807..2812
+original 1731..1769 -> expanded 2812..2850
+original 1834..1839 -> expanded 2850..2855
+original 1880..1904 -> expanded 2855..2879
+original 1972..1977 -> expanded 2879..2884
+original 2018..2045 -> expanded 2884..2911
+original 2090..2118 -> expanded 2911..2939
+original 2169..2200 -> expanded 2939..2970
+original 2248..2253 -> expanded 2970..2975
+original 2294..2323 -> expanded 2975..3004
+original 2351..2376 -> expanded 3004..3029
+original 2404..2445 -> expanded 3029..3070
+original 2551..2556 -> expanded 3070..3075
+original 2575..2619 -> expanded 3075..3119
+original 2710..2756 -> expanded 3119..3165
+original 2784..2834 -> expanded 3165..3215
+original 2862..2916 -> expanded 3215..3269
+original 2944..2970 -> expanded 3269..3295
+original 3014..3047 -> expanded 3295..3328
+original 3075..3099 -> expanded 3328..3352
+original 3148..3153 -> expanded 3352..3357
+original 3172..3202 -> expanded 3357..3387
+original 3261..3302 -> expanded 3387..3428
+original 3347..3385 -> expanded 3428..3466
+original 3413..3440 -> expanded 3466..3493
+original 3468..3490 -> expanded 3493..3515
+original 3518..3552 -> expanded 3515..3549
+original 3552..3553 -> expanded 93886..93887
+generated 0..1941 <- imports
+generated 3549..4350 <- Default
+generated 4350..12239 <- Encode
+generated 12239..49978 <- Decode
+generated 49978..92701 <- Gigaform
+generated 92701..93886 <- __convenience_const
 
 ## Metadata
 

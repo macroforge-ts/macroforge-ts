@@ -15,7 +15,7 @@ true
 import { edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeItemDecodeWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 /**
  * Generic types: parameters with constraints and defaults, parameters used
  * in every position a field can hold one, and fields that instantiate
@@ -124,42 +124,42 @@ export function genericBoxEncodePartialWithContext<T>(value: Partial<GenericBox<
 function genericBoxEncodeFields<T>(value: GenericBox<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
+            result["held"] = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+            result["list"] = value.list.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : (__encodeT === undefined ? value.maybe : __encodeT(value.maybe, ctx));
+            result["maybe"] = value.maybe === null ? null : (__encodeT === undefined ? value.maybe : __encodeT(value.maybe, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("optional")) {
         if (value.optional !== undefined) {
-            result.optional = (__encodeT === undefined ? value.optional : __encodeT(value.optional, ctx));
+            result["optional"] = (__encodeT === undefined ? value.optional : __encodeT(value.optional, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx))]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("set")) {
         if (value.set !== undefined) {
-            result.set = Array.from(value.set, (__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+            result["set"] = Array.from(value.set, (__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result.record = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx))]));
+            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = [(__encodeT === undefined ? value.pair[0] : __encodeT(value.pair[0], ctx)), (__encodeT === undefined ? value.pair[1] : __encodeT(value.pair[1], ctx))];
+            result["pair"] = [(__encodeT === undefined ? value.pair[0] : __encodeT(value.pair[0], ctx)), (__encodeT === undefined ? value.pair[1] : __encodeT(value.pair[1], ctx))];
         }
     }
 }
@@ -236,7 +236,7 @@ export function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeC
         throw new __mf_DecodeError([{ field: "_root", message: "GenericBox.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
         errors.push({ field: "held", message: "missing required field" });
@@ -484,8 +484,7 @@ export function genericBoxHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "held" in o && "list" in o && "maybe" in o && "byName" in o && "set" in o && "record" in o && "pair" in o;
+    return __mf_holds(obj, "held") && __mf_holds(obj, "list") && __mf_holds(obj, "maybe") && __mf_holds(obj, "byName") && __mf_holds(obj, "set") && __mf_holds(obj, "record") && __mf_holds(obj, "pair");
 }
 
 export function genericBoxIs<T>(obj: unknown): obj is GenericBox<T> {
@@ -590,12 +589,12 @@ export function genericPairEncodePartialWithContext<Left, Right = Left>(value: P
 function genericPairEncodeFields<Left, Right = Left>(value: GenericPair<Left, Right>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeLeft?: __mf_Encoder<Left>, __encodeRight?: __mf_Encoder<Right>): void {
     if (__fields === undefined || __fields.keeps("left")) {
         if (value.left !== undefined) {
-            result.left = (__encodeLeft === undefined ? value.left : __encodeLeft(value.left, ctx));
+            result["left"] = (__encodeLeft === undefined ? value.left : __encodeLeft(value.left, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("right")) {
         if (value.right !== undefined) {
-            result.right = (__encodeRight === undefined ? value.right : __encodeRight(value.right, ctx));
+            result["right"] = (__encodeRight === undefined ? value.right : __encodeRight(value.right, ctx));
         }
     }
 }
@@ -672,7 +671,7 @@ export function genericPairDecodeWithContext<Left, Right = Left>(value: unknown,
         throw new __mf_DecodeError([{ field: "_root", message: "GenericPair.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("left")) && !("left" in obj)) {
         errors.push({ field: "left", message: "missing required field" });
@@ -756,8 +755,7 @@ export function genericPairHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "left" in o && "right" in o;
+    return __mf_holds(obj, "left") && __mf_holds(obj, "right");
 }
 
 export function genericPairIs<Left, Right = Left>(obj: unknown): obj is GenericPair<Left, Right> {
@@ -869,17 +867,17 @@ export function genericConstrainedEncodePartialWithContext<Item extends EdgeItem
 function genericConstrainedEncodeFields<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeItem?: __mf_Encoder<Item>, __encodeName?: __mf_Encoder<Name>): void {
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = (__encodeItem === undefined ? value.item : __encodeItem(value.item, ctx));
+            result["item"] = (__encodeItem === undefined ? value.item : __encodeItem(value.item, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = (__encodeName === undefined ? value.name : __encodeName(value.name, ctx));
+            result["name"] = (__encodeName === undefined ? value.name : __encodeName(value.name, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("items")) {
         if (value.items !== undefined) {
-            result.items = value.items.map((__item0) => (__encodeItem === undefined ? __item0 : __encodeItem(__item0, ctx)));
+            result["items"] = value.items.map((__item0) => (__encodeItem === undefined ? __item0 : __encodeItem(__item0, ctx)));
         }
     }
 }
@@ -956,7 +954,7 @@ export function genericConstrainedDecodeWithContext<Item extends EdgeItem, Name 
         throw new __mf_DecodeError([{ field: "_root", message: "GenericConstrained.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
         errors.push({ field: "item", message: "missing required field" });
@@ -1067,8 +1065,7 @@ export function genericConstrainedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "item" in o && "name" in o && "items" in o;
+    return __mf_holds(obj, "item") && __mf_holds(obj, "name") && __mf_holds(obj, "items");
 }
 
 export function genericConstrainedIs<Item extends EdgeItem, Name extends string = string>(obj: unknown): obj is GenericConstrained<Item, Name> {
@@ -1136,7 +1133,7 @@ export class GenericStack<T> {
         return __mf_equalWithin(a, b, () => a.items.length === b.items.length && a.items.every((__item0, __index0) => {
         	const __other0 = b.items[__index0];
         	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-        }) && __mf_structuralEquals(a.top, b.top) && a.depth === b.depth);
+        }) && __mf_structuralEquals(a.top, b.top) && (a.depth === b.depth || a.depth !== a.depth && b.depth !== b.depth));
     }
 
     static hashCode<T>(value: GenericStack<T>): number {
@@ -1181,17 +1178,17 @@ static encodePartialWithContext<T>(value: Partial<GenericStack<T>>, ctx: __mf_En
 static #encodeFields<T>(value: GenericStack<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("items")) {
         if (value.items !== undefined) {
-            result.items = value.items.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+            result["items"] = value.items.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("top")) {
         if (value.top !== undefined) {
-            result.top = value.top === null ? null : (__encodeT === undefined ? value.top : __encodeT(value.top, ctx));
+            result["top"] = value.top === null ? null : (__encodeT === undefined ? value.top : __encodeT(value.top, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("depth")) {
         if (value.depth !== undefined) {
-            result.depth = value.depth;
+            result["depth"] = value.depth;
         }
     }
 }
@@ -1281,7 +1278,7 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
         throw new __mf_DecodeError([{ field: "_root", message: "GenericStack.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
@@ -1380,8 +1377,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o && "top" in o && "depth" in o;
+    return __mf_holds(obj, "items") && __mf_holds(obj, "top") && __mf_holds(obj, "depth");
 }
 
 static is<T>(obj: unknown): obj is GenericStack<T> {
@@ -1497,15 +1493,15 @@ export function genericResultEncodeWithContext<Value, Failure>(value: GenericRes
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "value" in value) {
         const result: Record<string, unknown> = {};
-        result.ok = value.ok;
-        result.value = (__encodeValue === undefined ? value.value : __encodeValue(value.value, ctx));
+        result["ok"] = value.ok;
+        result["value"] = (__encodeValue === undefined ? value.value : __encodeValue(value.value, ctx));
         __variant = result;
         __matched = true;
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "failure" in value) {
         const result: Record<string, unknown> = {};
-        result.ok = value.ok;
-        result.failure = (__encodeFailure === undefined ? value.failure : __encodeFailure(value.failure, ctx));
+        result["ok"] = value.ok;
+        result["failure"] = (__encodeFailure === undefined ? value.failure : __encodeFailure(value.failure, ctx));
         __variant = result;
         __matched = true;
     }
@@ -1584,10 +1580,10 @@ export function genericResultDecodeWithContext<Value, Failure>(value: unknown, c
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "value" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "value")) {
         return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), value: (__raw0) => (__decodeValue === undefined ? __raw0 as Value : __decodeValue(__raw0, ctx)) }) as GenericResult<Value, Failure>;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "failure" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "failure")) {
         return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), failure: (__raw0) => (__decodeFailure === undefined ? __raw0 as Failure : __decodeFailure(__raw0, ctx)) }) as GenericResult<Value, Failure>;
     }
 
@@ -1597,8 +1593,8 @@ export function genericResultDecodeWithContext<Value, Failure>(value: unknown, c
     }]);
 }
 export function genericResultHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "value" in value) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "failure" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "value")) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "failure")) return true;
                 return false;
 }
 export function genericResultIs<Value, Failure>(value: unknown): value is GenericResult<Value, Failure> {
@@ -1660,7 +1656,7 @@ export function genericListEncode<T>(value: GenericList<T>, keepMetadata?: boole
 export function genericListEncodeWithContext<T>(value: GenericList<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     return ((value: { value: T[] }): unknown => {
         const result: Record<string, unknown> = {};
-        result.value = value.value.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+        result["value"] = value.value.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         return result.value;
     })({ value });
 }
@@ -2048,52 +2044,52 @@ export function genericUsesEncodePartialWithContext(value: Partial<GenericUses>,
 function genericUsesEncodeFields(value: GenericUses, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("text")) {
         if (value.text !== undefined) {
-            result.text = genericBoxEncodeWithContext(value.text, ctx);
+            result["text"] = genericBoxEncodeWithContext(value.text, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = genericBoxEncodeWithContext<EdgeItem>(value.item, ctx, (__arg0) => edgeItemEncodeWithContext(__arg0, ctx));
+            result["item"] = genericBoxEncodeWithContext<EdgeItem>(value.item, ctx, (__arg0) => edgeItemEncodeWithContext(__arg0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("nested")) {
         if (value.nested !== undefined) {
-            result.nested = genericBoxEncodeWithContext<GenericBox<number>>(value.nested, ctx, (__arg0) => genericBoxEncodeWithContext(__arg0, ctx));
+            result["nested"] = genericBoxEncodeWithContext<GenericBox<number>>(value.nested, ctx, (__arg0) => genericBoxEncodeWithContext(__arg0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = genericPairEncodeWithContext<string, EdgeItem>(value.pair, ctx, undefined, (__arg0) => edgeItemEncodeWithContext(__arg0, ctx));
+            result["pair"] = genericPairEncodeWithContext<string, EdgeItem>(value.pair, ctx, undefined, (__arg0) => edgeItemEncodeWithContext(__arg0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("same")) {
         if (value.same !== undefined) {
-            result.same = genericPairEncodeWithContext(value.same, ctx);
+            result["same"] = genericPairEncodeWithContext(value.same, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("stack")) {
         if (value.stack !== undefined) {
-            result.stack = genericStackEncodeWithContext<EdgeItem>(value.stack, ctx, (__arg0) => edgeItemEncodeWithContext(__arg0, ctx));
+            result["stack"] = genericStackEncodeWithContext<EdgeItem>(value.stack, ctx, (__arg0) => edgeItemEncodeWithContext(__arg0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("stacks")) {
         if (value.stacks !== undefined) {
-            result.stacks = value.stacks.map((__item0) => genericStackEncodeWithContext(__item0, ctx));
+            result["stacks"] = value.stacks.map((__item0) => genericStackEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["list"] = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
+            result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("boxes")) {
         if (value.boxes !== undefined) {
-            result.boxes = Object.fromEntries(Array.from(value.boxes, ([__key0, __item0]) => [__key0, genericBoxEncodeWithContext<Date>(__item0, ctx, (__arg1) => __arg1.toISOString())]));
+            result["boxes"] = Object.fromEntries(Array.from(value.boxes, ([__key0, __item0]) => [__key0, genericBoxEncodeWithContext<Date>(__item0, ctx, (__arg1) => __arg1.toISOString())]));
         }
     }
 }
@@ -2170,7 +2166,7 @@ export function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "GenericUses.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
@@ -2471,8 +2467,7 @@ export function genericUsesHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "text" in o && "item" in o && "nested" in o && "pair" in o && "same" in o && "stack" in o && "stacks" in o && "list" in o && "maybe" in o && "boxes" in o;
+    return __mf_holds(obj, "text") && __mf_holds(obj, "item") && __mf_holds(obj, "nested") && __mf_holds(obj, "pair") && __mf_holds(obj, "same") && __mf_holds(obj, "stack") && __mf_holds(obj, "stacks") && __mf_holds(obj, "list") && __mf_holds(obj, "maybe") && __mf_holds(obj, "boxes");
 }
 
 export function genericUsesIs(obj: unknown): obj is GenericUses {
@@ -2580,12 +2575,12 @@ export function genericWrapperEncodePartialWithContext<T>(value: Partial<Generic
 function genericWrapperEncodeFields<T>(value: GenericWrapper<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("inner")) {
         if (value.inner !== undefined) {
-            result.inner = genericBoxEncodeWithContext<T>(value.inner, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx)));
+            result["inner"] = genericBoxEncodeWithContext<T>(value.inner, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("pairs")) {
         if (value.pairs !== undefined) {
-            result.pairs = value.pairs.map((__item0) => genericPairEncodeWithContext<T, T[]>(__item0, ctx, (__arg1) => (__encodeT === undefined ? __arg1 : __encodeT(__arg1, ctx)), (__arg1) => __arg1.map((__item2) => (__encodeT === undefined ? __item2 : __encodeT(__item2, ctx)))));
+            result["pairs"] = value.pairs.map((__item0) => genericPairEncodeWithContext<T, T[]>(__item0, ctx, (__arg1) => (__encodeT === undefined ? __arg1 : __encodeT(__arg1, ctx)), (__arg1) => __arg1.map((__item2) => (__encodeT === undefined ? __item2 : __encodeT(__item2, ctx)))));
         }
     }
 }
@@ -2662,7 +2657,7 @@ export function genericWrapperDecodeWithContext<T>(value: unknown, ctx: __mf_Dec
         throw new __mf_DecodeError([{ field: "_root", message: "GenericWrapper.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("inner")) && !("inner" in obj)) {
         errors.push({ field: "inner", message: "missing required field" });
@@ -2749,8 +2744,7 @@ export function genericWrapperHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "inner" in o && "pairs" in o;
+    return __mf_holds(obj, "inner") && __mf_holds(obj, "pairs");
 }
 
 export function genericWrapperIs<T>(obj: unknown): obj is GenericWrapper<T> {
@@ -3109,72 +3103,72 @@ export function genericArgumentsEncodePartialWithContext(value: Partial<GenericA
 function genericArgumentsEncodeFields(value: GenericArguments, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("dated")) {
         if (value.dated !== undefined) {
-            result.dated = genericBoxEncodeWithContext<Date>(value.dated, ctx, (__arg0) => __arg0.toISOString());
+            result["dated"] = genericBoxEncodeWithContext<Date>(value.dated, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : genericBoxEncodeWithContext<Date>(value.maybe, ctx, (__arg0) => __arg0.toISOString());
+            result["maybe"] = value.maybe === null ? null : genericBoxEncodeWithContext<Date>(value.maybe, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("optional")) {
         if (value.optional !== undefined) {
-            result.optional = genericBoxEncodeWithContext<EdgeCard>(value.optional, ctx, (__arg0) => edgeCardEncodeWithContext(__arg0, ctx));
+            result["optional"] = genericBoxEncodeWithContext<EdgeCard>(value.optional, ctx, (__arg0) => edgeCardEncodeWithContext(__arg0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = genericPairEncodeWithContext<Date, Map<string, Date>>(value.pair, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => Object.fromEntries(Array.from(__arg0, ([__key1, __item1]) => [__key1, __item1.toISOString()])));
+            result["pair"] = genericPairEncodeWithContext<Date, Map<string, Date>>(value.pair, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => Object.fromEntries(Array.from(__arg0, ([__key1, __item1]) => [__key1, __item1.toISOString()])));
         }
     }
     if (__fields === undefined || __fields.keeps("stack")) {
         if (value.stack !== undefined) {
-            result.stack = genericStackEncodeWithContext<Date>(value.stack, ctx, (__arg0) => __arg0.toISOString());
+            result["stack"] = genericStackEncodeWithContext<Date>(value.stack, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("result")) {
         if (value.result !== undefined) {
-            result.result = genericResultEncodeWithContext<Date, EdgeCard>(value.result, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => edgeCardEncodeWithContext(__arg0, ctx));
+            result["result"] = genericResultEncodeWithContext<Date, EdgeCard>(value.result, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => edgeCardEncodeWithContext(__arg0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("partial")) {
         if (value.partial !== undefined) {
-            result.partial = genericBoxEncodePartialWithContext<Date>(value.partial, ctx, undefined, (__arg0) => __arg0.toISOString());
+            result["partial"] = genericBoxEncodePartialWithContext<Date>(value.partial, ctx, undefined, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("picked")) {
         if (value.picked !== undefined) {
-            result.picked = genericPairEncodePartialWithContext<Date, bigint>(value.picked, ctx, { only: ["right"] }, (__arg0) => __arg0.toISOString(), (__arg0) => ((v) => String(v))(__arg0));
+            result["picked"] = genericPairEncodePartialWithContext<Date, bigint>(value.picked, ctx, { only: ["right"] }, (__arg0) => __arg0.toISOString(), (__arg0) => ((v) => String(v))(__arg0));
         }
     }
     if (__fields === undefined || __fields.keeps("wrapper")) {
         if (value.wrapper !== undefined) {
-            result.wrapper = genericWrapperEncodeWithContext<Date>(value.wrapper, ctx, (__arg0) => __arg0.toISOString());
+            result["wrapper"] = genericWrapperEncodeWithContext<Date>(value.wrapper, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("plain")) {
         if (value.plain !== undefined) {
-            result.plain = genericBoxEncodeWithContext(value.plain, ctx);
+            result["plain"] = genericBoxEncodeWithContext(value.plain, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("link")) {
         if (value.link !== undefined) {
-            result.link = (typeof value.link === "string" ? value.link : genericBoxEncodeWithContext<Date>(value.link, ctx, (__arg0) => __arg0.toISOString()));
+            result["link"] = (typeof value.link === "string" ? value.link : genericBoxEncodeWithContext<Date>(value.link, ctx, (__arg0) => __arg0.toISOString()));
         }
     }
     if (__fields === undefined || __fields.keeps("linkOrNull")) {
         if (value.linkOrNull !== undefined) {
-            result.linkOrNull = value.linkOrNull === null ? null : (typeof value.linkOrNull === "string" ? value.linkOrNull : genericBoxEncodeWithContext<Date>(value.linkOrNull, ctx, (__arg0) => __arg0.toISOString()));
+            result["linkOrNull"] = value.linkOrNull === null ? null : (typeof value.linkOrNull === "string" ? value.linkOrNull : genericBoxEncodeWithContext<Date>(value.linkOrNull, ctx, (__arg0) => __arg0.toISOString()));
         }
     }
     if (__fields === undefined || __fields.keeps("outcome")) {
         if (value.outcome !== undefined) {
-            result.outcome = (value.outcome === 'none' ? value.outcome : genericPairEncodeWithContext<Date, Date[]>(value.outcome, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => __arg0.map((__item1) => __item1.toISOString())));
+            result["outcome"] = (value.outcome === 'none' ? value.outcome : genericPairEncodeWithContext<Date, Date[]>(value.outcome, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => __arg0.map((__item1) => __item1.toISOString())));
         }
     }
     if (__fields === undefined || __fields.keeps("outcomes")) {
         if (value.outcomes !== undefined) {
-            result.outcomes = value.outcomes.map((__item0) => (__item0 === 'none' ? __item0 : genericPairEncodeWithContext<Date, Date[]>(__item0, ctx, (__arg1) => __arg1.toISOString(), (__arg1) => __arg1.map((__item2) => __item2.toISOString()))));
+            result["outcomes"] = value.outcomes.map((__item0) => (__item0 === 'none' ? __item0 : genericPairEncodeWithContext<Date, Date[]>(__item0, ctx, (__arg1) => __arg1.toISOString(), (__arg1) => __arg1.map((__item2) => __item2.toISOString()))));
         }
     }
 }
@@ -3251,7 +3245,7 @@ export function genericArgumentsDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "GenericArguments.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("dated")) && !("dated" in obj)) {
         errors.push({ field: "dated", message: "missing required field" });
@@ -3676,8 +3670,7 @@ export function genericArgumentsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "dated" in o && "maybe" in o && "pair" in o && "stack" in o && "result" in o && "partial" in o && "picked" in o && "wrapper" in o && "plain" in o && "link" in o && "linkOrNull" in o && "outcome" in o && "outcomes" in o;
+    return __mf_holds(obj, "dated") && __mf_holds(obj, "maybe") && __mf_holds(obj, "pair") && __mf_holds(obj, "stack") && __mf_holds(obj, "result") && __mf_holds(obj, "partial") && __mf_holds(obj, "picked") && __mf_holds(obj, "wrapper") && __mf_holds(obj, "plain") && __mf_holds(obj, "link") && __mf_holds(obj, "linkOrNull") && __mf_holds(obj, "outcome") && __mf_holds(obj, "outcomes");
 }
 
 export function genericArgumentsIs(obj: unknown): obj is GenericArguments {
@@ -4469,109 +4462,109 @@ export declare const GenericArguments: {
 
 ## Mapping
 
-original 0..519 -> expanded 1568..2087
-original 519..669 -> expanded 26318..26468
-original 669..876 -> expanded 39991..40198
-original 876..1050 -> expanded 56825..56999
-original 1050..1051 -> expanded 69398..69399
-original 1051..1230 -> expanded 73537..73716
-original 1230..1327 -> expanded 81611..81708
-original 1327..1430 -> expanded 87704..87807
-original 1430..1885 -> expanded 93650..94105
-original 1885..2047 -> expanded 120554..120716
-original 2047..2172 -> expanded 134392..134517
-original 2172..2817 -> expanded 143777..144422
-original 2817..2818 -> expanded 179766..179767
-generated 0..1568 <- imports
-generated 2087..2812 <- Debug
-generated 2812..3537 <- Clone
-generated 3537..4554 <- PartialEq
-generated 4554..5567 <- Hash
-generated 5567..9798 <- Encode
-generated 9798..24978 <- Decode
-generated 24978..26318 <- __convenience_const
-generated 26468..26843 <- Debug
-generated 26843..27117 <- Clone
-generated 27117..27396 <- PartialEq
-generated 27396..27723 <- Hash
-generated 27723..30752 <- Encode
-generated 30752..38622 <- Decode
-generated 38622..39991 <- __convenience_const
-generated 40198..40687 <- Debug
-generated 40687..41086 <- Clone
-generated 41086..41633 <- PartialEq
-generated 41633..42138 <- Hash
-generated 42138..45621 <- Encode
-generated 45621..55253 <- Decode
-generated 55253..56825 <- __convenience_const
-generated 56999..57412 <- Debug
-generated 57412..57694 <- Clone
-generated 57694..58154 <- PartialEq
-generated 58154..58711 <- Hash
-generated 58711..58980 <- Default
-generated 58980..61168 <- Encode
-generated 61168..61545 <- Encode
-generated 61545..69398 <- Decode
-generated 69399..69520 <- Debug
-generated 69520..69644 <- Clone
-generated 69644..69777 <- PartialEq
-generated 69777..69898 <- Hash
-generated 69898..70009 <- Default
-generated 70009..71536 <- Encode
-generated 71536..73537 <- Decode
-generated 73716..73886 <- Debug
-generated 73886..74051 <- Clone
-generated 74051..74255 <- PartialEq
-generated 74255..74399 <- Hash
-generated 74399..76853 <- Encode
-generated 76853..80700 <- Decode
-generated 80700..81611 <- __convenience_const
-generated 81708..81846 <- Debug
-generated 81846..81992 <- Clone
-generated 81992..82314 <- PartialEq
-generated 82314..82496 <- Hash
-generated 82496..83579 <- Encode
-generated 83579..86835 <- Decode
-generated 86835..87704 <- __convenience_const
-generated 87807..87948 <- Debug
-generated 87948..88071 <- Clone
-generated 88071..88233 <- PartialEq
-generated 88233..88349 <- Hash
-generated 88349..89991 <- Encode
-generated 89991..92760 <- Decode
-generated 92760..93650 <- __convenience_const
-generated 94105..94965 <- Debug
-generated 94965..95643 <- Clone
-generated 95643..96562 <- PartialEq
-generated 96562..97622 <- Hash
-generated 97622..102023 <- Encode
-generated 102023..119185 <- Decode
-generated 119185..120554 <- __convenience_const
-generated 120716..121099 <- Debug
-generated 121099..121357 <- Clone
-generated 121357..121776 <- PartialEq
-generated 121776..122150 <- Hash
-generated 122150..125067 <- Encode
-generated 125067..132936 <- Decode
-generated 132936..134392 <- __convenience_const
-generated 134517..134664 <- Debug
-generated 134664..134793 <- Clone
-generated 134793..134961 <- PartialEq
-generated 134961..135081 <- Hash
-generated 135081..137479 <- Encode
-generated 137479..142845 <- Decode
-generated 142845..143777 <- __convenience_const
-generated 144422..145694 <- Debug
-generated 145694..146587 <- Clone
-generated 146587..147670 <- PartialEq
-generated 147670..148903 <- Hash
-generated 148903..155001 <- Encode
-generated 155001..178252 <- Decode
-generated 178252..179766 <- __convenience_const
+original 0..519 -> expanded 1620..2139
+original 519..669 -> expanded 26422..26572
+original 669..876 -> expanded 40069..40276
+original 876..1050 -> expanded 56892..57066
+original 1050..1051 -> expanded 69502..69503
+original 1051..1230 -> expanded 73641..73820
+original 1230..1327 -> expanded 81859..81956
+original 1327..1430 -> expanded 87955..88058
+original 1430..1885 -> expanded 93901..94356
+original 1885..2047 -> expanded 120899..121061
+original 2047..2172 -> expanded 134711..134836
+original 2172..2817 -> expanded 144096..144741
+original 2817..2818 -> expanded 180227..180228
+generated 0..1620 <- imports
+generated 2139..2864 <- Debug
+generated 2864..3589 <- Clone
+generated 3589..4606 <- PartialEq
+generated 4606..5619 <- Hash
+generated 5619..9874 <- Encode
+generated 9874..25082 <- Decode
+generated 25082..26422 <- __convenience_const
+generated 26572..26947 <- Debug
+generated 26947..27221 <- Clone
+generated 27221..27500 <- PartialEq
+generated 27500..27827 <- Hash
+generated 27827..30862 <- Encode
+generated 30862..38700 <- Decode
+generated 38700..40069 <- __convenience_const
+generated 40276..40765 <- Debug
+generated 40765..41164 <- Clone
+generated 41164..41711 <- PartialEq
+generated 41711..42216 <- Hash
+generated 42216..45708 <- Encode
+generated 45708..55320 <- Decode
+generated 55320..56892 <- __convenience_const
+generated 57066..57479 <- Debug
+generated 57479..57761 <- Clone
+generated 57761..58269 <- PartialEq
+generated 58269..58826 <- Hash
+generated 58826..59095 <- Default
+generated 59095..61292 <- Encode
+generated 61292..61669 <- Encode
+generated 61669..69502 <- Decode
+generated 69503..69624 <- Debug
+generated 69624..69748 <- Clone
+generated 69748..69881 <- PartialEq
+generated 69881..70002 <- Hash
+generated 70002..70113 <- Default
+generated 70113..71640 <- Encode
+generated 71640..73641 <- Decode
+generated 73820..73990 <- Debug
+generated 73990..74155 <- Clone
+generated 74155..74359 <- PartialEq
+generated 74359..74503 <- Hash
+generated 74503..76969 <- Encode
+generated 76969..80948 <- Decode
+generated 80948..81859 <- __convenience_const
+generated 81956..82094 <- Debug
+generated 82094..82240 <- Clone
+generated 82240..82562 <- PartialEq
+generated 82562..82744 <- Hash
+generated 82744..83830 <- Encode
+generated 83830..87086 <- Decode
+generated 87086..87955 <- __convenience_const
+generated 88058..88199 <- Debug
+generated 88199..88322 <- Clone
+generated 88322..88484 <- PartialEq
+generated 88484..88600 <- Hash
+generated 88600..90242 <- Encode
+generated 90242..93011 <- Decode
+generated 93011..93901 <- __convenience_const
+generated 94356..95216 <- Debug
+generated 95216..95894 <- Clone
+generated 95894..96813 <- PartialEq
+generated 96813..97873 <- Hash
+generated 97873..102304 <- Encode
+generated 102304..119530 <- Decode
+generated 119530..120899 <- __convenience_const
+generated 121061..121444 <- Debug
+generated 121444..121702 <- Clone
+generated 121702..122121 <- PartialEq
+generated 122121..122495 <- Hash
+generated 122495..125418 <- Encode
+generated 125418..133255 <- Decode
+generated 133255..134711 <- __convenience_const
+generated 134836..134983 <- Debug
+generated 134983..135112 <- Clone
+generated 135112..135280 <- PartialEq
+generated 135280..135400 <- Hash
+generated 135400..137798 <- Encode
+generated 137798..143164 <- Decode
+generated 143164..144096 <- __convenience_const
+generated 144741..146013 <- Debug
+generated 146013..146906 <- Clone
+generated 146906..147989 <- PartialEq
+generated 147989..149222 <- Hash
+generated 149222..155362 <- Encode
+generated 155362..178713 <- Decode
+generated 178713..180227 <- __convenience_const
 
 ## Metadata
 
-class GenericStack: {"body_span":{"end":1052,"start":979},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":949,"start":879}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1001,"start":985},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"top","optional":false,"readonly":false,"span":{"end":1027,"start":1006},"ts_type":"T | null","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Named","name":"depth","optional":false,"readonly":false,"span":{"end":1050,"start":1032},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericStack","span":{"end":1052,"start":957},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class GenericStack: {"body_span":{"end":1052,"start":979},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":949,"start":879}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1001,"start":985},"ts_type":"T[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"top","optional":false,"readonly":false,"span":{"end":1027,"start":1006},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"depth","optional":false,"readonly":false,"span":{"end":1050,"start":1032},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericStack","span":{"end":1052,"start":957},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface GenericBox: {"body_span":{"end":520,"start":356},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":324,"start":263}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":370,"start":362},"ts_type":"T"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":385,"start":375},"ts_type":"T[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":406,"start":390},"ts_type":"T | null"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":424,"start":411},"ts_type":"T"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":452,"start":429},"ts_type":"Map<string, T>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":469,"start":457},"ts_type":"Set<T>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":500,"start":474},"ts_type":"Record<string, T>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":518,"start":505},"ts_type":"[T, T]"}],"heritage":[],"methods":[],"name":"GenericBox","span":{"end":520,"start":332},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface GenericPair: {"body_span":{"end":670,"start":633},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":583,"start":522}}],"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":650,"start":639},"ts_type":"Left"},{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":668,"start":655},"ts_type":"Right"}],"heritage":[],"methods":[],"name":"GenericPair","span":{"end":670,"start":591},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"Left"},{"constraint":null,"default":"Left","is_const":false,"name":"Right"}]}
 interface GenericConstrained: {"body_span":{"end":877,"start":823},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":733,"start":672}}],"fields":[{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":840,"start":829},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":856,"start":845},"ts_type":"Name"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":875,"start":861},"ts_type":"Item[]"}],"heritage":[],"methods":[],"name":"GenericConstrained","span":{"end":877,"start":741},"type_params":[{"constraint":"EdgeItem","default":null,"is_const":false,"name":"Item"},{"constraint":"string","default":"string","is_const":false,"name":"Name"}]}

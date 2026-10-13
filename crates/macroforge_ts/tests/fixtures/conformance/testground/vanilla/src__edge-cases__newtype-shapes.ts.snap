@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 declare const __mf_newtype_1: unique symbol;
@@ -181,11 +181,11 @@ export function newCountHashCode(value: NewCount): number {
 }
 
 export function newCountPartialCompare(a: NewCount, b: NewCount): number | null {
-    return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+    return a < b ? -1 : a > b ? 1 : a === b || (a !== a && b !== b) ? 0 : null;
 }
 
 export function newCountCompare(a: NewCount, b: NewCount): number {
-    return a < b ? -1 : a > b ? 1 : 0;
+    return a < b ? -1 : a > b ? 1 : a === b ? 0 : a !== a ? (b !== b ? 0 : 1) : -1;
 }
 
 export function newCountDefaultValue(): NewCount {
@@ -728,11 +728,11 @@ export function newNestedHashCode(value: NewNested): number {
 }
 
 export function newNestedPartialCompare(a: NewNested, b: NewNested): number | null {
-    return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+    return a < b ? -1 : a > b ? 1 : a === b || (a !== a && b !== b) ? 0 : null;
 }
 
 export function newNestedCompare(a: NewNested, b: NewNested): number {
-    return a < b ? -1 : a > b ? 1 : 0;
+    return a < b ? -1 : a > b ? 1 : a === b ? 0 : a !== a ? (b !== b ? 0 : 1) : -1;
 }
 
 export function newNestedDefaultValue(): NewNested {
@@ -1113,72 +1113,72 @@ export function newHolderEncodePartialWithContext(value: Partial<NewHolder>, ctx
 function newHolderEncodeFields(value: NewHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("text")) {
         if (value.text !== undefined) {
-            result.text = newTextEncodeWithContext(value.text, ctx);
+            result["text"] = newTextEncodeWithContext(value.text, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("count")) {
         if (value.count !== undefined) {
-            result.count = newCountEncodeWithContext(value.count, ctx);
+            result["count"] = newCountEncodeWithContext(value.count, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("flag")) {
         if (value.flag !== undefined) {
-            result.flag = newFlagEncodeWithContext(value.flag, ctx);
+            result["flag"] = newFlagEncodeWithContext(value.flag, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("slug")) {
         if (value.slug !== undefined) {
-            result.slug = newSlugEncodeWithContext(value.slug, ctx);
+            result["slug"] = newSlugEncodeWithContext(value.slug, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("nested")) {
         if (value.nested !== undefined) {
-            result.nested = newNestedEncodeWithContext(value.nested, ctx);
+            result["nested"] = newNestedEncodeWithContext(value.nested, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("plain")) {
         if (value.plain !== undefined) {
-            result.plain = newPlainEncodeWithContext(value.plain, ctx);
+            result["plain"] = newPlainEncodeWithContext(value.plain, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : newSlugEncodeWithContext(value.maybe, ctx);
+            result["maybe"] = value.maybe === null ? null : newSlugEncodeWithContext(value.maybe, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("later")) {
         if (value.later !== undefined) {
-            result.later = newCountEncodeWithContext(value.later, ctx);
+            result["later"] = newCountEncodeWithContext(value.later, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("optional")) {
         if (value.optional !== undefined) {
-            result.optional = newTextEncodeWithContext(value.optional, ctx);
+            result["optional"] = newTextEncodeWithContext(value.optional, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list.map((__item0) => newSlugEncodeWithContext(__item0, ctx));
+            result["list"] = value.list.map((__item0) => newSlugEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("set")) {
         if (value.set !== undefined) {
-            result.set = Array.from(value.set, (__item0) => newTextEncodeWithContext(__item0, ctx));
+            result["set"] = Array.from(value.set, (__item0) => newTextEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("bySlug")) {
         if (value.bySlug !== undefined) {
-            result.bySlug = Object.fromEntries(Array.from(value.bySlug, ([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+            result["bySlug"] = Object.fromEntries(Array.from(value.bySlug, ([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result.record = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = [newTextEncodeWithContext(value.pair[0], ctx), newCountEncodeWithContext(value.pair[1], ctx)];
+            result["pair"] = [newTextEncodeWithContext(value.pair[0], ctx), newCountEncodeWithContext(value.pair[1], ctx)];
         }
     }
 }
@@ -1255,7 +1255,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "NewHolder.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
@@ -1662,8 +1662,7 @@ export function newHolderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "text" in o && "count" in o && "flag" in o && "slug" in o && "nested" in o && "plain" in o && "maybe" in o && "list" in o && "set" in o && "bySlug" in o && "record" in o && "pair" in o;
+    return __mf_holds(obj, "text") && __mf_holds(obj, "count") && __mf_holds(obj, "flag") && __mf_holds(obj, "slug") && __mf_holds(obj, "nested") && __mf_holds(obj, "plain") && __mf_holds(obj, "maybe") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "bySlug") && __mf_holds(obj, "record") && __mf_holds(obj, "pair");
 }
 
 export function newHolderIs(obj: unknown): obj is NewHolder {
@@ -1854,12 +1853,12 @@ export function newLedgerEncodePartialWithContext(value: Partial<NewLedger>, ctx
 function newLedgerEncodeFields(value: NewLedger, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("total")) {
         if (value.total !== undefined) {
-            result.total = newTotalEncodeWithContext(value.total, ctx);
+            result["total"] = newTotalEncodeWithContext(value.total, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("totals")) {
         if (value.totals !== undefined) {
-            result.totals = value.totals.map((__item0) => newTotalEncodeWithContext(__item0, ctx));
+            result["totals"] = value.totals.map((__item0) => newTotalEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -1936,7 +1935,7 @@ export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "NewLedger.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("total")) && !("total" in obj)) {
         errors.push({ field: "total", message: "missing required field" });
@@ -2023,8 +2022,7 @@ export function newLedgerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "total" in o && "totals" in o;
+    return __mf_holds(obj, "total") && __mf_holds(obj, "totals");
 }
 
 export function newLedgerIs(obj: unknown): obj is NewLedger {
@@ -2551,128 +2549,128 @@ export {};
 
 ## Mapping
 
-original 0..332 -> expanded 1490..1822
-original 348..349 -> expanded 1866..1867
-original 349..466 -> expanded 6197..6314
-original 482..483 -> expanded 6358..6359
-original 483..600 -> expanded 10795..10912
-original 616..617 -> expanded 10956..10957
-original 617..733 -> expanded 15973..16089
-original 750..751 -> expanded 16134..16135
-original 751..926 -> expanded 20390..20565
-original 942..943 -> expanded 20609..20610
-original 943..1061 -> expanded 25298..25416
-original 1087..1088 -> expanded 25498..25499
-original 1088..1212 -> expanded 30000..30124
-original 1212..1670 -> expanded 34519..34977
-original 1670..1844 -> expanded 68167..68341
-original 1844..1983 -> expanded 70975..71114
-original 1983..1984 -> expanded 83287..83288
-generated 0..1175 <- imports
-generated 1175..1220 <- $Newtype
-generated 1220..1265 <- $Newtype
-generated 1265..1310 <- $Newtype
-generated 1310..1355 <- $Newtype
-generated 1355..1400 <- $Newtype
-generated 1400..1445 <- $Newtype
-generated 1445..1490 <- $Newtype
-generated 1822..1866 <- $Newtype
-generated 1867..1973 <- Debug
-generated 1973..2050 <- Clone
-generated 2050..2168 <- PartialEq
-generated 2168..2323 <- Hash
-generated 2323..2444 <- PartialOrd
-generated 2444..2551 <- Ord
-generated 2551..2629 <- Default
-generated 2629..3345 <- Encode
-generated 3345..5154 <- Decode
-generated 5154..6197 <- __convenience_const
-generated 6314..6358 <- $Newtype
-generated 6359..6468 <- Debug
-generated 6468..6548 <- Clone
-generated 6548..6669 <- PartialEq
-generated 6669..6867 <- Hash
-generated 6867..7008 <- PartialOrd
-generated 7008..7118 <- Ord
-generated 7118..7198 <- Default
-generated 7198..7922 <- Encode
-generated 7922..9725 <- Decode
-generated 9725..10795 <- __convenience_const
-generated 10912..10956 <- $Newtype
-generated 10957..11066 <- Debug
-generated 11066..11146 <- Clone
-generated 11146..11267 <- PartialEq
-generated 11267..11427 <- Hash
-generated 11427..11551 <- PartialOrd
-generated 11551..11661 <- Ord
-generated 11661..11742 <- Default
-generated 11742..12506 <- Encode
-generated 12506..14903 <- Decode
-generated 14903..15973 <- __convenience_const
-generated 16089..16134 <- $Newtype
-generated 16135..16241 <- Debug
-generated 16241..16318 <- Clone
-generated 16318..16436 <- PartialEq
-generated 16436..16529 <- Hash
-generated 16529..16648 <- PartialOrd
-generated 16648..16753 <- Ord
-generated 16753..16834 <- Default
-generated 16834..17550 <- Encode
-generated 17550..19347 <- Decode
-generated 19347..20390 <- __convenience_const
-generated 20565..20609 <- $Newtype
-generated 20610..20716 <- Debug
-generated 20716..20793 <- Clone
-generated 20793..20911 <- PartialEq
-generated 20911..21066 <- Hash
-generated 21066..21187 <- PartialOrd
-generated 21187..21294 <- Ord
-generated 21294..21376 <- Default
-generated 21376..22092 <- Encode
-generated 22092..24255 <- Decode
-generated 24255..25298 <- __convenience_const
-generated 25416..25498 <- $Newtype
-generated 25499..25611 <- Debug
-generated 25611..25694 <- Clone
-generated 25694..25818 <- PartialEq
-generated 25818..26018 <- Hash
-generated 26018..26162 <- PartialOrd
-generated 26162..26275 <- Ord
-generated 26275..26358 <- Default
-generated 26358..27090 <- Encode
-generated 27090..28903 <- Decode
-generated 28903..30000 <- __convenience_const
-generated 30124..30233 <- Debug
-generated 30233..30313 <- Clone
-generated 30313..30434 <- PartialEq
-generated 30434..30591 <- Hash
-generated 30591..30715 <- PartialOrd
-generated 30715..30825 <- Ord
-generated 30825..30906 <- Default
-generated 30906..31630 <- Encode
-generated 31630..33449 <- Decode
-generated 33449..34519 <- __convenience_const
-generated 34977..36195 <- Debug
-generated 36195..37184 <- Clone
-generated 37184..38550 <- PartialEq
-generated 38550..39928 <- Hash
-generated 39928..40435 <- Default
-generated 40435..45368 <- Encode
-generated 45368..66762 <- Decode
-generated 66762..68167 <- __convenience_const
-generated 68341..68786 <- Debug
-generated 68786..69051 <- Clone
-generated 69051..69335 <- PartialEq
-generated 69335..70030 <- PartialOrd
-generated 70030..70539 <- Ord
-generated 70539..70975 <- __convenience_const
-generated 71114..71473 <- Debug
-generated 71473..71696 <- Clone
-generated 71696..72090 <- PartialEq
-generated 72090..72444 <- Hash
-generated 72444..74840 <- Encode
-generated 74840..81976 <- Decode
-generated 81976..83287 <- __convenience_const
+original 0..332 -> expanded 1542..1874
+original 348..349 -> expanded 1918..1919
+original 349..466 -> expanded 6249..6366
+original 482..483 -> expanded 6410..6411
+original 483..600 -> expanded 10916..11033
+original 616..617 -> expanded 11077..11078
+original 617..733 -> expanded 16094..16210
+original 750..751 -> expanded 16255..16256
+original 751..926 -> expanded 20511..20686
+original 942..943 -> expanded 20730..20731
+original 943..1061 -> expanded 25419..25537
+original 1087..1088 -> expanded 25619..25620
+original 1088..1212 -> expanded 30190..30314
+original 1212..1670 -> expanded 34709..35167
+original 1670..1844 -> expanded 68487..68661
+original 1844..1983 -> expanded 71295..71434
+original 1983..1984 -> expanded 83581..83582
+generated 0..1227 <- imports
+generated 1227..1272 <- $Newtype
+generated 1272..1317 <- $Newtype
+generated 1317..1362 <- $Newtype
+generated 1362..1407 <- $Newtype
+generated 1407..1452 <- $Newtype
+generated 1452..1497 <- $Newtype
+generated 1497..1542 <- $Newtype
+generated 1874..1918 <- $Newtype
+generated 1919..2025 <- Debug
+generated 2025..2102 <- Clone
+generated 2102..2220 <- PartialEq
+generated 2220..2375 <- Hash
+generated 2375..2496 <- PartialOrd
+generated 2496..2603 <- Ord
+generated 2603..2681 <- Default
+generated 2681..3397 <- Encode
+generated 3397..5206 <- Decode
+generated 5206..6249 <- __convenience_const
+generated 6366..6410 <- $Newtype
+generated 6411..6520 <- Debug
+generated 6520..6600 <- Clone
+generated 6600..6721 <- PartialEq
+generated 6721..6919 <- Hash
+generated 6919..7084 <- PartialOrd
+generated 7084..7239 <- Ord
+generated 7239..7319 <- Default
+generated 7319..8043 <- Encode
+generated 8043..9846 <- Decode
+generated 9846..10916 <- __convenience_const
+generated 11033..11077 <- $Newtype
+generated 11078..11187 <- Debug
+generated 11187..11267 <- Clone
+generated 11267..11388 <- PartialEq
+generated 11388..11548 <- Hash
+generated 11548..11672 <- PartialOrd
+generated 11672..11782 <- Ord
+generated 11782..11863 <- Default
+generated 11863..12627 <- Encode
+generated 12627..15024 <- Decode
+generated 15024..16094 <- __convenience_const
+generated 16210..16255 <- $Newtype
+generated 16256..16362 <- Debug
+generated 16362..16439 <- Clone
+generated 16439..16557 <- PartialEq
+generated 16557..16650 <- Hash
+generated 16650..16769 <- PartialOrd
+generated 16769..16874 <- Ord
+generated 16874..16955 <- Default
+generated 16955..17671 <- Encode
+generated 17671..19468 <- Decode
+generated 19468..20511 <- __convenience_const
+generated 20686..20730 <- $Newtype
+generated 20731..20837 <- Debug
+generated 20837..20914 <- Clone
+generated 20914..21032 <- PartialEq
+generated 21032..21187 <- Hash
+generated 21187..21308 <- PartialOrd
+generated 21308..21415 <- Ord
+generated 21415..21497 <- Default
+generated 21497..22213 <- Encode
+generated 22213..24376 <- Decode
+generated 24376..25419 <- __convenience_const
+generated 25537..25619 <- $Newtype
+generated 25620..25732 <- Debug
+generated 25732..25815 <- Clone
+generated 25815..25939 <- PartialEq
+generated 25939..26139 <- Hash
+generated 26139..26307 <- PartialOrd
+generated 26307..26465 <- Ord
+generated 26465..26548 <- Default
+generated 26548..27280 <- Encode
+generated 27280..29093 <- Decode
+generated 29093..30190 <- __convenience_const
+generated 30314..30423 <- Debug
+generated 30423..30503 <- Clone
+generated 30503..30624 <- PartialEq
+generated 30624..30781 <- Hash
+generated 30781..30905 <- PartialOrd
+generated 30905..31015 <- Ord
+generated 31015..31096 <- Default
+generated 31096..31820 <- Encode
+generated 31820..33639 <- Decode
+generated 33639..34709 <- __convenience_const
+generated 35167..36385 <- Debug
+generated 36385..37374 <- Clone
+generated 37374..38740 <- PartialEq
+generated 38740..40118 <- Hash
+generated 40118..40625 <- Default
+generated 40625..45600 <- Encode
+generated 45600..67082 <- Decode
+generated 67082..68487 <- __convenience_const
+generated 68661..69106 <- Debug
+generated 69106..69371 <- Clone
+generated 69371..69655 <- PartialEq
+generated 69655..70350 <- PartialOrd
+generated 70350..70859 <- Ord
+generated 70859..71295 <- __convenience_const
+generated 71434..71793 <- Debug
+generated 71793..72016 <- Clone
+generated 72016..72410 <- PartialEq
+generated 72410..72764 <- Hash
+generated 72764..75166 <- Encode
+generated 75166..82270 <- Decode
+generated 82270..83581 <- __convenience_const
 
 ## Metadata
 

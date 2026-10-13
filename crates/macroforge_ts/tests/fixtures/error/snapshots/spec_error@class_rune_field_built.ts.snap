@@ -62,7 +62,7 @@ generated 478..575 <- Debug
 
 ## Metadata
 
-class Counter: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":"$state(0)","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
+class Counter: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"$state(0)","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -1,0 +1,729 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/generated_name_collisions.ts
+---
+## Input
+
+/** @derive(Debug, Clone, Encode, Decode) */
+interface HTTPResponse {
+    status: number;
+}
+
+/** @derive(Debug, Clone, Encode, Decode) */
+interface HttpResponse {
+    code: number;
+}
+
+/** @derive(Encode) */
+interface User {
+    id: string;
+}
+
+/** @derive(Encode) */
+interface UserEncode {
+    raw: string;
+}
+
+export function userClone(): void {}
+
+/** @derive(Clone) */
+interface Account {
+    id: string;
+}
+
+function accountClone(): void {}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+interface HTTPResponse {
+    status: number;
+}
+
+export function httpResponseToString(value: HTTPResponse): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("status: " + String(value.status));
+        return "HTTPResponse { " + parts.join(", ") + " }";
+    });
+}
+
+export function httpResponseClone(value: HTTPResponse): HTTPResponse {
+    return __mf_clonedWith(value, (): HTTPResponse => ({ status: value.status }));
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function httpResponseEncode(value: HTTPResponse, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = httpResponseEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function httpResponseEncodeWithContext(value: HTTPResponse, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HTTPResponse" });
+    httpResponseEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function httpResponseEncodePartialWithContext(value: Partial<HTTPResponse>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HTTPResponse>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "HTTPResponse" };
+        httpResponseEncodeFields(value as HTTPResponse, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function httpResponseEncodeFields(value: HTTPResponse, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("status")) {
+        if (value.status !== undefined) {
+            result["status"] = value.status;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HTTPResponse } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = httpResponseDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "HTTPResponse.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HTTPResponse | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HTTPResponse> | __mf_PendingRef;
+export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<HTTPResponse> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HTTPResponse.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "HTTPResponse.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "HTTPResponse") as HTTPResponse | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HTTPResponse.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("status")) && !("status" in obj)) {
+        errors.push({ field: "status", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "HTTPResponse");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
+        const __raw_status = obj["status"] as number;
+
+        if (!(typeof __raw_status === "number")) {
+            errors.push({ field: "status", message: __raw_status == null ? "HTTPResponse.status is required" : "expected number" });
+        } else {
+            instance.status = __raw_status;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as HTTPResponse;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function httpResponseDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HTTPResponse>): Partial<HTTPResponse> | __mf_PendingRef {
+    return httpResponseDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function httpResponseValidateField<K extends keyof HTTPResponse>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function httpResponseValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function httpResponseValidateFields(partial: { readonly [K in keyof HTTPResponse]?: unknown }): Array<{ field: string; message: string }>;
+export function httpResponseValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function httpResponseHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "status");
+}
+
+export function httpResponseIs(obj: unknown): obj is HTTPResponse {
+    return httpResponseHasShape(obj) && httpResponseDecode(obj).success;
+}
+
+const HTTPResponse: {
+  readonly toString: typeof httpResponseToString;
+  readonly clone: typeof httpResponseClone;
+  readonly encode: typeof httpResponseEncode;
+  readonly encodeWithContext: typeof httpResponseEncodeWithContext;
+  readonly encodePartialWithContext: typeof httpResponseEncodePartialWithContext;
+  readonly decode: typeof httpResponseDecode;
+  readonly decodeWithContext: typeof httpResponseDecodeWithContext;
+  readonly decodePartialWithContext: typeof httpResponseDecodePartialWithContext;
+  readonly validateField: typeof httpResponseValidateField;
+  readonly validateFields: typeof httpResponseValidateFields;
+  readonly hasShape: typeof httpResponseHasShape;
+  readonly is: typeof httpResponseIs;
+} = {
+  toString: httpResponseToString,
+  clone: httpResponseClone,
+  encode: httpResponseEncode,
+  encodeWithContext: httpResponseEncodeWithContext,
+  encodePartialWithContext: httpResponseEncodePartialWithContext,
+  decode: httpResponseDecode,
+  decodeWithContext: httpResponseDecodeWithContext,
+  decodePartialWithContext: httpResponseDecodePartialWithContext,
+  validateField: httpResponseValidateField,
+  validateFields: httpResponseValidateFields,
+  hasShape: httpResponseHasShape,
+  is: httpResponseIs
+};
+
+
+interface HttpResponse {
+    code: number;
+}
+
+export function httpResponseToString(value: HttpResponse): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("code: " + String(value.code));
+        return "HttpResponse { " + parts.join(", ") + " }";
+    });
+}
+
+export function httpResponseClone(value: HttpResponse): HttpResponse {
+    return __mf_clonedWith(value, (): HttpResponse => ({ code: value.code }));
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function httpResponseEncode(value: HttpResponse, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = httpResponseEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function httpResponseEncodeWithContext(value: HttpResponse, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HttpResponse" });
+    httpResponseEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function httpResponseEncodePartialWithContext(value: Partial<HttpResponse>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HttpResponse>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "HttpResponse" };
+        httpResponseEncodeFields(value as HttpResponse, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function httpResponseEncodeFields(value: HttpResponse, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("code")) {
+        if (value.code !== undefined) {
+            result["code"] = value.code;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HttpResponse } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = httpResponseDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "HttpResponse.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HttpResponse | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HttpResponse> | __mf_PendingRef;
+export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<HttpResponse> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HttpResponse.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "HttpResponse.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "HttpResponse") as HttpResponse | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HttpResponse.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("code")) && !("code" in obj)) {
+        errors.push({ field: "code", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "HttpResponse");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("code")) ? "code" in obj : (__fields.keeps("code") && obj["code"] !== undefined)) {
+        const __raw_code = obj["code"] as number;
+
+        if (!(typeof __raw_code === "number")) {
+            errors.push({ field: "code", message: __raw_code == null ? "HttpResponse.code is required" : "expected number" });
+        } else {
+            instance.code = __raw_code;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as HttpResponse;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function httpResponseDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HttpResponse>): Partial<HttpResponse> | __mf_PendingRef {
+    return httpResponseDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function httpResponseValidateField<K extends keyof HttpResponse>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function httpResponseValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function httpResponseValidateFields(partial: { readonly [K in keyof HttpResponse]?: unknown }): Array<{ field: string; message: string }>;
+export function httpResponseValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function httpResponseHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "code");
+}
+
+export function httpResponseIs(obj: unknown): obj is HttpResponse {
+    return httpResponseHasShape(obj) && httpResponseDecode(obj).success;
+}
+
+const HttpResponse: {
+  readonly toString: typeof httpResponseToString;
+  readonly clone: typeof httpResponseClone;
+  readonly encode: typeof httpResponseEncode;
+  readonly encodeWithContext: typeof httpResponseEncodeWithContext;
+  readonly encodePartialWithContext: typeof httpResponseEncodePartialWithContext;
+  readonly decode: typeof httpResponseDecode;
+  readonly decodeWithContext: typeof httpResponseDecodeWithContext;
+  readonly decodePartialWithContext: typeof httpResponseDecodePartialWithContext;
+  readonly validateField: typeof httpResponseValidateField;
+  readonly validateFields: typeof httpResponseValidateFields;
+  readonly hasShape: typeof httpResponseHasShape;
+  readonly is: typeof httpResponseIs;
+} = {
+  toString: httpResponseToString,
+  clone: httpResponseClone,
+  encode: httpResponseEncode,
+  encodeWithContext: httpResponseEncodeWithContext,
+  encodePartialWithContext: httpResponseEncodePartialWithContext,
+  decode: httpResponseDecode,
+  decodeWithContext: httpResponseDecodeWithContext,
+  decodePartialWithContext: httpResponseDecodePartialWithContext,
+  validateField: httpResponseValidateField,
+  validateFields: httpResponseValidateFields,
+  hasShape: httpResponseHasShape,
+  is: httpResponseIs
+};
+
+
+interface User {
+    id: string;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function userEncode(value: User, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = userEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "User" });
+    userEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "User" };
+        userEncodeFields(value as User, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function userEncodeFields(value: User, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+}
+
+const User: {
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly encodePartialWithContext: typeof userEncodePartialWithContext;
+} = {
+  encode: userEncode,
+  encodeWithContext: userEncodeWithContext,
+  encodePartialWithContext: userEncodePartialWithContext
+};
+
+
+interface UserEncode {
+    raw: string;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function userEncodeEncode(value: UserEncode, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = userEncodeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function userEncodeEncodeWithContext(value: UserEncode, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "UserEncode" });
+    userEncodeEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodeEncodePartialWithContext(value: Partial<UserEncode>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof UserEncode>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "UserEncode" };
+        userEncodeEncodeFields(value as UserEncode, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function userEncodeEncodeFields(value: UserEncode, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("raw")) {
+        if (value.raw !== undefined) {
+            result["raw"] = value.raw;
+        }
+    }
+}
+
+const UserEncode: {
+  readonly encode: typeof userEncodeEncode;
+  readonly encodeWithContext: typeof userEncodeEncodeWithContext;
+  readonly encodePartialWithContext: typeof userEncodeEncodePartialWithContext;
+} = {
+  encode: userEncodeEncode,
+  encodeWithContext: userEncodeEncodeWithContext,
+  encodePartialWithContext: userEncodeEncodePartialWithContext
+};
+
+export function userClone(): void {}
+
+
+interface Account {
+    id: string;
+}
+
+export function accountClone(value: Account): Account {
+    return __mf_clonedWith(value, (): Account => ({ id: value.id }));
+}
+
+const Account: {
+  readonly clone: typeof accountClone;
+} = {
+  clone: accountClone
+};
+
+function accountClone(): void {}
+
+## DTS
+
+interface HTTPResponse {
+	status: number;
+}
+export declare function httpResponseToString(value: HTTPResponse): string;
+export declare function httpResponseClone(value: HTTPResponse): HTTPResponse;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function httpResponseEncode(value: HTTPResponse, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function httpResponseEncodeWithContext(value: HTTPResponse, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function httpResponseEncodePartialWithContext(value: Partial<HTTPResponse>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HTTPResponse>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: HTTPResponse;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HTTPResponse | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HTTPResponse> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function httpResponseDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HTTPResponse>): Partial<HTTPResponse> | __mf_PendingRef;
+export declare function httpResponseValidateField<K extends keyof HTTPResponse>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function httpResponseValidateFields(partial: { readonly [K in keyof HTTPResponse]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function httpResponseHasShape(obj: unknown): boolean;
+export declare function httpResponseIs(obj: unknown): obj is HTTPResponse;
+interface HttpResponse {
+	code: number;
+}
+export declare function httpResponseToString(value: HttpResponse): string;
+export declare function httpResponseClone(value: HttpResponse): HttpResponse;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function httpResponseEncode(value: HttpResponse, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function httpResponseEncodeWithContext(value: HttpResponse, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function httpResponseEncodePartialWithContext(value: Partial<HttpResponse>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HttpResponse>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: HttpResponse;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HttpResponse | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HttpResponse> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function httpResponseDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HttpResponse>): Partial<HttpResponse> | __mf_PendingRef;
+export declare function httpResponseValidateField<K extends keyof HttpResponse>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function httpResponseValidateFields(partial: { readonly [K in keyof HttpResponse]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function httpResponseHasShape(obj: unknown): boolean;
+export declare function httpResponseIs(obj: unknown): obj is HttpResponse;
+interface User {
+	id: string;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function userEncode(value: User, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown>;
+interface UserEncode {
+	raw: string;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function userEncodeEncode(value: UserEncode, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function userEncodeEncodeWithContext(value: UserEncode, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function userEncodeEncodePartialWithContext(value: Partial<UserEncode>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof UserEncode>): Record<string, unknown>;
+export declare function userClone(): void;
+interface Account {
+	id: string;
+}
+export declare function accountClone(value: Account): Account;
+export {};
+
+## Diagnostics
+
+Error [98..135]: 'HttpResponse' and 'HTTPResponse' both name their generated functions `httpResponse…`, as in `httpResponseToString`, so one type's would replace the other's
+  help: rename one of the two types
+Error [352..366]: `@derive(Clone)` on 'Account' generates `accountClone`, a name this module already has
+  help: rename the one the module declares or imports
+
+## Mapping
+
+original 44..91 -> expanded 764..811
+original 91..93 -> expanded 10101..10103
+original 137..182 -> expanded 10103..10148
+original 182..184 -> expanded 19390..19392
+original 206..241 -> expanded 19392..19427
+original 241..243 -> expanded 21807..21809
+original 265..307 -> expanded 21809..21851
+original 307..347 -> expanded 24367..24407
+original 368..406 -> expanded 24407..24445
+original 406..441 -> expanded 24662..24697
+generated 0..764 <- imports
+generated 811..1083 <- Debug
+generated 1083..1240 <- Clone
+generated 1240..3437 <- Encode
+generated 3437..8870 <- Decode
+generated 8870..10101 <- __convenience_const
+generated 10148..10416 <- Debug
+generated 10416..10569 <- Clone
+generated 10569..12758 <- Encode
+generated 12758..18159 <- Decode
+generated 18159..19390 <- __convenience_const
+generated 19427..21488 <- Encode
+generated 21488..21807 <- __convenience_const
+generated 21851..24006 <- Encode
+generated 24006..24367 <- __convenience_const
+generated 24445..24574 <- Clone
+generated 24574..24662 <- __convenience_const
+
+## Metadata
+
+interface HTTPResponse: {"body_span":{"end":92,"start":69},"decorators":[{"args_src":"Debug, Clone, Encode, Decode","name":"Derive","span":{"end":45,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"status","optional":false,"readonly":false,"span":{"end":90,"start":75},"ts_type":"number"}],"heritage":[],"methods":[],"name":"HTTPResponse","span":{"end":92,"start":46},"type_params":[]}
+interface HttpResponse: {"body_span":{"end":183,"start":162},"decorators":[{"args_src":"Debug, Clone, Encode, Decode","name":"Derive","span":{"end":138,"start":94}}],"fields":[{"decorators":[],"key":"Named","name":"code","optional":false,"readonly":false,"span":{"end":181,"start":168},"ts_type":"number"}],"heritage":[],"methods":[],"name":"HttpResponse","span":{"end":183,"start":139},"type_params":[]}
+interface User: {"body_span":{"end":242,"start":223},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":207,"start":185}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":240,"start":229},"ts_type":"string"}],"heritage":[],"methods":[],"name":"User","span":{"end":242,"start":208},"type_params":[]}
+interface UserEncode: {"body_span":{"end":308,"start":288},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":266,"start":244}}],"fields":[{"decorators":[],"key":"Named","name":"raw","optional":false,"readonly":false,"span":{"end":306,"start":294},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserEncode","span":{"end":308,"start":267},"type_params":[]}
+interface Account: {"body_span":{"end":407,"start":388},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":369,"start":348}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":405,"start":394},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Account","span":{"end":407,"start":370},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

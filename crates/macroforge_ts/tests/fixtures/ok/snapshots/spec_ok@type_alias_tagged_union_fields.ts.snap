@@ -42,17 +42,17 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
     }
     if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "circle") {
         const result: Record<string, unknown> = {};
-        result.kind = value.kind;
-        result.radius = value.radius;
+        result["kind"] = value.kind;
+        result["radius"] = value.radius;
         __variant = result;
         __matched = true;
     }
     if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "event") {
         const result: Record<string, unknown> = {};
-        result.kind = value.kind;
-        result.at = value.at.toISOString();
+        result["kind"] = value.kind;
+        result["at"] = value.at.toISOString();
         if (value.note !== undefined) {
-            result.note = value.note;
+            result["note"] = value.note;
         }
         __variant = result;
         __matched = true;
@@ -235,11 +235,11 @@ export {};
 ## Mapping
 
 original 61..165 -> expanded 562..666
-original 165..166 -> expanded 6796..6797
+original 165..166 -> expanded 6811..6812
 generated 0..562 <- imports
-generated 666..2710 <- Encode
-generated 2710..6184 <- Decode
-generated 6184..6796 <- __convenience_const
+generated 666..2725 <- Encode
+generated 2725..6199 <- Decode
+generated 6199..6811 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Point {
@@ -44,7 +44,7 @@ export function pointClone(value: Point): Point {
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y);
+    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
 }
 
 export function pointHashCode(value: Point): number {
@@ -59,10 +59,10 @@ export function pointHashCode(value: Point): number {
 export function pointPartialCompare(a: Point, b: Point): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : null);
+    const cmp0 = (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x || (a.x !== a.x && b.x !== b.x) ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : null);
+    const cmp1 = (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y || (a.y !== a.y && b.y !== b.y) ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
         return 0;
@@ -72,9 +72,9 @@ export function pointPartialCompare(a: Point, b: Point): number | null {
 export function pointCompare(a: Point, b: Point): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
+    const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : a.x !== a.x ? b.x !== b.x ? 0 : 1 : -1;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
+    const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : a.y !== a.y ? b.y !== b.y ? 0 : 1 : -1;
     if (cmp1 !== 0) return cmp1;
         return 0;
     });
@@ -117,12 +117,12 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
 function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
         if (value.x !== undefined) {
-            result.x = value.x;
+            result["x"] = value.x;
         }
     }
     if (__fields === undefined || __fields.keeps("y")) {
         if (value.y !== undefined) {
-            result.y = value.y;
+            result["y"] = value.y;
         }
     }
 }
@@ -199,7 +199,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
         errors.push({ field: "x", message: "missing required field" });
@@ -257,8 +257,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "x" in o && "y" in o;
+    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -375,19 +374,19 @@ export declare const Point: {
 
 ## Mapping
 
-original 91..148 -> expanded 819..876
-original 148..149 -> expanded 12200..12201
-generated 0..819 <- imports
-generated 876..1158 <- Debug
-generated 1158..1291 <- Clone
-generated 1291..1452 <- PartialEq
-generated 1452..1927 <- Hash
-generated 1927..2391 <- PartialOrd
-generated 2391..2723 <- Ord
-generated 2723..2819 <- Default
-generated 2819..5030 <- Encode
-generated 5030..10759 <- Decode
-generated 10759..12200 <- __convenience_const
+original 91..148 -> expanded 871..928
+original 148..149 -> expanded 12464..12465
+generated 0..871 <- imports
+generated 928..1210 <- Debug
+generated 1210..1343 <- Clone
+generated 1343..1568 <- PartialEq
+generated 1568..2043 <- Hash
+generated 2043..2571 <- PartialOrd
+generated 2571..3013 <- Ord
+generated 3013..3109 <- Default
+generated 3109..5326 <- Encode
+generated 5326..11023 <- Decode
+generated 11023..12464 <- __convenience_const
 
 ## Metadata
 

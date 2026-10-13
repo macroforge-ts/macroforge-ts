@@ -96,7 +96,7 @@ generated 1107..1389 <- __convenience_const
 
 ## Metadata
 
-enum Mixed: {"body_span":{"end":114,"start":65},"decorators":[{"args_src":"PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":53,"start":1}}],"is_const":false,"name":"Mixed","span":{"end":114,"start":54},"variants":[{"decorators":[],"name":"Zero","span":{"end":79,"start":71},"value":{"Number":0.0}},{"decorators":[],"name":"Text","span":{"end":98,"start":85},"value":{"String":"text"}},{"decorators":[],"name":"Five","span":{"end":112,"start":104},"value":{"Number":5.0}}]}
+enum Mixed: {"body_span":{"end":114,"start":65},"decorators":[{"args_src":"PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":53,"start":1}}],"is_const":false,"is_declare":false,"name":"Mixed","span":{"end":114,"start":54},"variants":[{"decorators":[],"name":"Zero","span":{"end":79,"start":71},"value":{"Number":0.0}},{"decorators":[],"name":"Text","span":{"end":98,"start":85},"value":{"String":"text"}},{"decorators":[],"name":"Five","span":{"end":112,"start":104},"value":{"Number":5.0}}]}
 
 ## Registry reads
 

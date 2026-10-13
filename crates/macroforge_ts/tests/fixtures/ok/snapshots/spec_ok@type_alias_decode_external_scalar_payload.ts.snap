@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An externally-tagged variant whose payload is a link type: encodable in
 // its own right, but carried as a bare id string as often as an object. The
@@ -51,7 +51,7 @@ export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unkno
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
         const result: Record<string, unknown> = {};
-        result.id = value.id;
+        result["id"] = value.id;
         __variant = result;
         __matched = true;
     }
@@ -133,7 +133,7 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
     if (typeof value === "string") {
         return value as Ref;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) {
         return __mf_decodeObject(value, ctx, { id: __mf_decodeString }) as Ref;
     }
 
@@ -144,7 +144,7 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
 }
 export function refHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) return true;
                 return false;
 }
 export function refIs(value: unknown): value is Ref {
@@ -402,18 +402,18 @@ export declare const Stage: {
 
 ## Mapping
 
-original 0..278 -> expanded 529..807
-original 308..351 -> expanded 807..850
-original 351..353 -> expanded 5563..5565
-original 425..474 -> expanded 5565..5614
-original 474..475 -> expanded 11298..11299
-generated 0..529 <- imports
-generated 850..2444 <- Encode
-generated 2444..5106 <- Decode
-generated 5106..5563 <- __convenience_const
-generated 5614..7280 <- Encode
-generated 7280..10741 <- Decode
-generated 10741..11298 <- __convenience_const
+original 0..278 -> expanded 550..828
+original 308..351 -> expanded 828..871
+original 351..353 -> expanded 5607..5609
+original 425..474 -> expanded 5609..5658
+original 474..475 -> expanded 11342..11343
+generated 0..550 <- imports
+generated 871..2468 <- Encode
+generated 2468..5150 <- Decode
+generated 5150..5607 <- __convenience_const
+generated 5658..7324 <- Encode
+generated 7324..10785 <- Decode
+generated 10785..11342 <- __convenience_const
 
 ## Metadata
 

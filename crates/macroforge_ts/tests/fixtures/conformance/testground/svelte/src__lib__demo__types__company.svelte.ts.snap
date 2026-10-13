@@ -16,7 +16,7 @@ import { colorsConfigDecodeWithContext, colorsConfigEncodeWithContext, colorsCon
 import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -138,147 +138,147 @@ export function companyEncodePartialWithContext(value: Partial<Company>, ctx: __
 function companyEncodeFields(value: Company, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("legalName")) {
         if (value.legalName !== undefined) {
-            result.legalName = value.legalName;
+            result["legalName"] = value.legalName;
         }
     }
     if (__fields === undefined || __fields.keeps("headquarters")) {
         if (value.headquarters !== undefined) {
-            result.headquarters = (typeof value.headquarters === "string" ? value.headquarters : siteEncodeWithContext(value.headquarters, ctx));
+            result["headquarters"] = (typeof value.headquarters === "string" ? value.headquarters : siteEncodeWithContext(value.headquarters, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("phones")) {
         if (value.phones !== undefined) {
-            result.phones = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
+            result["phones"] = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("fax")) {
         if (value.fax !== undefined) {
-            result.fax = value.fax;
+            result["fax"] = value.fax;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = value.email;
+            result["email"] = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("website")) {
         if (value.website !== undefined) {
-            result.website = value.website;
+            result["website"] = value.website;
         }
     }
     if (__fields === undefined || __fields.keeps("taxId")) {
         if (value.taxId !== undefined) {
-            result.taxId = value.taxId;
+            result["taxId"] = value.taxId;
         }
     }
     if (__fields === undefined || __fields.keeps("referenceNumber")) {
         if (value.referenceNumber !== undefined) {
-            result.referenceNumber = value.referenceNumber;
+            result["referenceNumber"] = value.referenceNumber;
         }
     }
     if (__fields === undefined || __fields.keeps("postalCodeLookup")) {
         if (value.postalCodeLookup !== undefined) {
-            result.postalCodeLookup = value.postalCodeLookup;
+            result["postalCodeLookup"] = value.postalCodeLookup;
         }
     }
     if (__fields === undefined || __fields.keeps("timeZone")) {
         if (value.timeZone !== undefined) {
-            result.timeZone = value.timeZone;
+            result["timeZone"] = value.timeZone;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultTax")) {
         if (value.defaultTax !== undefined) {
-            result.defaultTax = (typeof value.defaultTax === "string" ? value.defaultTax : taxRateEncodeWithContext(value.defaultTax, ctx));
+            result["defaultTax"] = (typeof value.defaultTax === "string" ? value.defaultTax : taxRateEncodeWithContext(value.defaultTax, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("defaultTaxLocation")) {
         if (value.defaultTaxLocation !== undefined) {
-            result.defaultTaxLocation = value.defaultTaxLocation;
+            result["defaultTaxLocation"] = value.defaultTaxLocation;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultAreaCode")) {
         if (value.defaultAreaCode !== undefined) {
-            result.defaultAreaCode = value.defaultAreaCode;
+            result["defaultAreaCode"] = value.defaultAreaCode;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultAccountType")) {
         if (value.defaultAccountType !== undefined) {
-            result.defaultAccountType = value.defaultAccountType;
+            result["defaultAccountType"] = value.defaultAccountType;
         }
     }
     if (__fields === undefined || __fields.keeps("lookupFormatting")) {
         if (value.lookupFormatting !== undefined) {
-            result.lookupFormatting = value.lookupFormatting;
+            result["lookupFormatting"] = value.lookupFormatting;
         }
     }
     if (__fields === undefined || __fields.keeps("accountNameFormat")) {
         if (value.accountNameFormat !== undefined) {
-            result.accountNameFormat = value.accountNameFormat;
+            result["accountNameFormat"] = value.accountNameFormat;
         }
     }
     if (__fields === undefined || __fields.keeps("merchantServiceProvider")) {
         if (value.merchantServiceProvider !== undefined) {
-            result.merchantServiceProvider = value.merchantServiceProvider;
+            result["merchantServiceProvider"] = value.merchantServiceProvider;
         }
     }
     if (__fields === undefined || __fields.keeps("dateDisplayStyle")) {
         if (value.dateDisplayStyle !== undefined) {
-            result.dateDisplayStyle = value.dateDisplayStyle;
+            result["dateDisplayStyle"] = value.dateDisplayStyle;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAutoCommission")) {
         if (value.hasAutoCommission !== undefined) {
-            result.hasAutoCommission = value.hasAutoCommission;
+            result["hasAutoCommission"] = value.hasAutoCommission;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAutoDaylightSavings")) {
         if (value.hasAutoDaylightSavings !== undefined) {
-            result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;
+            result["hasAutoDaylightSavings"] = value.hasAutoDaylightSavings;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAutoFmsTracking")) {
         if (value.hasAutoFmsTracking !== undefined) {
-            result.hasAutoFmsTracking = value.hasAutoFmsTracking;
+            result["hasAutoFmsTracking"] = value.hasAutoFmsTracking;
         }
     }
     if (__fields === undefined || __fields.keeps("hasNotifications")) {
         if (value.hasNotifications !== undefined) {
-            result.hasNotifications = value.hasNotifications;
+            result["hasNotifications"] = value.hasNotifications;
         }
     }
     if (__fields === undefined || __fields.keeps("hasRequiredLeadSource")) {
         if (value.hasRequiredLeadSource !== undefined) {
-            result.hasRequiredLeadSource = value.hasRequiredLeadSource;
+            result["hasRequiredLeadSource"] = value.hasRequiredLeadSource;
         }
     }
     if (__fields === undefined || __fields.keeps("hasRequiredEmail")) {
         if (value.hasRequiredEmail !== undefined) {
-            result.hasRequiredEmail = value.hasRequiredEmail;
+            result["hasRequiredEmail"] = value.hasRequiredEmail;
         }
     }
     if (__fields === undefined || __fields.keeps("hasSortServiceItemsAlphabetically")) {
         if (value.hasSortServiceItemsAlphabetically !== undefined) {
-            result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;
+            result["hasSortServiceItemsAlphabetically"] = value.hasSortServiceItemsAlphabetically;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAttachOrderToAppointmentEmails")) {
         if (value.hasAttachOrderToAppointmentEmails !== undefined) {
-            result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;
+            result["hasAttachOrderToAppointmentEmails"] = value.hasAttachOrderToAppointmentEmails;
         }
     }
     if (__fields === undefined || __fields.keeps("scheduleInterval")) {
         if (value.scheduleInterval !== undefined) {
-            result.scheduleInterval = value.scheduleInterval;
+            result["scheduleInterval"] = value.scheduleInterval;
         }
     }
     if (__fields === undefined || __fields.keeps("colorsConfig")) {
         if (value.colorsConfig !== undefined) {
-            result.colorsConfig = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
+            result["colorsConfig"] = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
         }
     }
 }
@@ -355,7 +355,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Company.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -967,8 +967,7 @@ export function companyHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "legalName" in o && "headquarters" in o && "phones" in o && "fax" in o && "email" in o && "website" in o && "taxId" in o && "referenceNumber" in o && "postalCodeLookup" in o && "timeZone" in o && "defaultTax" in o && "defaultTaxLocation" in o && "defaultAreaCode" in o && "defaultAccountType" in o && "lookupFormatting" in o && "accountNameFormat" in o && "merchantServiceProvider" in o && "dateDisplayStyle" in o && "hasAutoCommission" in o && "hasAutoDaylightSavings" in o && "hasAutoFmsTracking" in o && "hasNotifications" in o && "hasRequiredLeadSource" in o && "hasRequiredEmail" in o && "hasSortServiceItemsAlphabetically" in o && "hasAttachOrderToAppointmentEmails" in o && "scheduleInterval" in o && "colorsConfig" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "legalName") && __mf_holds(obj, "headquarters") && __mf_holds(obj, "phones") && __mf_holds(obj, "fax") && __mf_holds(obj, "email") && __mf_holds(obj, "website") && __mf_holds(obj, "taxId") && __mf_holds(obj, "referenceNumber") && __mf_holds(obj, "postalCodeLookup") && __mf_holds(obj, "timeZone") && __mf_holds(obj, "defaultTax") && __mf_holds(obj, "defaultTaxLocation") && __mf_holds(obj, "defaultAreaCode") && __mf_holds(obj, "defaultAccountType") && __mf_holds(obj, "lookupFormatting") && __mf_holds(obj, "accountNameFormat") && __mf_holds(obj, "merchantServiceProvider") && __mf_holds(obj, "dateDisplayStyle") && __mf_holds(obj, "hasAutoCommission") && __mf_holds(obj, "hasAutoDaylightSavings") && __mf_holds(obj, "hasAutoFmsTracking") && __mf_holds(obj, "hasNotifications") && __mf_holds(obj, "hasRequiredLeadSource") && __mf_holds(obj, "hasRequiredEmail") && __mf_holds(obj, "hasSortServiceItemsAlphabetically") && __mf_holds(obj, "hasAttachOrderToAppointmentEmails") && __mf_holds(obj, "scheduleInterval") && __mf_holds(obj, "colorsConfig");
 }
 
 export function companyIs(obj: unknown): obj is Company {
@@ -2213,28 +2212,28 @@ export declare const Company: {
 
 ## Mapping
 
-original 0..270 -> expanded 1205..1475
-original 319..367 -> expanded 1475..1523
-original 408..436 -> expanded 1523..1551
-original 455..525 -> expanded 1551..1621
-original 566..588 -> expanded 1621..1643
-original 629..653 -> expanded 1643..1667
-original 694..720 -> expanded 1667..1693
-original 761..814 -> expanded 1693..1746
-original 855..912 -> expanded 1746..1803
-original 931..970 -> expanded 1803..1842
-original 1011..1077 -> expanded 1842..1908
-original 1118..1155 -> expanded 1908..1945
-original 1196..1231 -> expanded 1945..1980
-original 1272..1352 -> expanded 1980..2060
-original 1393..1783 -> expanded 2060..2450
-original 1783..1784 -> expanded 97272..97273
-generated 0..1205 <- imports
-generated 2450..3400 <- Default
-generated 3400..11338 <- Encode
-generated 11338..52695 <- Decode
-generated 52695..96033 <- Gigaform
-generated 96033..97272 <- __convenience_const
+original 0..270 -> expanded 1257..1527
+original 319..367 -> expanded 1527..1575
+original 408..436 -> expanded 1575..1603
+original 455..525 -> expanded 1603..1673
+original 566..588 -> expanded 1673..1695
+original 629..653 -> expanded 1695..1719
+original 694..720 -> expanded 1719..1745
+original 761..814 -> expanded 1745..1798
+original 855..912 -> expanded 1798..1855
+original 931..970 -> expanded 1855..1894
+original 1011..1077 -> expanded 1894..1960
+original 1118..1155 -> expanded 1960..1997
+original 1196..1231 -> expanded 1997..2032
+original 1272..1352 -> expanded 2032..2112
+original 1393..1783 -> expanded 2112..2502
+original 1783..1784 -> expanded 97703..97704
+generated 0..1257 <- imports
+generated 2502..3452 <- Default
+generated 3452..11477 <- Encode
+generated 11477..53126 <- Decode
+generated 53126..96464 <- Gigaform
+generated 96464..97703 <- __convenience_const
 
 ## Metadata
 

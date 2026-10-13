@@ -24,7 +24,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 type Contact = /** @endec(email) */ string | number;
@@ -202,7 +202,7 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Phone.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("digits")) && !("digits" in obj)) {
         errors.push({ field: "digits", message: "missing required field" });
@@ -248,8 +248,7 @@ export function phoneHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "digits" in o;
+    return __mf_holds(obj, "digits");
 }
 
 export function phoneIs(obj: unknown): obj is Phone {
@@ -489,19 +488,19 @@ export {};
 
 ## Mapping
 
-original 22..75 -> expanded 383..436
-original 75..77 -> expanded 3521..3523
-original 99..137 -> expanded 3523..3561
-original 137..139 -> expanded 9433..9435
-original 161..239 -> expanded 9435..9513
-original 239..240 -> expanded 14321..14322
-generated 0..383 <- imports
-generated 436..3195 <- Decode
-generated 3195..3521 <- __convenience_const
-generated 3561..8807 <- Decode
-generated 8807..9433 <- __convenience_const
-generated 9513..13977 <- Decode
-generated 13977..14321 <- __convenience_const
+original 22..75 -> expanded 435..488
+original 75..77 -> expanded 3573..3575
+original 99..137 -> expanded 3575..3613
+original 137..139 -> expanded 9441..9443
+original 161..239 -> expanded 9443..9521
+original 239..240 -> expanded 14329..14330
+generated 0..435 <- imports
+generated 488..3247 <- Decode
+generated 3247..3573 <- __convenience_const
+generated 3613..8815 <- Decode
+generated 8815..9441 <- __convenience_const
+generated 9521..13985 <- Decode
+generated 13985..14329 <- __convenience_const
 
 ## Metadata
 

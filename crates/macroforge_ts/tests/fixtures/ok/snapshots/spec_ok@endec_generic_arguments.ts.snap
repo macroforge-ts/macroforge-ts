@@ -51,7 +51,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -90,22 +90,22 @@ export function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf
 function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
+            result["held"] = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+            result["list"] = value.list.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : (__encodeT === undefined ? value.maybe : __encodeT(value.maybe, ctx));
+            result["maybe"] = value.maybe === null ? null : (__encodeT === undefined ? value.maybe : __encodeT(value.maybe, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("later")) {
         if (value.later !== undefined) {
-            result.later = (__encodeT === undefined ? value.later : __encodeT(value.later, ctx));
+            result["later"] = (__encodeT === undefined ? value.later : __encodeT(value.later, ctx));
         }
     }
 }
@@ -182,7 +182,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Box.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
         errors.push({ field: "held", message: "missing required field" });
@@ -322,8 +322,7 @@ export function boxHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "held" in o && "list" in o && "maybe" in o;
+    return __mf_holds(obj, "held") && __mf_holds(obj, "list") && __mf_holds(obj, "maybe");
 }
 
 export function boxIs<T>(obj: unknown): obj is Box<T> {
@@ -381,7 +380,7 @@ static encodePartialWithContext<T>(value: Partial<Stack<T>>, ctx: __mf_EncodeCon
 static #encodeFields<T>(value: Stack<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("items")) {
         if (value.items !== undefined) {
-            result.items = value.items.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+            result["items"] = value.items.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         }
     }
 }
@@ -469,7 +468,7 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
         throw new __mf_DecodeError([{ field: "_root", message: "Stack.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
@@ -526,8 +525,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holds(obj, "items");
 }
 
 static is<T>(obj: unknown): obj is Stack<T> {
@@ -604,15 +602,15 @@ export function outcomeEncodeWithContext<Value, Failure>(value: Outcome<Value, F
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "value" in value) {
         const result: Record<string, unknown> = {};
-        result.ok = value.ok;
-        result.value = (__encodeValue === undefined ? value.value : __encodeValue(value.value, ctx));
+        result["ok"] = value.ok;
+        result["value"] = (__encodeValue === undefined ? value.value : __encodeValue(value.value, ctx));
         __variant = result;
         __matched = true;
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "failure" in value) {
         const result: Record<string, unknown> = {};
-        result.ok = value.ok;
-        result.failure = (__encodeFailure === undefined ? value.failure : __encodeFailure(value.failure, ctx));
+        result["ok"] = value.ok;
+        result["failure"] = (__encodeFailure === undefined ? value.failure : __encodeFailure(value.failure, ctx));
         __variant = result;
         __matched = true;
     }
@@ -691,10 +689,10 @@ export function outcomeDecodeWithContext<Value, Failure>(value: unknown, ctx: __
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "value" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "value")) {
         return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), value: (__raw0) => (__decodeValue === undefined ? __raw0 as Value : __decodeValue(__raw0, ctx)) }) as Outcome<Value, Failure>;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "failure" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "failure")) {
         return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), failure: (__raw0) => (__decodeFailure === undefined ? __raw0 as Failure : __decodeFailure(__raw0, ctx)) }) as Outcome<Value, Failure>;
     }
 
@@ -704,8 +702,8 @@ export function outcomeDecodeWithContext<Value, Failure>(value: unknown, ctx: __
     }]);
 }
 export function outcomeHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "value" in value) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "failure" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "value")) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "failure")) return true;
                 return false;
 }
 export function outcomeIs<Value, Failure>(value: unknown): value is Outcome<Value, Failure> {
@@ -882,8 +880,8 @@ export function pairEncodeWithContext<Left, Right>(value: Pair<Left, Right>, ctx
     };
     return ((value: { e0: Left; e1: Right }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result.e0 = (__encodeLeft === undefined ? value.e0 : __encodeLeft(value.e0, ctx));
-        result.e1 = (__encodeRight === undefined ? value.e1 : __encodeRight(value.e1, ctx));
+        result["e0"] = (__encodeLeft === undefined ? value.e0 : __encodeLeft(value.e0, ctx));
+        result["e1"] = (__encodeRight === undefined ? value.e1 : __encodeRight(value.e1, ctx));
         const __tuple: unknown[] = [];
         if ("e0" in result) {
             __tuple.push(result.e0);
@@ -1086,7 +1084,7 @@ export function wrapperEncodePartialWithContext<T>(value: Partial<Wrapper<T>>, c
 function wrapperEncodeFields<T>(value: Wrapper<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("inner")) {
         if (value.inner !== undefined) {
-            result.inner = boxEncodeWithContext<T>(value.inner, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx)));
+            result["inner"] = boxEncodeWithContext<T>(value.inner, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx)));
         }
     }
 }
@@ -1163,7 +1161,7 @@ export function wrapperDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "Wrapper.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("inner")) && !("inner" in obj)) {
         errors.push({ field: "inner", message: "missing required field" });
@@ -1223,8 +1221,7 @@ export function wrapperHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "inner" in o;
+    return __mf_holds(obj, "inner");
 }
 
 export function wrapperIs<T>(obj: unknown): obj is Wrapper<T> {
@@ -1297,42 +1294,42 @@ export function shelfEncodePartialWithContext(value: Partial<Shelf>, ctx: __mf_E
 function shelfEncodeFields(value: Shelf, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("dated")) {
         if (value.dated !== undefined) {
-            result.dated = boxEncodeWithContext<Date>(value.dated, ctx, (__arg0) => __arg0.toISOString());
+            result["dated"] = boxEncodeWithContext<Date>(value.dated, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("stack")) {
         if (value.stack !== undefined) {
-            result.stack = stackEncodeWithContext<Box<Date>>(value.stack, ctx, (__arg0) => boxEncodeWithContext<Date>(__arg0, ctx, (__arg1) => __arg1.toISOString()));
+            result["stack"] = stackEncodeWithContext<Box<Date>>(value.stack, ctx, (__arg0) => boxEncodeWithContext<Date>(__arg0, ctx, (__arg1) => __arg1.toISOString()));
         }
     }
     if (__fields === undefined || __fields.keeps("outcome")) {
         if (value.outcome !== undefined) {
-            result.outcome = outcomeEncodeWithContext<Date, string>(value.outcome, ctx, (__arg0) => __arg0.toISOString());
+            result["outcome"] = outcomeEncodeWithContext<Date, string>(value.outcome, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = maybeEncodeWithContext<Date>(value.maybe, ctx, (__arg0) => __arg0.toISOString());
+            result["maybe"] = maybeEncodeWithContext<Date>(value.maybe, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = pairEncodeWithContext<Date, bigint>(value.pair, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => ((v) => String(v))(__arg0));
+            result["pair"] = pairEncodeWithContext<Date, bigint>(value.pair, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => ((v) => String(v))(__arg0));
         }
     }
     if (__fields === undefined || __fields.keeps("partial")) {
         if (value.partial !== undefined) {
-            result.partial = boxEncodePartialWithContext<Date>(value.partial, ctx, undefined, (__arg0) => __arg0.toISOString());
+            result["partial"] = boxEncodePartialWithContext<Date>(value.partial, ctx, undefined, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("wrapper")) {
         if (value.wrapper !== undefined) {
-            result.wrapper = value.wrapper === null ? null : wrapperEncodeWithContext<Date>(value.wrapper, ctx, (__arg0) => __arg0.toISOString());
+            result["wrapper"] = value.wrapper === null ? null : wrapperEncodeWithContext<Date>(value.wrapper, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("plain")) {
         if (value.plain !== undefined) {
-            result.plain = boxEncodeWithContext(value.plain, ctx);
+            result["plain"] = boxEncodeWithContext(value.plain, ctx);
         }
     }
 }
@@ -1409,7 +1406,7 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Shelf.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("dated")) && !("dated" in obj)) {
         errors.push({ field: "dated", message: "missing required field" });
@@ -1662,8 +1659,7 @@ export function shelfHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "dated" in o && "stack" in o && "outcome" in o && "maybe" in o && "pair" in o && "partial" in o && "wrapper" in o && "plain" in o;
+    return __mf_holds(obj, "dated") && __mf_holds(obj, "stack") && __mf_holds(obj, "outcome") && __mf_holds(obj, "maybe") && __mf_holds(obj, "pair") && __mf_holds(obj, "partial") && __mf_holds(obj, "wrapper") && __mf_holds(obj, "plain");
 }
 
 export function shelfIs(obj: unknown): obj is Shelf {
@@ -1996,49 +1992,49 @@ export {};
 
 ## Mapping
 
-original 30..115 -> expanded 856..941
-original 115..117 -> expanded 14317..14319
-original 147..186 -> expanded 14319..14358
-original 186..187 -> expanded 22169..22170
-original 187..189 -> expanded 25523..25525
-original 219..312 -> expanded 25525..25618
-original 312..314 -> expanded 32301..32303
-original 344..370 -> expanded 32303..32329
-original 370..372 -> expanded 37069..37071
-original 402..442 -> expanded 37071..37111
-original 442..444 -> expanded 44106..44108
-original 474..518 -> expanded 44108..44152
-original 518..520 -> expanded 53636..53638
-original 550..803 -> expanded 53638..53891
-original 803..804 -> expanded 73198..73199
-generated 0..856 <- imports
-generated 941..3932 <- Encode
-generated 3932..13431 <- Decode
-generated 13431..14317 <- __convenience_const
-generated 14358..16091 <- Encode
-generated 16091..16454 <- Encode
-generated 16454..22169 <- Decode
-generated 22170..23627 <- Encode
-generated 23627..25523 <- Decode
-generated 25618..28042 <- Encode
-generated 28042..31799 <- Decode
-generated 31799..32301 <- __convenience_const
-generated 32329..33936 <- Encode
-generated 33936..36593 <- Decode
-generated 36593..37069 <- __convenience_const
-generated 37111..38664 <- Encode
-generated 38664..43643 <- Decode
-generated 43643..44106 <- __convenience_const
-generated 44152..46557 <- Encode
-generated 46557..52666 <- Decode
-generated 52666..53636 <- __convenience_const
-generated 53891..57774 <- Encode
-generated 57774..72270 <- Decode
-generated 72270..73198 <- __convenience_const
+original 30..115 -> expanded 908..993
+original 115..117 -> expanded 14361..14363
+original 147..186 -> expanded 14363..14402
+original 186..187 -> expanded 22172..22173
+original 187..189 -> expanded 25526..25528
+original 219..312 -> expanded 25528..25621
+original 312..314 -> expanded 32448..32450
+original 344..370 -> expanded 32450..32476
+original 370..372 -> expanded 37216..37218
+original 402..442 -> expanded 37218..37258
+original 442..444 -> expanded 44259..44261
+original 474..518 -> expanded 44261..44305
+original 518..520 -> expanded 53748..53750
+original 550..803 -> expanded 53750..54003
+original 803..804 -> expanded 73374..73375
+generated 0..908 <- imports
+generated 993..3996 <- Encode
+generated 3996..13475 <- Decode
+generated 13475..14361 <- __convenience_const
+generated 14402..16138 <- Encode
+generated 16138..16501 <- Encode
+generated 16501..22172 <- Decode
+generated 22173..23630 <- Encode
+generated 23630..25526 <- Decode
+generated 25621..28057 <- Encode
+generated 28057..31946 <- Decode
+generated 31946..32448 <- __convenience_const
+generated 32476..34083 <- Encode
+generated 34083..36740 <- Decode
+generated 36740..37216 <- __convenience_const
+generated 37258..38817 <- Encode
+generated 38817..43796 <- Decode
+generated 43796..44259 <- __convenience_const
+generated 44305..46713 <- Encode
+generated 46713..52778 <- Decode
+generated 52778..53748 <- __convenience_const
+generated 54003..57910 <- Encode
+generated 57910..72446 <- Decode
+generated 72446..73374 <- __convenience_const
 
 ## Metadata
 
-class Stack: {"body_span":{"end":188,"start":164},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":148,"start":118}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":186,"start":170},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Stack","span":{"end":188,"start":149},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class Stack: {"body_span":{"end":188,"start":164},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":148,"start":118}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":186,"start":170},"ts_type":"T[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Stack","span":{"end":188,"start":149},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface Box: {"body_span":{"end":116,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":63,"start":55},"ts_type":"T"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":78,"start":68},"ts_type":"T[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":99,"start":83},"ts_type":"T | null"},{"decorators":[],"key":"Named","name":"later","optional":true,"readonly":false,"span":{"end":114,"start":104},"ts_type":"T"}],"heritage":[],"methods":[],"name":"Box","span":{"end":116,"start":32},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface Wrapper: {"body_span":{"end":519,"start":497},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":475,"start":445}}],"fields":[{"decorators":[],"key":"Named","name":"inner","optional":false,"readonly":false,"span":{"end":517,"start":503},"ts_type":"Box<T>"}],"heritage":[],"methods":[],"name":"Wrapper","span":{"end":519,"start":476},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface Shelf: {"body_span":{"end":804,"start":568},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":551,"start":521}}],"fields":[{"decorators":[],"key":"Named","name":"dated","optional":false,"readonly":false,"span":{"end":591,"start":574},"ts_type":"Box<Date>"},{"decorators":[],"key":"Named","name":"stack","optional":false,"readonly":false,"span":{"end":620,"start":596},"ts_type":"Stack<Box<Date>>"},{"decorators":[],"key":"Named","name":"outcome","optional":false,"readonly":false,"span":{"end":656,"start":625},"ts_type":"Outcome<Date, string>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":680,"start":661},"ts_type":"Maybe<Date>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":710,"start":685},"ts_type":"Pair<Date, bigint>"},{"decorators":[],"key":"Named","name":"partial","optional":false,"readonly":false,"span":{"end":743,"start":715},"ts_type":"Partial<Box<Date>>"},{"decorators":[],"key":"Named","name":"wrapper","optional":false,"readonly":false,"span":{"end":778,"start":748},"ts_type":"Wrapper<Date> | null"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":802,"start":783},"ts_type":"Box<string>"}],"heritage":[],"methods":[],"name":"Shelf","span":{"end":804,"start":552},"type_params":[]}

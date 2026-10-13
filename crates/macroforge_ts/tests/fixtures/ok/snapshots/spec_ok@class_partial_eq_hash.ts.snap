@@ -76,7 +76,7 @@ generated 714..802 <- Hash
 
 ## Metadata
 
-class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

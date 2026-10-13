@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 /** @endec({ renameAll: "kebab-case" }) */
@@ -139,7 +139,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("firstName")) && !("first-name" in obj)) {
         errors.push({ field: "first-name", message: "missing required field" });
@@ -197,8 +197,7 @@ export function profileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "first-name" in o && "is-active" in o;
+    return __mf_holds(obj, "first-name") && __mf_holds(obj, "is-active");
 }
 
 export function profileIs(obj: unknown): obj is Profile {
@@ -277,12 +276,12 @@ export {};
 
 ## Mapping
 
-original 30..141 -> expanded 596..707
-original 141..142 -> expanded 10042..10043
-generated 0..596 <- imports
-generated 707..3016 <- Encode
-generated 3016..9072 <- Decode
-generated 9072..10042 <- __convenience_const
+original 30..141 -> expanded 648..759
+original 141..142 -> expanded 10062..10063
+generated 0..648 <- imports
+generated 759..3068 <- Encode
+generated 3068..9092 <- Decode
+generated 9092..10062 <- __convenience_const
 
 ## Metadata
 

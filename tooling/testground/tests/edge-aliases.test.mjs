@@ -450,3 +450,66 @@ Deno.test('an alias of a selection or an object type defaults to the fields it h
     assertEquals(decoded(mod.aliasPickedDecode(mod.aliasPickedEncode({ id: 'p' }))), { id: 'p' });
     assert(!mod.aliasRequiredDecode({ id: 'r' }).success);
 });
+
+Deno.test('a tagged union refuses input that is no member, in every tagging mode', () => {
+    const item = { id: 'a', score: 1 };
+    const at = '2024-03-04T05:06:07.000Z';
+    const refused = {
+        aliasTagged: [
+            {},
+            { kind: 5, radius: 1 },
+            { kind: null, radius: 1 },
+            { kind: 'circle', radius: 'wide' },
+            { kind: 'circle', side: 2, at },
+            { kind: 'square', side: 2 },
+            { kind: 'square', side: 2, at: 'never' },
+            { kind: 'group' },
+            { kind: 'group', members: {} },
+            { kind: 'group', members: [{ kind: 'circle' }] },
+            { kind: 'group', members: [5] }
+        ],
+        aliasAdjacent: [
+            {},
+            { type: 'EdgeItem' },
+            { type: 'EdgeItem', value: null },
+            { type: 'EdgeItem', value: 5 },
+            { type: 'EdgeItem', value: { id: 'a' } },
+            { type: 'EdgeItem', value: { id: 5, score: 1 } },
+            { type: 5, value: item },
+            { value: item },
+            item
+        ],
+        aliasExternal: [
+            {},
+            { EdgeItem: null },
+            { EdgeItem: 5 },
+            { EdgeItem: { id: 'a' } },
+            { EdgeItem: { id: 5, score: 1 } },
+            { Other: item },
+            item
+        ],
+        aliasUntagged: [
+            {},
+            { id: 'a' },
+            { id: 5, score: 1 },
+            { title: 5, items: [] },
+            5,
+            true,
+            null,
+            []
+        ],
+        aliasMembers: [{}, { id: 'a' }, { id: 5, score: 1 }, { title: 't' }, 5, 'x', true, null, []]
+    };
+    const accepted = [];
+    for (const [name, inputs] of Object.entries(refused)) {
+        for (const input of inputs) {
+            const result = mod[`${name}Decode`](input);
+            if (result.success) {
+                accepted.push(
+                    `${name}: ${JSON.stringify(input)} -> ${JSON.stringify(result.value)}`
+                );
+            }
+        }
+    }
+    assertEquals(accepted, []);
+});

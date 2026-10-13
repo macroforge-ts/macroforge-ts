@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,12 +62,12 @@ export function sentEncodePartialWithContext(value: Partial<Sent>, ctx: __mf_Enc
 function sentEncodeFields(value: Sent, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("recipient")) {
         if (value.recipient !== undefined) {
-            result.recipient = value.recipient;
+            result["recipient"] = value.recipient;
         }
     }
     if (__fields === undefined || __fields.keeps("method")) {
         if (value.method !== undefined) {
-            result.method = value.method;
+            result["method"] = value.method;
         }
     }
 }
@@ -144,7 +144,7 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Sent.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("recipient")) && !("recipient" in obj)) {
         errors.push({ field: "recipient", message: "missing required field" });
@@ -202,8 +202,7 @@ export function sentHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "recipient" in o && "method" in o;
+    return __mf_holds(obj, "recipient") && __mf_holds(obj, "method");
 }
 
 export function sentIs(obj: unknown): obj is Sent {
@@ -463,15 +462,15 @@ export declare const Sent: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..190 -> expanded 813..896
-original 190..191 -> expanded 14661..14662
-generated 0..755 <- imports
-generated 896..1009 <- Default
-generated 1009..3257 <- Encode
-generated 3257..9133 <- Decode
-generated 9133..13503 <- Gigaform
-generated 13503..14661 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..190 -> expanded 865..948
+original 190..191 -> expanded 14687..14688
+generated 0..807 <- imports
+generated 948..1061 <- Default
+generated 1061..3315 <- Encode
+generated 3315..9159 <- Decode
+generated 9159..13529 <- Gigaform
+generated 13529..14687 <- __convenience_const
 
 ## Metadata
 

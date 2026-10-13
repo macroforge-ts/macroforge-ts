@@ -14,7 +14,7 @@ true
 
 import { edgeLabeledDecodePartialWithContext, edgeNodeDecodePartialWithContext, edgeProfileDecodePartialWithContext, edgeStrictDecodePartialWithContext, edgeLabeledEncodePartialWithContext, edgeNodeEncodePartialWithContext, edgeProfileEncodePartialWithContext, edgeStrictEncodePartialWithContext, edgeCardDecodePartialWithContext, edgeItemDecodePartialWithContext, edgeCardEncodePartialWithContext, edgeItemEncodePartialWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * `Partial`, `Pick` and `Omit` of types from another module, wherever a
@@ -156,67 +156,67 @@ export function edgePartialsEncodePartialWithContext(value: Partial<EdgePartials
 function edgePartialsEncodeFields(value: EdgePartials, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("patch")) {
         if (value.patch !== undefined) {
-            result.patch = edgeItemEncodePartialWithContext(value.patch, ctx);
+            result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("patches")) {
         if (value.patches !== undefined) {
-            result.patches = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
+            result["patches"] = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("patchList")) {
         if (value.patchList !== undefined) {
-            result.patchList = value.patchList.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx, { only: ["id"] }));
+            result["patchList"] = value.patchList.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx, { only: ["id"] }));
         }
     }
     if (__fields === undefined || __fields.keeps("readonlyPatches")) {
         if (value.readonlyPatches !== undefined) {
-            result.readonlyPatches = value.readonlyPatches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx, { except: ["score"] }));
+            result["readonlyPatches"] = value.readonlyPatches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx, { except: ["score"] }));
         }
     }
     if (__fields === undefined || __fields.keeps("patchSet")) {
         if (value.patchSet !== undefined) {
-            result.patchSet = Array.from(value.patchSet, (__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
+            result["patchSet"] = Array.from(value.patchSet, (__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodePartialWithContext(__item0, ctx, { only: ["id"] })]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodePartialWithContext(__item0, ctx, { only: ["id"] })]));
         }
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result.record = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, edgeItemEncodePartialWithContext(__item0, ctx, { except: ["score"] })]));
+            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, edgeItemEncodePartialWithContext(__item0, ctx, { except: ["score"] })]));
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : edgeItemEncodePartialWithContext(value.maybe, ctx);
+            result["maybe"] = value.maybe === null ? null : edgeItemEncodePartialWithContext(value.maybe, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("later")) {
         if (value.later !== undefined) {
-            result.later = edgeItemEncodePartialWithContext(value.later, ctx, { only: ["id"] });
+            result["later"] = edgeItemEncodePartialWithContext(value.later, ctx, { only: ["id"] });
         }
     }
     if (__fields === undefined || __fields.keeps("optional")) {
         if (value.optional !== undefined) {
-            result.optional = edgeItemEncodePartialWithContext(value.optional, ctx, { except: ["id"] });
+            result["optional"] = edgeItemEncodePartialWithContext(value.optional, ctx, { except: ["id"] });
         }
     }
     if (__fields === undefined || __fields.keeps("nullablePatches")) {
         if (value.nullablePatches !== undefined) {
-            result.nullablePatches = value.nullablePatches.map((__item0) => (__item0 === null ? null : edgeItemEncodePartialWithContext(__item0, ctx)));
+            result["nullablePatches"] = value.nullablePatches.map((__item0) => (__item0 === null ? null : edgeItemEncodePartialWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("card")) {
         if (value.card !== undefined) {
-            result.card = edgeCardEncodePartialWithContext(value.card, ctx);
+            result["card"] = edgeCardEncodePartialWithContext(value.card, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("cards")) {
         if (value.cards !== undefined) {
-            result.cards = value.cards.map((__item0) => edgeCardEncodePartialWithContext(__item0, ctx, { only: ["title"] }));
+            result["cards"] = value.cards.map((__item0) => edgeCardEncodePartialWithContext(__item0, ctx, { only: ["title"] }));
         }
     }
 }
@@ -293,7 +293,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "EdgePartials.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
         errors.push({ field: "patch", message: "missing required field" });
@@ -678,8 +678,7 @@ export function edgePartialsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "patch" in o && "patches" in o && "patchList" in o && "readonlyPatches" in o && "patchSet" in o && "byName" in o && "record" in o && "maybe" in o && "nullablePatches" in o && "card" in o && "cards" in o;
+    return __mf_holds(obj, "patch") && __mf_holds(obj, "patches") && __mf_holds(obj, "patchList") && __mf_holds(obj, "readonlyPatches") && __mf_holds(obj, "patchSet") && __mf_holds(obj, "byName") && __mf_holds(obj, "record") && __mf_holds(obj, "maybe") && __mf_holds(obj, "nullablePatches") && __mf_holds(obj, "card") && __mf_holds(obj, "cards");
 }
 
 export function edgePartialsIs(obj: unknown): obj is EdgePartials {
@@ -808,42 +807,42 @@ export function edgeRenamedPartialsEncodePartialWithContext(value: Partial<EdgeR
 function edgeRenamedPartialsEncodeFields(value: EdgeRenamedPartials, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("profile")) {
         if (value.profile !== undefined) {
-            result.profile = edgeProfileEncodePartialWithContext(value.profile, ctx);
+            result["profile"] = edgeProfileEncodePartialWithContext(value.profile, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("contact")) {
         if (value.contact !== undefined) {
-            result.contact = edgeProfileEncodePartialWithContext(value.contact, ctx, { only: ["email", "displayName"] });
+            result["contact"] = edgeProfileEncodePartialWithContext(value.contact, ctx, { only: ["email", "displayName"] });
         }
     }
     if (__fields === undefined || __fields.keeps("anonymous")) {
         if (value.anonymous !== undefined) {
-            result.anonymous = edgeProfileEncodePartialWithContext(value.anonymous, ctx, { except: ["email", "nickname"] });
+            result["anonymous"] = edgeProfileEncodePartialWithContext(value.anonymous, ctx, { except: ["email", "nickname"] });
         }
     }
     if (__fields === undefined || __fields.keeps("strict")) {
         if (value.strict !== undefined) {
-            result.strict = edgeStrictEncodePartialWithContext(value.strict, ctx, { only: ["id"] });
+            result["strict"] = edgeStrictEncodePartialWithContext(value.strict, ctx, { only: ["id"] });
         }
     }
     if (__fields === undefined || __fields.keeps("labeled")) {
         if (value.labeled !== undefined) {
-            result.labeled = edgeLabeledEncodePartialWithContext(value.labeled, ctx);
+            result["labeled"] = edgeLabeledEncodePartialWithContext(value.labeled, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("labelOnly")) {
         if (value.labelOnly !== undefined) {
-            result.labelOnly = edgeLabeledEncodePartialWithContext(value.labelOnly, ctx, { only: ["label"] });
+            result["labelOnly"] = edgeLabeledEncodePartialWithContext(value.labelOnly, ctx, { only: ["label"] });
         }
     }
     if (__fields === undefined || __fields.keeps("head")) {
         if (value.head !== undefined) {
-            result.head = edgeNodeEncodePartialWithContext(value.head, ctx, { only: ["name"] });
+            result["head"] = edgeNodeEncodePartialWithContext(value.head, ctx, { only: ["name"] });
         }
     }
     if (__fields === undefined || __fields.keeps("link")) {
         if (value.link !== undefined) {
-            result.link = edgeNodeEncodePartialWithContext(value.link, ctx, { except: ["name"] });
+            result["link"] = edgeNodeEncodePartialWithContext(value.link, ctx, { except: ["name"] });
         }
     }
 }
@@ -920,7 +919,7 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
         throw new __mf_DecodeError([{ field: "_root", message: "EdgeRenamedPartials.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("profile")) && !("profile" in obj)) {
         errors.push({ field: "profile", message: "missing required field" });
@@ -1162,8 +1161,7 @@ export function edgeRenamedPartialsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "profile" in o && "contact" in o && "anonymous" in o && "strict" in o && "labeled" in o && "labelOnly" in o && "head" in o && "link" in o;
+    return __mf_holds(obj, "profile") && __mf_holds(obj, "contact") && __mf_holds(obj, "anonymous") && __mf_holds(obj, "strict") && __mf_holds(obj, "labeled") && __mf_holds(obj, "labelOnly") && __mf_holds(obj, "head") && __mf_holds(obj, "link");
 }
 
 export function edgeRenamedPartialsIs(obj: unknown): obj is EdgeRenamedPartials {
@@ -1234,7 +1232,7 @@ export function edgeOptionalClone(value: EdgeOptional): EdgeOptional {
 
 export function edgeOptionalEquals(a: EdgeOptional, b: EdgeOptional): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.nick === b.nick && a.age === b.age && a.level === b.level);
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.nick === b.nick && (a.age === b.age || a.age !== a.age && b.age !== b.age) && (a.level === b.level || a.level !== a.level && b.level !== b.level));
 }
 
 export function edgeOptionalHashCode(value: EdgeOptional): number {
@@ -1278,22 +1276,22 @@ export function edgeOptionalEncodePartialWithContext(value: Partial<EdgeOptional
 function edgeOptionalEncodeFields(value: EdgeOptional, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("nick")) {
         if (value.nick !== undefined) {
-            result.nick = value.nick;
+            result["nick"] = value.nick;
         }
     }
     if (__fields === undefined || __fields.keeps("age")) {
         if (value.age !== undefined) {
-            result.years = value.age;
+            result["years"] = value.age;
         }
     }
     if (__fields === undefined || __fields.keeps("level")) {
         if (value.level !== undefined) {
-            result.level = value.level;
+            result["level"] = value.level;
         }
     }
 }
@@ -1370,7 +1368,7 @@ export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "EdgeOptional.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -1452,8 +1450,7 @@ export function edgeOptionalHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o;
+    return __mf_holds(obj, "id");
 }
 
 export function edgeOptionalIs(obj: unknown): obj is EdgeOptional {
@@ -1577,32 +1574,32 @@ export function edgeRequiredEncodePartialWithContext(value: Partial<EdgeRequired
 function edgeRequiredEncodeFields(value: EdgeRequired, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("plain")) {
         if (value.plain !== undefined) {
-            result.plain = edgeOptionalEncodeWithContext(value.plain, ctx);
+            result["plain"] = edgeOptionalEncodeWithContext(value.plain, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("whole")) {
         if (value.whole !== undefined) {
-            result.whole = edgeOptionalEncodeWithContext(value.whole, ctx);
+            result["whole"] = edgeOptionalEncodeWithContext(value.whole, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("picked")) {
         if (value.picked !== undefined) {
-            result.picked = edgeOptionalEncodePartialWithContext(value.picked, ctx, { only: ["nick"] });
+            result["picked"] = edgeOptionalEncodePartialWithContext(value.picked, ctx, { only: ["nick"] });
         }
     }
     if (__fields === undefined || __fields.keeps("again")) {
         if (value.again !== undefined) {
-            result.again = edgeOptionalEncodeWithContext(value.again, ctx);
+            result["again"] = edgeOptionalEncodeWithContext(value.again, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("loose")) {
         if (value.loose !== undefined) {
-            result.loose = edgeOptionalEncodePartialWithContext(value.loose, ctx);
+            result["loose"] = edgeOptionalEncodePartialWithContext(value.loose, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("wholes")) {
         if (value.wholes !== undefined) {
-            result.wholes = value.wholes.map((__item0) => edgeOptionalEncodeWithContext(__item0, ctx));
+            result["wholes"] = value.wholes.map((__item0) => edgeOptionalEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -1679,7 +1676,7 @@ export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "EdgeRequired.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("plain")) && !("plain" in obj)) {
         errors.push({ field: "plain", message: "missing required field" });
@@ -1870,8 +1867,7 @@ export function edgeRequiredHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "plain" in o && "whole" in o && "picked" in o && "again" in o && "loose" in o && "wholes" in o;
+    return __mf_holds(obj, "plain") && __mf_holds(obj, "whole") && __mf_holds(obj, "picked") && __mf_holds(obj, "again") && __mf_holds(obj, "loose") && __mf_holds(obj, "wholes");
 }
 
 export function edgeRequiredIs(obj: unknown): obj is EdgeRequired {
@@ -2182,40 +2178,40 @@ export declare const EdgeRequired: {
 
 ## Mapping
 
-original 0..963 -> expanded 1558..2521
-original 963..1397 -> expanded 37093..37527
-original 1397..1640 -> expanded 60120..60363
-original 1640..1973 -> expanded 72942..73275
-original 1973..1974 -> expanded 92262..92263
-generated 0..1558 <- imports
-generated 2521..3627 <- Debug
-generated 3627..4733 <- Clone
-generated 4733..6797 <- PartialEq
-generated 6797..8438 <- Hash
-generated 8438..13681 <- Encode
-generated 13681..35695 <- Decode
-generated 35695..37093 <- __convenience_const
-generated 37527..38299 <- Debug
-generated 38299..38832 <- Clone
-generated 38832..39375 <- PartialEq
-generated 39375..40089 <- Hash
-generated 40089..44022 <- Encode
-generated 44022..58519 <- Decode
-generated 58519..60120 <- __convenience_const
-generated 60363..60768 <- Debug
-generated 60768..61065 <- Clone
-generated 61065..61297 <- PartialEq
-generated 61297..62115 <- Hash
-generated 62115..64757 <- Encode
-generated 64757..71544 <- Decode
-generated 71544..72942 <- __convenience_const
-generated 73275..73878 <- Debug
-generated 73878..74298 <- Clone
-generated 74298..74886 <- PartialEq
-generated 74886..75514 <- Hash
-generated 75514..78777 <- Encode
-generated 78777..90864 <- Decode
-generated 90864..92262 <- __convenience_const
+original 0..963 -> expanded 1610..2573
+original 963..1397 -> expanded 37260..37694
+original 1397..1640 -> expanded 60351..60594
+original 1640..1973 -> expanded 73229..73562
+original 1973..1974 -> expanded 92583..92584
+generated 0..1610 <- imports
+generated 2573..3679 <- Debug
+generated 3679..4785 <- Clone
+generated 4785..6849 <- PartialEq
+generated 6849..8490 <- Hash
+generated 8490..13772 <- Encode
+generated 13772..35862 <- Decode
+generated 35862..37260 <- __convenience_const
+generated 37694..38466 <- Debug
+generated 38466..38999 <- Clone
+generated 38999..39542 <- PartialEq
+generated 39542..40256 <- Hash
+generated 40256..44213 <- Encode
+generated 44213..58750 <- Decode
+generated 58750..60351 <- __convenience_const
+generated 60594..60999 <- Debug
+generated 60999..61296 <- Clone
+generated 61296..61616 <- PartialEq
+generated 61616..62434 <- Hash
+generated 62434..65088 <- Encode
+generated 65088..71831 <- Decode
+generated 71831..73229 <- __convenience_const
+generated 73562..74165 <- Debug
+generated 74165..74585 <- Clone
+generated 74585..75173 <- PartialEq
+generated 75173..75801 <- Hash
+generated 75801..79082 <- Encode
+generated 79082..91185 <- Decode
+generated 91185..92583 <- __convenience_const
 
 ## Metadata
 

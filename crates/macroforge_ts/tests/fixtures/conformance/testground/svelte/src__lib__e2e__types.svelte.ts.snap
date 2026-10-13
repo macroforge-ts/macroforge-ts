@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 /**
@@ -88,27 +88,27 @@ export function addressEncodePartialWithContext(value: Partial<Address>, ctx: __
 function addressEncodeFields(value: Address, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("street")) {
         if (value.street !== undefined) {
-            result.street = value.street;
+            result["street"] = value.street;
         }
     }
     if (__fields === undefined || __fields.keeps("city")) {
         if (value.city !== undefined) {
-            result.city = value.city;
+            result["city"] = value.city;
         }
     }
     if (__fields === undefined || __fields.keeps("state")) {
         if (value.state !== undefined) {
-            result.state = value.state;
+            result["state"] = value.state;
         }
     }
     if (__fields === undefined || __fields.keeps("zip")) {
         if (value.zip !== undefined) {
-            result.zip = value.zip;
+            result["zip"] = value.zip;
         }
     }
     if (__fields === undefined || __fields.keeps("country")) {
         if (value.country !== undefined) {
-            result.country = value.country;
+            result["country"] = value.country;
         }
     }
 }
@@ -185,7 +185,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Address.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("street")) && !("street" in obj)) {
         errors.push({ field: "street", message: "missing required field" });
@@ -279,8 +279,7 @@ export function addressHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "street" in o && "city" in o && "state" in o && "zip" in o && "country" in o;
+    return __mf_holds(obj, "street") && __mf_holds(obj, "city") && __mf_holds(obj, "state") && __mf_holds(obj, "zip") && __mf_holds(obj, "country");
 }
 
 export function addressIs(obj: unknown): obj is Address {
@@ -348,17 +347,17 @@ export function skillEncodePartialWithContext(value: Partial<Skill>, ctx: __mf_E
 function skillEncodeFields(value: Skill, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("level")) {
         if (value.level !== undefined) {
-            result.level = value.level;
+            result["level"] = value.level;
         }
     }
     if (__fields === undefined || __fields.keeps("certifiedAt")) {
         if (value.certifiedAt !== undefined) {
-            result.certifiedAt = value.certifiedAt.toISOString();
+            result["certifiedAt"] = value.certifiedAt.toISOString();
         }
     }
 }
@@ -435,7 +434,7 @@ export function skillDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Skill.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -508,8 +507,7 @@ export function skillHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "level" in o && "certifiedAt" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "level") && __mf_holds(obj, "certifiedAt");
 }
 
 export function skillIs(obj: unknown): obj is Skill {
@@ -577,17 +575,17 @@ export function milestoneEncodePartialWithContext(value: Partial<Milestone>, ctx
 function milestoneEncodeFields(value: Milestone, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("title")) {
         if (value.title !== undefined) {
-            result.title = value.title;
+            result["title"] = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("dueDate")) {
         if (value.dueDate !== undefined) {
-            result.dueDate = value.dueDate.toISOString();
+            result["dueDate"] = value.dueDate.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("completedAt")) {
         if (value.completedAt !== undefined) {
-            result.completedAt = value.completedAt === null ? null : value.completedAt.toISOString();
+            result["completedAt"] = value.completedAt === null ? null : value.completedAt.toISOString();
         }
     }
 }
@@ -664,7 +662,7 @@ export function milestoneDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "Milestone.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
         errors.push({ field: "title", message: "missing required field" });
@@ -742,8 +740,7 @@ export function milestoneHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "title" in o && "dueDate" in o && "completedAt" in o;
+    return __mf_holds(obj, "title") && __mf_holds(obj, "dueDate") && __mf_holds(obj, "completedAt");
 }
 
 export function milestoneIs(obj: unknown): obj is Milestone {
@@ -810,12 +807,12 @@ export function metadataValueEncodePartialWithContext(value: Partial<MetadataVal
 function metadataValueEncodeFields(value: MetadataValue, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("value")) {
         if (value.value !== undefined) {
-            result.value = value.value;
+            result["value"] = value.value;
         }
     }
     if (__fields === undefined || __fields.keeps("updatedAt")) {
         if (value.updatedAt !== undefined) {
-            result.updatedAt = value.updatedAt.toISOString();
+            result["updatedAt"] = value.updatedAt.toISOString();
         }
     }
 }
@@ -892,7 +889,7 @@ export function metadataValueDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         throw new __mf_DecodeError([{ field: "_root", message: "MetadataValue.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
@@ -953,8 +950,7 @@ export function metadataValueHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "value" in o && "updatedAt" in o;
+    return __mf_holds(obj, "value") && __mf_holds(obj, "updatedAt");
 }
 
 export function metadataValueIs(obj: unknown): obj is MetadataValue {
@@ -1022,17 +1018,17 @@ export function tagEncodePartialWithContext(value: Partial<Tag>, ctx: __mf_Encod
 function tagEncodeFields(value: Tag, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result["label"] = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("color")) {
         if (value.color !== undefined) {
-            result.color = value.color;
+            result["color"] = value.color;
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt.toISOString();
+            result["createdAt"] = value.createdAt.toISOString();
         }
     }
 }
@@ -1109,7 +1105,7 @@ export function tagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         throw new __mf_DecodeError([{ field: "_root", message: "Tag.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
         errors.push({ field: "label", message: "missing required field" });
@@ -1182,8 +1178,7 @@ export function tagHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "label" in o && "color" in o && "createdAt" in o;
+    return __mf_holds(obj, "label") && __mf_holds(obj, "color") && __mf_holds(obj, "createdAt");
 }
 
 export function tagIs(obj: unknown): obj is Tag {
@@ -1250,12 +1245,12 @@ export function featureEncodePartialWithContext(value: Partial<Feature>, ctx: __
 function featureEncodeFields(value: Feature, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("enabledAt")) {
         if (value.enabledAt !== undefined) {
-            result.enabledAt = value.enabledAt.toISOString();
+            result["enabledAt"] = value.enabledAt.toISOString();
         }
     }
 }
@@ -1332,7 +1327,7 @@ export function featureDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Feature.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -1393,8 +1388,7 @@ export function featureHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "enabledAt" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "enabledAt");
 }
 
 export function featureIs(obj: unknown): obj is Feature {
@@ -1461,12 +1455,12 @@ export function limitEncodePartialWithContext(value: Partial<Limit>, ctx: __mf_E
 function limitEncodeFields(value: Limit, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("max")) {
         if (value.max !== undefined) {
-            result.max = value.max;
+            result["max"] = value.max;
         }
     }
     if (__fields === undefined || __fields.keeps("resetAt")) {
         if (value.resetAt !== undefined) {
-            result.resetAt = value.resetAt.toISOString();
+            result["resetAt"] = value.resetAt.toISOString();
         }
     }
 }
@@ -1543,7 +1537,7 @@ export function limitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Limit.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("max")) && !("max" in obj)) {
         errors.push({ field: "max", message: "missing required field" });
@@ -1604,8 +1598,7 @@ export function limitHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "max" in o && "resetAt" in o;
+    return __mf_holds(obj, "max") && __mf_holds(obj, "resetAt");
 }
 
 export function limitIs(obj: unknown): obj is Limit {
@@ -1673,17 +1666,17 @@ export function budgetEncodePartialWithContext(value: Partial<Budget>, ctx: __mf
 function budgetEncodeFields(value: Budget, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("amount")) {
         if (value.amount !== undefined) {
-            result.amount = value.amount;
+            result["amount"] = value.amount;
         }
     }
     if (__fields === undefined || __fields.keeps("currency")) {
         if (value.currency !== undefined) {
-            result.currency = value.currency;
+            result["currency"] = value.currency;
         }
     }
     if (__fields === undefined || __fields.keeps("approvedAt")) {
         if (value.approvedAt !== undefined) {
-            result.approvedAt = value.approvedAt.toISOString();
+            result["approvedAt"] = value.approvedAt.toISOString();
         }
     }
 }
@@ -1760,7 +1753,7 @@ export function budgetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Budget.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("amount")) && !("amount" in obj)) {
         errors.push({ field: "amount", message: "missing required field" });
@@ -1833,8 +1826,7 @@ export function budgetHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "amount" in o && "currency" in o && "approvedAt" in o;
+    return __mf_holds(obj, "amount") && __mf_holds(obj, "currency") && __mf_holds(obj, "approvedAt");
 }
 
 export function budgetIs(obj: unknown): obj is Budget {
@@ -1906,27 +1898,27 @@ export function projectEncodePartialWithContext(value: Partial<Project>, ctx: __
 function projectEncodeFields(value: Project, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("milestones")) {
         if (value.milestones !== undefined) {
-            result.milestones = value.milestones.map((__item0) => milestoneEncodeWithContext(__item0, ctx));
+            result["milestones"] = value.milestones.map((__item0) => milestoneEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("metadata")) {
         if (value.metadata !== undefined) {
-            result.metadata = Object.fromEntries(Array.from(value.metadata, ([__key0, __item0]) => [__key0, metadataValueEncodeWithContext(__item0, ctx)]));
+            result["metadata"] = Object.fromEntries(Array.from(value.metadata, ([__key0, __item0]) => [__key0, metadataValueEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("startedAt")) {
         if (value.startedAt !== undefined) {
-            result.startedAt = value.startedAt.toISOString();
+            result["startedAt"] = value.startedAt.toISOString();
         }
     }
 }
@@ -2003,7 +1995,7 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Project.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -2130,8 +2122,7 @@ export function projectHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "milestones" in o && "metadata" in o && "startedAt" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "milestones") && __mf_holds(obj, "metadata") && __mf_holds(obj, "startedAt");
 }
 
 export function projectIs(obj: unknown): obj is Project {
@@ -2204,42 +2195,42 @@ export function employeeEncodePartialWithContext(value: Partial<Employee>, ctx: 
 function employeeEncodeFields(value: Employee, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = value.email;
+            result["email"] = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("address")) {
         if (value.address !== undefined) {
-            result.address = addressEncodeWithContext(value.address, ctx);
+            result["address"] = addressEncodeWithContext(value.address, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("skills")) {
         if (value.skills !== undefined) {
-            result.skills = Array.from(value.skills, (__item0) => skillEncodeWithContext(__item0, ctx));
+            result["skills"] = Array.from(value.skills, (__item0) => skillEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("projects")) {
         if (value.projects !== undefined) {
-            result.projects = value.projects.map((__item0) => projectEncodeWithContext(__item0, ctx));
+            result["projects"] = value.projects.map((__item0) => projectEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("hireDate")) {
         if (value.hireDate !== undefined) {
-            result.hireDate = value.hireDate.toISOString();
+            result["hireDate"] = value.hireDate.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("terminatedAt")) {
         if (value.terminatedAt !== undefined) {
-            result.terminatedAt = value.terminatedAt === null ? null : value.terminatedAt.toISOString();
+            result["terminatedAt"] = value.terminatedAt === null ? null : value.terminatedAt.toISOString();
         }
     }
 }
@@ -2316,7 +2307,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Employee.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -2498,8 +2489,7 @@ export function employeeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "email" in o && "address" in o && "skills" in o && "projects" in o && "hireDate" in o && "terminatedAt" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "email") && __mf_holds(obj, "address") && __mf_holds(obj, "skills") && __mf_holds(obj, "projects") && __mf_holds(obj, "hireDate") && __mf_holds(obj, "terminatedAt");
 }
 
 export function employeeIs(obj: unknown): obj is Employee {
@@ -2566,12 +2556,12 @@ export function orgConfigEncodePartialWithContext(value: Partial<OrgConfig>, ctx
 function orgConfigEncodeFields(value: OrgConfig, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("features")) {
         if (value.features !== undefined) {
-            result.features = Array.from(value.features, (__item0) => featureEncodeWithContext(__item0, ctx));
+            result["features"] = Array.from(value.features, (__item0) => featureEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("limits")) {
         if (value.limits !== undefined) {
-            result.limits = Object.fromEntries(Array.from(value.limits, ([__key0, __item0]) => [__key0, limitEncodeWithContext(__item0, ctx)]));
+            result["limits"] = Object.fromEntries(Array.from(value.limits, ([__key0, __item0]) => [__key0, limitEncodeWithContext(__item0, ctx)]));
         }
     }
 }
@@ -2648,7 +2638,7 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "OrgConfig.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("features")) && !("features" in obj)) {
         errors.push({ field: "features", message: "missing required field" });
@@ -2736,8 +2726,7 @@ export function orgConfigHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "features" in o && "limits" in o;
+    return __mf_holds(obj, "features") && __mf_holds(obj, "limits");
 }
 
 export function orgConfigIs(obj: unknown): obj is OrgConfig {
@@ -2810,32 +2799,32 @@ export function departmentEncodePartialWithContext(value: Partial<Department>, c
 function departmentEncodeFields(value: Department, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("lead")) {
         if (value.lead !== undefined) {
-            result.lead = employeeEncodeWithContext(value.lead, ctx);
+            result["lead"] = employeeEncodeWithContext(value.lead, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("employees")) {
         if (value.employees !== undefined) {
-            result.employees = value.employees.map((__item0) => employeeEncodeWithContext(__item0, ctx));
+            result["employees"] = value.employees.map((__item0) => employeeEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("budget")) {
         if (value.budget !== undefined) {
-            result.budget = budgetEncodeWithContext(value.budget, ctx);
+            result["budget"] = budgetEncodeWithContext(value.budget, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt.toISOString();
+            result["createdAt"] = value.createdAt.toISOString();
         }
     }
 }
@@ -2912,7 +2901,7 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "Department.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -3064,8 +3053,7 @@ export function departmentHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "lead" in o && "employees" in o && "budget" in o && "createdAt" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "lead") && __mf_holds(obj, "employees") && __mf_holds(obj, "budget") && __mf_holds(obj, "createdAt");
 }
 
 export function departmentIs(obj: unknown): obj is Department {
@@ -3136,32 +3124,32 @@ export function organizationEncodePartialWithContext(value: Partial<Organization
 function organizationEncodeFields(value: Organization, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("departments")) {
         if (value.departments !== undefined) {
-            result.departments = value.departments.map((__item0) => departmentEncodeWithContext(__item0, ctx));
+            result["departments"] = value.departments.map((__item0) => departmentEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags.map((__item0) => tagEncodeWithContext(__item0, ctx));
+            result["tags"] = value.tags.map((__item0) => tagEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("config")) {
         if (value.config !== undefined) {
-            result.config = orgConfigEncodeWithContext(value.config, ctx);
+            result["config"] = orgConfigEncodeWithContext(value.config, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("foundedAt")) {
         if (value.foundedAt !== undefined) {
-            result.foundedAt = value.foundedAt.toISOString();
+            result["foundedAt"] = value.foundedAt.toISOString();
         }
     }
 }
@@ -3238,7 +3226,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "Organization.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -3391,8 +3379,7 @@ export function organizationHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "departments" in o && "tags" in o && "config" in o && "foundedAt" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "departments") && __mf_holds(obj, "tags") && __mf_holds(obj, "config") && __mf_holds(obj, "foundedAt");
 }
 
 export function organizationIs(obj: unknown): obj is Organization {
@@ -3463,22 +3450,22 @@ export function accountBaseEncodePartialWithContext(value: Partial<AccountBase>,
 function accountBaseEncodeFields(value: AccountBase, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = value.balance;
+            result["balance"] = value.balance;
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt.toISOString();
+            result["createdAt"] = value.createdAt.toISOString();
         }
     }
 }
@@ -3555,7 +3542,7 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "AccountBase.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -3640,8 +3627,7 @@ export function accountBaseHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "balance" in o && "createdAt" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "balance") && __mf_holds(obj, "createdAt");
 }
 
 export function accountBaseIs(obj: unknown): obj is AccountBase {
@@ -3707,32 +3693,32 @@ export function savingsAccountEncodePartialWithContext(value: Partial<SavingsAcc
 function savingsAccountEncodeFields(value: SavingsAccount, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("variant")) {
         if (value.variant !== undefined) {
-            result.variant = value.variant;
+            result["variant"] = value.variant;
         }
     }
     if (__fields === undefined || __fields.keeps("interestRate")) {
         if (value.interestRate !== undefined) {
-            result.interestRate = value.interestRate;
+            result["interestRate"] = value.interestRate;
         }
     }
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = value.balance;
+            result["balance"] = value.balance;
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt.toISOString();
+            result["createdAt"] = value.createdAt.toISOString();
         }
     }
 }
@@ -3809,7 +3795,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
         throw new __mf_DecodeError([{ field: "_root", message: "SavingsAccount.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("variant")) && !("variant" in obj)) {
         errors.push({ field: "variant", message: "missing required field" });
@@ -3918,8 +3904,7 @@ export function savingsAccountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "variant" in o && "interestRate" in o && "id" in o && "name" in o && "balance" in o && "createdAt" in o;
+    return __mf_holds(obj, "variant") && __mf_holds(obj, "interestRate") && __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "balance") && __mf_holds(obj, "createdAt");
 }
 
 export function savingsAccountIs(obj: unknown): obj is SavingsAccount {
@@ -3985,32 +3970,32 @@ export function checkingAccountEncodePartialWithContext(value: Partial<CheckingA
 function checkingAccountEncodeFields(value: CheckingAccount, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("variant")) {
         if (value.variant !== undefined) {
-            result.variant = value.variant;
+            result["variant"] = value.variant;
         }
     }
     if (__fields === undefined || __fields.keeps("overdraftLimit")) {
         if (value.overdraftLimit !== undefined) {
-            result.overdraftLimit = value.overdraftLimit;
+            result["overdraftLimit"] = value.overdraftLimit;
         }
     }
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = value.balance;
+            result["balance"] = value.balance;
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt.toISOString();
+            result["createdAt"] = value.createdAt.toISOString();
         }
     }
 }
@@ -4087,7 +4072,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
         throw new __mf_DecodeError([{ field: "_root", message: "CheckingAccount.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("variant")) && !("variant" in obj)) {
         errors.push({ field: "variant", message: "missing required field" });
@@ -4196,8 +4181,7 @@ export function checkingAccountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "variant" in o && "overdraftLimit" in o && "id" in o && "name" in o && "balance" in o && "createdAt" in o;
+    return __mf_holds(obj, "variant") && __mf_holds(obj, "overdraftLimit") && __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "balance") && __mf_holds(obj, "createdAt");
 }
 
 export function checkingAccountIs(obj: unknown): obj is CheckingAccount {
@@ -4265,7 +4249,7 @@ export function holidayEncodePartialWithContext(value: Partial<Holiday>, ctx: __
 function holidayEncodeFields(value: Holiday, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
 }
@@ -4342,7 +4326,7 @@ export function holidayDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Holiday.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -4388,8 +4372,7 @@ export function holidayHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o;
+    return __mf_holds(obj, "name");
 }
 
 export function holidayIs(obj: unknown): obj is Holiday {
@@ -5492,97 +5475,97 @@ export declare const Moment: {
 
 ## Mapping
 
-original 0..1354 -> expanded 796..2150
-original 1384..1508 -> expanded 2150..2274
-original 1508..1510 -> expanded 13810..13812
-original 1540..1627 -> expanded 13812..13899
-original 1627..1629 -> expanded 24070..24072
-original 1659..1758 -> expanded 24072..24171
-original 1758..1760 -> expanded 35003..35005
-original 1790..1865 -> expanded 35005..35080
-original 1865..1867 -> expanded 45002..45004
-original 1897..1981 -> expanded 45004..45088
-original 1981..1983 -> expanded 55093..55095
-original 2013..2081 -> expanded 55095..55163
-original 2081..2083 -> expanded 64645..64647
-original 2113..2176 -> expanded 64647..64710
-original 2176..2178 -> expanded 73988..73990
-original 2208..2300 -> expanded 73990..74082
-original 2300..2330 -> expanded 84402..84432
-original 2360..2515 -> expanded 84432..84587
-original 2515..2517 -> expanded 98110..98112
-original 2547..2752 -> expanded 98112..98317
-original 2752..2754 -> expanded 115030..115032
-original 2784..2875 -> expanded 115032..115123
-original 2875..2904 -> expanded 126058..126087
-original 2934..3088 -> expanded 126087..126241
-original 3088..3090 -> expanded 140839..140841
-original 3120..3280 -> expanded 140841..141001
-original 3280..3313 -> expanded 155982..156015
-original 3343..3452 -> expanded 156015..156124
-original 3452..3454 -> expanded 167448..167450
-original 3484..3583 -> expanded 167450..167549
-original 3583..3585 -> expanded 180857..180859
-original 3615..3718 -> expanded 180859..180962
-original 3718..3760 -> expanded 194387..194429
-original 3790..3837 -> expanded 194429..194476
-original 3837..3892 -> expanded 202844..202899
-original 3914..3964 -> expanded 202899..202949
-original 3964..3965 -> expanded 208205..208206
-generated 0..796 <- imports
-generated 2274..5021 <- Encode
-generated 5021..12833 <- Decode
-generated 12833..13810 <- __convenience_const
-generated 13899..16334 <- Encode
-generated 16334..23135 <- Decode
-generated 23135..24070 <- __convenience_const
-generated 24171..26728 <- Encode
-generated 26728..33984 <- Decode
-generated 33984..35003 <- __convenience_const
-generated 35080..37473 <- Encode
-generated 37473..43899 <- Decode
-generated 43899..45002 <- __convenience_const
-generated 45088..47489 <- Encode
-generated 47489..54200 <- Decode
-generated 54200..55093 <- __convenience_const
-generated 55163..57462 <- Encode
-generated 57462..63668 <- Decode
-generated 63668..64645 <- __convenience_const
-generated 64710..66967 <- Encode
-generated 66967..73053 <- Decode
-generated 73053..73988 <- __convenience_const
-generated 74082..76548 <- Encode
-generated 76548..83446 <- Decode
-generated 83446..84402 <- __convenience_const
-generated 84587..87549 <- Encode
-generated 87549..97133 <- Decode
-generated 97133..98110 <- __convenience_const
-generated 98317..101816 <- Encode
-generated 101816..114032 <- Decode
-generated 114032..115030 <- __convenience_const
-generated 115123..117609 <- Encode
-generated 117609..125039 <- Decode
-generated 125039..126058 <- __convenience_const
-generated 126241..129340 <- Encode
-generated 129340..139799 <- Decode
-generated 139799..140839 <- __convenience_const
-generated 141001..144164 <- Encode
-generated 144164..154900 <- Decode
-generated 154900..155982 <- __convenience_const
-generated 156124..158795 <- Encode
-generated 158795..166387 <- Decode
-generated 166387..167448 <- __convenience_const
-generated 167549..170617 <- Encode
-generated 170617..179733 <- Decode
-generated 179733..180857 <- __convenience_const
-generated 180962..184053 <- Encode
-generated 184053..193242 <- Decode
-generated 193242..194387 <- __convenience_const
-generated 194476..196587 <- Encode
-generated 196587..201867 <- Decode
-generated 201867..202844 <- __convenience_const
-generated 202949..207881 <- Decode
-generated 207881..208205 <- __convenience_const
+original 0..1354 -> expanded 848..2202
+original 1384..1508 -> expanded 2202..2326
+original 1508..1510 -> expanded 13881..13883
+original 1540..1627 -> expanded 13883..13970
+original 1627..1629 -> expanded 24130..24132
+original 1659..1758 -> expanded 24132..24231
+original 1758..1760 -> expanded 35052..35054
+original 1790..1865 -> expanded 35054..35129
+original 1865..1867 -> expanded 45025..45027
+original 1897..1981 -> expanded 45027..45111
+original 1981..1983 -> expanded 55105..55107
+original 2013..2081 -> expanded 55107..55175
+original 2081..2083 -> expanded 64631..64633
+original 2113..2176 -> expanded 64633..64696
+original 2176..2178 -> expanded 73948..73950
+original 2208..2300 -> expanded 73950..74042
+original 2300..2330 -> expanded 84351..84381
+original 2360..2515 -> expanded 84381..84536
+original 2515..2517 -> expanded 98078..98080
+original 2547..2752 -> expanded 98080..98285
+original 2752..2754 -> expanded 115062..115064
+original 2784..2875 -> expanded 115064..115155
+original 2875..2904 -> expanded 126064..126093
+original 2934..3088 -> expanded 126093..126247
+original 3088..3090 -> expanded 140879..140881
+original 3120..3280 -> expanded 140881..141041
+original 3280..3313 -> expanded 156056..156089
+original 3343..3452 -> expanded 156089..156198
+original 3452..3454 -> expanded 167526..167528
+original 3484..3583 -> expanded 167528..167627
+original 3583..3585 -> expanded 180969..180971
+original 3615..3718 -> expanded 180971..181074
+original 3718..3760 -> expanded 194533..194575
+original 3790..3837 -> expanded 194575..194622
+original 3837..3892 -> expanded 202949..203004
+original 3914..3964 -> expanded 203004..203054
+original 3964..3965 -> expanded 208310..208311
+generated 0..848 <- imports
+generated 2326..5088 <- Encode
+generated 5088..12904 <- Decode
+generated 12904..13881 <- __convenience_const
+generated 13970..16414 <- Encode
+generated 16414..23195 <- Decode
+generated 23195..24130 <- __convenience_const
+generated 24231..26797 <- Encode
+generated 26797..34033 <- Decode
+generated 34033..35052 <- __convenience_const
+generated 35129..37528 <- Encode
+generated 37528..43922 <- Decode
+generated 43922..45025 <- __convenience_const
+generated 45111..47521 <- Encode
+generated 47521..54212 <- Decode
+generated 54212..55105 <- __convenience_const
+generated 55175..57480 <- Encode
+generated 57480..63654 <- Decode
+generated 63654..64631 <- __convenience_const
+generated 64696..66959 <- Encode
+generated 66959..73013 <- Decode
+generated 73013..73948 <- __convenience_const
+generated 74042..76517 <- Encode
+generated 76517..83395 <- Decode
+generated 83395..84351 <- __convenience_const
+generated 84536..87513 <- Encode
+generated 87513..97101 <- Decode
+generated 97101..98078 <- __convenience_const
+generated 98285..101808 <- Encode
+generated 101808..114064 <- Decode
+generated 114064..115062 <- __convenience_const
+generated 115155..117647 <- Encode
+generated 117647..125045 <- Decode
+generated 125045..126064 <- __convenience_const
+generated 126247..129364 <- Encode
+generated 129364..139839 <- Decode
+generated 139839..140879 <- __convenience_const
+generated 141041..144222 <- Encode
+generated 144222..154974 <- Decode
+generated 154974..156056 <- __convenience_const
+generated 156198..158881 <- Encode
+generated 158881..166465 <- Decode
+generated 166465..167526 <- __convenience_const
+generated 167627..170713 <- Encode
+generated 170713..179845 <- Decode
+generated 179845..180969 <- __convenience_const
+generated 181074..184183 <- Encode
+generated 184183..193388 <- Decode
+generated 193388..194533 <- __convenience_const
+generated 194622..196736 <- Encode
+generated 196736..201972 <- Decode
+generated 201972..202949 <- __convenience_const
+generated 203054..207986 <- Decode
+generated 207986..208310 <- __convenience_const
 
 ## Metadata
 

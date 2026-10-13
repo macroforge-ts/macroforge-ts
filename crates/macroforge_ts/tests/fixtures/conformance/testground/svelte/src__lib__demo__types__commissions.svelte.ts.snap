@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -64,12 +64,12 @@ export function commissionsEncodePartialWithContext(value: Partial<Commissions>,
 function commissionsEncodeFields(value: Commissions, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("technician")) {
         if (value.technician !== undefined) {
-            result.technician = value.technician;
+            result["technician"] = value.technician;
         }
     }
     if (__fields === undefined || __fields.keeps("salesRep")) {
         if (value.salesRep !== undefined) {
-            result.salesRep = value.salesRep;
+            result["salesRep"] = value.salesRep;
         }
     }
 }
@@ -146,7 +146,7 @@ export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "Commissions.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("technician")) && !("technician" in obj)) {
         errors.push({ field: "technician", message: "missing required field" });
@@ -234,8 +234,7 @@ export function commissionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "technician" in o && "salesRep" in o;
+    return __mf_holds(obj, "technician") && __mf_holds(obj, "salesRep");
 }
 
 export function commissionsIs(obj: unknown): obj is Commissions {
@@ -495,17 +494,17 @@ export declare const Commissions: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..143 -> expanded 813..849
-original 184..213 -> expanded 849..878
-original 254..278 -> expanded 878..902
-original 278..279 -> expanded 17513..17514
-generated 0..755 <- imports
-generated 902..1028 <- Default
-generated 1028..3393 <- Encode
-generated 3393..11579 <- Decode
-generated 11579..16166 <- Gigaform
-generated 16166..17513 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..143 -> expanded 865..901
+original 184..213 -> expanded 901..930
+original 254..278 -> expanded 930..954
+original 278..279 -> expanded 17539..17540
+generated 0..807 <- imports
+generated 954..1080 <- Default
+generated 1080..3451 <- Encode
+generated 3451..11605 <- Decode
+generated 11605..16192 <- Gigaform
+generated 16192..17539 <- __convenience_const
 
 ## Metadata
 

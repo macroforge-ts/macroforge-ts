@@ -29,13 +29,13 @@ export class Version {
 
     static equals(a: Version, b: Version): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.major === b.major);
+        return __mf_equalWithin(a, b, () => a.major === b.major || a.major !== a.major && b.major !== b.major);
     }
 
     static partialCompare(a: Version, b: Version): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : null);
+        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major || (a.major !== a.major && b.major !== b.major) ? 0 : null);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
             return 0;
@@ -45,7 +45,7 @@ export class Version {
     static compare(a: Version, b: Version): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : a.major !== a.major ? b.major !== b.major ? 0 : 1 : -1;
         if (cmp0 !== 0) return cmp0;
             return 0;
         });
@@ -196,29 +196,29 @@ export declare function releaseCompare(a: Release, b: Release): number;
 ## Mapping
 
 original 46..93 -> expanded 206..253
-original 93..94 -> expanded 1066..1067
-original 94..96 -> expanded 1393..1395
-original 142..221 -> expanded 1395..1474
-original 221..222 -> expanded 5553..5554
-original 222..223 -> expanded 5880..5881
+original 93..94 -> expanded 1239..1240
+original 94..96 -> expanded 1566..1568
+original 142..221 -> expanded 1568..1647
+original 221..222 -> expanded 5726..5727
+original 222..223 -> expanded 6053..6054
 generated 0..206 <- imports
-generated 253..413 <- PartialEq
-generated 413..782 <- PartialOrd
-generated 782..1066 <- Ord
-generated 1067..1168 <- PartialEq
-generated 1168..1291 <- PartialOrd
-generated 1291..1393 <- Ord
-generated 1474..2083 <- PartialEq
-generated 2083..3964 <- PartialOrd
-generated 3964..5553 <- Ord
-generated 5554..5655 <- PartialEq
-generated 5655..5778 <- PartialOrd
-generated 5778..5880 <- Ord
+generated 253..459 <- PartialEq
+generated 459..876 <- PartialOrd
+generated 876..1239 <- Ord
+generated 1240..1341 <- PartialEq
+generated 1341..1464 <- PartialOrd
+generated 1464..1566 <- Ord
+generated 1647..2256 <- PartialEq
+generated 2256..4137 <- PartialOrd
+generated 4137..5726 <- Ord
+generated 5727..5828 <- PartialEq
+generated 5828..5951 <- PartialOrd
+generated 5951..6053 <- Ord
 
 ## Metadata
 
-class Version: {"body_span":{"end":95,"start":69},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":47,"start":1}}],"fields":[{"decorators":[],"initializer":"0","key":"Named","name":"major","optional":false,"readonly":false,"span":{"end":93,"start":75},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":95,"start":55},"superclass":null,"type_params":[]}
-class Release: {"body_span":{"end":223,"start":165},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":143,"start":97}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"versions","optional":false,"readonly":false,"span":{"end":196,"start":171},"ts_type":"Version[]","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":221,"start":201},"ts_type":"string[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":223,"start":151},"superclass":null,"type_params":[]}
+class Version: {"body_span":{"end":95,"start":69},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":47,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"major","optional":false,"readonly":false,"span":{"end":93,"start":75},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":95,"start":55},"superclass":null,"type_params":[]}
+class Release: {"body_span":{"end":223,"start":165},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":143,"start":97}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"versions","optional":false,"readonly":false,"span":{"end":196,"start":171},"ts_type":"Version[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":221,"start":201},"ts_type":"string[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":223,"start":151},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

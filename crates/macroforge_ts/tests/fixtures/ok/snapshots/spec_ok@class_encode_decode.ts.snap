@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Config {
@@ -47,12 +47,12 @@ static encodePartialWithContext(value: Partial<Config>, ctx: __mf_EncodeContext,
 static #encodeFields(value: Config, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("host")) {
         if (value.host !== undefined) {
-            result.host = value.host;
+            result["host"] = value.host;
         }
     }
     if (__fields === undefined || __fields.keeps("port")) {
         if (value.port !== undefined) {
-            result.port = value.port;
+            result["port"] = value.port;
         }
     }
 }
@@ -141,7 +141,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Config.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("host")) && !("host" in obj)) {
         errors.push({ field: "host", message: "missing required field" });
@@ -195,8 +195,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "host" in o && "port" in o;
+    return __mf_holds(obj, "host") && __mf_holds(obj, "port");
 }
 
 static is(obj: unknown): obj is Config {
@@ -327,19 +326,19 @@ export {};
 
 ## Mapping
 
-original 30..82 -> expanded 596..648
-original 82..83 -> expanded 8152..8153
-original 83..84 -> expanded 11225..11226
-generated 0..596 <- imports
-generated 648..2322 <- Encode
-generated 2322..2641 <- Encode
-generated 2641..8152 <- Decode
-generated 8153..9473 <- Encode
-generated 9473..11225 <- Decode
+original 30..82 -> expanded 648..700
+original 82..83 -> expanded 8178..8179
+original 83..84 -> expanded 11251..11252
+generated 0..648 <- imports
+generated 700..2380 <- Encode
+generated 2380..2699 <- Encode
+generated 2699..8178 <- Decode
+generated 8179..9499 <- Encode
+generated 9499..11251 <- Decode
 
 ## Metadata
 
-class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
+class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

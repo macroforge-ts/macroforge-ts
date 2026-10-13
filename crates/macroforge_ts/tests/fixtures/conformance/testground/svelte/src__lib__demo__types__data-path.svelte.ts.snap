@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -62,12 +62,12 @@ export function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: 
 function dataPathEncodeFields(value: DataPath, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("path")) {
         if (value.path !== undefined) {
-            result.path = value.path;
+            result["path"] = value.path;
         }
     }
     if (__fields === undefined || __fields.keeps("formatter")) {
         if (value.formatter !== undefined) {
-            result.formatter = value.formatter;
+            result["formatter"] = value.formatter;
         }
     }
 }
@@ -144,7 +144,7 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "DataPath.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("path")) && !("path" in obj)) {
         errors.push({ field: "path", message: "missing required field" });
@@ -217,8 +217,7 @@ export function dataPathHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "path" in o && "formatter" in o;
+    return __mf_holds(obj, "path") && __mf_holds(obj, "formatter");
 }
 
 export function dataPathIs(obj: unknown): obj is DataPath {
@@ -490,15 +489,15 @@ export declare const DataPath: {
 
 ## Mapping
 
-original 0..58 -> expanded 845..903
-original 107..192 -> expanded 903..988
-original 192..193 -> expanded 16347..16348
-generated 0..845 <- imports
-generated 988..1105 <- Default
-generated 1105..3405 <- Encode
-generated 3405..10010 <- Decode
-generated 10010..15081 <- Gigaform
-generated 15081..16347 <- __convenience_const
+original 0..58 -> expanded 897..955
+original 107..192 -> expanded 955..1040
+original 192..193 -> expanded 16373..16374
+generated 0..897 <- imports
+generated 1040..1157 <- Default
+generated 1157..3463 <- Encode
+generated 3463..10036 <- Decode
+generated 10036..15107 <- Gigaform
+generated 15107..16373 <- __convenience_const
 
 ## Metadata
 

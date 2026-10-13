@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/class-shapes.ts
-sha256 d87b88643c5203bbe7dc6b1766086367b86f02f4c59f19fe96a7f810ca47e66f
+sha256 1f9c6da3aa5b18a1ec7d4a444e25a84bc0a14cc5f7859d3aafb302e51c931602
 
 ## Changed
 
@@ -14,13 +14,14 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Class members a derive has to tell from plain fields: visibility
  * modifiers, readonly and static properties, accessors, methods, optional and
- * definite fields, a constructor of the class's own, parameter properties and
- * inherited fields, of a class and of an interface.
+ * definite fields, a constructor of the class's own, parameter properties,
+ * fields typed by their initializers and inherited fields, of a class and of
+ * an interface.
  */
 
 import type { EdgeItem } from './edge-types';
@@ -70,7 +71,7 @@ export class ClassMembers {
 
     static equals(a: ClassMembers, b: ClassMembers): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.open === b.open && a.fixed === b.fixed && a.optional === b.optional && a.definite === b.definite && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+        return __mf_equalWithin(a, b, () => a.open === b.open && a.fixed === b.fixed && a.optional === b.optional && (a.definite === b.definite || a.definite !== a.definite && b.definite !== b.definite) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
         	const __other0 = b.items[__index0];
         	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
         }));
@@ -121,27 +122,27 @@ static encodePartialWithContext(value: Partial<ClassMembers>, ctx: __mf_EncodeCo
 static #encodeFields(value: ClassMembers, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("open")) {
         if (value.open !== undefined) {
-            result.open = value.open;
+            result["open"] = value.open;
         }
     }
     if (__fields === undefined || __fields.keeps("fixed")) {
         if (value.fixed !== undefined) {
-            result.fixed = value.fixed;
+            result["fixed"] = value.fixed;
         }
     }
     if (__fields === undefined || __fields.keeps("optional")) {
         if (value.optional !== undefined) {
-            result.optional = value.optional;
+            result["optional"] = value.optional;
         }
     }
     if (__fields === undefined || __fields.keeps("definite")) {
         if (value.definite !== undefined) {
-            result.definite = value.definite;
+            result["definite"] = value.definite;
         }
     }
     if (__fields === undefined || __fields.keeps("items")) {
         if (value.items !== undefined) {
-            result.items = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -235,7 +236,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassMembers.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("open")) && !("open" in obj)) {
         errors.push({ field: "open", message: "missing required field" });
@@ -339,8 +340,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "open" in o && "fixed" in o && "definite" in o && "items" in o;
+    return __mf_holds(obj, "open") && __mf_holds(obj, "fixed") && __mf_holds(obj, "definite") && __mf_holds(obj, "items");
 }
 
 static is(obj: unknown): obj is ClassMembers {
@@ -449,7 +449,7 @@ export class ClassGuarded {
 
     static equals(a: ClassGuarded, b: ClassGuarded): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && a.guarded === b.guarded && a.hidden === b.hidden && a.sealed === b.sealed);
+        return __mf_equalWithin(a, b, () => a.name === b.name && (a.guarded === b.guarded || a.guarded !== a.guarded && b.guarded !== b.guarded) && a.hidden === b.hidden && a.sealed === b.sealed);
     }
 
     static hashCode(value: ClassGuarded): number {
@@ -469,7 +469,7 @@ export class ClassGuarded {
         const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded ? 0 : null);
+        const cmp1 = (a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded || (a.guarded !== a.guarded && b.guarded !== b.guarded) ? 0 : null);
         if (cmp1 === null) return null;
         if (cmp1 !== 0) return cmp1;
         const cmp2 = (a.hidden === b.hidden ? 0 : a.hidden ? 1 : -1);
@@ -487,7 +487,7 @@ export class ClassGuarded {
         return __mf_comparedWithin(a, b, () => {
         const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : 0;
+        const cmp1 = a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded ? 0 : a.guarded !== a.guarded ? b.guarded !== b.guarded ? 0 : 1 : -1;
         if (cmp1 !== 0) return cmp1;
         const cmp2 = a.hidden === b.hidden ? 0 : a.hidden ? 1 : -1;
         if (cmp2 !== 0) return cmp2;
@@ -530,22 +530,22 @@ static encodePartialWithContext(value: Partial<ClassGuarded>, ctx: __mf_EncodeCo
 static #encodeFields(value: ClassGuarded, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("guarded")) {
         if (value.guarded !== undefined) {
-            result.guarded = value.guarded;
+            result["guarded"] = value.guarded;
         }
     }
     if (__fields === undefined || __fields.keeps("hidden")) {
         if (value.hidden !== undefined) {
-            result.hidden = value.hidden;
+            result["hidden"] = value.hidden;
         }
     }
     if (__fields === undefined || __fields.keeps("sealed")) {
         if (value.sealed !== undefined) {
-            result.sealed = value.sealed;
+            result["sealed"] = value.sealed;
         }
     }
 }
@@ -636,7 +636,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassGuarded.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -714,8 +714,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "guarded" in o && "hidden" in o && "sealed" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "guarded") && __mf_holds(obj, "hidden") && __mf_holds(obj, "sealed");
 }
 
 static is(obj: unknown): obj is ClassGuarded {
@@ -827,7 +826,7 @@ export class ClassConstructed {
 
     static equals(a: ClassConstructed, b: ClassConstructed): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.label === b.label && a.weight === b.weight);
+        return __mf_equalWithin(a, b, () => a.label === b.label && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight));
     }
 
     static hashCode(value: ClassConstructed): number {
@@ -845,7 +844,7 @@ export class ClassConstructed {
         const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight ? 0 : null);
+        const cmp1 = (a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight || (a.weight !== a.weight && b.weight !== b.weight) ? 0 : null);
         if (cmp1 === null) return null;
         if (cmp1 !== 0) return cmp1;
             return 0;
@@ -857,7 +856,7 @@ export class ClassConstructed {
         return __mf_comparedWithin(a, b, () => {
         const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : 0;
+        const cmp1 = a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight ? 0 : a.weight !== a.weight ? b.weight !== b.weight ? 0 : 1 : -1;
         if (cmp1 !== 0) return cmp1;
             return 0;
         });
@@ -894,12 +893,12 @@ static encodePartialWithContext(value: Partial<ClassConstructed>, ctx: __mf_Enco
 static #encodeFields(value: ClassConstructed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result["label"] = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("weight")) {
         if (value.weight !== undefined) {
-            result.weight = value.weight;
+            result["weight"] = value.weight;
         }
     }
 }
@@ -982,7 +981,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassConstructed.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
         errors.push({ field: "label", message: "missing required field" });
@@ -1036,8 +1035,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "label" in o && "weight" in o;
+    return __mf_holds(obj, "label") && __mf_holds(obj, "weight");
 }
 
 static is(obj: unknown): obj is ClassConstructed {
@@ -1153,7 +1151,7 @@ export class ClassParameters {
 
     static equals(a: ClassParameters, b: ClassParameters): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && a.rank === b.rank && a.secret === b.secret);
+        return __mf_equalWithin(a, b, () => a.name === b.name && (a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank) && a.secret === b.secret);
     }
 
     static hashCode(value: ClassParameters): number {
@@ -1198,17 +1196,17 @@ static encodePartialWithContext(value: Partial<ClassParameters>, ctx: __mf_Encod
 static #encodeFields(value: ClassParameters, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("rank")) {
         if (value.rank !== undefined) {
-            result.rank = value.rank;
+            result["rank"] = value.rank;
         }
     }
     if (__fields === undefined || __fields.keeps("secret")) {
         if (value.secret !== undefined) {
-            result.secret = value.secret;
+            result["secret"] = value.secret;
         }
     }
 }
@@ -1291,7 +1289,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassParameters.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -1357,8 +1355,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "rank" in o && "secret" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "rank") && __mf_holds(obj, "secret");
 }
 
 static is(obj: unknown): obj is ClassParameters {
@@ -1493,7 +1490,7 @@ static encodePartialWithContext(value: Partial<ClassBase>, ctx: __mf_EncodeConte
 static #encodeFields(value: ClassBase, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
 }
@@ -1581,7 +1578,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassBase.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -1623,8 +1620,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o;
+    return __mf_holds(obj, "id");
 }
 
 static is(obj: unknown): obj is ClassBase {
@@ -1722,7 +1718,7 @@ export class ClassDerived extends ClassBase {
 
     static equals(a: ClassDerived, b: ClassDerived): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && a.extra === b.extra);
+        return __mf_equalWithin(a, b, () => a.id === b.id && (a.extra === b.extra || a.extra !== a.extra && b.extra !== b.extra));
     }
 
     static hashCode(value: ClassDerived): number {
@@ -1765,12 +1761,12 @@ static encodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf_EncodeCo
 static #encodeFields(value: ClassDerived, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("extra")) {
         if (value.extra !== undefined) {
-            result.extra = value.extra;
+            result["extra"] = value.extra;
         }
     }
 }
@@ -1858,7 +1854,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassDerived.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -1912,8 +1908,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "extra" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "extra");
 }
 
 static is(obj: unknown): obj is ClassDerived {
@@ -2133,22 +2128,22 @@ static encodePartialWithContext(value: Partial<ClassHolder>, ctx: __mf_EncodeCon
 static #encodeFields(value: ClassHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("card")) {
         if (value.card !== undefined) {
-            result.card = classMembersEncodeWithContext(value.card, ctx);
+            result["card"] = classMembersEncodeWithContext(value.card, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("cards")) {
         if (value.cards !== undefined) {
-            result.cards = value.cards.map((__item0) => classMembersEncodeWithContext(__item0, ctx));
+            result["cards"] = value.cards.map((__item0) => classMembersEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, classBaseEncodeWithContext(__item0, ctx)]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, classBaseEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : classBaseEncodeWithContext(value.maybe, ctx);
+            result["maybe"] = value.maybe === null ? null : classBaseEncodeWithContext(value.maybe, ctx);
         }
     }
 }
@@ -2239,7 +2234,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ClassHolder.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("card")) && !("card" in obj)) {
         errors.push({ field: "card", message: "missing required field" });
@@ -2379,8 +2374,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "card" in o && "cards" in o && "byName" in o && "maybe" in o;
+    return __mf_holds(obj, "card") && __mf_holds(obj, "cards") && __mf_holds(obj, "byName") && __mf_holds(obj, "maybe");
 }
 
 static is(obj: unknown): obj is ClassHolder {
@@ -2454,6 +2448,561 @@ export function classHolderDecodePartialWithContext(value: unknown, ctx: __mf_De
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export function classHolderIs(value: unknown): value is ClassHolder {
     return ClassHolder.is(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class ClassInferred {
+    count = 0;
+    label = 'none';
+    active = false;
+    big = 10n;
+    offset = -1;
+    note = `n${1}`;
+    at = new Date(0);
+    tags = new Set<string>();
+    ratio = 0.5 as number;
+    readonly kind = 'inferred';
+    readonly rank = 3;
+
+    constructor(
+        public id = '',
+        private secret = 7
+    ) {}
+
+    reveal(): number {
+        return this.secret;
+    }
+
+    static toString(value: ClassInferred): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("count: " + String(value.count));
+        parts.push("label: " + String(value.label));
+        parts.push("active: " + String(value.active));
+        parts.push("big: " + String(value.big));
+        parts.push("offset: " + String(value.offset));
+        parts.push("note: " + String(value.note));
+        parts.push("at: " + String(value.at));
+        parts.push("tags: " + __mf_structuralDebug(value.tags));
+        parts.push("ratio: " + String(value.ratio));
+        parts.push("kind: " + String(value.kind));
+        parts.push("rank: " + String(value.rank));
+        parts.push("id: " + String(value.id));
+        parts.push("secret: " + String(value.secret));
+            return "ClassInferred { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: ClassInferred): ClassInferred {
+        return __mf_clonedWith(value, () => ({
+        	count: value.count,
+        	label: value.label,
+        	active: value.active,
+        	big: value.big,
+        	offset: value.offset,
+        	note: value.note,
+        	at: new Date(value.at.getTime()),
+        	tags: new Set(value.tags),
+        	ratio: value.ratio,
+        	kind: value.kind,
+        	rank: value.rank,
+        	id: value.id,
+        	secret: value.secret
+        }));
+    }
+
+    static equals(a: ClassInferred, b: ClassInferred): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => (a.count === b.count || a.count !== a.count && b.count !== b.count) && a.label === b.label && a.active === b.active && a.big === b.big && (a.offset === b.offset || a.offset !== a.offset && b.offset !== b.offset) && a.note === b.note && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && (a.ratio === b.ratio || a.ratio !== a.ratio && b.ratio !== b.ratio) && a.kind === b.kind && (a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank) && a.id === b.id && (a.secret === b.secret || a.secret !== a.secret && b.secret !== b.secret));
+    }
+
+    static hashCode(value: ClassInferred): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.active ? 1231 : 1237)) | 0;
+        hash = (hash * 31 + (value.big.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.offset) ? value.offset | 0 : value.offset.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.note ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.at.getTime() | 0)) | 0;
+        hash = (hash * 31 + (Array.from(value.tags).reduce<number>((__hash0, __item0) => __hash0 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.ratio) ? value.ratio | 0 : value.ratio.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.kind ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.rank) ? value.rank | 0 : value.rank.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.secret) ? value.secret | 0 : value.secret.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+static defaultValue(): ClassInferred {
+    const fields: { count: number; label: string; active: boolean; big: bigint; offset: number; note: string; at: Date; tags: Set<string>; ratio: number; kind: 'inferred'; rank: 3; id: string; secret: number } = {
+        count: 0,
+        label: "none",
+        active: false,
+        big: 10n,
+        offset: -1,
+        note: `n${1}`,
+        at: new Date(0),
+        tags: new Set<string>(),
+        ratio: .5 as number,
+        kind: "inferred",
+        rank: 3,
+        id: "",
+        secret: 7,
+    };
+    return __mf_instanceOf(ClassInferred.prototype, fields);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: ClassInferred, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassInferred" });
+    ClassInferred.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ClassInferred" };
+        ClassInferred.#encodeFields(value as ClassInferred, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: ClassInferred, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result["count"] = value.count;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("label")) {
+        if (value.label !== undefined) {
+            result["label"] = value.label;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("active")) {
+        if (value.active !== undefined) {
+            result["active"] = value.active;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("big")) {
+        if (value.big !== undefined) {
+            result["big"] = ((v) => String(v))(value.big);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("offset")) {
+        if (value.offset !== undefined) {
+            result["offset"] = value.offset;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("note")) {
+        if (value.note !== undefined) {
+            result["note"] = value.note;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result["at"] = value.at.toISOString();
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tags")) {
+        if (value.tags !== undefined) {
+            result["tags"] = Array.from(value.tags);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("ratio")) {
+        if (value.ratio !== undefined) {
+            result["ratio"] = value.ratio;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("kind")) {
+        if (value.kind !== undefined) {
+            result["kind"] = value.kind;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("rank")) {
+        if (value.rank !== undefined) {
+            result["rank"] = value.rank;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("secret")) {
+        if (value.secret !== undefined) {
+            result["secret"] = value.secret;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: ClassInferred, keepMetadata?: boolean): string {
+        return classInferredEncode(value, keepMetadata);
+    }
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = ClassInferred.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ClassInferred.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassInferred | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassInferred> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ClassInferred> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ClassInferred.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ClassInferred.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ClassInferred") as ClassInferred | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ClassInferred.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
+        errors.push({ field: "count", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
+        errors.push({ field: "active", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
+        errors.push({ field: "big", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("offset")) && !("offset" in obj)) {
+        errors.push({ field: "offset", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
+        errors.push({ field: "note", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
+        errors.push({ field: "tags", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("ratio")) && !("ratio" in obj)) {
+        errors.push({ field: "ratio", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
+        errors.push({ field: "kind", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("rank")) && !("rank" in obj)) {
+        errors.push({ field: "rank", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("secret")) && !("secret" in obj)) {
+        errors.push({ field: "secret", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(ClassInferred.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ClassInferred");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+        const __raw_count = obj["count"] as number;
+
+        if (!(typeof __raw_count === "number")) {
+            errors.push({ field: "count", message: __raw_count == null ? "ClassInferred.count is required" : "expected number" });
+        } else {
+            instance.count = __raw_count;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+        const __raw_label = obj["label"] as string;
+
+        if (!(typeof __raw_label === "string")) {
+            errors.push({ field: "label", message: __raw_label == null ? "ClassInferred.label is required" : "expected string" });
+        } else {
+            instance.label = __raw_label;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+        const __raw_active = obj["active"] as boolean;
+
+        if (!(typeof __raw_active === "boolean")) {
+            errors.push({ field: "active", message: __raw_active == null ? "ClassInferred.active is required" : "expected boolean" });
+        } else {
+            instance.active = __raw_active;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+        try {
+            instance.big = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["big"]);
+        } catch (__error) {
+            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("offset")) ? "offset" in obj : (__fields.keeps("offset") && obj["offset"] !== undefined)) {
+        const __raw_offset = obj["offset"] as number;
+
+        if (!(typeof __raw_offset === "number")) {
+            errors.push({ field: "offset", message: __raw_offset == null ? "ClassInferred.offset is required" : "expected number" });
+        } else {
+            instance.offset = __raw_offset;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+        const __raw_note = obj["note"] as string;
+
+        if (!(typeof __raw_note === "string")) {
+            errors.push({ field: "note", message: __raw_note == null ? "ClassInferred.note is required" : "expected string" });
+        } else {
+            instance.note = __raw_note;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "ClassInferred.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+        const __raw_tags = obj["tags"] as Array<string>;
+        if (Array.isArray(__raw_tags)) {
+            ctx.pushScope("tags");
+            try {
+                instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "ClassInferred.tags is required" : "expected Set<string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("ratio")) ? "ratio" in obj : (__fields.keeps("ratio") && obj["ratio"] !== undefined)) {
+        const __raw_ratio = obj["ratio"] as number;
+
+        if (!(typeof __raw_ratio === "number")) {
+            errors.push({ field: "ratio", message: __raw_ratio == null ? "ClassInferred.ratio is required" : "expected number" });
+        } else {
+            instance.ratio = __raw_ratio;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+        const __raw_kind = obj["kind"] as 'inferred';
+
+        if (!(__raw_kind === "inferred")) {
+            errors.push({ field: "kind", message: __raw_kind == null ? "ClassInferred.kind is required" : "expected 'inferred'" });
+        } else {
+            instance.kind = __raw_kind;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+        const __raw_rank = obj["rank"] as 3;
+
+        if (!(__raw_rank === 3)) {
+            errors.push({ field: "rank", message: __raw_rank == null ? "ClassInferred.rank is required" : "expected 3" });
+        } else {
+            instance.rank = __raw_rank;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "ClassInferred.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+        const __raw_secret = obj["secret"] as number;
+
+        if (!(typeof __raw_secret === "number")) {
+            errors.push({ field: "secret", message: __raw_secret == null ? "ClassInferred.secret is required" : "expected number" });
+        } else {
+            instance.secret = __raw_secret;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof ClassInferred>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof ClassInferred]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "count") && __mf_holds(obj, "label") && __mf_holds(obj, "active") && __mf_holds(obj, "big") && __mf_holds(obj, "offset") && __mf_holds(obj, "note") && __mf_holds(obj, "at") && __mf_holds(obj, "tags") && __mf_holds(obj, "ratio") && __mf_holds(obj, "kind") && __mf_holds(obj, "rank") && __mf_holds(obj, "id") && __mf_holds(obj, "secret");
+}
+
+static is(obj: unknown): obj is ClassInferred {
+    if (obj instanceof ClassInferred) {
+        return true;
+    }
+    if (!ClassInferred.hasShape(obj)) {
+        return false;
+    }
+    const result = ClassInferred.decode(obj);
+    return result.success;
+}
+}
+
+export function classInferredToString(value: ClassInferred): string {
+    return ClassInferred.toString(value);
+}
+
+export function classInferredClone(value: ClassInferred): ClassInferred {
+    return ClassInferred.clone(value);
+}
+
+export function classInferredEquals(a: ClassInferred, b: ClassInferred): boolean {
+    return ClassInferred.equals(a, b);
+}
+
+export function classInferredHashCode(value: ClassInferred): number {
+    return ClassInferred.hashCode(value);
+}
+
+export function classInferredDefaultValue(): ClassInferred {
+    return ClassInferred.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function classInferredEncode(value: ClassInferred, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = classInferredEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function classInferredEncodeWithContext(value: ClassInferred, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return ClassInferred.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function classInferredEncodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Record<string, unknown> {
+    return ClassInferred.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classInferredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassInferred.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function classInferredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassInferred | __mf_PendingRef {
+    return ClassInferred.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function classInferredHasShape(value: unknown): boolean {
+    return ClassInferred.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function classInferredDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Partial<ClassInferred> | __mf_PendingRef {
+    return ClassInferred.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function classInferredIs(value: unknown): value is ClassInferred {
+    return ClassInferred.is(value);
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default) */
@@ -2593,12 +3142,12 @@ export function classEntityEncodePartialWithContext(value: Partial<ClassEntity>,
 function classEntityEncodeFields(value: ClassEntity, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("kind")) {
         if (value.kind !== undefined) {
-            result.kind = value.kind;
+            result["kind"] = value.kind;
         }
     }
 }
@@ -2675,7 +3224,7 @@ export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "ClassEntity.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -2733,8 +3282,7 @@ export function classEntityHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "kind" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "kind");
 }
 
 export function classEntityIs(obj: unknown): obj is ClassEntity {
@@ -2794,7 +3342,7 @@ export function classDatedClone(value: ClassDated): ClassDated {
 
 export function classDatedEquals(a: ClassDated, b: ClassDated): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.at.getTime() === b.at.getTime());
+    return __mf_equalWithin(a, b, () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime());
 }
 
 export function classDatedHashCode(value: ClassDated): number {
@@ -2841,7 +3389,7 @@ export function classDatedEncodePartialWithContext(value: Partial<ClassDated>, c
 function classDatedEncodeFields(value: ClassDated, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = value.at.toISOString();
+            result["at"] = value.at.toISOString();
         }
     }
 }
@@ -2918,7 +3466,7 @@ export function classDatedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "ClassDated.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
         errors.push({ field: "at", message: "missing required field" });
@@ -2967,8 +3515,7 @@ export function classDatedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "at" in o;
+    return __mf_holds(obj, "at");
 }
 
 export function classDatedIs(obj: unknown): obj is ClassDated {
@@ -3037,7 +3584,7 @@ export function classAccountClone(value: ClassAccount): ClassAccount {
 
 export function classAccountEquals(a: ClassAccount, b: ClassAccount): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.kind === b.kind && a.at.getTime() === b.at.getTime() && a.balance === b.balance);
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.kind === b.kind && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && (a.balance === b.balance || a.balance !== a.balance && b.balance !== b.balance));
 }
 
 export function classAccountHashCode(value: ClassAccount): number {
@@ -3090,22 +3637,22 @@ export function classAccountEncodePartialWithContext(value: Partial<ClassAccount
 function classAccountEncodeFields(value: ClassAccount, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("kind")) {
         if (value.kind !== undefined) {
-            result.kind = value.kind;
+            result["kind"] = value.kind;
         }
     }
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = value.at.toISOString();
+            result["at"] = value.at.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = value.balance;
+            result["balance"] = value.balance;
         }
     }
 }
@@ -3182,7 +3729,7 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "ClassAccount.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -3267,8 +3814,7 @@ export function classAccountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "kind" in o && "at" in o && "balance" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "kind") && __mf_holds(obj, "at") && __mf_holds(obj, "balance");
 }
 
 export function classAccountIs(obj: unknown): obj is ClassAccount {
@@ -3314,8 +3860,9 @@ export const ClassAccount: {
 /**
 * Class members a derive has to tell from plain fields: visibility
 * modifiers, readonly and static properties, accessors, methods, optional and
-* definite fields, a constructor of the class's own, parameter properties and
-* inherited fields, of a class and of an interface.
+* definite fields, a constructor of the class's own, parameter properties,
+* fields typed by their initializers and inherited fields, of a class and of
+* an interface.
 */
 import type { EdgeItem } from "./edge-types";
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -3885,6 +4432,91 @@ export declare function classHolderHasShape(value: unknown): boolean;
 export declare function classHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ClassHolder>): Partial<ClassHolder> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function classHolderIs(value: unknown): value is ClassHolder;
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class ClassInferred {
+	#private;
+	id: string;
+	private secret;
+	count: number;
+	label: string;
+	active: boolean;
+	big: bigint;
+	offset: number;
+	note: string;
+	at;
+	tags;
+	ratio: number;
+	readonly kind = "inferred";
+	readonly rank = 3;
+	constructor(id?: string, secret?: number);
+	reveal(): number;
+	static toString(value: ClassInferred): string;
+	static clone(value: ClassInferred): ClassInferred;
+	static equals(a: ClassInferred, b: ClassInferred): boolean;
+	static hashCode(value: ClassInferred): number;
+	static defaultValue(): ClassInferred;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: ClassInferred, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: ClassInferred, keepMetadata?: boolean): string;
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassInferred;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassInferred | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassInferred> | __mf_PendingRef;
+	static validateField<K extends keyof ClassInferred>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof ClassInferred]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is ClassInferred;
+}
+export declare function classInferredToString(value: ClassInferred): string;
+export declare function classInferredClone(value: ClassInferred): ClassInferred;
+export declare function classInferredEquals(a: ClassInferred, b: ClassInferred): boolean;
+export declare function classInferredHashCode(value: ClassInferred): number;
+export declare function classInferredDefaultValue(): ClassInferred;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function classInferredEncode(value: ClassInferred, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function classInferredEncodeWithContext(value: ClassInferred, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function classInferredEncodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classInferredDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassInferred;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function classInferredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassInferred | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function classInferredHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function classInferredDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ClassInferred>): Partial<ClassInferred> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function classInferredIs(value: unknown): value is ClassInferred;
 /** @derive(Debug, Clone, PartialEq, Hash, Default) */
 export declare class ClassCallback {
 	name: string;
@@ -4086,212 +4718,233 @@ export declare const ClassAccount: {
 
 ## Mapping
 
-original 0..839 -> expanded 1105..1944
-original 839..840 -> expanded 15410..15411
-original 840..1210 -> expanded 19192..19562
-original 1210..1211 -> expanded 32432..32433
-original 1211..1490 -> expanded 36479..36758
-original 1490..1491 -> expanded 46937..46938
-original 1491..1781 -> expanded 51184..51474
-original 1781..1782 -> expanded 61657..61658
-original 1782..1901 -> expanded 65565..65684
-original 1901..1902 -> expanded 73437..73438
-original 1902..2044 -> expanded 77093..77235
-original 2044..2045 -> expanded 86274..86275
-original 2045..2200 -> expanded 90056..90211
-original 2200..2201 -> expanded 91283..91284
-original 2201..2471 -> expanded 91860..92130
-original 2471..2472 -> expanded 107329..107330
-original 2472..2630 -> expanded 111069..111227
-original 2630..2631 -> expanded 112535..112536
-original 2631..2770 -> expanded 113112..113251
-original 2770..2888 -> expanded 124207..124325
-original 2888..3068 -> expanded 134411..134591
-original 3068..3069 -> expanded 147943..147944
-generated 0..1105 <- imports
-generated 1944..2480 <- Debug
-generated 2480..2830 <- Clone
-generated 2830..3314 <- PartialEq
-generated 3314..4207 <- Hash
-generated 4207..4528 <- Default
-generated 4528..6815 <- Encode
-generated 6815..7146 <- Encode
-generated 7146..15410 <- Decode
-generated 15411..15523 <- Debug
-generated 15523..15635 <- Clone
-generated 15635..15756 <- PartialEq
-generated 15756..15868 <- Hash
-generated 15868..15970 <- Default
-generated 15970..17350 <- Encode
-generated 17350..19192 <- Decode
-generated 19562..20004 <- Debug
-generated 20004..20246 <- Clone
-generated 20246..20491 <- PartialEq
-generated 20491..21155 <- Hash
-generated 21155..21997 <- PartialOrd
-generated 21997..22624 <- Ord
-generated 22624..22943 <- Default
-generated 22943..25007 <- Encode
-generated 25007..25338 <- Encode
-generated 25338..32432 <- Decode
-generated 32433..32545 <- Debug
-generated 32545..32657 <- Clone
-generated 32657..32778 <- PartialEq
-generated 32778..32890 <- Hash
-generated 32890..33033 <- PartialOrd
-generated 33033..33155 <- Ord
-generated 33155..33257 <- Default
-generated 33257..34637 <- Encode
-generated 34637..36479 <- Decode
-generated 36758..37098 <- Debug
-generated 37098..37286 <- Clone
-generated 37286..37489 <- PartialEq
-generated 37489..37967 <- Hash
-generated 37967..38512 <- PartialOrd
-generated 38512..38928 <- Ord
-generated 38928..39166 <- Default
-generated 39166..40942 <- Encode
-generated 40942..41281 <- Encode
-generated 41281..46937 <- Decode
-generated 46938..47062 <- Debug
-generated 47062..47190 <- Clone
-generated 47190..47327 <- PartialEq
-generated 47327..47451 <- Hash
-generated 47451..47610 <- PartialOrd
-generated 47610..47748 <- Ord
-generated 47748..47862 <- Default
-generated 47862..49282 <- Encode
-generated 49282..51184 <- Decode
-generated 51474..51861 <- Debug
-generated 51861..52072 <- Clone
-generated 52072..52292 <- PartialEq
-generated 52292..52887 <- Hash
-generated 52887..53163 <- Default
-generated 53163..55080 <- Encode
-generated 55080..55417 <- Encode
-generated 55417..61657 <- Decode
-generated 61658..61779 <- Debug
-generated 61779..61903 <- Clone
-generated 61903..62036 <- PartialEq
-generated 62036..62157 <- Hash
-generated 62157..62268 <- Default
-generated 62268..63678 <- Encode
-generated 63678..65565 <- Decode
-generated 65684..65949 <- Debug
-generated 65949..66069 <- Clone
-generated 66069..66227 <- PartialEq
-generated 66227..66515 <- Hash
-generated 66515..66694 <- Default
-generated 66694..68233 <- Encode
-generated 68233..68558 <- Encode
-generated 68558..73437 <- Decode
-generated 73438..73541 <- Debug
-generated 73541..73641 <- Clone
-generated 73641..73750 <- PartialEq
-generated 73750..73853 <- Hash
-generated 73853..73946 <- Default
-generated 73946..75296 <- Encode
-generated 75296..77093 <- Decode
-generated 77235..77559 <- Debug
-generated 77559..77731 <- Clone
-generated 77731..77918 <- PartialEq
-generated 77918..78386 <- Hash
-generated 78386..78608 <- Default
-generated 78608..80332 <- Encode
-generated 80332..80663 <- Encode
-generated 80663..86274 <- Decode
-generated 86275..86387 <- Debug
-generated 86387..86499 <- Clone
-generated 86499..86620 <- PartialEq
-generated 86620..86732 <- Hash
-generated 86732..86834 <- Default
-generated 86834..88214 <- Encode
-generated 88214..90056 <- Decode
-generated 90211..90488 <- Debug
-generated 90488..90620 <- Clone
-generated 90620..90790 <- PartialEq
-generated 90790..91084 <- Hash
-generated 91084..91283 <- Default
-generated 91284..91399 <- Debug
-generated 91399..91515 <- Clone
-generated 91515..91640 <- PartialEq
-generated 91640..91755 <- Hash
-generated 91755..91860 <- Default
-generated 92130..92690 <- Debug
-generated 92690..93227 <- Clone
-generated 93227..94023 <- PartialEq
-generated 94023..94741 <- Hash
-generated 94741..95118 <- Default
-generated 95118..97428 <- Encode
-generated 97428..97757 <- Encode
-generated 97757..107329 <- Decode
-generated 107330..107439 <- Debug
-generated 107439..107547 <- Clone
-generated 107547..107664 <- PartialEq
-generated 107664..107773 <- Hash
-generated 107773..107872 <- Default
-generated 107872..109242 <- Encode
-generated 109242..111069 <- Decode
-generated 111227..111563 <- Debug
-generated 111563..111747 <- Clone
-generated 111747..111946 <- PartialEq
-generated 111946..112278 <- Hash
-generated 112278..112535 <- Default
-generated 112536..112651 <- Debug
-generated 112651..112767 <- Clone
-generated 112767..112892 <- PartialEq
-generated 112892..113007 <- Hash
-generated 113007..113112 <- Default
-generated 113251..113559 <- Debug
-generated 113559..113724 <- Clone
-generated 113724..113911 <- PartialEq
-generated 113911..114312 <- Hash
-generated 114312..114426 <- Default
-generated 114426..116743 <- Encode
-generated 116743..122740 <- Decode
-generated 122740..124207 <- __convenience_const
-generated 124325..124583 <- Debug
-generated 124583..124744 <- Clone
-generated 124744..124927 <- PartialEq
-generated 124927..125145 <- Hash
-generated 125145..125247 <- Default
-generated 125247..127409 <- Encode
-generated 127409..132975 <- Decode
-generated 132975..134411 <- __convenience_const
-generated 134591..134998 <- Debug
-generated 134998..135227 <- Clone
-generated 135227..135481 <- PartialEq
-generated 135481..136118 <- Hash
-generated 136118..136285 <- Default
-generated 136285..138943 <- Encode
-generated 138943..146445 <- Decode
-generated 146445..147943 <- __convenience_const
+original 0..878 -> expanded 1221..2099
+original 878..879 -> expanded 15632..15633
+original 879..1249 -> expanded 19414..19784
+original 1249..1250 -> expanded 32861..32862
+original 1250..1529 -> expanded 36908..37187
+original 1529..1530 -> expanded 47529..47530
+original 1530..1820 -> expanded 51776..52066
+original 1820..1821 -> expanded 62282..62283
+original 1821..1940 -> expanded 66190..66309
+original 1940..1941 -> expanded 74021..74022
+original 1941..2083 -> expanded 77677..77819
+original 2083..2084 -> expanded 86880..86881
+original 2084..2239 -> expanded 90662..90817
+original 2239..2240 -> expanded 91889..91890
+original 2240..2510 -> expanded 92466..92736
+original 2510..2511 -> expanded 107939..107940
+original 2511..2990 -> expanded 111679..112158
+original 2990..2991 -> expanded 134543..134544
+original 2991..3149 -> expanded 138367..138525
+original 3149..3150 -> expanded 139833..139834
+original 3150..3289 -> expanded 140410..140549
+original 3289..3407 -> expanded 151479..151597
+original 3407..3587 -> expanded 161716..161896
+original 3587..3588 -> expanded 175384..175385
+generated 0..1221 <- imports
+generated 2099..2635 <- Debug
+generated 2635..2985 <- Clone
+generated 2985..3529 <- PartialEq
+generated 3529..4422 <- Hash
+generated 4422..4743 <- Default
+generated 4743..7045 <- Encode
+generated 7045..7376 <- Encode
+generated 7376..15632 <- Decode
+generated 15633..15745 <- Debug
+generated 15745..15857 <- Clone
+generated 15857..15978 <- PartialEq
+generated 15978..16090 <- Hash
+generated 16090..16192 <- Default
+generated 16192..17572 <- Encode
+generated 17572..19414 <- Decode
+generated 19784..20226 <- Debug
+generated 20226..20468 <- Clone
+generated 20468..20769 <- PartialEq
+generated 20769..21433 <- Hash
+generated 21433..22331 <- PartialOrd
+generated 22331..23049 <- Ord
+generated 23049..23368 <- Default
+generated 23368..25444 <- Encode
+generated 25444..25775 <- Encode
+generated 25775..32861 <- Decode
+generated 32862..32974 <- Debug
+generated 32974..33086 <- Clone
+generated 33086..33207 <- PartialEq
+generated 33207..33319 <- Hash
+generated 33319..33462 <- PartialOrd
+generated 33462..33584 <- Ord
+generated 33584..33686 <- Default
+generated 33686..35066 <- Encode
+generated 35066..36908 <- Decode
+generated 37187..37527 <- Debug
+generated 37527..37715 <- Clone
+generated 37715..37970 <- PartialEq
+generated 37970..38448 <- Hash
+generated 38448..39045 <- PartialOrd
+generated 39045..39546 <- Ord
+generated 39546..39784 <- Default
+generated 39784..41566 <- Encode
+generated 41566..41905 <- Encode
+generated 41905..47529 <- Decode
+generated 47530..47654 <- Debug
+generated 47654..47782 <- Clone
+generated 47782..47919 <- PartialEq
+generated 47919..48043 <- Hash
+generated 48043..48202 <- PartialOrd
+generated 48202..48340 <- Ord
+generated 48340..48454 <- Default
+generated 48454..49874 <- Encode
+generated 49874..51776 <- Decode
+generated 52066..52453 <- Debug
+generated 52453..52664 <- Clone
+generated 52664..52928 <- PartialEq
+generated 52928..53523 <- Hash
+generated 53523..53799 <- Default
+generated 53799..55725 <- Encode
+generated 55725..56062 <- Encode
+generated 56062..62282 <- Decode
+generated 62283..62404 <- Debug
+generated 62404..62528 <- Clone
+generated 62528..62661 <- PartialEq
+generated 62661..62782 <- Hash
+generated 62782..62893 <- Default
+generated 62893..64303 <- Encode
+generated 64303..66190 <- Decode
+generated 66309..66574 <- Debug
+generated 66574..66694 <- Clone
+generated 66694..66852 <- PartialEq
+generated 66852..67140 <- Hash
+generated 67140..67319 <- Default
+generated 67319..68861 <- Encode
+generated 68861..69186 <- Encode
+generated 69186..74021 <- Decode
+generated 74022..74125 <- Debug
+generated 74125..74225 <- Clone
+generated 74225..74334 <- PartialEq
+generated 74334..74437 <- Hash
+generated 74437..74530 <- Default
+generated 74530..75880 <- Encode
+generated 75880..77677 <- Decode
+generated 77819..78143 <- Debug
+generated 78143..78315 <- Clone
+generated 78315..78550 <- PartialEq
+generated 78550..79018 <- Hash
+generated 79018..79240 <- Default
+generated 79240..80970 <- Encode
+generated 80970..81301 <- Encode
+generated 81301..86880 <- Decode
+generated 86881..86993 <- Debug
+generated 86993..87105 <- Clone
+generated 87105..87226 <- PartialEq
+generated 87226..87338 <- Hash
+generated 87338..87440 <- Default
+generated 87440..88820 <- Encode
+generated 88820..90662 <- Decode
+generated 90817..91094 <- Debug
+generated 91094..91226 <- Clone
+generated 91226..91396 <- PartialEq
+generated 91396..91690 <- Hash
+generated 91690..91889 <- Default
+generated 91890..92005 <- Debug
+generated 92005..92121 <- Clone
+generated 92121..92246 <- PartialEq
+generated 92246..92361 <- Hash
+generated 92361..92466 <- Default
+generated 92736..93296 <- Debug
+generated 93296..93833 <- Clone
+generated 93833..94629 <- PartialEq
+generated 94629..95347 <- Hash
+generated 95347..95724 <- Default
+generated 95724..98046 <- Encode
+generated 98046..98375 <- Encode
+generated 98375..107939 <- Decode
+generated 107940..108049 <- Debug
+generated 108049..108157 <- Clone
+generated 108157..108274 <- PartialEq
+generated 108274..108383 <- Hash
+generated 108383..108482 <- Default
+generated 108482..109852 <- Encode
+generated 109852..111679 <- Decode
+generated 112158..113069 <- Debug
+generated 113069..113579 <- Clone
+generated 113579..114484 <- PartialEq
+generated 114484..116479 <- Hash
+generated 116479..117093 <- Default
+generated 117093..120625 <- Encode
+generated 120625..120958 <- Encode
+generated 120958..134543 <- Decode
+generated 134544..134659 <- Debug
+generated 134659..134775 <- Clone
+generated 134775..134900 <- PartialEq
+generated 134900..135015 <- Hash
+generated 135015..135120 <- Default
+generated 135120..136510 <- Encode
+generated 136510..138367 <- Decode
+generated 138525..138861 <- Debug
+generated 138861..139045 <- Clone
+generated 139045..139244 <- PartialEq
+generated 139244..139576 <- Hash
+generated 139576..139833 <- Default
+generated 139834..139949 <- Debug
+generated 139949..140065 <- Clone
+generated 140065..140190 <- PartialEq
+generated 140190..140305 <- Hash
+generated 140305..140410 <- Default
+generated 140549..140857 <- Debug
+generated 140857..141022 <- Clone
+generated 141022..141209 <- PartialEq
+generated 141209..141610 <- Hash
+generated 141610..141724 <- Default
+generated 141724..144047 <- Encode
+generated 144047..150012 <- Decode
+generated 150012..151479 <- __convenience_const
+generated 151597..151855 <- Debug
+generated 151855..152016 <- Clone
+generated 152016..152273 <- PartialEq
+generated 152273..152491 <- Hash
+generated 152491..152593 <- Default
+generated 152593..154758 <- Encode
+generated 154758..160280 <- Decode
+generated 160280..161716 <- __convenience_const
+generated 161896..162303 <- Debug
+generated 162303..162532 <- Clone
+generated 162532..162918 <- PartialEq
+generated 162918..163555 <- Hash
+generated 163555..163722 <- Default
+generated 163722..166392 <- Encode
+generated 166392..173886 <- Decode
+generated 173886..175384 <- __convenience_const
 
 ## Metadata
 
-class ClassMembers: {"body_span":{"end":841,"start":433},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":406,"start":336}}],"fields":[{"decorators":[],"initializer":"'open'","key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":500,"start":471},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"'fixed'","key":"Named","name":"fixed","optional":false,"readonly":true,"span":{"end":538,"start":505},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":561,"start":543},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"definite","optional":false,"readonly":false,"span":{"end":584,"start":566},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":612,"start":589},"ts_type":"EdgeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":690,"start":638},"body_src":"\n        return `${this.open}:${this.fixed}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":690,"start":618},"type_params":[],"visibility":"Public"},{"body_span":{"end":753,"start":720},"body_src":"\n        this.open = text;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"text: string","return_type_src":"","span":{"end":753,"start":696},"type_params":[],"visibility":"Public"},{"body_span":{"end":839,"start":778},"body_src":"\n        return `${this.open} (${this.items.length})`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":839,"start":759},"type_params":[],"visibility":"Public"}],"name":"ClassMembers","span":{"end":841,"start":414},"superclass":null,"type_params":[]}
-class ClassGuarded: {"body_span":{"end":1212,"start":961},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":934,"start":843}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":985,"start":967},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"1","key":"Named","name":"guarded","optional":false,"readonly":false,"span":{"end":1020,"start":990},"ts_type":"number","visibility":"Protected"},{"decorators":[],"initializer":"true","key":"Named","name":"hidden","optional":false,"readonly":false,"span":{"end":1056,"start":1025},"ts_type":"boolean","visibility":"Private"},{"decorators":[],"initializer":"'sealed'","key":"Named","name":"sealed","optional":false,"readonly":true,"span":{"end":1104,"start":1061},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1210,"start":1146},"body_src":"\n        return [this.guarded, this.hidden, this.sealed];\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"[number, boolean, string]","span":{"end":1210,"start":1110},"type_params":[],"visibility":"Public"}],"name":"ClassGuarded","span":{"end":1212,"start":942},"superclass":null,"type_params":[]}
-class ClassConstructed: {"body_span":{"end":1492,"start":1336},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1305,"start":1214}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1356,"start":1342},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1376,"start":1361},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1490,"start":1425},"body_src":"\n        this.label = label;\n        this.weight = weight;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"label: string, weight: number","return_type_src":"","span":{"end":1490,"start":1382},"type_params":[],"visibility":"Public"}],"name":"ClassConstructed","span":{"end":1492,"start":1313},"superclass":null,"type_params":[]}
-class ClassParameters: {"body_span":{"end":1783,"start":1594},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1564,"start":1494}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1640,"start":1621},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":1671,"start":1650},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"'secret'","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1714,"start":1681},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1723,"start":1721},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public name: string,\n        readonly rank: number,\n        private secret: string = 'secret'","return_type_src":"","span":{"end":1723,"start":1600},"type_params":[],"visibility":"Public"},{"body_span":{"end":1781,"start":1746},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"string","span":{"end":1781,"start":1729},"type_params":[],"visibility":"Public"}],"name":"ClassParameters","span":{"end":1783,"start":1572},"superclass":null,"type_params":[]}
-class ClassBase: {"body_span":{"end":1903,"start":1879},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1855,"start":1785}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1901,"start":1885},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassBase","span":{"end":1903,"start":1863},"superclass":null,"type_params":[]}
-class ClassDerived: {"body_span":{"end":2046,"start":2020},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1975,"start":1905}}],"fields":[{"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2044,"start":2026},"ts_type":"number","visibility":"Public"}],"heritage":["ClassBase"],"is_abstract":false,"methods":[],"name":"ClassDerived","span":{"end":2046,"start":1983},"superclass":"ClassBase","type_params":[]}
-class ClassAbstract: {"body_span":{"end":2202,"start":2139},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2102,"start":2048}}],"fields":[{"decorators":[],"initializer":"'abstract'","key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2171,"start":2145},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":true,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2200,"start":2176},"type_params":[],"visibility":"Public"}],"name":"ClassAbstract","span":{"end":2202,"start":2110},"superclass":null,"type_params":[]}
-class ClassHolder: {"body_span":{"end":2473,"start":2300},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2274,"start":2204}}],"fields":[{"decorators":[],"initializer":"ClassMembers.defaultValue()","key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2355,"start":2306},"ts_type":"ClassMembers","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":2387,"start":2360},"ts_type":"ClassMembers[]","visibility":"Public"},{"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2435,"start":2392},"ts_type":"Map<string, ClassBase>","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2471,"start":2440},"ts_type":"ClassBase | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassHolder","span":{"end":2473,"start":2282},"superclass":null,"type_params":[]}
-class ClassCallback: {"body_span":{"end":2632,"start":2557},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2529,"start":2475}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2581,"start":2563},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"() => {}","key":"Named","name":"onChange","optional":false,"readonly":false,"span":{"end":2630,"start":2586},"ts_type":"(name: string) => void","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassCallback","span":{"end":2632,"start":2537},"superclass":null,"type_params":[]}
-interface ClassEntity: {"body_span":{"end":2771,"start":2734},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2704,"start":2634}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2751,"start":2740},"ts_type":"string"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2769,"start":2756},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":2771,"start":2712},"type_params":[]}
-interface ClassDated: {"body_span":{"end":2889,"start":2872},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2843,"start":2773}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2887,"start":2878},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":2889,"start":2851},"type_params":[]}
-interface ClassAccount: {"body_span":{"end":3069,"start":3024},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2961,"start":2891}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3046,"start":3030},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3067,"start":3051},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3069,"start":2969},"type_params":[]}
+class ClassMembers: {"body_span":{"end":880,"start":472},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":445,"start":375}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'open'","key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":539,"start":510},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'fixed'","key":"Named","name":"fixed","optional":false,"readonly":true,"span":{"end":577,"start":544},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":600,"start":582},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"definite","optional":false,"readonly":false,"span":{"end":623,"start":605},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":651,"start":628},"ts_type":"EdgeItem[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":729,"start":677},"body_src":"\n        return `${this.open}:${this.fixed}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":729,"start":657},"type_params":[],"visibility":"Public"},{"body_span":{"end":792,"start":759},"body_src":"\n        this.open = text;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"text: string","return_type_src":"","span":{"end":792,"start":735},"type_params":[],"visibility":"Public"},{"body_span":{"end":878,"start":817},"body_src":"\n        return `${this.open} (${this.items.length})`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":878,"start":798},"type_params":[],"visibility":"Public"}],"name":"ClassMembers","span":{"end":880,"start":453},"superclass":null,"type_params":[]}
+class ClassGuarded: {"body_span":{"end":1251,"start":1000},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":973,"start":882}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1024,"start":1006},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"guarded","optional":false,"readonly":false,"span":{"end":1059,"start":1029},"ts_type":"number","untyped":false,"visibility":"Protected"},{"accessor":false,"decorators":[],"initializer":"true","key":"Named","name":"hidden","optional":false,"readonly":false,"span":{"end":1095,"start":1064},"ts_type":"boolean","untyped":false,"visibility":"Private"},{"accessor":false,"decorators":[],"initializer":"'sealed'","key":"Named","name":"sealed","optional":false,"readonly":true,"span":{"end":1143,"start":1100},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1249,"start":1185},"body_src":"\n        return [this.guarded, this.hidden, this.sealed];\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"[number, boolean, string]","span":{"end":1249,"start":1149},"type_params":[],"visibility":"Public"}],"name":"ClassGuarded","span":{"end":1251,"start":981},"superclass":null,"type_params":[]}
+class ClassConstructed: {"body_span":{"end":1531,"start":1375},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1344,"start":1253}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1395,"start":1381},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1415,"start":1400},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1529,"start":1464},"body_src":"\n        this.label = label;\n        this.weight = weight;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"label: string, weight: number","return_type_src":"","span":{"end":1529,"start":1421},"type_params":[],"visibility":"Public"}],"name":"ClassConstructed","span":{"end":1531,"start":1352},"superclass":null,"type_params":[]}
+class ClassParameters: {"body_span":{"end":1822,"start":1633},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1603,"start":1533}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1679,"start":1660},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":1710,"start":1689},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'secret'","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1753,"start":1720},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1762,"start":1760},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public name: string,\n        readonly rank: number,\n        private secret: string = 'secret'","return_type_src":"","span":{"end":1762,"start":1639},"type_params":[],"visibility":"Public"},{"body_span":{"end":1820,"start":1785},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"string","span":{"end":1820,"start":1768},"type_params":[],"visibility":"Public"}],"name":"ClassParameters","span":{"end":1822,"start":1611},"superclass":null,"type_params":[]}
+class ClassBase: {"body_span":{"end":1942,"start":1918},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1894,"start":1824}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1940,"start":1924},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassBase","span":{"end":1942,"start":1902},"superclass":null,"type_params":[]}
+class ClassDerived: {"body_span":{"end":2085,"start":2059},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2014,"start":1944}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2083,"start":2065},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["ClassBase"],"is_abstract":false,"methods":[],"name":"ClassDerived","span":{"end":2085,"start":2022},"superclass":"ClassBase","type_params":[]}
+class ClassAbstract: {"body_span":{"end":2241,"start":2178},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2141,"start":2087}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'abstract'","key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2210,"start":2184},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":true,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2239,"start":2215},"type_params":[],"visibility":"Public"}],"name":"ClassAbstract","span":{"end":2241,"start":2149},"superclass":null,"type_params":[]}
+class ClassHolder: {"body_span":{"end":2512,"start":2339},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2313,"start":2243}}],"fields":[{"accessor":false,"decorators":[],"initializer":"ClassMembers.defaultValue()","key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2394,"start":2345},"ts_type":"ClassMembers","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":2426,"start":2399},"ts_type":"ClassMembers[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2474,"start":2431},"ts_type":"Map<string, ClassBase>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2510,"start":2479},"ts_type":"ClassBase | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassHolder","span":{"end":2512,"start":2321},"superclass":null,"type_params":[]}
+class ClassInferred: {"body_span":{"end":2992,"start":2612},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2584,"start":2514}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2628,"start":2618},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'none'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":2648,"start":2633},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"false","key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":2668,"start":2653},"ts_type":"boolean","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"10n","key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":2683,"start":2673},"ts_type":"bigint","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"-1","key":"Named","name":"offset","optional":false,"readonly":false,"span":{"end":2700,"start":2688},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"`n${1}`","key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":2720,"start":2705},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Date(0)","key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2742,"start":2725},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set<string>()","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":2772,"start":2747},"ts_type":"Set<string>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0.5 as number","key":"Named","name":"ratio","optional":false,"readonly":false,"span":{"end":2799,"start":2777},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'inferred'","key":"Named","name":"kind","optional":false,"readonly":true,"span":{"end":2831,"start":2804},"ts_type":"'inferred'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"3","key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":2854,"start":2836},"ts_type":"3","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2895,"start":2881},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"7","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":2923,"start":2905},"ts_type":"number","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":2932,"start":2930},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id = '',\n        private secret = 7","return_type_src":"","span":{"end":2932,"start":2860},"type_params":[],"visibility":"Public"},{"body_span":{"end":2990,"start":2955},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"number","span":{"end":2990,"start":2938},"type_params":[],"visibility":"Public"}],"name":"ClassInferred","span":{"end":2992,"start":2592},"superclass":null,"type_params":[]}
+class ClassCallback: {"body_span":{"end":3151,"start":3076},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":3048,"start":2994}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3100,"start":3082},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"() => {}","key":"Named","name":"onChange","optional":false,"readonly":false,"span":{"end":3149,"start":3105},"ts_type":"(name: string) => void","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassCallback","span":{"end":3151,"start":3056},"superclass":null,"type_params":[]}
+interface ClassEntity: {"body_span":{"end":3290,"start":3253},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3223,"start":3153}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3270,"start":3259},"ts_type":"string"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3288,"start":3275},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":3290,"start":3231},"type_params":[]}
+interface ClassDated: {"body_span":{"end":3408,"start":3391},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3362,"start":3292}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3406,"start":3397},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":3408,"start":3370},"type_params":[]}
+interface ClassAccount: {"body_span":{"end":3588,"start":3543},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3480,"start":3410}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3565,"start":3549},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3586,"start":3570},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3588,"start":3488},"type_params":[]}
 
 ## Registry reads
 
 Name("'account'")
+Name("'inferred'")
 Name("(name: string) => void")
+Name("3")
 Name("ClassBase")
 Name("ClassDated")
 Name("ClassEntity")
 Name("ClassMembers")
 Name("EdgeItem")
 Name("Map")
+Name("Set")
 
 ## Buildtime dependencies
 

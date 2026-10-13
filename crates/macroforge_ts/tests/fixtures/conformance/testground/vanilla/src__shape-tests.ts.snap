@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Field and alias shapes every derive has to generate type-correct code for:
@@ -46,7 +46,7 @@ export function shapeItemClone(value: ShapeItem): ShapeItem {
 
 export function shapeItemEquals(a: ShapeItem, b: ShapeItem): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.score === b.score);
+    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score));
 }
 
 export function shapeItemHashCode(value: ShapeItem): number {
@@ -64,7 +64,7 @@ export function shapeItemPartialCompare(a: ShapeItem, b: ShapeItem): number | nu
     const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
+    const cmp1 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
         return 0;
@@ -76,7 +76,7 @@ export function shapeItemCompare(a: ShapeItem, b: ShapeItem): number {
     return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.score < b.score ? -1 : a.score > b.score ? 1 : 0;
+    const cmp1 = a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : a.score !== a.score ? b.score !== b.score ? 0 : 1 : -1;
     if (cmp1 !== 0) return cmp1;
         return 0;
     });
@@ -119,12 +119,12 @@ export function shapeItemEncodePartialWithContext(value: Partial<ShapeItem>, ctx
 function shapeItemEncodeFields(value: ShapeItem, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("score")) {
         if (value.score !== undefined) {
-            result.score = value.score;
+            result["score"] = value.score;
         }
     }
 }
@@ -201,7 +201,7 @@ export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "ShapeItem.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -259,8 +259,7 @@ export function shapeItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "score" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "score");
 }
 
 export function shapeItemIs(obj: unknown): obj is ShapeItem {
@@ -313,9 +312,13 @@ export enum ShapeLevel {
 }
 
 export function shapeLevelToString(value: ShapeLevel): string {
-    const key = ShapeLevel[value as unknown as keyof typeof ShapeLevel];
-    if (key !== undefined) {
-        return "ShapeLevel." + key;
+
+    const held: unknown = value;
+    if (held === ShapeLevel["Low"]) {
+        return "ShapeLevel.Low";
+    }
+    if (held === ShapeLevel["High"]) {
+        return "ShapeLevel.High";
     }
     return "ShapeLevel(" + String(value) + ")";
 }
@@ -412,9 +415,13 @@ export enum ShapeRank {
 }
 
 export function shapeRankToString(value: ShapeRank): string {
-    const key = ShapeRank[value as unknown as keyof typeof ShapeRank];
-    if (key !== undefined) {
-        return "ShapeRank." + key;
+
+    const held: unknown = value;
+    if (held === ShapeRank["One"]) {
+        return "ShapeRank.One";
+    }
+    if (held === ShapeRank["Two"]) {
+        return "ShapeRank.Two";
     }
     return "ShapeRank(" + String(value) + ")";
 }
@@ -571,10 +578,10 @@ export function shapeFieldsEquals(a: ShapeFields, b: ShapeFields): boolean {
 	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
 }) && a.readonlyNumbers.length === b.readonlyNumbers.length && a.readonlyNumbers.every((__item0, __index0) => {
 	const __other0 = b.readonlyNumbers[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
 }) && a.readonlyTags.size === b.readonlyTags.size && Array.from(a.readonlyTags).every((__item0) => b.readonlyTags.has(__item0) || Array.from(b.readonlyTags).some((__other0) => __item0 === __other0)) && a.readonlyCounts.size === b.readonlyCounts.size && Array.from(a.readonlyCounts).every(([__key0, __item0]) => {
 	const __other0 = b.readonlyCounts.get(__key0);
-	return b.readonlyCounts.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+	return b.readonlyCounts.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
 }) && shapeLevelEquals(a.level, b.level) && shapeRankEquals(a.rank, b.rank));
 }
 
@@ -644,62 +651,62 @@ export function shapeFieldsEncodePartialWithContext(value: Partial<ShapeFields>,
 function shapeFieldsEncodeFields(value: ShapeFields, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("note")) {
         if (value.note !== undefined) {
-            result.note = value.note;
+            result["note"] = value.note;
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe;
+            result["maybe"] = value.maybe;
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = value.pair;
+            result["pair"] = value.pair;
         }
     }
     if (__fields === undefined || __fields.keeps("nullableTexts")) {
         if (value.nullableTexts !== undefined) {
-            result.nullableTexts = value.nullableTexts;
+            result["nullableTexts"] = value.nullableTexts;
         }
     }
     if (__fields === undefined || __fields.keeps("nullableItems")) {
         if (value.nullableItems !== undefined) {
-            result.nullableItems = value.nullableItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
+            result["nullableItems"] = value.nullableItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("parenthesizedItems")) {
         if (value.parenthesizedItems !== undefined) {
-            result.parenthesizedItems = value.parenthesizedItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
+            result["parenthesizedItems"] = value.parenthesizedItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("readonlyItems")) {
         if (value.readonlyItems !== undefined) {
-            result.readonlyItems = value.readonlyItems.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
+            result["readonlyItems"] = value.readonlyItems.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("readonlyNumbers")) {
         if (value.readonlyNumbers !== undefined) {
-            result.readonlyNumbers = value.readonlyNumbers;
+            result["readonlyNumbers"] = value.readonlyNumbers;
         }
     }
     if (__fields === undefined || __fields.keeps("readonlyTags")) {
         if (value.readonlyTags !== undefined) {
-            result.readonlyTags = Array.from(value.readonlyTags);
+            result["readonlyTags"] = Array.from(value.readonlyTags);
         }
     }
     if (__fields === undefined || __fields.keeps("readonlyCounts")) {
         if (value.readonlyCounts !== undefined) {
-            result.readonlyCounts = Object.fromEntries(value.readonlyCounts.entries());
+            result["readonlyCounts"] = Object.fromEntries(value.readonlyCounts.entries());
         }
     }
     if (__fields === undefined || __fields.keeps("level")) {
         if (value.level !== undefined) {
-            result.level = shapeLevelEncodeWithContext(value.level, ctx);
+            result["level"] = shapeLevelEncodeWithContext(value.level, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("rank")) {
         if (value.rank !== undefined) {
-            result.rank = shapeRankEncodeWithContext(value.rank, ctx);
+            result["rank"] = shapeRankEncodeWithContext(value.rank, ctx);
         }
     }
 }
@@ -776,7 +783,7 @@ export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "ShapeFields.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
         errors.push({ field: "maybe", message: "missing required field" });
@@ -1099,8 +1106,7 @@ export function shapeFieldsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "maybe" in o && "pair" in o && "nullableTexts" in o && "nullableItems" in o && "parenthesizedItems" in o && "readonlyItems" in o && "readonlyNumbers" in o && "readonlyTags" in o && "readonlyCounts" in o && "level" in o && "rank" in o;
+    return __mf_holds(obj, "maybe") && __mf_holds(obj, "pair") && __mf_holds(obj, "nullableTexts") && __mf_holds(obj, "nullableItems") && __mf_holds(obj, "parenthesizedItems") && __mf_holds(obj, "readonlyItems") && __mf_holds(obj, "readonlyNumbers") && __mf_holds(obj, "readonlyTags") && __mf_holds(obj, "readonlyCounts") && __mf_holds(obj, "level") && __mf_holds(obj, "rank");
 }
 
 export function shapeFieldsIs(obj: unknown): obj is ShapeFields {
@@ -1210,12 +1216,12 @@ static encodePartialWithContext(value: Partial<ShapeCard>, ctx: __mf_EncodeConte
 static #encodeFields(value: ShapeCard, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("title")) {
         if (value.title !== undefined) {
-            result.title = value.title;
+            result["title"] = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("items")) {
         if (value.items !== undefined) {
-            result.items = value.items.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
+            result["items"] = value.items.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -1304,7 +1310,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ShapeCard.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
         errors.push({ field: "title", message: "missing required field" });
@@ -1373,8 +1379,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "title" in o && "items" in o;
+    return __mf_holds(obj, "title") && __mf_holds(obj, "items");
 }
 
 static is(obj: unknown): obj is ShapeCard {
@@ -1912,22 +1917,22 @@ export function shapeEventEncodePartialWithContext(value: Partial<ShapeEvent>, c
 function shapeEventEncodeFields(value: ShapeEvent, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = value.at.toISOString();
+            result["at"] = value.at.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags;
+            result["tags"] = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("owner")) {
         if (value.owner !== undefined) {
-            result.owner = shapeItemEncodeWithContext(value.owner, ctx);
+            result["owner"] = shapeItemEncodeWithContext(value.owner, ctx);
         }
     }
 }
@@ -2004,7 +2009,7 @@ export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "ShapeEvent.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -2117,8 +2122,7 @@ export function shapeEventHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "at" in o && "tags" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "at") && __mf_holds(obj, "tags");
 }
 
 export function shapeEventIs(obj: unknown): obj is ShapeEvent {
@@ -2188,27 +2192,27 @@ export function shapeDraftEncodePartialWithContext(value: Partial<ShapeDraft>, c
 function shapeDraftEncodeFields(value: ShapeDraft, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("patch")) {
         if (value.patch !== undefined) {
-            result.patch = shapeEventEncodePartialWithContext(value.patch, ctx);
+            result["patch"] = shapeEventEncodePartialWithContext(value.patch, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("header")) {
         if (value.header !== undefined) {
-            result.header = shapeEventEncodePartialWithContext(value.header, ctx, { only: ["id", "at"] });
+            result["header"] = shapeEventEncodePartialWithContext(value.header, ctx, { only: ["id", "at"] });
         }
     }
     if (__fields === undefined || __fields.keeps("rest")) {
         if (value.rest !== undefined) {
-            result.rest = shapeEventEncodePartialWithContext(value.rest, ctx, { except: ["at"] });
+            result["rest"] = shapeEventEncodePartialWithContext(value.rest, ctx, { except: ["at"] });
         }
     }
     if (__fields === undefined || __fields.keeps("card")) {
         if (value.card !== undefined) {
-            result.card = shapeCardEncodePartialWithContext(value.card, ctx);
+            result["card"] = shapeCardEncodePartialWithContext(value.card, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("frozen")) {
         if (value.frozen !== undefined) {
-            result.frozen = shapeItemEncodeWithContext(value.frozen, ctx);
+            result["frozen"] = shapeItemEncodeWithContext(value.frozen, ctx);
         }
     }
 }
@@ -2285,7 +2289,7 @@ export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "ShapeDraft.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
         errors.push({ field: "patch", message: "missing required field" });
@@ -2449,8 +2453,7 @@ export function shapeDraftHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "patch" in o && "header" in o && "rest" in o && "card" in o && "frozen" in o;
+    return __mf_holds(obj, "patch") && __mf_holds(obj, "header") && __mf_holds(obj, "rest") && __mf_holds(obj, "card") && __mf_holds(obj, "frozen");
 }
 
 export function shapeDraftIs(obj: unknown): obj is ShapeDraft {
@@ -2957,101 +2960,101 @@ export declare const ShapeDraft: {
 
 ## Mapping
 
-original 0..445 -> expanded 1317..1762
-original 445..620 -> expanded 13633..13808
-original 620..784 -> expanded 17329..17493
-original 784..1318 -> expanded 20983..21517
-original 1318..1478 -> expanded 53707..53867
-original 1478..1479 -> expanded 63856..63857
-original 1479..1591 -> expanded 67512..67624
-original 1591..1715 -> expanded 75830..75954
-original 1715..1852 -> expanded 83488..83625
-original 1852..2088 -> expanded 95685..95921
-original 2088..2089 -> expanded 110442..110443
-generated 0..1317 <- imports
-generated 1762..2066 <- Debug
-generated 2066..2225 <- Clone
-generated 2225..2408 <- PartialEq
-generated 2408..2859 <- Hash
-generated 2859..3342 <- PartialOrd
-generated 3342..3706 <- Ord
-generated 3706..3816 <- Default
-generated 3816..6107 <- Encode
-generated 6107..12052 <- Decode
-generated 12052..13633 <- __convenience_const
-generated 13808..14067 <- Debug
-generated 14067..14153 <- Clone
-generated 14153..14250 <- PartialEq
-generated 14250..14413 <- Hash
-generated 14413..14625 <- PartialOrd
-generated 14625..14823 <- Ord
-generated 14823..14908 <- Default
-generated 14908..15342 <- Encode
-generated 15342..16384 <- Decode
-generated 16384..17329 <- __convenience_const
-generated 17493..17746 <- Debug
-generated 17746..17829 <- Clone
-generated 17829..17923 <- PartialEq
-generated 17923..18127 <- Hash
-generated 18127..18336 <- PartialOrd
-generated 18336..18531 <- Ord
-generated 18531..18613 <- Default
-generated 18613..19041 <- Encode
-generated 19041..20063 <- Decode
-generated 20063..20983 <- __convenience_const
-generated 21517..22672 <- Debug
-generated 22672..23418 <- Clone
-generated 23418..25486 <- PartialEq
-generated 25486..27603 <- Hash
-generated 27603..28042 <- Default
-generated 28042..32536 <- Encode
-generated 32536..52240 <- Decode
-generated 52240..53707 <- __convenience_const
-generated 53867..54229 <- Debug
-generated 54229..54443 <- Clone
-generated 54443..54843 <- PartialEq
-generated 54843..55269 <- Hash
-generated 55269..55497 <- Default
-generated 55497..57264 <- Encode
-generated 57264..57589 <- Encode
-generated 57589..63856 <- Decode
-generated 63857..63960 <- Debug
-generated 63960..64060 <- Clone
-generated 64060..64169 <- PartialEq
-generated 64169..64272 <- Hash
-generated 64272..64365 <- Default
-generated 64365..65715 <- Encode
-generated 65715..67512 <- Decode
-generated 67624..67756 <- Debug
-generated 67756..67867 <- Clone
-generated 67867..68017 <- PartialEq
-generated 68017..68125 <- Hash
-generated 68125..70169 <- Encode
-generated 70169..74961 <- Decode
-generated 74961..75830 <- __convenience_const
-generated 75954..76083 <- Debug
-generated 76083..76191 <- Clone
-generated 76191..76338 <- PartialEq
-generated 76338..76444 <- Hash
-generated 76444..78217 <- Encode
-generated 78217..82640 <- Decode
-generated 82640..83488 <- __convenience_const
-generated 83625..86277 <- Encode
-generated 86277..94645 <- Decode
-generated 94645..95685 <- __convenience_const
-generated 95921..98952 <- Encode
-generated 98952..109402 <- Decode
-generated 109402..110442 <- __convenience_const
+original 0..445 -> expanded 1369..1814
+original 445..620 -> expanded 13834..14009
+original 620..784 -> expanded 17576..17740
+original 784..1318 -> expanded 21273..21807
+original 1318..1478 -> expanded 54205..54365
+original 1478..1479 -> expanded 64328..64329
+original 1479..1591 -> expanded 67984..68096
+original 1591..1715 -> expanded 76302..76426
+original 1715..1852 -> expanded 83960..84097
+original 1852..2088 -> expanded 96149..96385
+original 2088..2089 -> expanded 110925..110926
+generated 0..1369 <- imports
+generated 1814..2118 <- Debug
+generated 2118..2277 <- Clone
+generated 2277..2508 <- PartialEq
+generated 2508..2959 <- Hash
+generated 2959..3490 <- PartialOrd
+generated 3490..3933 <- Ord
+generated 3933..4043 <- Default
+generated 4043..6340 <- Encode
+generated 6340..12253 <- Decode
+generated 12253..13834 <- __convenience_const
+generated 14009..14314 <- Debug
+generated 14314..14400 <- Clone
+generated 14400..14497 <- PartialEq
+generated 14497..14660 <- Hash
+generated 14660..14872 <- PartialOrd
+generated 14872..15070 <- Ord
+generated 15070..15155 <- Default
+generated 15155..15589 <- Encode
+generated 15589..16631 <- Decode
+generated 16631..17576 <- __convenience_const
+generated 17740..18036 <- Debug
+generated 18036..18119 <- Clone
+generated 18119..18213 <- PartialEq
+generated 18213..18417 <- Hash
+generated 18417..18626 <- PartialOrd
+generated 18626..18821 <- Ord
+generated 18821..18903 <- Default
+generated 18903..19331 <- Encode
+generated 19331..20353 <- Decode
+generated 20353..21273 <- __convenience_const
+generated 21807..22962 <- Debug
+generated 22962..23708 <- Clone
+generated 23708..25872 <- PartialEq
+generated 25872..27989 <- Hash
+generated 27989..28428 <- Default
+generated 28428..32958 <- Encode
+generated 32958..52738 <- Decode
+generated 52738..54205 <- __convenience_const
+generated 54365..54727 <- Debug
+generated 54727..54941 <- Clone
+generated 54941..55341 <- PartialEq
+generated 55341..55767 <- Hash
+generated 55767..55995 <- Default
+generated 55995..57768 <- Encode
+generated 57768..58093 <- Encode
+generated 58093..64328 <- Decode
+generated 64329..64432 <- Debug
+generated 64432..64532 <- Clone
+generated 64532..64641 <- PartialEq
+generated 64641..64744 <- Hash
+generated 64744..64837 <- Default
+generated 64837..66187 <- Encode
+generated 66187..67984 <- Decode
+generated 68096..68228 <- Debug
+generated 68228..68339 <- Clone
+generated 68339..68489 <- PartialEq
+generated 68489..68597 <- Hash
+generated 68597..70641 <- Encode
+generated 70641..75433 <- Decode
+generated 75433..76302 <- __convenience_const
+generated 76426..76555 <- Debug
+generated 76555..76663 <- Clone
+generated 76663..76810 <- PartialEq
+generated 76810..76916 <- Hash
+generated 76916..78689 <- Encode
+generated 78689..83112 <- Decode
+generated 83112..83960 <- __convenience_const
+generated 84097..86761 <- Encode
+generated 86761..95109 <- Decode
+generated 95109..96149 <- __convenience_const
+generated 96385..99431 <- Encode
+generated 99431..109885 <- Decode
+generated 109885..110925 <- __convenience_const
 
 ## Metadata
 
-class ShapeCard: {"body_span":{"end":1480,"start":1415},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1391,"start":1321}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"title","optional":false,"readonly":true,"span":{"end":1449,"start":1421},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1478,"start":1454},"ts_type":"ShapeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ShapeCard","span":{"end":1480,"start":1399},"superclass":null,"type_params":[]}
+class ShapeCard: {"body_span":{"end":1480,"start":1415},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1391,"start":1321}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"title","optional":false,"readonly":true,"span":{"end":1449,"start":1421},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1478,"start":1454},"ts_type":"ShapeItem[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ShapeCard","span":{"end":1480,"start":1399},"superclass":null,"type_params":[]}
 interface ShapeItem: {"body_span":{"end":446,"start":408},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":380,"start":289}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":425,"start":414},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":444,"start":430},"ts_type":"number"}],"heritage":[],"methods":[],"name":"ShapeItem","span":{"end":446,"start":388},"type_params":[]}
 interface ShapeFields: {"body_span":{"end":1319,"start":887},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":857,"start":787}}],"fields":[{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":918,"start":893},"ts_type":"string | undefined"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":944,"start":923},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":972,"start":949},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"nullableTexts","optional":false,"readonly":false,"span":{"end":1010,"start":977},"ts_type":"(string | null)[]"},{"decorators":[],"key":"Named","name":"nullableItems","optional":false,"readonly":false,"span":{"end":1054,"start":1015},"ts_type":"Array<ShapeItem | null>"},{"decorators":[],"key":"Named","name":"parenthesizedItems","optional":false,"readonly":false,"span":{"end":1100,"start":1059},"ts_type":"(ShapeItem | null)[]"},{"decorators":[],"key":"Named","name":"readonlyItems","optional":false,"readonly":false,"span":{"end":1145,"start":1105},"ts_type":"ReadonlyArray<ShapeItem>"},{"decorators":[],"key":"Named","name":"readonlyNumbers","optional":false,"readonly":false,"span":{"end":1185,"start":1150},"ts_type":"readonly number[]"},{"decorators":[],"key":"Named","name":"readonlyTags","optional":false,"readonly":false,"span":{"end":1224,"start":1190},"ts_type":"ReadonlySet<string>"},{"decorators":[],"key":"Named","name":"readonlyCounts","optional":false,"readonly":false,"span":{"end":1273,"start":1229},"ts_type":"ReadonlyMap<string, number>"},{"decorators":[],"key":"Named","name":"level","optional":false,"readonly":false,"span":{"end":1296,"start":1278},"ts_type":"ShapeLevel"},{"decorators":[],"key":"Named","name":"rank","optional":false,"readonly":false,"span":{"end":1317,"start":1301},"ts_type":"ShapeRank"}],"heritage":[],"methods":[],"name":"ShapeFields","span":{"end":1319,"start":865},"type_params":[]}
 interface ShapeEvent: {"body_span":{"end":1853,"start":1777},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1748,"start":1718}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1794,"start":1783},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":1808,"start":1799},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":1828,"start":1813},"ts_type":"string[]"},{"decorators":[],"key":"Named","name":"owner","optional":true,"readonly":false,"span":{"end":1851,"start":1833},"ts_type":"ShapeItem"}],"heritage":[],"methods":[],"name":"ShapeEvent","span":{"end":1853,"start":1756},"type_params":[]}
 interface ShapeDraft: {"body_span":{"end":2089,"start":1914},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1885,"start":1855}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1947,"start":1920},"ts_type":"Partial<ShapeEvent>"},{"decorators":[],"key":"Named","name":"header","optional":false,"readonly":false,"span":{"end":1990,"start":1952},"ts_type":"Pick<ShapeEvent, 'id' | 'at'>"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":2024,"start":1995},"ts_type":"Omit<ShapeEvent, 'at'>"},{"decorators":[],"key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2054,"start":2029},"ts_type":"Partial<ShapeCard>"},{"decorators":[],"key":"Named","name":"frozen","optional":false,"readonly":false,"span":{"end":2087,"start":2059},"ts_type":"Readonly<ShapeItem>"}],"heritage":[],"methods":[],"name":"ShapeDraft","span":{"end":2089,"start":1893},"type_params":[]}
-enum ShapeLevel: {"body_span":{"end":621,"start":563},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":539,"start":448}}],"is_const":false,"name":"ShapeLevel","span":{"end":621,"start":547},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":584,"start":569}}],"name":"Low","span":{"end":600,"start":589},"value":{"String":"low"}},{"decorators":[],"name":"High","span":{"end":619,"start":606},"value":{"String":"high"}}]}
-enum ShapeRank: {"body_span":{"end":785,"start":737},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":714,"start":623}}],"is_const":false,"name":"ShapeRank","span":{"end":785,"start":722},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":758,"start":743}}],"name":"One","span":{"end":770,"start":763},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":783,"start":776},"value":{"Number":2.0}}]}
+enum ShapeLevel: {"body_span":{"end":621,"start":563},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":539,"start":448}}],"is_const":false,"is_declare":false,"name":"ShapeLevel","span":{"end":621,"start":547},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":584,"start":569}}],"name":"Low","span":{"end":600,"start":589},"value":{"String":"low"}},{"decorators":[],"name":"High","span":{"end":619,"start":606},"value":{"String":"high"}}]}
+enum ShapeRank: {"body_span":{"end":785,"start":737},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":714,"start":623}}],"is_const":false,"is_declare":false,"name":"ShapeRank","span":{"end":785,"start":722},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":758,"start":743}}],"name":"One","span":{"end":770,"start":763},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":783,"start":776},"value":{"Number":2.0}}]}
 type ShapeMember: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"ShapeItem"}},{"decorators":[],"kind":{"TypeRef":"ShapeCard"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1543,"start":1482}}],"name":"ShapeMember","span":{"end":1592,"start":1551},"type_params":[]}
 type ShapeMixed: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"ShapeItem"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1655,"start":1594}}],"name":"ShapeMixed","span":{"end":1716,"start":1663},"type_params":[]}
 

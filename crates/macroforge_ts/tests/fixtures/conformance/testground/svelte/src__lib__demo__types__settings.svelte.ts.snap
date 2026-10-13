@@ -17,7 +17,7 @@ import { commissionsDecodeWithContext, commissionsEncodeWithContext } from "./co
 import { overviewSettingsDecodeWithContext, overviewSettingsEncodeWithContext, overviewSettingsDefaultValue } from "./overview-settings.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { scheduleSettingsDecodeWithContext, scheduleSettingsEncodeWithContext, scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -94,62 +94,62 @@ export function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: 
 function settingsEncodeFields(value: Settings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("appointmentNotifications")) {
         if (value.appointmentNotifications !== undefined) {
-            result.appointmentNotifications = value.appointmentNotifications === null ? null : appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
+            result["appointmentNotifications"] = value.appointmentNotifications === null ? null : appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("commissions")) {
         if (value.commissions !== undefined) {
-            result.commissions = value.commissions === null ? null : commissionsEncodeWithContext(value.commissions, ctx);
+            result["commissions"] = value.commissions === null ? null : commissionsEncodeWithContext(value.commissions, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("scheduleSettings")) {
         if (value.scheduleSettings !== undefined) {
-            result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
+            result["scheduleSettings"] = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("accountOverviewSettings")) {
         if (value.accountOverviewSettings !== undefined) {
-            result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
+            result["accountOverviewSettings"] = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("serviceOverviewSettings")) {
         if (value.serviceOverviewSettings !== undefined) {
-            result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
+            result["serviceOverviewSettings"] = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("appointmentOverviewSettings")) {
         if (value.appointmentOverviewSettings !== undefined) {
-            result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
+            result["appointmentOverviewSettings"] = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("leadOverviewSettings")) {
         if (value.leadOverviewSettings !== undefined) {
-            result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
+            result["leadOverviewSettings"] = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("packageOverviewSettings")) {
         if (value.packageOverviewSettings !== undefined) {
-            result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
+            result["packageOverviewSettings"] = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("productOverviewSettings")) {
         if (value.productOverviewSettings !== undefined) {
-            result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
+            result["productOverviewSettings"] = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("orderOverviewSettings")) {
         if (value.orderOverviewSettings !== undefined) {
-            result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
+            result["orderOverviewSettings"] = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("taxRateOverviewSettings")) {
         if (value.taxRateOverviewSettings !== undefined) {
-            result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
+            result["taxRateOverviewSettings"] = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("homePage")) {
         if (value.homePage !== undefined) {
-            result.homePage = pageEncodeWithContext(value.homePage, ctx);
+            result["homePage"] = pageEncodeWithContext(value.homePage, ctx);
         }
     }
 }
@@ -226,7 +226,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("appointmentNotifications")) && !("appointmentNotifications" in obj)) {
         errors.push({ field: "appointmentNotifications", message: "missing required field" });
@@ -580,8 +580,7 @@ export function settingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "appointmentNotifications" in o && "commissions" in o && "scheduleSettings" in o && "accountOverviewSettings" in o && "serviceOverviewSettings" in o && "appointmentOverviewSettings" in o && "leadOverviewSettings" in o && "packageOverviewSettings" in o && "productOverviewSettings" in o && "orderOverviewSettings" in o && "taxRateOverviewSettings" in o && "homePage" in o;
+    return __mf_holds(obj, "appointmentNotifications") && __mf_holds(obj, "commissions") && __mf_holds(obj, "scheduleSettings") && __mf_holds(obj, "accountOverviewSettings") && __mf_holds(obj, "serviceOverviewSettings") && __mf_holds(obj, "appointmentOverviewSettings") && __mf_holds(obj, "leadOverviewSettings") && __mf_holds(obj, "packageOverviewSettings") && __mf_holds(obj, "productOverviewSettings") && __mf_holds(obj, "orderOverviewSettings") && __mf_holds(obj, "taxRateOverviewSettings") && __mf_holds(obj, "homePage");
 }
 
 export function settingsIs(obj: unknown): obj is Settings {
@@ -1416,16 +1415,16 @@ export declare const Settings: {
 
 ## Mapping
 
-original 0..379 -> expanded 1361..1740
-original 428..976 -> expanded 1740..2288
-original 1003..1025 -> expanded 2288..2310
-original 1025..1026 -> expanded 59335..59336
-generated 0..1361 <- imports
-generated 2310..3058 <- Default
-generated 3058..8209 <- Encode
-generated 8209..29694 <- Decode
-generated 29694..58069 <- Gigaform
-generated 58069..59335 <- __convenience_const
+original 0..379 -> expanded 1413..1792
+original 428..976 -> expanded 1792..2340
+original 1003..1025 -> expanded 2340..2362
+original 1025..1026 -> expanded 59511..59512
+generated 0..1413 <- imports
+generated 2362..3110 <- Default
+generated 3110..8297 <- Encode
+generated 8297..29870 <- Decode
+generated 29870..58245 <- Gigaform
+generated 58245..59511 <- __convenience_const
 
 ## Metadata
 

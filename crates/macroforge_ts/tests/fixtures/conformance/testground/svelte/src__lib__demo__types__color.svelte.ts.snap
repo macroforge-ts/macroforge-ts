@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -64,17 +64,17 @@ export function colorEncodePartialWithContext(value: Partial<Color>, ctx: __mf_E
 function colorEncodeFields(value: Color, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("red")) {
         if (value.red !== undefined) {
-            result.red = value.red;
+            result["red"] = value.red;
         }
     }
     if (__fields === undefined || __fields.keeps("green")) {
         if (value.green !== undefined) {
-            result.green = value.green;
+            result["green"] = value.green;
         }
     }
     if (__fields === undefined || __fields.keeps("blue")) {
         if (value.blue !== undefined) {
-            result.blue = value.blue;
+            result["blue"] = value.blue;
         }
     }
 }
@@ -151,7 +151,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Color.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("red")) && !("red" in obj)) {
         errors.push({ field: "red", message: "missing required field" });
@@ -221,8 +221,7 @@ export function colorHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "red" in o && "green" in o && "blue" in o;
+    return __mf_holds(obj, "red") && __mf_holds(obj, "green") && __mf_holds(obj, "blue");
 }
 
 export function colorIs(obj: unknown): obj is Color {
@@ -527,15 +526,15 @@ export declare const Color: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..188 -> expanded 813..894
-original 188..189 -> expanded 16767..16768
-generated 0..755 <- imports
-generated 894..1013 <- Default
-generated 1013..3402 <- Encode
-generated 3402..9838 <- Decode
-generated 9838..15582 <- Gigaform
-generated 15582..16767 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..188 -> expanded 865..946
+original 188..189 -> expanded 16808..16809
+generated 0..807 <- imports
+generated 946..1065 <- Default
+generated 1065..3463 <- Encode
+generated 3463..9879 <- Decode
+generated 9879..15623 <- Gigaform
+generated 15623..16808 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -67,17 +67,17 @@ export function numberEncodePartialWithContext(value: Partial<Number>, ctx: __mf
 function numberEncodeFields(value: Number, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("countryCode")) {
         if (value.countryCode !== undefined) {
-            result.countryCode = value.countryCode;
+            result["countryCode"] = value.countryCode;
         }
     }
     if (__fields === undefined || __fields.keeps("areaCode")) {
         if (value.areaCode !== undefined) {
-            result.areaCode = value.areaCode;
+            result["areaCode"] = value.areaCode;
         }
     }
     if (__fields === undefined || __fields.keeps("localNumber")) {
         if (value.localNumber !== undefined) {
-            result.localNumber = value.localNumber;
+            result["localNumber"] = value.localNumber;
         }
     }
 }
@@ -154,7 +154,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Number.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("countryCode")) && !("countryCode" in obj)) {
         errors.push({ field: "countryCode", message: "missing required field" });
@@ -269,8 +269,7 @@ export function numberHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "countryCode" in o && "areaCode" in o && "localNumber" in o;
+    return __mf_holds(obj, "countryCode") && __mf_holds(obj, "areaCode") && __mf_holds(obj, "localNumber");
 }
 
 export function numberIs(obj: unknown): obj is Number {
@@ -563,18 +562,18 @@ export declare const Number: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..138 -> expanded 813..844
-original 179..209 -> expanded 844..874
-original 250..277 -> expanded 874..901
-original 318..345 -> expanded 901..928
-original 345..346 -> expanded 20173..20174
-generated 0..755 <- imports
-generated 928..1070 <- Default
-generated 1070..3546 <- Encode
-generated 3546..13292 <- Decode
-generated 13292..18961 <- Gigaform
-generated 18961..20173 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..138 -> expanded 865..896
+original 179..209 -> expanded 896..926
+original 250..277 -> expanded 926..953
+original 318..345 -> expanded 953..980
+original 345..346 -> expanded 20214..20215
+generated 0..807 <- imports
+generated 980..1122 <- Default
+generated 1122..3607 <- Encode
+generated 3607..13333 <- Decode
+generated 13333..19002 <- Gigaform
+generated 19002..20214 <- __convenience_const
 
 ## Metadata
 

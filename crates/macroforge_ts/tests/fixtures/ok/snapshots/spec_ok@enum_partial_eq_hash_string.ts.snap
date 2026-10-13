@@ -66,7 +66,7 @@ generated 306..447 <- __convenience_const
 
 ## Metadata
 
-enum Color: {"body_span":{"end":103,"start":44},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"is_const":false,"name":"Color","span":{"end":103,"start":33},"variants":[{"decorators":[],"name":"Red","span":{"end":61,"start":50},"value":{"String":"red"}},{"decorators":[],"name":"Green","span":{"end":82,"start":67},"value":{"String":"green"}},{"decorators":[],"name":"Blue","span":{"end":101,"start":88},"value":{"String":"blue"}}]}
+enum Color: {"body_span":{"end":103,"start":44},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"is_const":false,"is_declare":false,"name":"Color","span":{"end":103,"start":33},"variants":[{"decorators":[],"name":"Red","span":{"end":61,"start":50},"value":{"String":"red"}},{"decorators":[],"name":"Green","span":{"end":82,"start":67},"value":{"String":"green"}},{"decorators":[],"name":"Blue","span":{"end":101,"start":88},"value":{"String":"blue"}}]}
 
 ## Registry reads
 

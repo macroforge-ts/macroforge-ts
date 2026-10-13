@@ -35,7 +35,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 
 interface Circle {
@@ -72,7 +72,7 @@ export function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf
 function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("radius")) {
         if (value.radius !== undefined) {
-            result.radius = value.radius;
+            result["radius"] = value.radius;
         }
     }
 }
@@ -149,7 +149,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Circle.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
         errors.push({ field: "radius", message: "missing required field" });
@@ -195,8 +195,7 @@ export function circleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "radius" in o;
+    return __mf_holds(obj, "radius");
 }
 
 export function circleIs(obj: unknown): obj is Circle {
@@ -628,47 +627,47 @@ export function canvasEncodePartialWithContext(value: Partial<Canvas>, ctx: __mf
 function canvasEncodeFields(value: Canvas, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("when")) {
         if (value.when !== undefined) {
-            result.when = value.when;
+            result["when"] = value.when;
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags;
+            result["tags"] = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("size")) {
         if (value.size !== undefined) {
-            result.size = value.size;
+            result["size"] = value.size;
         }
     }
     if (__fields === undefined || __fields.keeps("shape")) {
         if (value.shape !== undefined) {
-            result.shape = shapeEncodeWithContext(value.shape, ctx);
+            result["shape"] = shapeEncodeWithContext(value.shape, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("slot")) {
         if (value.slot !== undefined) {
-            result.slot = slotEncodeWithContext<Date>(value.slot, ctx, (__arg0) => __arg0.toISOString());
+            result["slot"] = slotEncodeWithContext<Date>(value.slot, ctx, (__arg0) => __arg0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("link")) {
         if (value.link !== undefined) {
-            result.link = (typeof value.link === "string" ? value.link : circleEncodeWithContext(value.link, ctx));
+            result["link"] = (typeof value.link === "string" ? value.link : circleEncodeWithContext(value.link, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("callback")) {
         if (value.callback !== undefined) {
-            result.callback = value.callback;
+            result["callback"] = value.callback;
         }
     }
     if (__fields === undefined || __fields.keeps("byDay")) {
         if (value.byDay !== undefined) {
-            result.byDay = Object.fromEntries(Object.entries(value.byDay).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
+            result["byDay"] = Object.fromEntries(Object.entries(value.byDay).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
         }
     }
     if (__fields === undefined || __fields.keeps("counts")) {
         if (value.counts !== undefined) {
-            result.counts = value.counts;
+            result["counts"] = value.counts;
         }
     }
 }
@@ -745,7 +744,7 @@ export function canvasDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Canvas.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("when")) && !("when" in obj)) {
         errors.push({ field: "when", message: "missing required field" });
@@ -994,8 +993,7 @@ export function canvasHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "when" in o && "tags" in o && "size" in o && "shape" in o && "slot" in o && "link" in o && "callback" in o && "byDay" in o && "counts" in o;
+    return __mf_holds(obj, "when") && __mf_holds(obj, "tags") && __mf_holds(obj, "size") && __mf_holds(obj, "shape") && __mf_holds(obj, "slot") && __mf_holds(obj, "link") && __mf_holds(obj, "callback") && __mf_holds(obj, "byDay") && __mf_holds(obj, "counts");
 }
 
 export function canvasIs(obj: unknown): obj is Canvas {
@@ -1160,27 +1158,27 @@ export {};
 
 ## Mapping
 
-original 30..71 -> expanded 856..897
-original 71..73 -> expanded 9229..9231
-original 103..133 -> expanded 9231..9261
-original 133..135 -> expanded 15643..15645
-original 165..192 -> expanded 15645..15672
-original 192..194 -> expanded 22299..22301
-original 224..510 -> expanded 22301..22587
-original 510..511 -> expanded 41915..41916
-generated 0..856 <- imports
-generated 897..3001 <- Encode
-generated 3001..8280 <- Decode
-generated 8280..9229 <- __convenience_const
-generated 9261..10997 <- Encode
-generated 10997..15167 <- Decode
-generated 15167..15643 <- __convenience_const
-generated 15672..17654 <- Encode
-generated 17654..21836 <- Decode
-generated 21836..22299 <- __convenience_const
-generated 22587..26217 <- Encode
-generated 26217..40966 <- Decode
-generated 40966..41915 <- __convenience_const
+original 30..71 -> expanded 908..949
+original 71..73 -> expanded 9240..9242
+original 103..133 -> expanded 9242..9272
+original 133..135 -> expanded 15654..15656
+original 165..192 -> expanded 15656..15683
+original 192..194 -> expanded 22310..22312
+original 224..510 -> expanded 22312..22598
+original 510..511 -> expanded 42005..42006
+generated 0..908 <- imports
+generated 949..3056 <- Encode
+generated 3056..8291 <- Decode
+generated 8291..9240 <- __convenience_const
+generated 9272..11008 <- Encode
+generated 11008..15178 <- Decode
+generated 15178..15654 <- __convenience_const
+generated 15683..17665 <- Encode
+generated 17665..21847 <- Decode
+generated 21847..22310 <- __convenience_const
+generated 22598..26255 <- Encode
+generated 26255..41056 <- Decode
+generated 41056..42005 <- __convenience_const
 
 ## Metadata
 

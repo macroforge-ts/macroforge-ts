@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -67,17 +67,17 @@ export function emailPartsEncodePartialWithContext(value: Partial<EmailParts>, c
 function emailPartsEncodeFields(value: EmailParts, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("local")) {
         if (value.local !== undefined) {
-            result.local = value.local;
+            result["local"] = value.local;
         }
     }
     if (__fields === undefined || __fields.keeps("domainName")) {
         if (value.domainName !== undefined) {
-            result.domainName = value.domainName;
+            result["domainName"] = value.domainName;
         }
     }
     if (__fields === undefined || __fields.keeps("topLevelDomain")) {
         if (value.topLevelDomain !== undefined) {
-            result.topLevelDomain = value.topLevelDomain;
+            result["topLevelDomain"] = value.topLevelDomain;
         }
     }
 }
@@ -154,7 +154,7 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "EmailParts.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("local")) && !("local" in obj)) {
         errors.push({ field: "local", message: "missing required field" });
@@ -269,8 +269,7 @@ export function emailPartsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "local" in o && "domainName" in o && "topLevelDomain" in o;
+    return __mf_holds(obj, "local") && __mf_holds(obj, "domainName") && __mf_holds(obj, "topLevelDomain");
 }
 
 export function emailPartsIs(obj: unknown): obj is EmailParts {
@@ -563,18 +562,18 @@ export declare const EmailParts: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..142 -> expanded 813..848
-original 183..207 -> expanded 848..872
-original 248..277 -> expanded 872..901
-original 318..348 -> expanded 901..931
-original 348..349 -> expanded 20604..20605
-generated 0..755 <- imports
-generated 931..1080 <- Default
-generated 1080..3612 <- Encode
-generated 3612..13528 <- Decode
-generated 13528..19284 <- Gigaform
-generated 19284..20604 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..142 -> expanded 865..900
+original 183..207 -> expanded 900..924
+original 248..277 -> expanded 924..953
+original 318..348 -> expanded 953..983
+original 348..349 -> expanded 20645..20646
+generated 0..807 <- imports
+generated 983..1132 <- Default
+generated 1132..3673 <- Encode
+generated 3673..13569 <- Decode
+generated 13569..19325 <- Gigaform
+generated 19325..20645 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -75,27 +75,27 @@ export function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>,
 function phoneNumberEncodeFields(value: PhoneNumber, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("main")) {
         if (value.main !== undefined) {
-            result.main = value.main;
+            result["main"] = value.main;
         }
     }
     if (__fields === undefined || __fields.keeps("phoneType")) {
         if (value.phoneType !== undefined) {
-            result.phoneType = value.phoneType;
+            result["phoneType"] = value.phoneType;
         }
     }
     if (__fields === undefined || __fields.keeps("number")) {
         if (value.number !== undefined) {
-            result.number = value.number;
+            result["number"] = value.number;
         }
     }
     if (__fields === undefined || __fields.keeps("canText")) {
         if (value.canText !== undefined) {
-            result.canText = value.canText;
+            result["canText"] = value.canText;
         }
     }
     if (__fields === undefined || __fields.keeps("canCall")) {
         if (value.canCall !== undefined) {
-            result.canCall = value.canCall;
+            result["canCall"] = value.canCall;
         }
     }
 }
@@ -172,7 +172,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "PhoneNumber.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("main")) && !("main" in obj)) {
         errors.push({ field: "main", message: "missing required field" });
@@ -296,8 +296,7 @@ export function phoneNumberHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "main" in o && "phoneType" in o && "number" in o && "canText" in o && "canCall" in o;
+    return __mf_holds(obj, "main") && __mf_holds(obj, "phoneType") && __mf_holds(obj, "number") && __mf_holds(obj, "canText") && __mf_holds(obj, "canCall");
 }
 
 export function phoneNumberIs(obj: unknown): obj is PhoneNumber {
@@ -665,22 +664,22 @@ export declare const PhoneNumber: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..143 -> expanded 813..849
-original 186..210 -> expanded 849..873
-original 280..285 -> expanded 873..878
-original 326..354 -> expanded 878..906
-original 397..402 -> expanded 906..911
-original 443..468 -> expanded 911..936
-original 515..542 -> expanded 936..963
-original 589..613 -> expanded 963..987
-original 613..614 -> expanded 23526..23527
-generated 0..755 <- imports
-generated 987..1179 <- Default
-generated 1179..4018 <- Encode
-generated 4018..14058 <- Decode
-generated 14058..22179 <- Gigaform
-generated 22179..23526 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..143 -> expanded 865..901
+original 186..210 -> expanded 901..925
+original 280..285 -> expanded 925..930
+original 326..354 -> expanded 930..958
+original 397..402 -> expanded 958..963
+original 443..468 -> expanded 963..988
+original 515..542 -> expanded 988..1015
+original 589..613 -> expanded 1015..1039
+original 613..614 -> expanded 23597..23598
+generated 0..807 <- imports
+generated 1039..1231 <- Default
+generated 1231..4085 <- Encode
+generated 4085..14129 <- Decode
+generated 14129..22250 <- Gigaform
+generated 22250..23597 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { weekdayDecodeWithContext, weekdayEncodeWithContext } from "./weekday.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -65,12 +65,12 @@ export function weeklyRecurrenceRuleEncodePartialWithContext(value: Partial<Week
 function weeklyRecurrenceRuleEncodeFields(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("quantityOfWeeks")) {
         if (value.quantityOfWeeks !== undefined) {
-            result.quantityOfWeeks = value.quantityOfWeeks;
+            result["quantityOfWeeks"] = value.quantityOfWeeks;
         }
     }
     if (__fields === undefined || __fields.keeps("weekdays")) {
         if (value.weekdays !== undefined) {
-            result.weekdays = value.weekdays.map((__item0) => weekdayEncodeWithContext(__item0, ctx));
+            result["weekdays"] = value.weekdays.map((__item0) => weekdayEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -147,7 +147,7 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
         throw new __mf_DecodeError([{ field: "_root", message: "WeeklyRecurrenceRule.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("quantityOfWeeks")) && !("quantityOfWeeks" in obj)) {
         errors.push({ field: "quantityOfWeeks", message: "missing required field" });
@@ -220,8 +220,7 @@ export function weeklyRecurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "quantityOfWeeks" in o && "weekdays" in o;
+    return __mf_holds(obj, "quantityOfWeeks") && __mf_holds(obj, "weekdays");
 }
 
 export function weeklyRecurrenceRuleIs(obj: unknown): obj is WeeklyRecurrenceRule {
@@ -520,15 +519,15 @@ export declare const WeeklyRecurrenceRule: {
 
 ## Mapping
 
-original 0..108 -> expanded 897..1005
-original 157..258 -> expanded 1005..1106
-original 258..259 -> expanded 19333..19334
-generated 0..897 <- imports
-generated 1106..1254 <- Default
-generated 1254..3830 <- Encode
-generated 3830..11068 <- Decode
-generated 11068..17743 <- Gigaform
-generated 17743..19333 <- __convenience_const
+original 0..108 -> expanded 949..1057
+original 157..258 -> expanded 1057..1158
+original 258..259 -> expanded 19359..19360
+generated 0..949 <- imports
+generated 1158..1306 <- Default
+generated 1306..3888 <- Encode
+generated 3888..11094 <- Decode
+generated 11094..17769 <- Gigaform
+generated 17769..19359 <- __convenience_const
 
 ## Metadata
 

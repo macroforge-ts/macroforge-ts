@@ -13,7 +13,7 @@ true
 ## Output
 
 import { metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Consumes newtypes from another module, so the type-check covers exported
@@ -58,12 +58,12 @@ export function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_Enc
 function tripEncodeFields(value: Trip, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("leg")) {
         if (value.leg !== undefined) {
-            result.leg = metersEncodeWithContext(value.leg, ctx);
+            result["leg"] = metersEncodeWithContext(value.leg, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("legs")) {
         if (value.legs !== undefined) {
-            result.legs = value.legs.map((__item0) => metersEncodeWithContext(__item0, ctx));
+            result["legs"] = value.legs.map((__item0) => metersEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -140,7 +140,7 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Trip.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("leg")) && !("leg" in obj)) {
         errors.push({ field: "leg", message: "missing required field" });
@@ -227,8 +227,7 @@ export function tripHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "leg" in o && "legs" in o;
+    return __mf_holds(obj, "leg") && __mf_holds(obj, "legs");
 }
 
 export function tripIs(obj: unknown): obj is Trip {
@@ -335,12 +334,12 @@ export declare function greet(name: string): string;
 
 ## Mapping
 
-original 0..324 -> expanded 726..1050
-original 324..674 -> expanded 11156..11506
-generated 0..726 <- imports
-generated 1050..3351 <- Encode
-generated 3351..10242 <- Decode
-generated 10242..11156 <- __convenience_const
+original 0..324 -> expanded 778..1102
+original 324..674 -> expanded 11182..11532
+generated 0..778 <- imports
+generated 1102..3409 <- Encode
+generated 3409..10268 <- Decode
+generated 10268..11182 <- __convenience_const
 
 ## Metadata
 

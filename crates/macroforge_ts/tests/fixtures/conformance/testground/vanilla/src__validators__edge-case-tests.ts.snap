@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Edge case test classes for comprehensive decoder validation testing.
@@ -102,7 +102,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "MultipleValidatorsTest.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
@@ -165,8 +165,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "text" in o;
+    return __mf_holds(obj, "text");
 }
 
 static is(obj: unknown): obj is MultipleValidatorsTest {
@@ -290,7 +289,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "CustomMessageTest.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
@@ -347,8 +346,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "email" in o;
+    return __mf_holds(obj, "email");
 }
 
 static is(obj: unknown): obj is CustomMessageTest {
@@ -472,7 +470,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "MixedValidatorsTest.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
@@ -532,8 +530,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "email" in o;
+    return __mf_holds(obj, "email");
 }
 
 static is(obj: unknown): obj is MixedValidatorsTest {
@@ -657,7 +654,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "CombinedStringValidatorsTest.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
         errors.push({ field: "username", message: "missing required field" });
@@ -720,8 +717,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "username" in o;
+    return __mf_holds(obj, "username");
 }
 
 static is(obj: unknown): obj is CombinedStringValidatorsTest {
@@ -845,7 +841,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "CombinedNumberValidatorsTest.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
         errors.push({ field: "score", message: "missing required field" });
@@ -908,8 +904,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "score" in o;
+    return __mf_holds(obj, "score");
 }
 
 static is(obj: unknown): obj is CombinedNumberValidatorsTest {
@@ -1221,36 +1216,36 @@ export declare function combinedNumberValidatorsTestIs(value: unknown): value is
 
 ## Mapping
 
-original 0..274 -> expanded 350..624
-original 274..275 -> expanded 7652..7653
-original 275..480 -> expanded 9645..9850
-original 480..481 -> expanded 15979..15980
-original 481..702 -> expanded 17897..18118
-original 702..703 -> expanded 24648..24649
-original 703..904 -> expanded 26596..26797
-original 904..905 -> expanded 34282..34283
-original 905..1094 -> expanded 36365..36554
-original 1094..1095 -> expanded 43763..43764
-original 1095..1096 -> expanded 45846..45847
-generated 0..350 <- imports
-generated 624..7652 <- Decode
-generated 7653..9645 <- Decode
-generated 9850..15979 <- Decode
-generated 15980..17897 <- Decode
-generated 18118..24648 <- Decode
-generated 24649..26596 <- Decode
-generated 26797..34282 <- Decode
-generated 34283..36365 <- Decode
-generated 36554..43763 <- Decode
-generated 43764..45846 <- Decode
+original 0..274 -> expanded 402..676
+original 274..275 -> expanded 7660..7661
+original 275..480 -> expanded 9653..9858
+original 480..481 -> expanded 15943..15944
+original 481..702 -> expanded 17861..18082
+original 702..703 -> expanded 24568..24569
+original 703..904 -> expanded 26516..26717
+original 904..905 -> expanded 34158..34159
+original 905..1094 -> expanded 36241..36430
+original 1094..1095 -> expanded 43595..43596
+original 1095..1096 -> expanded 45678..45679
+generated 0..402 <- imports
+generated 676..7660 <- Decode
+generated 7661..9653 <- Decode
+generated 9858..15943 <- Decode
+generated 15944..17861 <- Decode
+generated 18082..24568 <- Decode
+generated 24569..26516 <- Decode
+generated 26717..34158 <- Decode
+generated 34159..36241 <- Decode
+generated 36430..43595 <- Decode
+generated 43596..45678 <- Decode
 
 ## Metadata
 
-class MultipleValidatorsTest: {"body_span":{"end":276,"start":180},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":143,"start":121}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\", \"trimmed\"] }","name":"endec","span":{"end":256,"start":186}}],"initializer":null,"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":274,"start":261},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleValidatorsTest","span":{"end":276,"start":151},"superclass":null,"type_params":[]}
-class CustomMessageTest: {"body_span":{"end":482,"start":356},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":324,"start":302}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"email\", message: \"Please enter a valid email address\" }] }","name":"endec","span":{"end":461,"start":362}}],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":480,"start":466},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomMessageTest","span":{"end":482,"start":332},"superclass":null,"type_params":[]}
-class MixedValidatorsTest: {"body_span":{"end":704,"start":580},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":546,"start":524}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", { validate: \"email\", message: \"Invalid email format\" }] }","name":"endec","span":{"end":683,"start":586}}],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":702,"start":688},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MixedValidatorsTest","span":{"end":704,"start":554},"superclass":null,"type_params":[]}
-class CombinedStringValidatorsTest: {"body_span":{"end":906,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":758,"start":736}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\"] }","name":"endec","span":{"end":882,"start":807}}],"initializer":null,"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":904,"start":887},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedStringValidatorsTest","span":{"end":906,"start":766},"superclass":null,"type_params":[]}
-class CombinedNumberValidatorsTest: {"body_span":{"end":1096,"start":1003},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":960,"start":938}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\", \"positive\", \"lessThan(1000)\"] }","name":"endec","span":{"end":1075,"start":1009}}],"initializer":null,"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":1094,"start":1080},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedNumberValidatorsTest","span":{"end":1096,"start":968},"superclass":null,"type_params":[]}
+class MultipleValidatorsTest: {"body_span":{"end":276,"start":180},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":143,"start":121}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\", \"trimmed\"] }","name":"endec","span":{"end":256,"start":186}}],"initializer":null,"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":274,"start":261},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleValidatorsTest","span":{"end":276,"start":151},"superclass":null,"type_params":[]}
+class CustomMessageTest: {"body_span":{"end":482,"start":356},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":324,"start":302}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [{ validate: \"email\", message: \"Please enter a valid email address\" }] }","name":"endec","span":{"end":461,"start":362}}],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":480,"start":466},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomMessageTest","span":{"end":482,"start":332},"superclass":null,"type_params":[]}
+class MixedValidatorsTest: {"body_span":{"end":704,"start":580},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":546,"start":524}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"nonEmpty\", { validate: \"email\", message: \"Invalid email format\" }] }","name":"endec","span":{"end":683,"start":586}}],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":702,"start":688},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MixedValidatorsTest","span":{"end":704,"start":554},"superclass":null,"type_params":[]}
+class CombinedStringValidatorsTest: {"body_span":{"end":906,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":758,"start":736}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\"] }","name":"endec","span":{"end":882,"start":807}}],"initializer":null,"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":904,"start":887},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedStringValidatorsTest","span":{"end":906,"start":766},"superclass":null,"type_params":[]}
+class CombinedNumberValidatorsTest: {"body_span":{"end":1096,"start":1003},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":960,"start":938}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"int\", \"positive\", \"lessThan(1000)\"] }","name":"endec","span":{"end":1075,"start":1009}}],"initializer":null,"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":1094,"start":1080},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedNumberValidatorsTest","span":{"end":1096,"start":968},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

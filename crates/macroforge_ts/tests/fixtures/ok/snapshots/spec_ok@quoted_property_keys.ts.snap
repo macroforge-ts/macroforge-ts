@@ -20,7 +20,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Headers {
@@ -52,7 +52,7 @@ export function headersClone(value: Headers): Headers {
 
 export function headersEquals(a: Headers, b: Headers): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a["content-type"] === b["content-type"] && a["x request id"] === b["x request id"] && a["0"] === b["0"] && a.class === b.class);
+    return __mf_equalWithin(a, b, () => a["content-type"] === b["content-type"] && (a["x request id"] === b["x request id"] || a["x request id"] !== a["x request id"] && b["x request id"] !== b["x request id"]) && a["0"] === b["0"] && a.class === b.class);
 }
 
 export function headersHashCode(value: Headers): number {
@@ -72,7 +72,7 @@ export function headersPartialCompare(a: Headers, b: Headers): number | null {
     const cmp0 = (a["content-type"] < b["content-type"] ? -1 : a["content-type"] > b["content-type"] ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a["x request id"] < b["x request id"] ? -1 : a["x request id"] > b["x request id"] ? 1 : a["x request id"] === b["x request id"] ? 0 : null);
+    const cmp1 = (a["x request id"] < b["x request id"] ? -1 : a["x request id"] > b["x request id"] ? 1 : a["x request id"] === b["x request id"] || (a["x request id"] !== a["x request id"] && b["x request id"] !== b["x request id"]) ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = (a["0"] === b["0"] ? 0 : a["0"] ? 1 : -1);
@@ -90,7 +90,7 @@ export function headersCompare(a: Headers, b: Headers): number {
     return __mf_comparedWithin(a, b, () => {
     const cmp0 = a["content-type"] < b["content-type"] ? -1 : a["content-type"] > b["content-type"] ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = a["x request id"] < b["x request id"] ? -1 : a["x request id"] > b["x request id"] ? 1 : 0;
+    const cmp1 = a["x request id"] < b["x request id"] ? -1 : a["x request id"] > b["x request id"] ? 1 : a["x request id"] === b["x request id"] ? 0 : a["x request id"] !== a["x request id"] ? b["x request id"] !== b["x request id"] ? 0 : 1 : -1;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = a["0"] === b["0"] ? 0 : a["0"] ? 1 : -1;
     if (cmp2 !== 0) return cmp2;
@@ -154,7 +154,7 @@ function headersEncodeFields(value: Headers, _ctx: __mf_EncodeContext, result: R
     }
     if (__fields === undefined || __fields.keeps("class")) {
         if (value.class !== undefined) {
-            result.class = value.class;
+            result["class"] = value.class;
         }
     }
 }
@@ -231,7 +231,7 @@ export function headersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Headers.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("content-type")) && !("content-type" in obj)) {
         errors.push({ field: "content-type", message: "missing required field" });
@@ -313,8 +313,7 @@ export function headersHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "content-type" in o && "x request id" in o && "0" in o && "class" in o;
+    return __mf_holds(obj, "content-type") && __mf_holds(obj, "x request id") && __mf_holds(obj, "0") && __mf_holds(obj, "class");
 }
 
 export function headersIs(obj: unknown): obj is Headers {
@@ -415,19 +414,19 @@ export {};
 
 ## Mapping
 
-original 91..204 -> expanded 819..932
-original 204..205 -> expanded 15737..15738
-generated 0..819 <- imports
-generated 932..1363 <- Debug
-generated 1363..1597 <- Clone
-generated 1597..1864 <- PartialEq
-generated 1864..2531 <- Hash
-generated 2531..3389 <- PartialOrd
-generated 3389..4032 <- Ord
-generated 4032..4198 <- Default
-generated 4198..6854 <- Encode
-generated 6854..14233 <- Decode
-generated 14233..15737 <- __convenience_const
+original 91..204 -> expanded 871..984
+original 204..205 -> expanded 16099..16100
+generated 0..871 <- imports
+generated 984..1415 <- Debug
+generated 1415..1649 <- Clone
+generated 1649..2004 <- PartialEq
+generated 2004..2671 <- Hash
+generated 2671..3617 <- PartialOrd
+generated 3617..4399 <- Ord
+generated 4399..4565 <- Default
+generated 4565..7224 <- Encode
+generated 7224..14595 <- Decode
+generated 14595..16099 <- __convenience_const
 
 ## Metadata
 

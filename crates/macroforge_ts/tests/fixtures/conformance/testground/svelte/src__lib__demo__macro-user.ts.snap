@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** import macro { JSON } from "@testground/macro"; */
 
@@ -63,32 +63,32 @@ static encodePartialWithContext(value: Partial<MacroUser>, ctx: __mf_EncodeConte
 static #encodeFields(value: MacroUser, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("role")) {
         if (value.role !== undefined) {
-            result.role = value.role;
+            result["role"] = value.role;
         }
     }
     if (__fields === undefined || __fields.keeps("favoriteMacro")) {
         if (value.favoriteMacro !== undefined) {
-            result.favoriteMacro = value.favoriteMacro;
+            result["favoriteMacro"] = value.favoriteMacro;
         }
     }
     if (__fields === undefined || __fields.keeps("since")) {
         if (value.since !== undefined) {
-            result.since = value.since;
+            result["since"] = value.since;
         }
     }
     if (__fields === undefined || __fields.keeps("apiToken")) {
         if (value.apiToken !== undefined) {
-            result.apiToken = value.apiToken;
+            result["apiToken"] = value.apiToken;
         }
     }
 }
@@ -181,7 +181,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "MacroUser.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -283,8 +283,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "role" in o && "favoriteMacro" in o && "since" in o && "apiToken" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "role") && __mf_holds(obj, "favoriteMacro") && __mf_holds(obj, "since") && __mf_holds(obj, "apiToken");
 }
 
 static is(obj: unknown): obj is MacroUser {
@@ -443,24 +442,24 @@ export declare const showcaseUserJson: unknown;
 
 ## Mapping
 
-original 0..56 -> expanded 681..737
-original 93..123 -> expanded 737..767
-original 158..278 -> expanded 767..887
-original 307..330 -> expanded 887..910
-original 330..331 -> expanded 12607..12608
-original 331..683 -> expanded 15858..16210
-generated 0..681 <- imports
-generated 910..1403 <- Debug
-generated 1403..3768 <- Encode
-generated 3768..4093 <- Encode
-generated 4093..12607 <- Decode
-generated 12608..12711 <- Debug
-generated 12711..14061 <- Encode
-generated 14061..15858 <- Decode
+original 0..56 -> expanded 733..789
+original 93..123 -> expanded 789..819
+original 158..278 -> expanded 819..939
+original 307..330 -> expanded 939..962
+original 330..331 -> expanded 12693..12694
+original 331..683 -> expanded 15944..16296
+generated 0..733 <- imports
+generated 962..1455 <- Debug
+generated 1455..3838 <- Encode
+generated 3838..4163 <- Encode
+generated 4163..12693 <- Decode
+generated 12694..12797 <- Debug
+generated 12797..14147 <- Encode
+generated 14147..15944 <- Decode
 
 ## Metadata
 
-class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":"Debug, Encode, Decode","name":"Derive","span":{"end":94,"start":57}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":159,"start":124}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":175,"start":164},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":193,"start":180},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"role","optional":false,"readonly":false,"span":{"end":211,"start":198},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":255,"start":216},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"since","optional":false,"readonly":false,"span":{"end":274,"start":260},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":308,"start":279}}],"initializer":null,"key":"Named","name":"apiToken","optional":false,"readonly":false,"span":{"end":330,"start":313},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MacroUser","span":{"end":332,"start":102},"superclass":null,"type_params":[]}
+class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":"Debug, Encode, Decode","name":"Derive","span":{"end":94,"start":57}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":159,"start":124}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":175,"start":164},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":193,"start":180},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"role","optional":false,"readonly":false,"span":{"end":211,"start":198},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":255,"start":216},"ts_type":"'Derive' | 'JsonNative'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"since","optional":false,"readonly":false,"span":{"end":274,"start":260},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":308,"start":279}}],"initializer":null,"key":"Named","name":"apiToken","optional":false,"readonly":false,"span":{"end":330,"start":313},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MacroUser","span":{"end":332,"start":102},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

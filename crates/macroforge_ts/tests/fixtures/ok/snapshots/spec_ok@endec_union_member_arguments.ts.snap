@@ -32,7 +32,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -68,7 +68,7 @@ export function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf
 function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
+            result["held"] = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
         }
     }
 }
@@ -145,7 +145,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Box.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
         errors.push({ field: "held", message: "missing required field" });
@@ -204,8 +204,7 @@ export function boxHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "held" in o;
+    return __mf_holds(obj, "held");
 }
 
 export function boxIs<T>(obj: unknown): obj is Box<T> {
@@ -271,7 +270,7 @@ export function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf
 function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("radius")) {
         if (value.radius !== undefined) {
-            result.radius = value.radius;
+            result["radius"] = value.radius;
         }
     }
 }
@@ -348,7 +347,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Circle.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
         errors.push({ field: "radius", message: "missing required field" });
@@ -394,8 +393,7 @@ export function circleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "radius" in o;
+    return __mf_holds(obj, "radius");
 }
 
 export function circleIs(obj: unknown): obj is Circle {
@@ -1110,32 +1108,32 @@ export {};
 
 ## Mapping
 
-original 30..64 -> expanded 749..783
-original 64..66 -> expanded 9873..9875
-original 96..137 -> expanded 9875..9916
-original 137..139 -> expanded 18248..18250
-original 169..202 -> expanded 18250..18283
-original 202..204 -> expanded 25815..25817
-original 234..269 -> expanded 25817..25852
-original 269..271 -> expanded 33177..33179
-original 332..409 -> expanded 33179..33256
-original 409..410 -> expanded 39568..39569
-generated 0..749 <- imports
-generated 783..3078 <- Encode
-generated 3078..8987 <- Decode
-generated 8987..9873 <- __convenience_const
-generated 9916..12020 <- Encode
-generated 12020..17299 <- Decode
-generated 17299..18248 <- __convenience_const
-generated 18283..20475 <- Encode
-generated 20475..25339 <- Decode
-generated 25339..25815 <- __convenience_const
-generated 25852..27947 <- Encode
-generated 27947..32675 <- Decode
-generated 32675..33177 <- __convenience_const
-generated 33256..35197 <- Encode
-generated 35197..38947 <- Decode
-generated 38947..39568 <- __convenience_const
+original 30..64 -> expanded 801..835
+original 64..66 -> expanded 9884..9886
+original 96..137 -> expanded 9886..9927
+original 137..139 -> expanded 18218..18220
+original 169..202 -> expanded 18220..18253
+original 202..204 -> expanded 25785..25787
+original 234..269 -> expanded 25787..25822
+original 269..271 -> expanded 33147..33149
+original 332..409 -> expanded 33149..33226
+original 409..410 -> expanded 39538..39539
+generated 0..801 <- imports
+generated 835..3133 <- Encode
+generated 3133..8998 <- Decode
+generated 8998..9884 <- __convenience_const
+generated 9927..12034 <- Encode
+generated 12034..17269 <- Decode
+generated 17269..18218 <- __convenience_const
+generated 18253..20445 <- Encode
+generated 20445..25309 <- Decode
+generated 25309..25785 <- __convenience_const
+generated 25822..27917 <- Encode
+generated 27917..32645 <- Decode
+generated 32645..33147 <- __convenience_const
+generated 33226..35167 <- Encode
+generated 35167..38917 <- Decode
+generated 38917..39538 <- __convenience_const
 
 ## Metadata
 

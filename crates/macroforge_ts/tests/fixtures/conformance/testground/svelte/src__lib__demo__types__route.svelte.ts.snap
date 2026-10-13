@@ -13,7 +13,7 @@ true
 ## Output
 
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -86,57 +86,57 @@ export function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_E
 function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("techs")) {
         if (value.techs !== undefined) {
-            result.techs = value.techs === null ? null : value.techs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
+            result["techs"] = value.techs === null ? null : value.techs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("active")) {
         if (value.active !== undefined) {
-            result.active = value.active;
+            result["active"] = value.active;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("phone")) {
         if (value.phone !== undefined) {
-            result.phone = value.phone;
+            result["phone"] = value.phone;
         }
     }
     if (__fields === undefined || __fields.keeps("position")) {
         if (value.position !== undefined) {
-            result.position = value.position;
+            result["position"] = value.position;
         }
     }
     if (__fields === undefined || __fields.keeps("serviceRoute")) {
         if (value.serviceRoute !== undefined) {
-            result.serviceRoute = value.serviceRoute;
+            result["serviceRoute"] = value.serviceRoute;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultDurationHours")) {
         if (value.defaultDurationHours !== undefined) {
-            result.defaultDurationHours = value.defaultDurationHours;
+            result["defaultDurationHours"] = value.defaultDurationHours;
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags;
+            result["tags"] = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("icon")) {
         if (value.icon !== undefined) {
-            result.icon = value.icon;
+            result["icon"] = value.icon;
         }
     }
     if (__fields === undefined || __fields.keeps("color")) {
         if (value.color !== undefined) {
-            result.color = value.color;
+            result["color"] = value.color;
         }
     }
 }
@@ -213,7 +213,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Route.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -459,8 +459,7 @@ export function routeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "techs" in o && "active" in o && "name" in o && "phone" in o && "position" in o && "serviceRoute" in o && "defaultDurationHours" in o && "tags" in o && "icon" in o && "color" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "techs") && __mf_holds(obj, "active") && __mf_holds(obj, "name") && __mf_holds(obj, "phone") && __mf_holds(obj, "position") && __mf_holds(obj, "serviceRoute") && __mf_holds(obj, "defaultDurationHours") && __mf_holds(obj, "tags") && __mf_holds(obj, "icon") && __mf_holds(obj, "color");
 }
 
 export function routeIs(obj: unknown): obj is Route {
@@ -1040,18 +1039,18 @@ export declare const Route: {
 
 ## Mapping
 
-original 0..110 -> expanded 935..1045
-original 159..270 -> expanded 1045..1156
-original 311..334 -> expanded 1156..1179
-original 375..399 -> expanded 1179..1203
-original 440..601 -> expanded 1203..1364
-original 601..602 -> expanded 38277..38278
-generated 0..935 <- imports
-generated 1364..1672 <- Default
-generated 1672..5546 <- Encode
-generated 5546..21608 <- Decode
-generated 21608..37092 <- Gigaform
-generated 37092..38277 <- __convenience_const
+original 0..110 -> expanded 987..1097
+original 159..270 -> expanded 1097..1208
+original 311..334 -> expanded 1208..1231
+original 375..399 -> expanded 1231..1255
+original 440..601 -> expanded 1255..1416
+original 601..602 -> expanded 38438..38439
+generated 0..987 <- imports
+generated 1416..1724 <- Default
+generated 1724..5631 <- Encode
+generated 5631..21769 <- Decode
+generated 21769..37253 <- Gigaform
+generated 37253..38438 <- __convenience_const
 
 ## Metadata
 

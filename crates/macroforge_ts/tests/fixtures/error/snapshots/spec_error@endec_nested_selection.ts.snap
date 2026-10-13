@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -60,12 +60,12 @@ export function itemEncodePartialWithContext(value: Partial<Item>, ctx: __mf_Enc
 function itemEncodeFields(value: Item, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("score")) {
         if (value.score !== undefined) {
-            result.score = value.score;
+            result["score"] = value.score;
         }
     }
 }
@@ -142,7 +142,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Item.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -200,8 +200,7 @@ export function itemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "score" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "score");
 }
 
 export function itemIs(obj: unknown): obj is Item {
@@ -285,13 +284,13 @@ Error [140..173]: @derive(Decode): `Partial<Pick<Item, 'id'>>` selects fields of
 
 ## Mapping
 
-original 30..84 -> expanded 596..650
-original 84..86 -> expanded 9548..9550
-original 116..175 -> expanded 9550..9609
-generated 0..596 <- imports
-generated 650..2866 <- Encode
-generated 2866..8641 <- Decode
-generated 8641..9548 <- __convenience_const
+original 30..84 -> expanded 648..702
+original 84..86 -> expanded 9574..9576
+original 116..175 -> expanded 9576..9635
+generated 0..648 <- imports
+generated 702..2924 <- Encode
+generated 2924..8667 <- Decode
+generated 8667..9574 <- __convenience_const
 
 ## Metadata
 

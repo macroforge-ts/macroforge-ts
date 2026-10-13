@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Array validator test classes for comprehensive decoder validation testing.
@@ -102,7 +102,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "MaxItemsValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
@@ -174,8 +174,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holds(obj, "items");
 }
 
 static is(obj: unknown): obj is MaxItemsValidator {
@@ -299,7 +298,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "MinItemsValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
@@ -371,8 +370,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holds(obj, "items");
 }
 
 static is(obj: unknown): obj is MinItemsValidator {
@@ -496,7 +494,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ItemsCountValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
@@ -568,8 +566,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holds(obj, "items");
 }
 
 static is(obj: unknown): obj is ItemsCountValidator {
@@ -777,26 +774,26 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 
 ## Mapping
 
-original 0..240 -> expanded 418..658
-original 240..241 -> expanded 7398..7399
-original 241..396 -> expanded 9316..9471
-original 396..397 -> expanded 16214..16215
-original 397..558 -> expanded 18132..18293
-original 558..559 -> expanded 25091..25092
-original 559..560 -> expanded 27039..27040
-generated 0..418 <- imports
-generated 658..7398 <- Decode
-generated 7399..9316 <- Decode
-generated 9471..16214 <- Decode
-generated 16215..18132 <- Decode
-generated 18293..25091 <- Decode
-generated 25092..27039 <- Decode
+original 0..240 -> expanded 470..710
+original 240..241 -> expanded 7406..7407
+original 241..396 -> expanded 9324..9479
+original 396..397 -> expanded 16178..16179
+original 397..558 -> expanded 18096..18257
+original 558..559 -> expanded 25011..25012
+original 559..560 -> expanded 26959..26960
+generated 0..470 <- imports
+generated 710..7406 <- Decode
+generated 7407..9324 <- Decode
+generated 9479..16178 <- Decode
+generated 16179..18096 <- Decode
+generated 18257..25011 <- Decode
+generated 25012..26959 <- Decode
 
 ## Metadata
 
-class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"superclass":null,"type_params":[]}
-class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"superclass":null,"type_params":[]}
-class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"superclass":null,"type_params":[]}
+class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"superclass":null,"type_params":[]}
+class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"superclass":null,"type_params":[]}
+class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

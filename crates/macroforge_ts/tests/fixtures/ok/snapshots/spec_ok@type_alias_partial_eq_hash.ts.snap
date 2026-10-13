@@ -28,7 +28,7 @@ type Vector = {
 
 export function vectorEquals(a: Vector, b: Vector): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y && a.z === b.z);
+    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y) && (a.z === b.z || a.z !== a.z && b.z !== b.z));
 }
 
 export function vectorHashCode(value: Vector): number {
@@ -67,11 +67,11 @@ export {};
 ## Mapping
 
 original 31..95 -> expanded 114..178
-original 95..96 -> expanded 1156..1157
+original 95..96 -> expanded 1252..1253
 generated 0..114 <- imports
-generated 178..357 <- PartialEq
-generated 357..995 <- Hash
-generated 995..1156 <- __convenience_const
+generated 178..453 <- PartialEq
+generated 453..1091 <- Hash
+generated 1091..1252 <- __convenience_const
 
 ## Metadata
 

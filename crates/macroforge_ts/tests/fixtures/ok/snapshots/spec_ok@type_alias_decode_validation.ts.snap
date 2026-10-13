@@ -20,8 +20,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type ContactInfo = {
     /** @endec(email) */
@@ -103,7 +103,7 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "ContactInfo.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("primaryEmail")) && !("primaryEmail" in obj)) {
         errors.push({ field: "primaryEmail", message: "missing required field" });
@@ -194,8 +194,7 @@ export function contactInfoHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "primaryEmail" in o && "address" in o;
+    return __mf_holds(obj, "primaryEmail") && __mf_holds(obj, "address");
 }
 
 export function contactInfoIs(obj: unknown): obj is ContactInfo {
@@ -263,11 +262,11 @@ export {};
 
 ## Mapping
 
-original 22..167 -> expanded 350..495
-original 167..168 -> expanded 9980..9981
-generated 0..350 <- imports
-generated 495..9264 <- Decode
-generated 9264..9980 <- __convenience_const
+original 22..167 -> expanded 402..547
+original 167..168 -> expanded 10000..10001
+generated 0..402 <- imports
+generated 547..9284 <- Decode
+generated 9284..10000 <- __convenience_const
 
 ## Metadata
 

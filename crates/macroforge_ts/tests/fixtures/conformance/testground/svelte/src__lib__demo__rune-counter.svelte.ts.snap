@@ -42,7 +42,7 @@ export class RuneCounter {
 
     static equals(a: RuneCounter, b: RuneCounter): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.label === b.label && a.count === b.count && a.doubled === b.doubled);
+        return __mf_equalWithin(a, b, () => a.label === b.label && (a.count === b.count || a.count !== a.count && b.count !== b.count) && (a.doubled === b.doubled || a.doubled !== a.doubled && b.doubled !== b.doubled));
     }
 
     static hashCode(value: RuneCounter): number {
@@ -78,17 +78,17 @@ static encodePartialWithContext(value: Partial<RuneCounter>, ctx: __mf_EncodeCon
 static #encodeFields(value: RuneCounter, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result["label"] = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("count")) {
         if (value.count !== undefined) {
-            result.count = value.count;
+            result["count"] = value.count;
         }
     }
     if (__fields === undefined || __fields.keeps("doubled")) {
         if (value.doubled !== undefined) {
-            result.doubled = value.doubled;
+            result["doubled"] = value.doubled;
         }
     }
 }
@@ -167,22 +167,22 @@ export declare function runeCounterEncodePartialWithContext(value: Partial<RuneC
 
 original 0..153 -> expanded 611..764
 original 199..400 -> expanded 764..965
-original 400..401 -> expanded 4443..4444
-original 401..402 -> expanded 6149..6150
+original 400..401 -> expanded 4556..4557
+original 401..402 -> expanded 6262..6263
 generated 0..611 <- imports
 generated 965..1350 <- Debug
-generated 1350..1568 <- PartialEq
-generated 1568..2221 <- Hash
-generated 2221..4114 <- Encode
-generated 4114..4443 <- Encode
-generated 4444..4553 <- Debug
-generated 4553..4670 <- PartialEq
-generated 4670..4779 <- Hash
-generated 4779..6149 <- Encode
+generated 1350..1672 <- PartialEq
+generated 1672..2325 <- Hash
+generated 2325..4227 <- Encode
+generated 4227..4556 <- Encode
+generated 4557..4666 <- Debug
+generated 4666..4783 <- PartialEq
+generated 4783..4892 <- Hash
+generated 4892..6262 <- Encode
 
 ## Metadata
 
-class RuneCounter: {"body_span":{"end":402,"start":226},"decorators":[{"args_src":"Debug, PartialEq, Hash, Encode","name":"Derive","span":{"end":200,"start":154}}],"fields":[{"decorators":[],"initializer":"$state('clicks')","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":265,"start":232},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"$state(0)","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":296,"start":270},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"$derived(this.count * 2)","key":"Named","name":"doubled","optional":false,"readonly":false,"span":{"end":344,"start":301},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":400,"start":368},"body_src":"\n        this.count += 1;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"increment","params_src":"","return_type_src":"void","span":{"end":400,"start":350},"type_params":[],"visibility":"Public"}],"name":"RuneCounter","span":{"end":402,"start":208},"superclass":null,"type_params":[]}
+class RuneCounter: {"body_span":{"end":402,"start":226},"decorators":[{"args_src":"Debug, PartialEq, Hash, Encode","name":"Derive","span":{"end":200,"start":154}}],"fields":[{"accessor":false,"decorators":[],"initializer":"$state('clicks')","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":265,"start":232},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"$state(0)","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":296,"start":270},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"$derived(this.count * 2)","key":"Named","name":"doubled","optional":false,"readonly":false,"span":{"end":344,"start":301},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":400,"start":368},"body_src":"\n        this.count += 1;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"increment","params_src":"","return_type_src":"void","span":{"end":400,"start":350},"type_params":[],"visibility":"Public"}],"name":"RuneCounter","span":{"end":402,"start":208},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

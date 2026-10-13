@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Outcome = { ok: true; at: Date; tags: Set<string> } | { ok: false; reason: string };
@@ -41,16 +41,16 @@ export function outcomeEncodeWithContext(value: Outcome, ctx: __mf_EncodeContext
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) {
         const result: Record<string, unknown> = {};
-        result.ok = value.ok;
-        result.at = value.at.toISOString();
-        result.tags = Array.from(value.tags);
+        result["ok"] = value.ok;
+        result["at"] = value.at.toISOString();
+        result["tags"] = Array.from(value.tags);
         __variant = result;
         __matched = true;
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) {
         const result: Record<string, unknown> = {};
-        result.ok = value.ok;
-        result.reason = value.reason;
+        result["ok"] = value.ok;
+        result["reason"] = value.reason;
         __variant = result;
         __matched = true;
     }
@@ -129,10 +129,10 @@ export function outcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags")) {
         return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), at: __mf_decodeDate, tags: (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString) }) as Outcome;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason")) {
         return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), reason: __mf_decodeString }) as Outcome;
     }
 
@@ -142,8 +142,8 @@ export function outcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }]);
 }
 export function outcomeHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags")) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason")) return true;
                 return false;
 }
 export function outcomeIs(value: unknown): value is Outcome {
@@ -187,17 +187,17 @@ export function looseEncodeWithContext(value: Loose, ctx: __mf_EncodeContext): u
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) {
         const result: Record<string, unknown> = {};
-        result.kind = value.kind;
-        result.when = value.when.toISOString();
+        result["kind"] = value.kind;
+        result["when"] = value.when.toISOString();
         __variant = result;
         __matched = true;
     }
     if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "count" in value) {
         const result: Record<string, unknown> = {};
-        result.kind = value.kind;
-        result.count = value.count;
+        result["kind"] = value.kind;
+        result["count"] = value.count;
         if (value.note !== undefined) {
-            result.note = value.note;
+            result["note"] = value.note;
         }
         __variant = result;
         __matched = true;
@@ -277,10 +277,10 @@ export function looseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when")) {
         return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), when: __mf_decodeDate }) as Loose;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "count" in value) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "count")) {
         return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), count: __mf_decodeNumber, note: __mf_decodeString }, ["note"]) as Loose;
     }
 
@@ -290,8 +290,8 @@ export function looseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     }]);
 }
 export function looseHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "count" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when")) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "count")) return true;
                 return false;
 }
 export function looseIs(value: unknown): value is Loose {
@@ -378,17 +378,17 @@ export {};
 
 ## Mapping
 
-original 30..120 -> expanded 628..718
-original 120..122 -> expanded 6672..6674
-original 186..272 -> expanded 6674..6760
-original 272..273 -> expanded 12605..12606
-generated 0..628 <- imports
-generated 718..2819 <- Encode
-generated 2819..6170 <- Decode
-generated 6170..6672 <- __convenience_const
-generated 6760..8869 <- Encode
-generated 8869..12129 <- Decode
-generated 12129..12605 <- __convenience_const
+original 30..120 -> expanded 649..739
+original 120..122 -> expanded 6860..6862
+original 186..272 -> expanded 6862..6948
+original 272..273 -> expanded 12940..12941
+generated 0..649 <- imports
+generated 739..2855 <- Encode
+generated 2855..6358 <- Decode
+generated 6358..6860 <- __convenience_const
+generated 6948..9072 <- Encode
+generated 9072..12464 <- Decode
+generated 12464..12940 <- __convenience_const
 
 ## Metadata
 

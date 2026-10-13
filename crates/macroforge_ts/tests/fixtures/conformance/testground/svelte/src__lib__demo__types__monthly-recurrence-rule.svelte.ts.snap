@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,17 +65,17 @@ export function monthlyRecurrenceRuleEncodePartialWithContext(value: Partial<Mon
 function monthlyRecurrenceRuleEncodeFields(value: MonthlyRecurrenceRule, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("quantityOfMonths")) {
         if (value.quantityOfMonths !== undefined) {
-            result.quantityOfMonths = value.quantityOfMonths;
+            result["quantityOfMonths"] = value.quantityOfMonths;
         }
     }
     if (__fields === undefined || __fields.keeps("day")) {
         if (value.day !== undefined) {
-            result.day = value.day;
+            result["day"] = value.day;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
 }
@@ -152,7 +152,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
         throw new __mf_DecodeError([{ field: "_root", message: "MonthlyRecurrenceRule.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("quantityOfMonths")) && !("quantityOfMonths" in obj)) {
         errors.push({ field: "quantityOfMonths", message: "missing required field" });
@@ -237,8 +237,7 @@ export function monthlyRecurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "quantityOfMonths" in o && "day" in o && "name" in o;
+    return __mf_holds(obj, "quantityOfMonths") && __mf_holds(obj, "day") && __mf_holds(obj, "name");
 }
 
 export function monthlyRecurrenceRuleIs(obj: unknown): obj is MonthlyRecurrenceRule {
@@ -539,16 +538,16 @@ export declare const MonthlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..200 -> expanded 813..906
-original 241..261 -> expanded 906..926
-original 261..262 -> expanded 19795..19796
-generated 0..755 <- imports
-generated 926..1089 <- Default
-generated 1089..3762 <- Encode
-generated 3762..11865 <- Decode
-generated 11865..18178 <- Gigaform
-generated 18178..19795 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..200 -> expanded 865..958
+original 241..261 -> expanded 958..978
+original 261..262 -> expanded 19836..19837
+generated 0..807 <- imports
+generated 978..1141 <- Default
+generated 1141..3823 <- Encode
+generated 3823..11906 <- Decode
+generated 11906..18219 <- Gigaform
+generated 18219..19836 <- __convenience_const
 
 ## Metadata
 

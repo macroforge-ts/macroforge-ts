@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -67,17 +67,17 @@ export function colorsEncodePartialWithContext(value: Partial<Colors>, ctx: __mf
 function colorsEncodeFields(value: Colors, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("main")) {
         if (value.main !== undefined) {
-            result.main = value.main;
+            result["main"] = value.main;
         }
     }
     if (__fields === undefined || __fields.keeps("hover")) {
         if (value.hover !== undefined) {
-            result.hover = value.hover;
+            result["hover"] = value.hover;
         }
     }
     if (__fields === undefined || __fields.keeps("active")) {
         if (value.active !== undefined) {
-            result.active = value.active;
+            result["active"] = value.active;
         }
     }
 }
@@ -154,7 +154,7 @@ export function colorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Colors.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("main")) && !("main" in obj)) {
         errors.push({ field: "main", message: "missing required field" });
@@ -269,8 +269,7 @@ export function colorsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "main" in o && "hover" in o && "active" in o;
+    return __mf_holds(obj, "main") && __mf_holds(obj, "hover") && __mf_holds(obj, "active");
 }
 
 export function colorsIs(obj: unknown): obj is Colors {
@@ -563,18 +562,18 @@ export declare const Colors: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..138 -> expanded 813..844
-original 179..202 -> expanded 844..867
-original 243..267 -> expanded 867..891
-original 308..330 -> expanded 891..913
-original 330..331 -> expanded 19258..19259
-generated 0..755 <- imports
-generated 913..1040 <- Default
-generated 1040..3456 <- Encode
-generated 3456..12692 <- Decode
-generated 12692..18046 <- Gigaform
-generated 18046..19258 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..138 -> expanded 865..896
+original 179..202 -> expanded 896..919
+original 243..267 -> expanded 919..943
+original 308..330 -> expanded 943..965
+original 330..331 -> expanded 19299..19300
+generated 0..807 <- imports
+generated 965..1092 <- Default
+generated 1092..3517 <- Encode
+generated 3517..12733 <- Decode
+generated 12733..18087 <- Gigaform
+generated 18087..19299 <- __convenience_const
 
 ## Metadata
 

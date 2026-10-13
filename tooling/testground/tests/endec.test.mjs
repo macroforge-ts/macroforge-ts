@@ -166,9 +166,8 @@ describe('Encode macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.user_id instead of result["user_id"]
         assert.ok(
-            result.code.includes('result.user_id'),
+            result.code.includes('result["user_id"]'),
             'Should use renamed key in output'
         );
     });
@@ -184,13 +183,12 @@ describe('Encode macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.username instead of result["username"]
         assert.ok(
-            result.code.includes('result.username'),
+            result.code.includes('result["username"]'),
             'Should include non-skipped fields'
         );
         assert.ok(
-            !result.code.includes('result.password'),
+            !result.code.includes('result["password"]'),
             'Should skip fields with skip: true'
         );
     });
@@ -753,9 +751,10 @@ describe('Import handling', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(
-            result.code.includes('import { DecodeContext'),
-            'Should add DecodeContext import'
+        assert.match(
+            result.code,
+            /import \{[^}]*\bDecodeContext as __mf_DecodeContext\b[^}]*\} from "@macroforge\/core\/endec"/,
+            'Should add DecodeContext import with __mf_ alias'
         );
         assert.ok(
             result.code.includes('PendingRef'),
@@ -862,13 +861,12 @@ describe('renameAll container option', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.userName instead of result["userName"]
         assert.ok(
-            result.code.includes('result.userName'),
+            result.code.includes('result["userName"]'),
             'Should convert to camelCase'
         );
         assert.ok(
-            result.code.includes('result.createdAt'),
+            result.code.includes('result["createdAt"]'),
             'Should convert to camelCase'
         );
     });
@@ -886,13 +884,12 @@ describe('renameAll container option', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        // Direct property access: result.user_name instead of result["user_name"]
         assert.ok(
-            result.code.includes('result.user_name'),
+            result.code.includes('result["user_name"]'),
             'Should convert to snake_case'
         );
         assert.ok(
-            result.code.includes('result.created_at'),
+            result.code.includes('result["created_at"]'),
             'Should convert to snake_case'
         );
     });

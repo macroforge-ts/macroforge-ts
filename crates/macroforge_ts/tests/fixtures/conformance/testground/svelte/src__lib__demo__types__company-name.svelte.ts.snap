@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,7 +62,7 @@ export function companyNameEncodePartialWithContext(value: Partial<CompanyName>,
 function companyNameEncodeFields(value: CompanyName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("companyName")) {
         if (value.companyName !== undefined) {
-            result.companyName = value.companyName;
+            result["companyName"] = value.companyName;
         }
     }
 }
@@ -139,7 +139,7 @@ export function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "CompanyName.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("companyName")) && !("companyName" in obj)) {
         errors.push({ field: "companyName", message: "missing required field" });
@@ -200,8 +200,7 @@ export function companyNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "companyName" in o;
+    return __mf_holds(obj, "companyName");
 }
 
 export function companyNameIs(obj: unknown): obj is CompanyName {
@@ -428,17 +427,17 @@ export declare const CompanyName: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..143 -> expanded 813..849
-original 192..197 -> expanded 849..854
-original 238..265 -> expanded 854..881
-original 265..266 -> expanded 14549..14550
-generated 0..755 <- imports
-generated 881..986 <- Default
-generated 986..3185 <- Encode
-generated 3185..9726 <- Decode
-generated 9726..13202 <- Gigaform
-generated 13202..14549 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..143 -> expanded 865..901
+original 192..197 -> expanded 901..906
+original 238..265 -> expanded 906..933
+original 265..266 -> expanded 14560..14561
+generated 0..807 <- imports
+generated 933..1038 <- Default
+generated 1038..3240 <- Encode
+generated 3240..9737 <- Decode
+generated 9737..13213 <- Gigaform
+generated 13213..14560 <- __convenience_const
 
 ## Metadata
 

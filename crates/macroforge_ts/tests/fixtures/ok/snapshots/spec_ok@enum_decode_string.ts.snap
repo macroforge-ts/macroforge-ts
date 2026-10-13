@@ -99,7 +99,7 @@ generated 1296..1502 <- __convenience_const
 
 ## Metadata
 
-enum Role: {"body_span":{"end":97,"start":34},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"is_const":false,"name":"Role","span":{"end":97,"start":24},"variants":[{"decorators":[],"name":"Admin","span":{"end":55,"start":40},"value":{"String":"admin"}},{"decorators":[],"name":"User","span":{"end":74,"start":61},"value":{"String":"user"}},{"decorators":[],"name":"Guest","span":{"end":95,"start":80},"value":{"String":"guest"}}]}
+enum Role: {"body_span":{"end":97,"start":34},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"is_const":false,"is_declare":false,"name":"Role","span":{"end":97,"start":24},"variants":[{"decorators":[],"name":"Admin","span":{"end":55,"start":40},"value":{"String":"admin"}},{"decorators":[],"name":"User","span":{"end":74,"start":61},"value":{"String":"user"}},{"decorators":[],"name":"Guest","span":{"end":95,"start":80},"value":{"String":"guest"}}]}
 
 ## Registry reads
 

@@ -17,8 +17,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 interface Point {
     x: number;
@@ -97,7 +97,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
         errors.push({ field: "x", message: "missing required field" });
@@ -155,8 +155,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "x" in o && "y" in o;
+    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -222,11 +221,11 @@ export {};
 
 ## Mapping
 
-original 22..72 -> expanded 350..400
-original 72..73 -> expanded 6755..6756
-generated 0..350 <- imports
-generated 400..6129 <- Decode
-generated 6129..6755 <- __convenience_const
+original 22..72 -> expanded 402..452
+original 72..73 -> expanded 6775..6776
+generated 0..402 <- imports
+generated 452..6149 <- Decode
+generated 6149..6775 <- __convenience_const
 
 ## Metadata
 

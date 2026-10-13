@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,12 +65,12 @@ export function serviceDefaultsEncodePartialWithContext(value: Partial<ServiceDe
 function serviceDefaultsEncodeFields(value: ServiceDefaults, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("price")) {
         if (value.price !== undefined) {
-            result.price = value.price;
+            result["price"] = value.price;
         }
     }
     if (__fields === undefined || __fields.keeps("description")) {
         if (value.description !== undefined) {
-            result.description = value.description;
+            result["description"] = value.description;
         }
     }
 }
@@ -147,7 +147,7 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
         throw new __mf_DecodeError([{ field: "_root", message: "ServiceDefaults.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("price")) && !("price" in obj)) {
         errors.push({ field: "price", message: "missing required field" });
@@ -220,8 +220,7 @@ export function serviceDefaultsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "price" in o && "description" in o;
+    return __mf_holds(obj, "price") && __mf_holds(obj, "description");
 }
 
 export function serviceDefaultsIs(obj: unknown): obj is ServiceDefaults {
@@ -485,18 +484,18 @@ export declare const ServiceDefaults: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..147 -> expanded 813..853
-original 211..235 -> expanded 853..877
-original 287..292 -> expanded 877..882
-original 333..360 -> expanded 882..909
-original 360..361 -> expanded 17053..17054
-generated 0..755 <- imports
-generated 909..1040 <- Default
-generated 1040..3457 <- Encode
-generated 3457..10783 <- Decode
-generated 10783..15598 <- Gigaform
-generated 15598..17053 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..147 -> expanded 865..905
+original 211..235 -> expanded 905..929
+original 287..292 -> expanded 929..934
+original 333..360 -> expanded 934..961
+original 360..361 -> expanded 17079..17080
+generated 0..807 <- imports
+generated 961..1092 <- Default
+generated 1092..3515 <- Encode
+generated 3515..10809 <- Decode
+generated 10809..15624 <- Gigaform
+generated 15624..17079 <- __convenience_const
 
 ## Metadata
 

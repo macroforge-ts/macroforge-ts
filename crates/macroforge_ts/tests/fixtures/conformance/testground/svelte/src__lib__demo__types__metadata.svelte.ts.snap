@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -66,22 +66,22 @@ export function metadataEncodePartialWithContext(value: Partial<Metadata>, ctx: 
 function metadataEncodeFields(value: Metadata, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt;
+            result["createdAt"] = value.createdAt;
         }
     }
     if (__fields === undefined || __fields.keeps("lastLogin")) {
         if (value.lastLogin !== undefined) {
-            result.lastLogin = value.lastLogin;
+            result["lastLogin"] = value.lastLogin;
         }
     }
     if (__fields === undefined || __fields.keeps("isActive")) {
         if (value.isActive !== undefined) {
-            result.isActive = value.isActive;
+            result["isActive"] = value.isActive;
         }
     }
     if (__fields === undefined || __fields.keeps("roles")) {
         if (value.roles !== undefined) {
-            result.roles = value.roles;
+            result["roles"] = value.roles;
         }
     }
 }
@@ -158,7 +158,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Metadata.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
         errors.push({ field: "createdAt", message: "missing required field" });
@@ -255,8 +255,7 @@ export function metadataHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "createdAt" in o && "lastLogin" in o && "isActive" in o && "roles" in o;
+    return __mf_holds(obj, "createdAt") && __mf_holds(obj, "lastLogin") && __mf_holds(obj, "isActive") && __mf_holds(obj, "roles");
 }
 
 export function metadataIs(obj: unknown): obj is Metadata {
@@ -597,15 +596,15 @@ export declare const Metadata: {
 
 ## Mapping
 
-original 0..58 -> expanded 845..903
-original 107..239 -> expanded 903..1035
-original 239..240 -> expanded 20612..20613
-generated 0..845 <- imports
-generated 1035..1201 <- Default
-generated 1201..3849 <- Encode
-generated 3849..11848 <- Decode
-generated 11848..19346 <- Gigaform
-generated 19346..20612 <- __convenience_const
+original 0..58 -> expanded 897..955
+original 107..239 -> expanded 955..1087
+original 239..240 -> expanded 20668..20669
+generated 0..897 <- imports
+generated 1087..1253 <- Default
+generated 1253..3913 <- Encode
+generated 3913..11904 <- Decode
+generated 11904..19402 <- Gigaform
+generated 19402..20668 <- __convenience_const
 
 ## Metadata
 

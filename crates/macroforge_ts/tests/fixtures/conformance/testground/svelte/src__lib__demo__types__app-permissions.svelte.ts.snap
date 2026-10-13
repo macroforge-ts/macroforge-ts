@@ -15,7 +15,7 @@ true
 import { applicationsDecodeWithContext, applicationsEncodeWithContext } from "./applications.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { tableDecodeWithContext, tableEncodeWithContext } from "./table.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -71,17 +71,17 @@ export function appPermissionsEncodePartialWithContext(value: Partial<AppPermiss
 function appPermissionsEncodeFields(value: AppPermissions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("applications")) {
         if (value.applications !== undefined) {
-            result.applications = value.applications.map((__item0) => applicationsEncodeWithContext(__item0, ctx));
+            result["applications"] = value.applications.map((__item0) => applicationsEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("pages")) {
         if (value.pages !== undefined) {
-            result.pages = value.pages.map((__item0) => pageEncodeWithContext(__item0, ctx));
+            result["pages"] = value.pages.map((__item0) => pageEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("data")) {
         if (value.data !== undefined) {
-            result.data = value.data.map((__item0) => tableEncodeWithContext(__item0, ctx));
+            result["data"] = value.data.map((__item0) => tableEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -158,7 +158,7 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
         throw new __mf_DecodeError([{ field: "_root", message: "AppPermissions.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("applications")) && !("applications" in obj)) {
         errors.push({ field: "applications", message: "missing required field" });
@@ -273,8 +273,7 @@ export function appPermissionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "applications" in o && "pages" in o && "data" in o;
+    return __mf_holds(obj, "applications") && __mf_holds(obj, "pages") && __mf_holds(obj, "data");
 }
 
 export function appPermissionsIs(obj: unknown): obj is AppPermissions {
@@ -672,15 +671,15 @@ export declare const AppPermissions: {
 
 ## Mapping
 
-original 0..206 -> expanded 1071..1277
-original 255..378 -> expanded 1277..1400
-original 378..379 -> expanded 24799..24800
-generated 0..1071 <- imports
-generated 1400..1549 <- Default
-generated 1549..4279 <- Encode
-generated 4279..13154 <- Decode
-generated 13154..23371 <- Gigaform
-generated 23371..24799 <- __convenience_const
+original 0..206 -> expanded 1123..1329
+original 255..378 -> expanded 1329..1452
+original 378..379 -> expanded 24840..24841
+generated 0..1123 <- imports
+generated 1452..1601 <- Default
+generated 1601..4340 <- Encode
+generated 4340..13195 <- Decode
+generated 13195..23412 <- Gigaform
+generated 23412..24840 <- __convenience_const
 
 ## Metadata
 

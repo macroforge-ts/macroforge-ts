@@ -58,7 +58,7 @@ generated 140..224 <- __convenience_const
 
 ## Metadata
 
-enum Priority: {"body_span":{"end":82,"start":37},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"name":"Priority","span":{"end":82,"start":23},"variants":[{"decorators":[],"name":"Low","span":{"end":50,"start":43},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":66,"start":56},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":80,"start":72},"value":{"Number":3.0}}]}
+enum Priority: {"body_span":{"end":82,"start":37},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"is_declare":false,"name":"Priority","span":{"end":82,"start":23},"variants":[{"decorators":[],"name":"Low","span":{"end":50,"start":43},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":66,"start":56},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":80,"start":72},"value":{"Number":3.0}}]}
 
 ## Registry reads
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { coordinatesDecodeWithContext, coordinatesEncodeWithContext, coordinatesDefaultValue } from "./coordinates.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -90,62 +90,62 @@ export function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_Enc
 function siteEncodeFields(value: Site, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("addressLine1")) {
         if (value.addressLine1 !== undefined) {
-            result.addressLine1 = value.addressLine1;
+            result["addressLine1"] = value.addressLine1;
         }
     }
     if (__fields === undefined || __fields.keeps("addressLine2")) {
         if (value.addressLine2 !== undefined) {
-            result.addressLine2 = value.addressLine2;
+            result["addressLine2"] = value.addressLine2;
         }
     }
     if (__fields === undefined || __fields.keeps("sublocalityLevel1")) {
         if (value.sublocalityLevel1 !== undefined) {
-            result.sublocalityLevel1 = value.sublocalityLevel1;
+            result["sublocalityLevel1"] = value.sublocalityLevel1;
         }
     }
     if (__fields === undefined || __fields.keeps("locality")) {
         if (value.locality !== undefined) {
-            result.locality = value.locality;
+            result["locality"] = value.locality;
         }
     }
     if (__fields === undefined || __fields.keeps("administrativeAreaLevel3")) {
         if (value.administrativeAreaLevel3 !== undefined) {
-            result.administrativeAreaLevel3 = value.administrativeAreaLevel3;
+            result["administrativeAreaLevel3"] = value.administrativeAreaLevel3;
         }
     }
     if (__fields === undefined || __fields.keeps("administrativeAreaLevel2")) {
         if (value.administrativeAreaLevel2 !== undefined) {
-            result.administrativeAreaLevel2 = value.administrativeAreaLevel2;
+            result["administrativeAreaLevel2"] = value.administrativeAreaLevel2;
         }
     }
     if (__fields === undefined || __fields.keeps("administrativeAreaLevel1")) {
         if (value.administrativeAreaLevel1 !== undefined) {
-            result.administrativeAreaLevel1 = value.administrativeAreaLevel1;
+            result["administrativeAreaLevel1"] = value.administrativeAreaLevel1;
         }
     }
     if (__fields === undefined || __fields.keeps("country")) {
         if (value.country !== undefined) {
-            result.country = value.country;
+            result["country"] = value.country;
         }
     }
     if (__fields === undefined || __fields.keeps("postalCode")) {
         if (value.postalCode !== undefined) {
-            result.postalCode = value.postalCode;
+            result["postalCode"] = value.postalCode;
         }
     }
     if (__fields === undefined || __fields.keeps("postalCodeSuffix")) {
         if (value.postalCodeSuffix !== undefined) {
-            result.postalCodeSuffix = value.postalCodeSuffix;
+            result["postalCodeSuffix"] = value.postalCodeSuffix;
         }
     }
     if (__fields === undefined || __fields.keeps("coordinates")) {
         if (value.coordinates !== undefined) {
-            result.coordinates = coordinatesEncodeWithContext(value.coordinates, ctx);
+            result["coordinates"] = coordinatesEncodeWithContext(value.coordinates, ctx);
         }
     }
 }
@@ -222,7 +222,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Site.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -489,8 +489,7 @@ export function siteHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "addressLine1" in o && "addressLine2" in o && "sublocalityLevel1" in o && "locality" in o && "administrativeAreaLevel3" in o && "administrativeAreaLevel2" in o && "administrativeAreaLevel1" in o && "country" in o && "postalCode" in o && "postalCodeSuffix" in o && "coordinates" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "addressLine1") && __mf_holds(obj, "addressLine2") && __mf_holds(obj, "sublocalityLevel1") && __mf_holds(obj, "locality") && __mf_holds(obj, "administrativeAreaLevel3") && __mf_holds(obj, "administrativeAreaLevel2") && __mf_holds(obj, "administrativeAreaLevel1") && __mf_holds(obj, "country") && __mf_holds(obj, "postalCode") && __mf_holds(obj, "postalCodeSuffix") && __mf_holds(obj, "coordinates");
 }
 
 export function siteIs(obj: unknown): obj is Site {
@@ -1101,20 +1100,20 @@ export declare const Site: {
 
 ## Mapping
 
-original 0..116 -> expanded 879..995
-original 165..210 -> expanded 995..1040
-original 251..353 -> expanded 1040..1142
-original 394..511 -> expanded 1142..1259
-original 552..595 -> expanded 1259..1302
-original 636..662 -> expanded 1302..1328
-original 703..796 -> expanded 1328..1421
-original 796..797 -> expanded 44512..44513
-generated 0..879 <- imports
-generated 1421..1855 <- Default
-generated 1855..6125 <- Encode
-generated 6125..25422 <- Decode
-generated 25422..43354 <- Gigaform
-generated 43354..44512 <- __convenience_const
+original 0..116 -> expanded 931..1047
+original 165..210 -> expanded 1047..1092
+original 251..353 -> expanded 1092..1194
+original 394..511 -> expanded 1194..1311
+original 552..595 -> expanded 1311..1354
+original 636..662 -> expanded 1354..1380
+original 703..796 -> expanded 1380..1473
+original 796..797 -> expanded 44688..44689
+generated 0..931 <- imports
+generated 1473..1907 <- Default
+generated 1907..6213 <- Encode
+generated 6213..25598 <- Decode
+generated 25598..43530 <- Gigaform
+generated 43530..44688 <- __convenience_const
 
 ## Metadata
 

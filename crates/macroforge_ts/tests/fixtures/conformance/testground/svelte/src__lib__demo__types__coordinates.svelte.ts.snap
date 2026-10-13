@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,12 +62,12 @@ export function coordinatesEncodePartialWithContext(value: Partial<Coordinates>,
 function coordinatesEncodeFields(value: Coordinates, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("lat")) {
         if (value.lat !== undefined) {
-            result.lat = value.lat;
+            result["lat"] = value.lat;
         }
     }
     if (__fields === undefined || __fields.keeps("lng")) {
         if (value.lng !== undefined) {
-            result.lng = value.lng;
+            result["lng"] = value.lng;
         }
     }
 }
@@ -144,7 +144,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "Coordinates.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("lat")) && !("lat" in obj)) {
         errors.push({ field: "lat", message: "missing required field" });
@@ -202,8 +202,7 @@ export function coordinatesHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "lat" in o && "lng" in o;
+    return __mf_holds(obj, "lat") && __mf_holds(obj, "lng");
 }
 
 export function coordinatesIs(obj: unknown): obj is Coordinates {
@@ -471,15 +470,15 @@ export declare const Coordinates: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..174 -> expanded 813..880
-original 174..175 -> expanded 15296..15297
-generated 0..755 <- imports
-generated 880..992 <- Default
-generated 992..3309 <- Encode
-generated 3309..9306 <- Decode
-generated 9306..13949 <- Gigaform
-generated 13949..15296 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..174 -> expanded 865..932
+original 174..175 -> expanded 15322..15323
+generated 0..807 <- imports
+generated 932..1044 <- Default
+generated 1044..3367 <- Encode
+generated 3367..9332 <- Decode
+generated 9332..13975 <- Gigaform
+generated 13975..15322 <- __convenience_const
 
 ## Metadata
 

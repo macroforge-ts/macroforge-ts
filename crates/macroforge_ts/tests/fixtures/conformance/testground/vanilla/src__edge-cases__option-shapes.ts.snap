@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHasShape, edgeProfileDecodePartialWithContext, edgeProfileHasShape, edgeProfileEncodePartialWithContext, edgeItemDecode } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Every option a derive's decorator takes, each on a field of its own and in
@@ -253,52 +253,52 @@ export function optionFieldsEncodePartialWithContext(value: Partial<OptionFields
 function optionFieldsEncodeFields(value: OptionFields, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.user_name = value.name;
+            result["user_name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("readOnly")) {
         if (value.readOnly !== undefined) {
-            result.readOnly = value.readOnly;
+            result["readOnly"] = value.readOnly;
         }
     }
     if (__fields === undefined || __fields.keeps("count")) {
         if (value.count !== undefined) {
-            result.count = value.count;
+            result["count"] = value.count;
         }
     }
     if (__fields === undefined || __fields.keeps("status")) {
         if (value.status !== undefined) {
-            result.status = value.status;
+            result["status"] = value.status;
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags;
+            result["tags"] = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = edgeItemEncodeWithContext(value.item, ctx);
+            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("balance")) {
         if (value.balance !== undefined) {
-            result.balance = String(value.balance);
+            result["balance"] = String(value.balance);
         }
     }
     if (__fields === undefined || __fields.keeps("optionalBalance")) {
         if (value.optionalBalance !== undefined) {
-            result.optionalBalance = String(value.optionalBalance);
+            result["optionalBalance"] = String(value.optionalBalance);
         }
     }
     if (__fields === undefined || __fields.keeps("shout")) {
         if (value.shout !== undefined) {
-            result.shout = upperCase(value.shout);
+            result["shout"] = upperCase(value.shout);
         }
     }
     if (__fields === undefined || __fields.keeps("optionalShout")) {
         if (value.optionalShout !== undefined) {
-            result.optionalShout = upperCase(value.optionalShout);
+            result["optionalShout"] = upperCase(value.optionalShout);
         }
     }
 }
@@ -375,7 +375,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "OptionFields.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("user_name" in obj)) {
         errors.push({ field: "user_name", message: "missing required field" });
@@ -574,8 +574,7 @@ export function optionFieldsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "user_name" in o && "writeOnly" in o && "balance" in o && "shout" in o;
+    return __mf_holds(obj, "user_name") && __mf_holds(obj, "writeOnly") && __mf_holds(obj, "balance") && __mf_holds(obj, "shout");
 }
 
 export function optionFieldsIs(obj: unknown): obj is OptionFields {
@@ -645,17 +644,17 @@ export function optionScreamingEncodePartialWithContext(value: Partial<OptionScr
 function optionScreamingEncodeFields(value: OptionScreaming, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("firstName")) {
         if (value.firstName !== undefined) {
-            result.FIRST_NAME = value.firstName;
+            result["FIRST_NAME"] = value.firstName;
         }
     }
     if (__fields === undefined || __fields.keeps("lastName")) {
         if (value.lastName !== undefined) {
-            result.kept = value.lastName;
+            result["kept"] = value.lastName;
         }
     }
     if (__fields === undefined || __fields.keeps("homeAddress2")) {
         if (value.homeAddress2 !== undefined) {
-            result.HOME_ADDRESS_2 = value.homeAddress2;
+            result["HOME_ADDRESS_2"] = value.homeAddress2;
         }
     }
 }
@@ -732,7 +731,7 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
         throw new __mf_DecodeError([{ field: "_root", message: "OptionScreaming.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("firstName")) && !("FIRST_NAME" in obj)) {
         errors.push({ field: "FIRST_NAME", message: "missing required field" });
@@ -802,8 +801,7 @@ export function optionScreamingHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "FIRST_NAME" in o && "kept" in o && "HOME_ADDRESS_2" in o;
+    return __mf_holds(obj, "FIRST_NAME") && __mf_holds(obj, "kept") && __mf_holds(obj, "HOME_ADDRESS_2");
 }
 
 export function optionScreamingIs(obj: unknown): obj is OptionScreaming {
@@ -882,7 +880,7 @@ function optionKebabEncodeFields(value: OptionKebab, ctx: __mf_EncodeContext, re
     }
     if (__fields === undefined || __fields.keeps("items")) {
         if (value.items !== undefined) {
-            result.items = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -959,7 +957,7 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "OptionKebab.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("firstName")) && !("first-name" in obj)) {
         errors.push({ field: "first-name", message: "missing required field" });
@@ -1044,8 +1042,7 @@ export function optionKebabHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "first-name" in o && "is-active" in o && "items" in o;
+    return __mf_holds(obj, "first-name") && __mf_holds(obj, "is-active") && __mf_holds(obj, "items");
 }
 
 export function optionKebabIs(obj: unknown): obj is OptionKebab {
@@ -1105,12 +1102,12 @@ static encodePartialWithContext(value: Partial<OptionPascal>, ctx: __mf_EncodeCo
 static #encodeFields(value: OptionPascal, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("firstName")) {
         if (value.firstName !== undefined) {
-            result.FirstName = value.firstName;
+            result["FirstName"] = value.firstName;
         }
     }
     if (__fields === undefined || __fields.keeps("homeTown")) {
         if (value.homeTown !== undefined) {
-            result.HomeTown = value.homeTown;
+            result["HomeTown"] = value.homeTown;
         }
     }
 }
@@ -1199,7 +1196,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "OptionPascal.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("firstName")) && !("FirstName" in obj)) {
         errors.push({ field: "FirstName", message: "missing required field" });
@@ -1253,8 +1250,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "FirstName" in o && "HomeTown" in o;
+    return __mf_holds(obj, "FirstName") && __mf_holds(obj, "HomeTown");
 }
 
 static is(obj: unknown): obj is OptionPascal {
@@ -1347,12 +1343,12 @@ export function optionCamelEncodePartialWithContext(value: Partial<OptionCamel>,
 function optionCamelEncodeFields(value: OptionCamel, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("first_name")) {
         if (value.first_name !== undefined) {
-            result.firstName = value.first_name;
+            result["firstName"] = value.first_name;
         }
     }
     if (__fields === undefined || __fields.keeps("home_town")) {
         if (value.home_town !== undefined) {
-            result.homeTown = value.home_town;
+            result["homeTown"] = value.home_town;
         }
     }
 }
@@ -1429,7 +1425,7 @@ export function optionCamelDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "OptionCamel.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("first_name")) && !("firstName" in obj)) {
         errors.push({ field: "firstName", message: "missing required field" });
@@ -1487,8 +1483,7 @@ export function optionCamelHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "firstName" in o && "homeTown" in o;
+    return __mf_holds(obj, "firstName") && __mf_holds(obj, "homeTown");
 }
 
 export function optionCamelIs(obj: unknown): obj is OptionCamel {
@@ -1558,7 +1553,7 @@ export function optionFlattenedEncodePartialWithContext(value: Partial<OptionFla
 function optionFlattenedEncodeFields(value: OptionFlattened, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("title")) {
         if (value.title !== undefined) {
-            result.title = value.title;
+            result["title"] = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
@@ -1649,7 +1644,7 @@ export function optionFlattenedDecodeWithContext(value: unknown, ctx: __mf_Decod
         throw new __mf_DecodeError([{ field: "_root", message: "OptionFlattened.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
         errors.push({ field: "title", message: "missing required field" });
@@ -1727,8 +1722,7 @@ export function optionFlattenedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "title" in o;
+    return __mf_holds(obj, "title");
 }
 
 export function optionFlattenedIs(obj: unknown): obj is OptionFlattened {
@@ -1798,7 +1792,7 @@ export function optionFlattenedOptionalEncodePartialWithContext(value: Partial<O
 function optionFlattenedOptionalEncodeFields(value: OptionFlattenedOptional, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("title")) {
         if (value.title !== undefined) {
-            result.title = value.title;
+            result["title"] = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
@@ -1887,7 +1881,7 @@ export function optionFlattenedOptionalDecodeWithContext(value: unknown, ctx: __
         throw new __mf_DecodeError([{ field: "_root", message: "OptionFlattenedOptional.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
         errors.push({ field: "title", message: "missing required field" });
@@ -1978,8 +1972,7 @@ export function optionFlattenedOptionalHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "title" in o;
+    return __mf_holds(obj, "title");
 }
 
 export function optionFlattenedOptionalIs(obj: unknown): obj is OptionFlattenedOptional {
@@ -2048,17 +2041,17 @@ export function optionStrictEncodePartialWithContext(value: Partial<OptionStrict
 function optionStrictEncodeFields(value: OptionStrict, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("firstName")) {
         if (value.firstName !== undefined) {
-            result.first_name = value.firstName;
+            result["first_name"] = value.firstName;
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = edgeItemEncodeWithContext(value.item, ctx);
+            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("nested")) {
         if (value.nested !== undefined) {
-            result.nested = edgeItemEncodeWithContext(value.nested, ctx);
+            result["nested"] = edgeItemEncodeWithContext(value.nested, ctx);
         }
     }
 }
@@ -2135,7 +2128,7 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "OptionStrict.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     const knownKeys = new Set(["__type", "__id", "__ref", "first_name", "item", "nested"]);
     for (const key of Object.keys(obj)) {
@@ -2238,8 +2231,7 @@ export function optionStrictHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "first_name" in o && "item" in o;
+    return __mf_holds(obj, "first_name") && __mf_holds(obj, "item");
 }
 
 export function optionStrictIs(obj: unknown): obj is OptionStrict {
@@ -2307,12 +2299,12 @@ export function optionTaggedEncodePartialWithContext(value: Partial<OptionTagged
 function optionTaggedEncodeFields(value: OptionTagged, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("child")) {
         if (value.child !== undefined) {
-            result.child = value.child === null ? null : optionTaggedEncodeWithContext(value.child, ctx);
+            result["child"] = value.child === null ? null : optionTaggedEncodeWithContext(value.child, ctx);
         }
     }
 }
@@ -2389,7 +2381,7 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "OptionTagged.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -2465,8 +2457,7 @@ export function optionTaggedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "child" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "child");
 }
 
 export function optionTaggedIs(obj: unknown): obj is OptionTagged {
@@ -2547,42 +2538,42 @@ export function optionValidatedEncodePartialWithContext(value: Partial<OptionVal
 function optionValidatedEncodeFields(value: OptionValidated, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = value.email;
+            result["email"] = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("optionalName")) {
         if (value.optionalName !== undefined) {
-            result.optionalName = value.optionalName;
+            result["optionalName"] = value.optionalName;
         }
     }
     if (__fields === undefined || __fields.keeps("nullableCount")) {
         if (value.nullableCount !== undefined) {
-            result.nullableCount = value.nullableCount;
+            result["nullableCount"] = value.nullableCount;
         }
     }
     if (__fields === undefined || __fields.keeps("laterCount")) {
         if (value.laterCount !== undefined) {
-            result.laterCount = value.laterCount;
+            result["laterCount"] = value.laterCount;
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
         if (value.tags !== undefined) {
-            result.tags = value.tags;
+            result["tags"] = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = value.at.toISOString();
+            result["at"] = value.at.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("maybeAt")) {
         if (value.maybeAt !== undefined) {
-            result.maybeAt = value.maybeAt === null ? null : value.maybeAt.toISOString();
+            result["maybeAt"] = value.maybeAt === null ? null : value.maybeAt.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("retries")) {
         if (value.retries !== undefined) {
-            result.retries = value.retries;
+            result["retries"] = value.retries;
         }
     }
 }
@@ -2659,7 +2650,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
         throw new __mf_DecodeError([{ field: "_root", message: "OptionValidated.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
@@ -2927,8 +2918,7 @@ export function optionValidatedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "email" in o && "nullableCount" in o && "tags" in o && "at" in o && "maybeAt" in o;
+    return __mf_holds(obj, "email") && __mf_holds(obj, "nullableCount") && __mf_holds(obj, "tags") && __mf_holds(obj, "at") && __mf_holds(obj, "maybeAt");
 }
 
 export function optionValidatedIs(obj: unknown): obj is OptionValidated {
@@ -3016,117 +3006,117 @@ export function optionKindsEncodePartialWithContext(value: Partial<OptionKinds>,
 function optionKindsEncodeFields(value: OptionKinds, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("text")) {
         if (value.text !== undefined) {
-            result.text = value.text;
+            result["text"] = value.text;
         }
     }
     if (__fields === undefined || __fields.keeps("count")) {
         if (value.count !== undefined) {
-            result.count = value.count;
+            result["count"] = value.count;
         }
     }
     if (__fields === undefined || __fields.keeps("flag")) {
         if (value.flag !== undefined) {
-            result.flag = value.flag;
+            result["flag"] = value.flag;
         }
     }
     if (__fields === undefined || __fields.keeps("big")) {
         if (value.big !== undefined) {
-            result.big = ((v) => String(v))(value.big);
+            result["big"] = ((v) => String(v))(value.big);
         }
     }
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = value.at.toISOString();
+            result["at"] = value.at.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = edgeItemEncodeWithContext(value.item, ctx);
+            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("size")) {
         if (value.size !== undefined) {
-            result.size = value.size;
+            result["size"] = value.size;
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list;
+            result["list"] = value.list;
         }
     }
     if (__fields === undefined || __fields.keeps("set")) {
         if (value.set !== undefined) {
-            result.set = Array.from(value.set);
+            result["set"] = Array.from(value.set);
         }
     }
     if (__fields === undefined || __fields.keeps("map")) {
         if (value.map !== undefined) {
-            result.map = Object.fromEntries(value.map.entries());
+            result["map"] = Object.fromEntries(value.map.entries());
         }
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result.record = value.record;
+            result["record"] = value.record;
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = value.pair;
+            result["pair"] = value.pair;
         }
     }
     if (__fields === undefined || __fields.keeps("inline")) {
         if (value.inline !== undefined) {
-            result.inline = value.inline;
+            result["inline"] = value.inline;
         }
     }
     if (__fields === undefined || __fields.keeps("maybeText")) {
         if (value.maybeText !== undefined) {
-            result.maybeText = value.maybeText;
+            result["maybeText"] = value.maybeText;
         }
     }
     if (__fields === undefined || __fields.keeps("laterText")) {
         if (value.laterText !== undefined) {
-            result.laterText = value.laterText;
+            result["laterText"] = value.laterText;
         }
     }
     if (__fields === undefined || __fields.keeps("partial")) {
         if (value.partial !== undefined) {
-            result.partial = edgeItemEncodePartialWithContext(value.partial, ctx);
+            result["partial"] = edgeItemEncodePartialWithContext(value.partial, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("link")) {
         if (value.link !== undefined) {
-            result.link = ((v) => v.toString())(value.link);
+            result["link"] = ((v) => v.toString())(value.link);
         }
     }
     if (__fields === undefined || __fields.keeps("query")) {
         if (value.query !== undefined) {
-            result.query = ((v) => v.toString())(value.query);
+            result["query"] = ((v) => v.toString())(value.query);
         }
     }
     if (__fields === undefined || __fields.keeps("pattern")) {
         if (value.pattern !== undefined) {
-            result.pattern = ((v) => ({ source: v.source, flags: v.flags }))(value.pattern);
+            result["pattern"] = ((v) => ({ source: v.source, flags: v.flags }))(value.pattern);
         }
     }
     if (__fields === undefined || __fields.keeps("failure")) {
         if (value.failure !== undefined) {
-            result.failure = ((v) => ({ name: v.name, message: v.message, stack: v.stack }))(value.failure);
+            result["failure"] = ((v) => ({ name: v.name, message: v.message, stack: v.stack }))(value.failure);
         }
     }
     if (__fields === undefined || __fields.keeps("bytes")) {
         if (value.bytes !== undefined) {
-            result.bytes = ((v) => Array.from(v))(value.bytes);
+            result["bytes"] = ((v) => Array.from(v))(value.bytes);
         }
     }
     if (__fields === undefined || __fields.keeps("bigs")) {
         if (value.bigs !== undefined) {
-            result.bigs = ((v) => Array.from(v, (n) => String(n)))(value.bigs);
+            result["bigs"] = ((v) => Array.from(v, (n) => String(n)))(value.bigs);
         }
     }
     if (__fields === undefined || __fields.keeps("buffer")) {
         if (value.buffer !== undefined) {
-            result.buffer = ((v) => Array.from(new Uint8Array(v)))(value.buffer);
+            result["buffer"] = ((v) => Array.from(new Uint8Array(v)))(value.buffer);
         }
     }
 }
@@ -3203,7 +3193,7 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "OptionKinds.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
@@ -3651,8 +3641,7 @@ export function optionKindsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "text" in o && "count" in o && "flag" in o && "big" in o && "at" in o && "item" in o && "size" in o && "list" in o && "set" in o && "map" in o && "record" in o && "pair" in o && "inline" in o && "maybeText" in o && "partial" in o && "link" in o && "query" in o && "pattern" in o && "failure" in o && "bytes" in o && "bigs" in o && "buffer" in o;
+    return __mf_holds(obj, "text") && __mf_holds(obj, "count") && __mf_holds(obj, "flag") && __mf_holds(obj, "big") && __mf_holds(obj, "at") && __mf_holds(obj, "item") && __mf_holds(obj, "size") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "map") && __mf_holds(obj, "record") && __mf_holds(obj, "pair") && __mf_holds(obj, "inline") && __mf_holds(obj, "maybeText") && __mf_holds(obj, "partial") && __mf_holds(obj, "link") && __mf_holds(obj, "query") && __mf_holds(obj, "pattern") && __mf_holds(obj, "failure") && __mf_holds(obj, "bytes") && __mf_holds(obj, "bigs") && __mf_holds(obj, "buffer");
 }
 
 export function optionKindsIs(obj: unknown): obj is OptionKinds {
@@ -3781,67 +3770,67 @@ static encodePartialWithContext(value: Partial<OptionKindsClass>, ctx: __mf_Enco
 static #encodeFields(value: OptionKindsClass, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("text")) {
         if (value.text !== undefined) {
-            result.text = value.text;
+            result["text"] = value.text;
         }
     }
     if (__fields === undefined || __fields.keeps("count")) {
         if (value.count !== undefined) {
-            result.count = value.count;
+            result["count"] = value.count;
         }
     }
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = value.at.toISOString();
+            result["at"] = value.at.toISOString();
         }
     }
     if (__fields === undefined || __fields.keeps("big")) {
         if (value.big !== undefined) {
-            result.big = ((v) => String(v))(value.big);
+            result["big"] = ((v) => String(v))(value.big);
         }
     }
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = edgeItemEncodeWithContext(value.item, ctx);
+            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list;
+            result["list"] = value.list;
         }
     }
     if (__fields === undefined || __fields.keeps("map")) {
         if (value.map !== undefined) {
-            result.map = Object.fromEntries(value.map.entries());
+            result["map"] = Object.fromEntries(value.map.entries());
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = value.pair;
+            result["pair"] = value.pair;
         }
     }
     if (__fields === undefined || __fields.keeps("inline")) {
         if (value.inline !== undefined) {
-            result.inline = value.inline;
+            result["inline"] = value.inline;
         }
     }
     if (__fields === undefined || __fields.keeps("picked")) {
         if (value.picked !== undefined) {
-            result.picked = edgeItemEncodePartialWithContext(value.picked, ctx, { only: ["id"] });
+            result["picked"] = edgeItemEncodePartialWithContext(value.picked, ctx, { only: ["id"] });
         }
     }
     if (__fields === undefined || __fields.keeps("required")) {
         if (value.required !== undefined) {
-            result.required = edgeItemEncodeWithContext(value.required, ctx);
+            result["required"] = edgeItemEncodeWithContext(value.required, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe;
+            result["maybe"] = value.maybe;
         }
     }
     if (__fields === undefined || __fields.keeps("later")) {
         if (value.later !== undefined) {
-            result.later = value.later;
+            result["later"] = value.later;
         }
     }
 }
@@ -3943,7 +3932,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "OptionKindsClass.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
@@ -4237,8 +4226,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "text" in o && "count" in o && "at" in o && "big" in o && "item" in o && "list" in o && "map" in o && "pair" in o && "inline" in o && "picked" in o && "required" in o && "maybe" in o;
+    return __mf_holds(obj, "text") && __mf_holds(obj, "count") && __mf_holds(obj, "at") && __mf_holds(obj, "big") && __mf_holds(obj, "item") && __mf_holds(obj, "list") && __mf_holds(obj, "map") && __mf_holds(obj, "pair") && __mf_holds(obj, "inline") && __mf_holds(obj, "picked") && __mf_holds(obj, "required") && __mf_holds(obj, "maybe");
 }
 
 static is(obj: unknown): obj is OptionKindsClass {
@@ -5137,88 +5125,88 @@ export declare function optionKindsClassIs(value: unknown): value is OptionKinds
 
 ## Mapping
 
-original 0..680 -> expanded 1494..2174
-original 680..1188 -> expanded 5366..5874
-original 1188..1439 -> expanded 6362..6613
-original 1439..1440 -> expanded 6937..6938
-original 1440..2512 -> expanded 7061..8133
-original 2512..2743 -> expanded 25578..25809
-original 2743..2920 -> expanded 36610..36787
-original 2920..3088 -> expanded 47904..48072
-original 3088..3089 -> expanded 55960..55961
-original 3089..3243 -> expanded 59183..59337
-original 3243..3431 -> expanded 68954..69142
-original 3431..3637 -> expanded 80016..80222
-original 3637..3837 -> expanded 92170..92370
-original 3837..3984 -> expanded 103919..104066
-original 3984..4627 -> expanded 114289..114932
-original 4627..5235 -> expanded 137157..137765
-original 5235..5710 -> expanded 170559..171034
-original 5710..6103 -> expanded 171616..172009
-original 6103..6104 -> expanded 194343..194344
-original 6104..6105 -> expanded 197780..197781
-generated 0..1494 <- imports
-generated 2174..2595 <- Debug
-generated 2595..2841 <- Clone
-generated 2841..3089 <- PartialEq
-generated 3089..3738 <- Hash
-generated 3738..4345 <- PartialOrd
-generated 4345..4824 <- Ord
-generated 4824..5366 <- __convenience_const
-generated 5874..6218 <- Default
-generated 6218..6362 <- __convenience_const
-generated 6613..6937 <- Default
-generated 6938..7061 <- Default
-generated 8133..11903 <- Encode
-generated 11903..24496 <- Decode
-generated 24496..25578 <- __convenience_const
-generated 25809..28415 <- Encode
-generated 28415..35465 <- Decode
-generated 35465..36610 <- __convenience_const
-generated 36787..39371 <- Encode
-generated 39371..46843 <- Decode
-generated 46843..47904 <- __convenience_const
-generated 48072..49836 <- Encode
-generated 49836..50167 <- Encode
-generated 50167..55960 <- Decode
-generated 55961..57341 <- Encode
-generated 57341..59183 <- Decode
-generated 59337..61704 <- Encode
-generated 61704..67893 <- Decode
-generated 67893..68954 <- __convenience_const
-generated 69142..72022 <- Encode
-generated 72022..78871 <- Decode
-generated 78871..80016 <- __convenience_const
-generated 80222..83059 <- Encode
-generated 83059..90857 <- Decode
-generated 90857..92170 <- __convenience_const
-generated 92370..94956 <- Encode
-generated 94956..102837 <- Decode
-generated 102837..103919 <- __convenience_const
-generated 104066..106469 <- Encode
-generated 106469..113207 <- Decode
-generated 113207..114289 <- __convenience_const
-generated 114932..118413 <- Encode
-generated 118413..136012 <- Decode
-generated 136012..137157 <- __convenience_const
-generated 137765..143828 <- Encode
-generated 143828..169498 <- Decode
-generated 169498..170559 <- __convenience_const
-generated 171034..171460 <- Default
-generated 171460..171616 <- __convenience_const
-generated 172009..172758 <- Default
-generated 172758..176428 <- Encode
-generated 176428..176767 <- Encode
-generated 176767..194343 <- Decode
-generated 194344..194458 <- Default
-generated 194458..195878 <- Encode
-generated 195878..197780 <- Decode
+original 0..680 -> expanded 1546..2226
+original 680..1188 -> expanded 5418..5926
+original 1188..1439 -> expanded 6414..6665
+original 1439..1440 -> expanded 6989..6990
+original 1440..2512 -> expanded 7113..8185
+original 2512..2743 -> expanded 25652..25883
+original 2743..2920 -> expanded 36673..36850
+original 2920..3088 -> expanded 47950..48118
+original 3088..3089 -> expanded 55980..55981
+original 3089..3243 -> expanded 59203..59357
+original 3243..3431 -> expanded 68948..69136
+original 3431..3637 -> expanded 79969..80175
+original 3637..3837 -> expanded 92082..92282
+original 3837..3984 -> expanded 103808..103955
+original 3984..4627 -> expanded 114152..114795
+original 4627..5235 -> expanded 137048..137656
+original 5235..5710 -> expanded 170727..171202
+original 5710..6103 -> expanded 171784..172177
+original 6103..6104 -> expanded 194638..194639
+original 6104..6105 -> expanded 198075..198076
+generated 0..1546 <- imports
+generated 2226..2647 <- Debug
+generated 2647..2893 <- Clone
+generated 2893..3141 <- PartialEq
+generated 3141..3790 <- Hash
+generated 3790..4397 <- PartialOrd
+generated 4397..4876 <- Ord
+generated 4876..5418 <- __convenience_const
+generated 5926..6270 <- Default
+generated 6270..6414 <- __convenience_const
+generated 6665..6989 <- Default
+generated 6990..7113 <- Default
+generated 8185..11985 <- Encode
+generated 11985..24570 <- Decode
+generated 24570..25652 <- __convenience_const
+generated 25883..28498 <- Encode
+generated 28498..35528 <- Decode
+generated 35528..36673 <- __convenience_const
+generated 36850..39437 <- Encode
+generated 39437..46889 <- Decode
+generated 46889..47950 <- __convenience_const
+generated 48118..49888 <- Encode
+generated 49888..50219 <- Encode
+generated 50219..55980 <- Decode
+generated 55981..57361 <- Encode
+generated 57361..59203 <- Decode
+generated 59357..61730 <- Encode
+generated 61730..67887 <- Decode
+generated 67887..68948 <- __convenience_const
+generated 69136..72019 <- Encode
+generated 72019..78824 <- Decode
+generated 78824..79969 <- __convenience_const
+generated 80175..83015 <- Encode
+generated 83015..90769 <- Decode
+generated 90769..92082 <- __convenience_const
+generated 92282..94877 <- Encode
+generated 94877..102726 <- Decode
+generated 102726..103808 <- __convenience_const
+generated 103955..106364 <- Encode
+generated 106364..113070 <- Decode
+generated 113070..114152 <- __convenience_const
+generated 114795..118300 <- Encode
+generated 118300..135903 <- Decode
+generated 135903..137048 <- __convenience_const
+generated 137656..143788 <- Encode
+generated 143788..169666 <- Decode
+generated 169666..170727 <- __convenience_const
+generated 171202..171628 <- Default
+generated 171628..171784 <- __convenience_const
+generated 172177..172926 <- Default
+generated 172926..176635 <- Encode
+generated 176635..176974 <- Encode
+generated 176974..194638 <- Decode
+generated 194639..194753 <- Default
+generated 194753..196173 <- Encode
+generated 196173..198075 <- Decode
 
 ## Metadata
 
-class OptionDefaultsClass: {"body_span":{"end":1441,"start":1248},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1214,"start":1191}}],"fields":[{"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":1278,"start":1254}}],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":1306,"start":1283},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"25","key":"Named","name":"pageSize","optional":false,"readonly":false,"span":{"end":1333,"start":1311},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"new Map([[\"a\", 1]])","name":"default","span":{"end":1374,"start":1338}}],"initializer":"new Map()","key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":1419,"start":1379},"ts_type":"Map<string, number>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":1439,"start":1424},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionDefaultsClass","span":{"end":1441,"start":1222},"superclass":null,"type_params":[]}
-class OptionPascal: {"body_span":{"end":3090,"start":3023},"decorators":[{"args_src":"{ renameAll: \"PascalCase\" }","name":"endec","span":{"end":2996,"start":2954}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2953,"start":2923}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":3052,"start":3029},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"homeTown","optional":false,"readonly":false,"span":{"end":3088,"start":3057},"ts_type":"string | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionPascal","span":{"end":3090,"start":3004},"superclass":null,"type_params":[]}
-class OptionKindsClass: {"body_span":{"end":6105,"start":5783},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":5752,"start":5713}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":5803,"start":5789},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":5823,"start":5808},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":5838,"start":5828},"ts_type":"Date","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":5856,"start":5843},"ts_type":"bigint","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":5877,"start":5861},"ts_type":"EdgeItem","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":5898,"start":5882},"ts_type":"string[]","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":5929,"start":5903},"ts_type":"Map<string, number>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":5958,"start":5934},"ts_type":"[string, number]","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":5986,"start":5963},"ts_type":"{ x: number }","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":6021,"start":5991},"ts_type":"Pick<EdgeItem, 'id'>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":6056,"start":6026},"ts_type":"Required<EdgeItem>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":6083,"start":6061},"ts_type":"string | null","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"later","optional":true,"readonly":false,"span":{"end":6103,"start":6088},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionKindsClass","span":{"end":6105,"start":5760},"superclass":null,"type_params":[]}
+class OptionDefaultsClass: {"body_span":{"end":1441,"start":1248},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1214,"start":1191}}],"fields":[{"accessor":false,"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":1278,"start":1254}}],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":1306,"start":1283},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"25","key":"Named","name":"pageSize","optional":false,"readonly":false,"span":{"end":1333,"start":1311},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"new Map([[\"a\", 1]])","name":"default","span":{"end":1374,"start":1338}}],"initializer":"new Map()","key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":1419,"start":1379},"ts_type":"Map<string, number>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":1439,"start":1424},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionDefaultsClass","span":{"end":1441,"start":1222},"superclass":null,"type_params":[]}
+class OptionPascal: {"body_span":{"end":3090,"start":3023},"decorators":[{"args_src":"{ renameAll: \"PascalCase\" }","name":"endec","span":{"end":2996,"start":2954}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2953,"start":2923}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":3052,"start":3029},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"homeTown","optional":false,"readonly":false,"span":{"end":3088,"start":3057},"ts_type":"string | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionPascal","span":{"end":3090,"start":3004},"superclass":null,"type_params":[]}
+class OptionKindsClass: {"body_span":{"end":6105,"start":5783},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":5752,"start":5713}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":5803,"start":5789},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":5823,"start":5808},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":5838,"start":5828},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":5856,"start":5843},"ts_type":"bigint","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":5877,"start":5861},"ts_type":"EdgeItem","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":5898,"start":5882},"ts_type":"string[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":5929,"start":5903},"ts_type":"Map<string, number>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":5958,"start":5934},"ts_type":"[string, number]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":5986,"start":5963},"ts_type":"{ x: number }","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":6021,"start":5991},"ts_type":"Pick<EdgeItem, 'id'>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":6056,"start":6026},"ts_type":"Required<EdgeItem>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":6083,"start":6061},"ts_type":"string | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"later","optional":true,"readonly":false,"span":{"end":6103,"start":6088},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionKindsClass","span":{"end":6105,"start":5760},"superclass":null,"type_params":[]}
 interface OptionTraits: {"body_span":{"end":681,"start":394},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":363,"start":297}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":411,"start":400},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"shown\" }","name":"debug","span":{"end":450,"start":416}}],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":469,"start":455},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":503,"start":474}}],"key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":523,"start":508},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"partialEq","span":{"end":604,"start":528}},{"args_src":"{ skip: true }","name":"hash","span":{"end":604,"start":528}},{"args_src":"{ skip: true }","name":"ord","span":{"end":604,"start":528}}],"key":"Named","name":"cached","optional":false,"readonly":false,"span":{"end":624,"start":609},"ts_type":"number"},{"decorators":[{"args_src":"{ skip: true }","name":"ord","span":{"end":656,"start":629}}],"key":"Named","name":"unordered","optional":false,"readonly":false,"span":{"end":679,"start":661},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionTraits","span":{"end":681,"start":371},"type_params":[]}
 interface OptionDefaults: {"body_span":{"end":1189,"start":739},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":706,"start":683}}],"fields":[{"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":769,"start":745}}],"key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":788,"start":774},"ts_type":"string"},{"decorators":[{"args_src":"10","name":"default","span":{"end":812,"start":793}}],"key":"Named","name":"pageSize","optional":false,"readonly":false,"span":{"end":834,"start":817},"ts_type":"number"},{"decorators":[{"args_src":"true","name":"default","span":{"end":860,"start":839}}],"key":"Named","name":"enabled","optional":false,"readonly":false,"span":{"end":882,"start":865},"ts_type":"boolean"},{"decorators":[{"args_src":"[\"a\", \"b\"]","name":"default","span":{"end":914,"start":887}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":934,"start":919},"ts_type":"string[]"},{"decorators":[{"args_src":"{ id: \"seed\", score: 1 }","name":"default","span":{"end":980,"start":939}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":1000,"start":985},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"null","name":"default","span":{"end":1026,"start":1005}}],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1054,"start":1031},"ts_type":"EdgeItem | null"},{"decorators":[{"args_src":"new Date(0)","name":"default","span":{"end":1087,"start":1059}}],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":1101,"start":1092},"ts_type":"Date"},{"decorators":[{"args_src":"10n","name":"default","span":{"end":1126,"start":1106}}],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":1145,"start":1131},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1164,"start":1150},"ts_type":"number"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1187,"start":1169},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionDefaults","span":{"end":1189,"start":714},"type_params":[]}
 interface OptionFields: {"body_span":{"end":2513,"start":1679},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1648,"start":1618}}],"fields":[{"decorators":[{"args_src":"{ rename: \"user_name\" }","name":"endec","span":{"end":1723,"start":1685}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1741,"start":1728},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1775,"start":1746}}],"key":"Named","name":"skipped","optional":true,"readonly":false,"span":{"end":1797,"start":1780},"ts_type":"string"},{"decorators":[{"args_src":"{ skipEncoding: true }","name":"endec","span":{"end":1839,"start":1802}}],"key":"Named","name":"writeOnly","optional":false,"readonly":false,"span":{"end":1862,"start":1844},"ts_type":"string"},{"decorators":[{"args_src":"{ skipDecoding: true, default: \"\\\"computed\\\"\" }","name":"endec","span":{"end":1929,"start":1867}}],"key":"Named","name":"readOnly","optional":false,"readonly":false,"span":{"end":1951,"start":1934},"ts_type":"string"},{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":1988,"start":1956}}],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2007,"start":1993},"ts_type":"number"},{"decorators":[{"args_src":"{ default: \"\\\"pending\\\"\" }","name":"endec","span":{"end":2053,"start":2012}}],"key":"Named","name":"status","optional":false,"readonly":false,"span":{"end":2073,"start":2058},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"[]\" }","name":"endec","span":{"end":2110,"start":2078}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":2130,"start":2115},"ts_type":"string[]"},{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":2167,"start":2135}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":2187,"start":2172},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":2228,"start":2192}}],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":2249,"start":2233},"ts_type":"number"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":2290,"start":2254}}],"key":"Named","name":"optionalBalance","optional":true,"readonly":false,"span":{"end":2320,"start":2295},"ts_type":"number"},{"decorators":[{"args_src":"{ encodeWith: \"upperCase\", decodeWith: \"lowerCase\" }","name":"endec","span":{"end":2392,"start":2325}}],"key":"Named","name":"shout","optional":false,"readonly":false,"span":{"end":2411,"start":2397},"ts_type":"string"},{"decorators":[{"args_src":"{ encodeWith: \"upperCase\", decodeWith: \"lowerCase\" }","name":"endec","span":{"end":2483,"start":2416}}],"key":"Named","name":"optionalShout","optional":true,"readonly":false,"span":{"end":2511,"start":2488},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionFields","span":{"end":2513,"start":1656},"type_params":[]}

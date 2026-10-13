@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -95,52 +95,52 @@ export function taxRateEncodePartialWithContext(value: Partial<TaxRate>, ctx: __
 function taxRateEncodeFields(value: TaxRate, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("taxAgency")) {
         if (value.taxAgency !== undefined) {
-            result.taxAgency = value.taxAgency;
+            result["taxAgency"] = value.taxAgency;
         }
     }
     if (__fields === undefined || __fields.keeps("zip")) {
         if (value.zip !== undefined) {
-            result.zip = value.zip;
+            result["zip"] = value.zip;
         }
     }
     if (__fields === undefined || __fields.keeps("city")) {
         if (value.city !== undefined) {
-            result.city = value.city;
+            result["city"] = value.city;
         }
     }
     if (__fields === undefined || __fields.keeps("county")) {
         if (value.county !== undefined) {
-            result.county = value.county;
+            result["county"] = value.county;
         }
     }
     if (__fields === undefined || __fields.keeps("state")) {
         if (value.state !== undefined) {
-            result.state = value.state;
+            result["state"] = value.state;
         }
     }
     if (__fields === undefined || __fields.keeps("isActive")) {
         if (value.isActive !== undefined) {
-            result.isActive = value.isActive;
+            result["isActive"] = value.isActive;
         }
     }
     if (__fields === undefined || __fields.keeps("description")) {
         if (value.description !== undefined) {
-            result.description = value.description;
+            result["description"] = value.description;
         }
     }
     if (__fields === undefined || __fields.keeps("taxComponents")) {
         if (value.taxComponents !== undefined) {
-            result.taxComponents = value.taxComponents;
+            result["taxComponents"] = value.taxComponents;
         }
     }
 }
@@ -217,7 +217,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "TaxRate.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -476,8 +476,7 @@ export function taxRateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "taxAgency" in o && "zip" in o && "city" in o && "county" in o && "state" in o && "isActive" in o && "description" in o && "taxComponents" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "taxAgency") && __mf_holds(obj, "zip") && __mf_holds(obj, "city") && __mf_holds(obj, "county") && __mf_holds(obj, "state") && __mf_holds(obj, "isActive") && __mf_holds(obj, "description") && __mf_holds(obj, "taxComponents");
 }
 
 export function taxRateIs(obj: unknown): obj is TaxRate {
@@ -1012,32 +1011,32 @@ export declare const TaxRate: {
 
 ## Mapping
 
-original 0..58 -> expanded 825..883
-original 107..139 -> expanded 883..915
-original 167..188 -> expanded 915..936
-original 229..234 -> expanded 936..941
-original 275..298 -> expanded 941..964
-original 345..350 -> expanded 964..969
-original 391..419 -> expanded 969..997
-original 469..491 -> expanded 997..1019
-original 532..537 -> expanded 1019..1024
-original 578..601 -> expanded 1024..1047
-original 644..649 -> expanded 1047..1052
-original 690..715 -> expanded 1052..1077
-original 757..762 -> expanded 1077..1082
-original 803..827 -> expanded 1082..1106
-original 872..900 -> expanded 1106..1134
-original 952..957 -> expanded 1134..1139
-original 998..1028 -> expanded 1139..1169
-original 1056..1061 -> expanded 1169..1174
-original 1080..1128 -> expanded 1174..1222
-original 1128..1129 -> expanded 37423..37424
-generated 0..825 <- imports
-generated 1222..1503 <- Default
-generated 1503..5100 <- Encode
-generated 5100..22720 <- Decode
-generated 22720..36184 <- Gigaform
-generated 36184..37423 <- __convenience_const
+original 0..58 -> expanded 877..935
+original 107..139 -> expanded 935..967
+original 167..188 -> expanded 967..988
+original 229..234 -> expanded 988..993
+original 275..298 -> expanded 993..1016
+original 345..350 -> expanded 1016..1021
+original 391..419 -> expanded 1021..1049
+original 469..491 -> expanded 1049..1071
+original 532..537 -> expanded 1071..1076
+original 578..601 -> expanded 1076..1099
+original 644..649 -> expanded 1099..1104
+original 690..715 -> expanded 1104..1129
+original 757..762 -> expanded 1129..1134
+original 803..827 -> expanded 1134..1158
+original 872..900 -> expanded 1158..1186
+original 952..957 -> expanded 1186..1191
+original 998..1028 -> expanded 1191..1221
+original 1056..1061 -> expanded 1221..1226
+original 1080..1128 -> expanded 1226..1274
+original 1128..1129 -> expanded 37569..37570
+generated 0..877 <- imports
+generated 1274..1555 <- Default
+generated 1555..5182 <- Encode
+generated 5182..22866 <- Decode
+generated 22866..36330 <- Gigaform
+generated 36330..37569 <- __convenience_const
 
 ## Metadata
 

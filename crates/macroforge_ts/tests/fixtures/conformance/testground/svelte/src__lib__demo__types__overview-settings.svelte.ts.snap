@@ -15,7 +15,7 @@ true
 import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -75,22 +75,22 @@ export function overviewSettingsEncodePartialWithContext(value: Partial<Overview
 function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("rowHeight")) {
         if (value.rowHeight !== undefined) {
-            result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);
+            result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("cardOrRow")) {
         if (value.cardOrRow !== undefined) {
-            result.cardOrRow = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
+            result["cardOrRow"] = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("perPage")) {
         if (value.perPage !== undefined) {
-            result.perPage = value.perPage;
+            result["perPage"] = value.perPage;
         }
     }
     if (__fields === undefined || __fields.keeps("columnConfigs")) {
         if (value.columnConfigs !== undefined) {
-            result.columnConfigs = value.columnConfigs.map((__item0) => columnConfigEncodeWithContext(__item0, ctx));
+            result["columnConfigs"] = value.columnConfigs.map((__item0) => columnConfigEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -167,7 +167,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "OverviewSettings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("rowHeight")) && !("rowHeight" in obj)) {
         errors.push({ field: "rowHeight", message: "missing required field" });
@@ -292,8 +292,7 @@ export function overviewSettingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "rowHeight" in o && "cardOrRow" in o && "perPage" in o && "columnConfigs" in o;
+    return __mf_holds(obj, "rowHeight") && __mf_holds(obj, "cardOrRow") && __mf_holds(obj, "perPage") && __mf_holds(obj, "columnConfigs");
 }
 
 export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
@@ -700,17 +699,17 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 1119..1358
-original 288..329 -> expanded 1358..1399
-original 354..385 -> expanded 1399..1430
-original 409..504 -> expanded 1430..1525
-original 504..505 -> expanded 25932..25933
-generated 0..1119 <- imports
-generated 1525..1719 <- Default
-generated 1719..4648 <- Encode
-generated 4648..14092 <- Decode
-generated 14092..24450 <- Gigaform
-generated 24450..25932 <- __convenience_const
+original 0..239 -> expanded 1171..1410
+original 288..329 -> expanded 1410..1451
+original 354..385 -> expanded 1451..1482
+original 409..504 -> expanded 1482..1577
+original 504..505 -> expanded 25988..25989
+generated 0..1171 <- imports
+generated 1577..1771 <- Default
+generated 1771..4712 <- Encode
+generated 4712..14148 <- Decode
+generated 14148..24506 <- Gigaform
+generated 24506..25988 <- __convenience_const
 
 ## Metadata
 

@@ -21,7 +21,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -69,12 +69,12 @@ export function fooEncodePartialWithContext(value: Partial<Foo>, ctx: __mf_Encod
 function fooEncodeFields(value: Foo, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = __foreign__dateTimeUtcEncode(value.createdAt);
+            result["createdAt"] = __foreign__dateTimeUtcEncode(value.createdAt);
         }
     }
 }
@@ -151,7 +151,7 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         throw new __mf_DecodeError([{ field: "_root", message: "Foo.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -207,8 +207,7 @@ export function fooHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "createdAt" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "createdAt");
 }
 
 export function fooIs(obj: unknown): obj is Foo {
@@ -302,15 +301,15 @@ export declare const Foo: {
 
 ## Mapping
 
-original 0..36 -> expanded 724..760
-original 75..103 -> expanded 760..788
-original 134..181 -> expanded 788..835
-original 181..182 -> expanded 9934..9935
-generated 0..724 <- imports
-generated 835..979 <- Default
-generated 979..3226 <- Encode
-generated 3226..8959 <- Decode
-generated 8959..9934 <- __convenience_const
+original 0..36 -> expanded 776..812
+original 75..103 -> expanded 812..840
+original 134..181 -> expanded 840..887
+original 181..182 -> expanded 9960..9961
+generated 0..776 <- imports
+generated 887..1031 <- Default
+generated 1031..3284 <- Encode
+generated 3284..8985 <- Decode
+generated 8985..9960 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { Derive } from '@macro/derive';
 
@@ -104,7 +104,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Data.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("val")) && !("val" in obj)) {
         errors.push({ field: "val", message: "missing required field" });
@@ -146,8 +146,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "val" in o;
+    return __mf_holds(obj, "val");
 }
 
 static is(obj: unknown): obj is Data {
@@ -247,17 +246,17 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 350..391
-original 63..94 -> expanded 391..422
-original 94..95 -> expanded 5220..5221
-original 95..96 -> expanded 6943..6944
-generated 0..350 <- imports
-generated 422..5220 <- Decode
-generated 5221..6943 <- Decode
+original 0..41 -> expanded 402..443
+original 63..94 -> expanded 443..474
+original 94..95 -> expanded 5228..5229
+original 95..96 -> expanded 6951..6952
+generated 0..402 <- imports
+generated 474..5228 <- Decode
+generated 5229..6951 <- Decode
 
 ## Metadata
 
-class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
+class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

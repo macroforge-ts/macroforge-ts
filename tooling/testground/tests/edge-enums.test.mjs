@@ -151,6 +151,33 @@ Deno.test('a lone member and text that needs escaping are coded exactly', () => 
     assertThrows(() => mod.enumTextDecode('missing'));
 });
 
+Deno.test('an enum member is named by its value, whatever the other members are called', () => {
+    assertStrictEquals(mod.enumCountedToString(EnumCounted.Second), 'EnumCounted.Second');
+    assertStrictEquals(mod.enumMixedToString(EnumMixed.Text), 'EnumMixed.Text');
+    assertStrictEquals(mod.enumTextToString(EnumText.Empty), 'EnumText.Empty');
+    // Two members share the value: the first declared names it.
+    assertStrictEquals(mod.enumRepeatedToString(EnumRepeated.Uno), 'EnumRepeated.One');
+
+    // Each member's value is the other's name.
+    const { EnumCrossed } = mod;
+    assertValueTraits('enumCrossed', [EnumCrossed.A, EnumCrossed.B]);
+    assertStrictEquals(mod.enumCrossedToString(EnumCrossed.A), 'EnumCrossed.A');
+    assertStrictEquals(mod.enumCrossedToString(EnumCrossed.B), 'EnumCrossed.B');
+    assertStrictEquals(mod.enumCrossedDecode('B'), EnumCrossed.A);
+    assertStrictEquals(mod.enumCrossedDefaultValue(), EnumCrossed.A);
+    assertStrictEquals(mod.enumCrossedToString(/** @type {any} */ ('C')), 'EnumCrossed(C)');
+});
+
+Deno.test('a const enum is derived through its functions alone', () => {
+    assertValueTraits('enumConstant', ['low', 'high']);
+    assertAscending('enumConstant', ['high', 'low']);
+    assertStrictEquals(mod.enumConstantToString('low'), 'EnumConstant.Low');
+    assertStrictEquals(mod.enumConstantDefaultValue(), 'low');
+    assertStrictEquals(mod.enumConstantDecode('"high"'), 'high');
+    assertThrows(() => mod.enumConstantDecode('Low'));
+    assert(!mod.enumConstantIs('Low'));
+});
+
 const holder = () => ({
     counted: EnumCounted.Third,
     mixed: EnumMixed.Text,
@@ -166,7 +193,8 @@ const holder = () => ({
         [EnumText.Quoted, 2]
     ]),
     labels: { low: EnumSigned.Below, half: EnumSigned.Half },
-    pair: [EnumCounted.Second, EnumText.Slashed]
+    pair: [EnumCounted.Second, EnumText.Slashed],
+    constant: 'high'
 });
 
 Deno.test('enums round-trip in fields, collections, map keys and tuples', () => {
@@ -183,7 +211,8 @@ Deno.test('enums round-trip in fields, collections, map keys and tuples', () => 
         byName: { a: 'two words' },
         byKind: { '': 1, 'it\'s "quoted"': 2 },
         labels: { low: -1, half: 0.5 },
-        pair: [1, 'back\\slash']
+        pair: [1, 'back\\slash'],
+        constant: 'high'
     });
     assertEquals(decoded(mod.enumHolderDecode(encoded)), holder());
 
@@ -211,6 +240,7 @@ Deno.test('a value that is no member of its enum is reported where it is held', 
     assertEquals(fieldsOf({ byKind: { missing: 1 } }), ['byKind.missing']);
     assertEquals(fieldsOf({ labels: { low: 9 } }), ['labels.low']);
     assertEquals(fieldsOf({ pair: [9, ''] }), ['pair[0]']);
+    assertEquals(fieldsOf({ constant: 'Low' }), ['constant']);
 });
 
 Deno.test('a holder of enums defaults, clones, compares and hashes by them', () => {
@@ -225,7 +255,8 @@ Deno.test('a holder of enums defaults, clones, compares and hashes by them', () 
         byName: new Map(),
         byKind: new Map(),
         labels: {},
-        pair: [EnumCounted.First, EnumText.Empty]
+        pair: [EnumCounted.First, EnumText.Empty],
+        constant: 'low'
     });
 
     const source = holder();

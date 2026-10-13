@@ -39,7 +39,7 @@ original 21..87 -> expanded 0..66
 
 ## Metadata
 
-class Vault: {"body_span":{"end":87,"start":35},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":59,"start":41},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"''","key":"Private","name":"#secret","optional":false,"readonly":false,"span":{"end":85,"start":64},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Vault","span":{"end":87,"start":23},"superclass":null,"type_params":[]}
+class Vault: {"body_span":{"end":87,"start":35},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":59,"start":41},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Private","name":"#secret","optional":false,"readonly":false,"span":{"end":85,"start":64},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Vault","span":{"end":87,"start":23},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

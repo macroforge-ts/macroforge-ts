@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -61,7 +61,7 @@ export function firstNameEncodePartialWithContext(value: Partial<FirstName>, ctx
 function firstNameEncodeFields(value: FirstName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
 }
@@ -138,7 +138,7 @@ export function firstNameDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "FirstName.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -199,8 +199,7 @@ export function firstNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o;
+    return __mf_holds(obj, "name");
 }
 
 export function firstNameIs(obj: unknown): obj is FirstName {
@@ -427,16 +426,16 @@ export declare const FirstName: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..141 -> expanded 813..847
-original 182..202 -> expanded 847..867
-original 202..203 -> expanded 13902..13903
-generated 0..755 <- imports
-generated 867..961 <- Default
-generated 961..3102 <- Encode
-generated 3102..9331 <- Decode
-generated 9331..12609 <- Gigaform
-generated 12609..13902 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..141 -> expanded 865..899
+original 182..202 -> expanded 899..919
+original 202..203 -> expanded 13913..13914
+generated 0..807 <- imports
+generated 919..1013 <- Default
+generated 1013..3157 <- Encode
+generated 3157..9342 <- Decode
+generated 9342..12620 <- Gigaform
+generated 12620..13913 <- __convenience_const
 
 ## Metadata
 

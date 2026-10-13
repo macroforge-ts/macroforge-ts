@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -70,22 +70,22 @@ export function addressEncodePartialWithContext(value: Partial<Address>, ctx: __
 function addressEncodeFields(value: Address, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("street")) {
         if (value.street !== undefined) {
-            result.street = value.street;
+            result["street"] = value.street;
         }
     }
     if (__fields === undefined || __fields.keeps("city")) {
         if (value.city !== undefined) {
-            result.city = value.city;
+            result["city"] = value.city;
         }
     }
     if (__fields === undefined || __fields.keeps("state")) {
         if (value.state !== undefined) {
-            result.state = value.state;
+            result["state"] = value.state;
         }
     }
     if (__fields === undefined || __fields.keeps("zipcode")) {
         if (value.zipcode !== undefined) {
-            result.zipcode = value.zipcode;
+            result["zipcode"] = value.zipcode;
         }
     }
 }
@@ -162,7 +162,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Address.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("street")) && !("street" in obj)) {
         errors.push({ field: "street", message: "missing required field" });
@@ -304,8 +304,7 @@ export function addressHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "street" in o && "city" in o && "state" in o && "zipcode" in o;
+    return __mf_holds(obj, "street") && __mf_holds(obj, "city") && __mf_holds(obj, "state") && __mf_holds(obj, "zipcode");
 }
 
 export function addressIs(obj: unknown): obj is Address {
@@ -631,19 +630,19 @@ export declare const Address: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..139 -> expanded 813..845
-original 180..205 -> expanded 845..870
-original 246..269 -> expanded 870..893
-original 310..334 -> expanded 893..917
-original 375..398 -> expanded 917..940
-original 398..399 -> expanded 22319..22320
-generated 0..755 <- imports
-generated 940..1090 <- Default
-generated 1090..3687 <- Encode
-generated 3687..14591 <- Decode
-generated 14591..21080 <- Gigaform
-generated 21080..22319 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..139 -> expanded 865..897
+original 180..205 -> expanded 897..922
+original 246..269 -> expanded 922..945
+original 310..334 -> expanded 945..969
+original 375..398 -> expanded 969..992
+original 398..399 -> expanded 22375..22376
+generated 0..807 <- imports
+generated 992..1142 <- Default
+generated 1142..3751 <- Encode
+generated 3751..14647 <- Decode
+generated 14647..21136 <- Gigaform
+generated 21136..22375 <- __convenience_const
 
 ## Metadata
 

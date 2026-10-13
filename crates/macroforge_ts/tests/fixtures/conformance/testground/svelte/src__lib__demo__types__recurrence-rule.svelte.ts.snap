@@ -14,7 +14,7 @@ true
 
 import { intervalDecodeWithContext, intervalEncodeWithContext, intervalDefaultValue } from "./interval.svelte";
 import { recurrenceEndDecodeWithContext, recurrenceEndEncodeWithContext } from "./recurrence-end.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,27 +73,27 @@ export function recurrenceRuleEncodePartialWithContext(value: Partial<Recurrence
 function recurrenceRuleEncodeFields(value: RecurrenceRule, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("interval")) {
         if (value.interval !== undefined) {
-            result.interval = intervalEncodeWithContext(value.interval, ctx);
+            result["interval"] = intervalEncodeWithContext(value.interval, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("recurrenceBegins")) {
         if (value.recurrenceBegins !== undefined) {
-            result.recurrenceBegins = value.recurrenceBegins;
+            result["recurrenceBegins"] = value.recurrenceBegins;
         }
     }
     if (__fields === undefined || __fields.keeps("recurrenceEnds")) {
         if (value.recurrenceEnds !== undefined) {
-            result.recurrenceEnds = value.recurrenceEnds === null ? null : recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
+            result["recurrenceEnds"] = value.recurrenceEnds === null ? null : recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("cancelledInstances")) {
         if (value.cancelledInstances !== undefined) {
-            result.cancelledInstances = value.cancelledInstances;
+            result["cancelledInstances"] = value.cancelledInstances;
         }
     }
     if (__fields === undefined || __fields.keeps("additionalInstances")) {
         if (value.additionalInstances !== undefined) {
-            result.additionalInstances = value.additionalInstances;
+            result["additionalInstances"] = value.additionalInstances;
         }
     }
 }
@@ -170,7 +170,7 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         throw new __mf_DecodeError([{ field: "_root", message: "RecurrenceRule.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("interval")) && !("interval" in obj)) {
         errors.push({ field: "interval", message: "missing required field" });
@@ -336,8 +336,7 @@ export function recurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "interval" in o && "recurrenceBegins" in o && "recurrenceEnds" in o && "cancelledInstances" in o && "additionalInstances" in o;
+    return __mf_holds(obj, "interval") && __mf_holds(obj, "recurrenceBegins") && __mf_holds(obj, "recurrenceEnds") && __mf_holds(obj, "cancelledInstances") && __mf_holds(obj, "additionalInstances");
 }
 
 export function recurrenceRuleIs(obj: unknown): obj is RecurrenceRule {
@@ -718,15 +717,15 @@ export declare const RecurrenceRule: {
 
 ## Mapping
 
-original 0..172 -> expanded 1041..1213
-original 221..446 -> expanded 1213..1438
-original 446..447 -> expanded 27633..27634
-generated 0..1041 <- imports
-generated 1438..1695 <- Default
-generated 1695..4854 <- Encode
-generated 4854..16629 <- Decode
-generated 16629..26205 <- Gigaform
-generated 26205..27633 <- __convenience_const
+original 0..172 -> expanded 1093..1265
+original 221..446 -> expanded 1265..1490
+original 446..447 -> expanded 27704..27705
+generated 0..1093 <- imports
+generated 1490..1747 <- Default
+generated 1747..4921 <- Encode
+generated 4921..16700 <- Decode
+generated 16700..26276 <- Gigaform
+generated 26276..27704 <- __convenience_const
 
 ## Metadata
 

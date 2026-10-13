@@ -51,12 +51,12 @@ static encodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, f
 static #encodeFields(value: User, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("age")) {
         if (value.age !== undefined) {
-            result.age = value.age;
+            result["age"] = value.age;
         }
     }
 }
@@ -112,16 +112,16 @@ export {};
 
 original 0..41 -> expanded 458..499
 original 63..112 -> expanded 499..548
-original 112..113 -> expanded 2515..2516
-original 113..114 -> expanded 3816..3817
+original 112..113 -> expanded 2521..2522
+original 113..114 -> expanded 3822..3823
 generated 0..458 <- imports
-generated 548..2200 <- Encode
-generated 2200..2515 <- Encode
-generated 2516..3816 <- Encode
+generated 548..2206 <- Encode
+generated 2206..2521 <- Encode
+generated 2522..3822 <- Encode
 
 ## Metadata
 
-class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,7 +60,7 @@ export function createdEncodePartialWithContext(value: Partial<Created>, ctx: __
 function createdEncodeFields(value: Created, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("initialData")) {
         if (value.initialData !== undefined) {
-            result.initialData = value.initialData;
+            result["initialData"] = value.initialData;
         }
     }
 }
@@ -137,7 +137,7 @@ export function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Created.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("initialData")) && !("initialData" in obj)) {
         errors.push({ field: "initialData", message: "missing required field" });
@@ -183,8 +183,7 @@ export function createdHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "initialData" in o;
+    return __mf_holds(obj, "initialData");
 }
 
 export function createdIs(obj: unknown): obj is Created {
@@ -411,15 +410,15 @@ export declare const Created: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..168 -> expanded 813..874
-original 168..169 -> expanded 13112..13113
-generated 0..755 <- imports
-generated 874..973 <- Default
-generated 973..3112 <- Encode
-generated 3112..8484 <- Decode
-generated 8484..11873 <- Gigaform
-generated 11873..13112 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..168 -> expanded 865..926
+original 168..169 -> expanded 13123..13124
+generated 0..807 <- imports
+generated 926..1025 <- Default
+generated 1025..3167 <- Encode
+generated 3167..8495 <- Decode
+generated 8495..11884 <- Gigaform
+generated 11884..13123 <- __convenience_const
 
 ## Metadata
 

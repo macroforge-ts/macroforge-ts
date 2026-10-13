@@ -13,7 +13,7 @@ true
 ## Output
 
 import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralClone as __mf_structuralClone, structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, instanceOf as __mf_instanceOf, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * PartialEq, Hash and Clone over built-in, collection, optional, union and
@@ -33,11 +33,11 @@ export function timelineEquals(a: Timeline, b: Timeline): boolean {
     if (a === b) return true;
     return __mf_equalWithin(a, b, () => a.events.length === b.events.length && a.events.every((__item0, __index0) => {
 	const __other0 = b.events[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime();
+	return __other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime();
 }) && a.labels.size === b.labels.size && Array.from(a.labels).every(([__key0, __item0]) => {
 	const __other0 = b.labels.get(__key0);
-	return b.labels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime());
-}) && (a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime()) && a.note === b.note);
+	return b.labels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime());
+}) && (a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime() || a.started.getTime() !== a.started.getTime() && b.started.getTime() !== b.started.getTime()) && a.note === b.note);
 }
 
 export function timelineHashCode(value: Timeline): number {
@@ -178,7 +178,7 @@ export type Moment = [label: string, at: Date];
 
 export function momentEquals(a: Moment, b: Moment): boolean {
     if (a === b) return true;
-    return a[0] === b[0] && a[1].getTime() === b[1].getTime();
+    return a[0] === b[0] && (a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime()));
 }
 
 export function momentHashCode(value: Moment): number {
@@ -288,7 +288,7 @@ static encodePartialWithContext(value: Partial<Ledger>, ctx: __mf_EncodeContext,
 static #encodeFields(value: Ledger, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("entries")) {
         if (value.entries !== undefined) {
-            result.entries = Object.fromEntries(value.entries.entries());
+            result["entries"] = Object.fromEntries(value.entries.entries());
         }
     }
 }
@@ -376,7 +376,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Ledger.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("entries")) && !("entries" in obj)) {
         errors.push({ field: "entries", message: "missing required field" });
@@ -433,8 +433,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "entries" in o;
+    return __mf_holds(obj, "entries");
 }
 
 static is(obj: unknown): obj is Ledger {
@@ -508,8 +507,8 @@ export function ledgerPairEncodeWithContext(value: LedgerPair, ctx: __mf_EncodeC
     };
     return ((value: { e0: Ledger; e1: Ledger }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result.e0 = ledgerEncodeWithContext(value.e0, ctx);
-        result.e1 = ledgerEncodeWithContext(value.e1, ctx);
+        result["e0"] = ledgerEncodeWithContext(value.e0, ctx);
+        result["e1"] = ledgerEncodeWithContext(value.e1, ctx);
         const __tuple: unknown[] = [];
         if ("e0" in result) {
             __tuple.push(result.e0);
@@ -693,7 +692,7 @@ export function mainLedgerEncode(value: MainLedger, keepMetadata?: boolean): str
 export function mainLedgerEncodeWithContext(value: MainLedger, ctx: __mf_EncodeContext): unknown {
     return ((value: { value: Ledger }): unknown => {
         const result: Record<string, unknown> = {};
-        result.value = ledgerEncodeWithContext(value.value, ctx);
+        result["value"] = ledgerEncodeWithContext(value.value, ctx);
         return result.value;
     })({ value });
 }
@@ -818,7 +817,7 @@ export function totalsEncodeWithContext(value: Totals, ctx: __mf_EncodeContext):
 export function totalsEncodeWithContext(value: Totals): unknown {
     return ((value: { value: Map<string, number> }): unknown => {
         const result: Record<string, unknown> = {};
-        result.value = Object.fromEntries(value.value.entries());
+        result["value"] = Object.fromEntries(value.value.entries());
         return result.value;
     })({ value });
 }
@@ -1042,15 +1041,15 @@ export function tallyEncodeWithContext(value: Tally, ctx: __mf_EncodeContext): u
     }
     if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "counts") {
         const result: Record<string, unknown> = {};
-        result.kind = value.kind;
-        result.counts = Object.fromEntries(value.counts.entries());
+        result["kind"] = value.kind;
+        result["counts"] = Object.fromEntries(value.counts.entries());
         __variant = result;
         __matched = true;
     }
     if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "note") {
         const result: Record<string, unknown> = {};
-        result.kind = value.kind;
-        result.text = value.text;
+        result["kind"] = value.kind;
+        result["text"] = value.text;
         __variant = result;
         __matched = true;
     }
@@ -1102,7 +1101,7 @@ export interface Rank {
 
 export function rankEquals(a: Rank, b: Rank): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.label === b.label && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime()) && __mf_structuralEquals(a.meta, b.meta));
+    return __mf_equalWithin(a, b, () => a.label === b.label && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && __mf_structuralEquals(a.meta, b.meta));
 }
 
 export function rankPartialCompare(a: Rank, b: Rank): number | null {
@@ -1111,7 +1110,7 @@ export function rankPartialCompare(a: Rank, b: Rank): number | null {
     const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : null));
+    const cmp1 = (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) ? 0 : null));
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = __mf_structuralCompare(a.meta, b.meta);
@@ -1126,7 +1125,7 @@ export function rankCompare(a: Rank, b: Rank): number {
     return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : 0;
+    const cmp1 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : a.at.getTime() !== a.at.getTime() ? b.at.getTime() !== b.at.getTime() ? 0 : 1 : -1;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = __mf_structuralCompare(a.meta, b.meta);
     if (cmp2 !== 0) return cmp2;
@@ -1178,7 +1177,7 @@ export interface Labeled<T extends string = string> {
 
 export function labeledEquals<T extends string = string>(a: Labeled<T>, b: Labeled<T>): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.label, b.label) && a.weight === b.weight);
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.label, b.label) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight));
 }
 
 export function labeledHashCode<T extends string = string>(value: Labeled<T>): number {
@@ -1236,12 +1235,12 @@ export function labeledEncodePartialWithContext<T extends string = string>(value
 function labeledEncodeFields<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = (__encodeT === undefined ? value.label : __encodeT(value.label, ctx));
+            result["label"] = (__encodeT === undefined ? value.label : __encodeT(value.label, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("weight")) {
         if (value.weight !== undefined) {
-            result.weight = value.weight;
+            result["weight"] = value.weight;
         }
     }
 }
@@ -1318,7 +1317,7 @@ export function labeledDecodeWithContext<T extends string = string>(value: unkno
         throw new __mf_DecodeError([{ field: "_root", message: "Labeled.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
         errors.push({ field: "label", message: "missing required field" });
@@ -1389,8 +1388,7 @@ export function labeledHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "label" in o && "weight" in o;
+    return __mf_holds(obj, "label") && __mf_holds(obj, "weight");
 }
 
 export function labeledIs<T extends string = string>(obj: unknown): obj is Labeled<T> {
@@ -1453,7 +1451,7 @@ export interface Keyed<K extends string> {
 
 export function keyedEquals<K extends string>(a: Keyed<K>, b: Keyed<K>): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.key, b.key) && a.rank === b.rank);
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.key, b.key) && (a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank));
 }
 
 export function keyedHashCode<K extends string>(value: Keyed<K>): number {
@@ -1487,7 +1485,7 @@ export function keyedPartialCompare<K extends string>(a: Keyed<K>, b: Keyed<K>):
     const cmp0 = __mf_structuralCompare(a.key, b.key);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank ? 0 : null);
+    const cmp1 = (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank || (a.rank !== a.rank && b.rank !== b.rank) ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
         return 0;
@@ -1499,7 +1497,7 @@ export function keyedCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number
     return __mf_comparedWithin(a, b, () => {
     const cmp0 = __mf_structuralCompare(a.key, b.key);
     if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0;
+    const cmp1 = a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank ? 0 : a.rank !== a.rank ? b.rank !== b.rank ? 0 : 1 : -1;
     if (cmp1 !== 0) return cmp1;
         return 0;
     });
@@ -1535,12 +1533,12 @@ export function keyedEncodePartialWithContext<K extends string>(value: Partial<K
 function keyedEncodeFields<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeK?: __mf_Encoder<K>): void {
     if (__fields === undefined || __fields.keeps("key")) {
         if (value.key !== undefined) {
-            result.key = (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
+            result["key"] = (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("rank")) {
         if (value.rank !== undefined) {
-            result.rank = value.rank;
+            result["rank"] = value.rank;
         }
     }
 }
@@ -1617,7 +1615,7 @@ export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __
         throw new __mf_DecodeError([{ field: "_root", message: "Keyed.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("key")) && !("key" in obj)) {
         errors.push({ field: "key", message: "missing required field" });
@@ -1688,8 +1686,7 @@ export function keyedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "key" in o && "rank" in o;
+    return __mf_holds(obj, "key") && __mf_holds(obj, "rank");
 }
 
 export function keyedIs<K extends string>(obj: unknown): obj is Keyed<K> {
@@ -1739,7 +1736,7 @@ export class Slot<T extends object> {
 
     static equals<T extends object>(a: Slot<T>, b: Slot<T>): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && a.index === b.index);
+        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && (a.index === b.index || a.index !== a.index && b.index !== b.index));
     }
 
     static hashCode<T extends object>(value: Slot<T>): number {
@@ -1773,7 +1770,7 @@ export class Slot<T extends object> {
         const cmp0 = __mf_structuralCompare(a.held, b.held);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index ? 0 : null);
+        const cmp1 = (a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index || (a.index !== a.index && b.index !== b.index) ? 0 : null);
         if (cmp1 === null) return null;
         if (cmp1 !== 0) return cmp1;
             return 0;
@@ -1785,7 +1782,7 @@ export class Slot<T extends object> {
         return __mf_comparedWithin(a, b, () => {
         const cmp0 = __mf_structuralCompare(a.held, b.held);
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.index < b.index ? -1 : a.index > b.index ? 1 : 0;
+        const cmp1 = a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index ? 0 : a.index !== a.index ? b.index !== b.index ? 0 : 1 : -1;
         if (cmp1 !== 0) return cmp1;
             return 0;
         });
@@ -1814,12 +1811,12 @@ static encodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: 
 static #encodeFields<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = value.held === null ? null : (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
+            result["held"] = value.held === null ? null : (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("index")) {
         if (value.index !== undefined) {
-            result.index = value.index;
+            result["index"] = value.index;
         }
     }
 }
@@ -1908,7 +1905,7 @@ static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "Slot.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
         errors.push({ field: "held", message: "missing required field" });
@@ -1980,8 +1977,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "held" in o && "index" in o;
+    return __mf_holds(obj, "held") && __mf_holds(obj, "index");
 }
 
 static is<T extends object>(obj: unknown): obj is Slot<T> {
@@ -2079,8 +2075,8 @@ export function countedEncodeWithContext<T extends object>(value: Counted<T>, ct
     };
     return ((value: { e0: T; e1: number }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result.e0 = (__encodeT === undefined ? value.e0 : __encodeT(value.e0, ctx));
-        result.e1 = value.e1;
+        result["e0"] = (__encodeT === undefined ? value.e0 : __encodeT(value.e0, ctx));
+        result["e1"] = value.e1;
         const __tuple: unknown[] = [];
         if ("e0" in result) {
             __tuple.push(result.e0);
@@ -2381,7 +2377,7 @@ export function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: bo
 export function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     return ((value: { value: Array<T> }): unknown => {
         const result: Record<string, unknown> = {};
-        result.value = value.value.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
+        result["value"] = value.value.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         return result.value;
     })({ value });
 }
@@ -3130,150 +3126,150 @@ export declare const Boxed: {
 
 ## Mapping
 
-original 0..349 -> expanded 1245..1594
-original 349..435 -> expanded 3862..3948
-original 435..436 -> expanded 4509..4510
-original 436..547 -> expanded 4778..4889
-original 547..698 -> expanded 6030..6181
-original 698..786 -> expanded 6723..6811
-original 786..867 -> expanded 7513..7594
-original 867..1002 -> expanded 8166..8301
-original 1002..1074 -> expanded 8803..8875
-original 1074..1175 -> expanded 9096..9197
-original 1175..1176 -> expanded 16695..16696
-original 1176..1251 -> expanded 19768..19843
-original 1251..1316 -> expanded 26382..26447
-original 1316..1390 -> expanded 30898..30972
-original 1390..1458 -> expanded 35642..35710
-original 1458..1529 -> expanded 37715..37786
-original 1529..1696 -> expanded 39411..39578
-original 1696..1791 -> expanded 41752..41847
-original 1791..1792 -> expanded 42065..42066
-original 1792..1928 -> expanded 42156..42292
-original 1928..2064 -> expanded 44081..44217
-original 2064..2217 -> expanded 44838..44991
-original 2217..2303 -> expanded 56990..57076
-original 2303..2304 -> expanded 57271..57272
-original 2304..2463 -> expanded 57377..57536
-original 2463..2636 -> expanded 70113..70286
-original 2636..2637 -> expanded 81193..81194
-original 2637..2722 -> expanded 85329..85414
-original 2722..2803 -> expanded 91648..91729
-original 2803..2883 -> expanded 96369..96449
-original 2883..2884 -> expanded 101253..101254
-generated 0..1245 <- imports
-generated 1594..2351 <- PartialEq
-generated 2351..3113 <- Hash
-generated 3113..3620 <- Clone
-generated 3620..3862 <- __convenience_const
-generated 3948..4104 <- PartialEq
-generated 4104..4391 <- Hash
-generated 4391..4509 <- Clone
-generated 4510..4603 <- PartialEq
-generated 4603..4694 <- Hash
-generated 4694..4778 <- Clone
-generated 4889..5238 <- PartialEq
-generated 5238..5590 <- Hash
-generated 5590..5816 <- Clone
-generated 5816..6030 <- __convenience_const
-generated 6181..6313 <- PartialEq
-generated 6313..6409 <- Hash
-generated 6409..6502 <- Clone
-generated 6502..6723 <- __convenience_const
-generated 6811..6969 <- PartialEq
-generated 6969..7176 <- Hash
-generated 7176..7285 <- Clone
-generated 7285..7513 <- __convenience_const
-generated 7594..7732 <- PartialEq
-generated 7732..7832 <- Hash
-generated 7832..7931 <- Clone
-generated 7931..8166 <- __convenience_const
-generated 8301..8690 <- Debug
-generated 8690..8803 <- __convenience_const
-generated 8875..8992 <- Debug
-generated 8992..9096 <- __convenience_const
-generated 9197..10759 <- Encode
-generated 10759..11078 <- Encode
-generated 11078..16695 <- Decode
-generated 16696..18016 <- Encode
-generated 18016..19768 <- Decode
-generated 19843..21143 <- Encode
-generated 21143..25834 <- Decode
-generated 25834..26382 <- __convenience_const
-generated 26447..27397 <- Encode
-generated 27397..30350 <- Decode
-generated 30350..30898 <- __convenience_const
-generated 30972..31980 <- Encode
-generated 31980..35146 <- Decode
-generated 35146..35642 <- __convenience_const
-generated 35710..37481 <- Encode
-generated 37481..37715 <- __convenience_const
-generated 37786..39177 <- Encode
-generated 39177..39411 <- __convenience_const
-generated 39578..41553 <- Encode
-generated 41553..41752 <- __convenience_const
-generated 41847..42065 <- Default
-generated 42066..42156 <- Default
-generated 42292..42570 <- PartialEq
-generated 42570..43288 <- PartialOrd
-generated 43288..43835 <- Ord
-generated 43835..44081 <- __convenience_const
-generated 44217..44352 <- PartialEq
-generated 44352..44472 <- PartialOrd
-generated 44472..44578 <- Ord
-generated 44578..44838 <- __convenience_const
-generated 44991..45229 <- PartialEq
-generated 45229..45657 <- Hash
-generated 45657..45874 <- Clone
-generated 45874..46224 <- Debug
-generated 46224..48842 <- Encode
-generated 48842..55737 <- Decode
-generated 55737..56990 <- __convenience_const
-generated 57076..57271 <- Default
-generated 57272..57377 <- Default
-generated 57536..57751 <- PartialEq
-generated 57751..58158 <- Hash
-generated 58158..58350 <- Clone
-generated 58350..58677 <- Debug
-generated 58677..59162 <- PartialOrd
-generated 59162..59532 <- Ord
-generated 59532..62066 <- Encode
-generated 62066..68758 <- Decode
-generated 68758..70113 <- __convenience_const
-generated 70286..70505 <- PartialEq
-generated 70505..70933 <- Hash
-generated 70933..71139 <- Clone
-generated 71139..71486 <- Debug
-generated 71486..72011 <- PartialOrd
-generated 72011..72411 <- Ord
-generated 72411..74340 <- Encode
-generated 74340..74716 <- Encode
-generated 74716..81193 <- Decode
-generated 81194..81310 <- PartialEq
-generated 81310..81422 <- Hash
-generated 81422..81529 <- Clone
-generated 81529..81641 <- Debug
-generated 81641..81779 <- PartialOrd
-generated 81779..81896 <- Ord
-generated 81896..83388 <- Encode
-generated 83388..85329 <- Decode
-generated 85414..86795 <- Encode
-generated 86795..91139 <- Decode
-generated 91139..91648 <- __convenience_const
-generated 91729..93191 <- Encode
-generated 93191..95899 <- Decode
-generated 95899..96369 <- __convenience_const
-generated 96449..97537 <- Encode
-generated 97537..100770 <- Decode
-generated 100770..101253 <- __convenience_const
+original 0..349 -> expanded 1297..1646
+original 349..435 -> expanded 4184..4270
+original 435..436 -> expanded 4831..4832
+original 436..547 -> expanded 5100..5211
+original 547..698 -> expanded 6352..6503
+original 698..786 -> expanded 7045..7133
+original 786..867 -> expanded 7913..7994
+original 867..1002 -> expanded 8566..8701
+original 1002..1074 -> expanded 9203..9275
+original 1074..1175 -> expanded 9496..9597
+original 1175..1176 -> expanded 17054..17055
+original 1176..1251 -> expanded 20127..20202
+original 1251..1316 -> expanded 26747..26812
+original 1316..1390 -> expanded 31266..31340
+original 1390..1458 -> expanded 36013..36081
+original 1458..1529 -> expanded 38086..38157
+original 1529..1696 -> expanded 39782..39949
+original 1696..1791 -> expanded 42135..42230
+original 1791..1792 -> expanded 42448..42449
+original 1792..1928 -> expanded 42539..42675
+original 1928..2064 -> expanded 44735..44871
+original 2064..2217 -> expanded 45492..45645
+original 2217..2303 -> expanded 57670..57756
+original 2303..2304 -> expanded 57951..57952
+original 2304..2463 -> expanded 58057..58216
+original 2463..2636 -> expanded 70928..71101
+original 2636..2637 -> expanded 82157..82158
+original 2637..2722 -> expanded 86293..86378
+original 2722..2803 -> expanded 92618..92699
+original 2803..2883 -> expanded 97339..97419
+original 2883..2884 -> expanded 102226..102227
+generated 0..1297 <- imports
+generated 1646..2673 <- PartialEq
+generated 2673..3435 <- Hash
+generated 3435..3942 <- Clone
+generated 3942..4184 <- __convenience_const
+generated 4270..4426 <- PartialEq
+generated 4426..4713 <- Hash
+generated 4713..4831 <- Clone
+generated 4832..4925 <- PartialEq
+generated 4925..5016 <- Hash
+generated 5016..5100 <- Clone
+generated 5211..5560 <- PartialEq
+generated 5560..5912 <- Hash
+generated 5912..6138 <- Clone
+generated 6138..6352 <- __convenience_const
+generated 6503..6635 <- PartialEq
+generated 6635..6731 <- Hash
+generated 6731..6824 <- Clone
+generated 6824..7045 <- __convenience_const
+generated 7133..7369 <- PartialEq
+generated 7369..7576 <- Hash
+generated 7576..7685 <- Clone
+generated 7685..7913 <- __convenience_const
+generated 7994..8132 <- PartialEq
+generated 8132..8232 <- Hash
+generated 8232..8331 <- Clone
+generated 8331..8566 <- __convenience_const
+generated 8701..9090 <- Debug
+generated 9090..9203 <- __convenience_const
+generated 9275..9392 <- Debug
+generated 9392..9496 <- __convenience_const
+generated 9597..11162 <- Encode
+generated 11162..11481 <- Encode
+generated 11481..17054 <- Decode
+generated 17055..18375 <- Encode
+generated 18375..20127 <- Decode
+generated 20202..21508 <- Encode
+generated 21508..26199 <- Decode
+generated 26199..26747 <- __convenience_const
+generated 26812..27765 <- Encode
+generated 27765..30718 <- Decode
+generated 30718..31266 <- __convenience_const
+generated 31340..32351 <- Encode
+generated 32351..35517 <- Decode
+generated 35517..36013 <- __convenience_const
+generated 36081..37852 <- Encode
+generated 37852..38086 <- __convenience_const
+generated 38157..39548 <- Encode
+generated 39548..39782 <- __convenience_const
+generated 39949..41936 <- Encode
+generated 41936..42135 <- __convenience_const
+generated 42230..42448 <- Default
+generated 42449..42539 <- Default
+generated 42675..43027 <- PartialEq
+generated 43027..43821 <- PartialOrd
+generated 43821..44489 <- Ord
+generated 44489..44735 <- __convenience_const
+generated 44871..45006 <- PartialEq
+generated 45006..45126 <- PartialOrd
+generated 45126..45232 <- Ord
+generated 45232..45492 <- __convenience_const
+generated 45645..45935 <- PartialEq
+generated 45935..46363 <- Hash
+generated 46363..46580 <- Clone
+generated 46580..46930 <- Debug
+generated 46930..49554 <- Encode
+generated 49554..56417 <- Decode
+generated 56417..57670 <- __convenience_const
+generated 57756..57951 <- Default
+generated 57952..58057 <- Default
+generated 58216..58475 <- PartialEq
+generated 58475..58882 <- Hash
+generated 58882..59074 <- Clone
+generated 59074..59401 <- Debug
+generated 59401..59930 <- PartialOrd
+generated 59930..60373 <- Ord
+generated 60373..62913 <- Encode
+generated 62913..69573 <- Decode
+generated 69573..70928 <- __convenience_const
+generated 71101..71368 <- PartialEq
+generated 71368..71796 <- Hash
+generated 71796..72002 <- Clone
+generated 72002..72349 <- Debug
+generated 72349..72922 <- PartialOrd
+generated 72922..73401 <- Ord
+generated 73401..75336 <- Encode
+generated 75336..75712 <- Encode
+generated 75712..82157 <- Decode
+generated 82158..82274 <- PartialEq
+generated 82274..82386 <- Hash
+generated 82386..82493 <- Clone
+generated 82493..82605 <- Debug
+generated 82605..82743 <- PartialOrd
+generated 82743..82860 <- Ord
+generated 82860..84352 <- Encode
+generated 84352..86293 <- Decode
+generated 86378..87765 <- Encode
+generated 87765..92109 <- Decode
+generated 92109..92618 <- __convenience_const
+generated 92699..94161 <- Encode
+generated 94161..96869 <- Decode
+generated 96869..97339 <- __convenience_const
+generated 97419..98510 <- Encode
+generated 98510..101743 <- Decode
+generated 101743..102226 <- __convenience_const
 
 ## Metadata
 
-class Badge: {"body_span":{"end":437,"start":410},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":390,"start":352}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Badge","span":{"end":437,"start":398},"superclass":null,"type_params":[]}
-class Ledger: {"body_span":{"end":1177,"start":1128},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1107,"start":1077}}],"fields":[{"decorators":[],"initializer":"new Map()","key":"Named","name":"entries","optional":false,"readonly":false,"span":{"end":1175,"start":1134},"ts_type":"Map<string, number>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Ledger","span":{"end":1177,"start":1115},"superclass":null,"type_params":[]}
-class Shelf: {"body_span":{"end":1793,"start":1745},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1722,"start":1699}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1767,"start":1751},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1791,"start":1772},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Shelf","span":{"end":1793,"start":1730},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
-class Crate: {"body_span":{"end":2305,"start":2281},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":2243,"start":2220}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":2303,"start":2287},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Crate","span":{"end":2305,"start":2251},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
-class Slot: {"body_span":{"end":2638,"start":2585},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2548,"start":2466}}],"fields":[{"decorators":[],"initializer":"null","key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":2613,"start":2591},"ts_type":"T | null","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Named","name":"index","optional":false,"readonly":false,"span":{"end":2636,"start":2618},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Slot","span":{"end":2638,"start":2556},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+class Badge: {"body_span":{"end":437,"start":410},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":390,"start":352}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Badge","span":{"end":437,"start":398},"superclass":null,"type_params":[]}
+class Ledger: {"body_span":{"end":1177,"start":1128},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1107,"start":1077}}],"fields":[{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"entries","optional":false,"readonly":false,"span":{"end":1175,"start":1134},"ts_type":"Map<string, number>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Ledger","span":{"end":1177,"start":1115},"superclass":null,"type_params":[]}
+class Shelf: {"body_span":{"end":1793,"start":1745},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1722,"start":1699}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1767,"start":1751},"ts_type":"T[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1791,"start":1772},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Shelf","span":{"end":1793,"start":1730},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class Crate: {"body_span":{"end":2305,"start":2281},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":2243,"start":2220}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":2303,"start":2287},"ts_type":"T[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Crate","span":{"end":2305,"start":2251},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+class Slot: {"body_span":{"end":2638,"start":2585},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2548,"start":2466}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":2613,"start":2591},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"index","optional":false,"readonly":false,"span":{"end":2636,"start":2618},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Slot","span":{"end":2638,"start":2556},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
 interface Timeline: {"body_span":{"end":350,"start":251},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":224,"start":186}}],"fields":[{"decorators":[],"key":"Named","name":"events","optional":false,"readonly":false,"span":{"end":272,"start":257},"ts_type":"Date[]"},{"decorators":[],"key":"Named","name":"labels","optional":false,"readonly":false,"span":{"end":303,"start":277},"ts_type":"Map<string, Date>"},{"decorators":[],"key":"Named","name":"started","optional":true,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":348,"start":328},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Timeline","span":{"end":350,"start":232},"type_params":[]}
 interface Wall: {"body_span":{"end":548,"start":500},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":477,"start":439}}],"fields":[{"decorators":[],"key":"Named","name":"badges","optional":false,"readonly":false,"span":{"end":525,"start":506},"ts_type":"Set<Badge>"},{"decorators":[],"key":"Named","name":"pinned","optional":false,"readonly":false,"span":{"end":546,"start":530},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"Wall","span":{"end":548,"start":485},"type_params":[]}
 interface Inventory: {"body_span":{"end":1003,"start":919},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":891,"start":870}}],"fields":[{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":953,"start":925},"ts_type":"Map<string, number>"},{"decorators":[],"key":"Named","name":"owner","optional":false,"readonly":false,"span":{"end":982,"start":958},"ts_type":"{ name: string }"},{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint"}],"heritage":[],"methods":[],"name":"Inventory","span":{"end":1003,"start":899},"type_params":[]}

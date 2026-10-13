@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export enum Stage {
@@ -120,7 +120,7 @@ export function jobEncodePartialWithContext(value: Partial<Job>, ctx: __mf_Encod
 function jobEncodeFields(value: Job, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("stage")) {
         if (value.stage !== undefined) {
-            result.stage = stageEncodeWithContext(value.stage, ctx);
+            result["stage"] = stageEncodeWithContext(value.stage, ctx);
         }
     }
 }
@@ -197,7 +197,7 @@ export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("stage")) && !("stage" in obj)) {
         errors.push({ field: "stage", message: "missing required field" });
@@ -257,8 +257,7 @@ export function jobHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "stage" in o;
+    return __mf_holds(obj, "stage");
 }
 
 export function jobIs(obj: unknown): obj is Job {
@@ -367,22 +366,22 @@ export declare const Job: {
 
 ## Mapping
 
-original 30..106 -> expanded 629..705
-original 106..108 -> expanded 2601..2603
-original 138..181 -> expanded 2603..2646
-original 181..182 -> expanded 11263..11264
-generated 0..629 <- imports
-generated 705..1109 <- Encode
-generated 1109..2234 <- Decode
-generated 2234..2601 <- __convenience_const
-generated 2646..4729 <- Encode
-generated 4729..10370 <- Decode
-generated 10370..11263 <- __convenience_const
+original 30..106 -> expanded 681..757
+original 106..108 -> expanded 2653..2655
+original 138..181 -> expanded 2655..2698
+original 181..182 -> expanded 11274..11275
+generated 0..681 <- imports
+generated 757..1161 <- Encode
+generated 1161..2286 <- Decode
+generated 2286..2653 <- __convenience_const
+generated 2698..4784 <- Encode
+generated 4784..10381 <- Decode
+generated 10381..11274 <- __convenience_const
 
 ## Metadata
 
 interface Job: {"body_span":{"end":182,"start":161},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":139,"start":109}}],"fields":[{"decorators":[],"key":"Named","name":"stage","optional":false,"readonly":false,"span":{"end":180,"start":167},"ts_type":"Stage"}],"heritage":[],"methods":[],"name":"Job","span":{"end":182,"start":147},"type_params":[]}
-enum Stage: {"body_span":{"end":107,"start":50},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"is_const":false,"name":"Stage","span":{"end":107,"start":39},"variants":[{"decorators":[],"name":"Draft","span":{"end":65,"start":56},"value":{"Number":0.0}},{"decorators":[],"name":"Active","span":{"end":81,"start":71},"value":{"Number":1.0}},{"decorators":[],"name":"Needs Review","span":{"end":105,"start":87},"value":{"Number":2.0}}]}
+enum Stage: {"body_span":{"end":107,"start":50},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"is_const":false,"is_declare":false,"name":"Stage","span":{"end":107,"start":39},"variants":[{"decorators":[],"name":"Draft","span":{"end":65,"start":56},"value":{"Number":0.0}},{"decorators":[],"name":"Active","span":{"end":81,"start":71},"value":{"Number":1.0}},{"decorators":[],"name":"Needs Review","span":{"end":105,"start":87},"value":{"Number":2.0}}]}
 
 ## Registry reads
 

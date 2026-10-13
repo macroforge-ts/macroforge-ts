@@ -13,7 +13,7 @@ true
 ## Output
 
 import { personNameDecodeWithContext, personNameEncodeWithContext, personNameDefaultValue } from "./person-name.js";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import type { PersonName } from './person-name.js';
 
@@ -60,12 +60,12 @@ export function customerEncodePartialWithContext(value: Partial<Customer>, ctx: 
 function customerEncodeFields(value: Customer, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = personNameEncodeWithContext(value.name, ctx);
+            result["name"] = personNameEncodeWithContext(value.name, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = value.email;
+            result["email"] = value.email;
         }
     }
 }
@@ -142,7 +142,7 @@ export function customerDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Customer.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -214,8 +214,7 @@ export function customerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "email" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "email");
 }
 
 export function customerIs(obj: unknown): obj is Customer {
@@ -309,14 +308,14 @@ export declare const Customer: {
 
 ## Mapping
 
-original 0..53 -> expanded 713..766
-original 92..163 -> expanded 766..837
-original 163..164 -> expanded 10802..10803
-generated 0..713 <- imports
-generated 837..970 <- Default
-generated 970..3287 <- Encode
-generated 3287..9712 <- Decode
-generated 9712..10802 <- __convenience_const
+original 0..53 -> expanded 765..818
+original 92..163 -> expanded 818..889
+original 163..164 -> expanded 10828..10829
+generated 0..765 <- imports
+generated 889..1022 <- Default
+generated 1022..3345 <- Encode
+generated 3345..9738 <- Decode
+generated 9738..10828 <- __convenience_const
 
 ## Metadata
 

@@ -47,12 +47,12 @@ static encodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, 
 static #encodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
         if (value.x !== undefined) {
-            result.x = value.x;
+            result["x"] = value.x;
         }
     }
     if (__fields === undefined || __fields.keeps("y")) {
         if (value.y !== undefined) {
-            result.y = value.y;
+            result["y"] = value.y;
         }
     }
 }
@@ -107,16 +107,16 @@ export {};
 ## Mapping
 
 original 22..67 -> expanded 458..503
-original 67..68 -> expanded 2461..2462
-original 68..69 -> expanded 3772..3773
+original 67..68 -> expanded 2467..2468
+original 68..69 -> expanded 3778..3779
 generated 0..458 <- imports
-generated 503..2144 <- Encode
-generated 2144..2461 <- Encode
-generated 2462..3772 <- Encode
+generated 503..2150 <- Encode
+generated 2150..2467 <- Encode
+generated 2468..3778 <- Encode
 
 ## Metadata
 
-class Point: {"body_span":{"end":69,"start":36},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":69,"start":24},"superclass":null,"type_params":[]}
+class Point: {"body_span":{"end":69,"start":36},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":69,"start":24},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

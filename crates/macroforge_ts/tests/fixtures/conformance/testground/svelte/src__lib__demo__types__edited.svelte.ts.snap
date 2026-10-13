@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,17 +65,17 @@ export function editedEncodePartialWithContext(value: Partial<Edited>, ctx: __mf
 function editedEncodeFields(value: Edited, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("fieldName")) {
         if (value.fieldName !== undefined) {
-            result.fieldName = value.fieldName;
+            result["fieldName"] = value.fieldName;
         }
     }
     if (__fields === undefined || __fields.keeps("oldValue")) {
         if (value.oldValue !== undefined) {
-            result.oldValue = value.oldValue;
+            result["oldValue"] = value.oldValue;
         }
     }
     if (__fields === undefined || __fields.keeps("newValue")) {
         if (value.newValue !== undefined) {
-            result.newValue = value.newValue;
+            result["newValue"] = value.newValue;
         }
     }
 }
@@ -152,7 +152,7 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Edited.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("fieldName")) && !("fieldName" in obj)) {
         errors.push({ field: "fieldName", message: "missing required field" });
@@ -237,8 +237,7 @@ export function editedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "fieldName" in o && "oldValue" in o && "newValue" in o;
+    return __mf_holds(obj, "fieldName") && __mf_holds(obj, "oldValue") && __mf_holds(obj, "newValue");
 }
 
 export function editedIs(obj: unknown): obj is Edited {
@@ -531,16 +530,16 @@ export declare const Edited: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..138 -> expanded 813..844
-original 179..262 -> expanded 844..927
-original 262..263 -> expanded 17936..17937
-generated 0..755 <- imports
-generated 927..1068 <- Default
-generated 1068..3524 <- Encode
-generated 3524..11132 <- Decode
-generated 11132..16724 <- Gigaform
-generated 16724..17936 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..138 -> expanded 865..896
+original 179..262 -> expanded 896..979
+original 262..263 -> expanded 17977..17978
+generated 0..807 <- imports
+generated 979..1120 <- Default
+generated 1120..3585 <- Encode
+generated 3585..11173 <- Decode
+generated 11173..16765 <- Gigaform
+generated 16765..17977 <- __convenience_const
 
 ## Metadata
 

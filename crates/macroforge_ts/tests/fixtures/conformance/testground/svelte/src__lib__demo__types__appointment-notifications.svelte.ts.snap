@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -64,12 +64,12 @@ export function appointmentNotificationsEncodePartialWithContext(value: Partial<
 function appointmentNotificationsEncodeFields(value: AppointmentNotifications, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("personalScheduleChangeNotifications")) {
         if (value.personalScheduleChangeNotifications !== undefined) {
-            result.personalScheduleChangeNotifications = value.personalScheduleChangeNotifications;
+            result["personalScheduleChangeNotifications"] = value.personalScheduleChangeNotifications;
         }
     }
     if (__fields === undefined || __fields.keeps("allScheduleChangeNotifications")) {
         if (value.allScheduleChangeNotifications !== undefined) {
-            result.allScheduleChangeNotifications = value.allScheduleChangeNotifications;
+            result["allScheduleChangeNotifications"] = value.allScheduleChangeNotifications;
         }
     }
 }
@@ -146,7 +146,7 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
         throw new __mf_DecodeError([{ field: "_root", message: "AppointmentNotifications.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("personalScheduleChangeNotifications")) && !("personalScheduleChangeNotifications" in obj)) {
         errors.push({ field: "personalScheduleChangeNotifications", message: "missing required field" });
@@ -234,8 +234,7 @@ export function appointmentNotificationsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "personalScheduleChangeNotifications" in o && "allScheduleChangeNotifications" in o;
+    return __mf_holds(obj, "personalScheduleChangeNotifications") && __mf_holds(obj, "allScheduleChangeNotifications");
 }
 
 export function appointmentNotificationsIs(obj: unknown): obj is AppointmentNotifications {
@@ -495,17 +494,17 @@ export declare const AppointmentNotifications: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..156 -> expanded 813..862
-original 197..251 -> expanded 862..916
-original 292..338 -> expanded 916..962
-original 338..339 -> expanded 21875..21876
-generated 0..755 <- imports
-generated 962..1161 <- Default
-generated 1161..3909 <- Encode
-generated 3909..14265 <- Decode
-generated 14265..20177 <- Gigaform
-generated 20177..21875 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..156 -> expanded 865..914
+original 197..251 -> expanded 914..968
+original 292..338 -> expanded 968..1014
+original 338..339 -> expanded 21901..21902
+generated 0..807 <- imports
+generated 1014..1213 <- Default
+generated 1213..3967 <- Encode
+generated 3967..14291 <- Decode
+generated 14291..20203 <- Gigaform
+generated 20203..21901 <- __convenience_const
 
 ## Metadata
 

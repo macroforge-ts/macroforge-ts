@@ -13,7 +13,7 @@ true
 ## Output
 
 import { dataPathDecodeWithContext, dataPathEncodeWithContext, dataPathDefaultValue } from "./data-path.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,12 +65,12 @@ export function columnConfigEncodePartialWithContext(value: Partial<ColumnConfig
 function columnConfigEncodeFields(value: ColumnConfig, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("heading")) {
         if (value.heading !== undefined) {
-            result.heading = value.heading;
+            result["heading"] = value.heading;
         }
     }
     if (__fields === undefined || __fields.keeps("dataPath")) {
         if (value.dataPath !== undefined) {
-            result.dataPath = dataPathEncodeWithContext(value.dataPath, ctx);
+            result["dataPath"] = dataPathEncodeWithContext(value.dataPath, ctx);
         }
     }
 }
@@ -147,7 +147,7 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "ColumnConfig.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("heading")) && !("heading" in obj)) {
         errors.push({ field: "heading", message: "missing required field" });
@@ -234,8 +234,7 @@ export function columnConfigHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "heading" in o && "dataPath" in o;
+    return __mf_holds(obj, "heading") && __mf_holds(obj, "dataPath");
 }
 
 export function columnConfigIs(obj: unknown): obj is ColumnConfig {
@@ -516,16 +515,16 @@ export declare const ColumnConfig: {
 
 ## Mapping
 
-original 0..110 -> expanded 868..978
-original 159..196 -> expanded 978..1015
-original 237..284 -> expanded 1015..1062
-original 284..285 -> expanded 17858..17859
-generated 0..868 <- imports
-generated 1062..1207 <- Default
-generated 1207..3606 <- Encode
-generated 3606..11204 <- Decode
-generated 11204..16484 <- Gigaform
-generated 16484..17858 <- __convenience_const
+original 0..110 -> expanded 920..1030
+original 159..196 -> expanded 1030..1067
+original 237..284 -> expanded 1067..1114
+original 284..285 -> expanded 17884..17885
+generated 0..920 <- imports
+generated 1114..1259 <- Default
+generated 1259..3664 <- Encode
+generated 3664..11230 <- Decode
+generated 11230..16510 <- Gigaform
+generated 16510..17884 <- __convenience_const
 
 ## Metadata
 

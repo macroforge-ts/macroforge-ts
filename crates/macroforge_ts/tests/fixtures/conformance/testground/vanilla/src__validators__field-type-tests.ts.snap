@@ -12,8 +12,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
 /**
@@ -108,7 +108,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -276,8 +276,7 @@ export function profileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o && "active" in o && "kind" in o && "mode" in o && "nickname" in o && "height" in o && "balance" in o && "site" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "age") && __mf_holds(obj, "active") && __mf_holds(obj, "kind") && __mf_holds(obj, "mode") && __mf_holds(obj, "nickname") && __mf_holds(obj, "height") && __mf_holds(obj, "balance") && __mf_holds(obj, "site");
 }
 
 export function profileIs(obj: unknown): obj is Profile {
@@ -655,29 +654,29 @@ export {};
 
 ## Mapping
 
-original 0..373 -> expanded 543..916
-original 389..428 -> expanded 960..999
-original 428..535 -> expanded 13239..13346
-original 535..601 -> expanded 16774..16840
-original 617..618 -> expanded 16884..16885
-original 618..619 -> expanded 20866..20867
-generated 0..453 <- imports
-generated 453..498 <- $Newtype
-generated 498..543 <- $Newtype
-generated 916..960 <- $Newtype
-generated 999..12576 <- Decode
-generated 12576..13239 <- __convenience_const
-generated 13346..14054 <- Encode
-generated 14054..15837 <- Decode
-generated 15837..16031 <- Hash
-generated 16031..16134 <- Debug
-generated 16134..16774 <- __convenience_const
-generated 16840..16884 <- $Newtype
-generated 16885..17625 <- Encode
-generated 17625..19989 <- Decode
-generated 19989..20143 <- Hash
-generated 20143..20243 <- Debug
-generated 20243..20866 <- __convenience_const
+original 0..373 -> expanded 595..968
+original 389..428 -> expanded 1012..1051
+original 428..535 -> expanded 13343..13450
+original 535..601 -> expanded 16878..16944
+original 617..618 -> expanded 16988..16989
+original 618..619 -> expanded 20970..20971
+generated 0..505 <- imports
+generated 505..550 <- $Newtype
+generated 550..595 <- $Newtype
+generated 968..1012 <- $Newtype
+generated 1051..12680 <- Decode
+generated 12680..13343 <- __convenience_const
+generated 13450..14158 <- Encode
+generated 14158..15941 <- Decode
+generated 15941..16135 <- Hash
+generated 16135..16238 <- Debug
+generated 16238..16878 <- __convenience_const
+generated 16944..16988 <- $Newtype
+generated 16989..17729 <- Encode
+generated 17729..20093 <- Decode
+generated 20093..20247 <- Hash
+generated 20247..20347 <- Debug
+generated 20347..20970 <- __convenience_const
 
 ## Metadata
 

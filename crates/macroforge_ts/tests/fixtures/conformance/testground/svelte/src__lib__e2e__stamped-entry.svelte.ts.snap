@@ -13,7 +13,7 @@ true
 ## Output
 
 import { slugDecodeWithContext, slugEncodeWithContext, slugDecode, stampedDecode, slugDefaultValue } from "./stamp";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from "effect";
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
@@ -67,7 +67,7 @@ export function noteEncodePartialWithContext(value: Partial<Note>, ctx: __mf_Enc
 function noteEncodeFields(value: Note, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("text")) {
         if (value.text !== undefined) {
-            result.text = value.text;
+            result["text"] = value.text;
         }
     }
 }
@@ -144,7 +144,7 @@ export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Note.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
@@ -190,8 +190,7 @@ export function noteHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "text" in o;
+    return __mf_holds(obj, "text");
 }
 
 export function noteIs(obj: unknown): obj is Note {
@@ -265,7 +264,7 @@ export function labelEncodePartialWithContext(value: Partial<Label>, ctx: __mf_E
 function labelEncodeFields(value: Label, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("slug")) {
         if (value.slug !== undefined) {
-            result.slug = slugEncodeWithContext(value.slug, ctx);
+            result["slug"] = slugEncodeWithContext(value.slug, ctx);
         }
     }
 }
@@ -342,7 +341,7 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Label.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("slug")) && !("slug" in obj)) {
         errors.push({ field: "slug", message: "missing required field" });
@@ -402,8 +401,7 @@ export function labelHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "slug" in o;
+    return __mf_holds(obj, "slug");
 }
 
 export function labelIs(obj: unknown): obj is Label {
@@ -490,32 +488,32 @@ export function stampedEntryEncodePartialWithContext(value: Partial<StampedEntry
 function stampedEntryEncodeFields(value: StampedEntry, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
-            result.at = (__foreign__dateTimeDateTimeHasShape(value.at) ? __foreign__dateTimeDateTimeEncode(value.at) : noteEncodeWithContext(value.at, ctx));
+            result["at"] = (__foreign__dateTimeDateTimeHasShape(value.at) ? __foreign__dateTimeDateTimeEncode(value.at) : noteEncodeWithContext(value.at, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("previous")) {
         if (value.previous !== undefined) {
-            result.previous = value.previous === null ? null : (__foreign__dateTimeDateTimeHasShape(value.previous) ? __foreign__dateTimeDateTimeEncode(value.previous) : noteEncodeWithContext(value.previous, ctx));
+            result["previous"] = value.previous === null ? null : (__foreign__dateTimeDateTimeHasShape(value.previous) ? __foreign__dateTimeDateTimeEncode(value.previous) : noteEncodeWithContext(value.previous, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("history")) {
         if (value.history !== undefined) {
-            result.history = value.history.map((__item0) => (__foreign__dateTimeDateTimeHasShape(__item0) ? __foreign__dateTimeDateTimeEncode(__item0) : noteEncodeWithContext(__item0, ctx)));
+            result["history"] = value.history.map((__item0) => (__foreign__dateTimeDateTimeHasShape(__item0) ? __foreign__dateTimeDateTimeEncode(__item0) : noteEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("slug")) {
         if (value.slug !== undefined) {
-            result.slug = slugEncodeWithContext(value.slug, ctx);
+            result["slug"] = slugEncodeWithContext(value.slug, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = labelEncodeWithContext(value.label, ctx);
+            result["label"] = labelEncodeWithContext(value.label, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("since")) {
         if (value.since !== undefined) {
-            result.since = (__foreign__dateTimeDateTimeHasShape(value.since) ? __foreign__dateTimeDateTimeEncode(value.since) : noteEncodeWithContext(value.since, ctx));
+            result["since"] = (__foreign__dateTimeDateTimeHasShape(value.since) ? __foreign__dateTimeDateTimeEncode(value.since) : noteEncodeWithContext(value.since, ctx));
         }
     }
 }
@@ -592,7 +590,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "StampedEntry.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
         errors.push({ field: "at", message: "missing required field" });
@@ -799,8 +797,7 @@ export function stampedEntryHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "at" in o && "previous" in o && "history" in o && "slug" in o && "label" in o && "since" in o;
+    return __mf_holds(obj, "at") && __mf_holds(obj, "previous") && __mf_holds(obj, "history") && __mf_holds(obj, "slug") && __mf_holds(obj, "label") && __mf_holds(obj, "since");
 }
 
 export function stampedEntryIs(obj: unknown): obj is StampedEntry {
@@ -1004,29 +1001,29 @@ export declare const StampedEntry: {
 
 ## Mapping
 
-original 0..341 -> expanded 1000..1341
-original 380..424 -> expanded 1341..1385
-original 424..426 -> expanded 9714..9716
-original 465..508 -> expanded 9716..9759
-original 508..510 -> expanded 18677..18679
-original 549..680 -> expanded 18679..18810
-original 703..724 -> expanded 18810..18831
-original 759..782 -> expanded 18831..18854
-original 825..853 -> expanded 18854..18882
-original 853..854 -> expanded 36802..36803
-generated 0..1000 <- imports
-generated 1385..1469 <- Default
-generated 1469..3535 <- Encode
-generated 3535..8716 <- Decode
-generated 8716..9714 <- __convenience_const
-generated 9759..9861 <- Default
-generated 9861..11969 <- Encode
-generated 11969..17656 <- Decode
-generated 17656..18677 <- __convenience_const
-generated 18882..19268 <- Default
-generated 19268..22879 <- Encode
-generated 22879..35620 <- Decode
-generated 35620..36802 <- __convenience_const
+original 0..341 -> expanded 1052..1393
+original 380..424 -> expanded 1393..1437
+original 424..426 -> expanded 9725..9727
+original 465..508 -> expanded 9727..9770
+original 508..510 -> expanded 18647..18649
+original 549..680 -> expanded 18649..18780
+original 703..724 -> expanded 18780..18801
+original 759..782 -> expanded 18801..18824
+original 825..853 -> expanded 18824..18852
+original 853..854 -> expanded 36806..36807
+generated 0..1052 <- imports
+generated 1437..1521 <- Default
+generated 1521..3590 <- Encode
+generated 3590..8727 <- Decode
+generated 8727..9725 <- __convenience_const
+generated 9770..9872 <- Default
+generated 9872..11983 <- Encode
+generated 11983..17626 <- Decode
+generated 17626..18647 <- __convenience_const
+generated 18852..19238 <- Default
+generated 19238..22867 <- Encode
+generated 22867..35624 <- Decode
+generated 35624..36806 <- __convenience_const
 
 ## Metadata
 

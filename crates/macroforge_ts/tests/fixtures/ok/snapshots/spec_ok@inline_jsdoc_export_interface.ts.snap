@@ -16,8 +16,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
  export interface User {
     name: string;
     age: number;
@@ -95,7 +95,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -153,8 +153,7 @@ export function userHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "age");
 }
 
 export function userIs(obj: unknown): obj is User {
@@ -228,11 +227,11 @@ export declare const User: {
 
 ## Mapping
 
-original 22..83 -> expanded 350..411
-original 83..84 -> expanded 6804..6805
-generated 0..350 <- imports
-generated 411..6186 <- Decode
-generated 6186..6804 <- __convenience_const
+original 22..83 -> expanded 402..463
+original 83..84 -> expanded 6824..6825
+generated 0..402 <- imports
+generated 463..6206 <- Decode
+generated 6206..6824 <- __convenience_const
 
 ## Metadata
 

@@ -12,8 +12,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 /** @derive(Decode) */
 export interface Inner {
     name: string;
@@ -93,7 +93,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -166,8 +166,7 @@ export function innerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "createdAt" in o && "score" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "createdAt") && __mf_holds(obj, "score");
 }
 
 export function innerIs(obj: unknown): obj is Inner {
@@ -269,7 +268,7 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "Container.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
@@ -330,8 +329,7 @@ export function containerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "items" in o;
+    return __mf_holds(obj, "items");
 }
 
 export function containerIs(obj: unknown): obj is Container {
@@ -535,14 +533,14 @@ export {};
 
 ## Mapping
 
-original 0..107 -> expanded 383..490
-original 107..182 -> expanded 7888..7963
-original 182..2159 -> expanded 14656..16633
-generated 0..383 <- imports
-generated 490..7255 <- Decode
-generated 7255..7888 <- __convenience_const
-generated 7963..13963 <- Decode
-generated 13963..14656 <- __convenience_const
+original 0..107 -> expanded 435..542
+original 107..182 -> expanded 7920..7995
+original 182..2159 -> expanded 14644..16621
+generated 0..435 <- imports
+generated 542..7287 <- Decode
+generated 7287..7920 <- __convenience_const
+generated 7995..13951 <- Decode
+generated 13951..14644 <- __convenience_const
 
 ## Metadata
 

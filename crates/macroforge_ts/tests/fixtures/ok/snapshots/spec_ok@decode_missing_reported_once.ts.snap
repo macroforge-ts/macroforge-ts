@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Account {
@@ -105,7 +105,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -225,8 +225,7 @@ export function accountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "balance" in o && "opened" in o && "tags" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "balance") && __mf_holds(obj, "opened") && __mf_holds(obj, "tags");
 }
 
 export function accountIs(obj: unknown): obj is Account {
@@ -296,11 +295,11 @@ export {};
 
 ## Mapping
 
-original 22..172 -> expanded 418..568
-original 172..173 -> expanded 10081..10082
-generated 0..418 <- imports
-generated 568..9425 <- Decode
-generated 9425..10081 <- __convenience_const
+original 22..172 -> expanded 470..620
+original 172..173 -> expanded 10125..10126
+generated 0..470 <- imports
+generated 620..9469 <- Decode
+generated 9469..10125 <- __convenience_const
 
 ## Metadata
 

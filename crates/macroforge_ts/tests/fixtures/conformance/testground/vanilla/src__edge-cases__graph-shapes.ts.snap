@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Object graphs rather than trees: a value held twice, a child pointing back
@@ -151,17 +151,17 @@ export function graphTreeEncodePartialWithContext(value: Partial<GraphTree>, ctx
 function graphTreeEncodeFields(value: GraphTree, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("parent")) {
         if (value.parent !== undefined) {
-            result.parent = value.parent === null ? null : graphTreeEncodeWithContext(value.parent, ctx);
+            result["parent"] = value.parent === null ? null : graphTreeEncodeWithContext(value.parent, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("children")) {
         if (value.children !== undefined) {
-            result.children = value.children.map((__item0) => graphTreeEncodeWithContext(__item0, ctx));
+            result["children"] = value.children.map((__item0) => graphTreeEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -238,7 +238,7 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "GraphTree.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -341,8 +341,7 @@ export function graphTreeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "parent" in o && "children" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "parent") && __mf_holds(obj, "children");
 }
 
 export function graphTreeIs(obj: unknown): obj is GraphTree {
@@ -465,27 +464,27 @@ static encodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeCon
 static #encodeFields(value: GraphPerson, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("best")) {
         if (value.best !== undefined) {
-            result.best = value.best === null ? null : graphPersonEncodeWithContext(value.best, ctx);
+            result["best"] = value.best === null ? null : graphPersonEncodeWithContext(value.best, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("friends")) {
         if (value.friends !== undefined) {
-            result.friends = value.friends.map((__item0) => graphPersonEncodeWithContext(__item0, ctx));
+            result["friends"] = value.friends.map((__item0) => graphPersonEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("circle")) {
         if (value.circle !== undefined) {
-            result.circle = Array.from(value.circle, (__item0) => graphPersonEncodeWithContext(__item0, ctx));
+            result["circle"] = Array.from(value.circle, (__item0) => graphPersonEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, graphPersonEncodeWithContext(__item0, ctx)]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, graphPersonEncodeWithContext(__item0, ctx)]));
         }
     }
 }
@@ -577,7 +576,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "GraphPerson.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -730,8 +729,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "best" in o && "friends" in o && "circle" in o && "byName" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "best") && __mf_holds(obj, "friends") && __mf_holds(obj, "circle") && __mf_holds(obj, "byName");
 }
 
 static is(obj: unknown): obj is GraphPerson {
@@ -845,42 +843,42 @@ export function graphSharedEncodePartialWithContext(value: Partial<GraphShared>,
 function graphSharedEncodeFields(value: GraphShared, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("first")) {
         if (value.first !== undefined) {
-            result.first = edgeItemEncodeWithContext(value.first, ctx);
+            result["first"] = edgeItemEncodeWithContext(value.first, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("again")) {
         if (value.again !== undefined) {
-            result.again = edgeItemEncodeWithContext(value.again, ctx);
+            result["again"] = edgeItemEncodeWithContext(value.again, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
         if (value.maybe !== undefined) {
-            result.maybe = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
+            result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("list")) {
         if (value.list !== undefined) {
-            result.list = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["list"] = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("set")) {
         if (value.set !== undefined) {
-            result.set = Array.from(value.set, (__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["set"] = Array.from(value.set, (__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result.record = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = [edgeItemEncodeWithContext(value.pair[0], ctx), edgeItemEncodeWithContext(value.pair[1], ctx)];
+            result["pair"] = [edgeItemEncodeWithContext(value.pair[0], ctx), edgeItemEncodeWithContext(value.pair[1], ctx)];
         }
     }
 }
@@ -957,7 +955,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "GraphShared.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
         errors.push({ field: "first", message: "missing required field" });
@@ -1208,8 +1206,7 @@ export function graphSharedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "first" in o && "again" in o && "maybe" in o && "list" in o && "set" in o && "byName" in o && "record" in o && "pair" in o;
+    return __mf_holds(obj, "first") && __mf_holds(obj, "again") && __mf_holds(obj, "maybe") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "byName") && __mf_holds(obj, "record") && __mf_holds(obj, "pair");
 }
 
 export function graphSharedIs(obj: unknown): obj is GraphShared {
@@ -1279,27 +1276,27 @@ export function graphLoopEncodePartialWithContext(value: Partial<GraphLoop>, ctx
 function graphLoopEncodeFields(value: GraphLoop, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("self")) {
         if (value.self !== undefined) {
-            result.self = value.self === null ? null : graphLoopEncodeWithContext(value.self, ctx);
+            result["self"] = value.self === null ? null : graphLoopEncodeWithContext(value.self, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("view")) {
         if (value.view !== undefined) {
-            result.view = value.view === null ? null : graphLoopEncodePartialWithContext(value.view, ctx, { only: ["name", "view"] });
+            result["view"] = value.view === null ? null : graphLoopEncodePartialWithContext(value.view, ctx, { only: ["name", "view"] });
         }
     }
     if (__fields === undefined || __fields.keeps("rest")) {
         if (value.rest !== undefined) {
-            result.rest = value.rest === null ? null : graphLoopEncodePartialWithContext(value.rest, ctx, { except: ["name"] });
+            result["rest"] = value.rest === null ? null : graphLoopEncodePartialWithContext(value.rest, ctx, { except: ["name"] });
         }
     }
     if (__fields === undefined || __fields.keeps("patch")) {
         if (value.patch !== undefined) {
-            result.patch = value.patch === null ? null : graphLoopEncodePartialWithContext(value.patch, ctx);
+            result["patch"] = value.patch === null ? null : graphLoopEncodePartialWithContext(value.patch, ctx);
         }
     }
 }
@@ -1376,7 +1373,7 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         throw new __mf_DecodeError([{ field: "_root", message: "GraphLoop.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
@@ -1545,8 +1542,7 @@ export function graphLoopHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "name" in o && "self" in o && "view" in o && "rest" in o && "patch" in o;
+    return __mf_holds(obj, "name") && __mf_holds(obj, "self") && __mf_holds(obj, "view") && __mf_holds(obj, "rest") && __mf_holds(obj, "patch");
 }
 
 export function graphLoopIs(obj: unknown): obj is GraphLoop {
@@ -1614,17 +1610,17 @@ export function graphPatchedEncodePartialWithContext(value: Partial<GraphPatched
 function graphPatchedEncodeFields(value: GraphPatched, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("whole")) {
         if (value.whole !== undefined) {
-            result.whole = edgeItemEncodeWithContext(value.whole, ctx);
+            result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("patch")) {
         if (value.patch !== undefined) {
-            result.patch = edgeItemEncodePartialWithContext(value.patch, ctx);
+            result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("patches")) {
         if (value.patches !== undefined) {
-            result.patches = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
+            result["patches"] = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
         }
     }
 }
@@ -1701,7 +1697,7 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "GraphPatched.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("whole")) && !("whole" in obj)) {
         errors.push({ field: "whole", message: "missing required field" });
@@ -1814,8 +1810,7 @@ export function graphPatchedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "whole" in o && "patch" in o && "patches" in o;
+    return __mf_holds(obj, "whole") && __mf_holds(obj, "patch") && __mf_holds(obj, "patches");
 }
 
 export function graphPatchedIs(obj: unknown): obj is GraphPatched {
@@ -1882,12 +1877,12 @@ export function graphPatchedFirstEncodePartialWithContext(value: Partial<GraphPa
 function graphPatchedFirstEncodeFields(value: GraphPatchedFirst, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("patch")) {
         if (value.patch !== undefined) {
-            result.patch = edgeItemEncodePartialWithContext(value.patch, ctx);
+            result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("whole")) {
         if (value.whole !== undefined) {
-            result.whole = edgeItemEncodeWithContext(value.whole, ctx);
+            result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
         }
     }
 }
@@ -1964,7 +1959,7 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
         throw new __mf_DecodeError([{ field: "_root", message: "GraphPatchedFirst.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
         errors.push({ field: "patch", message: "missing required field" });
@@ -2050,8 +2045,7 @@ export function graphPatchedFirstHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "patch" in o && "whole" in o;
+    return __mf_holds(obj, "patch") && __mf_holds(obj, "whole");
 }
 
 export function graphPatchedFirstIs(obj: unknown): obj is GraphPatchedFirst {
@@ -2450,53 +2444,53 @@ export declare const GraphPatchedFirst: {
 
 ## Mapping
 
-original 0..435 -> expanded 1217..1652
-original 435..711 -> expanded 17832..18108
-original 711..712 -> expanded 34551..34552
-original 712..998 -> expanded 38192..38478
-original 998..1238 -> expanded 58294..58534
-original 1238..1389 -> expanded 73193..73344
-original 1389..1511 -> expanded 85478..85600
-original 1511..1512 -> expanded 96499..96500
-generated 0..1217 <- imports
-generated 1652..2114 <- Debug
-generated 2114..2402 <- Clone
-generated 2402..2894 <- PartialEq
-generated 2894..3399 <- Hash
-generated 3399..4715 <- PartialOrd
-generated 4715..5761 <- Ord
-generated 5761..8356 <- Encode
-generated 8356..16345 <- Decode
-generated 16345..17832 <- __convenience_const
-generated 18108..18724 <- Debug
-generated 18724..19337 <- Clone
-generated 19337..20303 <- PartialEq
-generated 20303..21223 <- Hash
-generated 21223..23734 <- Encode
-generated 23734..24063 <- Encode
-generated 24063..34551 <- Decode
-generated 34552..34661 <- Debug
-generated 34661..34769 <- Clone
-generated 34769..34886 <- PartialEq
-generated 34886..34995 <- Hash
-generated 34995..36365 <- Encode
-generated 36365..38192 <- Decode
-generated 38478..42304 <- Encode
-generated 42304..57233 <- Decode
-generated 57233..58294 <- __convenience_const
-generated 58534..61614 <- Encode
-generated 61614..72174 <- Decode
-generated 72174..73193 <- __convenience_const
-generated 73344..75993 <- Encode
-generated 75993..84396 <- Decode
-generated 84396..85478 <- __convenience_const
-generated 85600..88093 <- Encode
-generated 88093..95312 <- Decode
-generated 95312..96499 <- __convenience_const
+original 0..435 -> expanded 1269..1704
+original 435..711 -> expanded 17873..18149
+original 711..712 -> expanded 34611..34612
+original 712..998 -> expanded 38252..38538
+original 998..1238 -> expanded 58418..58658
+original 1238..1389 -> expanded 73336..73487
+original 1389..1511 -> expanded 85610..85732
+original 1511..1512 -> expanded 96605..96606
+generated 0..1269 <- imports
+generated 1704..2166 <- Debug
+generated 2166..2454 <- Clone
+generated 2454..2946 <- PartialEq
+generated 2946..3451 <- Hash
+generated 3451..4767 <- PartialOrd
+generated 4767..5813 <- Ord
+generated 5813..8417 <- Encode
+generated 8417..16386 <- Decode
+generated 16386..17873 <- __convenience_const
+generated 18149..18765 <- Debug
+generated 18765..19378 <- Clone
+generated 19378..20344 <- PartialEq
+generated 20344..21264 <- Hash
+generated 21264..23790 <- Encode
+generated 23790..24119 <- Encode
+generated 24119..34611 <- Decode
+generated 34612..34721 <- Debug
+generated 34721..34829 <- Clone
+generated 34829..34946 <- PartialEq
+generated 34946..35055 <- Hash
+generated 35055..36425 <- Encode
+generated 36425..38252 <- Decode
+generated 38538..42388 <- Encode
+generated 42388..57357 <- Decode
+generated 57357..58418 <- __convenience_const
+generated 58658..61753 <- Encode
+generated 61753..72317 <- Decode
+generated 72317..73336 <- __convenience_const
+generated 73487..76145 <- Encode
+generated 76145..84528 <- Decode
+generated 84528..85610 <- __convenience_const
+generated 85732..88231 <- Encode
+generated 88231..95418 <- Decode
+generated 95418..96605 <- __convenience_const
 
 ## Metadata
 
-class GraphPerson: {"body_span":{"end":713,"start":525},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":499,"start":438}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":549,"start":531},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"best","optional":false,"readonly":false,"span":{"end":586,"start":554},"ts_type":"GraphPerson | null","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"friends","optional":false,"readonly":false,"span":{"end":619,"start":591},"ts_type":"GraphPerson[]","visibility":"Public"},{"decorators":[],"initializer":"new Set()","key":"Named","name":"circle","optional":false,"readonly":false,"span":{"end":661,"start":624},"ts_type":"Set<GraphPerson>","visibility":"Public"},{"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":711,"start":666},"ts_type":"Map<string, GraphPerson>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GraphPerson","span":{"end":713,"start":507},"superclass":null,"type_params":[]}
+class GraphPerson: {"body_span":{"end":713,"start":525},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":499,"start":438}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":549,"start":531},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"best","optional":false,"readonly":false,"span":{"end":586,"start":554},"ts_type":"GraphPerson | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"friends","optional":false,"readonly":false,"span":{"end":619,"start":591},"ts_type":"GraphPerson[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set()","key":"Named","name":"circle","optional":false,"readonly":false,"span":{"end":661,"start":624},"ts_type":"Set<GraphPerson>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":711,"start":666},"ts_type":"Map<string, GraphPerson>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GraphPerson","span":{"end":713,"start":507},"superclass":null,"type_params":[]}
 interface GraphTree: {"body_span":{"end":436,"start":358},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":330,"start":248}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":377,"start":364},"ts_type":"string"},{"decorators":[],"key":"Named","name":"parent","optional":false,"readonly":false,"span":{"end":407,"start":382},"ts_type":"GraphTree | null"},{"decorators":[],"key":"Named","name":"children","optional":false,"readonly":false,"span":{"end":434,"start":412},"ts_type":"GraphTree[]"}],"heritage":[],"methods":[],"name":"GraphTree","span":{"end":436,"start":338},"type_params":[]}
 interface GraphShared: {"body_span":{"end":999,"start":775},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":745,"start":715}}],"fields":[{"decorators":[],"key":"Named","name":"first","optional":false,"readonly":false,"span":{"end":797,"start":781},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":818,"start":802},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":846,"start":823},"ts_type":"EdgeItem | null"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":868,"start":851},"ts_type":"EdgeItem[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":892,"start":873},"ts_type":"Set<EdgeItem>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":927,"start":897},"ts_type":"Map<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":965,"start":932},"ts_type":"Record<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":997,"start":970},"ts_type":"[EdgeItem, EdgeItem]"}],"heritage":[],"methods":[],"name":"GraphShared","span":{"end":999,"start":753},"type_params":[]}
 interface GraphLoop: {"body_span":{"end":1239,"start":1059},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1031,"start":1001}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1078,"start":1065},"ts_type":"string"},{"decorators":[],"key":"Named","name":"self","optional":false,"readonly":false,"span":{"end":1106,"start":1083},"ts_type":"GraphLoop | null"},{"decorators":[],"key":"Named","name":"view","optional":false,"readonly":false,"span":{"end":1157,"start":1111},"ts_type":"Pick<GraphLoop, 'name' | 'view'> | null"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1199,"start":1162},"ts_type":"Omit<GraphLoop, 'name'> | null"},{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1237,"start":1204},"ts_type":"Partial<GraphLoop> | null"}],"heritage":[],"methods":[],"name":"GraphLoop","span":{"end":1239,"start":1039},"type_params":[]}

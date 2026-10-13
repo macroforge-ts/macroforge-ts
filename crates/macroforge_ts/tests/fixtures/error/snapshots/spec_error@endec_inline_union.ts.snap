@@ -30,7 +30,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Circle {
@@ -67,7 +67,7 @@ export function circleEncodePartialWithContext(value: Partial<Circle>, ctx: __mf
 function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("radius")) {
         if (value.radius !== undefined) {
-            result.radius = value.radius;
+            result["radius"] = value.radius;
         }
     }
 }
@@ -144,7 +144,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Circle.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
         errors.push({ field: "radius", message: "missing required field" });
@@ -190,8 +190,7 @@ export function circleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "radius" in o;
+    return __mf_holds(obj, "radius");
 }
 
 export function circleIs(obj: unknown): obj is Circle {
@@ -257,7 +256,7 @@ export function squareEncodePartialWithContext(value: Partial<Square>, ctx: __mf
 function squareEncodeFields(value: Square, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("side")) {
         if (value.side !== undefined) {
-            result.side = value.side;
+            result["side"] = value.side;
         }
     }
 }
@@ -334,7 +333,7 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         throw new __mf_DecodeError([{ field: "_root", message: "Square.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("side")) && !("side" in obj)) {
         errors.push({ field: "side", message: "missing required field" });
@@ -380,8 +379,7 @@ export function squareHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "side" in o;
+    return __mf_holds(obj, "side");
 }
 
 export function squareIs(obj: unknown): obj is Square {
@@ -511,18 +509,18 @@ Error [320..349]: @derive(Decode): `Set<string> | string[]` holds `Set<string>`,
 
 ## Mapping
 
-original 30..71 -> expanded 596..637
-original 71..73 -> expanded 8969..8971
-original 103..142 -> expanded 8971..9010
-original 142..144 -> expanded 17302..17304
-original 174..351 -> expanded 17304..17481
-generated 0..596 <- imports
-generated 637..2741 <- Encode
-generated 2741..8020 <- Decode
-generated 8020..8969 <- __convenience_const
-generated 9010..11106 <- Encode
-generated 11106..16353 <- Decode
-generated 16353..17302 <- __convenience_const
+original 30..71 -> expanded 648..689
+original 71..73 -> expanded 8980..8982
+original 103..142 -> expanded 8982..9021
+original 142..144 -> expanded 17272..17274
+original 174..351 -> expanded 17274..17451
+generated 0..648 <- imports
+generated 689..2796 <- Encode
+generated 2796..8031 <- Decode
+generated 8031..8980 <- __convenience_const
+generated 9021..11120 <- Encode
+generated 11120..16323 <- Decode
+generated 16323..17272 <- __convenience_const
 
 ## Metadata
 

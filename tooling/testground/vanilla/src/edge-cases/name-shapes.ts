@@ -83,3 +83,13 @@ export class NameParamsClass<K, Key, T> {
     other: Key | null = null;
     held: T[] = [];
 }
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NamePrototype {
+    constructor: string;
+    toString: string;
+    valueOf: number;
+    hasOwnProperty: boolean;
+    length: number;
+    then: string;
+}

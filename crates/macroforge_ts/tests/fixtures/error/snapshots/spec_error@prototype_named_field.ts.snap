@@ -1,0 +1,97 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/prototype_named_field.ts
+---
+## Input
+
+/** @derive(Clone, Encode, Decode) */
+interface Sneaky {
+    '__proto__': string;
+    id: string;
+}
+
+/** @derive(Debug) */
+type Aliased = { __proto__: number };
+
+/** @derive(Hash) */
+class Carrier {
+    ['__proto__']: string = '';
+    __proto__: number = 0;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+
+interface Sneaky {
+    '__proto__': string;
+    id: string;
+}
+
+
+type Aliased = { __proto__: number };
+
+export function aliasedToString(value: Aliased): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("__proto__: " + String(value.__proto__));
+        return "Aliased { " + parts.join(", ") + " }";
+    });
+}
+
+const Aliased: {
+  readonly toString: typeof aliasedToString;
+} = {
+  toString: aliasedToString
+};
+
+
+class Carrier {
+    ['__proto__']: string = '';
+    __proto__: number = 0;
+}
+
+## DTS
+
+type Aliased = {
+	__proto__: number;
+};
+export declare function aliasedToString(value: Aliased): string;
+export {};
+
+## Diagnostics
+
+Error [141..158]: field '__proto__' of 'Aliased' has the name every object reaches its prototype by, so reading or assigning it would not reach a field; give it another name
+Error [5..35]: @derive(Clone): field '__proto__' of 'Sneaky' has the name every object reaches its prototype by, so reading or assigning it would not reach a field; give it another name
+Error [5..35]: @derive(Encode): field '__proto__' of 'Sneaky' has the name every object reaches its prototype by, so reading or assigning it would not reach a field; give it another name
+Error [5..35]: @derive(Decode): field '__proto__' of 'Sneaky' has the name every object reaches its prototype by, so reading or assigning it would not reach a field; give it another name
+Error [167..180]: @derive(Hash): member `['__proto__']` of 'Carrier' has no name a derive can read it by: a computed key or an index signature is known only as the code runs. Give the member a name, or hold the entries in a field of their own, such as a `Record`
+
+## Mapping
+
+original 37..101 -> expanded 85..149
+original 122..160 -> expanded 149..187
+original 160..162 -> expanded 550..552
+original 182..260 -> expanded 552..630
+generated 0..85 <- imports
+generated 187..450 <- Debug
+generated 450..550 <- __convenience_const
+
+## Metadata
+
+class Carrier: {"body_span":{"end":260,"start":198},"decorators":[{"args_src":"Hash","name":"Derive","span":{"end":183,"start":163}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Unnamed","name":"['__proto__']","optional":false,"readonly":false,"span":{"end":231,"start":204},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"__proto__","optional":false,"readonly":false,"span":{"end":258,"start":236},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Carrier","span":{"end":260,"start":184},"superclass":null,"type_params":[]}
+interface Sneaky: {"body_span":{"end":100,"start":56},"decorators":[{"args_src":"Clone, Encode, Decode","name":"Derive","span":{"end":38,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"__proto__","optional":false,"readonly":false,"span":{"end":82,"start":62},"ts_type":"string"},{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":98,"start":87},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Sneaky","span":{"end":100,"start":39},"type_params":[]}
+type Aliased: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"__proto__","optional":false,"readonly":false,"span":{"end":158,"start":141},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":123,"start":102}}],"name":"Aliased","span":{"end":161,"start":124},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

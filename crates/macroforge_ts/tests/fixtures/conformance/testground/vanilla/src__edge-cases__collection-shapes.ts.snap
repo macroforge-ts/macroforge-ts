@@ -13,7 +13,7 @@ true
 ## Output
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeCardHashCode, edgeCardEquals, edgeCardClone, edgeItemToString } from "./edge-types";
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -32,9 +32,13 @@ export enum CollectionKind {
 }
 
 export function collectionKindToString(value: CollectionKind): string {
-    const key = CollectionKind[value as unknown as keyof typeof CollectionKind];
-    if (key !== undefined) {
-        return "CollectionKind." + key;
+
+    const held: unknown = value;
+    if (held === CollectionKind["Plain"]) {
+        return "CollectionKind.Plain";
+    }
+    if (held === CollectionKind["Fancy"]) {
+        return "CollectionKind.Fancy";
     }
     return "CollectionKind(" + String(value) + ")";
 }
@@ -194,13 +198,13 @@ export function collectionNestedEquals(a: CollectionNested, b: CollectionNested)
 	const __other0 = b.grid[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
 		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : __item1 === __other1;
+		return __other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1;
 	});
 }) && a.dateGrid.length === b.dateGrid.length && a.dateGrid.every((__item0, __index0) => {
 	const __other0 = b.dateGrid[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
 		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime();
+		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime() || __item1.getTime() !== __item1.getTime() && __other1.getTime() !== __other1.getTime();
 	});
 }) && a.itemGrid.length === b.itemGrid.length && a.itemGrid.every((__item0, __index0) => {
 	const __other0 = b.itemGrid[__index0];
@@ -212,7 +216,7 @@ export function collectionNestedEquals(a: CollectionNested, b: CollectionNested)
 	const __other0 = b.datesByName.get(__key0);
 	return b.datesByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
 		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime();
+		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime() || __item1.getTime() !== __item1.getTime() && __other1.getTime() !== __other1.getTime();
 	}));
 }) && __mf_structuralEquals(a.itemsByName, b.itemsByName) && a.setsByName.size === b.setsByName.size && Array.from(a.setsByName).every(([__key0, __item0]) => {
 	const __other0 = b.setsByName.get(__key0);
@@ -221,7 +225,7 @@ export function collectionNestedEquals(a: CollectionNested, b: CollectionNested)
 	const __other0 = b.mapOfMaps.get(__key0);
 	return b.mapOfMaps.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.size === __other0.size && Array.from(__item0).every(([__key1, __item1]) => {
 		const __other1 = __other0.get(__key1);
-		return __other0.has(__key1) && (__other1 === undefined ? __item1 === undefined : __item1 === __other1);
+		return __other0.has(__key1) && (__other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1);
 	}));
 }) && a.cardsByName.size === b.cardsByName.size && Array.from(a.cardsByName).every(([__key0, __item0]) => {
 	const __other0 = b.cardsByName.get(__key0);
@@ -301,57 +305,57 @@ export function collectionNestedEncodePartialWithContext(value: Partial<Collecti
 function collectionNestedEncodeFields(value: CollectionNested, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("grid")) {
         if (value.grid !== undefined) {
-            result.grid = value.grid;
+            result["grid"] = value.grid;
         }
     }
     if (__fields === undefined || __fields.keeps("dateGrid")) {
         if (value.dateGrid !== undefined) {
-            result.dateGrid = value.dateGrid.map((__item0) => __item0.map((__item1) => __item1.toISOString()));
+            result["dateGrid"] = value.dateGrid.map((__item0) => __item0.map((__item1) => __item1.toISOString()));
         }
     }
     if (__fields === undefined || __fields.keeps("itemGrid")) {
         if (value.itemGrid !== undefined) {
-            result.itemGrid = value.itemGrid.map((__item0) => __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx)));
+            result["itemGrid"] = value.itemGrid.map((__item0) => __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("datesByName")) {
         if (value.datesByName !== undefined) {
-            result.datesByName = Object.fromEntries(Array.from(value.datesByName, ([__key0, __item0]) => [__key0, __item0.map((__item1) => __item1.toISOString())]));
+            result["datesByName"] = Object.fromEntries(Array.from(value.datesByName, ([__key0, __item0]) => [__key0, __item0.map((__item1) => __item1.toISOString())]));
         }
     }
     if (__fields === undefined || __fields.keeps("itemsByName")) {
         if (value.itemsByName !== undefined) {
-            result.itemsByName = Object.fromEntries(Object.entries(value.itemsByName).map(([__key0, __item0]) => [__key0, __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx))]));
+            result["itemsByName"] = Object.fromEntries(Object.entries(value.itemsByName).map(([__key0, __item0]) => [__key0, __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("setsByName")) {
         if (value.setsByName !== undefined) {
-            result.setsByName = Object.fromEntries(Array.from(value.setsByName, ([__key0, __item0]) => [__key0, Array.from(__item0)]));
+            result["setsByName"] = Object.fromEntries(Array.from(value.setsByName, ([__key0, __item0]) => [__key0, Array.from(__item0)]));
         }
     }
     if (__fields === undefined || __fields.keeps("mapOfMaps")) {
         if (value.mapOfMaps !== undefined) {
-            result.mapOfMaps = Object.fromEntries(Array.from(value.mapOfMaps, ([__key0, __item0]) => [__key0, Object.fromEntries(__item0.entries())]));
+            result["mapOfMaps"] = Object.fromEntries(Array.from(value.mapOfMaps, ([__key0, __item0]) => [__key0, Object.fromEntries(__item0.entries())]));
         }
     }
     if (__fields === undefined || __fields.keeps("cardsByName")) {
         if (value.cardsByName !== undefined) {
-            result.cardsByName = Object.fromEntries(Array.from(value.cardsByName, ([__key0, __item0]) => [__key0, edgeCardEncodeWithContext(__item0, ctx)]));
+            result["cardsByName"] = Object.fromEntries(Array.from(value.cardsByName, ([__key0, __item0]) => [__key0, edgeCardEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("optionalItems")) {
         if (value.optionalItems !== undefined) {
-            result.optionalItems = value.optionalItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["optionalItems"] = value.optionalItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("maybeItems")) {
         if (value.maybeItems !== undefined) {
-            result.maybeItems = value.maybeItems === null ? null : value.maybeItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["maybeItems"] = value.maybeItems === null ? null : value.maybeItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("laterItems")) {
         if (value.laterItems !== undefined) {
-            result.laterItems = value.laterItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+            result["laterItems"] = value.laterItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
         }
     }
 }
@@ -428,7 +432,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "CollectionNested.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("grid")) && !("grid" in obj)) {
         errors.push({ field: "grid", message: "missing required field" });
@@ -764,8 +768,7 @@ export function collectionNestedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "grid" in o && "dateGrid" in o && "itemGrid" in o && "datesByName" in o && "itemsByName" in o && "setsByName" in o && "mapOfMaps" in o && "cardsByName" in o && "maybeItems" in o;
+    return __mf_holds(obj, "grid") && __mf_holds(obj, "dateGrid") && __mf_holds(obj, "itemGrid") && __mf_holds(obj, "datesByName") && __mf_holds(obj, "itemsByName") && __mf_holds(obj, "setsByName") && __mf_holds(obj, "mapOfMaps") && __mf_holds(obj, "cardsByName") && __mf_holds(obj, "maybeItems");
 }
 
 export function collectionNestedIs(obj: unknown): obj is CollectionNested {
@@ -859,14 +862,14 @@ export function collectionKeysEquals(a: CollectionKeys, b: CollectionKeys): bool
 	return b.byNumber.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
 }) && a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
 	const __other0 = b.byKind.get(__key0);
-	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
 }) && a.byDate.size === b.byDate.size && Array.from(a.byDate).every(([__key0, __item0]) => {
 	const __other0 = b.byDate.get(__key0);
 	return b.byDate.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}) && __mf_structuralEquals(a.kindLabels, b.kindLabels) && __mf_structuralEquals(a.numbered, b.numbered) && a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => collectionKindEquals(__item0, __other0))) && a.dates.size === b.dates.size && Array.from(a.dates).every((__item0) => b.dates.has(__item0) || Array.from(b.dates).some((__other0) => __item0.getTime() === __other0.getTime())) && a.nullableDates.length === b.nullableDates.length && a.nullableDates.every((__item0, __index0) => {
+}) && __mf_structuralEquals(a.kindLabels, b.kindLabels) && __mf_structuralEquals(a.numbered, b.numbered) && a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => collectionKindEquals(__item0, __other0))) && a.dates.size === b.dates.size && Array.from(a.dates).every((__item0) => b.dates.has(__item0) || Array.from(b.dates).some((__other0) => __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime())) && a.nullableDates.length === b.nullableDates.length && a.nullableDates.every((__item0, __index0) => {
 	const __other0 = b.nullableDates[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime();
-}) && a.dateSet.size === b.dateSet.size && Array.from(a.dateSet).every((__item0) => b.dateSet.has(__item0) || Array.from(b.dateSet).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime())) && __mf_structuralEquals(a.dateRecord, b.dateRecord));
+	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime();
+}) && a.dateSet.size === b.dateSet.size && Array.from(a.dateSet).every((__item0) => b.dateSet.has(__item0) || Array.from(b.dateSet).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime())) && __mf_structuralEquals(a.dateRecord, b.dateRecord));
 }
 
 export function collectionKeysHashCode(value: CollectionKeys): number {
@@ -934,52 +937,52 @@ export function collectionKeysEncodePartialWithContext(value: Partial<Collection
 function collectionKeysEncodeFields(value: CollectionKeys, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("byNumber")) {
         if (value.byNumber !== undefined) {
-            result.byNumber = Object.fromEntries(value.byNumber.entries());
+            result["byNumber"] = Object.fromEntries(value.byNumber.entries());
         }
     }
     if (__fields === undefined || __fields.keeps("byKind")) {
         if (value.byKind !== undefined) {
-            result.byKind = Object.fromEntries(value.byKind.entries());
+            result["byKind"] = Object.fromEntries(value.byKind.entries());
         }
     }
     if (__fields === undefined || __fields.keeps("byDate")) {
         if (value.byDate !== undefined) {
-            result.byDate = Object.fromEntries(Array.from(value.byDate, ([__key0, __item0]) => [__key0.toISOString(), __item0]));
+            result["byDate"] = Object.fromEntries(Array.from(value.byDate, ([__key0, __item0]) => [__key0.toISOString(), __item0]));
         }
     }
     if (__fields === undefined || __fields.keeps("kindLabels")) {
         if (value.kindLabels !== undefined) {
-            result.kindLabels = value.kindLabels;
+            result["kindLabels"] = value.kindLabels;
         }
     }
     if (__fields === undefined || __fields.keeps("numbered")) {
         if (value.numbered !== undefined) {
-            result.numbered = Object.fromEntries(Object.entries(value.numbered).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+            result["numbered"] = Object.fromEntries(Object.entries(value.numbered).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("kinds")) {
         if (value.kinds !== undefined) {
-            result.kinds = Array.from(value.kinds, (__item0) => collectionKindEncodeWithContext(__item0, ctx));
+            result["kinds"] = Array.from(value.kinds, (__item0) => collectionKindEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("dates")) {
         if (value.dates !== undefined) {
-            result.dates = Array.from(value.dates, (__item0) => __item0.toISOString());
+            result["dates"] = Array.from(value.dates, (__item0) => __item0.toISOString());
         }
     }
     if (__fields === undefined || __fields.keeps("nullableDates")) {
         if (value.nullableDates !== undefined) {
-            result.nullableDates = value.nullableDates.map((__item0) => (__item0 === null ? null : __item0.toISOString()));
+            result["nullableDates"] = value.nullableDates.map((__item0) => (__item0 === null ? null : __item0.toISOString()));
         }
     }
     if (__fields === undefined || __fields.keeps("dateSet")) {
         if (value.dateSet !== undefined) {
-            result.dateSet = Array.from(value.dateSet, (__item0) => (__item0 === null ? null : __item0.toISOString()));
+            result["dateSet"] = Array.from(value.dateSet, (__item0) => (__item0 === null ? null : __item0.toISOString()));
         }
     }
     if (__fields === undefined || __fields.keeps("dateRecord")) {
         if (value.dateRecord !== undefined) {
-            result.dateRecord = Object.fromEntries(Object.entries(value.dateRecord).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
+            result["dateRecord"] = Object.fromEntries(Object.entries(value.dateRecord).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
         }
     }
 }
@@ -1056,7 +1059,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
         throw new __mf_DecodeError([{ field: "_root", message: "CollectionKeys.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("byNumber")) && !("byNumber" in obj)) {
         errors.push({ field: "byNumber", message: "missing required field" });
@@ -1360,8 +1363,7 @@ export function collectionKeysHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "byNumber" in o && "byKind" in o && "byDate" in o && "kindLabels" in o && "numbered" in o && "kinds" in o && "dates" in o && "nullableDates" in o && "dateSet" in o && "dateRecord" in o;
+    return __mf_holds(obj, "byNumber") && __mf_holds(obj, "byKind") && __mf_holds(obj, "byDate") && __mf_holds(obj, "kindLabels") && __mf_holds(obj, "numbered") && __mf_holds(obj, "kinds") && __mf_holds(obj, "dates") && __mf_holds(obj, "nullableDates") && __mf_holds(obj, "dateSet") && __mf_holds(obj, "dateRecord");
 }
 
 export function collectionKeysIs(obj: unknown): obj is CollectionKeys {
@@ -1519,37 +1521,37 @@ export function collectionUnionsEncodePartialWithContext(value: Partial<Collecti
 function collectionUnionsEncodeFields(value: CollectionUnions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("mixed")) {
         if (value.mixed !== undefined) {
-            result.mixed = value.mixed;
+            result["mixed"] = value.mixed;
         }
     }
     if (__fields === undefined || __fields.keeps("itemOrText")) {
         if (value.itemOrText !== undefined) {
-            result.itemOrText = value.itemOrText.map((__item0) => (typeof __item0 === "string" ? __item0 : edgeItemEncodeWithContext(__item0, ctx)));
+            result["itemOrText"] = value.itemOrText.map((__item0) => (typeof __item0 === "string" ? __item0 : edgeItemEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("itemOrNull")) {
         if (value.itemOrNull !== undefined) {
-            result.itemOrNull = Array.from(value.itemOrNull, (__item0) => (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx)));
+            result["itemOrNull"] = Array.from(value.itemOrNull, (__item0) => (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("valueOrNull")) {
         if (value.valueOrNull !== undefined) {
-            result.valueOrNull = Object.fromEntries(Array.from(value.valueOrNull, ([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
+            result["valueOrNull"] = Object.fromEntries(Array.from(value.valueOrNull, ([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("recordOrNull")) {
         if (value.recordOrNull !== undefined) {
-            result.recordOrNull = Object.fromEntries(Object.entries(value.recordOrNull).map(([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
+            result["recordOrNull"] = Object.fromEntries(Object.entries(value.recordOrNull).map(([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("literal")) {
         if (value.literal !== undefined) {
-            result.literal = value.literal;
+            result["literal"] = value.literal;
         }
     }
     if (__fields === undefined || __fields.keeps("kindOrNull")) {
         if (value.kindOrNull !== undefined) {
-            result.kindOrNull = value.kindOrNull.map((__item0) => (__item0 === null ? null : collectionKindEncodeWithContext(__item0, ctx)));
+            result["kindOrNull"] = value.kindOrNull.map((__item0) => (__item0 === null ? null : collectionKindEncodeWithContext(__item0, ctx)));
         }
     }
 }
@@ -1626,7 +1628,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "CollectionUnions.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("mixed")) && !("mixed" in obj)) {
         errors.push({ field: "mixed", message: "missing required field" });
@@ -1849,8 +1851,7 @@ export function collectionUnionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "mixed" in o && "itemOrText" in o && "itemOrNull" in o && "valueOrNull" in o && "recordOrNull" in o && "literal" in o && "kindOrNull" in o;
+    return __mf_holds(obj, "mixed") && __mf_holds(obj, "itemOrText") && __mf_holds(obj, "itemOrNull") && __mf_holds(obj, "valueOrNull") && __mf_holds(obj, "recordOrNull") && __mf_holds(obj, "literal") && __mf_holds(obj, "kindOrNull");
 }
 
 export function collectionUnionsIs(obj: unknown): obj is CollectionUnions {
@@ -1997,42 +1998,42 @@ export function collectionTuplesEncodePartialWithContext(value: Partial<Collecti
 function collectionTuplesEncodeFields(value: CollectionTuples, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("pair")) {
         if (value.pair !== undefined) {
-            result.pair = value.pair;
+            result["pair"] = value.pair;
         }
     }
     if (__fields === undefined || __fields.keeps("named")) {
         if (value.named !== undefined) {
-            result.named = [value.named[0], value.named[1].toISOString()];
+            result["named"] = [value.named[0], value.named[1].toISOString()];
         }
     }
     if (__fields === undefined || __fields.keeps("itemPair")) {
         if (value.itemPair !== undefined) {
-            result.itemPair = [edgeItemEncodeWithContext(value.itemPair[0], ctx), (value.itemPair[1] === null ? null : edgeItemEncodeWithContext(value.itemPair[1], ctx))];
+            result["itemPair"] = [edgeItemEncodeWithContext(value.itemPair[0], ctx), (value.itemPair[1] === null ? null : edgeItemEncodeWithContext(value.itemPair[1], ctx))];
         }
     }
     if (__fields === undefined || __fields.keeps("readonlyPair")) {
         if (value.readonlyPair !== undefined) {
-            result.readonlyPair = value.readonlyPair;
+            result["readonlyPair"] = value.readonlyPair;
         }
     }
     if (__fields === undefined || __fields.keeps("optionalTail")) {
         if (value.optionalTail !== undefined) {
-            result.optionalTail = value.optionalTail;
+            result["optionalTail"] = value.optionalTail;
         }
     }
     if (__fields === undefined || __fields.keeps("rest")) {
         if (value.rest !== undefined) {
-            result.rest = value.rest;
+            result["rest"] = value.rest;
         }
     }
     if (__fields === undefined || __fields.keeps("pairs")) {
         if (value.pairs !== undefined) {
-            result.pairs = value.pairs.map((__item0) => [__item0[0], edgeItemEncodeWithContext(__item0[1], ctx)]);
+            result["pairs"] = value.pairs.map((__item0) => [__item0[0], edgeItemEncodeWithContext(__item0[1], ctx)]);
         }
     }
     if (__fields === undefined || __fields.keeps("nested")) {
         if (value.nested !== undefined) {
-            result.nested = [value.nested[0], [value.nested[1][0], value.nested[1][1].toISOString()]];
+            result["nested"] = [value.nested[0], [value.nested[1][0], value.nested[1][1].toISOString()]];
         }
     }
 }
@@ -2109,7 +2110,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "CollectionTuples.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
         errors.push({ field: "pair", message: "missing required field" });
@@ -2359,8 +2360,7 @@ export function collectionTuplesHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "pair" in o && "named" in o && "itemPair" in o && "readonlyPair" in o && "optionalTail" in o && "rest" in o && "pairs" in o && "nested" in o;
+    return __mf_holds(obj, "pair") && __mf_holds(obj, "named") && __mf_holds(obj, "itemPair") && __mf_holds(obj, "readonlyPair") && __mf_holds(obj, "optionalTail") && __mf_holds(obj, "rest") && __mf_holds(obj, "pairs") && __mf_holds(obj, "nested");
 }
 
 export function collectionTuplesIs(obj: unknown): obj is CollectionTuples {
@@ -2481,22 +2481,22 @@ export function collectionBigEncodePartialWithContext(value: Partial<CollectionB
 function collectionBigEncodeFields(value: CollectionBig, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("total")) {
         if (value.total !== undefined) {
-            result.total = ((v) => String(v))(value.total);
+            result["total"] = ((v) => String(v))(value.total);
         }
     }
     if (__fields === undefined || __fields.keeps("totals")) {
         if (value.totals !== undefined) {
-            result.totals = value.totals.map((__item0) => ((v) => String(v))(__item0));
+            result["totals"] = value.totals.map((__item0) => ((v) => String(v))(__item0));
         }
     }
     if (__fields === undefined || __fields.keeps("maybeTotal")) {
         if (value.maybeTotal !== undefined) {
-            result.maybeTotal = value.maybeTotal === null ? null : ((v) => String(v))(value.maybeTotal);
+            result["maybeTotal"] = value.maybeTotal === null ? null : ((v) => String(v))(value.maybeTotal);
         }
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, ((v) => String(v))(__item0)]));
+            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, ((v) => String(v))(__item0)]));
         }
     }
 }
@@ -2573,7 +2573,7 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         throw new __mf_DecodeError([{ field: "_root", message: "CollectionBig.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("total")) && !("total" in obj)) {
         errors.push({ field: "total", message: "missing required field" });
@@ -2705,8 +2705,7 @@ export function collectionBigHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "total" in o && "totals" in o && "maybeTotal" in o && "byName" in o;
+    return __mf_holds(obj, "total") && __mf_holds(obj, "totals") && __mf_holds(obj, "maybeTotal") && __mf_holds(obj, "byName");
 }
 
 export function collectionBigIs(obj: unknown): obj is CollectionBig {
@@ -3124,63 +3123,63 @@ export declare const CollectionBig: {
 
 ## Mapping
 
-original 0..433 -> expanded 1592..2025
-original 433..948 -> expanded 5841..6356
-original 948..1410 -> expanded 43811..44273
-original 1410..1804 -> expanded 74869..75263
-original 1804..2219 -> expanded 100707..101122
-original 2219..2422 -> expanded 125853..126056
-original 2422..2423 -> expanded 142887..142888
-generated 0..1592 <- imports
-generated 2025..2308 <- Debug
-generated 2308..2406 <- Clone
-generated 2406..2515 <- PartialEq
-generated 2515..2686 <- Hash
-generated 2686..2910 <- PartialOrd
-generated 2910..3120 <- Ord
-generated 3120..3219 <- Default
-generated 3219..3677 <- Encode
-generated 3677..4796 <- Decode
-generated 4796..5841 <- __convenience_const
-generated 6356..7625 <- Debug
-generated 7625..9257 <- Clone
-generated 9257..13323 <- PartialEq
-generated 13323..16253 <- Hash
-generated 16253..16614 <- Default
-generated 16614..21552 <- Encode
-generated 21552..42189 <- Decode
-generated 42189..43811 <- __convenience_const
-generated 44273..45186 <- Debug
-generated 45186..45980 <- Clone
-generated 45980..47941 <- PartialEq
-generated 47941..49800 <- Hash
-generated 49800..50210 <- Default
-generated 50210..54585 <- Encode
-generated 54585..73309 <- Decode
-generated 73309..74869 <- __convenience_const
-generated 75263..75997 <- Debug
-generated 75997..76799 <- Clone
-generated 76799..78517 <- PartialEq
-generated 78517..79802 <- Hash
-generated 79802..80071 <- Default
-generated 80071..83950 <- Encode
-generated 83950..99085 <- Decode
-generated 99085..100707 <- __convenience_const
-generated 101122..101891 <- Debug
-generated 101891..102444 <- Clone
-generated 102444..103159 <- PartialEq
-generated 103159..103938 <- Hash
-generated 103938..104275 <- Default
-generated 104275..107991 <- Encode
-generated 107991..124231 <- Decode
-generated 124231..125853 <- __convenience_const
-generated 126056..126518 <- Debug
-generated 126518..126769 <- Clone
-generated 126769..127420 <- PartialEq
-generated 127420..128368 <- Hash
-generated 128368..131290 <- Encode
-generated 131290..141460 <- Decode
-generated 141460..142887 <- __convenience_const
+original 0..433 -> expanded 1644..2077
+original 433..948 -> expanded 5949..6464
+original 948..1410 -> expanded 44276..44738
+original 1410..1804 -> expanded 75740..76134
+original 1804..2219 -> expanded 101627..102042
+original 2219..2422 -> expanded 126837..127040
+original 2422..2423 -> expanded 143875..143876
+generated 0..1644 <- imports
+generated 2077..2416 <- Debug
+generated 2416..2514 <- Clone
+generated 2514..2623 <- PartialEq
+generated 2623..2794 <- Hash
+generated 2794..3018 <- PartialOrd
+generated 3018..3228 <- Ord
+generated 3228..3327 <- Default
+generated 3327..3785 <- Encode
+generated 3785..4904 <- Decode
+generated 4904..5949 <- __convenience_const
+generated 6464..7733 <- Debug
+generated 7733..9365 <- Clone
+generated 9365..13703 <- PartialEq
+generated 13703..16633 <- Hash
+generated 16633..16994 <- Default
+generated 16994..21965 <- Encode
+generated 21965..42654 <- Decode
+generated 42654..44276 <- __convenience_const
+generated 44738..45651 <- Debug
+generated 45651..46445 <- Clone
+generated 46445..48718 <- PartialEq
+generated 48718..50577 <- Hash
+generated 50577..50987 <- Default
+generated 50987..55392 <- Encode
+generated 55392..74180 <- Decode
+generated 74180..75740 <- __convenience_const
+generated 76134..76868 <- Debug
+generated 76868..77670 <- Clone
+generated 77670..79388 <- PartialEq
+generated 79388..80673 <- Hash
+generated 80673..80942 <- Default
+generated 80942..84842 <- Encode
+generated 84842..100005 <- Decode
+generated 100005..101627 <- __convenience_const
+generated 102042..102811 <- Debug
+generated 102811..103364 <- Clone
+generated 103364..104079 <- PartialEq
+generated 104079..104858 <- Hash
+generated 104858..105195 <- Default
+generated 105195..108935 <- Encode
+generated 108935..125215 <- Decode
+generated 125215..126837 <- __convenience_const
+generated 127040..127502 <- Debug
+generated 127502..127753 <- Clone
+generated 127753..128404 <- PartialEq
+generated 128404..129352 <- Hash
+generated 129352..132286 <- Encode
+generated 132286..142448 <- Decode
+generated 142448..143875 <- __convenience_const
 
 ## Metadata
 
@@ -3189,7 +3188,7 @@ interface CollectionKeys: {"body_span":{"end":1411,"start":1054},"decorators":[{
 interface CollectionUnions: {"body_span":{"end":1805,"start":1518},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1483,"start":1413}}],"fields":[{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":1551,"start":1524},"ts_type":"(string | number)[]"},{"decorators":[],"key":"Named","name":"itemOrText","optional":false,"readonly":false,"span":{"end":1593,"start":1556},"ts_type":"Array<EdgeItem | string>"},{"decorators":[],"key":"Named","name":"itemOrNull","optional":false,"readonly":false,"span":{"end":1631,"start":1598},"ts_type":"Set<EdgeItem | null>"},{"decorators":[],"key":"Named","name":"valueOrNull","optional":false,"readonly":false,"span":{"end":1678,"start":1636},"ts_type":"Map<string, EdgeItem | null>"},{"decorators":[],"key":"Named","name":"recordOrNull","optional":false,"readonly":false,"span":{"end":1729,"start":1683},"ts_type":"Record<string, EdgeItem | null>"},{"decorators":[],"key":"Named","name":"literal","optional":false,"readonly":false,"span":{"end":1760,"start":1734},"ts_type":"('on' | 'off')[]"},{"decorators":[],"key":"Named","name":"kindOrNull","optional":false,"readonly":false,"span":{"end":1803,"start":1765},"ts_type":"(CollectionKind | null)[]"}],"heritage":[],"methods":[],"name":"CollectionUnions","span":{"end":1805,"start":1491},"type_params":[]}
 interface CollectionTuples: {"body_span":{"end":2220,"start":1912},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1877,"start":1807}}],"fields":[{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1941,"start":1918},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"named","optional":false,"readonly":false,"span":{"end":1979,"start":1946},"ts_type":"[label: string, at: Date]"},{"decorators":[],"key":"Named","name":"itemPair","optional":false,"readonly":false,"span":{"end":2022,"start":1984},"ts_type":"[EdgeItem, EdgeItem | null]"},{"decorators":[],"key":"Named","name":"readonlyPair","optional":false,"readonly":false,"span":{"end":2067,"start":2027},"ts_type":"readonly [number, number]"},{"decorators":[],"key":"Named","name":"optionalTail","optional":false,"readonly":false,"span":{"end":2104,"start":2072},"ts_type":"[string, number?]"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":2137,"start":2109},"ts_type":"[string, ...number[]]"},{"decorators":[],"key":"Named","name":"pairs","optional":false,"readonly":false,"span":{"end":2170,"start":2142},"ts_type":"[string, EdgeItem][]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":2218,"start":2175},"ts_type":"[[number, number], [string, Date]]"}],"heritage":[],"methods":[],"name":"CollectionTuples","span":{"end":2220,"start":1885},"type_params":[]}
 interface CollectionBig: {"body_span":{"end":2423,"start":2315},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2283,"start":2222}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2321},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2357,"start":2340},"ts_type":"bigint[]"},{"decorators":[],"key":"Named","name":"maybeTotal","optional":false,"readonly":false,"span":{"end":2388,"start":2362},"ts_type":"bigint | null"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2421,"start":2393},"ts_type":"Map<string, bigint>"}],"heritage":[],"methods":[],"name":"CollectionBig","span":{"end":2423,"start":2291},"type_params":[]}
-enum CollectionKind: {"body_span":{"end":434,"start":370},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":342,"start":251}}],"is_const":false,"name":"CollectionKind","span":{"end":434,"start":350},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":391,"start":376}}],"name":"Plain","span":{"end":411,"start":396},"value":{"String":"plain"}},{"decorators":[],"name":"Fancy","span":{"end":432,"start":417},"value":{"String":"fancy"}}]}
+enum CollectionKind: {"body_span":{"end":434,"start":370},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":342,"start":251}}],"is_const":false,"is_declare":false,"name":"CollectionKind","span":{"end":434,"start":350},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":391,"start":376}}],"name":"Plain","span":{"end":411,"start":396},"value":{"String":"plain"}},{"decorators":[],"name":"Fancy","span":{"end":432,"start":417},"value":{"String":"fancy"}}]}
 
 ## Registry reads
 

@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Settings {
@@ -63,17 +63,17 @@ export function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: 
 function settingsEncodeFields(value: Settings, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("retries")) {
         if (value.retries !== undefined) {
-            result.retries = value.retries;
+            result["retries"] = value.retries;
         }
     }
     if (__fields === undefined || __fields.keeps("origin")) {
         if (value.origin !== undefined) {
-            result.origin = value.origin;
+            result["origin"] = value.origin;
         }
     }
     if (__fields === undefined || __fields.keeps("enabled")) {
         if (value.enabled !== undefined) {
-            result.enabled = value.enabled;
+            result["enabled"] = value.enabled;
         }
     }
 }
@@ -150,7 +150,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
 
     const instance: any = {};
@@ -295,15 +295,15 @@ export {};
 
 ## Mapping
 
-original 30..56 -> expanded 596..622
-original 88..114 -> expanded 622..648
-original 176..201 -> expanded 648..673
-original 235..259 -> expanded 673..697
-original 259..260 -> expanded 10128..10129
-generated 0..596 <- imports
-generated 697..3163 <- Encode
-generated 3163..9137 <- Decode
-generated 9137..10128 <- __convenience_const
+original 30..56 -> expanded 627..653
+original 88..114 -> expanded 653..679
+original 176..201 -> expanded 679..704
+original 235..259 -> expanded 704..728
+original 259..260 -> expanded 10158..10159
+generated 0..627 <- imports
+generated 728..3203 <- Encode
+generated 3203..9167 <- Decode
+generated 9167..10158 <- __convenience_const
 
 ## Metadata
 

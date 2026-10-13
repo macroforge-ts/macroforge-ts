@@ -13,7 +13,7 @@ true
 ## Output
 
 import { itemDecodeWithContext, itemEncodeWithContext } from "./item.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -74,22 +74,22 @@ export function billedItemEncodePartialWithContext(value: Partial<BilledItem>, c
 function billedItemEncodeFields(value: BilledItem, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("item")) {
         if (value.item !== undefined) {
-            result.item = itemEncodeWithContext(value.item, ctx);
+            result["item"] = itemEncodeWithContext(value.item, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("quantity")) {
         if (value.quantity !== undefined) {
-            result.quantity = value.quantity;
+            result["quantity"] = value.quantity;
         }
     }
     if (__fields === undefined || __fields.keeps("taxed")) {
         if (value.taxed !== undefined) {
-            result.taxed = value.taxed;
+            result["taxed"] = value.taxed;
         }
     }
     if (__fields === undefined || __fields.keeps("upsale")) {
         if (value.upsale !== undefined) {
-            result.upsale = value.upsale;
+            result["upsale"] = value.upsale;
         }
     }
 }
@@ -166,7 +166,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "BilledItem.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
         errors.push({ field: "item", message: "missing required field" });
@@ -262,8 +262,7 @@ export function billedItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "item" in o && "quantity" in o && "taxed" in o && "upsale" in o;
+    return __mf_holds(obj, "item") && __mf_holds(obj, "quantity") && __mf_holds(obj, "taxed") && __mf_holds(obj, "upsale");
 }
 
 export function billedItemIs(obj: unknown): obj is BilledItem {
@@ -620,20 +619,20 @@ export declare const BilledItem: {
 
 ## Mapping
 
-original 0..102 -> expanded 833..935
-original 151..186 -> expanded 935..970
-original 297..302 -> expanded 970..975
-original 321..342 -> expanded 975..996
-original 406..433 -> expanded 996..1023
-original 477..502 -> expanded 1023..1048
-original 547..570 -> expanded 1048..1071
-original 570..571 -> expanded 20729..20730
-generated 0..833 <- imports
-generated 1071..1233 <- Default
-generated 1233..3906 <- Encode
-generated 3906..11719 <- Decode
-generated 11719..19409 <- Gigaform
-generated 19409..20729 <- __convenience_const
+original 0..102 -> expanded 885..987
+original 151..186 -> expanded 987..1022
+original 297..302 -> expanded 1022..1027
+original 321..342 -> expanded 1027..1048
+original 406..433 -> expanded 1048..1075
+original 477..502 -> expanded 1075..1100
+original 547..570 -> expanded 1100..1123
+original 570..571 -> expanded 20785..20786
+generated 0..885 <- imports
+generated 1123..1285 <- Default
+generated 1285..3970 <- Encode
+generated 3970..11775 <- Decode
+generated 11775..19465 <- Gigaform
+generated 19465..20785 <- __convenience_const
 
 ## Metadata
 

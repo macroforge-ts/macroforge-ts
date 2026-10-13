@@ -17,7 +17,7 @@ import { jobTitleDecodeWithContext, jobTitleEncodeWithContext } from "./job-titl
 import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { routeDecodeWithContext, routeEncodeWithContext } from "./route.svelte";
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -111,92 +111,92 @@ export function employeeEncodePartialWithContext(value: Partial<Employee>, ctx: 
 function employeeEncodeFields(value: Employee, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("imageUrl")) {
         if (value.imageUrl !== undefined) {
-            result.imageUrl = value.imageUrl;
+            result["imageUrl"] = value.imageUrl;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("phones")) {
         if (value.phones !== undefined) {
-            result.phones = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
+            result["phones"] = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("role")) {
         if (value.role !== undefined) {
-            result.role = value.role;
+            result["role"] = value.role;
         }
     }
     if (__fields === undefined || __fields.keeps("title")) {
         if (value.title !== undefined) {
-            result.title = jobTitleEncodeWithContext(value.title, ctx);
+            result["title"] = jobTitleEncodeWithContext(value.title, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = emailEncodeWithContext(value.email, ctx);
+            result["email"] = emailEncodeWithContext(value.email, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("address")) {
         if (value.address !== undefined) {
-            result.address = value.address;
+            result["address"] = value.address;
         }
     }
     if (__fields === undefined || __fields.keeps("username")) {
         if (value.username !== undefined) {
-            result.username = value.username;
+            result["username"] = value.username;
         }
     }
     if (__fields === undefined || __fields.keeps("route")) {
         if (value.route !== undefined) {
-            result.route = (typeof value.route === "string" ? value.route : routeEncodeWithContext(value.route, ctx));
+            result["route"] = (typeof value.route === "string" ? value.route : routeEncodeWithContext(value.route, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("ratePerHour")) {
         if (value.ratePerHour !== undefined) {
-            result.ratePerHour = value.ratePerHour;
+            result["ratePerHour"] = value.ratePerHour;
         }
     }
     if (__fields === undefined || __fields.keeps("active")) {
         if (value.active !== undefined) {
-            result.active = value.active;
+            result["active"] = value.active;
         }
     }
     if (__fields === undefined || __fields.keeps("isTechnician")) {
         if (value.isTechnician !== undefined) {
-            result.isTechnician = value.isTechnician;
+            result["isTechnician"] = value.isTechnician;
         }
     }
     if (__fields === undefined || __fields.keeps("isSalesRep")) {
         if (value.isSalesRep !== undefined) {
-            result.isSalesRep = value.isSalesRep;
+            result["isSalesRep"] = value.isSalesRep;
         }
     }
     if (__fields === undefined || __fields.keeps("description")) {
         if (value.description !== undefined) {
-            result.description = value.description;
+            result["description"] = value.description;
         }
     }
     if (__fields === undefined || __fields.keeps("linkedinUrl")) {
         if (value.linkedinUrl !== undefined) {
-            result.linkedinUrl = value.linkedinUrl;
+            result["linkedinUrl"] = value.linkedinUrl;
         }
     }
     if (__fields === undefined || __fields.keeps("attendance")) {
         if (value.attendance !== undefined) {
-            result.attendance = value.attendance;
+            result["attendance"] = value.attendance;
         }
     }
     if (__fields === undefined || __fields.keeps("settings")) {
         if (value.settings !== undefined) {
-            result.settings = settingsEncodeWithContext(value.settings, ctx);
+            result["settings"] = settingsEncodeWithContext(value.settings, ctx);
         }
     }
 }
@@ -273,7 +273,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         throw new __mf_DecodeError([{ field: "_root", message: "Employee.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -673,8 +673,7 @@ export function employeeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "imageUrl" in o && "name" in o && "phones" in o && "role" in o && "title" in o && "email" in o && "address" in o && "username" in o && "route" in o && "ratePerHour" in o && "active" in o && "isTechnician" in o && "isSalesRep" in o && "description" in o && "linkedinUrl" in o && "attendance" in o && "settings" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "imageUrl") && __mf_holds(obj, "name") && __mf_holds(obj, "phones") && __mf_holds(obj, "role") && __mf_holds(obj, "title") && __mf_holds(obj, "email") && __mf_holds(obj, "address") && __mf_holds(obj, "username") && __mf_holds(obj, "route") && __mf_holds(obj, "ratePerHour") && __mf_holds(obj, "active") && __mf_holds(obj, "isTechnician") && __mf_holds(obj, "isSalesRep") && __mf_holds(obj, "description") && __mf_holds(obj, "linkedinUrl") && __mf_holds(obj, "attendance") && __mf_holds(obj, "settings");
 }
 
 export function employeeIs(obj: unknown): obj is Employee {
@@ -1586,21 +1585,21 @@ export declare const Employee: {
 
 ## Mapping
 
-original 0..310 -> expanded 1329..1639
-original 359..437 -> expanded 1639..1717
-original 478..533 -> expanded 1717..1772
-original 574..597 -> expanded 1772..1795
-original 626..670 -> expanded 1795..1839
-original 711..737 -> expanded 1839..1865
-original 778..805 -> expanded 1865..1892
-original 824..1070 -> expanded 1892..2138
-original 1070..1071 -> expanded 60267..60268
-generated 0..1329 <- imports
-generated 2138..2658 <- Default
-generated 2658..7878 <- Encode
-generated 7878..31684 <- Decode
-generated 31684..59001 <- Gigaform
-generated 59001..60267 <- __convenience_const
+original 0..310 -> expanded 1381..1691
+original 359..437 -> expanded 1691..1769
+original 478..533 -> expanded 1769..1824
+original 574..597 -> expanded 1824..1847
+original 626..670 -> expanded 1847..1891
+original 711..737 -> expanded 1891..1917
+original 778..805 -> expanded 1917..1944
+original 824..1070 -> expanded 1944..2190
+original 1070..1071 -> expanded 60533..60534
+generated 0..1381 <- imports
+generated 2190..2710 <- Default
+generated 2710..7984 <- Encode
+generated 7984..31950 <- Decode
+generated 31950..59267 <- Gigaform
+generated 59267..60533 <- __convenience_const
 
 ## Metadata
 

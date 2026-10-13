@@ -19,8 +19,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 interface Item {
     id: string;
@@ -98,7 +98,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Item.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -144,8 +144,7 @@ export function itemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o;
+    return __mf_holds(obj, "id");
 }
 
 export function itemIs(obj: unknown): obj is Item {
@@ -213,12 +212,12 @@ Error [83..114]: @derive(Decode): member `Item[]` of union 'OneOrMany' has no de
 
 ## Mapping
 
-original 22..57 -> expanded 350..385
-original 57..59 -> expanded 6145..6147
-original 81..114 -> expanded 6147..6180
-generated 0..350 <- imports
-generated 385..5534 <- Decode
-generated 5534..6145 <- __convenience_const
+original 22..57 -> expanded 402..437
+original 57..59 -> expanded 6153..6155
+original 81..114 -> expanded 6155..6188
+generated 0..402 <- imports
+generated 437..5542 <- Decode
+generated 5542..6153 <- __convenience_const
 
 ## Metadata
 

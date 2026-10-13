@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,12 +65,12 @@ export function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_E
 function emailEncodeFields(value: Email, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("canEmail")) {
         if (value.canEmail !== undefined) {
-            result.canEmail = value.canEmail;
+            result["canEmail"] = value.canEmail;
         }
     }
     if (__fields === undefined || __fields.keeps("emailString")) {
         if (value.emailString !== undefined) {
-            result.emailString = value.emailString;
+            result["emailString"] = value.emailString;
         }
     }
 }
@@ -147,7 +147,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Email.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("canEmail")) && !("canEmail" in obj)) {
         errors.push({ field: "canEmail", message: "missing required field" });
@@ -223,8 +223,7 @@ export function emailHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "canEmail" in o && "emailString" in o;
+    return __mf_holds(obj, "canEmail") && __mf_holds(obj, "emailString");
 }
 
 export function emailIs(obj: unknown): obj is Email {
@@ -487,18 +486,18 @@ export declare const Email: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..137 -> expanded 813..843
-original 185..213 -> expanded 843..871
-original 255..260 -> expanded 871..876
-original 310..337 -> expanded 876..903
-original 337..338 -> expanded 16537..16538
-generated 0..755 <- imports
-generated 903..1021 <- Default
-generated 1021..3300 <- Encode
-generated 3300..10775 <- Decode
-generated 10775..15352 <- Gigaform
-generated 15352..16537 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..137 -> expanded 865..895
+original 185..213 -> expanded 895..923
+original 255..260 -> expanded 923..928
+original 310..337 -> expanded 928..955
+original 337..338 -> expanded 16563..16564
+generated 0..807 <- imports
+generated 955..1073 <- Default
+generated 1073..3358 <- Encode
+generated 3358..10801 <- Decode
+generated 10801..15378 <- Gigaform
+generated 15378..16563 <- __convenience_const
 
 ## Metadata
 

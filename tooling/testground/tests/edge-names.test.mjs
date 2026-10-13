@@ -231,3 +231,36 @@ Deno.test('a type named in lowercase is coded through its functions from another
     assert(imports.nameImportsToString(source).includes('origin'));
     assertEquals(imports.nameImportsDefaultValue().origin, point(0, 0));
 });
+
+Deno.test('fields named like what every object inherits are read from the input alone', () => {
+    const value = {
+        constructor: 'built',
+        toString: 'text',
+        valueOf: 7,
+        hasOwnProperty: true,
+        length: 2,
+        then: 'later'
+    };
+    const names = Object.keys(value);
+
+    // An empty object answers to all of these names, and has none of them.
+    const empty = mod.namePrototypeDecode({});
+    assertEquals(errorFields(empty).sort(), [...names].sort());
+    assert(empty.errors.every((error) => error.message === 'missing required field'));
+    assert(!mod.namePrototypeHasShape({}));
+    assert(mod.namePrototypeHasShape(value));
+
+    const encoded = JSON.parse(mod.namePrototypeEncode(value));
+    assertEquals(Object.keys(encoded).sort(), [...names].sort());
+    const back = decoded(mod.namePrototypeDecode(encoded));
+    for (const name of names) assertStrictEquals(back[name], value[name]);
+
+    const copy = mod.namePrototypeClone(value);
+    assert(mod.namePrototypeEquals(value, copy));
+    assertStrictEquals(mod.namePrototypeHashCode(value), mod.namePrototypeHashCode(copy));
+    assert(!mod.namePrototypeEquals(value, { ...value, constructor: 'other' }));
+    const blank = mod.namePrototypeDefaultValue();
+    assertStrictEquals(blank.constructor, '');
+    assertStrictEquals(blank.valueOf, 0);
+    assert(mod.namePrototypeToString(value).includes('constructor: built'));
+});

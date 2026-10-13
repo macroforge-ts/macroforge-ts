@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Coordinate = {
@@ -44,7 +44,7 @@ export function coordinateClone(value: Coordinate): Coordinate {
 
 export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.lat === b.lat && a.lng === b.lng);
+    return __mf_equalWithin(a, b, () => (a.lat === b.lat || a.lat !== a.lat && b.lat !== b.lat) && (a.lng === b.lng || a.lng !== a.lng && b.lng !== b.lng));
 }
 
 export function coordinateHashCode(value: Coordinate): number {
@@ -86,12 +86,12 @@ export function coordinateEncodePartialWithContext(value: Partial<Coordinate>, c
 function coordinateEncodeFields(value: Coordinate, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("lat")) {
         if (value.lat !== undefined) {
-            result.lat = value.lat;
+            result["lat"] = value.lat;
         }
     }
     if (__fields === undefined || __fields.keeps("lng")) {
         if (value.lng !== undefined) {
-            result.lng = value.lng;
+            result["lng"] = value.lng;
         }
     }
 }
@@ -168,7 +168,7 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("lat")) && !("lat" in obj)) {
         errors.push({ field: "lat", message: "missing required field" });
@@ -226,8 +226,7 @@ export function coordinateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "lat" in o && "lng" in o;
+    return __mf_holds(obj, "lat") && __mf_holds(obj, "lng");
 }
 
 export function coordinateIs(obj: unknown): obj is Coordinate {
@@ -317,16 +316,16 @@ export {};
 
 ## Mapping
 
-original 61..118 -> expanded 780..837
-original 118..119 -> expanded 11582..11583
-generated 0..780 <- imports
-generated 837..1142 <- Debug
-generated 1142..1303 <- Clone
-generated 1303..1487 <- PartialEq
-generated 1487..1984 <- Hash
-generated 1984..4286 <- Encode
-generated 4286..10249 <- Decode
-generated 10249..11582 <- __convenience_const
+original 61..118 -> expanded 832..889
+original 118..119 -> expanded 11688..11689
+generated 0..832 <- imports
+generated 889..1194 <- Debug
+generated 1194..1355 <- Clone
+generated 1355..1619 <- PartialEq
+generated 1619..2116 <- Hash
+generated 2116..4424 <- Encode
+generated 4424..10355 <- Decode
+generated 10355..11688 <- __convenience_const
 
 ## Metadata
 

@@ -15,7 +15,7 @@ true
 import { activityTypeDecodeWithContext, activityTypeEncodeWithContext, activityTypeDefaultValue } from "./activity-type.svelte";
 import { actorDecodeWithContext, actorEncodeWithContext } from "./actor.svelte";
 import { targetDecodeWithContext, targetEncodeWithContext } from "./target.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -79,32 +79,32 @@ export function didEncodePartialWithContext(value: Partial<Did>, ctx: __mf_Encod
 function didEncodeFields(value: Did, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("in")) {
         if (value.in !== undefined) {
-            result.in = (typeof value.in === "string" ? value.in : actorEncodeWithContext(value.in, ctx));
+            result["in"] = (typeof value.in === "string" ? value.in : actorEncodeWithContext(value.in, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("out")) {
         if (value.out !== undefined) {
-            result.out = (typeof value.out === "string" ? value.out : targetEncodeWithContext(value.out, ctx));
+            result["out"] = (typeof value.out === "string" ? value.out : targetEncodeWithContext(value.out, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("activityType")) {
         if (value.activityType !== undefined) {
-            result.activityType = activityTypeEncodeWithContext(value.activityType, ctx);
+            result["activityType"] = activityTypeEncodeWithContext(value.activityType, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
         if (value.createdAt !== undefined) {
-            result.createdAt = value.createdAt;
+            result["createdAt"] = value.createdAt;
         }
     }
     if (__fields === undefined || __fields.keeps("metadata")) {
         if (value.metadata !== undefined) {
-            result.metadata = value.metadata;
+            result["metadata"] = value.metadata;
         }
     }
 }
@@ -181,7 +181,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         throw new __mf_DecodeError([{ field: "_root", message: "Did.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("in")) && !("in" in obj)) {
         errors.push({ field: "in", message: "missing required field" });
@@ -337,8 +337,7 @@ export function didHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "in" in o && "out" in o && "id" in o && "activityType" in o && "createdAt" in o && "metadata" in o;
+    return __mf_holds(obj, "in") && __mf_holds(obj, "out") && __mf_holds(obj, "id") && __mf_holds(obj, "activityType") && __mf_holds(obj, "createdAt") && __mf_holds(obj, "metadata");
 }
 
 export function didIs(obj: unknown): obj is Did {
@@ -753,17 +752,17 @@ export declare const Did: {
 
 ## Mapping
 
-original 0..211 -> expanded 1049..1260
-original 260..288 -> expanded 1260..1288
-original 307..336 -> expanded 1288..1317
-original 355..483 -> expanded 1317..1445
-original 483..484 -> expanded 25420..25421
-generated 0..1049 <- imports
-generated 1445..1655 <- Default
-generated 1655..4708 <- Encode
-generated 4708..14906 <- Decode
-generated 14906..24289 <- Gigaform
-generated 24289..25420 <- __convenience_const
+original 0..211 -> expanded 1101..1312
+original 260..288 -> expanded 1312..1340
+original 307..336 -> expanded 1340..1369
+original 355..483 -> expanded 1369..1497
+original 483..484 -> expanded 25506..25507
+generated 0..1101 <- imports
+generated 1497..1707 <- Default
+generated 1707..4778 <- Encode
+generated 4778..14992 <- Decode
+generated 14992..24375 <- Gigaform
+generated 24375..25506 <- __convenience_const
 
 ## Metadata
 

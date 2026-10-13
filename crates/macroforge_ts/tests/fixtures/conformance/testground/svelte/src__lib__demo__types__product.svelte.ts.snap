@@ -13,7 +13,7 @@ true
 ## Output
 
 import { productDefaultsDecodeWithContext, productDefaultsEncodeWithContext, productDefaultsDefaultValue } from "./product-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -92,52 +92,52 @@ export function productEncodePartialWithContext(value: Partial<Product>, ctx: __
 function productEncodeFields(value: Product, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("quickCode")) {
         if (value.quickCode !== undefined) {
-            result.quickCode = value.quickCode;
+            result["quickCode"] = value.quickCode;
         }
     }
     if (__fields === undefined || __fields.keeps("group")) {
         if (value.group !== undefined) {
-            result.group = value.group;
+            result["group"] = value.group;
         }
     }
     if (__fields === undefined || __fields.keeps("subgroup")) {
         if (value.subgroup !== undefined) {
-            result.subgroup = value.subgroup;
+            result["subgroup"] = value.subgroup;
         }
     }
     if (__fields === undefined || __fields.keeps("unit")) {
         if (value.unit !== undefined) {
-            result.unit = value.unit;
+            result["unit"] = value.unit;
         }
     }
     if (__fields === undefined || __fields.keeps("active")) {
         if (value.active !== undefined) {
-            result.active = value.active;
+            result["active"] = value.active;
         }
     }
     if (__fields === undefined || __fields.keeps("commission")) {
         if (value.commission !== undefined) {
-            result.commission = value.commission;
+            result["commission"] = value.commission;
         }
     }
     if (__fields === undefined || __fields.keeps("favorite")) {
         if (value.favorite !== undefined) {
-            result.favorite = value.favorite;
+            result["favorite"] = value.favorite;
         }
     }
     if (__fields === undefined || __fields.keeps("defaults")) {
         if (value.defaults !== undefined) {
-            result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
+            result["defaults"] = productDefaultsEncodeWithContext(value.defaults, ctx);
         }
     }
 }
@@ -214,7 +214,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         throw new __mf_DecodeError([{ field: "_root", message: "Product.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -412,8 +412,7 @@ export function productHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "quickCode" in o && "group" in o && "subgroup" in o && "unit" in o && "active" in o && "commission" in o && "favorite" in o && "defaults" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "quickCode") && __mf_holds(obj, "group") && __mf_holds(obj, "subgroup") && __mf_holds(obj, "unit") && __mf_holds(obj, "active") && __mf_holds(obj, "commission") && __mf_holds(obj, "favorite") && __mf_holds(obj, "defaults");
 }
 
 export function productIs(obj: unknown): obj is Product {
@@ -967,26 +966,26 @@ export declare const Product: {
 
 ## Mapping
 
-original 0..125 -> expanded 896..1021
-original 174..206 -> expanded 1021..1053
-original 234..255 -> expanded 1053..1074
-original 296..301 -> expanded 1074..1079
-original 342..365 -> expanded 1079..1102
-original 412..417 -> expanded 1102..1107
-original 458..486 -> expanded 1107..1135
-original 551..582 -> expanded 1135..1166
-original 650..684 -> expanded 1166..1200
-original 748..778 -> expanded 1200..1230
-original 823..849 -> expanded 1230..1256
-original 898..928 -> expanded 1256..1286
-original 975..1031 -> expanded 1286..1342
-original 1031..1032 -> expanded 34305..34306
-generated 0..896 <- imports
-generated 1342..1660 <- Default
-generated 1660..5291 <- Encode
-generated 5291..18797 <- Decode
-generated 18797..33066 <- Gigaform
-generated 33066..34305 <- __convenience_const
+original 0..125 -> expanded 948..1073
+original 174..206 -> expanded 1073..1105
+original 234..255 -> expanded 1105..1126
+original 296..301 -> expanded 1126..1131
+original 342..365 -> expanded 1131..1154
+original 412..417 -> expanded 1154..1159
+original 458..486 -> expanded 1159..1187
+original 551..582 -> expanded 1187..1218
+original 650..684 -> expanded 1218..1252
+original 748..778 -> expanded 1252..1282
+original 823..849 -> expanded 1282..1308
+original 898..928 -> expanded 1308..1338
+original 975..1031 -> expanded 1338..1394
+original 1031..1032 -> expanded 34451..34452
+generated 0..948 <- imports
+generated 1394..1712 <- Default
+generated 1712..5373 <- Encode
+generated 5373..18943 <- Decode
+generated 18943..33212 <- Gigaform
+generated 33212..34451 <- __convenience_const
 
 ## Metadata
 

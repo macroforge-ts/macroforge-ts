@@ -23,8 +23,8 @@ true
 
 ## Output
 
+import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 interface UserProfile {
     
@@ -109,7 +109,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
@@ -226,8 +226,7 @@ export function userProfileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "email" in o && "username" in o;
+    return __mf_holds(obj, "email") && __mf_holds(obj, "username");
 }
 
 export function userProfileIs(obj: unknown): obj is UserProfile {
@@ -294,14 +293,14 @@ export {};
 
 ## Mapping
 
-original 22..51 -> expanded 350..379
-original 71..96 -> expanded 379..404
-original 138..166 -> expanded 404..432
-original 189..209 -> expanded 432..452
-original 209..210 -> expanded 10779..10780
-generated 0..350 <- imports
-generated 452..10063 <- Decode
-generated 10063..10779 <- __convenience_const
+original 22..51 -> expanded 402..431
+original 71..96 -> expanded 431..456
+original 138..166 -> expanded 456..484
+original 189..209 -> expanded 484..504
+original 209..210 -> expanded 10799..10800
+generated 0..402 <- imports
+generated 504..10083 <- Decode
+generated 10083..10799 <- __convenience_const
 
 ## Metadata
 

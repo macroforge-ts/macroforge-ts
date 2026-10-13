@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Date validator test classes for comprehensive decoder validation testing.
@@ -102,7 +102,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "ValidDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
         errors.push({ field: "date", message: "missing required field" });
@@ -161,8 +161,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holds(obj, "date");
 }
 
 static is(obj: unknown): obj is ValidDateValidator {
@@ -286,7 +285,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
         errors.push({ field: "date", message: "missing required field" });
@@ -345,8 +344,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holds(obj, "date");
 }
 
 static is(obj: unknown): obj is GreaterThanDateValidator {
@@ -470,7 +468,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
         errors.push({ field: "date", message: "missing required field" });
@@ -529,8 +527,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holds(obj, "date");
 }
 
 static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
@@ -654,7 +651,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "LessThanDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
         errors.push({ field: "date", message: "missing required field" });
@@ -713,8 +710,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holds(obj, "date");
 }
 
 static is(obj: unknown): obj is LessThanDateValidator {
@@ -838,7 +834,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "LessThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
         errors.push({ field: "date", message: "missing required field" });
@@ -897,8 +893,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holds(obj, "date");
 }
 
 static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
@@ -1022,7 +1017,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "BetweenDateValidator.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
         errors.push({ field: "date", message: "missing required field" });
@@ -1081,8 +1076,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "date" in o;
+    return __mf_holds(obj, "date");
 }
 
 static is(obj: unknown): obj is BetweenDateValidator {
@@ -1446,41 +1440,41 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 
 ## Mapping
 
-original 0..229 -> expanded 350..579
-original 229..230 -> expanded 6902..6903
-original 230..407 -> expanded 8835..9012
-original 407..408 -> expanded 15560..15561
-original 408..612 -> expanded 17583..17787
-original 612..613 -> expanded 24584..24585
-original 613..781 -> expanded 26742..26910
-original 781..782 -> expanded 33383..33384
-original 782..977 -> expanded 35361..35556
-original 977..978 -> expanded 42278..42279
-original 978..1157 -> expanded 44391..44570
-original 1157..1158 -> expanded 51228..51229
-original 1158..1159 -> expanded 53191..53192
-generated 0..350 <- imports
-generated 579..6902 <- Decode
-generated 6903..8835 <- Decode
-generated 9012..15560 <- Decode
-generated 15561..17583 <- Decode
-generated 17787..24584 <- Decode
-generated 24585..26742 <- Decode
-generated 26910..33383 <- Decode
-generated 33384..35361 <- Decode
-generated 35556..42278 <- Decode
-generated 42279..44391 <- Decode
-generated 44570..51228 <- Decode
-generated 51229..53191 <- Decode
+original 0..229 -> expanded 402..631
+original 229..230 -> expanded 6910..6911
+original 230..407 -> expanded 8843..9020
+original 407..408 -> expanded 15524..15525
+original 408..612 -> expanded 17547..17751
+original 612..613 -> expanded 24504..24505
+original 613..781 -> expanded 26662..26830
+original 781..782 -> expanded 33259..33260
+original 782..977 -> expanded 35237..35432
+original 977..978 -> expanded 42110..42111
+original 978..1157 -> expanded 44223..44402
+original 1157..1158 -> expanded 51016..51017
+original 1158..1159 -> expanded 52979..52980
+generated 0..402 <- imports
+generated 631..6910 <- Decode
+generated 6911..8843 <- Decode
+generated 9020..15524 <- Decode
+generated 15525..17547 <- Decode
+generated 17751..24504 <- Decode
+generated 24505..26662 <- Decode
+generated 26830..33259 <- Decode
+generated 33260..35237 <- Decode
+generated 35432..42110 <- Decode
+generated 42111..44223 <- Decode
+generated 44402..51016 <- Decode
+generated 51017..52979 <- Decode
 
 ## Metadata
 
-class ValidDateValidator: {"body_span":{"end":231,"start":165},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":213,"start":171}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":229,"start":218},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ValidDateValidator","span":{"end":231,"start":140},"superclass":null,"type_params":[]}
-class GreaterThanDateValidator: {"body_span":{"end":409,"start":323},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":284,"start":262}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":391,"start":329}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":407,"start":396},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanDateValidator","span":{"end":409,"start":292},"superclass":null,"type_params":[]}
-class GreaterThanOrEqualToDateValidator: {"body_span":{"end":614,"start":519},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":471,"start":449}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":596,"start":525}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":612,"start":601},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToDateValidator","span":{"end":614,"start":479},"superclass":null,"type_params":[]}
-class LessThanDateValidator: {"body_span":{"end":783,"start":700},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":664,"start":642}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2030-01-01\")'] }","name":"endec","span":{"end":765,"start":706}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":781,"start":770},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanDateValidator","span":{"end":783,"start":672},"superclass":null,"type_params":[]}
-class LessThanOrEqualToDateValidator: {"body_span":{"end":979,"start":887},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":842,"start":820}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2030-01-01\")'] }","name":"endec","span":{"end":961,"start":893}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":977,"start":966},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToDateValidator","span":{"end":979,"start":850},"superclass":null,"type_params":[]}
-class BetweenDateValidator: {"body_span":{"end":1159,"start":1063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1028,"start":1006}}],"fields":[{"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2030-01-01\")'] }","name":"endec","span":{"end":1141,"start":1069}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":1157,"start":1146},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenDateValidator","span":{"end":1159,"start":1036},"superclass":null,"type_params":[]}
+class ValidDateValidator: {"body_span":{"end":231,"start":165},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":213,"start":171}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":229,"start":218},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ValidDateValidator","span":{"end":231,"start":140},"superclass":null,"type_params":[]}
+class GreaterThanDateValidator: {"body_span":{"end":409,"start":323},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":284,"start":262}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":391,"start":329}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":407,"start":396},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanDateValidator","span":{"end":409,"start":292},"superclass":null,"type_params":[]}
+class GreaterThanOrEqualToDateValidator: {"body_span":{"end":614,"start":519},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":471,"start":449}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":596,"start":525}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":612,"start":601},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToDateValidator","span":{"end":614,"start":479},"superclass":null,"type_params":[]}
+class LessThanDateValidator: {"body_span":{"end":783,"start":700},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":664,"start":642}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2030-01-01\")'] }","name":"endec","span":{"end":765,"start":706}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":781,"start":770},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanDateValidator","span":{"end":783,"start":672},"superclass":null,"type_params":[]}
+class LessThanOrEqualToDateValidator: {"body_span":{"end":979,"start":887},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":842,"start":820}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2030-01-01\")'] }","name":"endec","span":{"end":961,"start":893}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":977,"start":966},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToDateValidator","span":{"end":979,"start":850},"superclass":null,"type_params":[]}
+class BetweenDateValidator: {"body_span":{"end":1159,"start":1063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1028,"start":1006}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2030-01-01\")'] }","name":"endec","span":{"end":1141,"start":1069}}],"initializer":null,"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":1157,"start":1146},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenDateValidator","span":{"end":1159,"start":1036},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

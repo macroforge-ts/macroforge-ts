@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,22 +73,22 @@ export function representsEncodePartialWithContext(value: Partial<Represents>, c
 function representsEncodeFields(value: Represents, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("in")) {
         if (value.in !== undefined) {
-            result.in = (typeof value.in === "string" ? value.in : employeeEncodeWithContext(value.in, ctx));
+            result["in"] = (typeof value.in === "string" ? value.in : employeeEncodeWithContext(value.in, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("out")) {
         if (value.out !== undefined) {
-            result.out = (typeof value.out === "string" ? value.out : accountEncodeWithContext(value.out, ctx));
+            result["out"] = (typeof value.out === "string" ? value.out : accountEncodeWithContext(value.out, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("dateStarted")) {
         if (value.dateStarted !== undefined) {
-            result.dateStarted = value.dateStarted;
+            result["dateStarted"] = value.dateStarted;
         }
     }
 }
@@ -165,7 +165,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         throw new __mf_DecodeError([{ field: "_root", message: "Represents.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("in")) && !("in" in obj)) {
         errors.push({ field: "in", message: "missing required field" });
@@ -283,8 +283,7 @@ export function representsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "in" in o && "out" in o && "id" in o && "dateStarted" in o;
+    return __mf_holds(obj, "in") && __mf_holds(obj, "out") && __mf_holds(obj, "id") && __mf_holds(obj, "dateStarted");
 }
 
 export function representsIs(obj: unknown): obj is Represents {
@@ -612,17 +611,17 @@ export declare const Represents: {
 
 ## Mapping
 
-original 0..159 -> expanded 932..1091
-original 208..243 -> expanded 1091..1126
-original 262..294 -> expanded 1126..1158
-original 313..383 -> expanded 1158..1228
-original 383..384 -> expanded 20597..20598
-generated 0..932 <- imports
-generated 1228..1380 <- Default
-generated 1380..4158 <- Encode
-generated 4158..12746 <- Decode
-generated 12746..19277 <- Gigaform
-generated 19277..20597 <- __convenience_const
+original 0..159 -> expanded 984..1143
+original 208..243 -> expanded 1143..1178
+original 262..294 -> expanded 1178..1210
+original 313..383 -> expanded 1210..1280
+original 383..384 -> expanded 20653..20654
+generated 0..984 <- imports
+generated 1280..1432 <- Default
+generated 1432..4222 <- Encode
+generated 4222..12802 <- Decode
+generated 12802..19333 <- Gigaform
+generated 19333..20653 <- __convenience_const
 
 ## Metadata
 

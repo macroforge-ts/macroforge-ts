@@ -1,7 +1,8 @@
 /**
  * Enums by how their values come about: counted, negative, fractional,
- * computed, of both kinds at once, repeated, lone and with text that needs
- * escaping, and the fields and collections that hold them.
+ * computed, of both kinds at once, repeated, lone, with text that needs
+ * escaping, inlined and named like one another's values, and the fields and
+ * collections that hold them.
  */
 
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
@@ -62,6 +63,20 @@ export enum EnumText {
     Slashed = 'back\\slash'
 }
 
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export const enum EnumConstant {
+    /** @default */
+    Low = 'low',
+    High = 'high'
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum EnumCrossed {
+    /** @default */
+    A = 'B',
+    B = 'A'
+}
+
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface EnumHolder {
     counted: EnumCounted;
@@ -76,6 +91,7 @@ export interface EnumHolder {
     byKind: Map<EnumText, number>;
     labels: Record<string, EnumSigned>;
     pair: [EnumCounted, EnumText];
+    constant: EnumConstant;
 }
 
 /** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord) */

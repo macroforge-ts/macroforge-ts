@@ -13,7 +13,7 @@ true
 ## Output
 
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -70,22 +70,22 @@ export function scheduleSettingsEncodePartialWithContext(value: Partial<Schedule
 function scheduleSettingsEncodeFields(value: ScheduleSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("daysPerWeek")) {
         if (value.daysPerWeek !== undefined) {
-            result.daysPerWeek = value.daysPerWeek;
+            result["daysPerWeek"] = value.daysPerWeek;
         }
     }
     if (__fields === undefined || __fields.keeps("rowHeight")) {
         if (value.rowHeight !== undefined) {
-            result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);
+            result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("visibleRoutes")) {
         if (value.visibleRoutes !== undefined) {
-            result.visibleRoutes = value.visibleRoutes;
+            result["visibleRoutes"] = value.visibleRoutes;
         }
     }
     if (__fields === undefined || __fields.keeps("detailedCards")) {
         if (value.detailedCards !== undefined) {
-            result.detailedCards = value.detailedCards;
+            result["detailedCards"] = value.detailedCards;
         }
     }
 }
@@ -162,7 +162,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         throw new __mf_DecodeError([{ field: "_root", message: "ScheduleSettings.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("daysPerWeek")) && !("daysPerWeek" in obj)) {
         errors.push({ field: "daysPerWeek", message: "missing required field" });
@@ -273,8 +273,7 @@ export function scheduleSettingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "daysPerWeek" in o && "rowHeight" in o && "visibleRoutes" in o && "detailedCards" in o;
+    return __mf_holds(obj, "daysPerWeek") && __mf_holds(obj, "rowHeight") && __mf_holds(obj, "visibleRoutes") && __mf_holds(obj, "detailedCards");
 }
 
 export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
@@ -640,16 +639,16 @@ export declare const ScheduleSettings: {
 
 ## Mapping
 
-original 0..113 -> expanded 939..1052
-original 162..228 -> expanded 1052..1118
-original 253..343 -> expanded 1118..1208
-original 343..344 -> expanded 23849..23850
-generated 0..939 <- imports
-generated 1208..1408 <- Default
-generated 1408..4268 <- Encode
-generated 4268..13310 <- Decode
-generated 13310..22367 <- Gigaform
-generated 22367..23849 <- __convenience_const
+original 0..113 -> expanded 991..1104
+original 162..228 -> expanded 1104..1170
+original 253..343 -> expanded 1170..1260
+original 343..344 -> expanded 23905..23906
+generated 0..991 <- imports
+generated 1260..1460 <- Default
+generated 1460..4332 <- Encode
+generated 4332..13366 <- Decode
+generated 13366..22423 <- Gigaform
+generated 22423..23905 <- __convenience_const
 
 ## Metadata
 

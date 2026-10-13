@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,12 +62,12 @@ export function directionHueEncodePartialWithContext(value: Partial<DirectionHue
 function directionHueEncodeFields(value: DirectionHue, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("bearing")) {
         if (value.bearing !== undefined) {
-            result.bearing = value.bearing;
+            result["bearing"] = value.bearing;
         }
     }
     if (__fields === undefined || __fields.keeps("hue")) {
         if (value.hue !== undefined) {
-            result.hue = value.hue;
+            result["hue"] = value.hue;
         }
     }
 }
@@ -144,7 +144,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         throw new __mf_DecodeError([{ field: "_root", message: "DirectionHue.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("bearing")) && !("bearing" in obj)) {
         errors.push({ field: "bearing", message: "missing required field" });
@@ -202,8 +202,7 @@ export function directionHueHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "bearing" in o && "hue" in o;
+    return __mf_holds(obj, "bearing") && __mf_holds(obj, "hue");
 }
 
 export function directionHueIs(obj: unknown): obj is DirectionHue {
@@ -471,15 +470,15 @@ export declare const DirectionHue: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..179 -> expanded 813..885
-original 179..180 -> expanded 15597..15598
-generated 0..755 <- imports
-generated 885..1003 <- Default
-generated 1003..3351 <- Encode
-generated 3351..9446 <- Decode
-generated 9446..14223 <- Gigaform
-generated 14223..15597 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..179 -> expanded 865..937
+original 179..180 -> expanded 15623..15624
+generated 0..807 <- imports
+generated 937..1055 <- Default
+generated 1055..3409 <- Encode
+generated 3409..9472 <- Decode
+generated 9472..14249 <- Gigaform
+generated 14249..15623 <- __convenience_const
 
 ## Metadata
 

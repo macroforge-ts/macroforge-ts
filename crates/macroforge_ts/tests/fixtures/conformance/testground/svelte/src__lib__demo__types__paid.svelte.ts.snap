@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -64,17 +64,17 @@ export function paidEncodePartialWithContext(value: Partial<Paid>, ctx: __mf_Enc
 function paidEncodeFields(value: Paid, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("amount")) {
         if (value.amount !== undefined) {
-            result.amount = value.amount;
+            result["amount"] = value.amount;
         }
     }
     if (__fields === undefined || __fields.keeps("currency")) {
         if (value.currency !== undefined) {
-            result.currency = value.currency;
+            result["currency"] = value.currency;
         }
     }
     if (__fields === undefined || __fields.keeps("paymentMethod")) {
         if (value.paymentMethod !== undefined) {
-            result.paymentMethod = value.paymentMethod;
+            result["paymentMethod"] = value.paymentMethod;
         }
     }
 }
@@ -151,7 +151,7 @@ export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         throw new __mf_DecodeError([{ field: "_root", message: "Paid.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("amount")) && !("amount" in obj)) {
         errors.push({ field: "amount", message: "missing required field" });
@@ -221,8 +221,7 @@ export function paidHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "amount" in o && "currency" in o && "paymentMethod" in o;
+    return __mf_holds(obj, "amount") && __mf_holds(obj, "currency") && __mf_holds(obj, "paymentMethod");
 }
 
 export function paidIs(obj: unknown): obj is Paid {
@@ -519,15 +518,15 @@ export declare const Paid: {
 
 ## Mapping
 
-original 0..58 -> expanded 755..813
-original 107..223 -> expanded 813..929
-original 223..224 -> expanded 17024..17025
-generated 0..755 <- imports
-generated 929..1070 <- Default
-generated 1070..3504 <- Encode
-generated 3504..10100 <- Decode
-generated 10100..15866 <- Gigaform
-generated 15866..17024 <- __convenience_const
+original 0..58 -> expanded 807..865
+original 107..223 -> expanded 865..981
+original 223..224 -> expanded 17065..17066
+generated 0..807 <- imports
+generated 981..1122 <- Default
+generated 1122..3565 <- Encode
+generated 3565..10141 <- Decode
+generated 10141..15907 <- Gigaform
+generated 15907..17065 <- __convenience_const
 
 ## Metadata
 

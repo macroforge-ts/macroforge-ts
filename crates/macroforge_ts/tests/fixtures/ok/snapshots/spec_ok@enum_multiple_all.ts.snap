@@ -26,9 +26,13 @@ enum Status {
 }
 
 export function statusToString(value: Status): string {
-    const key = Status[value as unknown as keyof typeof Status];
-    if (key !== undefined) {
-        return "Status." + key;
+
+    const held: unknown = value;
+    if (held === Status["Active"]) {
+        return "Status.Active";
+    }
+    if (held === Status["Inactive"]) {
+        return "Status.Inactive";
     }
     return "Status(" + String(value) + ")";
 }
@@ -135,19 +139,19 @@ export {};
 ## Mapping
 
 original 61..126 -> expanded 260..325
-original 126..127 -> expanded 2895..2896
+original 126..127 -> expanded 2951..2952
 generated 0..260 <- imports
-generated 325..560 <- Debug
-generated 560..634 <- Clone
-generated 634..719 <- PartialEq
-generated 719..874 <- Hash
-generated 874..1284 <- Encode
-generated 1284..2279 <- Decode
-generated 2279..2895 <- __convenience_const
+generated 325..616 <- Debug
+generated 616..690 <- Clone
+generated 690..775 <- PartialEq
+generated 775..930 <- Hash
+generated 930..1340 <- Encode
+generated 1340..2335 <- Decode
+generated 2335..2951 <- __convenience_const
 
 ## Metadata
 
-enum Status: {"body_span":{"end":127,"start":75},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"is_const":false,"name":"Status","span":{"end":127,"start":63},"variants":[{"decorators":[],"name":"Active","span":{"end":98,"start":81},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":125,"start":104},"value":{"String":"inactive"}}]}
+enum Status: {"body_span":{"end":127,"start":75},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"is_const":false,"is_declare":false,"name":"Status","span":{"end":127,"start":63},"variants":[{"decorators":[],"name":"Active","span":{"end":98,"start":81},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":125,"start":104},"value":{"String":"inactive"}}]}
 
 ## Registry reads
 

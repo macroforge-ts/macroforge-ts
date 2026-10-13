@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
@@ -61,7 +61,7 @@ export class AllMacrosTestClass {
 
     static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && a.score === b.score);
+        return __mf_equalWithin(a, b, () => (a.id === b.id || a.id !== a.id && b.id !== b.id) && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && (a.score === b.score || a.score !== a.score && b.score !== b.score));
     }
 
     static hashCode(value: AllMacrosTestClass): number {
@@ -100,32 +100,32 @@ static encodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_En
 static #encodeFields(value: AllMacrosTestClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("name")) {
         if (value.name !== undefined) {
-            result.name = value.name;
+            result["name"] = value.name;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
         if (value.email !== undefined) {
-            result.email = value.email;
+            result["email"] = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("secretToken")) {
         if (value.secretToken !== undefined) {
-            result.secretToken = value.secretToken;
+            result["secretToken"] = value.secretToken;
         }
     }
     if (__fields === undefined || __fields.keeps("isActive")) {
         if (value.isActive !== undefined) {
-            result.isActive = value.isActive;
+            result["isActive"] = value.isActive;
         }
     }
     if (__fields === undefined || __fields.keeps("score")) {
         if (value.score !== undefined) {
-            result.score = value.score;
+            result["score"] = value.score;
         }
     }
 }
@@ -218,7 +218,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -320,8 +320,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "name" in o && "email" in o && "secretToken" in o && "isActive" in o && "score" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "email") && __mf_holds(obj, "secretToken") && __mf_holds(obj, "isActive") && __mf_holds(obj, "score");
 }
 
 static is(obj: unknown): obj is AllMacrosTestClass {
@@ -501,27 +500,27 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 780..1229
-original 449..450 -> expanded 14747..14748
-original 450..695 -> expanded 18661..18906
-generated 0..780 <- imports
-generated 1229..1736 <- Debug
-generated 1736..2052 <- Clone
-generated 2052..2359 <- PartialEq
-generated 2359..3322 <- Hash
-generated 3322..5764 <- Encode
-generated 5764..6107 <- Encode
-generated 6107..14747 <- Decode
-generated 14748..14878 <- Debug
-generated 14878..15014 <- Clone
-generated 15014..15159 <- PartialEq
-generated 15159..15289 <- Hash
-generated 15289..16729 <- Encode
-generated 16729..18661 <- Decode
+original 0..449 -> expanded 832..1281
+original 449..450 -> expanded 14917..14918
+original 450..695 -> expanded 18831..19076
+generated 0..832 <- imports
+generated 1281..1788 <- Debug
+generated 1788..2104 <- Clone
+generated 2104..2495 <- PartialEq
+generated 2495..3458 <- Hash
+generated 3458..5918 <- Encode
+generated 5918..6261 <- Encode
+generated 6261..14917 <- Decode
+generated 14918..15048 <- Debug
+generated 15048..15184 <- Clone
+generated 15184..15329 <- PartialEq
+generated 15329..15459 <- Hash
+generated 15459..16899 <- Encode
+generated 16899..18831 <- Decode
 
 ## Metadata
 
-class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"key":"Named","name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"superclass":null,"type_params":[]}
+class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"key":"Named","name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

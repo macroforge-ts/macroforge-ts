@@ -1,8 +1,9 @@
 /**
  * Class members a derive has to tell from plain fields: visibility
  * modifiers, readonly and static properties, accessors, methods, optional and
- * definite fields, a constructor of the class's own, parameter properties and
- * inherited fields, of a class and of an interface.
+ * definite fields, a constructor of the class's own, parameter properties,
+ * fields typed by their initializers and inherited fields, of a class and of
+ * an interface.
  */
 
 import type { EdgeItem } from './edge-types';
@@ -87,6 +88,30 @@ export class ClassHolder {
     cards: ClassMembers[] = [];
     byName: Map<string, ClassBase> = new Map();
     maybe: ClassBase | null = null;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class ClassInferred {
+    count = 0;
+    label = 'none';
+    active = false;
+    big = 10n;
+    offset = -1;
+    note = `n${1}`;
+    at = new Date(0);
+    tags = new Set<string>();
+    ratio = 0.5 as number;
+    readonly kind = 'inferred';
+    readonly rank = 3;
+
+    constructor(
+        public id = '',
+        private secret = 7
+    ) {}
+
+    reveal(): number {
+        return this.secret;
+    }
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default) */

@@ -36,7 +36,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 const KEY = 'computed';
 
@@ -85,7 +85,7 @@ export function keyedEncodePartialWithContext(value: Partial<Keyed>, ctx: __mf_E
 function keyedEncodeFields(value: Keyed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
         if (value.id !== undefined) {
-            result.id = value.id;
+            result["id"] = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("[KEY]")) {
@@ -167,7 +167,7 @@ export function keyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         throw new __mf_DecodeError([{ field: "_root", message: "Keyed.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
@@ -225,8 +225,7 @@ export function keyedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "id" in o && "[KEY]" in o;
+    return __mf_holds(obj, "id") && __mf_holds(obj, "[KEY]");
 }
 
 export function keyedIs(obj: unknown): obj is Keyed {
@@ -337,24 +336,24 @@ Error [440..485]: @derive(Decode): `{ id: string; [key: string]: Date }` has the
 
 ## Mapping
 
-original 0..25 -> expanded 596..621
-original 53..117 -> expanded 621..685
-original 148..213 -> expanded 685..750
-original 243..287 -> expanded 750..794
-original 287..289 -> expanded 9790..9792
-original 312..383 -> expanded 9792..9863
-original 383..385 -> expanded 10051..10053
-original 415..487 -> expanded 10053..10125
-generated 0..596 <- imports
-generated 794..3034 <- Encode
-generated 3034..8862 <- Decode
-generated 8862..9790 <- __convenience_const
-generated 9863..9941 <- Default
-generated 9941..10051 <- __convenience_const
+original 0..25 -> expanded 648..673
+original 53..117 -> expanded 673..737
+original 148..213 -> expanded 737..802
+original 243..287 -> expanded 802..846
+original 287..289 -> expanded 9813..9815
+original 312..383 -> expanded 9815..9886
+original 383..385 -> expanded 10074..10076
+original 415..487 -> expanded 10076..10148
+generated 0..648 <- imports
+generated 846..3089 <- Encode
+generated 3089..8885 <- Decode
+generated 8885..9813 <- __convenience_const
+generated 9886..9964 <- Default
+generated 9964..10074 <- __convenience_const
 
 ## Metadata
 
-class Tagged: {"body_span":{"end":212,"start":163},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":149,"start":118}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":187,"start":169},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Unnamed","name":"[KEY]","optional":false,"readonly":false,"span":{"end":210,"start":192},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Tagged","span":{"end":212,"start":150},"superclass":null,"type_params":[]}
+class Tagged: {"body_span":{"end":212,"start":163},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":149,"start":118}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":187,"start":169},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Unnamed","name":"[KEY]","optional":false,"readonly":false,"span":{"end":210,"start":192},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Tagged","span":{"end":212,"start":150},"superclass":null,"type_params":[]}
 interface Bag: {"body_span":{"end":116,"start":69},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":54,"start":26}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":86,"start":75},"ts_type":"string"},{"decorators":[],"key":"Unnamed","name":"[key: string]","optional":false,"readonly":false,"span":{"end":114,"start":91},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"Bag","span":{"end":116,"start":55},"type_params":[]}
 interface Holder: {"body_span":{"end":487,"start":434},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":416,"start":386}}],"fields":[{"decorators":[],"key":"Named","name":"entries","optional":false,"readonly":false,"span":{"end":485,"start":440},"ts_type":"{ id: string; [key: string]: Date }"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":487,"start":417},"type_params":[]}
 type Keyed: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":271,"start":260},"ts_type":"string"},{"decorators":[],"key":"Unnamed","name":"[KEY]","optional":false,"readonly":false,"span":{"end":285,"start":272},"ts_type":"number"}]}},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":244,"start":214}}],"name":"Keyed","span":{"end":288,"start":245},"type_params":[]}

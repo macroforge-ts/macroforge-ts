@@ -21,7 +21,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Point {
@@ -51,7 +51,7 @@ class Point {
 
     static equals(a: Point, b: Point): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y && a.label === b.label);
+        return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y) && a.label === b.label);
     }
 
     static hashCode(value: Point): number {
@@ -96,17 +96,17 @@ static encodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, 
 static #encodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
         if (value.x !== undefined) {
-            result.x = value.x;
+            result["x"] = value.x;
         }
     }
     if (__fields === undefined || __fields.keeps("y")) {
         if (value.y !== undefined) {
-            result.y = value.y;
+            result["y"] = value.y;
         }
     }
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result["label"] = value.label;
         }
     }
 }
@@ -189,7 +189,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
         errors.push({ field: "x", message: "missing required field" });
@@ -255,8 +255,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "x" in o && "y" in o && "label" in o;
+    return __mf_holds(obj, "x") && __mf_holds(obj, "y") && __mf_holds(obj, "label");
 }
 
 static is(obj: unknown): obj is Point {
@@ -415,29 +414,29 @@ export {};
 
 ## Mapping
 
-original 70..206 -> expanded 811..947
-original 206..207 -> expanded 10545..10546
-original 207..208 -> expanded 14033..14034
-generated 0..811 <- imports
-generated 947..1300 <- Debug
-generated 1300..1477 <- Clone
-generated 1477..1663 <- PartialEq
-generated 1663..2280 <- Hash
-generated 2280..2521 <- Default
-generated 2521..4320 <- Encode
-generated 4320..4637 <- Encode
-generated 4637..10545 <- Decode
-generated 10546..10637 <- Debug
-generated 10637..10721 <- Clone
-generated 10721..10814 <- PartialEq
-generated 10814..10905 <- Hash
-generated 10905..10986 <- Default
-generated 10986..12296 <- Encode
-generated 12296..14033 <- Decode
+original 70..206 -> expanded 863..999
+original 206..207 -> expanded 10650..10651
+original 207..208 -> expanded 14138..14139
+generated 0..863 <- imports
+generated 999..1352 <- Debug
+generated 1352..1529 <- Clone
+generated 1529..1779 <- PartialEq
+generated 1779..2396 <- Hash
+generated 2396..2637 <- Default
+generated 2637..4445 <- Encode
+generated 4445..4762 <- Encode
+generated 4762..10650 <- Decode
+generated 10651..10742 <- Debug
+generated 10742..10826 <- Clone
+generated 10826..10919 <- PartialEq
+generated 10919..11010 <- Hash
+generated 11010..11091 <- Default
+generated 11091..12401 <- Encode
+generated 12401..14138 <- Decode
 
 ## Metadata
 
-class Point: {"body_span":{"end":208,"start":84},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":71,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":127,"start":111},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":true,"span":{"end":155,"start":137},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"'origin'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":197,"start":165},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":206,"start":204},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public x: number,\n        readonly y: number,\n        private label: string = 'origin'","return_type_src":"","span":{"end":206,"start":90},"type_params":[],"visibility":"Public"}],"name":"Point","span":{"end":208,"start":72},"superclass":null,"type_params":[]}
+class Point: {"body_span":{"end":208,"start":84},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":71,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":127,"start":111},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":true,"span":{"end":155,"start":137},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'origin'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":197,"start":165},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":206,"start":204},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public x: number,\n        readonly y: number,\n        private label: string = 'origin'","return_type_src":"","span":{"end":206,"start":90},"type_params":[],"visibility":"Public"}],"name":"Point","span":{"end":208,"start":72},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

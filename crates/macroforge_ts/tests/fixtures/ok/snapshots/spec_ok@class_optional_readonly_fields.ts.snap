@@ -71,7 +71,7 @@ class Config {
 
     static equals(a: Config, b: Config): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && a.name === b.name && a.description === b.description && a.createdAt.getTime() === b.createdAt.getTime() && (a.updatedAt == null || b.updatedAt == null ? a.updatedAt === b.updatedAt : a.updatedAt.getTime() === b.updatedAt.getTime()));
+        return __mf_equalWithin(a, b, () => a.id === b.id && a.name === b.name && a.description === b.description && (a.createdAt.getTime() === b.createdAt.getTime() || a.createdAt.getTime() !== a.createdAt.getTime() && b.createdAt.getTime() !== b.createdAt.getTime()) && (a.updatedAt == null || b.updatedAt == null ? a.updatedAt === b.updatedAt : a.updatedAt.getTime() === b.updatedAt.getTime() || a.updatedAt.getTime() !== a.updatedAt.getTime() && b.updatedAt.getTime() !== b.updatedAt.getTime()));
     }
 
     static hashCode(value: Config): number {
@@ -126,19 +126,19 @@ export {};
 
 original 0..41 -> expanded 153..194
 original 79..533 -> expanded 194..648
-original 533..534 -> expanded 2264..2265
-original 534..535 -> expanded 2550..2551
+original 533..534 -> expanded 2470..2471
+original 534..535 -> expanded 2756..2757
 generated 0..153 <- imports
 generated 648..1145 <- Debug
-generated 1145..1532 <- PartialEq
-generated 1532..2264 <- Hash
-generated 2265..2359 <- Debug
-generated 2359..2456 <- PartialEq
-generated 2456..2550 <- Hash
+generated 1145..1738 <- PartialEq
+generated 1738..2470 <- Hash
+generated 2471..2565 <- Debug
+generated 2565..2662 <- PartialEq
+generated 2662..2756 <- Hash
 
 ## Metadata
 
-class Config: {"body_span":{"end":535,"start":94},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":80,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":true,"span":{"end":120,"start":100},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":138,"start":125},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"description","optional":true,"readonly":false,"span":{"end":164,"start":143},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"createdAt","optional":false,"readonly":true,"span":{"end":194,"start":169},"ts_type":"Date","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"updatedAt","optional":true,"readonly":false,"span":{"end":216,"start":199},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":368,"start":277},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.createdAt = createdAt;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, createdAt: Date","return_type_src":"","span":{"end":368,"start":222},"type_params":[],"visibility":"Public"},{"body_span":{"end":533,"start":423},"body_src":"\n        this.name = name;\n        this.description = description;\n        this.updatedAt = new Date();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"update","params_src":"name: string, description?: string","return_type_src":"void","span":{"end":533,"start":374},"type_params":[],"visibility":"Public"}],"name":"Config","span":{"end":535,"start":81},"superclass":null,"type_params":[]}
+class Config: {"body_span":{"end":535,"start":94},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":80,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":true,"span":{"end":120,"start":100},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":138,"start":125},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"description","optional":true,"readonly":false,"span":{"end":164,"start":143},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"createdAt","optional":false,"readonly":true,"span":{"end":194,"start":169},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"updatedAt","optional":true,"readonly":false,"span":{"end":216,"start":199},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":368,"start":277},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.createdAt = createdAt;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, createdAt: Date","return_type_src":"","span":{"end":368,"start":222},"type_params":[],"visibility":"Public"},{"body_span":{"end":533,"start":423},"body_src":"\n        this.name = name;\n        this.description = description;\n        this.updatedAt = new Date();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"update","params_src":"name: string, description?: string","return_type_src":"void","span":{"end":533,"start":374},"type_params":[],"visibility":"Public"}],"name":"Config","span":{"end":535,"start":81},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

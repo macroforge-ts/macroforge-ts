@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -123,11 +123,11 @@ export function metersHashCode(value: Meters): number {
 }
 
 export function metersPartialCompare(a: Meters, b: Meters): number | null {
-    return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+    return a < b ? -1 : a > b ? 1 : a === b || (a !== a && b !== b) ? 0 : null;
 }
 
 export function metersCompare(a: Meters, b: Meters): number {
-    return a < b ? -1 : a > b ? 1 : 0;
+    return a < b ? -1 : a > b ? 1 : a === b ? 0 : a !== a ? (b !== b ? 0 : 1) : -1;
 }
 
 export const Meters: {
@@ -487,22 +487,22 @@ export function runEncodePartialWithContext(value: Partial<Run>, ctx: __mf_Encod
 function runEncodeFields(value: Run, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("runner")) {
         if (value.runner !== undefined) {
-            result.runner = usernameEncodeWithContext(value.runner, ctx);
+            result["runner"] = usernameEncodeWithContext(value.runner, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("distance")) {
         if (value.distance !== undefined) {
-            result.distance = metersEncodeWithContext(value.distance, ctx);
+            result["distance"] = metersEncodeWithContext(value.distance, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("splits")) {
         if (value.splits !== undefined) {
-            result.splits = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
+            result["splits"] = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("best")) {
         if (value.best !== undefined) {
-            result.best = metersEncodeWithContext(value.best, ctx);
+            result["best"] = metersEncodeWithContext(value.best, ctx);
         }
     }
 }
@@ -579,7 +579,7 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         throw new __mf_DecodeError([{ field: "_root", message: "Run.decodeWithContext: expected an object" }]);
     }
 
-    const obj = value as Record<string, unknown>;
+    const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
     if ((__fields === undefined || __fields.requires("runner")) && !("runner" in obj)) {
         errors.push({ field: "runner", message: "missing required field" });
@@ -717,8 +717,7 @@ export function runHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    const o = obj as Record<string, unknown>;
-    return "runner" in o && "distance" in o && "splits" in o;
+    return __mf_holds(obj, "runner") && __mf_holds(obj, "distance") && __mf_holds(obj, "splits");
 }
 
 export function runIs(obj: unknown): obj is Run {
@@ -958,44 +957,44 @@ export {};
 
 ## Mapping
 
-original 0..308 -> expanded 797..1105
-original 324..325 -> expanded 1149..1150
-original 325..420 -> expanded 5788..5883
-original 436..437 -> expanded 5927..5928
-original 437..496 -> expanded 9348..9407
-original 496..582 -> expanded 12332..12418
-original 598..599 -> expanded 12462..12463
-original 599..741 -> expanded 16273..16415
-original 741..742 -> expanded 29078..29079
-generated 0..662 <- imports
-generated 662..707 <- $Newtype
-generated 707..752 <- $Newtype
-generated 752..797 <- $Newtype
-generated 1105..1149 <- $Newtype
-generated 1150..1858 <- Encode
-generated 1858..3973 <- Decode
-generated 3973..4047 <- Default
-generated 4047..4150 <- Debug
-generated 4150..4224 <- Clone
-generated 4224..4339 <- PartialEq
-generated 4339..4533 <- Hash
-generated 4533..4668 <- PartialOrd
-generated 4668..4772 <- Ord
-generated 4772..5788 <- __convenience_const
-generated 5883..5927 <- $Newtype
-generated 5928..6652 <- Encode
-generated 6652..8826 <- Decode
-generated 8826..9348 <- __convenience_const
-generated 9407..10099 <- Encode
-generated 10099..11862 <- Decode
-generated 11862..12332 <- __convenience_const
-generated 12418..12462 <- $Newtype
-generated 12463..13203 <- Encode
-generated 13203..15790 <- Decode
-generated 15790..16273 <- __convenience_const
-generated 16415..19107 <- Encode
-generated 19107..28185 <- Decode
-generated 28185..29078 <- __convenience_const
+original 0..308 -> expanded 849..1157
+original 324..325 -> expanded 1201..1202
+original 325..420 -> expanded 5909..6004
+original 436..437 -> expanded 6048..6049
+original 437..496 -> expanded 9469..9528
+original 496..582 -> expanded 12453..12539
+original 598..599 -> expanded 12583..12584
+original 599..741 -> expanded 16394..16536
+original 741..742 -> expanded 29191..29192
+generated 0..714 <- imports
+generated 714..759 <- $Newtype
+generated 759..804 <- $Newtype
+generated 804..849 <- $Newtype
+generated 1157..1201 <- $Newtype
+generated 1202..1910 <- Encode
+generated 1910..4025 <- Decode
+generated 4025..4099 <- Default
+generated 4099..4202 <- Debug
+generated 4202..4276 <- Clone
+generated 4276..4391 <- PartialEq
+generated 4391..4585 <- Hash
+generated 4585..4744 <- PartialOrd
+generated 4744..4893 <- Ord
+generated 4893..5909 <- __convenience_const
+generated 6004..6048 <- $Newtype
+generated 6049..6773 <- Encode
+generated 6773..8947 <- Decode
+generated 8947..9469 <- __convenience_const
+generated 9528..10220 <- Encode
+generated 10220..11983 <- Decode
+generated 11983..12453 <- __convenience_const
+generated 12539..12583 <- $Newtype
+generated 12584..13324 <- Encode
+generated 13324..15911 <- Decode
+generated 15911..16394 <- __convenience_const
+generated 16536..19240 <- Encode
+generated 19240..28298 <- Decode
+generated 28298..29191 <- __convenience_const
 
 ## Metadata
 

@@ -124,7 +124,7 @@ generated 1197..1215 <- deprecated
 
 ## Metadata
 
-class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":90,"start":37},"superclass":null,"type_params":[]}
+class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":90,"start":37},"superclass":null,"type_params":[]}
 interface Named: {"body_span":{"end":158,"start":137},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":113,"start":92}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":156,"start":143},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Named","span":{"end":158,"start":121},"type_params":[]}
 
 ## Registry reads
