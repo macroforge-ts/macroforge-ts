@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (409)
+## Types (410)
 
 Address f0d229a1409690d0
 AddressPatch 9f24746fc3a6b7e7
@@ -370,11 +370,12 @@ Shelf 0269f73daa1b1af7
 Signal fac042a237d4eed0
 Slot 628ae4d6824d74c4
 Span 03e85be0b2397e02
-SpecialCarried 370b6bb3aa89e0df
-SpecialCollections c30fa999873c258b
-SpecialEither 97f07d738d44b9d1
-SpecialNumber 9df4ef48e3a64e22
-SpecialScalars 1686c9cd968b1621
+SpecialCarried 34a889631a59c9b3
+SpecialCollections 822472fbcd68f932
+SpecialEither 67c054fce618b9ef
+SpecialHoles eaa3b2caf103b2bd
+SpecialNumber 3ba0eb132223c5ec
+SpecialScalars c1576a176e3731f7
 StartsWithValidator c6890986f32f6aed
 Status 2f4efe4e234e41c2
 Store f6ece44b4af5b5cf
@@ -413,7 +414,7 @@ Version a97656860d12bbc3
 Wall 5a067be59c2d4675
 point2D 697bb407a60739cf
 
-## Qualified types (412)
+## Qualified types (413)
 
 src/all-macros-test.ts::AllMacrosTestClass 0a3bab42a552ef1b
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -609,11 +610,12 @@ src/edge-cases/partial-shapes.ts::EdgeOptional bea200717fb8f47c
 src/edge-cases/partial-shapes.ts::EdgePartials 0711c1b800211943
 src/edge-cases/partial-shapes.ts::EdgeRenamedPartials 8f688234bc75c2f4
 src/edge-cases/partial-shapes.ts::EdgeRequired 6774560ee1c72ee5
-src/edge-cases/special-shapes.ts::SpecialCarried 370b6bb3aa89e0df
-src/edge-cases/special-shapes.ts::SpecialCollections c30fa999873c258b
-src/edge-cases/special-shapes.ts::SpecialEither 97f07d738d44b9d1
-src/edge-cases/special-shapes.ts::SpecialNumber 9df4ef48e3a64e22
-src/edge-cases/special-shapes.ts::SpecialScalars 1686c9cd968b1621
+src/edge-cases/special-shapes.ts::SpecialCarried 34a889631a59c9b3
+src/edge-cases/special-shapes.ts::SpecialCollections 822472fbcd68f932
+src/edge-cases/special-shapes.ts::SpecialEither 67c054fce618b9ef
+src/edge-cases/special-shapes.ts::SpecialHoles eaa3b2caf103b2bd
+src/edge-cases/special-shapes.ts::SpecialNumber 3ba0eb132223c5ec
+src/edge-cases/special-shapes.ts::SpecialScalars c1576a176e3731f7
 src/edge-cases/variant-shapes.ts::VariantAdjacent cb9b149ddec0b736
 src/edge-cases/variant-shapes.ts::VariantBase cb25f16f4d91a084
 src/edge-cases/variant-shapes.ts::VariantCircle f03108b8598386e6

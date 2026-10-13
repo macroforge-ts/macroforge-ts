@@ -1,6 +1,7 @@
 /**
  * Values at the edges of their types: numbers that are no ordinary number,
- * dates that are no date, and collections whose order says nothing.
+ * dates that are no date, collections whose order says nothing, and
+ * collections that hold `undefined`.
  */
 
 import { assert, assertEquals, assertStrictEquals, assertThrows } from '@std/assert';
@@ -196,4 +197,64 @@ Deno.test('a collection is equal and hashes alike whatever order it was filled i
     );
     assert(back.success, JSON.stringify(back.errors));
     assert(mod.specialCollectionsEquals(back.value, filled([1, 2], [['a', [1]]])));
+});
+
+Deno.test('an undefined held in a collection comes back as one', () => {
+    const holes = (change) => ({
+        list: [1],
+        pair: [1, 'a'],
+        record: { a: 1 },
+        finite: { a: new Date(0), b: new Date(1) },
+        set: new Set([1]),
+        held: new Map([['a', 1]]),
+        either: [1],
+        plain: 'p',
+        grouped: 'g',
+        ...change
+    });
+    const changes = [
+        { list: [1, undefined, 3] },
+        { pair: [undefined, undefined] },
+        { pair: [undefined] },
+        { record: { a: undefined, b: 2 } },
+        { finite: { a: undefined, b: new Date(1) } },
+        { set: new Set([undefined, 2]) },
+        { held: new Map([['a', undefined], ['b', 2]]) },
+        { plain: undefined },
+        { grouped: undefined }
+    ];
+    for (const change of changes) {
+        const value = holes(change);
+        const label = mod.specialHolesToString(value);
+        const result = mod.specialHolesDecode(mod.specialHolesEncode(value));
+        assert(result.success, `${label}: ${JSON.stringify(result.errors)}`);
+        assert(mod.specialHolesEquals(value, result.value), label);
+        assertStrictEquals(
+            mod.specialHolesHashCode(value),
+            mod.specialHolesHashCode(result.value),
+            label
+        );
+    }
+
+    // An entry that holds `undefined` is still an entry.
+    const kept = mod.specialHolesDecode(
+        mod.specialHolesEncode(holes({ held: new Map([['a', undefined]]) }))
+    );
+    assert(kept.success && kept.value.held.has('a'));
+    assertStrictEquals(kept.value.held.get('a'), undefined);
+
+    // A `null` the type takes stays `null`, and takes the place of an
+    // `undefined` beside it, which JSON cannot tell from it.
+    const either = mod.specialHolesDecode(
+        mod.specialHolesEncode(holes({ either: [null, undefined, 2] }))
+    );
+    assert(either.success);
+    assertEquals(either.value.either, [null, null, 2]);
+
+    // A `null` where the type takes none is still refused.
+    const refused = mod.specialHolesDecode({
+        ...JSON.parse(mod.specialHolesEncode(holes({}))),
+        plain: null
+    });
+    assert(!refused.success);
 });

@@ -87,6 +87,7 @@ fn a_grouped_type_defaults_as_the_type_in_it() {
     assert_eq!(get_type_default("(number)"), "0");
     assert_eq!(get_type_default("(string | number)[]"), "[]");
     assert!(is_nullable_type("(number | null)"));
+    assert!(is_nullable_type("(string | null) | number"));
     assert!(!is_nullable_type("(number | null)[]"));
 }
 

@@ -144,9 +144,21 @@ pub fn is_nullable_type(ts_type: &str) -> bool {
     has_union_member(ts_type, "null") || has_union_member(ts_type, "undefined")
 }
 
-/// Whether `ts_type` is a union with `member` among its own members.
+/// Whether `undefined` is among `ts_type`'s own members and `null` is not.
+/// JSON has no `undefined`: in a collection one is written as `null`, which
+/// such a type reads back as the `undefined` it was.
+pub fn undefined_as_null(ts_type: &str) -> bool {
+    has_union_member(ts_type, "undefined") && !has_union_member(ts_type, "null")
+}
+
+/// Whether `ts_type` is a union with `member` among its own members, those
+/// of a union grouped inside it included.
 fn has_union_member(ts_type: &str, member: &str) -> bool {
-    split_top_level_union(ungrouped(ts_type)).is_some_and(|parts| parts.contains(&member))
+    split_top_level_union(ungrouped(ts_type)).is_some_and(|parts| {
+        parts
+            .iter()
+            .any(|part| *part == member || has_union_member(part, member))
+    })
 }
 
 /// `ts_type` without the parentheses that only group it.

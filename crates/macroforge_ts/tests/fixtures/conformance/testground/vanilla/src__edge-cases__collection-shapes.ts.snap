@@ -2246,7 +2246,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (Array.isArray(__raw_optionalTail)) {
             ctx.pushScope("optionalTail");
             try {
-                instance.optionalTail = (__mf_decodeTuple(__raw_optionalTail, ctx, [__mf_decodeString, __mf_decodeNumber], 1) as [string, number?]);
+                instance.optionalTail = (__mf_decodeTuple(__raw_optionalTail, ctx, [__mf_decodeString, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined)], 1) as [string, number?]);
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -3130,8 +3130,8 @@ original 433..948 -> expanded 5980..6495
 original 948..1410 -> expanded 44318..44780
 original 1410..1804 -> expanded 75959..76353
 original 1804..2219 -> expanded 101897..102312
-original 2219..2422 -> expanded 127118..127321
-original 2422..2423 -> expanded 144351..144352
+original 2219..2422 -> expanded 127337..127540
+original 2422..2423 -> expanded 144570..144571
 generated 0..1675 <- imports
 generated 2108..2447 <- Debug
 generated 2447..2545 <- Clone
@@ -3173,15 +3173,15 @@ generated 103634..104349 <- PartialEq
 generated 104349..105128 <- Hash
 generated 105128..105465 <- Default
 generated 105465..109205 <- Encode
-generated 109205..125496 <- Decode
-generated 125496..127118 <- __convenience_const
-generated 127321..127783 <- Debug
-generated 127783..128034 <- Clone
-generated 128034..128685 <- PartialEq
-generated 128685..129633 <- Hash
-generated 129633..132567 <- Encode
-generated 132567..142924 <- Decode
-generated 142924..144351 <- __convenience_const
+generated 109205..125715 <- Decode
+generated 125715..127337 <- __convenience_const
+generated 127540..128002 <- Debug
+generated 128002..128253 <- Clone
+generated 128253..128904 <- PartialEq
+generated 128904..129852 <- Hash
+generated 129852..132786 <- Encode
+generated 132786..143143 <- Decode
+generated 143143..144570 <- __convenience_const
 
 ## Metadata
 

@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use crate::builtin::derive::common::{
     EnumValueKinds, Member, fields_from_definition, is_identifier_name, js_string,
     parse_generic_type, property_key, record_key_texts, rendered, tuple_body, tuple_element,
-    type_has_derive, ungrouped,
+    type_has_derive, undefined_as_null, ungrouped,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::class::MemberKey;
@@ -796,6 +796,18 @@ pub(crate) fn encode_expr(
     let item = format!("__item{depth}");
     let key = format!("__key{depth}");
     let encoded_item = |item_type: &str| encode_expr(item_type, &item, scope, depth + 1);
+    // The value of an entry, which JSON drops with its key when it is
+    // `undefined`: such a value is written as `null`, and the entry stays.
+    let encoded_entry = |value_type: &str| -> Result<Option<String>, String> {
+        let encoded = encoded_item(value_type)?;
+        if !undefined_as_null(value_type) {
+            return Ok(encoded);
+        }
+        let held = encoded.unwrap_or_else(|| item.clone());
+        Ok(Some(rendered(
+            ts_template! { (@{&item} === undefined ? null : @{held}) },
+        )))
+    };
     Ok(match TypeCategory::from_ts_type(ts_type) {
         TypeCategory::Primitive => None,
         TypeCategory::Date => Some(rendered(ts_template! { @{value}.toISOString() })),
@@ -809,7 +821,7 @@ pub(crate) fn encode_expr(
         }),
         TypeCategory::Map(key_type, value_type) => {
             let dated = map_key(&key_type, scope)?.base == KeyBase::Date;
-            Some(match (dated, encoded_item(&value_type)?) {
+            Some(match (dated, encoded_entry(&value_type)?) {
                 (false, None) => rendered(ts_template! { Object.fromEntries(@{value}.entries()) }),
                 (dated, encoded) => {
                     let encoded_key = if dated {
@@ -824,7 +836,7 @@ pub(crate) fn encode_expr(
                 }
             })
         }
-        TypeCategory::Record(_, value_type) => encoded_item(&value_type)?.map(|encoded| {
+        TypeCategory::Record(_, value_type) => encoded_entry(&value_type)?.map(|encoded| {
             rendered(ts_template! {
                 Object.fromEntries(Object.entries(@{value}).map(([@{&key}, @{&item}]) => [@{&key}, @{encoded}]))
             })
@@ -1068,7 +1080,13 @@ fn own_decoder(
         return Ok(Some(endec_helper(leaf)));
     }
     let raw = format!("__raw{depth}");
-    Ok(decode_expr(ts_type, &raw, scope, depth + 1)?
+    // An `undefined` held in a collection is `null` once encoded.
+    let read = if undefined_as_null(ts_type) {
+        format!("({raw} ?? undefined)")
+    } else {
+        raw.clone()
+    };
+    Ok(decode_expr(ts_type, &read, scope, depth + 1)?
         .map(|decoded| rendered(ts_template! { (@{&raw}) => @{decoded} })))
 }
 
@@ -1241,6 +1259,13 @@ fn decode_tuple(
         let item_type = match &element_type {
             TypeCategory::Array(item_type) => item_type.as_str(),
             _ => element.ts_type,
+        };
+        // An optional element that is there and `undefined` is one too.
+        let left_out = format!("{item_type} | undefined");
+        let item_type = if element.optional && undefined_as_null(&left_out) {
+            left_out.as_str()
+        } else {
+            item_type
         };
         let own = own_decoder(item_type, scope, depth)?;
         any_decoded |= own.is_some();

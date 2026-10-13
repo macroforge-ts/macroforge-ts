@@ -282,7 +282,7 @@ fn a_tuple_is_coded_element_by_element() {
     assert_eq!(
         decoded.as_deref(),
         Some(
-            "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),__mf_decodeDate],1,__mf_decodeString)as[User,Date?,...string[]])"
+            "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),(__raw0)=>((__raw0??undefined)===undefined?undefined:__mf_decodeDate((__raw0??undefined)))],1,__mf_decodeString)as[User,Date?,...string[]])"
         )
     );
     assert_eq!(coded("[unknown, unknown]"), (None, None));
@@ -576,4 +576,51 @@ fn a_type_nested_to_the_limit_is_coded_a_level_at_a_time() {
         depth
     );
     assert!(decoded(nested("(", " | null)")).contains("decodeChecked"));
+}
+
+/// JSON has no `undefined`: it writes one in an array as `null` and drops
+/// an entry that holds one.
+#[test]
+fn an_undefined_in_a_collection_is_coded_as_null() {
+    let (encoded, decoded) = coded("(number | undefined)[]");
+    assert_eq!(encoded, None);
+    assert!(
+        decoded
+            .expect("the array decodes")
+            .contains("(__raw0??undefined)")
+    );
+
+    let (encoded, decoded) = coded("Record<string, number | undefined>");
+    assert_eq!(
+        encoded.as_deref(),
+        Some(
+            "Object.fromEntries(Object.entries(v).map(([__key0,__item0])=>[__key0,(__item0===undefined?null:__item0)]))"
+        )
+    );
+    assert!(
+        decoded
+            .expect("the record decodes")
+            .contains("(__raw0??undefined)")
+    );
+
+    let (encoded, _) = coded("Map<string, Date | undefined>");
+    assert!(
+        encoded
+            .expect("the map encodes")
+            .contains("(__item0===undefined?null:")
+    );
+
+    let (_, decoded) = coded("[number, string?]");
+    assert!(
+        decoded
+            .expect("the tuple decodes")
+            .contains("(__raw0??undefined)")
+    );
+
+    // A `null` that is a value of the type stays one.
+    let (encoded, decoded) = coded("(number | null | undefined)[]");
+    assert_eq!(encoded, None);
+    assert!(!decoded.expect("the array decodes").contains("??undefined"));
+    let (_, decoded) = coded("[number, (string | null)?]");
+    assert!(!decoded.expect("the tuple decodes").contains("??undefined"));
 }

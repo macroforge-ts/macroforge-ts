@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/special-shapes.ts
-sha256 1b0fafaba1edc700513f4d8b4d7e0d68eadd3528aec003e4722d40a041e5ddf2
+sha256 1726c2b70697a7c52832fcab9de720069f484d5f1596013e496582fbf216e77e
 
 ## Changed
 
@@ -13,11 +13,12 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeDate as __mf_decodeDate, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Values at the edges of their types: numbers that are not ordinary numbers,
- * dates that are no date, and collections whose order says nothing.
+ * dates that are no date, collections whose order says nothing, and
+ * collections that hold `undefined`, which JSON has no word for.
  */
 
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
@@ -1411,11 +1412,508 @@ export const SpecialCollections: {
   is: specialCollectionsIs
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface SpecialHoles {
+    list: (number | undefined)[];
+    pair: [number | undefined, string?];
+    record: Record<string, number | undefined>;
+    finite: Record<'a' | 'b', Date | undefined>;
+    set: Set<number | undefined>;
+    held: Map<string, number | undefined>;
+    either: (number | null | undefined)[];
+    plain: string | undefined;
+    grouped: (string | undefined);
+}
+
+export function specialHolesToString(value: SpecialHoles): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("list: " + __mf_structuralDebug(value.list));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    parts.push("record: " + __mf_structuralDebug(value.record));
+    parts.push("finite: " + __mf_structuralDebug(value.finite));
+    parts.push("set: " + __mf_structuralDebug(value.set));
+    parts.push("held: " + __mf_structuralDebug(value.held));
+    parts.push("either: " + __mf_structuralDebug(value.either));
+    parts.push("plain: " + String(value.plain));
+    parts.push("grouped: " + __mf_structuralDebug(value.grouped));
+        return "SpecialHoles { " + parts.join(", ") + " }";
+    });
+}
+
+export function specialHolesClone(value: SpecialHoles): SpecialHoles {
+    return __mf_clonedWith(value, (): SpecialHoles => ({
+	list: [...value.list],
+	pair: __mf_structuralClone(value.pair),
+	record: __mf_structuralClone(value.record),
+	finite: __mf_structuralClone(value.finite),
+	set: new Set(value.set),
+	held: new Map(value.held),
+	either: [...value.either],
+	plain: value.plain,
+	grouped: __mf_structuralClone(value.grouped)
+}));
+}
+
+export function specialHolesEquals(a: SpecialHoles, b: SpecialHoles): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+	const __other0 = b.list[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+}) && __mf_structuralEquals(a.pair, b.pair) && __mf_structuralEquals(a.record, b.record) && __mf_structuralEquals(a.finite, b.finite) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0)) && a.held.size === b.held.size && Array.from(a.held).every(([__key0, __item0]) => {
+	const __other0 = b.held.get(__key0);
+	return b.held.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+}) && a.either.length === b.either.length && a.either.every((__item0, __index0) => {
+	const __other0 = b.either[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+}) && a.plain === b.plain && __mf_structuralEquals(a.grouped, b.grouped));
+}
+
+export function specialHolesHashCode(value: SpecialHoles): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.record))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.finite))) | 0;
+    hash = (hash * 31 + (Array.from(value.set).reduce<number>((__hash0, __item0) => __hash0 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.held).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.either.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.plain == null ? 0 : (value.plain ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.grouped))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function specialHolesEncode(value: SpecialHoles, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = specialHolesEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function specialHolesEncodeWithContext(value: SpecialHoles, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SpecialHoles" });
+    specialHolesEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function specialHolesEncodePartialWithContext(value: Partial<SpecialHoles>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SpecialHoles" };
+        specialHolesEncodeFields(value as SpecialHoles, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function specialHolesEncodeFields(value: SpecialHoles, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result["list"] = value.list;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result["pair"] = value.pair;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("record")) {
+        if (value.record !== undefined) {
+            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : __item0)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("finite")) {
+        if (value.finite !== undefined) {
+            result["finite"] = Object.fromEntries(Object.entries(value.finite).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : (__item0 === undefined ? undefined : __item0.toISOString()))]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("set")) {
+        if (value.set !== undefined) {
+            result["set"] = Array.from(value.set);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("held")) {
+        if (value.held !== undefined) {
+            result["held"] = Object.fromEntries(Array.from(value.held, ([__key0, __item0]) => [__key0, (__item0 === undefined ? null : __item0)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("either")) {
+        if (value.either !== undefined) {
+            result["either"] = value.either;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("plain")) {
+        if (value.plain !== undefined) {
+            result["plain"] = value.plain;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("grouped")) {
+        if (value.grouped !== undefined) {
+            result["grouped"] = value.grouped;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SpecialHoles } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = specialHolesDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "SpecialHoles.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialHoles | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialHoles> | __mf_PendingRef;
+export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<SpecialHoles> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialHoles.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "SpecialHoles.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "SpecialHoles") as SpecialHoles | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "SpecialHoles.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
+        errors.push({ field: "record", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("finite")) && !("finite" in obj)) {
+        errors.push({ field: "finite", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
+        errors.push({ field: "set", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
+        errors.push({ field: "held", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("either")) && !("either" in obj)) {
+        errors.push({ field: "either", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialHoles");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as (number | undefined)[];
+        if (Array.isArray(__raw_list)) {
+            ctx.pushScope("list");
+            try {
+                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "list" : "list." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "SpecialHoles.list is required" : "expected (number | undefined)[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [number | undefined, string?];
+        if (Array.isArray(__raw_pair)) {
+            ctx.pushScope("pair");
+            try {
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined), (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), typeof (__raw0 ?? undefined) === "string" || (__raw0 ?? undefined) === undefined, "string | undefined") as string | undefined)], 1) as [number | undefined, string?]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "SpecialHoles.pair is required" : "expected [number | undefined, string?]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+        const __raw_record = obj["record"] as Record<string, number | undefined>;
+        if (typeof __raw_record === "object" && __raw_record !== null) {
+            ctx.pushScope("record");
+            try {
+                instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined)) as Record<string, number | undefined>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "record" : "record." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "record", message: __raw_record == null ? "SpecialHoles.record is required" : "expected Record<string, number | undefined>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("finite")) ? "finite" in obj : (__fields.keeps("finite") && obj["finite"] !== undefined)) {
+        const __raw_finite = obj["finite"] as Record<'a' | 'b', Date | undefined>;
+        if (typeof __raw_finite === "object" && __raw_finite !== null) {
+            ctx.pushScope("finite");
+            try {
+                instance.finite = (__mf_decodeRecord(__raw_finite, ctx, (__raw0) => ((__raw0 ?? undefined) === undefined ? undefined : __mf_decodeDate((__raw0 ?? undefined))), (__key0) => __mf_decodeChecked(__key0, __key0 === 'a' || __key0 === 'b', "'a' | 'b'") as 'a' | 'b', [String('a'), String('b')]) as Record<'a' | 'b', Date | undefined>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "finite" : "finite." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "finite", message: __raw_finite == null ? "SpecialHoles.finite is required" : "expected Record<'a' | 'b', Date | undefined>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+        const __raw_set = obj["set"] as Array<number | undefined>;
+        if (Array.isArray(__raw_set)) {
+            ctx.pushScope("set");
+            try {
+                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "set" : "set." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "set", message: __raw_set == null ? "SpecialHoles.set is required" : "expected Set<number | undefined>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+        const __raw_held = obj["held"] as Record<string, number | undefined>;
+        if (typeof __raw_held === "object" && __raw_held !== null) {
+            ctx.pushScope("held");
+            try {
+                instance.held = __mf_decodeMap(__raw_held, ctx, (__key0) => __key0, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "held" : "held." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "held", message: __raw_held == null ? "SpecialHoles.held is required" : "expected Map<string, number | undefined>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("either")) ? "either" in obj : (__fields.keeps("either") && obj["either"] !== undefined)) {
+        const __raw_either = obj["either"] as (number | null | undefined)[];
+        if (Array.isArray(__raw_either)) {
+            ctx.pushScope("either");
+            try {
+                instance.either = __mf_decodeArray(__raw_either, ctx, (__raw0) => (__mf_decodeChecked(__raw0, (typeof __raw0 === "number" && globalThis.Number.isFinite(__raw0)) || __raw0 === null || __raw0 === undefined, "number | null | undefined") as number | null | undefined));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "either" : "either." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "either", message: __raw_either == null ? "SpecialHoles.either is required" : "expected (number | null | undefined)[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("plain")) || (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+        const __raw_plain = obj["plain"] as string | undefined;
+
+        if (!(typeof __raw_plain === "string" || __raw_plain === undefined)) {
+            errors.push({ field: "plain", message: "expected string | undefined" });
+        } else {
+            instance.plain = __raw_plain;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("grouped")) || (__fields.keeps("grouped") && obj["grouped"] !== undefined)) {
+        const __raw_grouped = obj["grouped"] as string | undefined;
+
+        instance.grouped = __raw_grouped;
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as SpecialHoles;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function specialHolesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Partial<SpecialHoles> | __mf_PendingRef {
+    return specialHolesDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function specialHolesValidateField<K extends keyof SpecialHoles>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function specialHolesValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function specialHolesValidateFields(partial: { readonly [K in keyof SpecialHoles]?: unknown }): Array<{ field: string; message: string }>;
+export function specialHolesValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function specialHolesHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "list") && __mf_holds(obj, "pair") && __mf_holds(obj, "record") && __mf_holds(obj, "finite") && __mf_holds(obj, "set") && __mf_holds(obj, "held") && __mf_holds(obj, "either");
+}
+
+export function specialHolesIs(obj: unknown): obj is SpecialHoles {
+    return specialHolesHasShape(obj) && specialHolesDecode(obj).success;
+}
+
+export const SpecialHoles: {
+  readonly toString: typeof specialHolesToString;
+  readonly clone: typeof specialHolesClone;
+  readonly equals: typeof specialHolesEquals;
+  readonly hashCode: typeof specialHolesHashCode;
+  readonly encode: typeof specialHolesEncode;
+  readonly encodeWithContext: typeof specialHolesEncodeWithContext;
+  readonly encodePartialWithContext: typeof specialHolesEncodePartialWithContext;
+  readonly decode: typeof specialHolesDecode;
+  readonly decodeWithContext: typeof specialHolesDecodeWithContext;
+  readonly decodePartialWithContext: typeof specialHolesDecodePartialWithContext;
+  readonly validateField: typeof specialHolesValidateField;
+  readonly validateFields: typeof specialHolesValidateFields;
+  readonly hasShape: typeof specialHolesHasShape;
+  readonly is: typeof specialHolesIs;
+} = {
+  toString: specialHolesToString,
+  clone: specialHolesClone,
+  equals: specialHolesEquals,
+  hashCode: specialHolesHashCode,
+  encode: specialHolesEncode,
+  encodeWithContext: specialHolesEncodeWithContext,
+  encodePartialWithContext: specialHolesEncodePartialWithContext,
+  decode: specialHolesDecode,
+  decodeWithContext: specialHolesDecodeWithContext,
+  decodePartialWithContext: specialHolesDecodePartialWithContext,
+  validateField: specialHolesValidateField,
+  validateFields: specialHolesValidateFields,
+  hasShape: specialHolesHasShape,
+  is: specialHolesIs
+};
+
 ## DTS
 
 /**
 * Values at the edges of their types: numbers that are not ordinary numbers,
-* dates that are no date, and collections whose order says nothing.
+* dates that are no date, collections whose order says nothing, and
+* collections that hold `undefined`, which JSON has no word for.
 */
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export interface SpecialScalars {
@@ -1659,6 +2157,71 @@ export declare const SpecialCollections: {
 	readonly hasShape: typeof specialCollectionsHasShape;
 	readonly is: typeof specialCollectionsIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface SpecialHoles {
+	list: (number | undefined)[];
+	pair: [number | undefined, string?];
+	record: Record<string, number | undefined>;
+	finite: Record<"a" | "b", Date | undefined>;
+	set: Set<number | undefined>;
+	held: Map<string, number | undefined>;
+	either: (number | null | undefined)[];
+	plain: string | undefined;
+	grouped: (string | undefined);
+}
+export declare function specialHolesToString(value: SpecialHoles): string;
+export declare function specialHolesClone(value: SpecialHoles): SpecialHoles;
+export declare function specialHolesEquals(a: SpecialHoles, b: SpecialHoles): boolean;
+export declare function specialHolesHashCode(value: SpecialHoles): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function specialHolesEncode(value: SpecialHoles, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function specialHolesEncodeWithContext(value: SpecialHoles, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function specialHolesEncodePartialWithContext(value: Partial<SpecialHoles>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function specialHolesDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: SpecialHoles;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): SpecialHoles | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<SpecialHoles> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function specialHolesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof SpecialHoles>): Partial<SpecialHoles> | __mf_PendingRef;
+export declare function specialHolesValidateField<K extends keyof SpecialHoles>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialHolesValidateFields(partial: { readonly [K in keyof SpecialHoles]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function specialHolesHasShape(obj: unknown): boolean;
+export declare function specialHolesIs(obj: unknown): obj is SpecialHoles;
+export declare const SpecialHoles: {
+	readonly toString: typeof specialHolesToString;
+	readonly clone: typeof specialHolesClone;
+	readonly equals: typeof specialHolesEquals;
+	readonly hashCode: typeof specialHolesHashCode;
+	readonly encode: typeof specialHolesEncode;
+	readonly encodeWithContext: typeof specialHolesEncodeWithContext;
+	readonly encodePartialWithContext: typeof specialHolesEncodePartialWithContext;
+	readonly decode: typeof specialHolesDecode;
+	readonly decodeWithContext: typeof specialHolesDecodeWithContext;
+	readonly decodePartialWithContext: typeof specialHolesDecodePartialWithContext;
+	readonly validateField: typeof specialHolesValidateField;
+	readonly validateFields: typeof specialHolesValidateFields;
+	readonly hasShape: typeof specialHolesHasShape;
+	readonly is: typeof specialHolesIs;
+};
 
 ## Diagnostics
 
@@ -1666,51 +2229,64 @@ export declare const SpecialCollections: {
 
 ## Mapping
 
-original 0..390 -> expanded 1410..1800
-original 390..458 -> expanded 22454..22522
-original 458..543 -> expanded 25855..25940
-original 543..723 -> expanded 32711..32891
-original 723..1013 -> expanded 45420..45710
-original 1013..1014 -> expanded 66812..66813
-generated 0..1410 <- imports
-generated 1800..2319 <- Debug
-generated 2319..2597 <- Clone
-generated 2597..3242 <- PartialEq
-generated 3242..4172 <- Hash
-generated 4172..6135 <- PartialOrd
-generated 6135..7732 <- Ord
-generated 7732..7934 <- Default
-generated 7934..10964 <- Encode
-generated 10964..20698 <- Decode
-generated 20698..22454 <- __convenience_const
-generated 22522..23286 <- Encode
-generated 23286..25268 <- Decode
-generated 25268..25855 <- __convenience_const
-generated 25940..27748 <- Encode
-generated 27748..32124 <- Decode
-generated 32124..32711 <- __convenience_const
-generated 32891..35597 <- Encode
-generated 35597..44296 <- Decode
-generated 44296..45420 <- __convenience_const
-generated 45710..46307 <- Debug
-generated 46307..46954 <- Clone
-generated 46954..48374 <- PartialEq
-generated 48374..50072 <- Hash
-generated 50072..50287 <- Default
-generated 50287..53615 <- Encode
-generated 53615..65128 <- Decode
-generated 65128..66812 <- __convenience_const
+original 0..456 -> expanded 1447..1903
+original 456..524 -> expanded 22557..22625
+original 524..609 -> expanded 25958..26043
+original 609..789 -> expanded 32814..32994
+original 789..1079 -> expanded 45523..45813
+original 1079..1534 -> expanded 66915..67370
+original 1534..1535 -> expanded 93327..93328
+generated 0..1447 <- imports
+generated 1903..2422 <- Debug
+generated 2422..2700 <- Clone
+generated 2700..3345 <- PartialEq
+generated 3345..4275 <- Hash
+generated 4275..6238 <- PartialOrd
+generated 6238..7835 <- Ord
+generated 7835..8037 <- Default
+generated 8037..11067 <- Encode
+generated 11067..20801 <- Decode
+generated 20801..22557 <- __convenience_const
+generated 22625..23389 <- Encode
+generated 23389..25371 <- Decode
+generated 25371..25958 <- __convenience_const
+generated 26043..27851 <- Encode
+generated 27851..32227 <- Decode
+generated 32227..32814 <- __convenience_const
+generated 32994..35700 <- Encode
+generated 35700..44399 <- Decode
+generated 44399..45523 <- __convenience_const
+generated 45813..46410 <- Debug
+generated 46410..47057 <- Clone
+generated 47057..48477 <- PartialEq
+generated 48477..50175 <- Hash
+generated 50175..50390 <- Default
+generated 50390..53718 <- Encode
+generated 53718..65231 <- Decode
+generated 65231..66915 <- __convenience_const
+generated 67370..68144 <- Debug
+generated 68144..68584 <- Clone
+generated 68584..69904 <- PartialEq
+generated 69904..71625 <- Hash
+generated 71625..75507 <- Encode
+generated 75507..91929 <- Decode
+generated 91929..93327 <- __convenience_const
 
 ## Metadata
 
-interface SpecialScalars: {"body_span":{"end":391,"start":281},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":248,"start":157}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":301,"start":287},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":315,"start":306},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":332,"start":320},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":350,"start":337},"ts_type":"string"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":369,"start":355},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":389,"start":374},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"SpecialScalars","span":{"end":391,"start":256},"type_params":[]}
-interface SpecialCarried: {"body_span":{"end":724,"start":609},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":576,"start":546}}],"fields":[{"decorators":[],"key":"Named","name":"data","optional":false,"readonly":false,"span":{"end":629,"start":615},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"amounts","optional":false,"readonly":false,"span":{"end":666,"start":634},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":694,"start":671},"ts_type":"[number, string]"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":722,"start":699},"ts_type":"string | number"}],"heritage":[],"methods":[],"name":"SpecialCarried","span":{"end":724,"start":584},"type_params":[]}
-interface SpecialCollections: {"body_span":{"end":1014,"start":833},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":796,"start":726}}],"fields":[{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":856,"start":839},"ts_type":"Set<number>"},{"decorators":[],"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":888,"start":861},"ts_type":"Map<string, number[]>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":922,"start":893},"ts_type":"Record<string, Date>"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":960,"start":927},"ts_type":"Map<string, Set<string>>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":983,"start":965},"ts_type":"number"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1012,"start":988},"ts_type":"number | null"}],"heritage":[],"methods":[],"name":"SpecialCollections","span":{"end":1014,"start":804},"type_params":[]}
-type SpecialNumber: {"body":{"Alias":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":423,"start":393}}],"name":"SpecialNumber","span":{"end":459,"start":431},"type_params":[]}
-type SpecialEither: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"SpecialCarried"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":491,"start":461}}],"name":"SpecialEither","span":{"end":544,"start":499},"type_params":[]}
+interface SpecialScalars: {"body_span":{"end":457,"start":347},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":314,"start":223}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":367,"start":353},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":381,"start":372},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":398,"start":386},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":416,"start":403},"ts_type":"string"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":435,"start":421},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":455,"start":440},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"SpecialScalars","span":{"end":457,"start":322},"type_params":[]}
+interface SpecialCarried: {"body_span":{"end":790,"start":675},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":642,"start":612}}],"fields":[{"decorators":[],"key":"Named","name":"data","optional":false,"readonly":false,"span":{"end":695,"start":681},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"amounts","optional":false,"readonly":false,"span":{"end":732,"start":700},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":760,"start":737},"ts_type":"[number, string]"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":788,"start":765},"ts_type":"string | number"}],"heritage":[],"methods":[],"name":"SpecialCarried","span":{"end":790,"start":650},"type_params":[]}
+interface SpecialCollections: {"body_span":{"end":1080,"start":899},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":862,"start":792}}],"fields":[{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":922,"start":905},"ts_type":"Set<number>"},{"decorators":[],"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":954,"start":927},"ts_type":"Map<string, number[]>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":988,"start":959},"ts_type":"Record<string, Date>"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":1026,"start":993},"ts_type":"Map<string, Set<string>>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1049,"start":1031},"ts_type":"number"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1078,"start":1054},"ts_type":"number | null"}],"heritage":[],"methods":[],"name":"SpecialCollections","span":{"end":1080,"start":870},"type_params":[]}
+interface SpecialHoles: {"body_span":{"end":1535,"start":1174},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1143,"start":1082}}],"fields":[{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1209,"start":1180},"ts_type":"(number | undefined)[]"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1250,"start":1214},"ts_type":"[number | undefined, string?]"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":1298,"start":1255},"ts_type":"Record<string, number | undefined>"},{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1347,"start":1303},"ts_type":"Record<'a' | 'b', Date | undefined>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":1381,"start":1352},"ts_type":"Set<number | undefined>"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":1424,"start":1386},"ts_type":"Map<string, number | undefined>"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1467,"start":1429},"ts_type":"(number | null | undefined)[]"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1498,"start":1472},"ts_type":"string | undefined"},{"decorators":[],"key":"Named","name":"grouped","optional":false,"readonly":false,"span":{"end":1533,"start":1503},"ts_type":"(string | undefined)"}],"heritage":[],"methods":[],"name":"SpecialHoles","span":{"end":1535,"start":1151},"type_params":[]}
+type SpecialNumber: {"body":{"Alias":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":489,"start":459}}],"name":"SpecialNumber","span":{"end":525,"start":497},"type_params":[]}
+type SpecialEither: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"SpecialCarried"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":557,"start":527}}],"name":"SpecialEither","span":{"end":610,"start":565},"type_params":[]}
 
 ## Registry reads
 
+Name("'a' | 'b'")
+Name("(number | null | undefined)")
+Name("(number | undefined)")
+Name("(string | undefined)")
 Name("Date")
 Name("Map")
 Name("Record")
@@ -1718,6 +2294,7 @@ Name("Set")
 Name("SpecialCarried")
 Name("SpecialEither")
 Name("SpecialNumber")
+Name("[number | undefined, string?]")
 Name("[number, string]")
 Name("bigint")
 Name("boolean")
