@@ -392,6 +392,7 @@ type Slug: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"\"u
 
 ## Registry reads
 
+Name("DateTime")
 Name("DateTime.DateTime")
 Name("Slug")
 Name("Stamped")

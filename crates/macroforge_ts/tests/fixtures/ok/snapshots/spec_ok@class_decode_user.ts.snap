@@ -273,7 +273,7 @@ generated 5994..7716 <- Decode
 
 ## Metadata
 
-class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

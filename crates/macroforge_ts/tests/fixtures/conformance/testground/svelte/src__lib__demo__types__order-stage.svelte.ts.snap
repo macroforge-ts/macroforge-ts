@@ -389,6 +389,7 @@ type OrderStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default
 
 ## Registry reads
 
+Name("Gigaform")
 Name("OrderStage")
 
 ## Buildtime dependencies

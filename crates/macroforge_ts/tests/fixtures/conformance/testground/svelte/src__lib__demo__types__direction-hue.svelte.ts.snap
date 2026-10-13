@@ -486,6 +486,7 @@ interface DirectionHue: {"body_span":{"end":180,"start":139},"decorators":[{"arg
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 
 ## Buildtime dependencies

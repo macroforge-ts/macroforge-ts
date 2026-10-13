@@ -424,6 +424,7 @@ type JobTitle: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 ## Registry reads
 
+Name("Gigaform")
 Name("JobTitle")
 
 ## Buildtime dependencies

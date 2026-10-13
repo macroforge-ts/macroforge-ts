@@ -1609,6 +1609,7 @@ interface Employee: {"body_span":{"end":1071,"start":387},"decorators":[{"args_s
 
 Name("Array")
 Name("Email")
+Name("Gigaform")
 Name("JobTitle")
 Name("PhoneNumber")
 Name("Route")

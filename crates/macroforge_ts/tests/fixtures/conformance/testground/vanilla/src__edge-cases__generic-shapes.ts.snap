@@ -154,7 +154,7 @@ function genericBoxEncodeFields<T>(value: GenericBox<T>, ctx: __mf_EncodeContext
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx))]));
+            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, T][]).map(([__key0, __item0]) => [__key0, (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
@@ -5355,134 +5355,134 @@ export declare const GenericDefaulted: {
 ## Mapping
 
 original 0..519 -> expanded 1651..2170
-original 519..669 -> expanded 26464..26614
-original 669..876 -> expanded 40122..40329
-original 876..1050 -> expanded 56956..57130
-original 1050..1051 -> expanded 69620..69621
-original 1051..1230 -> expanded 73759..73938
-original 1230..1327 -> expanded 81982..82079
-original 1327..1430 -> expanded 88086..88189
-original 1430..1885 -> expanded 93880..94335
-original 1885..2047 -> expanded 120916..121078
-original 2047..2172 -> expanded 134739..134864
-original 2172..2817 -> expanded 144124..144769
-original 2817..3053 -> expanded 180354..180590
-original 3053..3054 -> expanded 194973..194974
-original 3054..3269 -> expanded 200063..200278
-original 3269..3270 -> expanded 214612..214613
+original 519..669 -> expanded 26483..26633
+original 669..876 -> expanded 40141..40348
+original 876..1050 -> expanded 56975..57149
+original 1050..1051 -> expanded 69639..69640
+original 1051..1230 -> expanded 73778..73957
+original 1230..1327 -> expanded 82001..82098
+original 1327..1430 -> expanded 88105..88208
+original 1430..1885 -> expanded 93899..94354
+original 1885..2047 -> expanded 120935..121097
+original 2047..2172 -> expanded 134758..134883
+original 2172..2817 -> expanded 144143..144788
+original 2817..3053 -> expanded 180373..180609
+original 3053..3054 -> expanded 194992..194993
+original 3054..3269 -> expanded 200082..200297
+original 3269..3270 -> expanded 214631..214632
 generated 0..1651 <- imports
 generated 2170..2895 <- Debug
 generated 2895..3620 <- Clone
 generated 3620..4637 <- PartialEq
 generated 4637..5650 <- Hash
-generated 5650..9905 <- Encode
-generated 9905..25124 <- Decode
-generated 25124..26464 <- __convenience_const
-generated 26614..26989 <- Debug
-generated 26989..27263 <- Clone
-generated 27263..27542 <- PartialEq
-generated 27542..27869 <- Hash
-generated 27869..30904 <- Encode
-generated 30904..38753 <- Decode
-generated 38753..40122 <- __convenience_const
-generated 40329..40818 <- Debug
-generated 40818..41217 <- Clone
-generated 41217..41764 <- PartialEq
-generated 41764..42269 <- Hash
-generated 42269..45761 <- Encode
-generated 45761..55384 <- Decode
-generated 55384..56956 <- __convenience_const
-generated 57130..57543 <- Debug
-generated 57543..57825 <- Clone
-generated 57825..58333 <- PartialEq
-generated 58333..58890 <- Hash
-generated 58890..59159 <- Default
-generated 59159..61356 <- Encode
-generated 61356..61733 <- Encode
-generated 61733..69620 <- Decode
-generated 69621..69742 <- Debug
-generated 69742..69866 <- Clone
-generated 69866..69999 <- PartialEq
-generated 69999..70120 <- Hash
-generated 70120..70231 <- Default
-generated 70231..71758 <- Encode
-generated 71758..73759 <- Decode
-generated 73938..74108 <- Debug
-generated 74108..74273 <- Clone
-generated 74273..74477 <- PartialEq
-generated 74477..74621 <- Hash
-generated 74621..77087 <- Encode
-generated 77087..81071 <- Decode
-generated 81071..81982 <- __convenience_const
-generated 82079..82217 <- Debug
-generated 82217..82363 <- Clone
-generated 82363..82685 <- PartialEq
-generated 82685..82867 <- Hash
-generated 82867..83956 <- Encode
-generated 83956..87217 <- Decode
-generated 87217..88086 <- __convenience_const
-generated 88189..88330 <- Debug
-generated 88330..88453 <- Clone
-generated 88453..88615 <- PartialEq
-generated 88615..88731 <- Hash
-generated 88731..90373 <- Encode
-generated 90373..92990 <- Decode
-generated 92990..93880 <- __convenience_const
-generated 94335..95195 <- Debug
-generated 95195..95873 <- Clone
-generated 95873..96792 <- PartialEq
-generated 96792..97852 <- Hash
-generated 97852..102283 <- Encode
-generated 102283..119547 <- Decode
-generated 119547..120916 <- __convenience_const
-generated 121078..121461 <- Debug
-generated 121461..121719 <- Clone
-generated 121719..122138 <- PartialEq
-generated 122138..122512 <- Hash
-generated 122512..125435 <- Encode
-generated 125435..133283 <- Decode
-generated 133283..134739 <- __convenience_const
-generated 134864..135011 <- Debug
-generated 135011..135140 <- Clone
-generated 135140..135308 <- PartialEq
-generated 135308..135428 <- Hash
-generated 135428..137826 <- Encode
-generated 137826..143192 <- Decode
-generated 143192..144124 <- __convenience_const
-generated 144769..146041 <- Debug
-generated 146041..146934 <- Clone
-generated 146934..148017 <- PartialEq
-generated 148017..149250 <- Hash
-generated 149250..155390 <- Encode
-generated 155390..178840 <- Decode
-generated 178840..180354 <- __convenience_const
-generated 180590..181068 <- Debug
-generated 181068..181400 <- Clone
-generated 181400..181735 <- PartialEq
-generated 181735..182164 <- Hash
-generated 182164..182501 <- Default
-generated 182501..185160 <- Encode
-generated 185160..185628 <- Encode
-generated 185628..194973 <- Decode
-generated 194974..195152 <- Debug
-generated 195152..195339 <- Clone
-generated 195339..195535 <- PartialEq
-generated 195535..195713 <- Hash
-generated 195713..195881 <- Default
-generated 195881..197702 <- Encode
-generated 197702..200063 <- Decode
-generated 200278..200717 <- Debug
-generated 200717..201005 <- Clone
-generated 201005..201306 <- PartialEq
-generated 201306..201692 <- Hash
-generated 201692..204399 <- Encode
-generated 204399..213098 <- Decode
-generated 213098..214612 <- __convenience_const
+generated 5650..9924 <- Encode
+generated 9924..25143 <- Decode
+generated 25143..26483 <- __convenience_const
+generated 26633..27008 <- Debug
+generated 27008..27282 <- Clone
+generated 27282..27561 <- PartialEq
+generated 27561..27888 <- Hash
+generated 27888..30923 <- Encode
+generated 30923..38772 <- Decode
+generated 38772..40141 <- __convenience_const
+generated 40348..40837 <- Debug
+generated 40837..41236 <- Clone
+generated 41236..41783 <- PartialEq
+generated 41783..42288 <- Hash
+generated 42288..45780 <- Encode
+generated 45780..55403 <- Decode
+generated 55403..56975 <- __convenience_const
+generated 57149..57562 <- Debug
+generated 57562..57844 <- Clone
+generated 57844..58352 <- PartialEq
+generated 58352..58909 <- Hash
+generated 58909..59178 <- Default
+generated 59178..61375 <- Encode
+generated 61375..61752 <- Encode
+generated 61752..69639 <- Decode
+generated 69640..69761 <- Debug
+generated 69761..69885 <- Clone
+generated 69885..70018 <- PartialEq
+generated 70018..70139 <- Hash
+generated 70139..70250 <- Default
+generated 70250..71777 <- Encode
+generated 71777..73778 <- Decode
+generated 73957..74127 <- Debug
+generated 74127..74292 <- Clone
+generated 74292..74496 <- PartialEq
+generated 74496..74640 <- Hash
+generated 74640..77106 <- Encode
+generated 77106..81090 <- Decode
+generated 81090..82001 <- __convenience_const
+generated 82098..82236 <- Debug
+generated 82236..82382 <- Clone
+generated 82382..82704 <- PartialEq
+generated 82704..82886 <- Hash
+generated 82886..83975 <- Encode
+generated 83975..87236 <- Decode
+generated 87236..88105 <- __convenience_const
+generated 88208..88349 <- Debug
+generated 88349..88472 <- Clone
+generated 88472..88634 <- PartialEq
+generated 88634..88750 <- Hash
+generated 88750..90392 <- Encode
+generated 90392..93009 <- Decode
+generated 93009..93899 <- __convenience_const
+generated 94354..95214 <- Debug
+generated 95214..95892 <- Clone
+generated 95892..96811 <- PartialEq
+generated 96811..97871 <- Hash
+generated 97871..102302 <- Encode
+generated 102302..119566 <- Decode
+generated 119566..120935 <- __convenience_const
+generated 121097..121480 <- Debug
+generated 121480..121738 <- Clone
+generated 121738..122157 <- PartialEq
+generated 122157..122531 <- Hash
+generated 122531..125454 <- Encode
+generated 125454..133302 <- Decode
+generated 133302..134758 <- __convenience_const
+generated 134883..135030 <- Debug
+generated 135030..135159 <- Clone
+generated 135159..135327 <- PartialEq
+generated 135327..135447 <- Hash
+generated 135447..137845 <- Encode
+generated 137845..143211 <- Decode
+generated 143211..144143 <- __convenience_const
+generated 144788..146060 <- Debug
+generated 146060..146953 <- Clone
+generated 146953..148036 <- PartialEq
+generated 148036..149269 <- Hash
+generated 149269..155409 <- Encode
+generated 155409..178859 <- Decode
+generated 178859..180373 <- __convenience_const
+generated 180609..181087 <- Debug
+generated 181087..181419 <- Clone
+generated 181419..181754 <- PartialEq
+generated 181754..182183 <- Hash
+generated 182183..182520 <- Default
+generated 182520..185179 <- Encode
+generated 185179..185647 <- Encode
+generated 185647..194992 <- Decode
+generated 194993..195171 <- Debug
+generated 195171..195358 <- Clone
+generated 195358..195554 <- PartialEq
+generated 195554..195732 <- Hash
+generated 195732..195900 <- Default
+generated 195900..197721 <- Encode
+generated 197721..200082 <- Decode
+generated 200297..200736 <- Debug
+generated 200736..201024 <- Clone
+generated 201024..201325 <- PartialEq
+generated 201325..201711 <- Hash
+generated 201711..204418 <- Encode
+generated 204418..213117 <- Decode
+generated 213117..214631 <- __convenience_const
 
 ## Metadata
 
-class GenericStack: {"body_span":{"end":1052,"start":979},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":949,"start":879}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1001,"start":985},"ts_type":"T[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"top","optional":false,"readonly":false,"span":{"end":1027,"start":1006},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"depth","optional":false,"readonly":false,"span":{"end":1050,"start":1032},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericStack","span":{"end":1052,"start":957},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
-class GenericDefaults: {"body_span":{"end":3055,"start":2965},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2890,"start":2820}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":2994,"start":2971},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"many","optional":false,"readonly":false,"span":{"end":3021,"start":2999},"ts_type":"U | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":3053,"start":3026},"ts_type":"[T, T] | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericDefaults","span":{"end":3055,"start":2898},"superclass":null,"type_params":[{"constraint":"string | number","default":"string","is_const":false,"name":"T"},{"constraint":null,"default":"T[]","is_const":false,"name":"U"}]}
+class GenericStack: {"body_span":{"end":1052,"start":979},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":949,"start":879}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1001,"start":985},"ts_type":"T[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"top","optional":false,"readonly":false,"span":{"end":1027,"start":1006},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"depth","optional":false,"readonly":false,"span":{"end":1050,"start":1032},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GenericStack","span":{"end":1052,"start":957},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class GenericDefaults: {"body_span":{"end":3055,"start":2965},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2890,"start":2820}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":2994,"start":2971},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"many","optional":false,"readonly":false,"span":{"end":3021,"start":2999},"ts_type":"U | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":3053,"start":3026},"ts_type":"[T, T] | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GenericDefaults","span":{"end":3055,"start":2898},"superclass":null,"type_params":[{"constraint":"string | number","default":"string","is_const":false,"name":"T"},{"constraint":null,"default":"T[]","is_const":false,"name":"U"}]}
 interface GenericBox: {"body_span":{"end":520,"start":356},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":324,"start":263}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":370,"start":362},"ts_type":"T"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":385,"start":375},"ts_type":"T[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":406,"start":390},"ts_type":"T | null"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":424,"start":411},"ts_type":"T"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":452,"start":429},"ts_type":"Map<string, T>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":469,"start":457},"ts_type":"Set<T>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":500,"start":474},"ts_type":"Record<string, T>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":518,"start":505},"ts_type":"[T, T]"}],"heritage":[],"methods":[],"name":"GenericBox","span":{"end":520,"start":332},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface GenericPair: {"body_span":{"end":670,"start":633},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":583,"start":522}}],"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":650,"start":639},"ts_type":"Left"},{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":668,"start":655},"ts_type":"Right"}],"heritage":[],"methods":[],"name":"GenericPair","span":{"end":670,"start":591},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"Left"},{"constraint":null,"default":"Left","is_const":false,"name":"Right"}]}
 interface GenericConstrained: {"body_span":{"end":877,"start":823},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":733,"start":672}}],"fields":[{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":840,"start":829},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":856,"start":845},"ts_type":"Name"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":875,"start":861},"ts_type":"Item[]"}],"heritage":[],"methods":[],"name":"GenericConstrained","span":{"end":877,"start":741},"type_params":[{"constraint":"EdgeItem","default":null,"is_const":false,"name":"Item"},{"constraint":"string","default":"string","is_const":false,"name":"Name"}]}

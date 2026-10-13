@@ -398,6 +398,7 @@ type RecurrenceEnd: {"body":{"Union":[{"decorators":[{"args_src":"0","name":"def
 
 ## Registry reads
 
+Name("Gigaform")
 Name("RecurrenceEnd")
 
 ## Buildtime dependencies

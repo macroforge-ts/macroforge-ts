@@ -1434,6 +1434,7 @@ interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_s
 
 Name("AppointmentNotifications")
 Name("Commissions")
+Name("Gigaform")
 Name("OverviewSettings")
 Name("Page")
 Name("ScheduleSettings")

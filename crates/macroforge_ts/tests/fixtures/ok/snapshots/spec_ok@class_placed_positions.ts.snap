@@ -61,7 +61,7 @@ generated 215..253 <- Placed
 
 ## Metadata
 
-class Widget: {"body_span":{"end":161,"start":142},"decorators":[{"args_src":"Placed","name":"Derive","span":{"end":121,"start":99}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Widget","span":{"end":161,"start":129},"superclass":null,"type_params":[]}
+class Widget: {"body_span":{"end":161,"start":142},"decorators":[{"args_src":"Placed","name":"Derive","span":{"end":121,"start":99}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Widget","span":{"end":161,"start":129},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -39,7 +39,7 @@ original 0..168 -> expanded 0..168
 
 ## Metadata
 
-class Map: {"body_span":{"end":28,"start":11},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":26,"start":17},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Map","span":{"end":28,"start":1},"superclass":null,"type_params":[]}
+class Map: {"body_span":{"end":28,"start":11},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":26,"start":17},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Map","span":{"end":28,"start":1},"superclass":null,"type_params":[]}
 interface Record: {"body_span":{"end":66,"start":47},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":64,"start":53},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Record","span":{"end":66,"start":30},"type_params":[]}
 
 ## Registry reads

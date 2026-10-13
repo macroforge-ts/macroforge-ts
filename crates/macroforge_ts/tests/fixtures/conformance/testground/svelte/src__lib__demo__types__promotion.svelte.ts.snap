@@ -478,6 +478,7 @@ interface Promotion: {"body_span":{"end":173,"start":136},"decorators":[{"args_s
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

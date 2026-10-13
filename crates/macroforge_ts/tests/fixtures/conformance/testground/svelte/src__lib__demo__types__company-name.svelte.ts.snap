@@ -445,6 +445,7 @@ interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

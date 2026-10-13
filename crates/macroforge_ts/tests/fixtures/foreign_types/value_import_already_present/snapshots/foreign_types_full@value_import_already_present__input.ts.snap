@@ -293,6 +293,7 @@ interface Tick: {"body_span":{"end":124,"start":99},"decorators":[{"args_src":"D
 
 ## Registry reads
 
+Name("DateTime")
 Name("DateTime.Utc")
 
 ## Buildtime dependencies

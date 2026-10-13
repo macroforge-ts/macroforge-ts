@@ -512,6 +512,7 @@ interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

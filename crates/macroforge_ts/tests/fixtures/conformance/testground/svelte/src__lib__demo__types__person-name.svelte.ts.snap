@@ -516,6 +516,7 @@ interface PersonName: {"body_span":{"end":380,"start":137},"decorators":[{"args_
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

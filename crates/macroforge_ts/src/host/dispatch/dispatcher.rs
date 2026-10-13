@@ -30,6 +30,7 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     span: SpanIR::new(10, 50),
 ///     body_span: SpanIR::new(20, 49),
 ///     is_abstract: false,
+///     is_declare: false,
 ///     type_params: vec![],
 ///     heritage: vec![],
 ///     superclass: None,

@@ -863,6 +863,70 @@ pub(super) fn check_unattached_derives(
         .collect()
 }
 
+/// What a file holds, by its name: TypeScript a derive can add code to, or
+/// something a derive's code cannot go into.
+fn unexpandable_file(file_name: &str) -> Option<&'static str> {
+    let name = file_name.to_ascii_lowercase();
+    if [".d.ts", ".d.mts", ".d.cts"]
+        .iter()
+        .any(|ending| name.ends_with(ending))
+    {
+        return Some("is a declaration file, which holds no code, and a derive generates code");
+    }
+    [".js", ".mjs", ".cjs", ".jsx"]
+        .iter()
+        .any(|ending| name.ends_with(ending))
+        .then_some("is a JavaScript file, and a derive generates TypeScript")
+}
+
+/// Takes out of `targets` each type with a built-in derive that the code a
+/// derive generates cannot be written for, and gives an error for it: one in
+/// a declaration file or a JavaScript file, and a `declare class`, which has
+/// no body to hold it.
+pub(super) fn reject_unexpandable(
+    targets: &mut Vec<DeriveTarget>,
+    source: &str,
+    file_name: &str,
+) -> Vec<Diagnostic> {
+    let file_kind = unexpandable_file(file_name);
+    let mut diagnostics = Vec::new();
+    let mut reported = Vec::new();
+    targets.retain(|target| {
+        if !is_builtin(target) {
+            return true;
+        }
+        let (name, start) = declared(&target.target_ir);
+        let ambient =
+            matches!(&target.target_ir, DeriveTargetIR::Class(class) if class.is_declare);
+        let (message, help) = match file_kind {
+            Some(kind) => (
+                format!("'{name}' cannot take a derive here: this file {kind}"),
+                "derive on the type in a TypeScript module that holds code",
+            ),
+            None if ambient => (
+                format!(
+                    "'{name}' is a `declare class`: it describes a class this module does not hold, so it has no body for the code a derive generates"
+                ),
+                "declare it as a `class`, or derive where it is defined",
+            ),
+            None => return true,
+        };
+        // A declaration's `@derive` directives each make a target.
+        if !reported.contains(&start) {
+            reported.push(start);
+            diagnostics.push(Diagnostic {
+                level: DiagnosticLevel::Error,
+                message,
+                span: Some(diagnostic_span_for_derive(target.decorator_span, source)),
+                notes: vec![],
+                help: Some(help.to_string()),
+            });
+        }
+        false
+    });
+    diagnostics
+}
+
 /// An error for each `declare enum` with a built-in derive. The functions a
 /// derive generates read the enum's members as the code runs, and the module
 /// a `declare enum` is written in has no such value.

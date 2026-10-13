@@ -1060,6 +1060,7 @@ interface Route: {"body_span":{"end":602,"start":184},"decorators":[{"args_src":
 
 Name("Array")
 Name("Employee")
+Name("Gigaform")
 Name("boolean")
 Name("number")
 Name("string")

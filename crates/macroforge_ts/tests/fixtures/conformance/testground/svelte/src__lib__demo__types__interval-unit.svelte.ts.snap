@@ -420,6 +420,7 @@ type IntervalUnit: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defau
 
 ## Registry reads
 
+Name("Gigaform")
 Name("IntervalUnit")
 
 ## Buildtime dependencies

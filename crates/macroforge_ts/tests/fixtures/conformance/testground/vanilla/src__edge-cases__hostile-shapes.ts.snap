@@ -393,7 +393,7 @@ function hostileBagEncodeFields(value: HostileBag, ctx: __mf_EncodeContext, resu
     }
     if (__fields === undefined || __fields.keeps("byName")) {
         if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Object.entries(value.byName).map(([__key0, __item0]) => [__key0, hostileItemEncodeWithContext(__item0, ctx)]));
+            result["byName"] = Object.fromEntries((Object.entries(value.byName) as [string, HostileItem][]).map(([__key0, __item0]) => [__key0, hostileItemEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("counts")) {
@@ -1601,10 +1601,10 @@ export declare const HostileStrict: {
 
 original 0..324 -> expanded 1256..1580
 original 324..728 -> expanded 12480..12884
-original 728..940 -> expanded 40889..41101
-original 940..941 -> expanded 50061..50062
-original 941..1069 -> expanded 53741..53869
-original 1069..1070 -> expanded 62849..62850
+original 728..940 -> expanded 40918..41130
+original 940..941 -> expanded 50090..50091
+original 941..1069 -> expanded 53770..53898
+original 1069..1070 -> expanded 62878..62879
 generated 0..1256 <- imports
 generated 1580..1890 <- Debug
 generated 1890..2057 <- Clone
@@ -1617,29 +1617,29 @@ generated 12884..13858 <- Debug
 generated 13858..14446 <- Clone
 generated 14446..15695 <- PartialEq
 generated 15695..17238 <- Hash
-generated 17238..21501 <- Encode
-generated 21501..39549 <- Decode
-generated 39549..40889 <- __convenience_const
-generated 41101..41429 <- Debug
-generated 41429..41605 <- Clone
-generated 41605..41844 <- PartialEq
-generated 41844..42314 <- Hash
-generated 42314..44052 <- Encode
-generated 44052..44383 <- Encode
-generated 44383..50061 <- Decode
-generated 50062..50174 <- Debug
-generated 50174..50286 <- Clone
-generated 50286..50407 <- PartialEq
-generated 50407..50519 <- Hash
-generated 50519..51899 <- Encode
-generated 51899..53741 <- Decode
-generated 53869..56073 <- Encode
-generated 56073..61746 <- Decode
-generated 61746..62849 <- __convenience_const
+generated 17238..21530 <- Encode
+generated 21530..39578 <- Decode
+generated 39578..40918 <- __convenience_const
+generated 41130..41458 <- Debug
+generated 41458..41634 <- Clone
+generated 41634..41873 <- PartialEq
+generated 41873..42343 <- Hash
+generated 42343..44081 <- Encode
+generated 44081..44412 <- Encode
+generated 44412..50090 <- Decode
+generated 50091..50203 <- Debug
+generated 50203..50315 <- Clone
+generated 50315..50436 <- PartialEq
+generated 50436..50548 <- Hash
+generated 50548..51928 <- Encode
+generated 51928..53770 <- Decode
+generated 53898..56102 <- Encode
+generated 56102..61775 <- Decode
+generated 61775..62878 <- __convenience_const
 
 ## Metadata
 
-class HostileClass: {"body_span":{"end":942,"start":819},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":792,"start":731}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":843,"start":825},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":866,"start":848},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":940,"start":888},"body_src":"\n        return `${this.name}:${this.count}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":940,"start":872},"type_params":[],"visibility":"Public"}],"name":"HostileClass","span":{"end":942,"start":800},"superclass":null,"type_params":[]}
+class HostileClass: {"body_span":{"end":942,"start":819},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":792,"start":731}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":843,"start":825},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":866,"start":848},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":940,"start":888},"body_src":"\n        return `${this.name}:${this.count}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":940,"start":872},"type_params":[],"visibility":"Public"}],"name":"HostileClass","span":{"end":942,"start":800},"superclass":null,"type_params":[]}
 interface HostileItem: {"body_span":{"end":325,"start":287},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":257,"start":196}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":304,"start":293},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":323,"start":309},"ts_type":"number"}],"heritage":[],"methods":[],"name":"HostileItem","span":{"end":325,"start":265},"type_params":[]}
 interface HostileBag: {"body_span":{"end":729,"start":417},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":388,"start":327}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":436,"start":423},"ts_type":"string"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":459,"start":441},"ts_type":"HostileItem"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":485,"start":464},"ts_type":"HostileItem[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":526,"start":490},"ts_type":"Record<string, HostileItem>"},{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":562,"start":531},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"lookup","optional":false,"readonly":false,"span":{"end":595,"start":567},"ts_type":"Map<string, number>"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":618,"start":600},"ts_type":"Set<string>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":646,"start":623},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":660,"start":651},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":677,"start":665},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":696,"start":682},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":727,"start":701},"ts_type":"HostileBag | null"}],"heritage":[],"methods":[],"name":"HostileBag","span":{"end":729,"start":396},"type_params":[]}
 interface HostileStrict: {"body_span":{"end":1070,"start":1049},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":1017,"start":975}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":974,"start":944}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1068,"start":1055},"ts_type":"string"}],"heritage":[],"methods":[],"name":"HostileStrict","span":{"end":1070,"start":1025},"type_params":[]}

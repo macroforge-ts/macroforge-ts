@@ -317,6 +317,7 @@ interface Foo: {"body_span":{"end":182,"start":98},"decorators":[{"args_src":"De
 
 ## Registry reads
 
+Name("DateTime")
 Name("DateTime.Utc")
 Name("string")
 

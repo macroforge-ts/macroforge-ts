@@ -293,6 +293,7 @@ interface Event: {"body_span":{"end":125,"start":100},"decorators":[{"args_src":
 
 ## Registry reads
 
+Name("DateTime")
 Name("DateTime.Utc")
 
 ## Buildtime dependencies

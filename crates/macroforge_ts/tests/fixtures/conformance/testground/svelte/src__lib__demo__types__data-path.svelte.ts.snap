@@ -506,6 +506,7 @@ interface DataPath: {"body_span":{"end":193,"start":135},"decorators":[{"args_sr
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

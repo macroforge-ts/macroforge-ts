@@ -1044,6 +1044,7 @@ interface TaxRate: {"body_span":{"end":1129,"start":134},"decorators":[{"args_sr
 
 ## Registry reads
 
+Name("Gigaform")
 Name("boolean")
 Name("number")
 Name("string")

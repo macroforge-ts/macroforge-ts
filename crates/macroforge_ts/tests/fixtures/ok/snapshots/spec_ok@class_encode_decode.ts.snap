@@ -338,7 +338,7 @@ generated 9583..11335 <- Decode
 
 ## Metadata
 
-class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
+class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

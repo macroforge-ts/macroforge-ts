@@ -512,6 +512,7 @@ interface AppointmentNotifications: {"body_span":{"end":339,"start":151},"decora
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

@@ -521,6 +521,7 @@ type Applications: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defau
 ## Registry reads
 
 Name("Applications")
+Name("Gigaform")
 
 ## Buildtime dependencies
 

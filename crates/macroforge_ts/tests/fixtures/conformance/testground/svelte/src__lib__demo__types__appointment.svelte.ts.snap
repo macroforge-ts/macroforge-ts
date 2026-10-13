@@ -1379,8 +1379,11 @@ interface Appointment: {"body_span":{"end":1831,"start":439},"decorators":[{"arg
 
 Name("Array")
 Name("Colors")
+Name("DateTime")
 Name("DateTime.DateTime")
 Name("Employee")
+Name("Gigaform")
+Name("Option")
 Name("Option.Option")
 Name("Option.Option<string>")
 Name("RecurrenceRule")

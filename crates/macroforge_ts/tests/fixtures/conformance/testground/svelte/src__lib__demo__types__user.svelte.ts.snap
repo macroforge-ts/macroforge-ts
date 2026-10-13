@@ -1525,8 +1525,11 @@ interface User: {"body_span":{"end":1103,"start":398},"decorators":[{"args_src":
 ## Registry reads
 
 Name("AppPermissions")
+Name("DateTime")
 Name("DateTime.DateTime")
+Name("Gigaform")
 Name("Metadata")
+Name("Option")
 Name("Option.Option")
 Name("Option.Option<DateTime.DateTime>")
 Name("Option.Option<Metadata>")

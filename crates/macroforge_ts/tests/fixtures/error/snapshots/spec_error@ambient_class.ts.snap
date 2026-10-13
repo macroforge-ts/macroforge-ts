@@ -1,0 +1,52 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/ambient_class.ts
+---
+## Input
+
+/** @derive(Clone, Default, Encode, Decode) */
+export declare class Ambient {
+    x: number;
+}
+
+/** @derive(Debug) @derive(Clone) */
+declare class Twice {
+    y: string;
+}
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+Error [5..44]: 'Ambient' is a `declare class`: it describes a class this module does not hold, so it has no body for the code a derive generates
+  help: declare it as a `class`, or derive where it is defined
+Error [101..115]: 'Twice' is a `declare class`: it describes a class this module does not hold, so it has no body for the code a derive generates
+  help: declare it as a `class`, or derive where it is defined
+
+## Mapping
+
+original 0..172 -> expanded 0..172
+
+## Metadata
+
+class Ambient: {"body_span":{"end":95,"start":77},"decorators":[{"args_src":"Clone, Default, Encode, Decode","name":"Derive","span":{"end":47,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":93,"start":83},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":true,"methods":[],"name":"Ambient","span":{"end":95,"start":55},"superclass":null,"type_params":[]}
+class Twice: {"body_span":{"end":172,"start":154},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":133,"start":97}},{"args_src":"Clone","name":"Derive","span":{"end":133,"start":97}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":170,"start":160},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":true,"methods":[],"name":"Twice","span":{"end":172,"start":134},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

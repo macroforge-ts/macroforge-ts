@@ -613,6 +613,7 @@ interface Metadata: {"body_span":{"end":240,"start":135},"decorators":[{"args_sr
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("boolean")
 Name("string")
 

@@ -650,6 +650,7 @@ interface Address: {"body_span":{"end":399,"start":134},"decorators":[{"args_src
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

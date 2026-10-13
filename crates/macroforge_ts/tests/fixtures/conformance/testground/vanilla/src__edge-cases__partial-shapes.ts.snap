@@ -186,7 +186,7 @@ function edgePartialsEncodeFields(value: EdgePartials, ctx: __mf_EncodeContext, 
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, edgeItemEncodePartialWithContext(__item0, ctx, { except: ["score"] })]));
+            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, Omit<EdgeItem, 'score'>][]).map(([__key0, __item0]) => [__key0, edgeItemEncodePartialWithContext(__item0, ctx, { except: ["score"] })]));
         }
     }
     if (__fields === undefined || __fields.keeps("maybe")) {
@@ -2179,39 +2179,39 @@ export declare const EdgeRequired: {
 ## Mapping
 
 original 0..963 -> expanded 1641..2604
-original 963..1397 -> expanded 37302..37736
-original 1397..1640 -> expanded 60404..60647
-original 1640..1973 -> expanded 73396..73729
-original 1973..1974 -> expanded 92761..92762
+original 963..1397 -> expanded 37343..37777
+original 1397..1640 -> expanded 60445..60688
+original 1640..1973 -> expanded 73437..73770
+original 1973..1974 -> expanded 92802..92803
 generated 0..1641 <- imports
 generated 2604..3710 <- Debug
 generated 3710..4816 <- Clone
 generated 4816..6880 <- PartialEq
 generated 6880..8521 <- Hash
-generated 8521..13803 <- Encode
-generated 13803..35904 <- Decode
-generated 35904..37302 <- __convenience_const
-generated 37736..38508 <- Debug
-generated 38508..39041 <- Clone
-generated 39041..39584 <- PartialEq
-generated 39584..40298 <- Hash
-generated 40298..44255 <- Encode
-generated 44255..58803 <- Decode
-generated 58803..60404 <- __convenience_const
-generated 60647..61052 <- Debug
-generated 61052..61349 <- Clone
-generated 61349..61669 <- PartialEq
-generated 61669..62487 <- Hash
-generated 62487..65141 <- Encode
-generated 65141..71998 <- Decode
-generated 71998..73396 <- __convenience_const
-generated 73729..74332 <- Debug
-generated 74332..74752 <- Clone
-generated 74752..75340 <- PartialEq
-generated 75340..75968 <- Hash
-generated 75968..79249 <- Encode
-generated 79249..91363 <- Decode
-generated 91363..92761 <- __convenience_const
+generated 8521..13844 <- Encode
+generated 13844..35945 <- Decode
+generated 35945..37343 <- __convenience_const
+generated 37777..38549 <- Debug
+generated 38549..39082 <- Clone
+generated 39082..39625 <- PartialEq
+generated 39625..40339 <- Hash
+generated 40339..44296 <- Encode
+generated 44296..58844 <- Decode
+generated 58844..60445 <- __convenience_const
+generated 60688..61093 <- Debug
+generated 61093..61390 <- Clone
+generated 61390..61710 <- PartialEq
+generated 61710..62528 <- Hash
+generated 62528..65182 <- Encode
+generated 65182..72039 <- Decode
+generated 72039..73437 <- __convenience_const
+generated 73770..74373 <- Debug
+generated 74373..74793 <- Clone
+generated 74793..75381 <- PartialEq
+generated 75381..76009 <- Hash
+generated 76009..79290 <- Encode
+generated 79290..91404 <- Decode
+generated 91404..92802 <- __convenience_const
 
 ## Metadata
 

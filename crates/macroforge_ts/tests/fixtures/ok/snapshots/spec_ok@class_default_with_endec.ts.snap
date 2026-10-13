@@ -354,7 +354,7 @@ generated 10101..11868 <- Decode
 
 ## Metadata
 
-class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"\"\"","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"superclass":null,"type_params":[]}
+class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":"\"\"","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

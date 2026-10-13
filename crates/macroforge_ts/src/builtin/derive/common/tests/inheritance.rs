@@ -35,6 +35,7 @@ fn class(name: &str, superclass: Option<&str>, fields: Vec<FieldIR>) -> ClassIR 
         span: zero_span(),
         body_span: zero_span(),
         is_abstract: false,
+        is_declare: false,
         type_params: vec![],
         heritage: superclass.map(str::to_string).into_iter().collect(),
         superclass: superclass.map(str::to_string),

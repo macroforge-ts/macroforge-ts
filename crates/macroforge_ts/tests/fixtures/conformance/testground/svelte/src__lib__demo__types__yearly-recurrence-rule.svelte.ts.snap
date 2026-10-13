@@ -430,6 +430,7 @@ interface YearlyRecurrenceRule: {"body_span":{"end":179,"start":147},"decorators
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 
 ## Buildtime dependencies

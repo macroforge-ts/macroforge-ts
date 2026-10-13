@@ -456,6 +456,7 @@ type LeadStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default"
 
 ## Registry reads
 
+Name("Gigaform")
 Name("LeadStage")
 
 ## Buildtime dependencies

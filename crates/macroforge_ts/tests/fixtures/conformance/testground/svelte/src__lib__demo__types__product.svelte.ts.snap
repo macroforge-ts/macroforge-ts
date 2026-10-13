@@ -993,6 +993,7 @@ interface Product: {"body_span":{"end":1032,"start":201},"decorators":[{"args_sr
 
 ## Registry reads
 
+Name("Gigaform")
 Name("ProductDefaults")
 Name("boolean")
 Name("string")

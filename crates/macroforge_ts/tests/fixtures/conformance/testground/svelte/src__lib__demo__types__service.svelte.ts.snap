@@ -1047,6 +1047,7 @@ interface Service: {"body_span":{"end":1120,"start":201},"decorators":[{"args_sr
 
 ## Registry reads
 
+Name("Gigaform")
 Name("ServiceDefaults")
 Name("boolean")
 Name("string")

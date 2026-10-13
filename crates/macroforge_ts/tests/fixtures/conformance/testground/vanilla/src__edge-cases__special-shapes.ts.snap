@@ -1114,7 +1114,7 @@ function specialCollectionsEncodeFields(value: SpecialCollections, _ctx: __mf_En
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
+            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, Date][]).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
         }
     }
     if (__fields === undefined || __fields.keeps("nested")) {
@@ -1525,12 +1525,12 @@ function specialHolesEncodeFields(value: SpecialHoles, _ctx: __mf_EncodeContext,
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : __item0)]));
+            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, number | undefined][]).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : __item0)]));
         }
     }
     if (__fields === undefined || __fields.keeps("finite")) {
         if (value.finite !== undefined) {
-            result["finite"] = Object.fromEntries(Object.entries(value.finite).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : (__item0 === undefined ? undefined : __item0.toISOString()))]));
+            result["finite"] = Object.fromEntries((Object.entries(value.finite) as [string, Date | undefined][]).map(([__key0, __item0]) => [__key0, (__item0 === undefined ? null : (__item0 === undefined ? undefined : __item0.toISOString()))]));
         }
     }
     if (__fields === undefined || __fields.keeps("set")) {
@@ -2234,8 +2234,8 @@ original 456..524 -> expanded 22557..22625
 original 524..609 -> expanded 25958..26043
 original 609..789 -> expanded 32814..32994
 original 789..1079 -> expanded 45523..45813
-original 1079..1534 -> expanded 66915..67370
-original 1534..1535 -> expanded 93327..93328
+original 1079..1534 -> expanded 66937..67392
+original 1534..1535 -> expanded 93419..93420
 generated 0..1447 <- imports
 generated 1903..2422 <- Debug
 generated 2422..2700 <- Clone
@@ -2261,16 +2261,16 @@ generated 46410..47057 <- Clone
 generated 47057..48477 <- PartialEq
 generated 48477..50175 <- Hash
 generated 50175..50390 <- Default
-generated 50390..53718 <- Encode
-generated 53718..65231 <- Decode
-generated 65231..66915 <- __convenience_const
-generated 67370..68144 <- Debug
-generated 68144..68584 <- Clone
-generated 68584..69904 <- PartialEq
-generated 69904..71625 <- Hash
-generated 71625..75507 <- Encode
-generated 75507..91929 <- Decode
-generated 91929..93327 <- __convenience_const
+generated 50390..53740 <- Encode
+generated 53740..65253 <- Decode
+generated 65253..66937 <- __convenience_const
+generated 67392..68166 <- Debug
+generated 68166..68606 <- Clone
+generated 68606..69926 <- PartialEq
+generated 69926..71647 <- Hash
+generated 71647..75599 <- Encode
+generated 75599..92021 <- Decode
+generated 92021..93419 <- __convenience_const
 
 ## Metadata
 

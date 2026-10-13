@@ -1096,6 +1096,7 @@ type Page: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","spa
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Page")
 
 ## Buildtime dependencies

@@ -266,7 +266,7 @@ function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record
     }
     if (__fields === undefined || __fields.keeps("named")) {
         if (value.named !== undefined) {
-            result["named"] = Object.fromEntries(Object.entries(value.named).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
+            result["named"] = Object.fromEntries((Object.entries(value.named) as [string, Point][]).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("visits")) {
@@ -1671,30 +1671,30 @@ export declare const Outcome: {
 
 original 0..255 -> expanded 933..1188
 original 255..400 -> expanded 10162..10307
-original 400..526 -> expanded 22217..22343
-original 526..619 -> expanded 31657..31750
-original 619..710 -> expanded 41637..41728
-original 710..784 -> expanded 52702..52776
-original 784..785 -> expanded 60108..60109
+original 400..526 -> expanded 22240..22366
+original 526..619 -> expanded 31680..31773
+original 619..710 -> expanded 41660..41751
+original 710..784 -> expanded 52725..52799
+original 784..785 -> expanded 60131..60132
 generated 0..933 <- imports
 generated 1188..3260 <- Encode
 generated 3260..9227 <- Decode
 generated 9227..10162 <- __convenience_const
-generated 10307..12916 <- Encode
-generated 12916..21282 <- Decode
-generated 21282..22217 <- __convenience_const
-generated 22343..24780 <- Encode
-generated 24780..30680 <- Decode
-generated 30680..31657 <- __convenience_const
-generated 31750..34214 <- Encode
-generated 34214..40744 <- Decode
-generated 40744..41637 <- __convenience_const
-generated 41728..44458 <- Encode
-generated 44458..51788 <- Decode
-generated 51788..52702 <- __convenience_const
-generated 52776..54871 <- Encode
-generated 54871..59599 <- Decode
-generated 59599..60108 <- __convenience_const
+generated 10307..12939 <- Encode
+generated 12939..21305 <- Decode
+generated 21305..22240 <- __convenience_const
+generated 22366..24803 <- Encode
+generated 24803..30703 <- Decode
+generated 30703..31680 <- __convenience_const
+generated 31773..34237 <- Encode
+generated 34237..40767 <- Decode
+generated 40767..41660 <- __convenience_const
+generated 41751..44481 <- Encode
+generated 44481..51811 <- Decode
+generated 51811..52725 <- __convenience_const
+generated 52799..54894 <- Encode
+generated 54894..59622 <- Decode
+generated 59622..60131 <- __convenience_const
 
 ## Metadata
 

@@ -305,7 +305,7 @@ function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record
     }
     if (__fields === undefined || __fields.keeps("named")) {
         if (value.named !== undefined) {
-            result["named"] = Object.fromEntries(Object.entries(value.named).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
+            result["named"] = Object.fromEntries((Object.entries(value.named) as [string, Point][]).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("visits")) {
@@ -1705,35 +1705,35 @@ original 182..212 -> expanded 1085..1115
 original 238..255 -> expanded 1115..1132
 original 255..257 -> expanded 10106..10108
 original 287..400 -> expanded 10108..10221
-original 400..402 -> expanded 22131..22133
-original 432..483 -> expanded 22133..22184
-original 505..526 -> expanded 22184..22205
-original 526..528 -> expanded 31519..31521
-original 558..619 -> expanded 31521..31582
-original 619..621 -> expanded 41469..41471
-original 651..710 -> expanded 41471..41530
-original 710..712 -> expanded 52504..52506
-original 742..784 -> expanded 52506..52548
-original 784..785 -> expanded 59880..59881
+original 400..402 -> expanded 22154..22156
+original 432..483 -> expanded 22156..22207
+original 505..526 -> expanded 22207..22228
+original 526..528 -> expanded 31542..31544
+original 558..619 -> expanded 31544..31605
+original 619..621 -> expanded 41492..41494
+original 651..710 -> expanded 41494..41553
+original 710..712 -> expanded 52527..52529
+original 742..784 -> expanded 52529..52571
+original 784..785 -> expanded 59903..59904
 generated 0..933 <- imports
 generated 1132..3204 <- Encode
 generated 3204..9171 <- Decode
 generated 9171..10106 <- __convenience_const
-generated 10221..12830 <- Encode
-generated 12830..21196 <- Decode
-generated 21196..22131 <- __convenience_const
-generated 22205..24642 <- Encode
-generated 24642..30542 <- Decode
-generated 30542..31519 <- __convenience_const
-generated 31582..34046 <- Encode
-generated 34046..40576 <- Decode
-generated 40576..41469 <- __convenience_const
-generated 41530..44260 <- Encode
-generated 44260..51590 <- Decode
-generated 51590..52504 <- __convenience_const
-generated 52548..54643 <- Encode
-generated 54643..59371 <- Decode
-generated 59371..59880 <- __convenience_const
+generated 10221..12853 <- Encode
+generated 12853..21219 <- Decode
+generated 21219..22154 <- __convenience_const
+generated 22228..24665 <- Encode
+generated 24665..30565 <- Decode
+generated 30565..31542 <- __convenience_const
+generated 31605..34069 <- Encode
+generated 34069..40599 <- Decode
+generated 40599..41492 <- __convenience_const
+generated 41553..44283 <- Encode
+generated 44283..51613 <- Decode
+generated 51613..52527 <- __convenience_const
+generated 52571..54666 <- Encode
+generated 54666..59394 <- Decode
+generated 59394..59903 <- __convenience_const
 
 ## Metadata
 

@@ -1122,6 +1122,7 @@ interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"
 ## Registry reads
 
 Name("Coordinates")
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

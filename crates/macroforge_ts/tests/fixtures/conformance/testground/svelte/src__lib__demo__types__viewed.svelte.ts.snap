@@ -482,6 +482,7 @@ interface Viewed: {"body_span":{"end":199,"start":133},"decorators":[{"args_src"
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 Name("string")
 

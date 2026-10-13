@@ -631,6 +631,7 @@ interface Represents: {"body_span":{"end":384,"start":238},"decorators":[{"args_
 
 Name("Account")
 Name("Employee")
+Name("Gigaform")
 Name("string")
 Name("string | Account")
 Name("string | Employee")

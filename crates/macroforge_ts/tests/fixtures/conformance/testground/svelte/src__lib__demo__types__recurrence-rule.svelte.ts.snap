@@ -734,6 +734,7 @@ interface RecurrenceRule: {"body_span":{"end":447,"start":255},"decorators":[{"a
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("Interval")
 Name("RecurrenceEnd")
 Name("string")

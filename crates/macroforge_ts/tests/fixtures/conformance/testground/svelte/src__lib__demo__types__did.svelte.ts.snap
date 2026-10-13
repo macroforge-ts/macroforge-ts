@@ -772,6 +772,7 @@ interface Did: {"body_span":{"end":484,"start":283},"decorators":[{"args_src":"D
 
 Name("ActivityType")
 Name("Actor")
+Name("Gigaform")
 Name("Target")
 Name("string")
 Name("string | Actor")

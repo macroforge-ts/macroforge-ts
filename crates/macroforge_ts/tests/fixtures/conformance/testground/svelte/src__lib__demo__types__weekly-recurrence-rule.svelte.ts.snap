@@ -536,6 +536,7 @@ interface WeeklyRecurrenceRule: {"body_span":{"end":259,"start":197},"decorators
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("Weekday")
 Name("number")
 

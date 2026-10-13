@@ -822,6 +822,7 @@ interface Ordinal: {"body_span":{"end":303,"start":134},"decorators":[{"args_src
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 
 ## Buildtime dependencies

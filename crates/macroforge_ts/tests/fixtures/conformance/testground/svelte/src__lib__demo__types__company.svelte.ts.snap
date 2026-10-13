@@ -2243,6 +2243,7 @@ interface Company: {"body_span":{"end":1784,"start":346},"decorators":[{"args_sr
 
 Name("Array")
 Name("ColorsConfig")
+Name("Gigaform")
 Name("PhoneNumber")
 Name("Site")
 Name("TaxRate")

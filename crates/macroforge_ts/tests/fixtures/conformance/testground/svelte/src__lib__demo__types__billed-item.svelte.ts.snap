@@ -640,6 +640,7 @@ interface BilledItem: {"body_span":{"end":571,"start":181},"decorators":[{"args_
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Item")
 Name("boolean")
 Name("number")

@@ -467,6 +467,7 @@ type AccountName: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defaul
 
 Name("AccountName")
 Name("CompanyName")
+Name("Gigaform")
 Name("PersonName")
 
 ## Buildtime dependencies

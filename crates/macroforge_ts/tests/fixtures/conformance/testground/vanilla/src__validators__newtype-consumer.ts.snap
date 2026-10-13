@@ -348,6 +348,8 @@ interface Trip: {"body_span":{"end":325,"start":285},"decorators":[{"args_src":"
 ## Registry reads
 
 Name("Meters")
+Name("Run")
+Name("Username")
 
 ## Buildtime dependencies
 

@@ -478,6 +478,7 @@ interface Sent: {"body_span":{"end":191,"start":131},"decorators":[{"args_src":"
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

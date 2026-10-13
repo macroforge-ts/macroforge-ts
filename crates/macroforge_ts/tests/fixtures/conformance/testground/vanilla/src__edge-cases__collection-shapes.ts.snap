@@ -325,7 +325,7 @@ function collectionNestedEncodeFields(value: CollectionNested, ctx: __mf_EncodeC
     }
     if (__fields === undefined || __fields.keeps("itemsByName")) {
         if (value.itemsByName !== undefined) {
-            result["itemsByName"] = Object.fromEntries(Object.entries(value.itemsByName).map(([__key0, __item0]) => [__key0, __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx))]));
+            result["itemsByName"] = Object.fromEntries((Object.entries(value.itemsByName) as [string, EdgeItem[]][]).map(([__key0, __item0]) => [__key0, __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("setsByName")) {
@@ -957,7 +957,7 @@ function collectionKeysEncodeFields(value: CollectionKeys, ctx: __mf_EncodeConte
     }
     if (__fields === undefined || __fields.keeps("numbered")) {
         if (value.numbered !== undefined) {
-            result["numbered"] = Object.fromEntries(Object.entries(value.numbered).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+            result["numbered"] = Object.fromEntries((Object.entries(value.numbered) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("kinds")) {
@@ -982,7 +982,7 @@ function collectionKeysEncodeFields(value: CollectionKeys, ctx: __mf_EncodeConte
     }
     if (__fields === undefined || __fields.keeps("dateRecord")) {
         if (value.dateRecord !== undefined) {
-            result["dateRecord"] = Object.fromEntries(Object.entries(value.dateRecord).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
+            result["dateRecord"] = Object.fromEntries((Object.entries(value.dateRecord) as [string, Date][]).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
         }
     }
 }
@@ -1541,7 +1541,7 @@ function collectionUnionsEncodeFields(value: CollectionUnions, ctx: __mf_EncodeC
     }
     if (__fields === undefined || __fields.keeps("recordOrNull")) {
         if (value.recordOrNull !== undefined) {
-            result["recordOrNull"] = Object.fromEntries(Object.entries(value.recordOrNull).map(([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
+            result["recordOrNull"] = Object.fromEntries((Object.entries(value.recordOrNull) as [string, EdgeItem | null][]).map(([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
         }
     }
     if (__fields === undefined || __fields.keeps("literal")) {
@@ -3127,11 +3127,11 @@ export declare const CollectionBig: {
 
 original 0..433 -> expanded 1675..2108
 original 433..948 -> expanded 5980..6495
-original 948..1410 -> expanded 44318..44780
-original 1410..1804 -> expanded 75959..76353
-original 1804..2219 -> expanded 101897..102312
-original 2219..2422 -> expanded 127337..127540
-original 2422..2423 -> expanded 144570..144571
+original 948..1410 -> expanded 44346..44808
+original 1410..1804 -> expanded 76035..76429
+original 1804..2219 -> expanded 102006..102421
+original 2219..2422 -> expanded 127446..127649
+original 2422..2423 -> expanded 144679..144680
 generated 0..1675 <- imports
 generated 2108..2447 <- Debug
 generated 2447..2545 <- Clone
@@ -3148,40 +3148,40 @@ generated 7764..9396 <- Clone
 generated 9396..13734 <- PartialEq
 generated 13734..16664 <- Hash
 generated 16664..17025 <- Default
-generated 17025..21996 <- Encode
-generated 21996..42696 <- Decode
-generated 42696..44318 <- __convenience_const
-generated 44780..45693 <- Debug
-generated 45693..46487 <- Clone
-generated 46487..48760 <- PartialEq
-generated 48760..50619 <- Hash
-generated 50619..51029 <- Default
-generated 51029..55434 <- Encode
-generated 55434..74399 <- Decode
-generated 74399..75959 <- __convenience_const
-generated 76353..77087 <- Debug
-generated 77087..77889 <- Clone
-generated 77889..79607 <- PartialEq
-generated 79607..80892 <- Hash
-generated 80892..81161 <- Default
-generated 81161..85061 <- Encode
-generated 85061..100275 <- Decode
-generated 100275..101897 <- __convenience_const
-generated 102312..103081 <- Debug
-generated 103081..103634 <- Clone
-generated 103634..104349 <- PartialEq
-generated 104349..105128 <- Hash
-generated 105128..105465 <- Default
-generated 105465..109205 <- Encode
-generated 109205..125715 <- Decode
-generated 125715..127337 <- __convenience_const
-generated 127540..128002 <- Debug
-generated 128002..128253 <- Clone
-generated 128253..128904 <- PartialEq
-generated 128904..129852 <- Hash
-generated 129852..132786 <- Encode
-generated 132786..143143 <- Decode
-generated 143143..144570 <- __convenience_const
+generated 17025..22024 <- Encode
+generated 22024..42724 <- Decode
+generated 42724..44346 <- __convenience_const
+generated 44808..45721 <- Debug
+generated 45721..46515 <- Clone
+generated 46515..48788 <- PartialEq
+generated 48788..50647 <- Hash
+generated 50647..51057 <- Default
+generated 51057..55510 <- Encode
+generated 55510..74475 <- Decode
+generated 74475..76035 <- __convenience_const
+generated 76429..77163 <- Debug
+generated 77163..77965 <- Clone
+generated 77965..79683 <- PartialEq
+generated 79683..80968 <- Hash
+generated 80968..81237 <- Default
+generated 81237..85170 <- Encode
+generated 85170..100384 <- Decode
+generated 100384..102006 <- __convenience_const
+generated 102421..103190 <- Debug
+generated 103190..103743 <- Clone
+generated 103743..104458 <- PartialEq
+generated 104458..105237 <- Hash
+generated 105237..105574 <- Default
+generated 105574..109314 <- Encode
+generated 109314..125824 <- Decode
+generated 125824..127446 <- __convenience_const
+generated 127649..128111 <- Debug
+generated 128111..128362 <- Clone
+generated 128362..129013 <- PartialEq
+generated 129013..129961 <- Hash
+generated 129961..132895 <- Encode
+generated 132895..143252 <- Decode
+generated 143252..144679 <- __convenience_const
 
 ## Metadata
 

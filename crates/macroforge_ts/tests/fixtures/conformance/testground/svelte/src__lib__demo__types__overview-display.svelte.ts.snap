@@ -358,6 +358,7 @@ type OverviewDisplay: {"body":{"Union":[{"decorators":[{"args_src":"","name":"de
 
 ## Registry reads
 
+Name("Gigaform")
 Name("OverviewDisplay")
 
 ## Buildtime dependencies

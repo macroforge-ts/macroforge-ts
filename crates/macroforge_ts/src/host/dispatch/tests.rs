@@ -61,6 +61,7 @@ fn test_dispatch() {
                 end: 100,
             },
             is_abstract: false,
+            is_declare: false,
             type_params: vec![],
             heritage: vec![],
             superclass: None,

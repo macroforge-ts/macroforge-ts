@@ -456,6 +456,7 @@ type WeekOfMonth: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defaul
 
 ## Registry reads
 
+Name("Gigaform")
 Name("WeekOfMonth")
 
 ## Buildtime dependencies

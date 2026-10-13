@@ -657,6 +657,7 @@ interface ScheduleSettings: {"body_span":{"end":344,"start":198},"decorators":[{
 ## Registry reads
 
 Name("Array")
+Name("Gigaform")
 Name("RowHeight")
 Name("boolean")
 Name("number")

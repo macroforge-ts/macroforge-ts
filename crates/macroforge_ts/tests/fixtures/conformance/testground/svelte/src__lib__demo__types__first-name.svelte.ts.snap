@@ -443,6 +443,7 @@ interface FirstName: {"body_span":{"end":203,"start":136},"decorators":[{"args_s
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

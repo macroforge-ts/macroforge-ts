@@ -424,6 +424,7 @@ type RowHeight: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'ExtraSmal
 
 ## Registry reads
 
+Name("Gigaform")
 Name("RowHeight")
 
 ## Buildtime dependencies

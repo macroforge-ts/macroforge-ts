@@ -542,6 +542,7 @@ interface Color: {"body_span":{"end":189,"start":132},"decorators":[{"args_src":
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 
 ## Buildtime dependencies

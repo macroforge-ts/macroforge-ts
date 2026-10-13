@@ -468,6 +468,7 @@ type Item: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"RecordLink<Prod
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Item")
 Name("Product")
 Name("RecordLink")

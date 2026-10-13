@@ -451,6 +451,7 @@ fn lower_class(
         span,
         body_span,
         is_abstract: decl.r#abstract,
+        is_declare: decl.declare,
         type_params,
         heritage,
         superclass,

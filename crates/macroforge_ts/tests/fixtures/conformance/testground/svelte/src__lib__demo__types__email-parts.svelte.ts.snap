@@ -581,6 +581,7 @@ interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_
 
 ## Registry reads
 
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

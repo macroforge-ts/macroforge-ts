@@ -562,6 +562,7 @@ type Interval: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 ## Registry reads
 
 Name("DailyRecurrenceRule")
+Name("Gigaform")
 Name("Interval")
 Name("MonthlyRecurrenceRule")
 Name("WeeklyRecurrenceRule")

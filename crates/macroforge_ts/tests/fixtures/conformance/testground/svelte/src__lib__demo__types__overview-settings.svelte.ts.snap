@@ -719,6 +719,7 @@ interface OverviewSettings: {"body_span":{"end":505,"start":324},"decorators":[{
 
 Name("Array")
 Name("ColumnConfig")
+Name("Gigaform")
 Name("OverviewDisplay")
 Name("RowHeight")
 Name("number")

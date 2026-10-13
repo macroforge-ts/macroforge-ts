@@ -956,6 +956,7 @@ mod tests {
                 span: SpanIR::new(11, 100),
                 body_span: SpanIR::new(20, 99),
                 is_abstract: false,
+                is_declare: false,
                 type_params: vec![],
                 heritage: vec![],
                 superclass: None,

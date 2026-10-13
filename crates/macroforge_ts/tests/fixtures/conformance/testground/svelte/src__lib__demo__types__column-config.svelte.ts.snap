@@ -533,6 +533,7 @@ interface ColumnConfig: {"body_span":{"end":285,"start":191},"decorators":[{"arg
 ## Registry reads
 
 Name("DataPath")
+Name("Gigaform")
 Name("string")
 
 ## Buildtime dependencies

@@ -514,6 +514,7 @@ type Actor: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","sp
 Name("Account")
 Name("Actor")
 Name("Employee")
+Name("Gigaform")
 Name("User")
 
 ## Buildtime dependencies

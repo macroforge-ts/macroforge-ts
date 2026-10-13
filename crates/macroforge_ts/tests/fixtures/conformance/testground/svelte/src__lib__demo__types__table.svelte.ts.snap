@@ -872,6 +872,7 @@ type Table: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","sp
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Table")
 
 ## Buildtime dependencies

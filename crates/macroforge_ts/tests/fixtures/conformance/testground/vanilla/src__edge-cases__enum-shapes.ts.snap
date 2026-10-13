@@ -1222,7 +1222,7 @@ function enumHolderEncodeFields(value: EnumHolder, ctx: __mf_EncodeContext, resu
     }
     if (__fields === undefined || __fields.keeps("labels")) {
         if (value.labels !== undefined) {
-            result["labels"] = Object.fromEntries(Object.entries(value.labels).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
+            result["labels"] = Object.fromEntries((Object.entries(value.labels) as [string, EnumSigned][]).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
@@ -2238,8 +2238,8 @@ original 1392..1631 -> expanded 26267..26506
 original 1631..1814 -> expanded 30408..30591
 original 1814..1980 -> expanded 33307..33473
 original 1980..2468 -> expanded 37085..37573
-original 2468..2631 -> expanded 70624..70787
-original 2631..2632 -> expanded 73164..73165
+original 2468..2631 -> expanded 70652..70815
+original 2631..2632 -> expanded 73192..73193
 generated 0..1293 <- imports
 generated 1727..2130 <- Debug
 generated 2130..2219 <- Clone
@@ -2335,15 +2335,15 @@ generated 38775..39766 <- Clone
 generated 39766..41387 <- PartialEq
 generated 41387..43023 <- Hash
 generated 43023..43503 <- Default
-generated 43503..48360 <- Encode
-generated 48360..69188 <- Decode
-generated 69188..70624 <- __convenience_const
-generated 70787..71188 <- Debug
-generated 71188..71433 <- Clone
-generated 71433..71696 <- PartialEq
-generated 71696..72278 <- PartialOrd
-generated 72278..72717 <- Ord
-generated 72717..73164 <- __convenience_const
+generated 43503..48388 <- Encode
+generated 48388..69216 <- Decode
+generated 69216..70652 <- __convenience_const
+generated 70815..71216 <- Debug
+generated 71216..71461 <- Clone
+generated 71461..71724 <- PartialEq
+generated 71724..72306 <- PartialOrd
+generated 72306..72745 <- Ord
+generated 72745..73192 <- __convenience_const
 
 ## Metadata
 

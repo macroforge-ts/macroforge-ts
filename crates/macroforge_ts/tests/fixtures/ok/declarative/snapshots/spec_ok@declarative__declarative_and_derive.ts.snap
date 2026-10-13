@@ -76,7 +76,7 @@ generated 488..495 <- $identity
 
 ## Metadata
 
-class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":59,"start":27},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"User","span":{"end":59,"start":27},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

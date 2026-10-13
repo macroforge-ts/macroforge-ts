@@ -689,6 +689,7 @@ interface AppPermissions: {"body_span":{"end":379,"start":289},"decorators":[{"a
 
 Name("Applications")
 Name("Array")
+Name("Gigaform")
 Name("Page")
 Name("Table")
 

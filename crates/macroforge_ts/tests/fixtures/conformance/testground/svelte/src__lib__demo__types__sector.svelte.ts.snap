@@ -358,6 +358,7 @@ type Sector: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","s
 
 ## Registry reads
 
+Name("Gigaform")
 Name("Sector")
 
 ## Buildtime dependencies

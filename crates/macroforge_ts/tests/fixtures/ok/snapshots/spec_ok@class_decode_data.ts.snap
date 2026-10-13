@@ -256,7 +256,7 @@ generated 5312..7034 <- Decode
 
 ## Metadata
 
-class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
+class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

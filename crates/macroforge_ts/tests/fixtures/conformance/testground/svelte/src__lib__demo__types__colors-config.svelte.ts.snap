@@ -564,6 +564,7 @@ type ColorsConfig: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Cardina
 Name("Cardinal")
 Name("ColorsConfig")
 Name("Custom")
+Name("Gigaform")
 Name("Gradient")
 Name("Ordinal")
 

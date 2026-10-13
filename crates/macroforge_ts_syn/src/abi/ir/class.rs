@@ -84,6 +84,11 @@ pub struct ClassIR {
     /// Whether this is an `abstract class`.
     pub is_abstract: bool,
 
+    /// Whether this is a `declare class`, which describes a class the
+    /// module does not hold and has no body for generated code.
+    #[serde(default)]
+    pub is_declare: bool,
+
     /// Generic type parameters as declared (`T extends Shape` for
     /// `class Foo<T extends Shape>`).
     pub type_params: Vec<TypeParamIR>,

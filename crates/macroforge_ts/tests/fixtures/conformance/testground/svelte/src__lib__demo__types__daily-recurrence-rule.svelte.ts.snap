@@ -430,6 +430,7 @@ interface DailyRecurrenceRule: {"body_span":{"end":177,"start":146},"decorators"
 
 ## Registry reads
 
+Name("Gigaform")
 Name("number")
 
 ## Buildtime dependencies

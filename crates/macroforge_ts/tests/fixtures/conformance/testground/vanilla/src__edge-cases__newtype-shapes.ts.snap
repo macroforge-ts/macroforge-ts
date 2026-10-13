@@ -1178,7 +1178,7 @@ function newHolderEncodeFields(value: NewHolder, ctx: __mf_EncodeContext, result
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, NewCount][]).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
@@ -3491,17 +3491,17 @@ original 1037..1155 -> expanded 25911..26029
 original 1181..1182 -> expanded 26111..26112
 original 1182..1306 -> expanded 30811..30935
 original 1306..1764 -> expanded 35333..35791
-original 1764..1938 -> expanded 69122..69296
-original 1938..2077 -> expanded 71930..72069
-original 2077..2173 -> expanded 84227..84323
-original 2187..2188 -> expanded 84365..84366
-original 2188..2283 -> expanded 89550..89645
-original 2301..2302 -> expanded 89691..89692
-original 2302..2441 -> expanded 95160..95299
-original 2474..2475 -> expanded 95361..95362
-original 2475..2561 -> expanded 105676..105762
-original 2585..2586 -> expanded 105815..105816
-original 2586..2587 -> expanded 112342..112343
+original 1764..1938 -> expanded 69148..69322
+original 1938..2077 -> expanded 71956..72095
+original 2077..2173 -> expanded 84253..84349
+original 2187..2188 -> expanded 84391..84392
+original 2188..2283 -> expanded 89576..89671
+original 2301..2302 -> expanded 89717..89718
+original 2302..2441 -> expanded 95186..95325
+original 2474..2475 -> expanded 95387..95388
+original 2475..2561 -> expanded 105702..105788
+original 2585..2586 -> expanded 105841..105842
+original 2586..2587 -> expanded 112368..112369
 generated 0..1293 <- imports
 generated 1293..1338 <- $Newtype
 generated 1338..1383 <- $Newtype
@@ -3595,57 +3595,57 @@ generated 37009..37998 <- Clone
 generated 37998..39364 <- PartialEq
 generated 39364..40742 <- Hash
 generated 40742..41249 <- Default
-generated 41249..46224 <- Encode
-generated 46224..67717 <- Decode
-generated 67717..69122 <- __convenience_const
-generated 69296..69741 <- Debug
-generated 69741..70006 <- Clone
-generated 70006..70290 <- PartialEq
-generated 70290..70985 <- PartialOrd
-generated 70985..71494 <- Ord
-generated 71494..71930 <- __convenience_const
-generated 72069..72428 <- Debug
-generated 72428..72651 <- Clone
-generated 72651..73045 <- PartialEq
-generated 73045..73399 <- Hash
-generated 73399..75801 <- Encode
-generated 75801..82916 <- Decode
-generated 82916..84227 <- __convenience_const
-generated 84323..84365 <- $Newtype
-generated 84366..84489 <- Debug
-generated 84489..84591 <- Clone
-generated 84591..84732 <- PartialEq
-generated 84732..84834 <- Hash
-generated 84834..84933 <- Default
-generated 84933..85930 <- Encode
-generated 85930..88652 <- Decode
-generated 88652..89550 <- __convenience_const
-generated 89645..89691 <- $Newtype
-generated 89692..89812 <- Debug
-generated 89812..89911 <- Clone
-generated 89911..90049 <- PartialEq
-generated 90049..90149 <- Hash
-generated 90149..90241 <- Default
-generated 90241..91221 <- Encode
-generated 91221..94285 <- Decode
-generated 94285..95160 <- __convenience_const
-generated 95299..95361 <- $Newtype
-generated 95362..95485 <- Debug
-generated 95485..95587 <- Clone
-generated 95587..95728 <- PartialEq
-generated 95728..95830 <- Hash
-generated 95830..95938 <- Default
-generated 95938..98218 <- Encode
-generated 98218..104302 <- Decode
-generated 104302..105676 <- __convenience_const
-generated 105762..105815 <- $Newtype
-generated 105816..105936 <- Debug
-generated 105936..106035 <- Clone
-generated 106035..106173 <- PartialEq
-generated 106173..106273 <- Hash
-generated 106273..107587 <- Encode
-generated 107587..111557 <- Decode
-generated 111557..112342 <- __convenience_const
+generated 41249..46250 <- Encode
+generated 46250..67743 <- Decode
+generated 67743..69148 <- __convenience_const
+generated 69322..69767 <- Debug
+generated 69767..70032 <- Clone
+generated 70032..70316 <- PartialEq
+generated 70316..71011 <- PartialOrd
+generated 71011..71520 <- Ord
+generated 71520..71956 <- __convenience_const
+generated 72095..72454 <- Debug
+generated 72454..72677 <- Clone
+generated 72677..73071 <- PartialEq
+generated 73071..73425 <- Hash
+generated 73425..75827 <- Encode
+generated 75827..82942 <- Decode
+generated 82942..84253 <- __convenience_const
+generated 84349..84391 <- $Newtype
+generated 84392..84515 <- Debug
+generated 84515..84617 <- Clone
+generated 84617..84758 <- PartialEq
+generated 84758..84860 <- Hash
+generated 84860..84959 <- Default
+generated 84959..85956 <- Encode
+generated 85956..88678 <- Decode
+generated 88678..89576 <- __convenience_const
+generated 89671..89717 <- $Newtype
+generated 89718..89838 <- Debug
+generated 89838..89937 <- Clone
+generated 89937..90075 <- PartialEq
+generated 90075..90175 <- Hash
+generated 90175..90267 <- Default
+generated 90267..91247 <- Encode
+generated 91247..94311 <- Decode
+generated 94311..95186 <- __convenience_const
+generated 95325..95387 <- $Newtype
+generated 95388..95511 <- Debug
+generated 95511..95613 <- Clone
+generated 95613..95754 <- PartialEq
+generated 95754..95856 <- Hash
+generated 95856..95964 <- Default
+generated 95964..98244 <- Encode
+generated 98244..104328 <- Decode
+generated 104328..105702 <- __convenience_const
+generated 105788..105841 <- $Newtype
+generated 105842..105962 <- Debug
+generated 105962..106061 <- Clone
+generated 106061..106199 <- PartialEq
+generated 106199..106299 <- Hash
+generated 106299..107613 <- Encode
+generated 107613..111583 <- Decode
+generated 111583..112368 <- __convenience_const
 
 ## Metadata
 

@@ -28,103 +28,40 @@ true
 
 ## Output
 
-import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
-
+/** @derive(Debug, Clone) */
 export declare class Point {
     x: number;
     y: number;
-
-    static toString(value: Point): string {
-        return __mf_debuggedWithin(value, () => {
-            const parts: string[] = [];
-        parts.push("x: " + String(value.x));
-        parts.push("y: " + String(value.y));
-            return "Point { " + parts.join(", ") + " }";
-        });
-    }
-
-    static clone(value: Point): Point {
-        return __mf_clonedWith(value, () => ({
-        	x: value.x,
-        	y: value.y
-        }));
-    }
 }
 
-export function pointToString(value: Point): string {
-    return Point.toString(value);
-}
-
-export function pointClone(value: Point): Point {
-    return Point.clone(value);
-}
-
-
+/** @derive(Debug) */
 export interface Named {
     name: string;
 }
-
-export function namedToString(value: Named): string {
-    return __mf_debuggedWithin(value, () => {
-        const parts: string[] = [];
-    parts.push("name: " + String(value.name));
-        return "Named { " + parts.join(", ") + " }";
-    });
-}
-
-export const Named: {
-  readonly toString: typeof namedToString;
-} = {
-  toString: namedToString
-};
 
 /** @deprecated */
 export declare function formatPoint(point: Point): string;
 
 ## DTS
 
-export declare class Point {
-	x: number;
-	y: number;
-	static toString(value: Point): string;
-	static clone(value: Point): Point;
-}
-export declare function pointToString(value: Point): string;
-export declare function pointClone(value: Point): Point;
-export interface Named {
-	name: string;
-}
-export declare function namedToString(value: Named): string;
-export declare const Named: {
-	readonly toString: typeof namedToString;
-};
-/** @deprecated */
-export declare function formatPoint(point: Point): string;
+(none)
 
 ## Diagnostics
 
-(none)
+Error [5..26]: 'Point' cannot take a derive here: this file is a declaration file, which holds no code, and a derive generates code
+  help: derive on the type in a TypeScript module that holds code
+Error [96..110]: 'Named' cannot take a derive here: this file is a declaration file, which holds no code, and a derive generates code
+  help: derive on the type in a TypeScript module that holds code
 
 ## Mapping
 
-original 28..88 -> expanded 116..176
-original 88..89 -> expanded 624..625
-original 89..91 -> expanded 800..802
-original 112..157 -> expanded 802..847
-original 157..159 -> expanded 1195..1197
-original 231..291 -> expanded 1215..1275
-generated 0..116 <- imports
-generated 176..476 <- Debug
-generated 476..624 <- Clone
-generated 625..716 <- Debug
-generated 716..800 <- Clone
-generated 847..1094 <- Debug
-generated 1094..1195 <- __convenience_const
-generated 1197..1215 <- deprecated
+original 0..159 -> expanded 0..159
+original 231..291 -> expanded 177..237
+generated 159..177 <- deprecated
 
 ## Metadata
 
-class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":90,"start":37},"superclass":null,"type_params":[]}
+class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":true,"methods":[],"name":"Point","span":{"end":90,"start":37},"superclass":null,"type_params":[]}
 interface Named: {"body_span":{"end":158,"start":137},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":113,"start":92}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":156,"start":143},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Named","span":{"end":158,"start":121},"type_params":[]}
 
 ## Registry reads

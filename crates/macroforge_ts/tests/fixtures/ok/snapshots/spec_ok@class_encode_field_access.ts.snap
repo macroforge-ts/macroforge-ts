@@ -116,7 +116,7 @@ generated 2468..3778 <- Encode
 
 ## Metadata
 
-class Point: {"body_span":{"end":69,"start":36},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":69,"start":24},"superclass":null,"type_params":[]}
+class Point: {"body_span":{"end":69,"start":36},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":52,"start":42},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":67,"start":57},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Point","span":{"end":69,"start":24},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

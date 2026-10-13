@@ -873,7 +873,7 @@ function graphSharedEncodeFields(value: GraphShared, ctx: __mf_EncodeContext, re
     }
     if (__fields === undefined || __fields.keeps("record")) {
         if (value.record !== undefined) {
-            result["record"] = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("pair")) {
@@ -2448,10 +2448,10 @@ original 0..435 -> expanded 1300..1735
 original 435..711 -> expanded 17915..18191
 original 711..712 -> expanded 34664..34665
 original 712..998 -> expanded 38305..38591
-original 998..1238 -> expanded 58482..58722
-original 1238..1389 -> expanded 73411..73562
-original 1389..1511 -> expanded 85696..85818
-original 1511..1512 -> expanded 96702..96703
+original 998..1238 -> expanded 58508..58748
+original 1238..1389 -> expanded 73437..73588
+original 1389..1511 -> expanded 85722..85844
+original 1511..1512 -> expanded 96728..96729
 generated 0..1300 <- imports
 generated 1735..2197 <- Debug
 generated 2197..2485 <- Clone
@@ -2475,22 +2475,22 @@ generated 34882..34999 <- PartialEq
 generated 34999..35108 <- Hash
 generated 35108..36478 <- Encode
 generated 36478..38305 <- Decode
-generated 38591..42441 <- Encode
-generated 42441..57421 <- Decode
-generated 57421..58482 <- __convenience_const
-generated 58722..61817 <- Encode
-generated 61817..72392 <- Decode
-generated 72392..73411 <- __convenience_const
-generated 73562..76220 <- Encode
-generated 76220..84614 <- Decode
-generated 84614..85696 <- __convenience_const
-generated 85818..88317 <- Encode
-generated 88317..95515 <- Decode
-generated 95515..96702 <- __convenience_const
+generated 38591..42467 <- Encode
+generated 42467..57447 <- Decode
+generated 57447..58508 <- __convenience_const
+generated 58748..61843 <- Encode
+generated 61843..72418 <- Decode
+generated 72418..73437 <- __convenience_const
+generated 73588..76246 <- Encode
+generated 76246..84640 <- Decode
+generated 84640..85722 <- __convenience_const
+generated 85844..88343 <- Encode
+generated 88343..95541 <- Decode
+generated 95541..96728 <- __convenience_const
 
 ## Metadata
 
-class GraphPerson: {"body_span":{"end":713,"start":525},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":499,"start":438}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":549,"start":531},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"best","optional":false,"readonly":false,"span":{"end":586,"start":554},"ts_type":"GraphPerson | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"friends","optional":false,"readonly":false,"span":{"end":619,"start":591},"ts_type":"GraphPerson[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set()","key":"Named","name":"circle","optional":false,"readonly":false,"span":{"end":661,"start":624},"ts_type":"Set<GraphPerson>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":711,"start":666},"ts_type":"Map<string, GraphPerson>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GraphPerson","span":{"end":713,"start":507},"superclass":null,"type_params":[]}
+class GraphPerson: {"body_span":{"end":713,"start":525},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":499,"start":438}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":549,"start":531},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"best","optional":false,"readonly":false,"span":{"end":586,"start":554},"ts_type":"GraphPerson | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"friends","optional":false,"readonly":false,"span":{"end":619,"start":591},"ts_type":"GraphPerson[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set()","key":"Named","name":"circle","optional":false,"readonly":false,"span":{"end":661,"start":624},"ts_type":"Set<GraphPerson>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":711,"start":666},"ts_type":"Map<string, GraphPerson>","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"GraphPerson","span":{"end":713,"start":507},"superclass":null,"type_params":[]}
 interface GraphTree: {"body_span":{"end":436,"start":358},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":330,"start":248}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":377,"start":364},"ts_type":"string"},{"decorators":[],"key":"Named","name":"parent","optional":false,"readonly":false,"span":{"end":407,"start":382},"ts_type":"GraphTree | null"},{"decorators":[],"key":"Named","name":"children","optional":false,"readonly":false,"span":{"end":434,"start":412},"ts_type":"GraphTree[]"}],"heritage":[],"methods":[],"name":"GraphTree","span":{"end":436,"start":338},"type_params":[]}
 interface GraphShared: {"body_span":{"end":999,"start":775},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":745,"start":715}}],"fields":[{"decorators":[],"key":"Named","name":"first","optional":false,"readonly":false,"span":{"end":797,"start":781},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":818,"start":802},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":846,"start":823},"ts_type":"EdgeItem | null"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":868,"start":851},"ts_type":"EdgeItem[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":892,"start":873},"ts_type":"Set<EdgeItem>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":927,"start":897},"ts_type":"Map<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":965,"start":932},"ts_type":"Record<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":997,"start":970},"ts_type":"[EdgeItem, EdgeItem]"}],"heritage":[],"methods":[],"name":"GraphShared","span":{"end":999,"start":753},"type_params":[]}
 interface GraphLoop: {"body_span":{"end":1239,"start":1059},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1031,"start":1001}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1078,"start":1065},"ts_type":"string"},{"decorators":[],"key":"Named","name":"self","optional":false,"readonly":false,"span":{"end":1106,"start":1083},"ts_type":"GraphLoop | null"},{"decorators":[],"key":"Named","name":"view","optional":false,"readonly":false,"span":{"end":1157,"start":1111},"ts_type":"Pick<GraphLoop, 'name' | 'view'> | null"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1199,"start":1162},"ts_type":"Omit<GraphLoop, 'name'> | null"},{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1237,"start":1204},"ts_type":"Partial<GraphLoop> | null"}],"heritage":[],"methods":[],"name":"GraphLoop","span":{"end":1239,"start":1039},"type_params":[]}
