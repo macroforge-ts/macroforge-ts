@@ -1,8 +1,8 @@
 /**
  * Types at the edge of what a type can say: template literal types, `object`,
  * a lone `null`, unions of literals of several kinds, types with nothing in
- * them, an interface that declares methods, and records by the kind of key
- * they are over.
+ * them, an interface that declares methods, records by the kind of key they
+ * are over, and a type nested as deep as a derive reads.
  */
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -66,3 +66,35 @@ export type ExoticMethodAlias = {
     id: string;
     run(): string;
 };
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticDeep {
+    objects: {
+        held: {
+            held: {
+                held: {
+                    held: {
+                        held: {
+                            held: {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: { held: { held: { held: number } } };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    lists: [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]];
+}

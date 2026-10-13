@@ -133,6 +133,11 @@ pub fn is_numeric_type(ts_type: &str) -> bool {
     matches!(ts_type.trim(), "number" | "bigint")
 }
 
+/// How deep a type a built-in derive reads may nest. Reading a type takes
+/// stack for every level it nests, and this many fit in half the stack of
+/// the smallest thread the expander runs on.
+pub const MAX_TYPE_DEPTH: usize = 16;
+
 /// Check if a TypeScript type is nullable: a union with `null` or `undefined`
 /// among its own members. A collection of nullable elements is not.
 pub fn is_nullable_type(ts_type: &str) -> bool {

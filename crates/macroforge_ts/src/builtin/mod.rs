@@ -85,6 +85,24 @@
 //! on the type deriving: name the member, or hold the entries in a `Record`
 //! field.
 //!
+//! Two derived types whose names differ only in case, such as `HTTPResponse`
+//! and `HttpResponse`, would generate the same function names, as would a
+//! type and a function its module already has. Either is an expansion error.
+//! So is a field named `__proto__`, which reaches an object's prototype, and
+//! a derive on a `declare enum`, which names an enum the module does not hold.
+//!
+//! A class field without an annotation is read by the type its initializer
+//! makes plain: a literal, an assertion, a `new` with type arguments, or the
+//! value a `$state` rune is given. An `accessor` field is read like any
+//! other, and is an error under a derive that builds an instance (`Clone`,
+//! `Default`, `Decode`), which runs no constructor to set it up. A method an
+//! interface declares is a member that holds a function.
+//!
+//! A type a derive reads nests sixteen levels deep at most, counting each
+//! bracket open at its deepest point and each `[]` of an array of arrays. A
+//! field or an alias that nests deeper is an expansion error: name its inner
+//! types with aliases, and derive on those.
+//!
 //! ## Type-Position Macros
 //!
 //! | Macro | Expands To | Description |

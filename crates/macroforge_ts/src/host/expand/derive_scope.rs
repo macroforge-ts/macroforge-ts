@@ -9,7 +9,7 @@ use crate::ts_syn::import_registry::SourceImportEntry;
 use super::DERIVE_MODULE_PATH;
 use super::derive_targets::{DeriveTarget, DeriveTargetIR, diagnostic_span_for_derive};
 use crate::builtin::derive::common::{
-    DecoratorOption, Takes, decorator_options, extract_named_string, has_flag,
+    DecoratorOption, MAX_TYPE_DEPTH, Takes, decorator_options, extract_named_string, has_flag,
 };
 use crate::builtin::derive::endec::{ENDEC_OPTIONS, KNOWN_VALIDATORS, Placement, endec_option};
 
@@ -683,6 +683,91 @@ pub(super) fn check_merged_declarations(
             })
         })
         .collect()
+}
+
+/// How deep `ts_type` nests at its deepest: the brackets of every kind that
+/// are open there, and the `[]` suffixes of an array of arrays.
+pub(super) fn type_depth(ts_type: &str) -> usize {
+    let (mut open, mut suffixes, mut deepest) = (0usize, 0usize, 0usize);
+    let mut quote = None;
+    let mut previous = ' ';
+    let mut letters = ts_type.chars().peekable();
+    while let Some(letter) = letters.next() {
+        match (quote, letter) {
+            (Some(opened), _) => {
+                if letter == opened && previous != '\\' {
+                    quote = None;
+                }
+            }
+            (None, '"' | '\'' | '`') => quote = Some(letter),
+            (None, '[') if letters.peek() == Some(&']') => {
+                letters.next();
+                suffixes += 1;
+            }
+            (None, '(' | '[' | '{' | '<') => {
+                open += 1;
+                suffixes = 0;
+            }
+            (None, ')' | ']' | '}') => open = open.saturating_sub(1),
+            // The `>` of an arrow closes nothing.
+            (None, '>') if previous != '=' => open = open.saturating_sub(1),
+            (None, _) if letter.is_whitespace() || letter == '>' => {}
+            (None, _) => suffixes = 0,
+        }
+        deepest = deepest.max(open + suffixes);
+        previous = letter;
+    }
+    deepest
+}
+
+/// Takes out of `targets` each type with a built-in derive that nests past
+/// [`MAX_TYPE_DEPTH`], and gives an error for it: expanding one would run
+/// the expander out of stack.
+pub(super) fn reject_deep_types(targets: &mut Vec<DeriveTarget>, source: &str) -> Vec<Diagnostic> {
+    let mut diagnostics = Vec::new();
+    targets.retain(|target| {
+        if !is_builtin(target) {
+            return true;
+        }
+        let (type_name, _) = declared(&target.target_ir);
+        // Each of the type's parts that nests, with what a message calls it.
+        let parts: Vec<(String, &str)> = match &target.target_ir {
+            DeriveTargetIR::Class(class) => class
+                .fields
+                .iter()
+                .map(|field| (format!("field '{}' of '{type_name}'", field.name), field.ts_type.as_str()))
+                .collect(),
+            DeriveTargetIR::Interface(interface) => interface
+                .fields
+                .iter()
+                .map(|field| (format!("field '{}' of '{type_name}'", field.name), field.ts_type.as_str()))
+                .collect(),
+            DeriveTargetIR::TypeAlias(alias) => vec![(
+                format!("type '{type_name}'"),
+                source.get(alias.span.source_range()).unwrap_or_default(),
+            )],
+            DeriveTargetIR::Enum(_) => Vec::new(),
+        };
+        let too_deep: Vec<Diagnostic> = parts
+            .iter()
+            .filter_map(|(part, ts_type)| {
+                let depth = type_depth(ts_type);
+                (depth > MAX_TYPE_DEPTH).then(|| Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "{part} nests {depth} levels deep, and a built-in derive reads a type {MAX_TYPE_DEPTH} levels deep at most"
+                    ),
+                    span: Some(diagnostic_span_for_derive(target.decorator_span, source)),
+                    notes: vec![],
+                    help: Some("name its inner types with aliases, and derive on those".to_string()),
+                })
+            })
+            .collect();
+        let keeps = too_deep.is_empty();
+        diagnostics.extend(too_deep);
+        keeps
+    });
+    diagnostics
 }
 
 /// What follows `word` at the start of `text`, when `text` starts with it as

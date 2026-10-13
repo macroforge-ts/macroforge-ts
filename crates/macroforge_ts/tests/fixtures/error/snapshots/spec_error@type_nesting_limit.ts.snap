@@ -1,0 +1,379 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/type_nesting_limit.ts
+---
+## Input
+
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export interface TooDeep {
+    value: number[][][][][][][][][][][][][][][][][];
+}
+
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export type TooNested = Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<number>>>>>>>>>>>>>>>>>;
+
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export interface AtTheLimit {
+    value: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+}
+
+## Changed
+
+true
+
+## Output
+
+import { structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export interface TooDeep {
+    value: number[][][][][][][][][][][][][][][][][];
+}
+
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export type TooNested = Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<number>>>>>>>>>>>>>>>>>;
+
+
+export interface AtTheLimit {
+    value: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+}
+
+export function atTheLimitClone(value: AtTheLimit): AtTheLimit {
+    return __mf_clonedWith(value, (): AtTheLimit => ({ value: __mf_structuralClone(value.value) }));
+}
+
+export function atTheLimitEquals(a: AtTheLimit, b: AtTheLimit): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.value, b.value));
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function atTheLimitEncode(value: AtTheLimit, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = atTheLimitEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function atTheLimitEncodeWithContext(value: AtTheLimit, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AtTheLimit" });
+    atTheLimitEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function atTheLimitEncodePartialWithContext(value: Partial<AtTheLimit>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AtTheLimit>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "AtTheLimit" };
+        atTheLimitEncodeFields(value as AtTheLimit, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function atTheLimitEncodeFields(value: AtTheLimit, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("value")) {
+        if (value.value !== undefined) {
+            result["value"] = value.value;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function atTheLimitDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AtTheLimit } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = atTheLimitDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AtTheLimit.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AtTheLimit | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AtTheLimit> | __mf_PendingRef;
+export function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<AtTheLimit> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AtTheLimit.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AtTheLimit.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "AtTheLimit") as AtTheLimit | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AtTheLimit.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
+        errors.push({ field: "value", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "AtTheLimit");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
+        const __raw_value = obj["value"] as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+        if (typeof __raw_value === "object" && __raw_value !== null) {
+            ctx.pushScope("value");
+            try {
+                instance.value = (__mf_decodeObject(__raw_value, ctx, { held: (__raw0) => (__mf_decodeObject(__raw0, ctx, { held: (__raw1) => (__mf_decodeObject(__raw1, ctx, { held: (__raw2) => (__mf_decodeObject(__raw2, ctx, { held: (__raw3) => (__mf_decodeObject(__raw3, ctx, { held: (__raw4) => (__mf_decodeObject(__raw4, ctx, { held: (__raw5) => (__mf_decodeObject(__raw5, ctx, { held: (__raw6) => (__mf_decodeObject(__raw6, ctx, { held: (__raw7) => (__mf_decodeObject(__raw7, ctx, { held: (__raw8) => (__mf_decodeObject(__raw8, ctx, { held: (__raw9) => (__mf_decodeObject(__raw9, ctx, { held: (__raw10) => (__mf_decodeObject(__raw10, ctx, { held: (__raw11) => (__mf_decodeObject(__raw11, ctx, { held: (__raw12) => (__mf_decodeObject(__raw12, ctx, { held: (__raw13) => (__mf_decodeObject(__raw13, ctx, { held: (__raw14) => (__mf_decodeObject(__raw14, ctx, { held: __mf_decodeNumber }) as { held: number }) }) as { held: { held: number } }) }) as { held: { held: { held: number } } }) }) as { held: { held: { held: { held: number } } } }) }) as { held: { held: { held: { held: { held: number } } } } }) }) as { held: { held: { held: { held: { held: { held: number } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: number } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } });
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "value" : "value." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "value", message: __raw_value == null ? "AtTheLimit.value is required" : "expected { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as AtTheLimit;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function atTheLimitDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AtTheLimit>): Partial<AtTheLimit> | __mf_PendingRef {
+    return atTheLimitDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function atTheLimitValidateField<K extends keyof AtTheLimit>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function atTheLimitValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function atTheLimitValidateFields(partial: { readonly [K in keyof AtTheLimit]?: unknown }): Array<{ field: string; message: string }>;
+export function atTheLimitValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function atTheLimitHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "value");
+}
+
+export function atTheLimitIs(obj: unknown): obj is AtTheLimit {
+    return atTheLimitHasShape(obj) && atTheLimitDecode(obj).success;
+}
+
+export const AtTheLimit: {
+  readonly clone: typeof atTheLimitClone;
+  readonly equals: typeof atTheLimitEquals;
+  readonly encode: typeof atTheLimitEncode;
+  readonly encodeWithContext: typeof atTheLimitEncodeWithContext;
+  readonly encodePartialWithContext: typeof atTheLimitEncodePartialWithContext;
+  readonly decode: typeof atTheLimitDecode;
+  readonly decodeWithContext: typeof atTheLimitDecodeWithContext;
+  readonly decodePartialWithContext: typeof atTheLimitDecodePartialWithContext;
+  readonly validateField: typeof atTheLimitValidateField;
+  readonly validateFields: typeof atTheLimitValidateFields;
+  readonly hasShape: typeof atTheLimitHasShape;
+  readonly is: typeof atTheLimitIs;
+} = {
+  clone: atTheLimitClone,
+  equals: atTheLimitEquals,
+  encode: atTheLimitEncode,
+  encodeWithContext: atTheLimitEncodeWithContext,
+  encodePartialWithContext: atTheLimitEncodePartialWithContext,
+  decode: atTheLimitDecode,
+  decodeWithContext: atTheLimitDecodeWithContext,
+  decodePartialWithContext: atTheLimitDecodePartialWithContext,
+  validateField: atTheLimitValidateField,
+  validateFields: atTheLimitValidateFields,
+  hasShape: atTheLimitHasShape,
+  is: atTheLimitIs
+};
+
+## DTS
+
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export interface TooDeep {
+	value: number[][][][][][][][][][][][][][][][][];
+}
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export type TooNested = Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<number>>>>>>>>>>>>>>>>>;
+export interface AtTheLimit {
+	value: {
+		held: {
+			held: {
+				held: {
+					held: {
+						held: {
+							held: {
+								held: {
+									held: {
+										held: {
+											held: {
+												held: {
+													held: {
+														held: {
+															held: {
+																held: {
+																	held: number;
+																};
+															};
+														};
+													};
+												};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+}
+export declare function atTheLimitClone(value: AtTheLimit): AtTheLimit;
+export declare function atTheLimitEquals(a: AtTheLimit, b: AtTheLimit): boolean;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function atTheLimitEncode(value: AtTheLimit, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function atTheLimitEncodeWithContext(value: AtTheLimit, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function atTheLimitEncodePartialWithContext(value: Partial<AtTheLimit>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AtTheLimit>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function atTheLimitDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AtTheLimit;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AtTheLimit | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AtTheLimit> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function atTheLimitDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AtTheLimit>): Partial<AtTheLimit> | __mf_PendingRef;
+export declare function atTheLimitValidateField<K extends keyof AtTheLimit>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function atTheLimitValidateFields(partial: { readonly [K in keyof AtTheLimit]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function atTheLimitHasShape(obj: unknown): boolean;
+export declare function atTheLimitIs(obj: unknown): obj is AtTheLimit;
+export declare const AtTheLimit: {
+	readonly clone: typeof atTheLimitClone;
+	readonly equals: typeof atTheLimitEquals;
+	readonly encode: typeof atTheLimitEncode;
+	readonly encodeWithContext: typeof atTheLimitEncodeWithContext;
+	readonly encodePartialWithContext: typeof atTheLimitEncodePartialWithContext;
+	readonly decode: typeof atTheLimitDecode;
+	readonly decodeWithContext: typeof atTheLimitDecodeWithContext;
+	readonly decodePartialWithContext: typeof atTheLimitDecodePartialWithContext;
+	readonly validateField: typeof atTheLimitValidateField;
+	readonly validateFields: typeof atTheLimitValidateFields;
+	readonly hasShape: typeof atTheLimitHasShape;
+	readonly is: typeof atTheLimitIs;
+};
+
+## Diagnostics
+
+Error [5..46]: field 'value' of 'TooDeep' nests 17 levels deep, and a built-in derive reads a type 16 levels deep at most
+  help: name its inner types with aliases, and derive on those
+Error [137..178]: type 'TooNested' nests 17 levels deep, and a built-in derive reads a type 16 levels deep at most
+  help: name its inner types with aliases, and derive on those
+
+## Mapping
+
+original 0..333 -> expanded 943..1276
+original 381..592 -> expanded 1276..1487
+original 592..593 -> expanded 13882..13883
+generated 0..943 <- imports
+generated 1487..1656 <- Clone
+generated 1656..1845 <- PartialEq
+generated 1845..4008 <- Encode
+generated 4008..12702 <- Decode
+generated 12702..13882 <- __convenience_const
+
+## Metadata
+
+interface TooDeep: {"body_span":{"end":131,"start":75},"decorators":[{"args_src":"Clone, PartialEq, Encode, Decode","name":"Derive","span":{"end":49,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":129,"start":81},"ts_type":"number[][][][][][][][][][][][][][][][][]"}],"heritage":[],"methods":[],"name":"TooDeep","span":{"end":131,"start":57},"type_params":[]}
+interface AtTheLimit: {"body_span":{"end":593,"start":411},"decorators":[{"args_src":"Clone, PartialEq, Encode, Decode","name":"Derive","span":{"end":382,"start":334}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":591,"start":417},"ts_type":"{ held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }"}],"heritage":[],"methods":[],"name":"AtTheLimit","span":{"end":593,"start":390},"type_params":[]}
+type TooNested: {"body":{"Alias":"Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<Array<number>>>>>>>>>>>>>>>>>"},"decorators":[{"args_src":"Clone, PartialEq, Encode, Decode","name":"Derive","span":{"end":181,"start":133}}],"name":"TooNested","span":{"end":332,"start":189},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (406)
+## Types (407)
 
 Address f0d229a1409690d0
 AddressPatch 9f24746fc3a6b7e7
@@ -179,17 +179,18 @@ EnumRepeated 64f69590618c71cd
 EnumSigned 71a9cd6803853995
 EnumText 4c33559a6c6d570d
 EventForm 4d877d8eb4f3cf6b
-ExoticAccessors 3d9c45b81796af52
-ExoticBlank af56b94e75766a6f
-ExoticCode d8a2fcacf723ece1
-ExoticEmpty e890e81a49c80197
-ExoticKeyed d512ff65d0fb1897
-ExoticLabels 2d2c22cd8f4d9a28
-ExoticMethodAlias fc37c6cb8bb4e16e
-ExoticMethods fa237cf32d6e318f
-ExoticNone 93427faa282b7744
-ExoticScalars 09847ce3838339a6
-ExoticTexts 4db9048353366823
+ExoticAccessors 2127ac2b98741c6a
+ExoticBlank 6c1799f6a5a72efd
+ExoticCode 7b792a64b273c210
+ExoticDeep e55ff431a214efe3
+ExoticEmpty c5fb01041149208c
+ExoticKeyed a9a616ca14c1b3c0
+ExoticLabels aeac0e72a705cea7
+ExoticMethodAlias 2b599e37497f6084
+ExoticMethods e9ad4e66a54d6b87
+ExoticNone 52a85be7aa81cd0d
+ExoticScalars caf64f5dd20afc59
+ExoticTexts 5c79c384fe0cb5ee
 Fallback f82b11d1ac8c53a3
 FiniteValidator 0e1bca3b4e63e438
 FormModel 15fe3e9429c488ff
@@ -410,7 +411,7 @@ Version a97656860d12bbc3
 Wall 5a067be59c2d4675
 point2D 697bb407a60739cf
 
-## Qualified types (409)
+## Qualified types (410)
 
 src/all-macros-test.ts::AllMacrosTestClass 0a3bab42a552ef1b
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -502,17 +503,18 @@ src/edge-cases/enum-shapes.ts::EnumOrdered 56209b5da80f07f4
 src/edge-cases/enum-shapes.ts::EnumRepeated 64f69590618c71cd
 src/edge-cases/enum-shapes.ts::EnumSigned 71a9cd6803853995
 src/edge-cases/enum-shapes.ts::EnumText 4c33559a6c6d570d
-src/edge-cases/exotic-shapes.ts::ExoticAccessors 3d9c45b81796af52
-src/edge-cases/exotic-shapes.ts::ExoticBlank af56b94e75766a6f
-src/edge-cases/exotic-shapes.ts::ExoticCode d8a2fcacf723ece1
-src/edge-cases/exotic-shapes.ts::ExoticEmpty e890e81a49c80197
-src/edge-cases/exotic-shapes.ts::ExoticKeyed d512ff65d0fb1897
-src/edge-cases/exotic-shapes.ts::ExoticLabels 2d2c22cd8f4d9a28
-src/edge-cases/exotic-shapes.ts::ExoticMethodAlias fc37c6cb8bb4e16e
-src/edge-cases/exotic-shapes.ts::ExoticMethods fa237cf32d6e318f
-src/edge-cases/exotic-shapes.ts::ExoticNone 93427faa282b7744
-src/edge-cases/exotic-shapes.ts::ExoticScalars 09847ce3838339a6
-src/edge-cases/exotic-shapes.ts::ExoticTexts 4db9048353366823
+src/edge-cases/exotic-shapes.ts::ExoticAccessors 2127ac2b98741c6a
+src/edge-cases/exotic-shapes.ts::ExoticBlank 6c1799f6a5a72efd
+src/edge-cases/exotic-shapes.ts::ExoticCode 7b792a64b273c210
+src/edge-cases/exotic-shapes.ts::ExoticDeep e55ff431a214efe3
+src/edge-cases/exotic-shapes.ts::ExoticEmpty c5fb01041149208c
+src/edge-cases/exotic-shapes.ts::ExoticKeyed a9a616ca14c1b3c0
+src/edge-cases/exotic-shapes.ts::ExoticLabels aeac0e72a705cea7
+src/edge-cases/exotic-shapes.ts::ExoticMethodAlias 2b599e37497f6084
+src/edge-cases/exotic-shapes.ts::ExoticMethods e9ad4e66a54d6b87
+src/edge-cases/exotic-shapes.ts::ExoticNone 52a85be7aa81cd0d
+src/edge-cases/exotic-shapes.ts::ExoticScalars caf64f5dd20afc59
+src/edge-cases/exotic-shapes.ts::ExoticTexts 5c79c384fe0cb5ee
 src/edge-cases/generic-shapes.ts::GenericArguments 95d56c3917b0c5a2
 src/edge-cases/generic-shapes.ts::GenericBox 8f6fb2e6767594b3
 src/edge-cases/generic-shapes.ts::GenericConstrained b8dd574808a68793

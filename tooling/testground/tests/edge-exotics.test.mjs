@@ -1,7 +1,8 @@
 /**
  * Types at the edge of what a type can say: template literal types, `object`,
  * a lone `null`, unions of literals of several kinds, types with nothing in
- * them, and an interface that declares methods.
+ * them, an interface that declares methods, and a type nested as deep as a
+ * derive reads.
  */
 
 import { assert, assertEquals, assertNotStrictEquals, assertStrictEquals } from '@std/assert';
@@ -224,4 +225,34 @@ Deno.test('a getter signature declares a field, and a method of an object type a
     assertStrictEquals(copy.run, run);
     assert(mod.exoticMethodAliasEquals({ id: 'a', run }, copy));
     assert(!mod.exoticMethodAliasEquals({ id: 'a', run }, { id: 'a', run: () => 'other' }));
+});
+
+Deno.test('a type nested as deep as a derive reads is handled at every level', () => {
+    const nested = (wrap, leaf, depth = 16) =>
+        depth === 0 ? leaf : wrap(nested(wrap, leaf, depth - 1));
+    const deep = (leaf) => ({
+        objects: nested((held) => ({ held }), leaf),
+        lists: nested((item) => [item], leaf)
+    });
+
+    assertEquals(mod.exoticDeepDefaultValue(), deep(0));
+
+    const value = deep(7);
+    const encoded = JSON.parse(mod.exoticDeepEncode(value));
+    assertEquals(encoded, value);
+    assertEquals(decoded(mod.exoticDeepDecode(encoded)), value);
+    assertEquals(
+        errorFields(mod.exoticDeepDecode({ ...deep(7), objects: deep('seven').objects })).length,
+        1
+    );
+    assertEquals(
+        errorFields(mod.exoticDeepDecode({ ...deep(7), lists: deep('seven').lists })).length,
+        1
+    );
+
+    const copy = mod.exoticDeepClone(value);
+    assertNotStrictEquals(copy.objects.held.held, value.objects.held.held);
+    assert(mod.exoticDeepEquals(value, copy));
+    assert(!mod.exoticDeepEquals(value, deep(8)));
+    assertStrictEquals(mod.exoticDeepHashCode(value), mod.exoticDeepHashCode(copy));
 });

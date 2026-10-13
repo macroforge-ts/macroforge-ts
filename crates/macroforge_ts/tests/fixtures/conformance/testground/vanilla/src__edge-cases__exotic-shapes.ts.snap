@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/exotic-shapes.ts
-sha256 ca027e944ab25c546a485f444c5c45d65fd6c95ac3754db77bf6cb1f2230576d
+sha256 3b1c47a351e4d749e210f5c4c98e28d49d708a4b5622f064cb3acc82347c59be
 
 ## Changed
 
@@ -13,13 +13,13 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeNumberKey as __mf_decodeNumberKey, decodeBoolean as __mf_decodeBoolean } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeNumberKey as __mf_decodeNumberKey, decodeBoolean as __mf_decodeBoolean, decodeObject as __mf_decodeObject, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types at the edge of what a type can say: template literal types, `object`,
  * a lone `null`, unions of literals of several kinds, types with nothing in
- * them, an interface that declares methods, and records by the kind of key
- * they are over.
+ * them, an interface that declares methods, records by the kind of key they
+ * are over, and a type nested as deep as a derive reads.
  */
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -499,7 +499,8 @@ export function exoticNoneEquals(a: ExoticNone, b: ExoticNone): boolean {
 }
 
 export function exoticNoneHashCode(_value: ExoticNone): number {
-    return 1;
+    let hash = 1;
+    return hash;
 }
 
 export function exoticNoneDefaultValue(): ExoticNone {
@@ -2318,13 +2319,297 @@ export const ExoticMethodAlias: {
   hashCode: exoticMethodAliasHashCode
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticDeep {
+    objects: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+    lists: [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]];
+}
+
+export function exoticDeepToString(value: ExoticDeep): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("objects: " + __mf_structuralDebug(value.objects));
+    parts.push("lists: " + __mf_structuralDebug(value.lists));
+        return "ExoticDeep { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticDeepClone(value: ExoticDeep): ExoticDeep {
+    return __mf_clonedWith(value, (): ExoticDeep => ({
+	objects: __mf_structuralClone(value.objects),
+	lists: __mf_structuralClone(value.lists)
+}));
+}
+
+export function exoticDeepEquals(a: ExoticDeep, b: ExoticDeep): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.objects, b.objects) && __mf_structuralEquals(a.lists, b.lists));
+}
+
+export function exoticDeepHashCode(value: ExoticDeep): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.objects))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.lists))) | 0;
+        return hash;
+    });
+}
+
+export function exoticDeepDefaultValue(): ExoticDeep {
+    return {
+        objects: ({ held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: 0 } } } } } } } } } } } } } } } }),
+        lists: [[[[[[[[[[[[[[[[0]]]]]]]]]]]]]]]],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticDeepEncode(value: ExoticDeep, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticDeepEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticDeepEncodeWithContext(value: ExoticDeep, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticDeep" });
+    exoticDeepEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticDeepEncodePartialWithContext(value: Partial<ExoticDeep>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticDeep>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticDeep" };
+        exoticDeepEncodeFields(value as ExoticDeep, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function exoticDeepEncodeFields(value: ExoticDeep, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("objects")) {
+        if (value.objects !== undefined) {
+            result["objects"] = value.objects;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lists")) {
+        if (value.lists !== undefined) {
+            result["lists"] = value.lists;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticDeepDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticDeep } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticDeepDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticDeep.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticDeep | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticDeep> | __mf_PendingRef;
+export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticDeep> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticDeep.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticDeep.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticDeep") as ExoticDeep | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticDeep.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("objects")) && !("objects" in obj)) {
+        errors.push({ field: "objects", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("lists")) && !("lists" in obj)) {
+        errors.push({ field: "lists", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticDeep");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("objects")) ? "objects" in obj : (__fields.keeps("objects") && obj["objects"] !== undefined)) {
+        const __raw_objects = obj["objects"] as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+        if (typeof __raw_objects === "object" && __raw_objects !== null) {
+            ctx.pushScope("objects");
+            try {
+                instance.objects = (__mf_decodeObject(__raw_objects, ctx, { held: (__raw0) => (__mf_decodeObject(__raw0, ctx, { held: (__raw1) => (__mf_decodeObject(__raw1, ctx, { held: (__raw2) => (__mf_decodeObject(__raw2, ctx, { held: (__raw3) => (__mf_decodeObject(__raw3, ctx, { held: (__raw4) => (__mf_decodeObject(__raw4, ctx, { held: (__raw5) => (__mf_decodeObject(__raw5, ctx, { held: (__raw6) => (__mf_decodeObject(__raw6, ctx, { held: (__raw7) => (__mf_decodeObject(__raw7, ctx, { held: (__raw8) => (__mf_decodeObject(__raw8, ctx, { held: (__raw9) => (__mf_decodeObject(__raw9, ctx, { held: (__raw10) => (__mf_decodeObject(__raw10, ctx, { held: (__raw11) => (__mf_decodeObject(__raw11, ctx, { held: (__raw12) => (__mf_decodeObject(__raw12, ctx, { held: (__raw13) => (__mf_decodeObject(__raw13, ctx, { held: (__raw14) => (__mf_decodeObject(__raw14, ctx, { held: __mf_decodeNumber }) as { held: number }) }) as { held: { held: number } }) }) as { held: { held: { held: number } } }) }) as { held: { held: { held: { held: number } } } }) }) as { held: { held: { held: { held: { held: number } } } } }) }) as { held: { held: { held: { held: { held: { held: number } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: number } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } });
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "objects" : "objects." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "objects", message: __raw_objects == null ? "ExoticDeep.objects is required" : "expected { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("lists")) ? "lists" in obj : (__fields.keeps("lists") && obj["lists"] !== undefined)) {
+        const __raw_lists = obj["lists"] as [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]];
+        if (Array.isArray(__raw_lists)) {
+            ctx.pushScope("lists");
+            try {
+                instance.lists = (__mf_decodeTuple(__raw_lists, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [(__raw1) => (__mf_decodeTuple(__raw1, ctx, [(__raw2) => (__mf_decodeTuple(__raw2, ctx, [(__raw3) => (__mf_decodeTuple(__raw3, ctx, [(__raw4) => (__mf_decodeTuple(__raw4, ctx, [(__raw5) => (__mf_decodeTuple(__raw5, ctx, [(__raw6) => (__mf_decodeTuple(__raw6, ctx, [(__raw7) => (__mf_decodeTuple(__raw7, ctx, [(__raw8) => (__mf_decodeTuple(__raw8, ctx, [(__raw9) => (__mf_decodeTuple(__raw9, ctx, [(__raw10) => (__mf_decodeTuple(__raw10, ctx, [(__raw11) => (__mf_decodeTuple(__raw11, ctx, [(__raw12) => (__mf_decodeTuple(__raw12, ctx, [(__raw13) => (__mf_decodeTuple(__raw13, ctx, [(__raw14) => (__mf_decodeTuple(__raw14, ctx, [__mf_decodeNumber], 1) as [number])], 1) as [[number]])], 1) as [[[number]]])], 1) as [[[[number]]]])], 1) as [[[[[number]]]]])], 1) as [[[[[[number]]]]]])], 1) as [[[[[[[number]]]]]]])], 1) as [[[[[[[[number]]]]]]]])], 1) as [[[[[[[[[number]]]]]]]]])], 1) as [[[[[[[[[[number]]]]]]]]]])], 1) as [[[[[[[[[[[number]]]]]]]]]]])], 1) as [[[[[[[[[[[[number]]]]]]]]]]]])], 1) as [[[[[[[[[[[[[number]]]]]]]]]]]]])], 1) as [[[[[[[[[[[[[[number]]]]]]]]]]]]]])], 1) as [[[[[[[[[[[[[[[number]]]]]]]]]]]]]]])], 1) as [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "lists" : "lists." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "lists", message: __raw_lists == null ? "ExoticDeep.lists is required" : "expected [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ExoticDeep;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticDeepDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticDeep>): Partial<ExoticDeep> | __mf_PendingRef {
+    return exoticDeepDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function exoticDeepValidateField<K extends keyof ExoticDeep>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function exoticDeepValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function exoticDeepValidateFields(partial: { readonly [K in keyof ExoticDeep]?: unknown }): Array<{ field: string; message: string }>;
+export function exoticDeepValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function exoticDeepHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "objects") && __mf_holds(obj, "lists");
+}
+
+export function exoticDeepIs(obj: unknown): obj is ExoticDeep {
+    return exoticDeepHasShape(obj) && exoticDeepDecode(obj).success;
+}
+
+export const ExoticDeep: {
+  readonly toString: typeof exoticDeepToString;
+  readonly clone: typeof exoticDeepClone;
+  readonly equals: typeof exoticDeepEquals;
+  readonly hashCode: typeof exoticDeepHashCode;
+  readonly defaultValue: typeof exoticDeepDefaultValue;
+  readonly encode: typeof exoticDeepEncode;
+  readonly encodeWithContext: typeof exoticDeepEncodeWithContext;
+  readonly encodePartialWithContext: typeof exoticDeepEncodePartialWithContext;
+  readonly decode: typeof exoticDeepDecode;
+  readonly decodeWithContext: typeof exoticDeepDecodeWithContext;
+  readonly decodePartialWithContext: typeof exoticDeepDecodePartialWithContext;
+  readonly validateField: typeof exoticDeepValidateField;
+  readonly validateFields: typeof exoticDeepValidateFields;
+  readonly hasShape: typeof exoticDeepHasShape;
+  readonly is: typeof exoticDeepIs;
+} = {
+  toString: exoticDeepToString,
+  clone: exoticDeepClone,
+  equals: exoticDeepEquals,
+  hashCode: exoticDeepHashCode,
+  defaultValue: exoticDeepDefaultValue,
+  encode: exoticDeepEncode,
+  encodeWithContext: exoticDeepEncodeWithContext,
+  encodePartialWithContext: exoticDeepEncodePartialWithContext,
+  decode: exoticDeepDecode,
+  decodeWithContext: exoticDeepDecodeWithContext,
+  decodePartialWithContext: exoticDeepDecodePartialWithContext,
+  validateField: exoticDeepValidateField,
+  validateFields: exoticDeepValidateFields,
+  hasShape: exoticDeepHasShape,
+  is: exoticDeepIs
+};
+
 ## DTS
 
 /**
 * Types at the edge of what a type can say: template literal types, `object`,
 * a lone `null`, unions of literals of several kinds, types with nothing in
-* them, an interface that declares methods, and records by the kind of key
-* they are over.
+* them, an interface that declares methods, records by the kind of key they
+* are over, and a type nested as deep as a derive reads.
 */
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface ExoticScalars {
@@ -2846,6 +3131,98 @@ export declare const ExoticMethodAlias: {
 	readonly equals: typeof exoticMethodAliasEquals;
 	readonly hashCode: typeof exoticMethodAliasHashCode;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticDeep {
+	objects: {
+		held: {
+			held: {
+				held: {
+					held: {
+						held: {
+							held: {
+								held: {
+									held: {
+										held: {
+											held: {
+												held: {
+													held: {
+														held: {
+															held: {
+																held: {
+																	held: number;
+																};
+															};
+														};
+													};
+												};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+	lists: [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]];
+}
+export declare function exoticDeepToString(value: ExoticDeep): string;
+export declare function exoticDeepClone(value: ExoticDeep): ExoticDeep;
+export declare function exoticDeepEquals(a: ExoticDeep, b: ExoticDeep): boolean;
+export declare function exoticDeepHashCode(value: ExoticDeep): number;
+export declare function exoticDeepDefaultValue(): ExoticDeep;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticDeepEncode(value: ExoticDeep, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticDeepEncodeWithContext(value: ExoticDeep, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticDeepEncodePartialWithContext(value: Partial<ExoticDeep>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticDeep>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticDeepDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticDeep;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticDeep | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticDeep> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticDeepDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticDeep>): Partial<ExoticDeep> | __mf_PendingRef;
+export declare function exoticDeepValidateField<K extends keyof ExoticDeep>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticDeepValidateFields(partial: { readonly [K in keyof ExoticDeep]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticDeepHasShape(obj: unknown): boolean;
+export declare function exoticDeepIs(obj: unknown): obj is ExoticDeep;
+export declare const ExoticDeep: {
+	readonly toString: typeof exoticDeepToString;
+	readonly clone: typeof exoticDeepClone;
+	readonly equals: typeof exoticDeepEquals;
+	readonly hashCode: typeof exoticDeepHashCode;
+	readonly defaultValue: typeof exoticDeepDefaultValue;
+	readonly encode: typeof exoticDeepEncode;
+	readonly encodeWithContext: typeof exoticDeepEncodeWithContext;
+	readonly encodePartialWithContext: typeof exoticDeepEncodePartialWithContext;
+	readonly decode: typeof exoticDeepDecode;
+	readonly decodeWithContext: typeof exoticDeepDecodeWithContext;
+	readonly decodePartialWithContext: typeof exoticDeepDecodePartialWithContext;
+	readonly validateField: typeof exoticDeepValidateField;
+	readonly validateFields: typeof exoticDeepValidateFields;
+	readonly hasShape: typeof exoticDeepHasShape;
+	readonly is: typeof exoticDeepIs;
+};
 
 ## Diagnostics
 
@@ -2853,120 +3230,130 @@ export declare const ExoticMethodAlias: {
 
 ## Mapping
 
-original 0..492 -> expanded 1451..1943
-original 492..598 -> expanded 16392..16498
-original 598..699 -> expanded 21359..21460
-original 699..803 -> expanded 26341..26445
-original 803..902 -> expanded 35322..35421
-original 902..903 -> expanded 42104..42105
-original 903..1045 -> expanded 45846..45988
-original 1045..1180 -> expanded 47533..47668
-original 1180..1453 -> expanded 53477..53750
-original 1453..1715 -> expanded 70099..70361
-original 1715..1916 -> expanded 86829..87030
-original 1916..2035 -> expanded 99832..99951
-original 2035..2036 -> expanded 101392..101393
-generated 0..1451 <- imports
-generated 1943..2434 <- Debug
-generated 2434..2716 <- Clone
-generated 2716..3020 <- PartialEq
-generated 3020..3588 <- Hash
-generated 3588..3779 <- Default
-generated 3779..6619 <- Encode
-generated 6619..14863 <- Decode
-generated 14863..16392 <- __convenience_const
-generated 16498..16627 <- Debug
-generated 16627..16735 <- Clone
-generated 16735..16882 <- PartialEq
-generated 16882..16988 <- Hash
-generated 16988..17994 <- Encode
-generated 17994..20511 <- Decode
-generated 20511..21359 <- __convenience_const
-generated 21460..21589 <- Debug
-generated 21589..21673 <- Clone
-generated 21673..21797 <- PartialEq
-generated 21797..21879 <- Hash
-generated 21879..21974 <- Default
-generated 21974..22794 <- Encode
-generated 22794..25397 <- Decode
-generated 25397..26341 <- __convenience_const
-generated 26445..26544 <- Debug
-generated 26544..26675 <- Clone
-generated 26675..26832 <- PartialEq
-generated 26832..26997 <- Hash
-generated 26997..27077 <- Default
-generated 27077..29098 <- Encode
-generated 29098..33855 <- Decode
-generated 33855..35322 <- __convenience_const
-generated 35421..35512 <- Debug
-generated 35512..35622 <- Clone
-generated 35622..35775 <- PartialEq
-generated 35775..35944 <- Hash
-generated 35944..36097 <- Default
-generated 36097..37516 <- Encode
-generated 37516..37845 <- Encode
-generated 37845..42104 <- Decode
-generated 42105..42216 <- Debug
-generated 42216..42324 <- Clone
-generated 42324..42441 <- PartialEq
-generated 42441..42550 <- Hash
-generated 42550..42649 <- Default
-generated 42649..44019 <- Encode
-generated 44019..45846 <- Decode
-generated 45988..46359 <- Debug
-generated 46359..46592 <- Clone
-generated 46592..46816 <- PartialEq
-generated 46816..47170 <- Hash
-generated 47170..47533 <- __convenience_const
-generated 47668..47803 <- Debug
-generated 47803..47917 <- Clone
-generated 47917..48070 <- PartialEq
-generated 48070..48180 <- Hash
-generated 48180..49571 <- Encode
-generated 49571..52587 <- Decode
-generated 52587..53477 <- __convenience_const
-generated 53750..54255 <- Debug
-generated 54255..54553 <- Clone
-generated 54553..55217 <- PartialEq
-generated 55217..56296 <- Hash
-generated 56296..59176 <- Encode
-generated 59176..68730 <- Decode
-generated 68730..70099 <- __convenience_const
-generated 70361..70843 <- Debug
-generated 70843..71158 <- Clone
-generated 71158..71491 <- PartialEq
-generated 71491..71922 <- Hash
-generated 71922..72110 <- Default
-generated 72110..74795 <- Encode
-generated 74795..85362 <- Decode
-generated 85362..86829 <- __convenience_const
-generated 87030..87399 <- Debug
-generated 87399..87621 <- Clone
-generated 87621..87995 <- PartialEq
-generated 87995..88513 <- Hash
-generated 88513..88661 <- Default
-generated 88661..91219 <- Encode
-generated 91219..98241 <- Decode
-generated 98241..99832 <- __convenience_const
-generated 99951..100275 <- Debug
-generated 100275..100462 <- Clone
-generated 100462..100665 <- PartialEq
-generated 100665..100993 <- Hash
-generated 100993..101392 <- __convenience_const
+original 0..533 -> expanded 1519..2052
+original 533..639 -> expanded 16501..16607
+original 639..740 -> expanded 21468..21569
+original 740..844 -> expanded 26471..26575
+original 844..943 -> expanded 35452..35551
+original 943..944 -> expanded 42234..42235
+original 944..1086 -> expanded 45976..46118
+original 1086..1221 -> expanded 47663..47798
+original 1221..1494 -> expanded 53607..53880
+original 1494..1756 -> expanded 70229..70491
+original 1756..1957 -> expanded 86959..87160
+original 1957..2076 -> expanded 99962..100081
+original 2076..2412 -> expanded 101522..101858
+original 2412..2413 -> expanded 118276..118277
+generated 0..1519 <- imports
+generated 2052..2543 <- Debug
+generated 2543..2825 <- Clone
+generated 2825..3129 <- PartialEq
+generated 3129..3697 <- Hash
+generated 3697..3888 <- Default
+generated 3888..6728 <- Encode
+generated 6728..14972 <- Decode
+generated 14972..16501 <- __convenience_const
+generated 16607..16736 <- Debug
+generated 16736..16844 <- Clone
+generated 16844..16991 <- PartialEq
+generated 16991..17097 <- Hash
+generated 17097..18103 <- Encode
+generated 18103..20620 <- Decode
+generated 20620..21468 <- __convenience_const
+generated 21569..21698 <- Debug
+generated 21698..21782 <- Clone
+generated 21782..21906 <- PartialEq
+generated 21906..22009 <- Hash
+generated 22009..22104 <- Default
+generated 22104..22924 <- Encode
+generated 22924..25527 <- Decode
+generated 25527..26471 <- __convenience_const
+generated 26575..26674 <- Debug
+generated 26674..26805 <- Clone
+generated 26805..26962 <- PartialEq
+generated 26962..27127 <- Hash
+generated 27127..27207 <- Default
+generated 27207..29228 <- Encode
+generated 29228..33985 <- Decode
+generated 33985..35452 <- __convenience_const
+generated 35551..35642 <- Debug
+generated 35642..35752 <- Clone
+generated 35752..35905 <- PartialEq
+generated 35905..36074 <- Hash
+generated 36074..36227 <- Default
+generated 36227..37646 <- Encode
+generated 37646..37975 <- Encode
+generated 37975..42234 <- Decode
+generated 42235..42346 <- Debug
+generated 42346..42454 <- Clone
+generated 42454..42571 <- PartialEq
+generated 42571..42680 <- Hash
+generated 42680..42779 <- Default
+generated 42779..44149 <- Encode
+generated 44149..45976 <- Decode
+generated 46118..46489 <- Debug
+generated 46489..46722 <- Clone
+generated 46722..46946 <- PartialEq
+generated 46946..47300 <- Hash
+generated 47300..47663 <- __convenience_const
+generated 47798..47933 <- Debug
+generated 47933..48047 <- Clone
+generated 48047..48200 <- PartialEq
+generated 48200..48310 <- Hash
+generated 48310..49701 <- Encode
+generated 49701..52717 <- Decode
+generated 52717..53607 <- __convenience_const
+generated 53880..54385 <- Debug
+generated 54385..54683 <- Clone
+generated 54683..55347 <- PartialEq
+generated 55347..56426 <- Hash
+generated 56426..59306 <- Encode
+generated 59306..68860 <- Decode
+generated 68860..70229 <- __convenience_const
+generated 70491..70973 <- Debug
+generated 70973..71288 <- Clone
+generated 71288..71621 <- PartialEq
+generated 71621..72052 <- Hash
+generated 72052..72240 <- Default
+generated 72240..74925 <- Encode
+generated 74925..85492 <- Decode
+generated 85492..86959 <- __convenience_const
+generated 87160..87529 <- Debug
+generated 87529..87751 <- Clone
+generated 87751..88125 <- PartialEq
+generated 88125..88643 <- Hash
+generated 88643..88791 <- Default
+generated 88791..91349 <- Encode
+generated 91349..98371 <- Decode
+generated 98371..99962 <- __convenience_const
+generated 100081..100405 <- Debug
+generated 100405..100592 <- Clone
+generated 100592..100795 <- PartialEq
+generated 100795..101123 <- Hash
+generated 101123..101522 <- __convenience_const
+generated 101858..102203 <- Debug
+generated 102203..102420 <- Clone
+generated 102420..102656 <- PartialEq
+generated 102656..102951 <- Hash
+generated 102951..103261 <- Default
+generated 103261..105593 <- Encode
+generated 105593..116840 <- Decode
+generated 116840..118276 <- __convenience_const
 
 ## Metadata
 
-class ExoticBlank: {"body_span":{"end":904,"start":902},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":876,"start":806}}],"fields":[],"heritage":[],"is_abstract":false,"methods":[],"name":"ExoticBlank","span":{"end":904,"start":884},"superclass":null,"type_params":[]}
-interface ExoticScalars: {"body_span":{"end":493,"start":362},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":330,"start":260}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":387,"start":368},"ts_type":"`id-${number}`"},{"decorators":[],"key":"Named","name":"tag","optional":false,"readonly":false,"span":{"end":420,"start":392},"ts_type":"`${string}-${boolean}`"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":438,"start":425},"ts_type":"object"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":457,"start":443},"ts_type":"null"},{"decorators":[],"key":"Named","name":"choice","optional":false,"readonly":false,"span":{"end":491,"start":462},"ts_type":"'a' | 'b' | 3 | true"}],"heritage":[],"methods":[],"name":"ExoticScalars","span":{"end":493,"start":338},"type_params":[]}
-interface ExoticEmpty: {"body_span":{"end":804,"start":802},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":772,"start":702}}],"fields":[],"heritage":[],"methods":[],"name":"ExoticEmpty","span":{"end":804,"start":780},"type_params":[]}
-interface ExoticMethods: {"body_span":{"end":1046,"start":983},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":951,"start":906}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1000,"start":989},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1024,"start":1005},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":1044,"start":1029},"type_params":[]}],"name":"ExoticMethods","span":{"end":1046,"start":959},"type_params":[]}
-interface ExoticTexts: {"body_span":{"end":1454,"start":1274},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1244,"start":1183}}],"fields":[{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1318,"start":1280},"ts_type":"`a-${number}` | `b-${string}`"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1345,"start":1323},"ts_type":"`k-${number}`[]"},{"decorators":[],"key":"Named","name":"mapped","optional":false,"readonly":false,"span":{"end":1385,"start":1350},"ts_type":"Map<`m-${bigint}`, string>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1416,"start":1390},"ts_type":"`o-${boolean}`"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1452,"start":1421},"ts_type":"`n-${string}` | null"}],"heritage":[],"methods":[],"name":"ExoticTexts","span":{"end":1454,"start":1252},"type_params":[]}
-interface ExoticKeyed: {"body_span":{"end":1716,"start":1556},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1526,"start":1456}}],"fields":[{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1596,"start":1562},"ts_type":"Record<'a' | 'b', number>"},{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1633,"start":1601},"ts_type":"Record<number, string>"},{"decorators":[],"key":"Named","name":"patterned","optional":false,"readonly":false,"span":{"end":1680,"start":1638},"ts_type":"Record<`k-${number}`, boolean>"},{"decorators":[],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":1714,"start":1685},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"ExoticKeyed","span":{"end":1716,"start":1534},"type_params":[]}
-interface ExoticAccessors: {"body_span":{"end":1917,"start":1822},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1788,"start":1718}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1839,"start":1828},"ts_type":"string"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":1863,"start":1844},"ts_type":"number"},{"decorators":[],"key":"Named","name":"stamp","optional":false,"readonly":true,"span":{"end":1915,"start":1897},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ExoticAccessors","span":{"end":1917,"start":1796},"type_params":[]}
-type ExoticCode: {"body":{"Other":"`code-${bigint}`"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":556,"start":495}}],"name":"ExoticCode","span":{"end":599,"start":564},"type_params":[]}
-type ExoticNone: {"body":{"Tuple":[]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":671,"start":601}}],"name":"ExoticNone","span":{"end":700,"start":679},"type_params":[]}
-type ExoticLabels: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"`a-${number}`"}},{"decorators":[],"kind":{"TypeRef":"`b-${string}`"}},{"decorators":[],"kind":{"Literal":"'plain'"}},{"decorators":[],"kind":{"Literal":"5"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1109,"start":1048}}],"name":"ExoticLabels","span":{"end":1181,"start":1117},"type_params":[]}
-type ExoticMethodAlias: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2014,"start":2003},"ts_type":"string"},{"decorators":[],"key":"Named","name":"run","optional":false,"readonly":false,"span":{"end":2033,"start":2019},"ts_type":"() => string"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":1964,"start":1919}}],"name":"ExoticMethodAlias","span":{"end":2036,"start":1972},"type_params":[]}
+class ExoticBlank: {"body_span":{"end":945,"start":943},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":917,"start":847}}],"fields":[],"heritage":[],"is_abstract":false,"methods":[],"name":"ExoticBlank","span":{"end":945,"start":925},"superclass":null,"type_params":[]}
+interface ExoticScalars: {"body_span":{"end":534,"start":403},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":371,"start":301}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":428,"start":409},"ts_type":"`id-${number}`"},{"decorators":[],"key":"Named","name":"tag","optional":false,"readonly":false,"span":{"end":461,"start":433},"ts_type":"`${string}-${boolean}`"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":479,"start":466},"ts_type":"object"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":498,"start":484},"ts_type":"null"},{"decorators":[],"key":"Named","name":"choice","optional":false,"readonly":false,"span":{"end":532,"start":503},"ts_type":"'a' | 'b' | 3 | true"}],"heritage":[],"methods":[],"name":"ExoticScalars","span":{"end":534,"start":379},"type_params":[]}
+interface ExoticEmpty: {"body_span":{"end":845,"start":843},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":813,"start":743}}],"fields":[],"heritage":[],"methods":[],"name":"ExoticEmpty","span":{"end":845,"start":821},"type_params":[]}
+interface ExoticMethods: {"body_span":{"end":1087,"start":1024},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":992,"start":947}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1041,"start":1030},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1065,"start":1046},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":1085,"start":1070},"type_params":[]}],"name":"ExoticMethods","span":{"end":1087,"start":1000},"type_params":[]}
+interface ExoticTexts: {"body_span":{"end":1495,"start":1315},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1285,"start":1224}}],"fields":[{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1359,"start":1321},"ts_type":"`a-${number}` | `b-${string}`"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1386,"start":1364},"ts_type":"`k-${number}`[]"},{"decorators":[],"key":"Named","name":"mapped","optional":false,"readonly":false,"span":{"end":1426,"start":1391},"ts_type":"Map<`m-${bigint}`, string>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1457,"start":1431},"ts_type":"`o-${boolean}`"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1493,"start":1462},"ts_type":"`n-${string}` | null"}],"heritage":[],"methods":[],"name":"ExoticTexts","span":{"end":1495,"start":1293},"type_params":[]}
+interface ExoticKeyed: {"body_span":{"end":1757,"start":1597},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1567,"start":1497}}],"fields":[{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1637,"start":1603},"ts_type":"Record<'a' | 'b', number>"},{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1674,"start":1642},"ts_type":"Record<number, string>"},{"decorators":[],"key":"Named","name":"patterned","optional":false,"readonly":false,"span":{"end":1721,"start":1679},"ts_type":"Record<`k-${number}`, boolean>"},{"decorators":[],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":1755,"start":1726},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"ExoticKeyed","span":{"end":1757,"start":1575},"type_params":[]}
+interface ExoticAccessors: {"body_span":{"end":1958,"start":1863},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1829,"start":1759}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1880,"start":1869},"ts_type":"string"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":1904,"start":1885},"ts_type":"number"},{"decorators":[],"key":"Named","name":"stamp","optional":false,"readonly":true,"span":{"end":1956,"start":1938},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ExoticAccessors","span":{"end":1958,"start":1837},"type_params":[]}
+interface ExoticDeep: {"body_span":{"end":2413,"start":2178},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2149,"start":2079}}],"fields":[{"decorators":[],"key":"Named","name":"objects","optional":false,"readonly":false,"span":{"end":2360,"start":2184},"ts_type":"{ held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }"},{"decorators":[],"key":"Named","name":"lists","optional":false,"readonly":false,"span":{"end":2411,"start":2365},"ts_type":"[[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]]"}],"heritage":[],"methods":[],"name":"ExoticDeep","span":{"end":2413,"start":2157},"type_params":[]}
+type ExoticCode: {"body":{"Other":"`code-${bigint}`"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":597,"start":536}}],"name":"ExoticCode","span":{"end":640,"start":605},"type_params":[]}
+type ExoticNone: {"body":{"Tuple":[]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":712,"start":642}}],"name":"ExoticNone","span":{"end":741,"start":720},"type_params":[]}
+type ExoticLabels: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"`a-${number}`"}},{"decorators":[],"kind":{"TypeRef":"`b-${string}`"}},{"decorators":[],"kind":{"Literal":"'plain'"}},{"decorators":[],"kind":{"Literal":"5"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1150,"start":1089}}],"name":"ExoticLabels","span":{"end":1222,"start":1158},"type_params":[]}
+type ExoticMethodAlias: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2055,"start":2044},"ts_type":"string"},{"decorators":[],"key":"Named","name":"run","optional":false,"readonly":false,"span":{"end":2074,"start":2060},"ts_type":"() => string"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":2005,"start":1960}}],"name":"ExoticMethodAlias","span":{"end":2077,"start":2013},"type_params":[]}
 
 ## Registry reads
 
@@ -2980,6 +3367,7 @@ Name("ExoticMethodAlias")
 Name("ExoticNone")
 Name("Map")
 Name("Record")
+Name("[[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]]")
 Name("`${string}-${boolean}`")
 Name("`a-${number}`")
 Name("`a-${number}` | `b-${string}`")
@@ -2994,6 +3382,7 @@ Name("number")
 Name("object")
 Name("string")
 Name("true")
+Name("{ held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }")
 
 ## Buildtime dependencies
 

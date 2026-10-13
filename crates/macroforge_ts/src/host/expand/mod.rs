@@ -1138,13 +1138,14 @@ impl MacroExpander {
             )
         });
 
-        let derive_targets = collect_derive_targets(
+        let mut derive_targets = collect_derive_targets(
             &class_map,
             &interface_map,
             &enum_map,
             &type_alias_map,
             source,
         );
+        diagnostics.extend(derive_scope::reject_deep_types(&mut derive_targets, source));
 
         trace_logs.line(|| format!("derive_targets: {}", derive_targets.len()));
         for t in &derive_targets {

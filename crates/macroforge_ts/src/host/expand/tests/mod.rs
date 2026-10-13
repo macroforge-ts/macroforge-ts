@@ -5,3 +5,4 @@ mod derive_targets;
 mod existing_declaration;
 mod external_type_function_import;
 mod failing_derive;
+mod type_depth;
