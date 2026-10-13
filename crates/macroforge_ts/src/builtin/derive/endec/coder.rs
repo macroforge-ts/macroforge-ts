@@ -873,9 +873,11 @@ pub(crate) fn encode_expr(
                 }
             })
         }
+        // An entry's value is of the record's value type, which a stricter
+        // `Object.entries` does not say of a record over named keys.
         TypeCategory::Record(_, value_type) => encoded_entry(&value_type)?.map(|encoded| {
             rendered(ts_template! {
-                Object.fromEntries(Object.entries(@{value}).map(([@{&key}, @{&item}]) => [@{&key}, @{encoded}]))
+                Object.fromEntries((Object.entries(@{value}) as [string, @{&value_type}][]).map(([@{&key}, @{&item}]) => [@{&key}, @{encoded}]))
             })
         }),
         TypeCategory::Optional(inner) => encode_expr(&inner, value, scope, depth)?

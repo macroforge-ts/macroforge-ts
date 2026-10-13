@@ -594,7 +594,7 @@ fn an_undefined_in_a_collection_is_coded_as_null() {
     assert_eq!(
         encoded.as_deref(),
         Some(
-            "Object.fromEntries(Object.entries(v).map(([__key0,__item0])=>[__key0,(__item0===undefined?null:__item0)]))"
+            "Object.fromEntries((Object.entries(v)as[string,number|undefined][]).map(([__key0,__item0])=>[__key0,(__item0===undefined?null:__item0)]))"
         )
     );
     assert!(
