@@ -1105,13 +1105,22 @@ fn own_decoder(
         return Ok(Some(endec_helper(leaf)));
     }
     let raw = format!("__raw{depth}");
-    // An `undefined` held in a collection is `null` once encoded.
-    let read = if undefined_as_null(ts_type) {
-        format!("({raw} ?? undefined)")
-    } else {
-        raw.clone()
-    };
-    Ok(decode_expr(ts_type, &read, scope, depth + 1)?
+    // An `undefined` held in a collection is `null` once encoded, and is
+    // read back once for all the decoder asks of it.
+    if undefined_as_null(ts_type) {
+        let read = format!("__read{depth}");
+        return Ok(
+            decode_expr(ts_type, &read, scope, depth + 1)?.map(|decoded| {
+                rendered(ts_template! {
+                    (@{&raw}) => {
+                        const @{&read} = @{&raw} ?? undefined;
+                        return @{decoded};
+                    }
+                })
+            }),
+        );
+    }
+    Ok(decode_expr(ts_type, &raw, scope, depth + 1)?
         .map(|decoded| rendered(ts_template! { (@{&raw}) => @{decoded} })))
 }
 

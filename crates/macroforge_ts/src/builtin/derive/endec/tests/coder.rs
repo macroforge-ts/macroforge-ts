@@ -282,7 +282,7 @@ fn a_tuple_is_coded_element_by_element() {
     assert_eq!(
         decoded.as_deref(),
         Some(
-            "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),(__raw0)=>((__raw0??undefined)===undefined?undefined:__mf_decodeDate((__raw0??undefined)))],1,__mf_decodeString)as[User,Date?,...string[]])"
+            "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),(__raw0)=>{const__read0=__raw0??undefined;return(__read0===undefined?undefined:__mf_decodeDate(__read0));}],1,__mf_decodeString)as[User,Date?,...string[]])"
         )
     );
     assert_eq!(coded("[unknown, unknown]"), (None, None));
@@ -586,11 +586,10 @@ fn a_type_nested_to_the_limit_is_coded_a_level_at_a_time() {
 fn an_undefined_in_a_collection_is_coded_as_null() {
     let (encoded, decoded) = coded("(number | undefined)[]");
     assert_eq!(encoded, None);
-    assert!(
-        decoded
-            .expect("the array decodes")
-            .contains("(__raw0??undefined)")
-    );
+    // The value is read once, whatever the decoder asks of it after.
+    let decoded = decoded.expect("the array decodes");
+    assert!(decoded.contains("const__read0=__raw0??undefined;"));
+    assert_eq!(decoded.matches("??undefined").count(), 1);
 
     let (encoded, decoded) = coded("Record<string, number | undefined>");
     assert_eq!(
@@ -602,7 +601,7 @@ fn an_undefined_in_a_collection_is_coded_as_null() {
     assert!(
         decoded
             .expect("the record decodes")
-            .contains("(__raw0??undefined)")
+            .contains("const__read0=__raw0??undefined;")
     );
 
     let (encoded, _) = coded("Map<string, Date | undefined>");
@@ -616,7 +615,7 @@ fn an_undefined_in_a_collection_is_coded_as_null() {
     assert!(
         decoded
             .expect("the tuple decodes")
-            .contains("(__raw0??undefined)")
+            .contains("const__read0=__raw0??undefined;")
     );
 
     // A `null` that is a value of the type stays one.

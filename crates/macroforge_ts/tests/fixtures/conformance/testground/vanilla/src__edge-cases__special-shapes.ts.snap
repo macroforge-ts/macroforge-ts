@@ -1669,7 +1669,10 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (Array.isArray(__raw_list)) {
             ctx.pushScope("list");
             try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined));
+                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+        });
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -1693,7 +1696,13 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (Array.isArray(__raw_pair)) {
             ctx.pushScope("pair");
             try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined), (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), typeof (__raw0 ?? undefined) === "string" || (__raw0 ?? undefined) === undefined, "string | undefined") as string | undefined)], 1) as [number | undefined, string?]);
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+        }, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__mf_decodeChecked(__read0, typeof __read0 === "string" || __read0 === undefined, "string | undefined") as string | undefined);
+        }], 1) as [number | undefined, string?]);
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -1717,7 +1726,10 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (typeof __raw_record === "object" && __raw_record !== null) {
             ctx.pushScope("record");
             try {
-                instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined)) as Record<string, number | undefined>);
+                instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+        }) as Record<string, number | undefined>);
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -1741,7 +1753,10 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (typeof __raw_finite === "object" && __raw_finite !== null) {
             ctx.pushScope("finite");
             try {
-                instance.finite = (__mf_decodeRecord(__raw_finite, ctx, (__raw0) => ((__raw0 ?? undefined) === undefined ? undefined : __mf_decodeDate((__raw0 ?? undefined))), (__key0) => __mf_decodeChecked(__key0, __key0 === 'a' || __key0 === 'b', "'a' | 'b'") as 'a' | 'b', [String('a'), String('b')]) as Record<'a' | 'b', Date | undefined>);
+                instance.finite = (__mf_decodeRecord(__raw_finite, ctx, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__read0 === undefined ? undefined : __mf_decodeDate(__read0));
+        }, (__key0) => __mf_decodeChecked(__key0, __key0 === 'a' || __key0 === 'b', "'a' | 'b'") as 'a' | 'b', [String('a'), String('b')]) as Record<'a' | 'b', Date | undefined>);
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -1765,7 +1780,10 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (Array.isArray(__raw_set)) {
             ctx.pushScope("set");
             try {
-                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined));
+                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+        });
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -1789,7 +1807,10 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (typeof __raw_held === "object" && __raw_held !== null) {
             ctx.pushScope("held");
             try {
-                instance.held = __mf_decodeMap(__raw_held, ctx, (__key0) => __key0, (__raw0) => (__mf_decodeChecked((__raw0 ?? undefined), (typeof (__raw0 ?? undefined) === "number" && globalThis.Number.isFinite((__raw0 ?? undefined))) || (__raw0 ?? undefined) === undefined, "number | undefined") as number | undefined));
+                instance.held = __mf_decodeMap(__raw_held, ctx, (__key0) => __key0, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+        });
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -2235,7 +2256,7 @@ original 524..609 -> expanded 25958..26043
 original 609..789 -> expanded 32814..32994
 original 789..1079 -> expanded 45523..45813
 original 1079..1534 -> expanded 66937..67392
-original 1534..1535 -> expanded 93419..93420
+original 1534..1535 -> expanded 93636..93637
 generated 0..1447 <- imports
 generated 1903..2422 <- Debug
 generated 2422..2700 <- Clone
@@ -2269,8 +2290,8 @@ generated 68166..68606 <- Clone
 generated 68606..69926 <- PartialEq
 generated 69926..71647 <- Hash
 generated 71647..75599 <- Encode
-generated 75599..92021 <- Decode
-generated 92021..93419 <- __convenience_const
+generated 75599..92238 <- Decode
+generated 92238..93636 <- __convenience_const
 
 ## Metadata
 
