@@ -971,14 +971,26 @@ impl TypeRegistry {
         file_imports: &[FileImportEntry],
     ) -> Option<&TypeRegistryEntry> {
         self.log.note(|| RegistryRead::Name(name.to_string()));
+        // A name the file imports under another (`import { User as Member }`)
+        // is the type its module exports, never one declared elsewhere under
+        // the local name.
+        let renamed = file_imports
+            .iter()
+            .find(|import| import.local_name == name)
+            .and_then(|import| import.original_name.as_deref())
+            .filter(|exported| !matches!(*exported, "default" | "*") && *exported != name);
+        if let Some(exported) = renamed {
+            self.log.note(|| RegistryRead::Name(exported.to_string()));
+        }
         // Fast path: unambiguous name.
-        if !self.ambiguous_names.has(name) {
-            return self.types.entries.by_key.get(name);
+        if !self.ambiguous_names.has(renamed.unwrap_or(name)) {
+            return self.types.entries.by_key.get(renamed.unwrap_or(name));
         }
         // Same-file resolution: the caller and the declaration share a file,
         // so the entry whose file_path matches the caller is canonical here
         // even when the simple name is ambiguous globally.
-        if !caller_file_path.is_empty()
+        if renamed.is_none()
+            && !caller_file_path.is_empty()
             && let Some(entry) = self
                 .candidates(name)
                 .into_iter()
@@ -1291,6 +1303,46 @@ mod tests {
             ])
         );
         assert_eq!(registry.alias_cycle("Tree"), None);
+    }
+
+    /// A name a file imports under another is the type its module exports,
+    /// whatever else the project declares under the local name.
+    #[test]
+    fn a_renamed_import_resolves_to_the_type_it_was_exported_as() {
+        let mut registry = TypeRegistry::default();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Member", "/project/src/club.ts", vec![]),
+            "/project",
+        );
+        let renamed = [FileImportEntry {
+            local_name: "Member".to_string(),
+            module_specifier: "./user".to_string(),
+            original_name: Some("User".to_string()),
+            is_type_only: true,
+        }];
+        let resolved = registry.resolve_in_file("Member", "/project/src/page.ts", &renamed);
+        assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
+
+        // Without the import, the name is the type declared under it.
+        let declared = registry.resolve_in_file("Member", "/project/src/page.ts", &[]);
+        assert_eq!(
+            declared.map(|entry| entry.file_path.as_str()),
+            Some("/project/src/club.ts")
+        );
+
+        // A default import says nothing of the name it was declared under.
+        let defaulted = [FileImportEntry {
+            local_name: "User".to_string(),
+            module_specifier: "./user".to_string(),
+            original_name: Some("default".to_string()),
+            is_type_only: false,
+        }];
+        let resolved = registry.resolve_in_file("User", "/project/src/page.ts", &defaulted);
+        assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
     }
 
     #[test]

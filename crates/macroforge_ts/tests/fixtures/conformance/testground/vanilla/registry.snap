@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (410)
+## Types (411)
 
 Address f0d229a1409690d0
 AddressPatch 9f24746fc3a6b7e7
@@ -282,13 +282,14 @@ Moment db7f0c955cc71743
 MultipleOfValidator bc60609b1610d010
 MultipleValidatorsTest fc9c680d0c488b8b
 NameHolder dce0fdc5017f52a9
-NameImports 791d9de3e1bdc618
+NameImports 7eaea9d91155464a
 NameLocals 56a7c2765542adf5
 NameParams ba394dbc56450f6b
 NameParamsClass db046605a90e95a6
 NamePrototype 84cc0970d4858bcf
 NameQuoted 6ce819379349d86a
 NameQuotedClass 04b87e0cac2b97ea
+NameRenamed e5e26d10919f1898
 NegativeBigIntValidator bcf8aa19a6031857
 NegativeValidator 40e6f6dab58fd58b
 NestedDeserResults 91fe907622707348
@@ -414,7 +415,7 @@ Version a97656860d12bbc3
 Wall 5a067be59c2d4675
 point2D 697bb407a60739cf
 
-## Qualified types (413)
+## Qualified types (414)
 
 src/all-macros-test.ts::AllMacrosTestClass 0a3bab42a552ef1b
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -563,7 +564,8 @@ src/edge-cases/module-shapes.ts::ModulePrivateAlias c4d8938a1260c5ad
 src/edge-cases/module-shapes.ts::ModulePrivateClass 0667b11eb72d8d26
 src/edge-cases/module-shapes.ts::ModulePrivateEnum 5209f54da03402aa
 src/edge-cases/module-shapes.ts::ModuleStatics c953ed388f288429
-src/edge-cases/name-imports.ts::NameImports 791d9de3e1bdc618
+src/edge-cases/name-imports.ts::NameImports 7eaea9d91155464a
+src/edge-cases/name-imports.ts::NameRenamed e5e26d10919f1898
 src/edge-cases/name-shapes.ts::HTTPResponse 10016c188e46c939
 src/edge-cases/name-shapes.ts::NameHolder dce0fdc5017f52a9
 src/edge-cases/name-shapes.ts::NameLocals 56a7c2765542adf5

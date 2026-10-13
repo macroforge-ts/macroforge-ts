@@ -264,3 +264,36 @@ Deno.test('fields named like what every object inherits are read from the input 
     assertStrictEquals(blank.valueOf, 0);
     assert(mod.namePrototypeToString(value).includes('constructor: built'));
 });
+
+Deno.test('a type imported under another name is coded through its own functions', async () => {
+    const imports = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'name-imports.ts')
+    );
+    const item = (id) => ({ id, score: 1 });
+    const source = {
+        held: item('a'),
+        listed: [item('b'), item('c')],
+        maybe: null,
+        some: { id: 'p' }
+    };
+    const encoded = JSON.parse(imports.nameRenamedEncode(source));
+    assertEquals(encoded, source);
+    assertEquals(decoded(imports.nameRenamedDecode(encoded)), source);
+    assertEquals(
+        errorFields(imports.nameRenamedDecode({ ...encoded, held: { id: 1, score: 1 } })),
+        ['held.id']
+    );
+    assertEquals(
+        errorFields(imports.nameRenamedDecode({ ...encoded, listed: [{ id: 'b', score: 'one' }] })),
+        ['listed[0].score']
+    );
+    assertEquals(errorFields(imports.nameRenamedDecode({ ...encoded, some: { id: 2 } })), [
+        'some.id'
+    ]);
+
+    const copy = imports.nameRenamedClone(source);
+    assertNotStrictEquals(copy.held, source.held);
+    assert(imports.nameRenamedEquals(source, copy));
+    assertStrictEquals(imports.nameRenamedHashCode(source), imports.nameRenamedHashCode(copy));
+    assertEquals(imports.nameRenamedDefaultValue().held, { id: '', score: 0 });
+});

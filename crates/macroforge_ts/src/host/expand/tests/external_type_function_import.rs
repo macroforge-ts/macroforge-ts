@@ -33,7 +33,8 @@ fn generates_builtin_suffix_imports() {
     let tokens = "const val = companyNameDefaultValue();";
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
+    let patches =
+        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
     assert!(patches.is_empty(), "registry path returns no patches");
 
     let generated = snapshot_generated();
@@ -51,7 +52,13 @@ fn generates_extra_suffix_imports() {
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
     let extra = vec!["GetFields".to_string()];
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &extra, &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &extra,
+        &[],
+    );
     assert!(patches.is_empty());
 
     let generated = snapshot_generated();
@@ -66,7 +73,8 @@ fn no_import_when_suffix_not_registered() {
     let tokens = "const fields = companyNameGetFields();";
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
+    let patches =
+        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
     assert!(patches.is_empty());
     assert!(snapshot_generated().is_empty());
 }
@@ -80,7 +88,8 @@ fn skips_already_imported_identifiers() {
         ("companyNameDefaultValue", "./account.svelte"),
     ]);
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
+    let patches =
+        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
     assert!(patches.is_empty());
     // The identifier is already present in source imports, so the
     // registry should not be asked to generate it.
@@ -99,7 +108,8 @@ fn skips_non_relative_module_specifiers() {
     let tokens = "const val = companyNameDefaultValue();";
     let import_sources = make_import_sources(&[("CompanyName", "some-package")]);
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &[], &[]);
+    let patches =
+        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
     assert!(patches.is_empty());
     assert!(snapshot_generated().is_empty());
 }
@@ -114,7 +124,13 @@ fn multiple_extra_suffixes_all_resolve() {
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
     let extra = vec!["GetFields".to_string(), "CustomSuffix".to_string()];
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &extra, &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &extra,
+        &[],
+    );
     assert!(patches.is_empty());
 
     let names: Vec<String> = snapshot_generated()
@@ -132,7 +148,13 @@ fn extra_suffix_only_matches_when_referenced_in_tokens() {
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
     let extra = vec!["GetFields".to_string()];
 
-    let patches = external_type_function_import_patches(tokens, &import_sources, &extra, &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &extra,
+        &[],
+    );
     assert!(patches.is_empty());
 
     let names: Vec<String> = snapshot_generated()
@@ -153,8 +175,13 @@ fn generates_pascal_case_type_imports() {
     let import_sources = make_import_sources(&[("Colors", "./shared.svelte")]);
     let type_suffixes = vec!["Errors".to_string(), "Tainted".to_string()];
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &[], &type_suffixes);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &[],
+        &type_suffixes,
+    );
     assert!(patches.is_empty());
 
     let generated = snapshot_generated();
@@ -180,8 +207,13 @@ fn pascal_case_type_imports_skip_already_imported() {
     ]);
     let type_suffixes = vec!["Errors".to_string()];
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &[], &type_suffixes);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &[],
+        &type_suffixes,
+    );
     assert!(patches.is_empty());
 
     let generated = snapshot_generated();
@@ -202,8 +234,13 @@ fn mixed_camel_and_pascal_imports() {
     let extra = vec!["GetControllers".to_string()];
     let type_suffixes = vec!["Errors".to_string()];
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &extra, &type_suffixes);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &extra,
+        &type_suffixes,
+    );
     assert!(patches.is_empty());
 
     let generated = snapshot_generated();
@@ -216,5 +253,54 @@ fn mixed_camel_and_pascal_imports() {
     assert!(
         generated.iter().any(|(n, _, t)| n == "ColorsErrors" && *t),
         "PascalCase identifier should be a type-only import",
+    );
+}
+
+/// A type imported under another name has its functions under the name its
+/// module exports it by, which the generated code calls by the local one.
+#[test]
+fn a_renamed_import_brings_its_functions_under_the_exported_name() {
+    clear_registry();
+    let tokens = "memberDecodeWithContext(raw, ctx); const made: MemberErrors = {};";
+    let import_sources = make_import_sources(&[("Member", "./user")]);
+    let exported_names = make_import_sources(&[("Member", "User")]);
+    let type_suffixes = vec!["Errors".to_string()];
+
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &exported_names,
+        &[],
+        &type_suffixes,
+    );
+    assert!(patches.is_empty());
+
+    let mut generated: Vec<(String, Option<String>, bool)> = with_registry(|registry| {
+        registry
+            .generated_imports()
+            .map(|import| {
+                (
+                    import.local_name.clone(),
+                    import.original_name.clone(),
+                    import.is_type_only,
+                )
+            })
+            .collect()
+    });
+    generated.sort();
+    assert_eq!(
+        generated,
+        vec![
+            (
+                "MemberErrors".to_string(),
+                Some("UserErrors".to_string()),
+                true
+            ),
+            (
+                "memberDecodeWithContext".to_string(),
+                Some("userDecodeWithContext".to_string()),
+                false
+            ),
+        ]
     );
 }

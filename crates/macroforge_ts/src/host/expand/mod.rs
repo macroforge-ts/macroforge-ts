@@ -1655,9 +1655,18 @@ impl MacroExpander {
                         import_sources.extend(crate::host::import_registry::with_registry(
                             |registry| registry.borrowed_modules(),
                         ));
+                        // A default or a namespace import names no export.
+                        let exported_names: HashMap<String, String> =
+                            crate::host::import_registry::with_registry(|registry| {
+                                registry.aliases()
+                            })
+                            .into_iter()
+                            .filter(|(_, exported)| !matches!(exported.as_str(), "default" | "*"))
+                            .collect();
                         let external_imports = external_type_function_import_patches(
                             tokens,
                             &import_sources,
+                            &exported_names,
                             &result.cross_module_suffixes,
                             &result.cross_module_type_suffixes,
                         );
