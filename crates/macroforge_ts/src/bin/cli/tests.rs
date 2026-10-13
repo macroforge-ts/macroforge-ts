@@ -430,6 +430,44 @@ fn test_write_atomic_replaces_existing_content() {
     assert_eq!(std::fs::read_to_string(&target).unwrap(), "new");
 }
 
+/// A device is written to, and stays the device it was.
+#[cfg(unix)]
+#[test]
+fn test_write_atomic_writes_through_to_a_device() {
+    use std::os::unix::fs::FileTypeExt;
+
+    let null = std::path::Path::new("/dev/null");
+    write_atomic(null, b"discarded").unwrap();
+
+    assert!(
+        std::fs::metadata(null)
+            .unwrap()
+            .file_type()
+            .is_char_device()
+    );
+}
+
+/// A link to a file is replaced by the file written, and what it pointed at
+/// is left as it was: only a stream is written through.
+#[cfg(unix)]
+#[test]
+fn test_write_atomic_does_not_write_through_a_link_to_a_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let pointed_at = dir.path().join("kept.txt");
+    std::fs::write(&pointed_at, "kept as it was").unwrap();
+    let link = dir.path().join("out.txt");
+    std::os::unix::fs::symlink(&pointed_at, &link).unwrap();
+
+    write_atomic(&link, b"new").unwrap();
+
+    assert_eq!(
+        std::fs::read_to_string(&pointed_at).unwrap(),
+        "kept as it was"
+    );
+    assert_eq!(std::fs::read_to_string(&link).unwrap(), "new");
+    assert!(std::fs::symlink_metadata(&link).unwrap().is_file());
+}
+
 #[test]
 fn test_write_atomic_leaves_no_temp_files_behind() {
     let dir = tempfile::tempdir().unwrap();

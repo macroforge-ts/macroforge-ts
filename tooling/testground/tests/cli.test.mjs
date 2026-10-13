@@ -732,6 +732,29 @@ interface Item { id: string; }`
     }
 });
 
+Deno.test({
+    name: 'CLI expand: --out takes a device and leaves it one',
+    ignore: Deno.build.os === 'windows',
+    fn: () => {
+        setupTmpDir();
+        try {
+            const inputFile = path.join(tmpDir, 'to-null.ts');
+            fs.writeFileSync(
+                inputFile,
+                `/** @derive(Debug) */
+interface Item { id: string; }`
+            );
+
+            const result = runCli(['expand', inputFile, '--out', '/dev/null']);
+
+            assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+            assert(fs.statSync('/dev/null').isCharacterDevice(), '/dev/null is still a device');
+        } finally {
+            cleanupTmpDir();
+        }
+    }
+});
+
 Deno.test('CLI expand: respects --out flag for custom output path', () => {
     setupTmpDir();
     try {
