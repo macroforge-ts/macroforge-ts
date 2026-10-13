@@ -158,11 +158,12 @@ let shape = resolve_generic_aliases(
 		</tr>
 	</thead>
 	<tbody>
-		<tr><td><code>type_has_derive(registry, name, "Clone")</code></td><td>Whether a project type derives a macro</td></tr>
+		<tr><td><code>declared_type_has_derive(Declared::of(input, &amp;file_imports), name, "Clone")</code></td><td>Whether the type the current file knows as <code>name</code> derives a macro, through whatever it imports the type as</td></tr>
+		<tr><td><code>type_has_derive(registry, name, "Clone")</code></td><td>Whether a type the project declares under <code>name</code> derives a macro, whatever the current file imports</td></tr>
 		<tr><td><code>resolved_type_has_derive(registry, resolved, "Clone")</code></td><td>The same, for a field's resolved type</td></tr>
 		<tr><td><code>collection_element_type(resolved)</code></td><td>The element of <code>User[]</code>, a <code>Set</code>'s value, a <code>Map</code>'s value</td></tr>
 		<tr><td><code>standalone_fn_name("User", "Clone")</code></td><td>The name of a generated helper: <code>userClone</code></td></tr>
-		<tr><td><code>get_effective_fields(alias, registry)</code></td><td>The fields of an object alias, or of an intersection of them</td></tr>
+		<tr><td><code>derive_alias_fields(input, alias)</code></td><td>The fields of an object alias, or of an intersection of them, each named type read as the current file imports it</td></tr>
 		<tr><td><code>is_primitive_type</code>, <code>is_numeric_type</code>, <code>is_nullable_type</code>, <code>is_generic_type</code></td><td>Classify a type string</td></tr>
 		<tr><td><code>get_type_default</code>, <code>get_type_default_with_registry</code></td><td>A default value expression for a type</td></tr>
 	</tbody>

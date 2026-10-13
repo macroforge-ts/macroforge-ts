@@ -400,6 +400,8 @@ type RecurrenceEnd: {"body":{"Union":[{"decorators":[{"args_src":"0","name":"def
 
 Name("Gigaform")
 Name("RecurrenceEnd")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

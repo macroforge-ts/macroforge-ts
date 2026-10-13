@@ -567,7 +567,9 @@ impl MacroContextIR {
     /// Resolution order:
     /// 1. If the current file already imports `type_name`, return its existing
     ///    specifier (preserves aliases and the user's chosen path style).
-    /// 2. Otherwise look up `type_name` in `self.type_registry`.
+    /// 2. Otherwise look up `type_name` in `self.type_registry`, as a file
+    ///    that does not import it knows it: the type it declares itself, or
+    ///    the one type of that name the project declares.
     /// 3. If the type lives in `self.file_name`, return `None` (no import needed).
     /// 4. Compute the relative path from the current file's directory to
     ///    `entry.file_path`, strip TypeScript file extensions, and prepend
@@ -578,7 +580,9 @@ impl MacroContextIR {
         {
             return Some(existing.to_string());
         }
-        let entry = self.type_registry.types.get(type_name)?;
+        let entry = self
+            .type_registry
+            .resolve_in_file(type_name, &self.file_name, &[])?;
         if entry.file_path == self.file_name {
             return None;
         }
@@ -691,6 +695,33 @@ mod import_specifier_tests {
         let mut ctx = make_ctx("/foo/bar.svelte.ts");
         ctx.type_registry = registry_with("Bar", "/foo/bar.svelte.ts");
         assert_eq!(ctx.import_specifier_for("Bar"), None);
+    }
+
+    /// A name this file declares needs no import, though another file
+    /// declares it too, and one only other files declare, more than once,
+    /// has no one module to come from.
+    #[test]
+    fn a_name_several_files_declare_is_this_files_own_or_none() {
+        let entry = |file_path: &str| TypeRegistryEntry {
+            name: "Bar".to_string(),
+            file_path: file_path.to_string(),
+            is_exported: true,
+            exported_as: Vec::new(),
+            re_exported: Vec::new(),
+            definition: TypeDefinitionIR::Interface(empty_interface("Bar")),
+            file_imports: vec![],
+        };
+        let mut registry = TypeRegistry::new();
+        registry.insert(entry("/foo/other.ts"), "/foo");
+        registry.insert(entry("/foo/bar.ts"), "/foo");
+
+        let mut own = make_ctx("/foo/bar.ts");
+        own.type_registry = registry.clone();
+        assert_eq!(own.import_specifier_for("Bar"), None);
+
+        let mut third = make_ctx("/foo/third.ts");
+        third.type_registry = registry;
+        assert_eq!(third.import_specifier_for("Bar"), None);
     }
 
     #[test]

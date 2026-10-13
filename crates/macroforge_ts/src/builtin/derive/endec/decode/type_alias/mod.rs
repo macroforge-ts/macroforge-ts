@@ -16,7 +16,7 @@ use super::super::{EndecContainerOptions, decorator_validators};
 use super::field::prepare::to_decode_field;
 use super::object_decoder::object_decode_functions;
 use super::types::DecodeField;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{Declared, TypeNames};
 use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
 use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, PENDING_REF};
@@ -114,7 +114,7 @@ pub(super) fn handle_type_alias(
     } else if let Some(members) = body.as_intersection() {
         match crate::builtin::derive::common::flatten_intersection_fields(
             members,
-            alias.type_registry,
+            Declared::of(input, &file_imports),
         ) {
             Some(fields) => handle_object_type_alias(&alias, &fields),
             None => Err(MacroforgeError::new(

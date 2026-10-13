@@ -24,7 +24,7 @@ pub(super) fn type_alias_default(
 ) -> Result<TsStream, MacroforgeError> {
     let names = TypeNames::new(input.name(), type_alias.type_params());
     let effective_fields =
-        crate::builtin::derive::common::get_effective_fields(type_alias, sources.registry);
+        crate::builtin::derive::common::get_effective_fields(type_alias, sources.declared());
     if let Some(fields) = &effective_fields {
         object_default(&names, fields, input.decorator_span(), sources)
     } else if let Some(members) = type_alias.as_union() {

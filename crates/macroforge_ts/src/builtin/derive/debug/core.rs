@@ -147,7 +147,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Generate different output based on type body
             let effective_fields =
-                crate::builtin::derive::common::get_effective_fields(type_alias, type_registry);
+                crate::builtin::derive::common::derive_alias_fields(&input, type_alias);
             if let Some(ref effective_fields) = effective_fields {
                 // Object-like type (Object or flattened Intersection): show fields
                 let debug_fields: Vec<DebugField> = effective_fields

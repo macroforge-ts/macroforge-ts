@@ -116,7 +116,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident = type_names.generic_function("Clone");
 
             let effective_fields =
-                crate::builtin::derive::common::get_effective_fields(type_alias, type_registry);
+                crate::builtin::derive::common::derive_alias_fields(&input, type_alias);
             if let Some(ref effective_fields) = effective_fields {
                 // Object-like type (Object or flattened Intersection): type-aware clone
                 let literal = object_clone_literal(

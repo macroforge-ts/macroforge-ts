@@ -140,7 +140,7 @@ impl TypeScope<'_> {
             TypeDefinitionIR::Enum(_) => return Vec::new(),
         };
         let container = EndecContainerOptions::from_decorators(decorators);
-        fields_from_definition(&entry.definition, self.registry)
+        fields_from_definition(entry, self.registry)
             .unwrap_or_default()
             .into_iter()
             .filter(|field| field.optional && nested.keeps(&field.name))
@@ -196,7 +196,7 @@ impl TypeScope<'_> {
         };
         if let Some(name) = ts_type.strip_prefix("keyof ") {
             let keys: Vec<String> = declared(name)
-                .and_then(|entry| fields_from_definition(&entry.definition, self.registry))
+                .and_then(|entry| fields_from_definition(entry, self.registry))
                 .unwrap_or_default()
                 .iter()
                 .map(|field| js_string(&field.name))
@@ -220,7 +220,7 @@ impl TypeScope<'_> {
         let Some(entry) = declared(name) else {
             return Ok(None);
         };
-        let Some(field) = fields_from_definition(&entry.definition, self.registry)
+        let Some(field) = fields_from_definition(entry, self.registry)
             .unwrap_or_default()
             .into_iter()
             .find(|field| field.name == key)
@@ -1037,7 +1037,7 @@ fn json_keys_visiting(
     let container = EndecContainerOptions::from_decorators(decorators);
     visiting.push(name.to_string());
     let mut keys = Vec::new();
-    for field in fields_from_definition(&entry.definition, scope.registry)? {
+    for field in fields_from_definition(entry, scope.registry)? {
         let options = EndecFieldOptions::from_decorators(&field.decorators, &field.name).options;
         if !options.should_decode() {
             continue;

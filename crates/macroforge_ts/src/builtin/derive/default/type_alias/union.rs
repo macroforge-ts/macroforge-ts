@@ -95,7 +95,7 @@ pub(super) fn union_default(
                 }
                 // Fallback: full flattening with registry
                 if let Some(fields) =
-                    flatten_intersection_fields(intersection_members, sources.registry)
+                    flatten_intersection_fields(intersection_members, sources.declared())
                 {
                     return Some(UnionDefault::Value(build_object_default(&fields, sources)));
                 }
@@ -132,7 +132,7 @@ pub(super) fn union_default(
                         Some(build_object_default(fields, sources))
                     } else if let Some(intersection_members) = m.as_intersection_members() {
                         build_intersection_default(intersection_members, sources).or_else(|| {
-                            flatten_intersection_fields(intersection_members, sources.registry)
+                            flatten_intersection_fields(intersection_members, sources.declared())
                                 .or_else(|| {
                                     let inline: Vec<_> = intersection_members
                                         .iter()

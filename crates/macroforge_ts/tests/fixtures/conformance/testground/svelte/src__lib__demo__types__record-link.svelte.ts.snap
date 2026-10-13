@@ -201,6 +201,8 @@ type RecordLink: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default
 ## Registry reads
 
 Name("RecordLink")
+Name("T")
+Name("string")
 
 ## Buildtime dependencies
 

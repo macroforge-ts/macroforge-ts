@@ -719,7 +719,7 @@ fn selected_fields(ts_type: &str, names: &Names<'_>) -> Option<Vec<InterfaceFiel
         names
             .registry
             .resolve_in_file(inner.trim(), names.file_path, names.file_imports)?;
-    let fields = super::fields_from_definition(&entry.definition, names.registry)?;
+    let fields = super::fields_from_definition(entry, names.registry)?;
     let keeps: Box<dyn Fn(&str) -> bool> = match WrapperFields::of(ts_type)?.ok()? {
         WrapperFields::Only(kept) => Box::new(move |name| kept.iter().any(|key| key == name)),
         WrapperFields::Except(left) => Box::new(move |name| !left.iter().any(|key| key == name)),
@@ -788,7 +788,7 @@ pub fn undefaultable(ts_type: &str, declared: super::Declared<'_>) -> Option<Str
                 names.file_path,
                 names.file_imports,
             )?;
-            let fields = super::fields_from_definition(&entry.definition, names.registry)?;
+            let fields = super::fields_from_definition(entry, names.registry)?;
             let optional: Vec<&str> = fields
                 .iter()
                 .filter(|field| field.optional)

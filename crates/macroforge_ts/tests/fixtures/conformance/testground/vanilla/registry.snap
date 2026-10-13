@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (417)
+## Types (418)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -288,6 +288,7 @@ NameHolder 611673eafee083ea
 NameImports ae22774dce2d39f0
 NameLate c3438ed16e647e62
 NameLocals 46d7577919cfd708
+NameMixed 2437a42367e8451d
 NameModel 4c16573ca28971a0
 NameParams 08ad1c99a24a4dcc
 NameParamsClass 1c3a7b711d1b517c
@@ -421,7 +422,7 @@ Version e26b0a39c845b678
 Wall 901e5f02bdf9c4fc
 point2D 9c3236f9adc43b41
 
-## Qualified types (420)
+## Qualified types (421)
 
 src/all-macros-test.ts::AllMacrosTestClass 79287093db2fe287
 src/attributes-test.ts::ServerStatus cfce776f0ee07718
@@ -577,6 +578,7 @@ src/edge-cases/name-imports.ts::NameExported 1ef24e7668612bd5
 src/edge-cases/name-imports.ts::NameHanded 92dbb4452375c364
 src/edge-cases/name-imports.ts::NameImports ae22774dce2d39f0
 src/edge-cases/name-imports.ts::NameRenamed d0234ead0bbf50e6
+src/edge-cases/name-intersections.ts::NameMixed 2437a42367e8451d
 src/edge-cases/name-paths.ts::NamePaths 46a86cae2ceea054
 src/edge-cases/name-shapes.ts::HTTPResponse 753efd6a33926db6
 src/edge-cases/name-shapes.ts::NameHolder 611673eafee083ea

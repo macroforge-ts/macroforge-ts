@@ -964,29 +964,49 @@ impl TypeRegistry {
         }
     }
 
-    /// The chain of type aliases from `name` back to one already on it, such
-    /// as `["A", "B", "A"]`, if there is one. TypeScript rejects circular
-    /// aliases; code that follows alias references needs to know, or it
-    /// recurses without end.
-    pub fn alias_cycle(&self, name: &str) -> Option<Vec<String>> {
-        self.find_alias_cycle(name, &mut Vec::new())
+    /// The chain of type aliases from `name`, as the file at `file_path`
+    /// knows it, back to one already on it, such as `["A", "B", "A"]`, if
+    /// there is one. Each alias's references are read as its own file knows
+    /// them. TypeScript rejects circular aliases; code that follows alias
+    /// references needs to know, or it recurses without end.
+    pub fn alias_cycle(
+        &self,
+        name: &str,
+        file_path: &str,
+        file_imports: &[FileImportEntry],
+    ) -> Option<Vec<String>> {
+        self.find_alias_cycle(name, file_path, file_imports, &mut Vec::new())
     }
 
-    fn find_alias_cycle(&self, name: &str, path: &mut Vec<String>) -> Option<Vec<String>> {
-        if let Some(start) = path.iter().position(|visited| visited == name) {
-            let mut cycle = path[start..].to_vec();
+    fn find_alias_cycle<'a>(
+        &'a self,
+        name: &str,
+        file_path: &str,
+        file_imports: &[FileImportEntry],
+        path: &mut Vec<(&'a TypeRegistryEntry, String)>,
+    ) -> Option<Vec<String>> {
+        let entry = self.resolve_in_file(name, file_path, file_imports)?;
+        if let Some(start) = path
+            .iter()
+            .position(|(visited, _)| std::ptr::eq(*visited, entry))
+        {
+            let mut cycle: Vec<String> = path
+                .iter()
+                .skip(start)
+                .map(|(_, written)| written.clone())
+                .collect();
             cycle.push(name.to_string());
             return Some(cycle);
         }
-        let entry = self.get(name)?;
         let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
             return None;
         };
-        let references = body_references(&alias.body);
-        path.push(name.to_string());
-        let found = references
+        path.push((entry, name.to_string()));
+        let found = body_references(&alias.body)
             .into_iter()
-            .find_map(|referenced| self.find_alias_cycle(referenced, path));
+            .find_map(|referenced| {
+                self.find_alias_cycle(referenced, &entry.file_path, &entry.file_imports, path)
+            });
         path.pop();
         found
     }
@@ -1509,10 +1529,13 @@ mod tests {
         );
 
         assert_eq!(
-            registry.alias_cycle("A"),
+            registry.alias_cycle("A", "/project/src/aliases.ts", &[]),
             Some(vec!["A".to_string(), "B".to_string(), "A".to_string()])
         );
-        assert_eq!(registry.alias_cycle("C"), None);
+        assert_eq!(
+            registry.alias_cycle("C", "/project/src/aliases.ts", &[]),
+            None
+        );
     }
 
     #[test]
@@ -1532,14 +1555,72 @@ mod tests {
         );
 
         assert_eq!(
-            registry.alias_cycle("Wrap"),
+            registry.alias_cycle("Wrap", "/project/src/aliases.ts", &[]),
             Some(vec![
                 "Wrap".to_string(),
                 "Loop".to_string(),
                 "Wrap".to_string()
             ])
         );
-        assert_eq!(registry.alias_cycle("Tree"), None);
+        assert_eq!(
+            registry.alias_cycle("Tree", "/project/src/aliases.ts", &[]),
+            None
+        );
+    }
+
+    /// A loop is found among aliases whose names other files declare too,
+    /// and an alias that names another file's type of its own name is none.
+    #[test]
+    fn alias_cycle_reads_each_alias_in_its_own_file() {
+        let in_file = |name: &str, file_path: &str, target: &str, imports: Vec<FileImportEntry>| {
+            TypeRegistryEntry {
+                file_path: file_path.to_string(),
+                file_imports: imports,
+                ..make_alias_entry(name, TypeBody::Alias(target.to_string()))
+            }
+        };
+        let mut registry = TypeRegistry::new();
+        for file_path in ["/project/src/one.ts", "/project/src/two.ts"] {
+            registry.insert(in_file("Left", file_path, "Right", vec![]), "/project");
+            registry.insert(in_file("Right", file_path, "Left", vec![]), "/project");
+        }
+        // `Id` here is the other module's `Id`, which is a string.
+        let renamed = FileImportEntry {
+            local_name: "Theirs".to_string(),
+            module_specifier: "./ids".to_string(),
+            original_name: Some("Id".to_string()),
+            is_type_only: true,
+        };
+        registry.insert(
+            in_file("Id", "/project/src/page.ts", "Theirs", vec![renamed]),
+            "/project",
+        );
+        registry.insert(
+            in_file("Id", "/project/src/ids.ts", "string", vec![]),
+            "/project",
+        );
+        registry.insert(
+            in_file("Theirs", "/project/src/other.ts", "Id", vec![]),
+            "/project",
+        );
+
+        assert_eq!(
+            registry.alias_cycle("Left", "/project/src/two.ts", &[]),
+            Some(vec![
+                "Left".to_string(),
+                "Right".to_string(),
+                "Left".to_string()
+            ])
+        );
+        let page = registry
+            .get_all("Id")
+            .find(|entry| entry.file_path == "/project/src/page.ts")
+            .map(|entry| entry.file_imports.clone())
+            .unwrap_or_default();
+        assert_eq!(
+            registry.alias_cycle("Id", "/project/src/page.ts", &page),
+            None
+        );
     }
 
     /// A name a file imports under another is the type its module exports,

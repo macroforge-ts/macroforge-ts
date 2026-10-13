@@ -1260,6 +1260,8 @@ impl MacroExpander {
             return (collector, std::mem::take(diagnostics));
         }
 
+        let file_imports =
+            crate::host::import_registry::with_registry(|registry| registry.file_import_entries());
         for target in derive_targets {
             if !self.keep_decorators {
                 let decorator_removal = Patch::Delete {
@@ -1272,7 +1274,9 @@ impl MacroExpander {
             // A circular alias has no shape to derive from; macros that follow
             // its references would recurse forever.
             if let DeriveTargetIR::TypeAlias(alias) = &target.target_ir
-                && let Some(cycle) = self.type_registry.alias_cycle(&alias.name)
+                && let Some(cycle) =
+                    self.type_registry
+                        .alias_cycle(&alias.name, file_name, &file_imports)
             {
                 diagnostics.push(Diagnostic {
                     level: DiagnosticLevel::Error,

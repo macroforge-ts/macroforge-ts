@@ -21,7 +21,7 @@ use convert_case::{Case, Casing};
 use super::field::prepare::to_encode_field;
 use super::object_encoder::object_encode_functions;
 use super::types::EncodeField;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{Declared, TypeNames};
 use crate::builtin::derive::endec::EndecContainerOptions;
 use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
 use crate::builtin::derive::endec::union_guard::Direction;
@@ -96,7 +96,10 @@ pub(super) fn handle_type_alias(
     let effective_fields = match body {
         TypeBody::Object { fields } => Some(fields.clone()),
         TypeBody::Intersection(members) => {
-            crate::builtin::derive::common::flatten_intersection_fields(members, type_registry)
+            crate::builtin::derive::common::flatten_intersection_fields(
+                members,
+                Declared::of(input, &file_imports),
+            )
         }
         TypeBody::Union(_)
         | TypeBody::Tuple(_)

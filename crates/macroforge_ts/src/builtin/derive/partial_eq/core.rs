@@ -145,7 +145,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             let type_ident = type_names.full_type_ident();
 
             let effective_fields =
-                crate::builtin::derive::common::get_effective_fields(type_alias, type_registry);
+                crate::builtin::derive::common::derive_alias_fields(&input, type_alias);
             if let Some(ref effective_fields) = effective_fields {
                 // Object-like type: field-by-field comparison
                 let eq_fields: Vec<EqField> = effective_fields

@@ -2,7 +2,7 @@
 
 use super::zero_span;
 use crate::builtin::derive::common::{
-    fields_from_definition, flatten_intersection_fields, get_effective_fields,
+    Declared, fields_from_definition, flatten_intersection_fields, get_effective_fields,
 };
 use crate::ts_syn::DataTypeAlias;
 use crate::ts_syn::abi::ir::type_alias::{TypeAliasIR, TypeBody, TypeMember, TypeMemberKind};
@@ -12,6 +12,40 @@ use crate::ts_syn::abi::{InterfaceFieldIR, InterfaceIR};
 // ========================================================================
 // Intersection Type Flattening Tests
 // ========================================================================
+
+/// A file of the project that imports nothing.
+fn within(registry: &TypeRegistry) -> Declared<'_> {
+    Declared {
+        registry,
+        file_path: "/project/src/page.ts",
+        file_imports: &[],
+    }
+}
+
+fn interface_entry(
+    name: &str,
+    file_path: &str,
+    fields: Vec<InterfaceFieldIR>,
+) -> TypeRegistryEntry {
+    TypeRegistryEntry {
+        name: name.to_string(),
+        file_path: file_path.to_string(),
+        is_exported: true,
+        exported_as: Vec::new(),
+        re_exported: Vec::new(),
+        definition: TypeDefinitionIR::Interface(InterfaceIR {
+            name: name.to_string(),
+            span: zero_span(),
+            body_span: zero_span(),
+            type_params: vec![],
+            heritage: vec![],
+            decorators: vec![],
+            fields,
+            methods: vec![],
+        }),
+        file_imports: vec![],
+    }
+}
 
 fn make_field(name: &str, ts_type: &str) -> InterfaceFieldIR {
     InterfaceFieldIR {
@@ -36,7 +70,7 @@ fn test_flatten_intersection_all_inline_objects() {
         }),
     ];
 
-    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
+    let result = flatten_intersection_fields(&members, within(&TypeRegistry::default()));
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 3);
@@ -56,7 +90,7 @@ fn test_flatten_intersection_deduplicates_fields() {
         }),
     ];
 
-    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
+    let result = flatten_intersection_fields(&members, within(&TypeRegistry::default()));
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 3); // id, name, email (id deduped)
@@ -95,7 +129,7 @@ fn test_flatten_intersection_with_type_ref_resolved() {
         TypeMember::new(TypeMemberKind::TypeRef("Account".to_string())),
     ];
 
-    let result = flatten_intersection_fields(&members, &registry);
+    let result = flatten_intersection_fields(&members, within(&registry));
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 3);
@@ -114,7 +148,7 @@ fn test_flatten_intersection_unresolvable_type_ref_returns_none() {
         TypeMember::new(TypeMemberKind::TypeRef("Account".to_string())),
     ];
 
-    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
+    let result = flatten_intersection_fields(&members, within(&TypeRegistry::default()));
     assert!(result.is_none());
 }
 
@@ -126,7 +160,7 @@ fn test_flatten_intersection_type_ref_not_in_registry() {
         "Unknown".to_string(),
     ))];
 
-    let result = flatten_intersection_fields(&members, &registry);
+    let result = flatten_intersection_fields(&members, within(&registry));
     assert!(result.is_none());
 }
 
@@ -139,7 +173,7 @@ fn test_flatten_intersection_skips_literals() {
         }),
     ];
 
-    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
+    let result = flatten_intersection_fields(&members, within(&TypeRegistry::default()));
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 1);
@@ -160,7 +194,7 @@ fn test_get_effective_fields_object_type() {
         },
     };
 
-    let result = get_effective_fields(&ta, &TypeRegistry::default());
+    let result = get_effective_fields(&ta, within(&TypeRegistry::default()));
     assert!(result.is_some());
     assert_eq!(result.unwrap().len(), 2);
 }
@@ -184,7 +218,7 @@ fn test_get_effective_fields_intersection_type() {
         },
     };
 
-    let result = get_effective_fields(&ta, &TypeRegistry::default());
+    let result = get_effective_fields(&ta, within(&TypeRegistry::default()));
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 2);
@@ -207,24 +241,19 @@ fn test_get_effective_fields_union_returns_none() {
         },
     };
 
-    let result = get_effective_fields(&ta, &TypeRegistry::default());
+    let result = get_effective_fields(&ta, within(&TypeRegistry::default()));
     assert!(result.is_none());
 }
 
 #[test]
 fn test_fields_from_definition_interface() {
-    let def = TypeDefinitionIR::Interface(InterfaceIR {
-        name: "User".to_string(),
-        span: zero_span(),
-        body_span: zero_span(),
-        type_params: vec![],
-        heritage: vec![],
-        decorators: vec![],
-        fields: vec![make_field("id", "number"), make_field("name", "string")],
-        methods: vec![],
-    });
+    let entry = interface_entry(
+        "User",
+        "/project/src/user.ts",
+        vec![make_field("id", "number"), make_field("name", "string")],
+    );
 
-    let result = fields_from_definition(&def, &TypeRegistry::default());
+    let result = fields_from_definition(&entry, &TypeRegistry::default());
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 2);
@@ -258,5 +287,93 @@ fn flatten_intersection_stops_at_a_circular_alias() {
     }
 
     let members = vec![TypeMember::new(TypeMemberKind::TypeRef("Left".to_string()))];
-    assert!(flatten_intersection_fields(&members, &registry).is_none());
+    assert!(flatten_intersection_fields(&members, within(&registry)).is_none());
+}
+
+/// A member is the type the file's imports lead to under its name, and that
+/// type's own members are read by its file's imports in turn.
+#[test]
+fn an_intersection_member_is_the_type_its_file_imports() {
+    use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
+
+    let import = |local: &str, exported: &str, module: &str| FileImportEntry {
+        local_name: local.to_string(),
+        module_specifier: module.to_string(),
+        original_name: (local != exported).then(|| exported.to_string()),
+        is_type_only: true,
+    };
+    let mut registry = TypeRegistry::new();
+    registry.insert(
+        interface_entry(
+            "Account",
+            "/project/src/account.ts",
+            vec![make_field("id", "number")],
+        ),
+        "/project",
+    );
+    // What the page's own name for the account means elsewhere.
+    registry.insert(
+        interface_entry(
+            "Held",
+            "/project/src/other.ts",
+            vec![make_field("wrong", "string")],
+        ),
+        "/project",
+    );
+    // Two bases of one name, each with its own module's `Base` under it.
+    for (file_path, base, field) in [
+        ("/project/src/left.ts", "./left-base", "left"),
+        ("/project/src/right.ts", "./right-base", "right"),
+    ] {
+        registry.insert(
+            TypeRegistryEntry {
+                name: "Mixed".to_string(),
+                file_path: file_path.to_string(),
+                is_exported: true,
+                exported_as: Vec::new(),
+                re_exported: Vec::new(),
+                definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
+                    name: "Mixed".to_string(),
+                    span: zero_span(),
+                    decorators: vec![],
+                    type_params: vec![],
+                    body: TypeBody::Intersection(vec![TypeMember::new(TypeMemberKind::TypeRef(
+                        "Base".to_string(),
+                    ))]),
+                }),
+                file_imports: vec![import("Base", "Base", base)],
+            },
+            "/project",
+        );
+        let base_path = file_path.replace(".ts", "-base.ts");
+        registry.insert(
+            interface_entry("Base", &base_path, vec![make_field(field, "string")]),
+            "/project",
+        );
+    }
+
+    let imports = [
+        import("Held", "Account", "./account"),
+        import("Mixed", "Mixed", "./right"),
+    ];
+    let page = Declared {
+        registry: &registry,
+        file_path: "/project/src/page.ts",
+        file_imports: &imports,
+    };
+    let names = |members: &[TypeMember]| {
+        flatten_intersection_fields(members, page).map(|fields| {
+            fields
+                .into_iter()
+                .map(|field| field.name)
+                .collect::<Vec<_>>()
+        })
+    };
+
+    let held = [TypeMember::new(TypeMemberKind::TypeRef("Held".to_string()))];
+    assert_eq!(names(&held), Some(vec!["id".to_string()]));
+    let mixed = [TypeMember::new(TypeMemberKind::TypeRef(
+        "Mixed".to_string(),
+    ))];
+    assert_eq!(names(&mixed), Some(vec!["right".to_string()]));
 }

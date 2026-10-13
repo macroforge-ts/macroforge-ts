@@ -412,3 +412,23 @@ Deno.test('a type a barrel imports and then exports is coded through its own fun
     assert(imports.nameHandedEquals(source, { ...source, handed: { ...source.handed, stamp: 7 } }));
     assertStrictEquals(imports.nameHandedDefaultValue().handed.note, '');
 });
+
+Deno.test('an intersection takes the fields of a type imported under another name', async () => {
+    const imports = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'name-intersections.ts')
+    );
+    const source = { id: 'a', score: 1, extra: 'more' };
+    assertEquals(JSON.parse(imports.nameMixedEncode(source)), source);
+    assertEquals(decoded(imports.nameMixedDecode(imports.nameMixedEncode(source))), source);
+    assertEquals(errorFields(imports.nameMixedDecode({ id: 'a', extra: 'more' })), ['score']);
+    assertEquals(errorFields(imports.nameMixedDecode({ id: 1, score: 1, extra: 'more' })), ['id']);
+
+    const copy = imports.nameMixedClone(source);
+    assertEquals(copy, source);
+    assertNotStrictEquals(copy, source);
+    assert(imports.nameMixedEquals(source, copy));
+    assert(!imports.nameMixedEquals(source, { ...source, score: 2 }));
+    assertStrictEquals(imports.nameMixedHashCode(source), imports.nameMixedHashCode(copy));
+    assertEquals(imports.nameMixedDefaultValue(), { id: '', score: 0, extra: '' });
+    assert(imports.nameMixedToString(source).includes('score: 1'));
+});

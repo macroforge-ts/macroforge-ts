@@ -1010,6 +1010,7 @@ Name("Cents")
 Name("Meters")
 Name("Port")
 Name("Username")
+Name("bigint")
 Name("number")
 Name("string")
 

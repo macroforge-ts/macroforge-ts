@@ -13,7 +13,7 @@ use crate::ts_syn::abi::{DecoratorIR, InterfaceFieldIR};
 use crate::ts_syn::{DataClass, DataInterface, DataTypeAlias, DeriveInput, MacroforgeError};
 
 /// Whether the declaration `entry` holds derives `derive_name`.
-fn entry_derives(entry: &TypeRegistryEntry, derive_name: &str) -> bool {
+pub fn entry_derives(entry: &TypeRegistryEntry, derive_name: &str) -> bool {
     let decorators = match &entry.definition {
         TypeDefinitionIR::Class(class) => &class.decorators,
         TypeDefinitionIR::Interface(interface) => &interface.decorators,
@@ -25,13 +25,12 @@ fn entry_derives(entry: &TypeRegistryEntry, derive_name: &str) -> bool {
 
 /// Whether the type a file knows as `name` derives `derive_name`: the
 /// declaration the file's imports lead to, which may be declared under
-/// another name (`import { User as Member }`). A name they lead nowhere
-/// from is the type the registry holds under it.
+/// another name (`import { User as Member }`). A name they lead to no
+/// declaration from is no type of the project, and derives nothing.
 pub fn declared_type_has_derive(declared: Declared<'_>, name: &str, derive_name: &str) -> bool {
-    match declared.resolve(name) {
-        Some(entry) => entry_derives(entry, derive_name),
-        None => type_has_derive(declared.registry, name, derive_name),
-    }
+    declared
+        .resolve(name)
+        .is_some_and(|entry| entry_derives(entry, derive_name))
 }
 
 /// The declaration `resolved` was resolved to: the one its registry key
@@ -66,6 +65,9 @@ fn derives(decorators: &[DecoratorIR], derive_name: &str) -> bool {
 ///
 /// When a name is ambiguous (same type name in multiple files), checks ALL
 /// qualified entries: returns true if ANY entry with that name has the derive.
+/// The name is taken as the project declares it, whatever the file at hand
+/// imports under it: [`declared_type_has_derive`] asks for the type a file
+/// means by a name.
 pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &str) -> bool {
     let has_derive = |entry: &TypeRegistryEntry| entry_derives(entry, derive_name);
 
@@ -114,22 +116,28 @@ pub fn standalone_fn_name(type_name: &str, suffix: &str) -> String {
     format!("{}{}", type_name.to_case(Case::Camel), suffix)
 }
 
-/// Extract fields from a type definition in the registry.
+/// Extract fields from a type the registry holds.
 ///
 /// Returns `None` if the definition cannot provide fields: an enum, or a
 /// type with a member under a computed key or an index signature.
-/// For type aliases with intersection bodies, recursively flattens.
+/// For type aliases with intersection bodies, recursively flattens, reading
+/// each name as the file that declares `entry` knows it.
 pub fn fields_from_definition(
-    definition: &TypeDefinitionIR,
+    entry: &TypeRegistryEntry,
     type_registry: &TypeRegistry,
 ) -> Option<Vec<InterfaceFieldIR>> {
-    fields_from_definition_visiting(definition, type_registry, &mut Vec::new())
+    let declared = Declared {
+        registry: type_registry,
+        file_path: &entry.file_path,
+        file_imports: &entry.file_imports,
+    };
+    fields_from_definition_visiting(&entry.definition, declared, &mut Vec::new())
 }
 
 fn fields_from_definition_visiting(
     definition: &TypeDefinitionIR,
-    type_registry: &TypeRegistry,
-    visiting: &mut Vec<String>,
+    declared: Declared<'_>,
+    visiting: &mut Vec<(String, String)>,
 ) -> Option<Vec<InterfaceFieldIR>> {
     let fields = match definition {
         TypeDefinitionIR::Interface(interface) => Some(interface.fields.clone()),
@@ -152,7 +160,7 @@ fn fields_from_definition_visiting(
             if let Some(obj_fields) = alias.body.as_object() {
                 Some(obj_fields.to_vec())
             } else if let Some(members) = alias.body.as_intersection() {
-                flatten_intersection_fields_visiting(members, type_registry, visiting)
+                flatten_intersection_fields_visiting(members, declared, visiting)
             } else {
                 None
             }
@@ -165,6 +173,8 @@ fn fields_from_definition_visiting(
 
 /// Flatten an intersection type's members into a single field list.
 ///
+/// A member that names a type is the declaration `declared`'s file knows
+/// under the name, and that type's own members are read from its file.
 /// Returns `None` if any `TypeRef` member cannot be resolved (incomplete
 /// knowledge: the named type is missing from the registry), or if the
 /// references form a cycle, which the expander reports at the derive.
@@ -172,15 +182,15 @@ fn fields_from_definition_visiting(
 /// success. Literal and brand members are skipped (they contribute no fields).
 pub fn flatten_intersection_fields(
     members: &[TypeMember],
-    type_registry: &TypeRegistry,
+    declared: Declared<'_>,
 ) -> Option<Vec<InterfaceFieldIR>> {
-    flatten_intersection_fields_visiting(members, type_registry, &mut Vec::new())
+    flatten_intersection_fields_visiting(members, declared, &mut Vec::new())
 }
 
 fn flatten_intersection_fields_visiting(
     members: &[TypeMember],
-    type_registry: &TypeRegistry,
-    visiting: &mut Vec<String>,
+    declared: Declared<'_>,
+    visiting: &mut Vec<(String, String)>,
 ) -> Option<Vec<InterfaceFieldIR>> {
     let mut fields = Vec::new();
     let mut seen = HashSet::new();
@@ -195,13 +205,18 @@ fn flatten_intersection_fields_visiting(
                 }
             }
             TypeMemberKind::TypeRef(type_name) => {
-                if visiting.contains(type_name) {
+                let entry = declared.resolve(type_name)?;
+                // Two files may each declare a type of one name.
+                let declaration = (entry.file_path.clone(), entry.name.clone());
+                if visiting.contains(&declaration) {
                     return None;
                 }
-                let entry = type_registry.get(type_name)?;
-                visiting.push(type_name.clone());
-                let member_fields =
-                    fields_from_definition_visiting(&entry.definition, type_registry, visiting);
+                visiting.push(declaration);
+                let member_fields = fields_from_definition_visiting(
+                    &entry.definition,
+                    declared.at(entry),
+                    visiting,
+                );
                 visiting.pop();
                 for field in member_fields? {
                     if seen.insert(field.name.clone()) {
@@ -215,7 +230,7 @@ fn flatten_intersection_fields_visiting(
             TypeMemberKind::Intersection(sub_members) => {
                 // Recursively flatten nested intersections
                 let sub_fields =
-                    flatten_intersection_fields_visiting(sub_members, type_registry, visiting)?;
+                    flatten_intersection_fields_visiting(sub_members, declared, visiting)?;
                 for field in sub_fields {
                     if seen.insert(field.name.clone()) {
                         fields.push(field);
@@ -228,21 +243,33 @@ fn flatten_intersection_fields_visiting(
     Some(fields)
 }
 
-/// Get effective object-like fields from a type alias.
+/// Get effective object-like fields from a type alias, the names in it read
+/// as `declared`'s file knows them.
 ///
 /// Works for both `Object` types (direct fields) and `Intersection` types (flattened fields).
 /// Returns `None` for unions, tuples, simple aliases, or unresolvable intersections.
 pub fn get_effective_fields(
     type_alias: &DataTypeAlias,
-    type_registry: &TypeRegistry,
+    declared: Declared<'_>,
 ) -> Option<Vec<InterfaceFieldIR>> {
     if let Some(fields) = type_alias.as_object() {
         Some(fields.to_vec())
     } else if let Some(members) = type_alias.as_intersection() {
-        flatten_intersection_fields(members, type_registry)
+        flatten_intersection_fields(members, declared)
     } else {
         None
     }
+}
+
+/// The fields a derive on the object-like alias `type_alias` works over,
+/// those of the types it intersects included. `None` for an alias that is
+/// no object type, or one whose members cannot all be read.
+pub fn derive_alias_fields(
+    input: &DeriveInput,
+    type_alias: &DataTypeAlias,
+) -> Option<Vec<InterfaceFieldIR>> {
+    let file_imports = input.context.import_registry.file_import_entries();
+    get_effective_fields(type_alias, Declared::of(input, &file_imports))
 }
 
 /// Where the names in a declaration resolve: the registry, and the file the
@@ -255,6 +282,15 @@ pub struct Declared<'a> {
 }
 
 impl<'a> Declared<'a> {
+    /// The file `input`'s declaration is in, `file_imports` being its imports.
+    pub fn of(input: &'a DeriveInput, file_imports: &'a [FileImportEntry]) -> Self {
+        Self {
+            registry: &input.context.type_registry,
+            file_path: input.context.file_name.as_str(),
+            file_imports,
+        }
+    }
+
     fn resolve(&self, name: &str) -> Option<&'a TypeRegistryEntry> {
         self.registry
             .resolve_in_file(name, self.file_path, self.file_imports)
@@ -287,12 +323,10 @@ pub fn class_instance_fields(
     declared: Declared<'_>,
 ) -> Result<Vec<FieldIR>, String> {
     let mut fields = match &class.superclass {
-        Some(superclass) => superclass_fields(
-            superclass,
-            &class.name,
-            declared,
-            &mut vec![class.name.clone()],
-        )?,
+        Some(superclass) => {
+            let own = (declared.file_path.to_string(), class.name.clone());
+            superclass_fields(superclass, &class.name, declared, &mut vec![own])?
+        }
         None => Vec::new(),
     };
     for field in &class.fields {
@@ -326,7 +360,7 @@ fn superclass_fields(
     name: &str,
     subclass: &str,
     declared: Declared<'_>,
-    visiting: &mut Vec<String>,
+    visiting: &mut Vec<(String, String)>,
 ) -> Result<Vec<FieldIR>, String> {
     let Some(entry) = declared.resolve(name) else {
         // Asked only once a name fails to resolve: the answer depends on
@@ -348,10 +382,12 @@ fn superclass_fields(
             "class '{subclass}' extends the generic class '{name}', whose fields depend on type arguments a derive on '{subclass}' cannot read off"
         ));
     }
-    if visiting.contains(&base.name) {
+    // Two files may each declare a class of one name.
+    let declaration = (entry.file_path.clone(), base.name.clone());
+    if visiting.contains(&declaration) {
         return Err(format!("class '{name}' extends itself"));
     }
-    visiting.push(base.name.clone());
+    visiting.push(declaration);
     let mut fields = match &base.superclass {
         Some(superclass) => {
             superclass_fields(superclass, &base.name, declared.at(entry), visiting)?
@@ -386,7 +422,7 @@ pub fn interface_instance_fields(
         &mut fields,
         interface,
         declared,
-        &mut vec![interface.name.clone()],
+        &mut vec![(declared.file_path.to_string(), interface.name.clone())],
     )?;
     if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
         return Err(unnamed_member_message(&unnamed.name, &interface.name));
@@ -401,7 +437,7 @@ fn extend_with_inherited(
     fields: &mut Vec<InterfaceFieldIR>,
     interface: &InterfaceIR,
     declared: Declared<'_>,
-    visiting: &mut Vec<String>,
+    visiting: &mut Vec<(String, String)>,
 ) -> Result<(), String> {
     let declare = |fields: &mut Vec<InterfaceFieldIR>, field: &InterfaceFieldIR| match fields
         .iter_mut()
@@ -420,7 +456,8 @@ fn extend_with_inherited(
                 interface.name
             ));
         };
-        if visiting.contains(name) {
+        let declaration = (entry.file_path.clone(), entry.name.clone());
+        if visiting.contains(&declaration) {
             return Err(format!("interface '{name}' extends itself"));
         }
         let generic = match &entry.definition {
@@ -437,12 +474,16 @@ fn extend_with_inherited(
         }
         match &entry.definition {
             TypeDefinitionIR::Interface(base) => {
-                visiting.push(name.clone());
+                visiting.push(declaration);
                 extend_with_inherited(fields, base, declared.at(entry), visiting)?;
                 visiting.pop();
             }
             definition => {
-                let Some(inherited) = fields_from_definition(definition, declared.registry) else {
+                let Some(inherited) = fields_from_definition_visiting(
+                    definition,
+                    declared.at(entry),
+                    &mut Vec::new(),
+                ) else {
                     return Err(format!(
                         "interface '{}' extends '{name}', which is not an object type",
                         interface.name
@@ -550,25 +591,21 @@ impl InheritedStatics {
 /// as a function, which a class with a superclass overrides.
 pub fn inherited_statics(input: &DeriveInput, class: &DataClass, derive: &str) -> InheritedStatics {
     let file_imports = input.context.import_registry.file_import_entries();
-    let mut declared = Declared {
-        registry: &input.context.type_registry,
-        file_path: input.context.file_name.as_str(),
-        file_imports: &file_imports,
-    };
+    let mut declared = Declared::of(input, &file_imports);
     let mut inherited = InheritedStatics::default();
     if class.inner.superclass.is_some() {
         inherited.declared.push("toString".to_string());
     }
-    let mut visited = vec![class.inner.name.as_str()];
+    let mut visited = vec![(input.context.file_name.as_str(), class.inner.name.as_str())];
     let mut superclass = class.inner.superclass.as_deref();
     while let Some(entry) = superclass.and_then(|name| declared.resolve(name)) {
         let TypeDefinitionIR::Class(base) = &entry.definition else {
             break;
         };
-        if visited.contains(&base.name.as_str()) {
+        if visited.contains(&(entry.file_path.as_str(), base.name.as_str())) {
             break;
         }
-        visited.push(base.name.as_str());
+        visited.push((entry.file_path.as_str(), base.name.as_str()));
         inherited.derived |= derives(&base.decorators, derive);
         inherited.declared.extend(
             base.methods
@@ -592,11 +629,7 @@ pub fn derive_class_fields(
     class_use: ClassUse,
 ) -> Result<Vec<FieldIR>, MacroforgeError> {
     let file_imports = input.context.import_registry.file_import_entries();
-    let declared = Declared {
-        registry: &input.context.type_registry,
-        file_path: input.context.file_name.as_str(),
-        file_imports: &file_imports,
-    };
+    let declared = Declared::of(input, &file_imports);
     let failure = |message: String| {
         MacroforgeError::new(
             input.decorator_span(),
@@ -633,11 +666,7 @@ pub fn derive_interface_fields(
     derive: &str,
 ) -> Result<Vec<InterfaceFieldIR>, MacroforgeError> {
     let file_imports = input.context.import_registry.file_import_entries();
-    let declared = Declared {
-        registry: &input.context.type_registry,
-        file_path: input.context.file_name.as_str(),
-        file_imports: &file_imports,
-    };
+    let declared = Declared::of(input, &file_imports);
     interface_instance_fields(&interface.inner, declared).map_err(|message| {
         MacroforgeError::new(
             input.decorator_span(),
