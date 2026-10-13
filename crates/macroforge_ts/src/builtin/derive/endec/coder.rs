@@ -21,6 +21,7 @@ use crate::ts_syn::config::ForeignHandler;
 use super::decode::helpers::{primitive_accepts, structural_accepts};
 use super::nested::NestedType;
 use super::type_arguments::param_coder;
+use super::uncodable::uncodable;
 use super::union_guard::{Direction, UnionGuard, union_guard};
 use super::{EndecContainerOptions, EndecFieldOptions, TypeCategory, get_foreign_types};
 
@@ -137,6 +138,58 @@ impl TypeScope<'_> {
                     || matches!(self.guard(expanded, direction), Ok(Some(_)))
             },
         )
+    }
+
+    /// The type `ts_type` reads off a type this project declares, when it is
+    /// `keyof Name` or `Name['field']` and the fields of `Name` are known:
+    /// the names of its fields, or the type of the one named.
+    fn operator_type(&self, ts_type: &str) -> Option<String> {
+        let ts_type = ts_type.trim();
+        let fields_of = |name: &str| {
+            let entry =
+                self.registry
+                    .resolve_in_file(name.trim(), self.file_path, self.file_imports)?;
+            fields_from_definition(&entry.definition, self.registry)
+        };
+        if let Some(name) = ts_type.strip_prefix("keyof ") {
+            let keys: Vec<String> = fields_of(name)?
+                .iter()
+                .map(|field| js_string(&field.name))
+                .collect();
+            return (!keys.is_empty()).then(|| keys.join(" | "));
+        }
+        let (name, key) = ts_type.strip_suffix(']')?.split_once('[')?;
+        let key = key.trim();
+        let key = key
+            .strip_prefix('\'')
+            .and_then(|key| key.strip_suffix('\''))
+            .or_else(|| key.strip_prefix('"').and_then(|key| key.strip_suffix('"')))?;
+        let field = fields_of(name)?
+            .into_iter()
+            .find(|field| field.name == key)?;
+        Some(if field.optional {
+            format!("{} | undefined", field.ts_type)
+        } else {
+            field.ts_type
+        })
+    }
+
+    /// `ts_type` with each member an operator reads off a declared type
+    /// written as what the operator yields, when it has such a member.
+    pub(crate) fn operators_resolved(&self, ts_type: &str) -> Option<String> {
+        let members = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
+        let yielded: Vec<Option<String>> = members
+            .iter()
+            .map(|member| self.operator_type(member))
+            .collect();
+        yielded.iter().any(Option::is_some).then(|| {
+            members
+                .iter()
+                .zip(yielded)
+                .map(|(member, yielded)| yielded.unwrap_or_else(|| member.to_string()))
+                .collect::<Vec<_>>()
+                .join(" | ")
+        })
     }
 
     /// The coder parameter in scope for `ts_type`, when it is one of the
@@ -434,6 +487,14 @@ pub(crate) fn raw_shape_test(members: &[InterfaceFieldIR], value: &str) -> Strin
     .join(" && ")
 }
 
+/// What a coder says of the intersection alias `name` when a member's fields
+/// are not known: there is nothing to code or check its values by.
+pub(crate) fn unread_intersection(name: &str) -> String {
+    format!(
+        "type '{name}' is an intersection with a member whose fields are not known here, so its values cannot be coded field by field; declare the member in this project, or write its fields out"
+    )
+}
+
 /// A call decoding `raw` as the object type with `members`, each member by
 /// its own type. `None` when no member's type has a decoder, so the object
 /// is taken as it is.
@@ -638,6 +699,12 @@ pub(crate) fn encode_expr(
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Encode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{value}) })));
     }
+    if let Some(yielded) = scope.operators_resolved(ts_type) {
+        return encode_expr(&yielded, value, scope, depth);
+    }
+    if let Some(reason) = uncodable(ts_type) {
+        return Err(reason);
+    }
     if let Some(elements) = tuple_elements(ts_type) {
         return encode_tuple(&elements, value, scope, depth);
     }
@@ -697,7 +764,7 @@ pub(crate) fn encode_expr(
             Some((guard, name)) => {
                 let value_expr = crate::ast::Expr::Source(value.to_string());
                 let (is_member, member_value) =
-                    (guard.test(&value_expr), guard.convert(&value_expr));
+                    (guard.test(&value_expr, Direction::Encode), guard.convert(&value_expr));
                 let encoded = scope
                     .nested(&name, Direction::Encode, depth)?
                     .unwrap_or_else(|| NestedType::whole(name))
@@ -883,6 +950,12 @@ pub(crate) fn decode_expr(
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Decode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{raw}) })));
     }
+    if let Some(yielded) = scope.operators_resolved(ts_type) {
+        return decode_expr(&yielded, raw, scope, depth);
+    }
+    if let Some(reason) = uncodable(ts_type) {
+        return Err(reason);
+    }
     if let Some(elements) = tuple_elements(ts_type) {
         return decode_tuple(ts_type, &elements, raw, scope, depth);
     }
@@ -973,7 +1046,10 @@ pub(crate) fn decode_expr(
         TypeCategory::Unknown => match scope.guard(ts_type, Direction::Decode)? {
             Some((guard, name)) => {
                 let raw_expr = crate::ast::Expr::Source(raw.to_string());
-                let (is_member, member_value) = (guard.test(&raw_expr), guard.convert(&raw_expr));
+                let (is_member, member_value) = (
+                    guard.test(&raw_expr, Direction::Decode),
+                    guard.convert(&raw_expr),
+                );
                 let decoded = scope
                     .nested(&name, Direction::Decode, depth)?
                     .unwrap_or_else(|| NestedType::whole(name))

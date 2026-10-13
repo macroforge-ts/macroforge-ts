@@ -5,7 +5,8 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
-use crate::builtin::derive::common::{js_string, primitive_keyword_test};
+use crate::builtin::derive::common::js_string;
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
 use convert_case::{Case, Casing};
 
@@ -114,7 +115,7 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                             {/if}
                             {#if *has_primitives}
                                 {#for prim in primitive_types}
-                                    {$let is_primitive: Expr = primitive_keyword_test(prim, "value").into()}
+                                    {$let is_primitive: Expr = decoded_keyword_test(prim, "value").into()}
                                     if (@{is_primitive}) return true;
                                 {/for}
                             {/if}

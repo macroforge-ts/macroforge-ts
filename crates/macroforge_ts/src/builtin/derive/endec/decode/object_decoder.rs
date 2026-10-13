@@ -45,6 +45,7 @@ pub(super) fn object_decode_functions(
 fn decode_entry(names: &TypeNames) -> TsStream {
     let fn_decode_ident = names.generic_function("Decode");
     let fn_decode_internal_expr: Expr = names.generic_call("DecodeWithContext").into();
+    let parsed_text: Expr = ts_ident!(endec_helper("parsedText")).into();
     let decode_options_ident = ts_ident!(DECODE_OPTIONS);
     let decode_context_expr: Expr = ts_ident!(DECODE_CONTEXT).into();
     let decode_error_expr: Expr = ts_ident!(DECODE_ERROR).into();
@@ -67,7 +68,7 @@ fn decode_entry(names: &TypeNames) -> TsStream {
         export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{coders}): @{return_type_ident} {
             try {
                 // Auto-detect: if string, parse as JSON first
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+                const data = typeof input === "string" ? @{parsed_text}(input) : input;
 
                 const ctx = @{decode_context_expr}.create();
                 const resultOrRef = @{fn_decode_internal_expr}(data, ctx@{passed_coders});

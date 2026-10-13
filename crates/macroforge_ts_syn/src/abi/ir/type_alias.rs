@@ -255,6 +255,20 @@ impl TypeBody {
         }
     }
 
+    /// The body a value has at runtime: the one under a newtype's brand,
+    /// which exists in the types alone, and any other body itself.
+    pub fn unbranded(&self) -> &TypeBody {
+        match self {
+            TypeBody::Newtype(inner) => inner.unbranded(),
+            TypeBody::Union(_)
+            | TypeBody::Intersection(_)
+            | TypeBody::Object { .. }
+            | TypeBody::Tuple(_)
+            | TypeBody::Alias(_)
+            | TypeBody::Other(_) => self,
+        }
+    }
+
     /// Returns the branded type if this is a newtype
     pub fn as_newtype(&self) -> Option<&TypeBody> {
         match self {

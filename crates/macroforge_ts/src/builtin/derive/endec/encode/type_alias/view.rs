@@ -21,6 +21,10 @@ pub(super) fn tuple_body(
     alias: &AliasEncode,
     elements: &[String],
 ) -> Result<TsStream, MacroforgeError> {
+    // A tuple of no elements is written as the empty array it is.
+    if elements.is_empty() {
+        return Ok(ts_template! { return []; });
+    }
     let mut diagnostics = DiagnosticCollector::new();
     let mut fields = Vec::new();
     let mut slots: Vec<(String, Expr)> = Vec::new();

@@ -522,6 +522,29 @@ export function decodedLiteral<T>(
 export type Decoder<Value> = (raw: unknown, ctx: DecodeContext) => Value | PendingRef;
 
 /**
+ * Text that may hold a number literal too large for a number: one of at
+ * least 1e308 has an exponent of three digits or two hundred digits in a row.
+ */
+const MAY_OVERFLOW = /[eE]\+?\d{3}|\d{200}/;
+
+/**
+ * The value JSON text spells. A number literal too large to hold, such as
+ * `1e999`, parses to `Infinity`, which no encoding writes back.
+ * @throws {DecodeError} For such a literal.
+ */
+export function parsedText(text: string): unknown {
+  if (!MAY_OVERFLOW.test(text)) return JSON.parse(text);
+  return JSON.parse(text, (_key, member: unknown) => {
+    if (typeof member === "number" && !Number.isFinite(member)) {
+      throw new DecodeError([
+        { field: "_root", message: "the text holds a number too large to represent" },
+      ]);
+    }
+    return member;
+  });
+}
+
+/**
  * What a string handed to `decode` stands for, where the type itself takes
  * a string: the value its JSON text spells, when `takes` that value, and
  * otherwise the string itself. So the text `encode` writes always reads
@@ -531,9 +554,9 @@ export function textOrValue(input: unknown, takes: (value: unknown) => boolean):
   if (typeof input !== "string") return input;
   let spelled: unknown;
   try {
-    spelled = JSON.parse(input);
+    spelled = parsedText(input);
   } catch {
-    // Not JSON text, so the string is the value.
+    // Not JSON text of a value, so the string is the value.
     return input;
   }
   return takes(spelled) ? spelled : input;
@@ -549,6 +572,52 @@ function mismatch(expected: string): DecodeError {
   return new DecodeError([{ field: "_root", message: `expected ${expected}` }]);
 }
 
+/**
+ * What the text at a hole of a template literal type has to be: any text,
+ * a decimal number, a whole number, or one of the texts listed.
+ */
+export type TemplateHole = "string" | "number" | "bigint" | readonly string[];
+
+const DECIMAL_TEXT = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+const WHOLE_TEXT = /^-?\d+$/;
+
+function fillsHole(text: string, hole: TemplateHole): boolean {
+  if (hole === "string") return true;
+  // A number is spelled in decimal, as `encode` and `String` write one:
+  // the spaces and the `0x` forms a coercion would also take are refused.
+  if (hole === "number") return DECIMAL_TEXT.test(text) && Number.isFinite(Number(text));
+  if (hole === "bigint") return WHOLE_TEXT.test(text);
+  return hole.includes(text);
+}
+
+/**
+ * Whether `raw` is text a template literal type holds: `texts` are the
+ * type's fixed parts in order, and `holes` what stands between each two.
+ * A hole runs to where the text after it first occurs, as TypeScript reads
+ * one, so the text is walked once.
+ */
+export function spellsTemplate(
+  raw: unknown,
+  texts: readonly string[],
+  holes: readonly TemplateHole[],
+): raw is string {
+  if (typeof raw !== "string") return false;
+  const first = texts[0] ?? "";
+  if (!raw.startsWith(first)) return false;
+  let at = first.length;
+  for (let index = 1; index < texts.length; index++) {
+    const text = texts[index] ?? "";
+    const hole = holes[index - 1];
+    if (hole === undefined) return false;
+    const last = index === texts.length - 1;
+    const found = last ? raw.length - text.length : raw.indexOf(text, at);
+    if (found < at || (last && !raw.endsWith(text))) return false;
+    if (!fillsHole(raw.slice(at, found), hole)) return false;
+    at = found + text.length;
+  }
+  return at === raw.length;
+}
+
 /** Decodes a string held in a collection. */
 export function decodeString(raw: unknown): string {
   if (typeof raw !== "string") throw mismatch("string");
@@ -557,7 +626,8 @@ export function decodeString(raw: unknown): string {
 
 /** Decodes a number held in a collection. */
 export function decodeNumber(raw: unknown): number {
-  if (typeof raw !== "number") throw mismatch("number");
+  // `NaN` and the infinities are numbers no encoding writes back.
+  if (typeof raw !== "number" || !Number.isFinite(raw)) throw mismatch("number");
   return raw;
 }
 

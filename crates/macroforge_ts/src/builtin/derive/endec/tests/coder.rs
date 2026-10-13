@@ -43,15 +43,20 @@ fn failure(ts_type: &str) -> String {
 
 #[test]
 fn a_value_that_is_its_own_encoding_is_left_alone() {
-    for ts_type in [
-        "unknown",
-        "unknown[]",
-        "Record<string, unknown>",
-        "null",
-        "object",
-    ] {
+    for ts_type in ["unknown", "unknown[]", "Record<string, unknown>", "null"] {
         assert_eq!(coded(ts_type), (None, None), "{ts_type}");
     }
+    // An object is its own encoding too, once it is seen to be one.
+    assert_eq!(
+        coded("object"),
+        (
+            None,
+            Some(
+                r#"(__mf_decodeChecked(raw,(typeofraw==="object"&&raw!==null),"object")asobject)"#
+                    .to_string()
+            )
+        )
+    );
     let (encoded, decoded) = coded("string[]");
     assert_eq!(encoded, None);
     assert_eq!(
@@ -156,16 +161,15 @@ fn a_union_a_field_cannot_tell_apart_is_an_error() {
             "{ts_type}"
         );
     }
-    // A union of values that are their own coding is carried as it is, a
-    // date beside a string is that string, and a function's `|` is its own.
-    for ts_type in [
-        "Date | string",
-        "string | string[]",
-        "number | 'auto'",
-        "() => User | Admin",
-    ] {
+    // A union of values that are their own coding is carried as it is, and
+    // a date beside a string is that string.
+    for ts_type in ["Date | string", "string | string[]", "number | 'auto'"] {
         assert_eq!(coded(ts_type).0, None, "{ts_type}");
     }
+    // A function's `|` is its own, and a function has no coding at all.
+    assert!(failure("() => User | Admin").contains("is a function, which JSON has no form for"));
+    assert!(failure("Map<string, symbol>").contains("is a symbol, which JSON has no form for"));
+    assert!(failure("(keyof User)[]").contains("only the type checker can resolve"));
     // One user type beside a primitive or a literal is told from it.
     let (encoded, decoded) = coded("string | User");
     assert_eq!(
@@ -281,7 +285,7 @@ fn a_tuple_is_coded_element_by_element() {
             "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),__mf_decodeDate],1,__mf_decodeString)as[User,Date?,...string[]])"
         )
     );
-    assert_eq!(coded("[unknown, object]"), (None, None));
+    assert_eq!(coded("[unknown, unknown]"), (None, None));
 }
 
 #[test]
@@ -296,7 +300,7 @@ fn a_literal_or_a_union_of_primitives_takes_only_its_own_values() {
     assert_eq!(
         decoded.as_deref(),
         Some(
-            r#"__mf_decodeArray(raw,ctx,(__raw0)=>(__mf_decodeChecked(__raw0,typeof__raw0==="number"||__raw0==='auto'||__raw0===null,"number|'auto'|null")asnumber|'auto'|null))"#
+            r#"__mf_decodeArray(raw,ctx,(__raw0)=>(__mf_decodeChecked(__raw0,(typeof__raw0==="number"&&globalThis.Number.isFinite(__raw0))||__raw0==='auto'||__raw0===null,"number|'auto'|null")asnumber|'auto'|null))"#
         )
     );
 }

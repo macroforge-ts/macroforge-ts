@@ -68,7 +68,7 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
             "(v) => Array.from(v)",
             &format!(
                 r#"(v) => {{
-                if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+                if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
                 return new {name}(v);
             }}"#
             ),
@@ -154,7 +154,7 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
             "ArrayBuffer",
             "(v) => Array.from(new Uint8Array(v))",
             r#"(v) => {
-                if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+                if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
                 return new Uint8Array(v).buffer;
             }"#,
         ),

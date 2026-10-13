@@ -83,7 +83,9 @@ pub(super) fn tuple_view(
             // Each element decodes onto `instance`, whose properties write
             // through to the tuple: a reference resolved later lands there too.
             const tuple: unknown[] = [];
-            const instance: any = {};
+            {#if !slots.is_empty() || has_rest}
+                const instance: any = {};
+            {/if}
             {#for (slot, index) in &slots}
                 Object.defineProperty(instance, "@{slot}", {
                     get: () => tuple[@{index.clone()}],

@@ -230,6 +230,7 @@ mod reserved_keys;
 mod source_field;
 mod type_arguments;
 mod type_category;
+mod uncodable;
 mod union_guard;
 mod untyped_fields;
 mod validators;

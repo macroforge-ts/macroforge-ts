@@ -76,14 +76,22 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
 /// The encoder's statements, and whether they read the encoding context: an
 /// encoder that never does takes it only in its published signature.
 fn encode_body(alias: &AliasEncode) -> Result<(TsStream, bool), MacroforgeError> {
-    let body = if let Some(elements) = alias.type_alias.body().as_tuple() {
-        view::tuple_body(alias, elements)?
-    } else if let Some(ts_type) = alias.type_alias.body().as_alias() {
-        view::whole_body(alias, ts_type)?
-    } else if let TypeBody::Other(ts_type) = alias.type_alias.body() {
-        view::whole_body(alias, ts_type)?
-    } else {
-        ts_template! { return value; }
+    // The object, union and intersection bodies have encoders of their own.
+    let body = match alias.type_alias.body().unbranded() {
+        TypeBody::Tuple(elements) => view::tuple_body(alias, elements)?,
+        TypeBody::Alias(ts_type) | TypeBody::Other(ts_type) => view::whole_body(alias, ts_type)?,
+        TypeBody::Object { .. }
+        | TypeBody::Union(_)
+        | TypeBody::Intersection(_)
+        | TypeBody::Newtype(_) => {
+            return Err(MacroforgeError::new(
+                alias.type_alias.inner.span,
+                format!(
+                    "@derive(Encode): type '{}' has a body no encoder takes apart",
+                    alias.type_name
+                ),
+            ));
+        }
     };
     let reads_context = mentions(body.source(), "ctx");
     Ok((body, reads_context))

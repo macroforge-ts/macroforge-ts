@@ -6,7 +6,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
-use crate::builtin::derive::common::primitive_keyword_test;
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 
@@ -51,7 +51,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
 
                             {#if *has_primitives}
                                 {#for (prim, arm_validators) in primitive_arms}
-                                    {$let is_primitive: Expr = primitive_keyword_test(prim, "value").into()}
+                                    {$let is_primitive: Expr = decoded_keyword_test(prim, "value").into()}
                                     if (@{is_primitive}) {
                                         {#if !arm_validators.is_empty()}
                                             const errors: Array<{ field: string; message: string }> = [];

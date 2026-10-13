@@ -406,7 +406,7 @@ type FlexibleValue = DateTime.DateTime | RegularType;
 
         assert!(
             result.code.contains(
-                r#"const data = typeof input === "string" && !__foreign__dateTimeDateTimeHasShape(input) ? JSON.parse(input) : input;"#
+                r#"const data = typeof input === "string" && !__foreign__dateTimeDateTimeHasShape(input) ? __mf_parsedText(input) : input;"#
             ),
             "hasShape `{has_shape}` decides whether a string is parsed. Got:\n{}",
             result.code
@@ -434,9 +434,9 @@ type FlexibleValue = DateTime.DateTime | RegularType;
     clear_foreign_types();
 
     assert!(
-        result
-            .code
-            .contains(r#"const data = typeof input === "string" ? JSON.parse(input) : input;"#),
+        result.code.contains(
+            r#"const data = typeof input === "string" ? __mf_parsedText(input) : input;"#
+        ),
         "with no hasShape a string is JSON text. Got:\n{}",
         result.code
     );

@@ -8,6 +8,7 @@ use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};
 
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 use crate::builtin::derive::endec::validators::ValidatorSpec;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
@@ -71,8 +72,10 @@ pub(super) fn handle_primitive_type_alias(
             @{text_or_value}(input, (__spelled) => typeof __spelled === "string")
         }))
     } else {
-        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
-            .expect("data init expr should parse")
+        let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
+        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
+            typeof input === "string" ? @{parsed_text}(input) : input
+        }))
     };
 
     let has_validators = !validators.is_empty();
@@ -85,6 +88,8 @@ pub(super) fn handle_primitive_type_alias(
     );
     // Only validators read the context; an unread parameter fails `noUnusedParameters`.
     let ctx_param = ts_ident!(if has_validators { "ctx" } else { "_ctx" });
+    let decoded_is_primitive = Expr::Source(decoded_keyword_test(primitive, "__decoded"));
+    let value_is_primitive = Expr::Source(decoded_keyword_test(primitive, "value"));
 
     let mut result = ts_template! {
         /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
@@ -127,7 +132,7 @@ pub(super) fn handle_primitive_type_alias(
             {:else}
                 const __decoded: unknown = value;
             {/if}
-            if (typeof __decoded !== "@{primitive}") {
+            if (!(@{&decoded_is_primitive})) {
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected @{primitive}" }]);
             }
             {#if has_validators}
@@ -140,17 +145,17 @@ pub(super) fn handle_primitive_type_alias(
 
         export function @{fn_has_shape_ident}(value: unknown): boolean {
             {#if wire_decode.is_some()}
-                return typeof value === "@{primitive}" || typeof value === "string";
+                return @{&value_is_primitive} || typeof value === "string";
             {:else}
-                return typeof value === "@{primitive}";
+                return @{&value_is_primitive};
             {/if}
         }
 
         export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
             {#if has_validators}
-                return typeof value === "@{primitive}" && @{fn_decode_expr}(value).success;
+                return @{&value_is_primitive} && @{fn_decode_expr}(value).success;
             {:else}
-                return typeof value === "@{primitive}";
+                return @{&value_is_primitive};
             {/if}
         }
     };

@@ -1,7 +1,8 @@
 //! `decode` and `decodeWithContext` for a union alias that is not literals only.
 
 use crate::ast::Expr;
-use crate::builtin::derive::common::{primitive_keyword_test, rendered};
+use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
@@ -91,13 +92,16 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
         let text_or_value = crate::builtin::derive::endec::coder::endec_helper("textOrValue");
         let has_shape = format!("{}HasShape", type_name.to_case(Case::Camel));
         rendered(ts_template! { @{text_or_value}(input, @{has_shape}) })
-    } else if foreign_shape_checks.is_empty() {
-        r#"typeof input === "string" ? JSON.parse(input) : input"#.to_string()
     } else {
-        let shaped = foreign_shape_checks.join(" || ");
-        rendered(
-            ts_template! { typeof input === "string" && !(@{shaped}) ? JSON.parse(input) : input },
-        )
+        let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
+        if foreign_shape_checks.is_empty() {
+            rendered(ts_template! { typeof input === "string" ? @{parsed_text}(input) : input })
+        } else {
+            let shaped = foreign_shape_checks.join(" || ");
+            rendered(ts_template! {
+                typeof input === "string" && !(@{shaped}) ? @{parsed_text}(input) : input
+            })
+        }
     };
     let data_init_expr = Expr::parse(&data_init).expect("data init expr should parse");
     ts_template! {
@@ -187,7 +191,7 @@ fn primitive_only(u: &Union) -> TsStream {
     } = u;
     ts_template! {
                             {#for (prim, arm_validators) in primitive_arms}
-                                {$let is_primitive: Expr = primitive_keyword_test(prim, "value").into()}
+                                {$let is_primitive: Expr = decoded_keyword_test(prim, "value").into()}
                                 if (@{is_primitive}) {
                                     {#if !arm_validators.is_empty()}
                                         const errors: Array<{ field: string; message: string }> = [];

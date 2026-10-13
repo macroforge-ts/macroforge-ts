@@ -208,13 +208,19 @@ pub(super) fn handle_class(
 
     // A key is read only where the input itself has it.
     let own_members: Expr = ts_ident!(endec_helper("ownMembers")).into();
+    let parsed_text: Expr = ts_ident!(endec_helper("parsedText")).into();
+    let props_param = ts_ident!(if constructed_fields.is_empty() {
+        "_props"
+    } else {
+        "props"
+    });
     let coders = declared_param_coders(Direction::Decode, &class_names.params);
     let passed_coders = passed_param_coders(Direction::Decode, &class_names.params);
     let required_coders = required_param_coders(&class_names.params);
 
     let mut result = ts_template!(Within {
         {#if !has_constructor}
-            constructor(props: @{props_type_ident}) {
+            constructor(@{props_param}: @{props_type_ident}) {
                 @{super_call}
                 {#for field in &constructed_fields}
                     {#if field.optional}
@@ -232,7 +238,7 @@ pub(super) fn handle_class(
         static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
             try {
                 // Auto-detect: if string, parse as JSON first
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+                const data = typeof input === "string" ? @{parsed_text}(input) : input;
 
                 const ctx = @{decode_context_expr}.create();
                 const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(data, ctx@{&passed_coders});

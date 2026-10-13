@@ -4,11 +4,12 @@ use crate::ts_syn::TsSynError;
 
 use convert_case::{Case, Casing};
 
+use super::super::uncodable::{TemplateHole, template_text};
 use super::super::value_kind::is_ts_literal;
 use super::super::{EndecFieldOptions, ValidatorSpec};
 use super::types::DecodeField;
 use super::validation::Missing;
-use crate::builtin::derive::common::{js_string, rendered};
+use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered};
 use crate::host::ForeignTypeConfig;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
@@ -99,11 +100,13 @@ fn accepts_string_visiting(
                     foreign_types,
                     visiting,
                 ),
-                TypeMemberKind::Literal(lit) => lit.starts_with('"') || lit.starts_with('\''),
+                TypeMemberKind::Literal(lit) => lit.starts_with(['"', '\'', '`']),
                 TypeMemberKind::Object { .. }
                 | TypeMemberKind::Intersection(_)
                 | TypeMemberKind::Brand(_) => false,
             }),
+            // A template literal type holds text.
+            TypeBody::Other(written) => written.trim_start().starts_with('`'),
             // Simple alias: recurse
             TypeBody::Alias(target) => accepts_string_visiting(
                 target,
@@ -203,8 +206,13 @@ pub(crate) fn primitive_accepts(ts_type: &str, raw: &str) -> Option<String> {
         .map(|part| {
             let part = branded_base(part.trim());
             if typeof_primitive(part).is_some() || part == "symbol" {
-                let kind = js_string(part);
-                Some(rendered(ts_template! { typeof @{raw} === @{kind} }))
+                Some(decoded_keyword_test(part, raw))
+            } else if part == "object" {
+                Some(rendered(
+                    ts_template! { (typeof @{raw} === "object" && @{raw} !== null) },
+                ))
+            } else if let Some(spells) = template_test(part, raw) {
+                Some(spells)
             } else if is_primitive_keyword(part) || is_ts_literal(part) {
                 Some(rendered(ts_template! { @{raw} === @{part} }))
             } else {
@@ -267,6 +275,48 @@ pub(super) fn wrong_type_message(field: &DecodeField, raw: &str, context_name: &
         Missing::Allowed | Missing::Excluded => wrong_type,
     };
     Expr::parse(&message).expect("wrong type message should parse")
+}
+
+/// A test that `raw` is text the template literal type `ts_type` holds.
+/// `None` when `ts_type` is no template literal type. One whose text a derive
+/// cannot tell is reported where its type is first read, and nothing passes
+/// a test that cannot be made.
+fn template_test(ts_type: &str, raw: &str) -> Option<String> {
+    let Ok(template) = template_text(ts_type)? else {
+        return Some("false".to_string());
+    };
+    let quoted = |texts: &[String]| {
+        texts
+            .iter()
+            .map(|text| js_string(text))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let holes = template
+        .holes
+        .iter()
+        .map(|hole| match hole {
+            TemplateHole::Text => js_string("string"),
+            TemplateHole::Number => js_string("number"),
+            TemplateHole::BigInt => js_string("bigint"),
+            TemplateHole::OneOf(texts) => format!("[{}]", quoted(texts)),
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+    let texts = quoted(&template.texts);
+    let spells = crate::builtin::derive::endec::coder::endec_helper("spellsTemplate");
+    Some(format!("{spells}({raw}, [{texts}], [{holes}])"))
+}
+
+/// [`primitive_keyword_test`] for a value being decoded: a `number` has to
+/// be finite as well, since no encoding writes `NaN` or an infinity back.
+pub(crate) fn decoded_keyword_test(keyword: &str, value: &str) -> String {
+    let test = primitive_keyword_test(keyword, value);
+    if keyword.trim() == "number" {
+        rendered(ts_template! { (@{test} && globalThis.Number.isFinite(@{value})) })
+    } else {
+        test
+    }
 }
 
 /// The primitive under a brand (`number & { readonly [B]: true }` or

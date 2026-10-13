@@ -3,8 +3,8 @@
 
 use super::{AliasDecode, view};
 use crate::ast::Expr;
-use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::macros::ts_template;
+use crate::ts_syn::abi::ir::type_alias::TypeBody;
 use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};
@@ -75,8 +75,10 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
             @{text_or_value}(input, @{&fn_has_shape_expr})
         }))
     } else {
-        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
-            .expect("data init expr should parse")
+        let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
+        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
+            typeof input === "string" ? @{parsed_text}(input) : input
+        }))
     };
 
     let mut result = ts_template! {
@@ -111,42 +113,23 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
             return @{fn_has_shape_expr}(value);
         }
     };
-    let view = if let Some(elements) = type_alias.body().as_tuple() {
-        view::tuple_view(alias, elements)?
-    } else if let Some(ts_type) = type_alias.body().as_alias() {
-        view::whole_view(alias, ts_type)?
-    } else {
-        passthrough(alias)
+    // The object, union and intersection bodies have decoders of their own.
+    let view = match type_alias.body().unbranded() {
+        TypeBody::Tuple(elements) => view::tuple_view(alias, elements)?,
+        TypeBody::Alias(ts_type) | TypeBody::Other(ts_type) => view::whole_view(alias, ts_type)?,
+        TypeBody::Object { .. }
+        | TypeBody::Union(_)
+        | TypeBody::Intersection(_)
+        | TypeBody::Newtype(_) => {
+            return Err(MacroforgeError::new(
+                type_alias.inner.span,
+                format!("@derive(Decode): type '{type_name}' has a body no decoder takes apart"),
+            ));
+        }
     };
     result = result.merge(view);
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     Ok(result)
-}
-
-/// The view functions for a value with no fields to decode, such as a
-/// function: it is kept as it is.
-fn passthrough(alias: &AliasDecode) -> TsStream {
-    let fn_decode_internal_ident = ts_ident!(
-        "{}DecodeWithContext{}",
-        alias.type_name.to_case(Case::Camel),
-        alias.generic_decl
-    );
-    let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
-    let decode_context_ident = &alias.decode_context_ident;
-    let full_type_ident = ts_ident!(alias.full_type_name.as_str());
-    let type_ident = &alias.type_ident;
-    let reference = decode_reference(alias.type_name, &alias.full_type_name);
-    ts_template! {
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&alias.coders}): @{full_type_ident.clone()} {
-            {$typescript reference}
-            return value as @{type_ident};
-        }
-
-        export function @{fn_has_shape_ident}(value: unknown): boolean {
-            return value != null;
-        }
-    }
 }

@@ -6,7 +6,7 @@ mod union;
 mod view;
 
 use crate::ast::{Expr, Ident};
-use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::coder::{TypeScope, unread_intersection};
 use crate::builtin::derive::endec::reserved_keys::check_field_keys;
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::ts_syn::abi::DiagnosticCollector;
@@ -26,7 +26,6 @@ use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 struct AliasDecode<'a> {
     type_alias: &'a crate::ts_syn::DataTypeAlias,
     type_name: &'a str,
-    type_ident: Ident,
     decode_context_ident: Ident,
     decode_context_expr: Expr,
     decode_error_expr: Expr,
@@ -70,7 +69,6 @@ pub(super) fn handle_type_alias(
     let alias = AliasDecode {
         type_alias,
         type_name,
-        type_ident: ts_ident!(type_name),
         decode_context_expr: decode_context_ident.clone().into(),
         decode_context_ident,
         decode_error_expr: ts_ident!(DECODE_ERROR).into(),
@@ -109,17 +107,22 @@ pub(super) fn handle_type_alias(
         ));
     }
 
-    if let Some(fields) = type_alias.as_object() {
+    // A newtype's value is the value of the type it brands.
+    let body = type_alias.body().unbranded();
+    if let Some(fields) = body.as_object() {
         handle_object_type_alias(&alias, fields)
-    } else if let Some(members) = type_alias.as_intersection() {
+    } else if let Some(members) = body.as_intersection() {
         match crate::builtin::derive::common::flatten_intersection_fields(
             members,
             alias.type_registry,
         ) {
             Some(fields) => handle_object_type_alias(&alias, &fields),
-            None => fallback::handle_fallback_type_alias(&alias),
+            None => Err(MacroforgeError::new(
+                type_alias.inner.span,
+                format!("@derive(Decode): {}", unread_intersection(type_name)),
+            )),
         }
-    } else if let Some(members) = type_alias.as_union() {
+    } else if let Some(members) = body.as_union() {
         union::handle_union_type_alias(&alias, members)
     } else {
         fallback::handle_fallback_type_alias(&alias)

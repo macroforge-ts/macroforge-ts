@@ -94,29 +94,33 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
     // One parameter among members that are otherwise told by `null`, a tag
     // or a shape is the member a value is when it is no other, so the coder
     // handed in for it encodes that value.
-    let param_encoder: Option<(String, String)> = type_alias.as_union().and_then(|members| {
-        let mut params = members.iter().filter_map(|member| match &member.kind {
-            TypeMemberKind::TypeRef(reference) if is_type_param(reference.trim()) => {
-                Some(reference.trim().to_string())
-            }
-            _ => None,
+    let param_encoder: Option<(String, String)> = type_alias
+        .body()
+        .unbranded()
+        .as_union()
+        .and_then(|members| {
+            let mut params = members.iter().filter_map(|member| match &member.kind {
+                TypeMemberKind::TypeRef(reference) if is_type_param(reference.trim()) => {
+                    Some(reference.trim().to_string())
+                }
+                _ => None,
+            });
+            let param = params.next().filter(|_| params.next().is_none())?;
+            let told_apart = members.iter().all(|member| match &member.kind {
+                TypeMemberKind::Literal(literal) => matches!(literal.trim(), "null" | "undefined"),
+                TypeMemberKind::TypeRef(reference) => {
+                    is_type_param(reference.trim())
+                        || matches!(reference.trim(), "null" | "undefined")
+                        || matches!(
+                            TypeCategory::from_ts_type(reference),
+                            TypeCategory::Encodable(_)
+                        )
+                }
+                TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => true,
+                TypeMemberKind::Brand(_) => false,
+            });
+            told_apart.then(|| (param_coder(Direction::Encode, &param), param))
         });
-        let param = params.next().filter(|_| params.next().is_none())?;
-        let told_apart = members.iter().all(|member| match &member.kind {
-            TypeMemberKind::Literal(literal) => matches!(literal.trim(), "null" | "undefined"),
-            TypeMemberKind::TypeRef(reference) => {
-                is_type_param(reference.trim())
-                    || matches!(reference.trim(), "null" | "undefined")
-                    || matches!(
-                        TypeCategory::from_ts_type(reference),
-                        TypeCategory::Encodable(_)
-                    )
-            }
-            TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => true,
-            TypeMemberKind::Brand(_) => false,
-        });
-        told_apart.then(|| (param_coder(Direction::Encode, &param), param))
-    });
     // Externally-tagged single-key object variants (`{ Name: Payload }`)
     // whose payload is a configured foreign type (BigDecimal, DateTime):
     // without the inline encode expression, the runtime instance
@@ -133,7 +137,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
         payload_ser_fn: Option<Expr>,
     }
     let mut external_ser_variants: Vec<ExternalSerVariant> = Vec::new();
-    if let Some(members) = type_alias.as_union() {
+    if let Some(members) = type_alias.body().unbranded().as_union() {
         for m in members {
             match &m.kind {
                 // Tagged intersection variant: `{ variant: 'X' } & TypeRef`
@@ -467,7 +471,10 @@ fn object_variant_dispatch(
     // variant like an internally tagged one: encoding each of its fields
     // sends the content through its own encoder, and the tag is copied.
     // An externally tagged member is its one key, dispatched on its own.
-    let (members, tagged) = match (&container_opts.tagging, alias.type_alias.as_union()) {
+    let (members, tagged) = match (
+        &container_opts.tagging,
+        alias.type_alias.body().unbranded().as_union(),
+    ) {
         (
             TaggingMode::InternallyTagged { .. } | TaggingMode::AdjacentlyTagged { .. },
             Some(members),

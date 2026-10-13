@@ -10,6 +10,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::split_top_level_union;
 use crate::ts_syn::config::ForeignHandler;
 
+use super::decode::helpers::decoded_keyword_test;
 use super::{TypeCategory, get_foreign_types};
 
 /// How a union's other member is recognised at runtime, and what it becomes.
@@ -31,8 +32,9 @@ pub(crate) enum Direction {
 }
 
 impl UnionGuard {
-    /// Whether `value` is the guarded member.
-    pub(crate) fn test(&self, value: &Expr) -> Expr {
+    /// Whether `value` is the guarded member, as `direction` reads it: a
+    /// number being decoded has to be one an encoding can write back.
+    pub(crate) fn test(&self, value: &Expr, direction: Direction) -> Expr {
         match self {
             // A literal is told by being itself, a keyword by its `typeof`.
             Self::Primitive(keyword) => {
@@ -43,7 +45,12 @@ impl UnionGuard {
                 if is_literal {
                     rendered(ts_template! { @{value} === @{keyword} }).into()
                 } else {
-                    primitive_keyword_test(keyword, &rendered(ts_template! { @{value} })).into()
+                    let value = rendered(ts_template! { @{value} });
+                    match direction {
+                        Direction::Decode => decoded_keyword_test(keyword, &value),
+                        Direction::Encode => primitive_keyword_test(keyword, &value),
+                    }
+                    .into()
                 }
             }
             Self::Foreign { has_shape, .. } => {

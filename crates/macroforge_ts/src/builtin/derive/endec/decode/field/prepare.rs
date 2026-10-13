@@ -64,6 +64,15 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         type_params,
     };
     let resolved_ts_type = scope.resolved(field.ts_type, Direction::Decode);
+    let resolved_ts_type = scope
+        .operators_resolved(&resolved_ts_type)
+        .unwrap_or(resolved_ts_type);
+    if opts.decode_with.is_none()
+        && let Some(reason) = crate::builtin::derive::endec::uncodable::uncodable(&resolved_ts_type)
+    {
+        diagnostics.error(field.span, format!("@derive(Decode): {reason}"));
+        return None;
+    }
     // A type parameter has no decoder to call: its values pass through as
     // they are, wherever it appears.
     let is_param = |name: &str| type_params.iter().any(|param| param == name);

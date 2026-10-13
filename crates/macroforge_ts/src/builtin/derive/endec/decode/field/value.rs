@@ -15,6 +15,7 @@ use crate::builtin::derive::endec::decode::helpers::{
 };
 use crate::builtin::derive::endec::decode::types::{CompositeDecode, DecodeField, RawShape};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::derive::endec::value_kind::EndecValueKind;
 use crate::builtin::return_types::DECODE_ERROR;
 
@@ -60,7 +61,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                         // would take `""`, `null` and `true` for numbers too.
                         const __rawNum: unknown = @{raw_var_ident};
                         const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
-                        if (globalThis.Number.isNaN(__numVal)) {
+                        if (!globalThis.Number.isFinite(__numVal)) {
                             errors.push({ field: "@{field.json_key_text()}", message: "expected a numeric string, got " + JSON.stringify(@{raw_var_ident}) });
                         } else {
                             instance@{field.member} = __numVal;
@@ -119,7 +120,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                 }}
                 {#if let Some(guard) = &field.union_guard}
                     {$let raw_expr: Expr = raw_var_ident.clone().into()}
-                    {$let is_member: Expr = guard.test(&raw_expr)}
+                    {$let is_member: Expr = guard.test(&raw_expr, Direction::Decode)}
                     {$let member_value: Expr = guard.convert(&raw_expr)}
                     if (@{is_member}) {
                         instance@{field.member} = @{member_value};
@@ -182,7 +183,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                                 }}
                                 {#if let Some(guard) = &field.nullable_union_guard}
                                     {$let raw_expr: Expr = raw_var_ident.clone().into()}
-                                    {$let is_member: Expr = guard.test(&raw_expr)}
+                                    {$let is_member: Expr = guard.test(&raw_expr, Direction::Decode)}
                                     {$let member_value: Expr = guard.convert(&raw_expr)}
                                     if (@{is_member}) {
                                         instance@{field.member} = @{member_value};
