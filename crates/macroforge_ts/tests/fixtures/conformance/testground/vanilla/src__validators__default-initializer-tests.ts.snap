@@ -804,6 +804,7 @@ class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"D
 ## Registry reads
 
 Name("() => string")
+Name("number")
 
 ## Buildtime dependencies
 

@@ -338,7 +338,7 @@ interface PersonName: {"body_span":{"end":209,"start":69},"decorators":[{"args_s
 
 ## Registry reads
 
-(none)
+Name("string")
 
 ## Buildtime dependencies
 

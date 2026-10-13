@@ -4942,9 +4942,14 @@ Name("ClassBase")
 Name("ClassDated")
 Name("ClassEntity")
 Name("ClassMembers")
+Name("Date")
 Name("EdgeItem")
 Name("Map")
 Name("Set")
+Name("bigint")
+Name("boolean")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

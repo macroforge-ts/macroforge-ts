@@ -183,7 +183,8 @@ class ClassAccessors: {"body_span":{"end":379,"start":295},"decorators":[{"args_
 
 ## Registry reads
 
-(none)
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

@@ -464,6 +464,7 @@ class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":
 ## Registry reads
 
 Name("'Derive' | 'JsonNative'")
+Name("string")
 
 ## Buildtime dependencies
 

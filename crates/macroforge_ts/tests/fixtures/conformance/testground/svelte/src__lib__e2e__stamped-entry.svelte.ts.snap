@@ -1039,6 +1039,7 @@ Name("Label")
 Name("Note")
 Name("Slug")
 Name("Stamped")
+Name("string")
 
 ## Buildtime dependencies
 

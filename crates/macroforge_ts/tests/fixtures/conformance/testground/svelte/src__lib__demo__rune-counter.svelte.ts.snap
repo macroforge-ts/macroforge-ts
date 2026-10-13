@@ -186,7 +186,8 @@ class RuneCounter: {"body_span":{"end":402,"start":226},"decorators":[{"args_src
 
 ## Registry reads
 
-(none)
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

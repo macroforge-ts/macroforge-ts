@@ -324,6 +324,7 @@ interface Customer: {"body_span":{"end":164,"start":120},"decorators":[{"args_sr
 ## Registry reads
 
 Name("PersonName")
+Name("string")
 
 ## Buildtime dependencies
 

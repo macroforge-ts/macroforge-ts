@@ -524,7 +524,9 @@ class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"a
 
 ## Registry reads
 
-(none)
+Name("boolean")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

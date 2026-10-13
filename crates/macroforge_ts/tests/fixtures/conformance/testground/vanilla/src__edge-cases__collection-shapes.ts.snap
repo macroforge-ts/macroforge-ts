@@ -1177,7 +1177,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof __raw_kindLabels === "object" && __raw_kindLabels !== null) {
             ctx.pushScope("kindLabels");
             try {
-                instance.kindLabels = (__mf_decodeRecord(__raw_kindLabels, ctx, __mf_decodeString) as Record<CollectionKind, string>);
+                instance.kindLabels = (__mf_decodeRecord(__raw_kindLabels, ctx, __mf_decodeString, (__key0) => collectionKindDecodeWithContext(__key0, ctx), [String(CollectionKind.Plain), String(CollectionKind.Fancy)]) as Record<CollectionKind, string>);
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -1201,7 +1201,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof __raw_numbered === "object" && __raw_numbered !== null) {
             ctx.pushScope("numbered");
             try {
-                instance.numbered = (__mf_decodeRecord(__raw_numbered, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)) as Record<number, EdgeItem>);
+                instance.numbered = (__mf_decodeRecord(__raw_numbered, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__key0) => __mf_decodeNumberKey(__key0), []) as Record<number, EdgeItem>);
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -3126,10 +3126,10 @@ export declare const CollectionBig: {
 original 0..433 -> expanded 1675..2108
 original 433..948 -> expanded 5980..6495
 original 948..1410 -> expanded 44312..44774
-original 1410..1804 -> expanded 75781..76175
-original 1804..2219 -> expanded 101713..102128
-original 2219..2422 -> expanded 126928..127131
-original 2422..2423 -> expanded 143971..143972
+original 1410..1804 -> expanded 75947..76341
+original 1804..2219 -> expanded 101879..102294
+original 2219..2422 -> expanded 127094..127297
+original 2422..2423 -> expanded 144137..144138
 generated 0..1675 <- imports
 generated 2108..2447 <- Debug
 generated 2447..2545 <- Clone
@@ -3155,31 +3155,31 @@ generated 46481..48754 <- PartialEq
 generated 48754..50613 <- Hash
 generated 50613..51023 <- Default
 generated 51023..55428 <- Encode
-generated 55428..74221 <- Decode
-generated 74221..75781 <- __convenience_const
-generated 76175..76909 <- Debug
-generated 76909..77711 <- Clone
-generated 77711..79429 <- PartialEq
-generated 79429..80714 <- Hash
-generated 80714..80983 <- Default
-generated 80983..84883 <- Encode
-generated 84883..100091 <- Decode
-generated 100091..101713 <- __convenience_const
-generated 102128..102897 <- Debug
-generated 102897..103450 <- Clone
-generated 103450..104165 <- PartialEq
-generated 104165..104944 <- Hash
-generated 104944..105281 <- Default
-generated 105281..109021 <- Encode
-generated 109021..125306 <- Decode
-generated 125306..126928 <- __convenience_const
-generated 127131..127593 <- Debug
-generated 127593..127844 <- Clone
-generated 127844..128495 <- PartialEq
-generated 128495..129443 <- Hash
-generated 129443..132377 <- Encode
-generated 132377..142544 <- Decode
-generated 142544..143971 <- __convenience_const
+generated 55428..74387 <- Decode
+generated 74387..75947 <- __convenience_const
+generated 76341..77075 <- Debug
+generated 77075..77877 <- Clone
+generated 77877..79595 <- PartialEq
+generated 79595..80880 <- Hash
+generated 80880..81149 <- Default
+generated 81149..85049 <- Encode
+generated 85049..100257 <- Decode
+generated 100257..101879 <- __convenience_const
+generated 102294..103063 <- Debug
+generated 103063..103616 <- Clone
+generated 103616..104331 <- PartialEq
+generated 104331..105110 <- Hash
+generated 105110..105447 <- Default
+generated 105447..109187 <- Encode
+generated 109187..125472 <- Decode
+generated 125472..127094 <- __convenience_const
+generated 127297..127759 <- Debug
+generated 127759..128010 <- Clone
+generated 128010..128661 <- PartialEq
+generated 128661..129609 <- Hash
+generated 129609..132543 <- Encode
+generated 132543..142710 <- Decode
+generated 142710..144137 <- __convenience_const
 
 ## Metadata
 

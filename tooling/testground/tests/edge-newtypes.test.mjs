@@ -192,6 +192,10 @@ Deno.test('a newtype over a date, an array, an object or a tuple is coded as wha
     assert(mod.newPointEquals(point, mod.newPointClone(point)));
     assertStrictEquals(mod.newPointHashCode(point), mod.newPointHashCode(read));
 
+    assert(mod.newStampDefaultValue() instanceof Date);
+    assertEquals(mod.newTagsDefaultValue(), []);
+    assertEquals(mod.newPointDefaultValue(), { x: 0, at: new Date(0) });
+
     assertEquals(JSON.parse(mod.newPairEncode([2, at])), [2, '2024-01-01T00:00:00.000Z']);
     const pair = decoded(mod.newPairDecode(mod.newPairEncode([2, at])));
     assert(pair[1] instanceof Date);

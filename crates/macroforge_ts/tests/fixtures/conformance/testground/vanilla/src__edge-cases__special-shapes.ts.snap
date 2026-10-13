@@ -1711,6 +1711,7 @@ type SpecialEither: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"number
 
 ## Registry reads
 
+Name("Date")
 Name("Map")
 Name("Record")
 Name("Set")
@@ -1718,6 +1719,8 @@ Name("SpecialCarried")
 Name("SpecialEither")
 Name("SpecialNumber")
 Name("[number, string]")
+Name("bigint")
+Name("boolean")
 Name("number")
 Name("string")
 Name("string | number")

@@ -4566,7 +4566,10 @@ Name("Key")
 Name("Map")
 Name("T")
 Name("Value")
+Name("boolean")
+Name("number")
 Name("point2D")
+Name("string")
 
 ## Buildtime dependencies
 

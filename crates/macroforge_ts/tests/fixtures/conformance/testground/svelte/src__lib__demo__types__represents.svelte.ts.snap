@@ -629,6 +629,8 @@ interface Represents: {"body_span":{"end":384,"start":238},"decorators":[{"args_
 
 ## Registry reads
 
+Name("Account")
+Name("Employee")
 Name("string")
 Name("string | Account")
 Name("string | Employee")

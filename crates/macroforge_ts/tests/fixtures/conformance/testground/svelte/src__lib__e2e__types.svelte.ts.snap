@@ -5613,6 +5613,8 @@ Name("SavingsAccount")
 Name("Set")
 Name("Skill")
 Name("Tag")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

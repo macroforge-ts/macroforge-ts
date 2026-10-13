@@ -1,0 +1,2203 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/keyed-shapes.ts
+sha256 a94317db08873723b5236802b54d9774b62eeae18732ca8e2d294c7e643861af
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumberKey as __mf_decodeNumberKey, decodeRecord as __mf_decodeRecord, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, spellsTemplate as __mf_spellsTemplate, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Records and collections by the kind of key they are over, an enum, a set
+ * of literals or a pattern, whole and under `Partial`, `Pick` and `Omit`,
+ * and a class whose fields are typed by their initializers under each
+ * decorator option.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export enum KeyedLevel {
+    /** @default */
+    Low,
+    High
+}
+
+export function keyedLevelToString(value: KeyedLevel): string {
+
+    const held: unknown = value;
+    if (held === KeyedLevel["Low"]) {
+        return "KeyedLevel.Low";
+    }
+    if (held === KeyedLevel["High"]) {
+        return "KeyedLevel.High";
+    }
+    return "KeyedLevel(" + String(value) + ")";
+}
+
+export function keyedLevelClone(value: KeyedLevel): KeyedLevel {
+    return value;
+}
+
+export function keyedLevelEquals(a: KeyedLevel, b: KeyedLevel): boolean {
+    return a === b;
+}
+
+export function keyedLevelHashCode(value: KeyedLevel): number {
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
+}
+
+export function keyedLevelDefaultValue(): KeyedLevel {
+    return KeyedLevel.Low;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function keyedLevelEncode(value: KeyedLevel): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function keyedLevelEncodeWithContext(value: KeyedLevel, ctx: __mf_EncodeContext): string | number;
+export function keyedLevelEncodeWithContext(value: KeyedLevel): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function keyedLevelDecode(input: unknown): KeyedLevel {
+
+    return keyedLevelDecodeWithContext(__mf_textOrValue(input, keyedLevelIs));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function keyedLevelDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): KeyedLevel;
+export function keyedLevelDecodeWithContext(data: unknown): KeyedLevel {
+    if (KeyedLevel["Low"] === data) {
+        return KeyedLevel["Low"];
+    }
+    if (KeyedLevel["High"] === data) {
+        return KeyedLevel["High"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid KeyedLevel value: " + JSON.stringify(data) }]);
+}
+
+export function keyedLevelIs(value: unknown): value is KeyedLevel {
+    if (KeyedLevel["Low"] === value) {
+        return true;
+    }
+    if (KeyedLevel["High"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace KeyedLevel {
+  export const toString: typeof keyedLevelToString = keyedLevelToString;
+  export const clone: typeof keyedLevelClone = keyedLevelClone;
+  export const equals: typeof keyedLevelEquals = keyedLevelEquals;
+  export const hashCode: typeof keyedLevelHashCode = keyedLevelHashCode;
+  export const defaultValue: typeof keyedLevelDefaultValue = keyedLevelDefaultValue;
+  export const encode: typeof keyedLevelEncode = keyedLevelEncode;
+  export const encodeWithContext: typeof keyedLevelEncodeWithContext = keyedLevelEncodeWithContext;
+  export const decode: typeof keyedLevelDecode = keyedLevelDecode;
+  export const decodeWithContext: typeof keyedLevelDecodeWithContext = keyedLevelDecodeWithContext;
+  export const is: typeof keyedLevelIs = keyedLevelIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export enum KeyedKind {
+    /** @default */
+    A = 'a',
+    B = 'b'
+}
+
+export function keyedKindToString(value: KeyedKind): string {
+
+    const held: unknown = value;
+    if (held === KeyedKind["A"]) {
+        return "KeyedKind.A";
+    }
+    if (held === KeyedKind["B"]) {
+        return "KeyedKind.B";
+    }
+    return "KeyedKind(" + String(value) + ")";
+}
+
+export function keyedKindClone(value: KeyedKind): KeyedKind {
+    return value;
+}
+
+export function keyedKindEquals(a: KeyedKind, b: KeyedKind): boolean {
+    return a === b;
+}
+
+export function keyedKindHashCode(value: KeyedKind): number {
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+export function keyedKindDefaultValue(): KeyedKind {
+    return KeyedKind.A;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function keyedKindEncode(value: KeyedKind): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function keyedKindEncodeWithContext(value: KeyedKind, ctx: __mf_EncodeContext): string | number;
+export function keyedKindEncodeWithContext(value: KeyedKind): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function keyedKindDecode(input: unknown): KeyedKind {
+
+    return keyedKindDecodeWithContext(__mf_textOrValue(input, keyedKindIs));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function keyedKindDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): KeyedKind;
+export function keyedKindDecodeWithContext(data: unknown): KeyedKind {
+    if (KeyedKind["A"] === data) {
+        return KeyedKind["A"];
+    }
+    if (KeyedKind["B"] === data) {
+        return KeyedKind["B"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid KeyedKind value: " + JSON.stringify(data) }]);
+}
+
+export function keyedKindIs(value: unknown): value is KeyedKind {
+    if (KeyedKind["A"] === value) {
+        return true;
+    }
+    if (KeyedKind["B"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace KeyedKind {
+  export const toString: typeof keyedKindToString = keyedKindToString;
+  export const clone: typeof keyedKindClone = keyedKindClone;
+  export const equals: typeof keyedKindEquals = keyedKindEquals;
+  export const hashCode: typeof keyedKindHashCode = keyedKindHashCode;
+  export const defaultValue: typeof keyedKindDefaultValue = keyedKindDefaultValue;
+  export const encode: typeof keyedKindEncode = keyedKindEncode;
+  export const encodeWithContext: typeof keyedKindEncodeWithContext = keyedKindEncodeWithContext;
+  export const decode: typeof keyedKindDecode = keyedKindDecode;
+  export const decodeWithContext: typeof keyedKindDecodeWithContext = keyedKindDecodeWithContext;
+  export const is: typeof keyedKindIs = keyedKindIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface KeyedRecords {
+    byLevel: Record<KeyedLevel, string>;
+    byKind: Record<KeyedKind, number>;
+    some: Partial<Record<'x' | 'y', number>>;
+    levels: Map<KeyedLevel, string>;
+    kinds: Set<KeyedKind>;
+    codes: Set<`c-${number}`>;
+    deep?: { inner?: { at?: Date; tags?: string[] } };
+}
+
+export function keyedRecordsToString(value: KeyedRecords): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("byLevel: " + __mf_structuralDebug(value.byLevel));
+    parts.push("byKind: " + __mf_structuralDebug(value.byKind));
+    parts.push("some: " + __mf_structuralDebug(value.some));
+    parts.push("levels: " + __mf_structuralDebug(value.levels));
+    parts.push("kinds: " + __mf_structuralDebug(value.kinds));
+    parts.push("codes: " + __mf_structuralDebug(value.codes));
+    parts.push("deep: " + __mf_structuralDebug(value.deep));
+        return "KeyedRecords { " + parts.join(", ") + " }";
+    });
+}
+
+export function keyedRecordsClone(value: KeyedRecords): KeyedRecords {
+    return __mf_clonedWith(value, (): KeyedRecords => ({
+	byLevel: __mf_structuralClone(value.byLevel),
+	byKind: __mf_structuralClone(value.byKind),
+	some: __mf_structuralClone(value.some),
+	levels: new Map(value.levels),
+	kinds: new Set(Array.from(value.kinds, (__item0) => keyedKindClone(__item0))),
+	codes: new Set(value.codes),
+	..."deep" in value ? { deep: __mf_structuralClone(value.deep) } : {}
+}));
+}
+
+export function keyedRecordsEquals(a: KeyedRecords, b: KeyedRecords): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.byLevel, b.byLevel) && __mf_structuralEquals(a.byKind, b.byKind) && __mf_structuralEquals(a.some, b.some) && a.levels.size === b.levels.size && Array.from(a.levels).every(([__key0, __item0]) => {
+	const __other0 = b.levels.get(__key0);
+	return b.levels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+}) && a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => keyedKindEquals(__item0, __other0))) && a.codes.size === b.codes.size && Array.from(a.codes).every((__item0) => b.codes.has(__item0) || Array.from(b.codes).some((__other0) => __item0 === __other0)) && __mf_structuralEquals(a.deep, b.deep));
+}
+
+export function keyedRecordsHashCode(value: KeyedRecords): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.byLevel))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.byKind))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.some))) | 0;
+    hash = (hash * 31 + (Array.from(value.levels).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.kinds).reduce<number>((__hash0, __item0) => __hash0 + keyedKindHashCode(__item0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.codes).reduce<number>((__hash0, __item0) => __hash0 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.deep))) | 0;
+        return hash;
+    });
+}
+
+export function keyedRecordsDefaultValue(): KeyedRecords {
+    return {
+        byLevel: ({
+	[KeyedLevel.Low]: "",
+	[KeyedLevel.High]: ""
+}),
+        byKind: ({
+	[KeyedKind.A]: 0,
+	[KeyedKind.B]: 0
+}),
+        some: ({}),
+        levels: new Map(),
+        kinds: new Set(),
+        codes: new Set(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function keyedRecordsEncode(value: KeyedRecords, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = keyedRecordsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function keyedRecordsEncodeWithContext(value: KeyedRecords, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "KeyedRecords" });
+    keyedRecordsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function keyedRecordsEncodePartialWithContext(value: Partial<KeyedRecords>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedRecords>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "KeyedRecords" };
+        keyedRecordsEncodeFields(value as KeyedRecords, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function keyedRecordsEncodeFields(value: KeyedRecords, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("byLevel")) {
+        if (value.byLevel !== undefined) {
+            result["byLevel"] = value.byLevel;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("byKind")) {
+        if (value.byKind !== undefined) {
+            result["byKind"] = value.byKind;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("some")) {
+        if (value.some !== undefined) {
+            result["some"] = value.some;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("levels")) {
+        if (value.levels !== undefined) {
+            result["levels"] = Object.fromEntries(value.levels.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("kinds")) {
+        if (value.kinds !== undefined) {
+            result["kinds"] = Array.from(value.kinds, (__item0) => keyedKindEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("codes")) {
+        if (value.codes !== undefined) {
+            result["codes"] = Array.from(value.codes);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("deep")) {
+        if (value.deep !== undefined) {
+            result["deep"] = ({ ...value.deep, inner: (value.deep.inner === undefined ? undefined : ({ ...value.deep.inner, at: (value.deep.inner.at === undefined ? undefined : value.deep.inner.at.toISOString()) })) });
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function keyedRecordsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KeyedRecords } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = keyedRecordsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "KeyedRecords.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedRecords | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedRecords> | __mf_PendingRef;
+export function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<KeyedRecords> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedRecords.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "KeyedRecords.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "KeyedRecords") as KeyedRecords | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedRecords.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("byLevel")) && !("byLevel" in obj)) {
+        errors.push({ field: "byLevel", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("byKind")) && !("byKind" in obj)) {
+        errors.push({ field: "byKind", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("some")) && !("some" in obj)) {
+        errors.push({ field: "some", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("levels")) && !("levels" in obj)) {
+        errors.push({ field: "levels", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("kinds")) && !("kinds" in obj)) {
+        errors.push({ field: "kinds", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("codes")) && !("codes" in obj)) {
+        errors.push({ field: "codes", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "KeyedRecords");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("byLevel")) ? "byLevel" in obj : (__fields.keeps("byLevel") && obj["byLevel"] !== undefined)) {
+        const __raw_byLevel = obj["byLevel"] as Record<KeyedLevel, string>;
+        if (typeof __raw_byLevel === "object" && __raw_byLevel !== null) {
+            ctx.pushScope("byLevel");
+            try {
+                instance.byLevel = (__mf_decodeRecord(__raw_byLevel, ctx, __mf_decodeString, (__key0) => keyedLevelDecodeWithContext(__mf_decodeNumberKey(__key0), ctx), [String(KeyedLevel.Low), String(KeyedLevel.High)]) as Record<KeyedLevel, string>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byLevel" : "byLevel." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byLevel", message: __raw_byLevel == null ? "KeyedRecords.byLevel is required" : "expected Record<KeyedLevel, string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+        const __raw_byKind = obj["byKind"] as Record<KeyedKind, number>;
+        if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
+            ctx.pushScope("byKind");
+            try {
+                instance.byKind = (__mf_decodeRecord(__raw_byKind, ctx, __mf_decodeNumber, (__key0) => keyedKindDecodeWithContext(__key0, ctx), [String(KeyedKind.A), String(KeyedKind.B)]) as Record<KeyedKind, number>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byKind", message: __raw_byKind == null ? "KeyedRecords.byKind is required" : "expected Record<KeyedKind, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
+        const __raw_some = obj["some"] as { 'x'?: number; 'y'?: number };
+        if (typeof __raw_some === "object" && __raw_some !== null) {
+            ctx.pushScope("some");
+            try {
+                instance.some = (__mf_decodeObject(__raw_some, ctx, { x: __mf_decodeNumber, y: __mf_decodeNumber }, ["x", "y"]) as { 'x'?: number; 'y'?: number });
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "some" : "some." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "some", message: __raw_some == null ? "KeyedRecords.some is required" : "expected { 'x'?: number; 'y'?: number }" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("levels")) ? "levels" in obj : (__fields.keeps("levels") && obj["levels"] !== undefined)) {
+        const __raw_levels = obj["levels"] as Record<string, string>;
+        if (typeof __raw_levels === "object" && __raw_levels !== null) {
+            ctx.pushScope("levels");
+            try {
+                instance.levels = __mf_decodeMap(__raw_levels, ctx, (__key0) => keyedLevelDecodeWithContext(__mf_decodeNumberKey(__key0), ctx), __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "levels" : "levels." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "levels", message: __raw_levels == null ? "KeyedRecords.levels is required" : "expected Map<KeyedLevel, string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("kinds")) ? "kinds" in obj : (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
+        const __raw_kinds = obj["kinds"] as Array<KeyedKind>;
+        if (Array.isArray(__raw_kinds)) {
+            ctx.pushScope("kinds");
+            try {
+                instance.kinds = __mf_decodeSet(__raw_kinds, ctx, (__raw0) => keyedKindDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "kinds" : "kinds." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "kinds", message: __raw_kinds == null ? "KeyedRecords.kinds is required" : "expected Set<KeyedKind>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("codes")) ? "codes" in obj : (__fields.keeps("codes") && obj["codes"] !== undefined)) {
+        const __raw_codes = obj["codes"] as Array<`c-${number}`>;
+        if (Array.isArray(__raw_codes)) {
+            ctx.pushScope("codes");
+            try {
+                instance.codes = __mf_decodeSet(__raw_codes, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __mf_spellsTemplate(__raw0, ["c-", ""], ["number"]), "`c-${number}`") as `c-${number}`));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "codes" : "codes." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "codes", message: __raw_codes == null ? "KeyedRecords.codes is required" : "expected Set<`c-${number}`>" });
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("deep"))) {
+        if (("deep" in obj && obj["deep"] !== undefined)) {
+            const __raw_deep = obj["deep"] as { inner?: { at?: Date; tags?: string[] } };
+            if (typeof __raw_deep === "object" && __raw_deep !== null) {
+                ctx.pushScope("deep");
+                try {
+                    instance.deep = (__mf_decodeObject(__raw_deep, ctx, { inner: (__raw0) => (__mf_decodeObject(__raw0, ctx, { at: __mf_decodeDate, tags: (__raw1) => __mf_decodeArray(__raw1, ctx, __mf_decodeString) }, ["at", "tags"]) as { at?: Date; tags?: string[] }) }, ["inner"]) as { inner?: { at?: Date; tags?: string[] } });
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "deep" : "deep." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+                        throw __e;
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            } else {
+                errors.push({ field: "deep", message: "expected { inner?: { at?: Date; tags?: string[] } }" });
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as KeyedRecords;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function keyedRecordsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedRecords>): Partial<KeyedRecords> | __mf_PendingRef {
+    return keyedRecordsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function keyedRecordsValidateField<K extends keyof KeyedRecords>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function keyedRecordsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function keyedRecordsValidateFields(partial: { readonly [K in keyof KeyedRecords]?: unknown }): Array<{ field: string; message: string }>;
+export function keyedRecordsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function keyedRecordsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "byLevel") && __mf_holds(obj, "byKind") && __mf_holds(obj, "some") && __mf_holds(obj, "levels") && __mf_holds(obj, "kinds") && __mf_holds(obj, "codes");
+}
+
+export function keyedRecordsIs(obj: unknown): obj is KeyedRecords {
+    return keyedRecordsHasShape(obj) && keyedRecordsDecode(obj).success;
+}
+
+export const KeyedRecords: {
+  readonly toString: typeof keyedRecordsToString;
+  readonly clone: typeof keyedRecordsClone;
+  readonly equals: typeof keyedRecordsEquals;
+  readonly hashCode: typeof keyedRecordsHashCode;
+  readonly defaultValue: typeof keyedRecordsDefaultValue;
+  readonly encode: typeof keyedRecordsEncode;
+  readonly encodeWithContext: typeof keyedRecordsEncodeWithContext;
+  readonly encodePartialWithContext: typeof keyedRecordsEncodePartialWithContext;
+  readonly decode: typeof keyedRecordsDecode;
+  readonly decodeWithContext: typeof keyedRecordsDecodeWithContext;
+  readonly decodePartialWithContext: typeof keyedRecordsDecodePartialWithContext;
+  readonly validateField: typeof keyedRecordsValidateField;
+  readonly validateFields: typeof keyedRecordsValidateFields;
+  readonly hasShape: typeof keyedRecordsHasShape;
+  readonly is: typeof keyedRecordsIs;
+} = {
+  toString: keyedRecordsToString,
+  clone: keyedRecordsClone,
+  equals: keyedRecordsEquals,
+  hashCode: keyedRecordsHashCode,
+  defaultValue: keyedRecordsDefaultValue,
+  encode: keyedRecordsEncode,
+  encodeWithContext: keyedRecordsEncodeWithContext,
+  encodePartialWithContext: keyedRecordsEncodePartialWithContext,
+  decode: keyedRecordsDecode,
+  decodeWithContext: keyedRecordsDecodeWithContext,
+  decodePartialWithContext: keyedRecordsDecodePartialWithContext,
+  validateField: keyedRecordsValidateField,
+  validateFields: keyedRecordsValidateFields,
+  hasShape: keyedRecordsHasShape,
+  is: keyedRecordsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+/** @endec({ renameAll: "snake_case" }) */
+export class KeyedOptions {
+    /** @endec({ rename: "n" }) */
+    count = 0;
+    /** @endec({ default: true }) */
+    userLabel = 'none';
+    /** @endec({ skipEncoding: true }) */
+    hidden = false;
+    /** @endec({ skipDecoding: true }) */
+    derived = 1;
+    /** @endec(positive) */
+    weight = 1;
+    /** @debug({ skip: true }) */
+    secret = 's';
+    /** @hash({ skip: true }) */
+    noise = 0;
+    /** @partialEq({ skip: true }) */
+    ignored = 0;
+    /** @default(5) */
+    five = 0;
+    /** @endec({ flatten: true }) */
+    inner: KeyedInner = { deepValue: 1 };
+
+    static toString(value: KeyedOptions): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("count: " + String(value.count));
+        parts.push("userLabel: " + String(value.userLabel));
+        parts.push("hidden: " + String(value.hidden));
+        parts.push("derived: " + String(value.derived));
+        parts.push("weight: " + String(value.weight));
+        parts.push("noise: " + String(value.noise));
+        parts.push("ignored: " + String(value.ignored));
+        parts.push("five: " + String(value.five));
+        parts.push("inner: " + keyedInnerToString(value.inner));
+            return "KeyedOptions { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: KeyedOptions): KeyedOptions {
+        return __mf_clonedWith(value, () => ({
+        	count: value.count,
+        	userLabel: value.userLabel,
+        	hidden: value.hidden,
+        	derived: value.derived,
+        	weight: value.weight,
+        	secret: value.secret,
+        	noise: value.noise,
+        	ignored: value.ignored,
+        	five: value.five,
+        	inner: keyedInnerClone(value.inner)
+        }));
+    }
+
+    static equals(a: KeyedOptions, b: KeyedOptions): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => (a.count === b.count || a.count !== a.count && b.count !== b.count) && a.userLabel === b.userLabel && a.hidden === b.hidden && (a.derived === b.derived || a.derived !== a.derived && b.derived !== b.derived) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight) && a.secret === b.secret && (a.noise === b.noise || a.noise !== a.noise && b.noise !== b.noise) && (a.five === b.five || a.five !== a.five && b.five !== b.five) && keyedInnerEquals(a.inner, b.inner));
+    }
+
+    static hashCode(value: KeyedOptions): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.userLabel ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.hidden ? 1231 : 1237)) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.derived) ? value.derived | 0 : value.derived.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.secret ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.ignored) ? value.ignored | 0 : value.ignored.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.five) ? value.five | 0 : value.five.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (keyedInnerHashCode(value.inner))) | 0;
+            return hash;
+        });
+    }
+
+    static defaultValue(): KeyedOptions {
+        const fields: { count: number; userLabel: string; hidden: boolean; derived: number; weight: number; secret: string; noise: number; ignored: number; five: number; inner: KeyedInner } = {
+            count: 0,
+            userLabel: "none",
+            hidden: false,
+            derived: 1,
+            weight: 1,
+            secret: "s",
+            noise: 0,
+            ignored: 0,
+            five: 5,
+            inner: ({ deepValue: 1 }),
+        };
+        return __mf_instanceOf(KeyedOptions.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: KeyedOptions, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "KeyedOptions" });
+    KeyedOptions.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<KeyedOptions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedOptions>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "KeyedOptions" };
+        KeyedOptions.#encodeFields(value as KeyedOptions, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: KeyedOptions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result["n"] = value.count;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("userLabel")) {
+        if (value.userLabel !== undefined) {
+            result["user_label"] = value.userLabel;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("derived")) {
+        if (value.derived !== undefined) {
+            result["derived"] = value.derived;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("weight")) {
+        if (value.weight !== undefined) {
+            result["weight"] = value.weight;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("secret")) {
+        if (value.secret !== undefined) {
+            result["secret"] = value.secret;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("noise")) {
+        if (value.noise !== undefined) {
+            result["noise"] = value.noise;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("ignored")) {
+        if (value.ignored !== undefined) {
+            result["ignored"] = value.ignored;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("five")) {
+        if (value.five !== undefined) {
+            result["five"] = value.five;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("inner")) {
+        if (value.inner !== undefined) {
+            const __flattened = keyedInnerEncodePartialWithContext(value.inner, ctx);
+            const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+            Object.assign(result, rest);
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: KeyedOptions, keepMetadata?: boolean): string {
+        return keyedOptionsEncode(value, keepMetadata);
+    }
+
+constructor(props: { count: number; userLabel?: string; hidden: boolean; weight: number; secret: string; noise: number; ignored: number; five: number }) {
+
+    this.count = props.count;
+    if (props.userLabel !== undefined) {
+        this.userLabel = props.userLabel;
+    }
+    this.hidden = props.hidden;
+    this.weight = props.weight;
+    this.secret = props.secret;
+    this.noise = props.noise;
+    this.ignored = props.ignored;
+    this.five = props.five;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KeyedOptions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = KeyedOptions.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "KeyedOptions.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedOptions | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedOptions> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<KeyedOptions> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedOptions.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "KeyedOptions.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "KeyedOptions") as KeyedOptions | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedOptions.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("count")) && !("n" in obj)) {
+        errors.push({ field: "n", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("hidden")) && !("hidden" in obj)) {
+        errors.push({ field: "hidden", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
+        errors.push({ field: "weight", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("secret")) && !("secret" in obj)) {
+        errors.push({ field: "secret", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("noise")) && !("noise" in obj)) {
+        errors.push({ field: "noise", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("ignored")) && !("ignored" in obj)) {
+        errors.push({ field: "ignored", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("five")) && !("five" in obj)) {
+        errors.push({ field: "five", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(KeyedOptions.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "KeyedOptions");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("count")) ? "n" in obj : (__fields.keeps("count") && obj["n"] !== undefined)) {
+        const __raw_count = obj["n"] as number;
+
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+            errors.push({ field: "n", message: __raw_count == null ? "KeyedOptions.n is required" : "expected number" });
+        } else {
+            instance.count = __raw_count;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("userLabel"))) {
+        if (("user_label" in obj && obj["user_label"] !== undefined)) {
+            const __raw_userLabel = obj["user_label"] as string;
+
+            if (!(typeof __raw_userLabel === "string")) {
+                errors.push({ field: "user_label", message: "expected string" });
+            } else {
+                instance.userLabel = __raw_userLabel;
+            }
+        }
+        if ((__fields === undefined || __fields.requires("userLabel")) && !("user_label" in obj && obj["user_label"] !== undefined)) {
+            instance.userLabel = "";
+        }
+    }
+    if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
+        const __raw_hidden = obj["hidden"] as boolean;
+
+        if (!(typeof __raw_hidden === "boolean")) {
+            errors.push({ field: "hidden", message: __raw_hidden == null ? "KeyedOptions.hidden is required" : "expected boolean" });
+        } else {
+            instance.hidden = __raw_hidden;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+        const __raw_weight = obj["weight"] as number;
+
+        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+            errors.push({ field: "weight", message: __raw_weight == null ? "KeyedOptions.weight is required" : "expected number" });
+        } else {
+            if (__raw_weight == null) { errors.push({ field: "weight", message: "KeyedOptions.weight is required" }); } else {
+                if (__raw_weight <= 0) { errors.push({ field: "weight", message: "KeyedOptions.weight must be positive" }); }
+            }
+            instance.weight = __raw_weight;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+        const __raw_secret = obj["secret"] as string;
+
+        if (!(typeof __raw_secret === "string")) {
+            errors.push({ field: "secret", message: __raw_secret == null ? "KeyedOptions.secret is required" : "expected string" });
+        } else {
+            instance.secret = __raw_secret;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("noise")) ? "noise" in obj : (__fields.keeps("noise") && obj["noise"] !== undefined)) {
+        const __raw_noise = obj["noise"] as number;
+
+        if (!(typeof __raw_noise === "number" && globalThis.Number.isFinite(__raw_noise))) {
+            errors.push({ field: "noise", message: __raw_noise == null ? "KeyedOptions.noise is required" : "expected number" });
+        } else {
+            instance.noise = __raw_noise;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("ignored")) ? "ignored" in obj : (__fields.keeps("ignored") && obj["ignored"] !== undefined)) {
+        const __raw_ignored = obj["ignored"] as number;
+
+        if (!(typeof __raw_ignored === "number" && globalThis.Number.isFinite(__raw_ignored))) {
+            errors.push({ field: "ignored", message: __raw_ignored == null ? "KeyedOptions.ignored is required" : "expected number" });
+        } else {
+            instance.ignored = __raw_ignored;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("five")) ? "five" in obj : (__fields.keeps("five") && obj["five"] !== undefined)) {
+        const __raw_five = obj["five"] as number;
+
+        if (!(typeof __raw_five === "number" && globalThis.Number.isFinite(__raw_five))) {
+            errors.push({ field: "five", message: __raw_five == null ? "KeyedOptions.five is required" : "expected number" });
+        } else {
+            instance.five = __raw_five;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("inner"))) {
+        if ((__fields === undefined || __fields.requires("inner")) || keyedInnerHasShape(obj)) {
+            try {
+                const __result = keyedInnerDecodePartialWithContext(obj, ctx, { except: [] });
+                ctx.assignOrDefer(instance, "inner", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push(__err);
+                    }
+                } else {
+                    throw __e;
+                }
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof KeyedOptions>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "weight") {
+        const __val = value as number;
+        if (__val == null) { errors.push({ field: "weight", message: "KeyedOptions.weight is required" }); } else {
+            if (__val <= 0) { errors.push({ field: "weight", message: "KeyedOptions.weight must be positive" }); }
+        }
+    }
+    return errors;
+}
+
+static validateFields(partial: { readonly [K in keyof KeyedOptions]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("weight" in partial && partial.weight !== undefined) {
+        const __val = partial.weight as number;
+        if (__val == null) { errors.push({ field: "weight", message: "KeyedOptions.weight is required" }); } else {
+            if (__val <= 0) { errors.push({ field: "weight", message: "KeyedOptions.weight must be positive" }); }
+        }
+    }
+    return errors;
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "n") && __mf_holds(obj, "hidden") && __mf_holds(obj, "weight") && __mf_holds(obj, "secret") && __mf_holds(obj, "noise") && __mf_holds(obj, "ignored") && __mf_holds(obj, "five");
+}
+
+static is(obj: unknown): obj is KeyedOptions {
+    if (obj instanceof KeyedOptions) {
+        return true;
+    }
+    if (!KeyedOptions.hasShape(obj)) {
+        return false;
+    }
+    const result = KeyedOptions.decode(obj);
+    return result.success;
+}
+}
+
+export function keyedOptionsToString(value: KeyedOptions): string {
+    return KeyedOptions.toString(value);
+}
+
+export function keyedOptionsClone(value: KeyedOptions): KeyedOptions {
+    return KeyedOptions.clone(value);
+}
+
+export function keyedOptionsEquals(a: KeyedOptions, b: KeyedOptions): boolean {
+    return KeyedOptions.equals(a, b);
+}
+
+export function keyedOptionsHashCode(value: KeyedOptions): number {
+    return KeyedOptions.hashCode(value);
+}
+
+export function keyedOptionsDefaultValue(): KeyedOptions {
+    return KeyedOptions.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function keyedOptionsEncode(value: KeyedOptions, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = keyedOptionsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function keyedOptionsEncodeWithContext(value: KeyedOptions, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return KeyedOptions.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function keyedOptionsEncodePartialWithContext(value: Partial<KeyedOptions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedOptions>): Record<string, unknown> {
+    return KeyedOptions.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function keyedOptionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KeyedOptions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return KeyedOptions.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function keyedOptionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedOptions | __mf_PendingRef {
+    return KeyedOptions.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function keyedOptionsHasShape(value: unknown): boolean {
+    return KeyedOptions.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function keyedOptionsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedOptions>): Partial<KeyedOptions> | __mf_PendingRef {
+    return KeyedOptions.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function keyedOptionsIs(value: unknown): value is KeyedOptions {
+    return KeyedOptions.is(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface KeyedInner {
+    deepValue: number;
+}
+
+export function keyedInnerToString(value: KeyedInner): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("deepValue: " + String(value.deepValue));
+        return "KeyedInner { " + parts.join(", ") + " }";
+    });
+}
+
+export function keyedInnerClone(value: KeyedInner): KeyedInner {
+    return __mf_clonedWith(value, (): KeyedInner => ({ deepValue: value.deepValue }));
+}
+
+export function keyedInnerEquals(a: KeyedInner, b: KeyedInner): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.deepValue === b.deepValue || a.deepValue !== a.deepValue && b.deepValue !== b.deepValue);
+}
+
+export function keyedInnerHashCode(value: KeyedInner): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.deepValue) ? value.deepValue | 0 : value.deepValue.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function keyedInnerDefaultValue(): KeyedInner {
+    return {
+        deepValue: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function keyedInnerEncode(value: KeyedInner, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = keyedInnerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function keyedInnerEncodeWithContext(value: KeyedInner, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "KeyedInner" });
+    keyedInnerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function keyedInnerEncodePartialWithContext(value: Partial<KeyedInner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedInner>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "KeyedInner" };
+        keyedInnerEncodeFields(value as KeyedInner, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function keyedInnerEncodeFields(value: KeyedInner, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("deepValue")) {
+        if (value.deepValue !== undefined) {
+            result["deepValue"] = value.deepValue;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function keyedInnerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KeyedInner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = keyedInnerDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "KeyedInner.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedInner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedInner> | __mf_PendingRef;
+export function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<KeyedInner> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedInner.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "KeyedInner.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "KeyedInner") as KeyedInner | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedInner.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("deepValue")) && !("deepValue" in obj)) {
+        errors.push({ field: "deepValue", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "KeyedInner");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("deepValue")) ? "deepValue" in obj : (__fields.keeps("deepValue") && obj["deepValue"] !== undefined)) {
+        const __raw_deepValue = obj["deepValue"] as number;
+
+        if (!(typeof __raw_deepValue === "number" && globalThis.Number.isFinite(__raw_deepValue))) {
+            errors.push({ field: "deepValue", message: __raw_deepValue == null ? "KeyedInner.deepValue is required" : "expected number" });
+        } else {
+            instance.deepValue = __raw_deepValue;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as KeyedInner;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function keyedInnerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedInner>): Partial<KeyedInner> | __mf_PendingRef {
+    return keyedInnerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function keyedInnerValidateField<K extends keyof KeyedInner>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function keyedInnerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function keyedInnerValidateFields(partial: { readonly [K in keyof KeyedInner]?: unknown }): Array<{ field: string; message: string }>;
+export function keyedInnerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function keyedInnerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "deepValue");
+}
+
+export function keyedInnerIs(obj: unknown): obj is KeyedInner {
+    return keyedInnerHasShape(obj) && keyedInnerDecode(obj).success;
+}
+
+export const KeyedInner: {
+  readonly toString: typeof keyedInnerToString;
+  readonly clone: typeof keyedInnerClone;
+  readonly equals: typeof keyedInnerEquals;
+  readonly hashCode: typeof keyedInnerHashCode;
+  readonly defaultValue: typeof keyedInnerDefaultValue;
+  readonly encode: typeof keyedInnerEncode;
+  readonly encodeWithContext: typeof keyedInnerEncodeWithContext;
+  readonly encodePartialWithContext: typeof keyedInnerEncodePartialWithContext;
+  readonly decode: typeof keyedInnerDecode;
+  readonly decodeWithContext: typeof keyedInnerDecodeWithContext;
+  readonly decodePartialWithContext: typeof keyedInnerDecodePartialWithContext;
+  readonly validateField: typeof keyedInnerValidateField;
+  readonly validateFields: typeof keyedInnerValidateFields;
+  readonly hasShape: typeof keyedInnerHasShape;
+  readonly is: typeof keyedInnerIs;
+} = {
+  toString: keyedInnerToString,
+  clone: keyedInnerClone,
+  equals: keyedInnerEquals,
+  hashCode: keyedInnerHashCode,
+  defaultValue: keyedInnerDefaultValue,
+  encode: keyedInnerEncode,
+  encodeWithContext: keyedInnerEncodeWithContext,
+  encodePartialWithContext: keyedInnerEncodePartialWithContext,
+  decode: keyedInnerDecode,
+  decodeWithContext: keyedInnerDecodeWithContext,
+  decodePartialWithContext: keyedInnerDecodePartialWithContext,
+  validateField: keyedInnerValidateField,
+  validateFields: keyedInnerValidateFields,
+  hasShape: keyedInnerHasShape,
+  is: keyedInnerIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface KeyedSelections {
+    partial: Partial<KeyedRecords>;
+    picked: Pick<KeyedRecords, 'byKind' | 'codes'>;
+    omitted: Omit<KeyedRecords, 'byLevel' | 'levels' | 'deep'>;
+    required: Required<Pick<KeyedRecords, 'deep'>>;
+}
+
+export function keyedSelectionsToString(value: KeyedSelections): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("partial: " + __mf_structuralDebug(value.partial));
+    parts.push("picked: " + __mf_structuralDebug(value.picked));
+    parts.push("omitted: " + __mf_structuralDebug(value.omitted));
+    parts.push("required: " + __mf_structuralDebug(value.required));
+        return "KeyedSelections { " + parts.join(", ") + " }";
+    });
+}
+
+export function keyedSelectionsClone(value: KeyedSelections): KeyedSelections {
+    return __mf_clonedWith(value, (): KeyedSelections => ({
+	partial: __mf_structuralClone(value.partial),
+	picked: __mf_structuralClone(value.picked),
+	omitted: __mf_structuralClone(value.omitted),
+	required: __mf_structuralClone(value.required)
+}));
+}
+
+export function keyedSelectionsEquals(a: KeyedSelections, b: KeyedSelections): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.partial, b.partial) && __mf_structuralEquals(a.picked, b.picked) && __mf_structuralEquals(a.omitted, b.omitted) && __mf_structuralEquals(a.required, b.required));
+}
+
+export function keyedSelectionsHashCode(value: KeyedSelections): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.partial))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.picked))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.omitted))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.required))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function keyedSelectionsEncode(value: KeyedSelections, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = keyedSelectionsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function keyedSelectionsEncodeWithContext(value: KeyedSelections, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "KeyedSelections" });
+    keyedSelectionsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function keyedSelectionsEncodePartialWithContext(value: Partial<KeyedSelections>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedSelections>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "KeyedSelections" };
+        keyedSelectionsEncodeFields(value as KeyedSelections, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function keyedSelectionsEncodeFields(value: KeyedSelections, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("partial")) {
+        if (value.partial !== undefined) {
+            result["partial"] = keyedRecordsEncodePartialWithContext(value.partial, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("picked")) {
+        if (value.picked !== undefined) {
+            result["picked"] = keyedRecordsEncodePartialWithContext(value.picked, ctx, { only: ["byKind", "codes"] });
+        }
+    }
+    if (__fields === undefined || __fields.keeps("omitted")) {
+        if (value.omitted !== undefined) {
+            result["omitted"] = keyedRecordsEncodePartialWithContext(value.omitted, ctx, { except: ["byLevel", "levels", "deep"] });
+        }
+    }
+    if (__fields === undefined || __fields.keeps("required")) {
+        if (value.required !== undefined) {
+            result["required"] = keyedRecordsEncodePartialWithContext(value.required, ctx, { only: ["deep"] });
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function keyedSelectionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: KeyedSelections } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = keyedSelectionsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "KeyedSelections.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedSelections | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedSelections> | __mf_PendingRef;
+export function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<KeyedSelections> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedSelections.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "KeyedSelections.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "KeyedSelections") as KeyedSelections | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "KeyedSelections.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("partial")) && !("partial" in obj)) {
+        errors.push({ field: "partial", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("picked")) && !("picked" in obj)) {
+        errors.push({ field: "picked", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("omitted")) && !("omitted" in obj)) {
+        errors.push({ field: "omitted", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
+        errors.push({ field: "required", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "KeyedSelections");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("partial")) ? "partial" in obj : (__fields.keeps("partial") && obj["partial"] !== undefined)) {
+        const __raw_partial = obj["partial"] as Partial<KeyedRecords>;
+
+        ctx.pushScope("partial");
+        try {
+            const __result = keyedRecordsDecodePartialWithContext(__raw_partial, ctx);
+            ctx.assignOrDefer(instance, "partial", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "partial" : "partial." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "partial", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
+        const __raw_picked = obj["picked"] as Pick<KeyedRecords, 'byKind' | 'codes'>;
+
+        ctx.pushScope("picked");
+        try {
+            const __result = keyedRecordsDecodePartialWithContext(__raw_picked, ctx, { only: ["byKind", "codes"] });
+            ctx.assignOrDefer(instance, "picked", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "picked" : "picked." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("omitted")) ? "omitted" in obj : (__fields.keeps("omitted") && obj["omitted"] !== undefined)) {
+        const __raw_omitted = obj["omitted"] as Omit<KeyedRecords, 'byLevel' | 'levels' | 'deep'>;
+
+        ctx.pushScope("omitted");
+        try {
+            const __result = keyedRecordsDecodePartialWithContext(__raw_omitted, ctx, { except: ["byLevel", "levels", "deep"] });
+            ctx.assignOrDefer(instance, "omitted", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "omitted" : "omitted." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "omitted", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
+        const __raw_required = obj["required"] as Required<Pick<KeyedRecords, 'deep'>>;
+
+        ctx.pushScope("required");
+        try {
+            const __result = keyedRecordsDecodePartialWithContext(__mf_requireKeys(__raw_required, ctx, [["deep", "deep"]]), ctx, { only: ["deep"] });
+            ctx.assignOrDefer(instance, "required", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "required" : "required." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as KeyedSelections;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function keyedSelectionsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedSelections>): Partial<KeyedSelections> | __mf_PendingRef {
+    return keyedSelectionsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function keyedSelectionsValidateField<K extends keyof KeyedSelections>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function keyedSelectionsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function keyedSelectionsValidateFields(partial: { readonly [K in keyof KeyedSelections]?: unknown }): Array<{ field: string; message: string }>;
+export function keyedSelectionsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function keyedSelectionsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "partial") && __mf_holds(obj, "picked") && __mf_holds(obj, "omitted") && __mf_holds(obj, "required");
+}
+
+export function keyedSelectionsIs(obj: unknown): obj is KeyedSelections {
+    return keyedSelectionsHasShape(obj) && keyedSelectionsDecode(obj).success;
+}
+
+export const KeyedSelections: {
+  readonly toString: typeof keyedSelectionsToString;
+  readonly clone: typeof keyedSelectionsClone;
+  readonly equals: typeof keyedSelectionsEquals;
+  readonly hashCode: typeof keyedSelectionsHashCode;
+  readonly encode: typeof keyedSelectionsEncode;
+  readonly encodeWithContext: typeof keyedSelectionsEncodeWithContext;
+  readonly encodePartialWithContext: typeof keyedSelectionsEncodePartialWithContext;
+  readonly decode: typeof keyedSelectionsDecode;
+  readonly decodeWithContext: typeof keyedSelectionsDecodeWithContext;
+  readonly decodePartialWithContext: typeof keyedSelectionsDecodePartialWithContext;
+  readonly validateField: typeof keyedSelectionsValidateField;
+  readonly validateFields: typeof keyedSelectionsValidateFields;
+  readonly hasShape: typeof keyedSelectionsHasShape;
+  readonly is: typeof keyedSelectionsIs;
+} = {
+  toString: keyedSelectionsToString,
+  clone: keyedSelectionsClone,
+  equals: keyedSelectionsEquals,
+  hashCode: keyedSelectionsHashCode,
+  encode: keyedSelectionsEncode,
+  encodeWithContext: keyedSelectionsEncodeWithContext,
+  encodePartialWithContext: keyedSelectionsEncodePartialWithContext,
+  decode: keyedSelectionsDecode,
+  decodeWithContext: keyedSelectionsDecodeWithContext,
+  decodePartialWithContext: keyedSelectionsDecodePartialWithContext,
+  validateField: keyedSelectionsValidateField,
+  validateFields: keyedSelectionsValidateFields,
+  hasShape: keyedSelectionsHasShape,
+  is: keyedSelectionsIs
+};
+
+## DTS
+
+/**
+* Records and collections by the kind of key they are over, an enum, a set
+* of literals or a pattern, whole and under `Partial`, `Pick` and `Omit`,
+* and a class whose fields are typed by their initializers under each
+* decorator option.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare enum KeyedLevel {
+	/** @default */
+	Low = 0,
+	High = 1
+}
+export declare function keyedLevelToString(value: KeyedLevel): string;
+export declare function keyedLevelClone(value: KeyedLevel): KeyedLevel;
+export declare function keyedLevelEquals(a: KeyedLevel, b: KeyedLevel): boolean;
+export declare function keyedLevelHashCode(value: KeyedLevel): number;
+export declare function keyedLevelDefaultValue(): KeyedLevel;
+/** Encodes this enum value to a JSON string.  */
+export declare function keyedLevelEncode(value: KeyedLevel): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function keyedLevelEncodeWithContext(value: KeyedLevel, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function keyedLevelDecode(input: unknown): KeyedLevel;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function keyedLevelDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): KeyedLevel;
+export declare function keyedLevelIs(value: unknown): value is KeyedLevel;
+export declare namespace KeyedLevel {
+	const toString: typeof keyedLevelToString;
+	const clone: typeof keyedLevelClone;
+	const equals: typeof keyedLevelEquals;
+	const hashCode: typeof keyedLevelHashCode;
+	const defaultValue: typeof keyedLevelDefaultValue;
+	const encode: typeof keyedLevelEncode;
+	const encodeWithContext: typeof keyedLevelEncodeWithContext;
+	const decode: typeof keyedLevelDecode;
+	const decodeWithContext: typeof keyedLevelDecodeWithContext;
+	const is: typeof keyedLevelIs;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare enum KeyedKind {
+	/** @default */
+	A = "a",
+	B = "b"
+}
+export declare function keyedKindToString(value: KeyedKind): string;
+export declare function keyedKindClone(value: KeyedKind): KeyedKind;
+export declare function keyedKindEquals(a: KeyedKind, b: KeyedKind): boolean;
+export declare function keyedKindHashCode(value: KeyedKind): number;
+export declare function keyedKindDefaultValue(): KeyedKind;
+/** Encodes this enum value to a JSON string.  */
+export declare function keyedKindEncode(value: KeyedKind): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function keyedKindEncodeWithContext(value: KeyedKind, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function keyedKindDecode(input: unknown): KeyedKind;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function keyedKindDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): KeyedKind;
+export declare function keyedKindIs(value: unknown): value is KeyedKind;
+export declare namespace KeyedKind {
+	const toString: typeof keyedKindToString;
+	const clone: typeof keyedKindClone;
+	const equals: typeof keyedKindEquals;
+	const hashCode: typeof keyedKindHashCode;
+	const defaultValue: typeof keyedKindDefaultValue;
+	const encode: typeof keyedKindEncode;
+	const encodeWithContext: typeof keyedKindEncodeWithContext;
+	const decode: typeof keyedKindDecode;
+	const decodeWithContext: typeof keyedKindDecodeWithContext;
+	const is: typeof keyedKindIs;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface KeyedRecords {
+	byLevel: Record<KeyedLevel, string>;
+	byKind: Record<KeyedKind, number>;
+	some: Partial<Record<"x" | "y", number>>;
+	levels: Map<KeyedLevel, string>;
+	kinds: Set<KeyedKind>;
+	codes: Set<`c-${number}`>;
+	deep?: {
+		inner?: {
+			at?: Date;
+			tags?: string[];
+		};
+	};
+}
+export declare function keyedRecordsToString(value: KeyedRecords): string;
+export declare function keyedRecordsClone(value: KeyedRecords): KeyedRecords;
+export declare function keyedRecordsEquals(a: KeyedRecords, b: KeyedRecords): boolean;
+export declare function keyedRecordsHashCode(value: KeyedRecords): number;
+export declare function keyedRecordsDefaultValue(): KeyedRecords;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function keyedRecordsEncode(value: KeyedRecords, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function keyedRecordsEncodeWithContext(value: KeyedRecords, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function keyedRecordsEncodePartialWithContext(value: Partial<KeyedRecords>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedRecords>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function keyedRecordsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KeyedRecords;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedRecords | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedRecords> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function keyedRecordsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedRecords>): Partial<KeyedRecords> | __mf_PendingRef;
+export declare function keyedRecordsValidateField<K extends keyof KeyedRecords>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedRecordsValidateFields(partial: { readonly [K in keyof KeyedRecords]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedRecordsHasShape(obj: unknown): boolean;
+export declare function keyedRecordsIs(obj: unknown): obj is KeyedRecords;
+export declare const KeyedRecords: {
+	readonly toString: typeof keyedRecordsToString;
+	readonly clone: typeof keyedRecordsClone;
+	readonly equals: typeof keyedRecordsEquals;
+	readonly hashCode: typeof keyedRecordsHashCode;
+	readonly defaultValue: typeof keyedRecordsDefaultValue;
+	readonly encode: typeof keyedRecordsEncode;
+	readonly encodeWithContext: typeof keyedRecordsEncodeWithContext;
+	readonly encodePartialWithContext: typeof keyedRecordsEncodePartialWithContext;
+	readonly decode: typeof keyedRecordsDecode;
+	readonly decodeWithContext: typeof keyedRecordsDecodeWithContext;
+	readonly decodePartialWithContext: typeof keyedRecordsDecodePartialWithContext;
+	readonly validateField: typeof keyedRecordsValidateField;
+	readonly validateFields: typeof keyedRecordsValidateFields;
+	readonly hasShape: typeof keyedRecordsHasShape;
+	readonly is: typeof keyedRecordsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+/** @endec({ renameAll: "snake_case" }) */
+export declare class KeyedOptions {
+	#private;
+	/** @endec({ rename: "n" }) */
+	count: number;
+	/** @endec({ default: true }) */
+	userLabel: string;
+	/** @endec({ skipEncoding: true }) */
+	hidden: boolean;
+	/** @endec({ skipDecoding: true }) */
+	derived: number;
+	/** @endec(positive) */
+	weight: number;
+	/** @debug({ skip: true }) */
+	secret: string;
+	/** @hash({ skip: true }) */
+	noise: number;
+	/** @partialEq({ skip: true }) */
+	ignored: number;
+	/** @default(5) */
+	five: number;
+	/** @endec({ flatten: true }) */
+	inner: KeyedInner;
+	static toString(value: KeyedOptions): string;
+	static clone(value: KeyedOptions): KeyedOptions;
+	static equals(a: KeyedOptions, b: KeyedOptions): boolean;
+	static hashCode(value: KeyedOptions): number;
+	static defaultValue(): KeyedOptions;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: KeyedOptions, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<KeyedOptions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedOptions>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: KeyedOptions, keepMetadata?: boolean): string;
+	constructor(props: {
+		count: number;
+		userLabel?: string;
+		hidden: boolean;
+		weight: number;
+		secret: string;
+		noise: number;
+		ignored: number;
+		five: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: KeyedOptions;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedOptions | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedOptions> | __mf_PendingRef;
+	static validateField<K extends keyof KeyedOptions>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof KeyedOptions]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is KeyedOptions;
+}
+export declare function keyedOptionsToString(value: KeyedOptions): string;
+export declare function keyedOptionsClone(value: KeyedOptions): KeyedOptions;
+export declare function keyedOptionsEquals(a: KeyedOptions, b: KeyedOptions): boolean;
+export declare function keyedOptionsHashCode(value: KeyedOptions): number;
+export declare function keyedOptionsDefaultValue(): KeyedOptions;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function keyedOptionsEncode(value: KeyedOptions, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function keyedOptionsEncodeWithContext(value: KeyedOptions, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function keyedOptionsEncodePartialWithContext(value: Partial<KeyedOptions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedOptions>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function keyedOptionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KeyedOptions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function keyedOptionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedOptions | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function keyedOptionsHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function keyedOptionsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedOptions>): Partial<KeyedOptions> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function keyedOptionsIs(value: unknown): value is KeyedOptions;
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface KeyedInner {
+	deepValue: number;
+}
+export declare function keyedInnerToString(value: KeyedInner): string;
+export declare function keyedInnerClone(value: KeyedInner): KeyedInner;
+export declare function keyedInnerEquals(a: KeyedInner, b: KeyedInner): boolean;
+export declare function keyedInnerHashCode(value: KeyedInner): number;
+export declare function keyedInnerDefaultValue(): KeyedInner;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function keyedInnerEncode(value: KeyedInner, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function keyedInnerEncodeWithContext(value: KeyedInner, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function keyedInnerEncodePartialWithContext(value: Partial<KeyedInner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedInner>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function keyedInnerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KeyedInner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedInner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedInner> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function keyedInnerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedInner>): Partial<KeyedInner> | __mf_PendingRef;
+export declare function keyedInnerValidateField<K extends keyof KeyedInner>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedInnerValidateFields(partial: { readonly [K in keyof KeyedInner]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedInnerHasShape(obj: unknown): boolean;
+export declare function keyedInnerIs(obj: unknown): obj is KeyedInner;
+export declare const KeyedInner: {
+	readonly toString: typeof keyedInnerToString;
+	readonly clone: typeof keyedInnerClone;
+	readonly equals: typeof keyedInnerEquals;
+	readonly hashCode: typeof keyedInnerHashCode;
+	readonly defaultValue: typeof keyedInnerDefaultValue;
+	readonly encode: typeof keyedInnerEncode;
+	readonly encodeWithContext: typeof keyedInnerEncodeWithContext;
+	readonly encodePartialWithContext: typeof keyedInnerEncodePartialWithContext;
+	readonly decode: typeof keyedInnerDecode;
+	readonly decodeWithContext: typeof keyedInnerDecodeWithContext;
+	readonly decodePartialWithContext: typeof keyedInnerDecodePartialWithContext;
+	readonly validateField: typeof keyedInnerValidateField;
+	readonly validateFields: typeof keyedInnerValidateFields;
+	readonly hasShape: typeof keyedInnerHasShape;
+	readonly is: typeof keyedInnerIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface KeyedSelections {
+	partial: Partial<KeyedRecords>;
+	picked: Pick<KeyedRecords, "byKind" | "codes">;
+	omitted: Omit<KeyedRecords, "byLevel" | "levels" | "deep">;
+	required: Required<Pick<KeyedRecords, "deep">>;
+}
+export declare function keyedSelectionsToString(value: KeyedSelections): string;
+export declare function keyedSelectionsClone(value: KeyedSelections): KeyedSelections;
+export declare function keyedSelectionsEquals(a: KeyedSelections, b: KeyedSelections): boolean;
+export declare function keyedSelectionsHashCode(value: KeyedSelections): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function keyedSelectionsEncode(value: KeyedSelections, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function keyedSelectionsEncodeWithContext(value: KeyedSelections, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function keyedSelectionsEncodePartialWithContext(value: Partial<KeyedSelections>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof KeyedSelections>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function keyedSelectionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: KeyedSelections;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): KeyedSelections | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<KeyedSelections> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function keyedSelectionsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof KeyedSelections>): Partial<KeyedSelections> | __mf_PendingRef;
+export declare function keyedSelectionsValidateField<K extends keyof KeyedSelections>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedSelectionsValidateFields(partial: { readonly [K in keyof KeyedSelections]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedSelectionsHasShape(obj: unknown): boolean;
+export declare function keyedSelectionsIs(obj: unknown): obj is KeyedSelections;
+export declare const KeyedSelections: {
+	readonly toString: typeof keyedSelectionsToString;
+	readonly clone: typeof keyedSelectionsClone;
+	readonly equals: typeof keyedSelectionsEquals;
+	readonly hashCode: typeof keyedSelectionsHashCode;
+	readonly encode: typeof keyedSelectionsEncode;
+	readonly encodeWithContext: typeof keyedSelectionsEncodeWithContext;
+	readonly encodePartialWithContext: typeof keyedSelectionsEncodePartialWithContext;
+	readonly decode: typeof keyedSelectionsDecode;
+	readonly decodeWithContext: typeof keyedSelectionsDecodeWithContext;
+	readonly decodePartialWithContext: typeof keyedSelectionsDecodePartialWithContext;
+	readonly validateField: typeof keyedSelectionsValidateField;
+	readonly validateFields: typeof keyedSelectionsValidateFields;
+	readonly hasShape: typeof keyedSelectionsHasShape;
+	readonly is: typeof keyedSelectionsIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..387 -> expanded 1503..1890
+original 387..530 -> expanded 4929..5072
+original 530..912 -> expanded 7979..8361
+original 912..1603 -> expanded 31336..32027
+original 1603..1604 -> expanded 50957..50958
+original 1604..1731 -> expanded 54739..54866
+original 1731..2035 -> expanded 65062..65366
+original 2035..2036 -> expanded 81265..81266
+generated 0..1503 <- imports
+generated 1890..2195 <- Debug
+generated 2195..2281 <- Clone
+generated 2281..2378 <- PartialEq
+generated 2378..2584 <- Hash
+generated 2584..2669 <- Default
+generated 2669..3103 <- Encode
+generated 3103..4145 <- Decode
+generated 4145..4929 <- __convenience_const
+generated 5072..5360 <- Debug
+generated 5360..5443 <- Clone
+generated 5443..5537 <- PartialEq
+generated 5537..5698 <- Hash
+generated 5698..5778 <- Default
+generated 5778..6206 <- Encode
+generated 6206..7216 <- Decode
+generated 7216..7979 <- __convenience_const
+generated 8361..9027 <- Debug
+generated 9027..9508 <- Clone
+generated 9508..10408 <- PartialEq
+generated 10408..11416 <- Hash
+generated 11416..11727 <- Default
+generated 11727..15181 <- Encode
+generated 15181..29838 <- Decode
+generated 29838..31336 <- __convenience_const
+generated 32027..32758 <- Debug
+generated 32758..33205 <- Clone
+generated 33205..33838 <- PartialEq
+generated 33838..35289 <- Hash
+generated 35289..35865 <- Default
+generated 35865..38927 <- Encode
+generated 38927..39258 <- Encode
+generated 39258..50957 <- Decode
+generated 50958..51070 <- Debug
+generated 51070..51182 <- Clone
+generated 51182..51303 <- PartialEq
+generated 51303..51415 <- Hash
+generated 51415..51517 <- Default
+generated 51517..52897 <- Encode
+generated 52897..54739 <- Decode
+generated 54866..55138 <- Debug
+generated 55138..55293 <- Clone
+generated 55293..55532 <- PartialEq
+generated 55532..55880 <- Hash
+generated 55880..55980 <- Default
+generated 55980..58159 <- Encode
+generated 58159..63626 <- Decode
+generated 63626..65062 <- __convenience_const
+generated 65366..65864 <- Debug
+generated 65864..66199 <- Clone
+generated 66199..66548 <- PartialEq
+generated 66548..66989 <- Hash
+generated 66989..70007 <- Encode
+generated 70007..79780 <- Decode
+generated 79780..81265 <- __convenience_const
+
+## Metadata
+
+class KeyedOptions: {"body_span":{"end":1605,"start":1055},"decorators":[{"args_src":"{ renameAll: \"snake_case\" }","name":"endec","span":{"end":1028,"start":986}},{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":985,"start":915}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ rename: \"n\" }","name":"endec","span":{"end":1091,"start":1061}}],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":1106,"start":1096},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":1143,"start":1111}}],"initializer":"'none'","key":"Named","name":"userLabel","optional":false,"readonly":false,"span":{"end":1167,"start":1148},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skipEncoding: true }","name":"endec","span":{"end":1209,"start":1172}}],"initializer":"false","key":"Named","name":"hidden","optional":false,"readonly":false,"span":{"end":1229,"start":1214},"ts_type":"boolean","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skipDecoding: true }","name":"endec","span":{"end":1271,"start":1234}}],"initializer":"1","key":"Named","name":"derived","optional":false,"readonly":false,"span":{"end":1288,"start":1276},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"positive","name":"endec","span":{"end":1316,"start":1293}}],"initializer":"1","key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1332,"start":1321},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":1366,"start":1337}}],"initializer":"'s'","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1384,"start":1371},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"hash","span":{"end":1417,"start":1389}}],"initializer":"0","key":"Named","name":"noise","optional":false,"readonly":false,"span":{"end":1432,"start":1422},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ skip: true }","name":"partialEq","span":{"end":1470,"start":1437}}],"initializer":"0","key":"Named","name":"ignored","optional":false,"readonly":false,"span":{"end":1487,"start":1475},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"5","name":"default","span":{"end":1510,"start":1492}}],"initializer":"0","key":"Named","name":"five","optional":false,"readonly":false,"span":{"end":1524,"start":1515},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[{"args_src":"{ flatten: true }","name":"endec","span":{"end":1561,"start":1529}}],"initializer":"{ deepValue: 1 }","key":"Named","name":"inner","optional":false,"readonly":false,"span":{"end":1603,"start":1566},"ts_type":"KeyedInner","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"KeyedOptions","span":{"end":1605,"start":1036},"superclass":null,"type_params":[]}
+interface KeyedRecords: {"body_span":{"end":913,"start":634},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":603,"start":533}}],"fields":[{"decorators":[],"key":"Named","name":"byLevel","optional":false,"readonly":false,"span":{"end":676,"start":640},"ts_type":"Record<KeyedLevel, string>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":715,"start":681},"ts_type":"Record<KeyedKind, number>"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":761,"start":720},"ts_type":"Partial<Record<'x' | 'y', number>>"},{"decorators":[],"key":"Named","name":"levels","optional":false,"readonly":false,"span":{"end":798,"start":766},"ts_type":"Map<KeyedLevel, string>"},{"decorators":[],"key":"Named","name":"kinds","optional":false,"readonly":false,"span":{"end":825,"start":803},"ts_type":"Set<KeyedKind>"},{"decorators":[],"key":"Named","name":"codes","optional":false,"readonly":false,"span":{"end":856,"start":830},"ts_type":"Set<`c-${number}`>"},{"decorators":[],"key":"Named","name":"deep","optional":true,"readonly":false,"span":{"end":911,"start":861},"ts_type":"{ inner?: { at?: Date; tags?: string[] } }"}],"heritage":[],"methods":[],"name":"KeyedRecords","span":{"end":913,"start":611},"type_params":[]}
+interface KeyedInner: {"body_span":{"end":1732,"start":1706},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1677,"start":1607}}],"fields":[{"decorators":[],"key":"Named","name":"deepValue","optional":false,"readonly":false,"span":{"end":1730,"start":1712},"ts_type":"number"}],"heritage":[],"methods":[],"name":"KeyedInner","span":{"end":1732,"start":1685},"type_params":[]}
+interface KeyedSelections: {"body_span":{"end":2036,"start":1829},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1795,"start":1734}}],"fields":[{"decorators":[],"key":"Named","name":"partial","optional":false,"readonly":false,"span":{"end":1866,"start":1835},"ts_type":"Partial<KeyedRecords>"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1918,"start":1871},"ts_type":"Pick<KeyedRecords, 'byKind' | 'codes'>"},{"decorators":[],"key":"Named","name":"omitted","optional":false,"readonly":false,"span":{"end":1982,"start":1923},"ts_type":"Omit<KeyedRecords, 'byLevel' | 'levels' | 'deep'>"},{"decorators":[],"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":2034,"start":1987},"ts_type":"Required<Pick<KeyedRecords, 'deep'>>"}],"heritage":[],"methods":[],"name":"KeyedSelections","span":{"end":2036,"start":1803},"type_params":[]}
+enum KeyedLevel: {"body_span":{"end":388,"start":347},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":323,"start":253}}],"is_const":false,"is_declare":false,"name":"KeyedLevel","span":{"end":388,"start":331},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":368,"start":353}}],"name":"Low","span":{"end":376,"start":373},"value":{"Number":0.0}},{"decorators":[],"name":"High","span":{"end":386,"start":382},"value":{"Number":1.0}}]}
+enum KeyedKind: {"body_span":{"end":531,"start":483},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":460,"start":390}}],"is_const":false,"is_declare":false,"name":"KeyedKind","span":{"end":531,"start":468},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":504,"start":489}}],"name":"A","span":{"end":516,"start":509},"value":{"String":"a"}},{"decorators":[],"name":"B","span":{"end":529,"start":522},"value":{"String":"b"}}]}
+
+## Registry reads
+
+Name("'byKind' | 'codes'")
+Name("'byLevel' | 'levels' | 'deep'")
+Name("'deep'")
+Name("'x' | 'y'")
+Name("KeyedInner")
+Name("KeyedKind")
+Name("KeyedLevel")
+Name("KeyedRecords")
+Name("Map")
+Name("Omit")
+Name("Partial")
+Name("Pick")
+Name("Record")
+Name("Required")
+Name("Set")
+Name("`c-${number}`")
+Name("number")
+Name("string")
+Name("{ inner?: { at?: Date; tags?: string[] } }")
+
+## Buildtime dependencies
+
+(none)

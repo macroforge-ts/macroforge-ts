@@ -60,13 +60,14 @@ export interface NewLedger {
     totals: NewTotal[];
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type NewStamp = $Newtype<Date>;
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type NewTags = $Newtype<string[]>;
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+/** @default({ x: 0, at: new Date(0) }) */
 export type NewPoint = $Newtype<{ x: number; at: Date }>;
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */

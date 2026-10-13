@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/newtype-shapes.ts
-sha256 e1e8bae46bf57c4d561f2462b532ea3ba3fad47b7a8bdab75eaf90b11d72c8d5
+sha256 b07aa98315ac841fe90f4d04f4878b184416d43b13f2a71f8a0648acc048243c
 
 ## Changed
 
@@ -2066,7 +2066,7 @@ export const NewLedger: {
   is: newLedgerIs
 };
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type NewStamp = Date & { readonly [__mf_newtype_8]: true };
 
 export function newStampToString(value: NewStamp): string {
@@ -2084,6 +2084,10 @@ export function newStampEquals(a: NewStamp, b: NewStamp): boolean {
 
 export function newStampHashCode(value: NewStamp): number {
     return __mf_structuralHash(value);
+}
+
+export function newStampDefaultValue(): NewStamp {
+    return (new Date() as Date) as NewStamp;
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -2186,6 +2190,7 @@ export const NewStamp: {
   readonly clone: typeof newStampClone;
   readonly equals: typeof newStampEquals;
   readonly hashCode: typeof newStampHashCode;
+  readonly defaultValue: typeof newStampDefaultValue;
   readonly encode: typeof newStampEncode;
   readonly encodeWithContext: typeof newStampEncodeWithContext;
   readonly decode: typeof newStampDecode;
@@ -2197,6 +2202,7 @@ export const NewStamp: {
   clone: newStampClone,
   equals: newStampEquals,
   hashCode: newStampHashCode,
+  defaultValue: newStampDefaultValue,
   encode: newStampEncode,
   encodeWithContext: newStampEncodeWithContext,
   decode: newStampDecode,
@@ -2205,7 +2211,7 @@ export const NewStamp: {
   hasShape: newStampHasShape
 };
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type NewTags = string[] & { readonly [__mf_newtype_9]: true };
 
 export function newTagsToString(value: NewTags): string {
@@ -2223,6 +2229,10 @@ export function newTagsEquals(a: NewTags, b: NewTags): boolean {
 
 export function newTagsHashCode(value: NewTags): number {
     return __mf_structuralHash(value);
+}
+
+export function newTagsDefaultValue(): NewTags {
+    return ([] as string[]) as NewTags;
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -2337,6 +2347,7 @@ export const NewTags: {
   readonly clone: typeof newTagsClone;
   readonly equals: typeof newTagsEquals;
   readonly hashCode: typeof newTagsHashCode;
+  readonly defaultValue: typeof newTagsDefaultValue;
   readonly encode: typeof newTagsEncode;
   readonly encodeWithContext: typeof newTagsEncodeWithContext;
   readonly decode: typeof newTagsDecode;
@@ -2348,6 +2359,7 @@ export const NewTags: {
   clone: newTagsClone,
   equals: newTagsEquals,
   hashCode: newTagsHashCode,
+  defaultValue: newTagsDefaultValue,
   encode: newTagsEncode,
   encodeWithContext: newTagsEncodeWithContext,
   decode: newTagsDecode,
@@ -2356,7 +2368,8 @@ export const NewTags: {
   hasShape: newTagsHasShape
 };
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+/** @default({ x: 0, at: new Date(0) }) */
 export type NewPoint = { x: number; at: Date } & { readonly [__mf_newtype_10]: true };
 
 export function newPointToString(value: NewPoint): string {
@@ -2374,6 +2387,13 @@ export function newPointEquals(a: NewPoint, b: NewPoint): boolean {
 
 export function newPointHashCode(value: NewPoint): number {
     return __mf_structuralHash(value);
+}
+
+export function newPointDefaultValue(): NewPoint {
+    return ({
+	x: 0,
+	at: new Date(0)
+}) as NewPoint;
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -2561,6 +2581,7 @@ export const NewPoint: {
   readonly clone: typeof newPointClone;
   readonly equals: typeof newPointEquals;
   readonly hashCode: typeof newPointHashCode;
+  readonly defaultValue: typeof newPointDefaultValue;
   readonly encode: typeof newPointEncode;
   readonly encodeWithContext: typeof newPointEncodeWithContext;
   readonly encodePartialWithContext: typeof newPointEncodePartialWithContext;
@@ -2576,6 +2597,7 @@ export const NewPoint: {
   clone: newPointClone,
   equals: newPointEquals,
   hashCode: newPointHashCode,
+  defaultValue: newPointDefaultValue,
   encode: newPointEncode,
   encodeWithContext: newPointEncodeWithContext,
   encodePartialWithContext: newPointEncodePartialWithContext,
@@ -3263,7 +3285,7 @@ export declare const NewLedger: {
 	readonly hasShape: typeof newLedgerHasShape;
 	readonly is: typeof newLedgerIs;
 };
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type NewStamp = Date & {
 	readonly [__mf_newtype_8]: true;
 };
@@ -3271,6 +3293,7 @@ export declare function newStampToString(value: NewStamp): string;
 export declare function newStampClone(value: NewStamp): NewStamp;
 export declare function newStampEquals(a: NewStamp, b: NewStamp): boolean;
 export declare function newStampHashCode(value: NewStamp): number;
+export declare function newStampDefaultValue(): NewStamp;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function newStampEncode(value: NewStamp, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -3295,6 +3318,7 @@ export declare const NewStamp: {
 	readonly clone: typeof newStampClone;
 	readonly equals: typeof newStampEquals;
 	readonly hashCode: typeof newStampHashCode;
+	readonly defaultValue: typeof newStampDefaultValue;
 	readonly encode: typeof newStampEncode;
 	readonly encodeWithContext: typeof newStampEncodeWithContext;
 	readonly decode: typeof newStampDecode;
@@ -3302,7 +3326,7 @@ export declare const NewStamp: {
 	readonly decodeWithContext: typeof newStampDecodeWithContext;
 	readonly hasShape: typeof newStampHasShape;
 };
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type NewTags = string[] & {
 	readonly [__mf_newtype_9]: true;
 };
@@ -3310,6 +3334,7 @@ export declare function newTagsToString(value: NewTags): string;
 export declare function newTagsClone(value: NewTags): NewTags;
 export declare function newTagsEquals(a: NewTags, b: NewTags): boolean;
 export declare function newTagsHashCode(value: NewTags): number;
+export declare function newTagsDefaultValue(): NewTags;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function newTagsEncode(value: NewTags, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -3334,6 +3359,7 @@ export declare const NewTags: {
 	readonly clone: typeof newTagsClone;
 	readonly equals: typeof newTagsEquals;
 	readonly hashCode: typeof newTagsHashCode;
+	readonly defaultValue: typeof newTagsDefaultValue;
 	readonly encode: typeof newTagsEncode;
 	readonly encodeWithContext: typeof newTagsEncodeWithContext;
 	readonly decode: typeof newTagsDecode;
@@ -3341,7 +3367,8 @@ export declare const NewTags: {
 	readonly decodeWithContext: typeof newTagsDecodeWithContext;
 	readonly hasShape: typeof newTagsHasShape;
 };
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+/** @default({ x: 0, at: new Date(0) }) */
 export type NewPoint = {
 	x: number;
 	at: Date;
@@ -3352,6 +3379,7 @@ export declare function newPointToString(value: NewPoint): string;
 export declare function newPointClone(value: NewPoint): NewPoint;
 export declare function newPointEquals(a: NewPoint, b: NewPoint): boolean;
 export declare function newPointHashCode(value: NewPoint): number;
+export declare function newPointDefaultValue(): NewPoint;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function newPointEncode(value: NewPoint, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -3390,6 +3418,7 @@ export declare const NewPoint: {
 	readonly clone: typeof newPointClone;
 	readonly equals: typeof newPointEquals;
 	readonly hashCode: typeof newPointHashCode;
+	readonly defaultValue: typeof newPointDefaultValue;
 	readonly encode: typeof newPointEncode;
 	readonly encodeWithContext: typeof newPointEncodeWithContext;
 	readonly encodePartialWithContext: typeof newPointEncodePartialWithContext;
@@ -3464,15 +3493,15 @@ original 1182..1306 -> expanded 30807..30931
 original 1306..1764 -> expanded 35329..35787
 original 1764..1938 -> expanded 69112..69286
 original 1938..2077 -> expanded 71920..72059
-original 2077..2164 -> expanded 84211..84298
-original 2178..2179 -> expanded 84340..84341
-original 2179..2265 -> expanded 89331..89417
-original 2283..2284 -> expanded 89463..89464
-original 2284..2371 -> expanded 94747..94834
-original 2404..2405 -> expanded 94896..94897
-original 2405..2491 -> expanded 105005..105091
-original 2515..2516 -> expanded 105144..105145
-original 2516..2517 -> expanded 111665..111666
+original 2077..2173 -> expanded 84211..84307
+original 2187..2188 -> expanded 84349..84350
+original 2188..2283 -> expanded 89531..89626
+original 2301..2302 -> expanded 89672..89673
+original 2302..2441 -> expanded 95138..95277
+original 2474..2475 -> expanded 95339..95340
+original 2475..2561 -> expanded 105648..105734
+original 2585..2586 -> expanded 105787..105788
+original 2586..2587 -> expanded 112308..112309
 generated 0..1293 <- imports
 generated 1293..1338 <- $Newtype
 generated 1338..1383 <- $Newtype
@@ -3582,38 +3611,41 @@ generated 73035..73389 <- Hash
 generated 73389..75791 <- Encode
 generated 75791..82900 <- Decode
 generated 82900..84211 <- __convenience_const
-generated 84298..84340 <- $Newtype
-generated 84341..84464 <- Debug
-generated 84464..84566 <- Clone
-generated 84566..84707 <- PartialEq
-generated 84707..84809 <- Hash
-generated 84809..85803 <- Encode
-generated 85803..88525 <- Decode
-generated 88525..89331 <- __convenience_const
-generated 89417..89463 <- $Newtype
-generated 89464..89584 <- Debug
-generated 89584..89683 <- Clone
-generated 89683..89821 <- PartialEq
-generated 89821..89921 <- Hash
-generated 89921..90898 <- Encode
-generated 90898..93962 <- Decode
-generated 93962..94747 <- __convenience_const
-generated 94834..94896 <- $Newtype
-generated 94897..95020 <- Debug
-generated 95020..95122 <- Clone
-generated 95122..95263 <- PartialEq
-generated 95263..95365 <- Hash
-generated 95365..97645 <- Encode
-generated 97645..103723 <- Decode
-generated 103723..105005 <- __convenience_const
-generated 105091..105144 <- $Newtype
-generated 105145..105265 <- Debug
-generated 105265..105364 <- Clone
-generated 105364..105502 <- PartialEq
-generated 105502..105602 <- Hash
-generated 105602..106910 <- Encode
-generated 106910..110880 <- Decode
-generated 110880..111665 <- __convenience_const
+generated 84307..84349 <- $Newtype
+generated 84350..84473 <- Debug
+generated 84473..84575 <- Clone
+generated 84575..84716 <- PartialEq
+generated 84716..84818 <- Hash
+generated 84818..84917 <- Default
+generated 84917..85911 <- Encode
+generated 85911..88633 <- Decode
+generated 88633..89531 <- __convenience_const
+generated 89626..89672 <- $Newtype
+generated 89673..89793 <- Debug
+generated 89793..89892 <- Clone
+generated 89892..90030 <- PartialEq
+generated 90030..90130 <- Hash
+generated 90130..90222 <- Default
+generated 90222..91199 <- Encode
+generated 91199..94263 <- Decode
+generated 94263..95138 <- __convenience_const
+generated 95277..95339 <- $Newtype
+generated 95340..95463 <- Debug
+generated 95463..95565 <- Clone
+generated 95565..95706 <- PartialEq
+generated 95706..95808 <- Hash
+generated 95808..95916 <- Default
+generated 95916..98196 <- Encode
+generated 98196..104274 <- Decode
+generated 104274..105648 <- __convenience_const
+generated 105734..105787 <- $Newtype
+generated 105788..105908 <- Debug
+generated 105908..106007 <- Clone
+generated 106007..106145 <- PartialEq
+generated 106145..106245 <- Hash
+generated 106245..107553 <- Encode
+generated 107553..111523 <- Decode
+generated 111523..112308 <- __convenience_const
 
 ## Metadata
 
@@ -3627,10 +3659,10 @@ type NewFlag: {"body":{"Newtype":{"Alias":"boolean"}},"decorators":[{"args_src":
 type NewSlug: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"\"slug\"","name":"default","span":{"end":1607,"start":1584}},{"args_src":"nonEmpty, lowercase","name":"endec","span":{"end":1583,"start":1549}},{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1548,"start":1457}}],"name":"NewSlug","span":{"end":1675,"start":1615},"type_params":[]}
 type NewNested: {"body":{"Newtype":{"Newtype":{"Alias":"number"}}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1768,"start":1677}}],"name":"NewNested","span":{"end":1876,"start":1776},"type_params":[]}
 type NewPlain: {"body":{"Alias":"string"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1969,"start":1878}}],"name":"NewPlain","span":{"end":2000,"start":1977},"type_params":[]}
-type NewStamp: {"body":{"Newtype":{"Alias":"Date"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2834,"start":2773}}],"name":"NewStamp","span":{"end":2901,"start":2842},"type_params":[]}
-type NewTags: {"body":{"Newtype":{"Alias":"string[]"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2964,"start":2903}}],"name":"NewTags","span":{"end":3034,"start":2972},"type_params":[]}
-type NewPoint: {"body":{"Newtype":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":3133,"start":3123},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3142,"start":3134},"ts_type":"Date"}]}}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3097,"start":3036}}],"name":"NewPoint","span":{"end":3184,"start":3105},"type_params":[]}
-type NewPair: {"body":{"Newtype":{"Tuple":["number","Date"]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3247,"start":3186}}],"name":"NewPair","span":{"end":3324,"start":3255},"type_params":[]}
+type NewStamp: {"body":{"Newtype":{"Alias":"Date"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2843,"start":2773}}],"name":"NewStamp","span":{"end":2910,"start":2851},"type_params":[]}
+type NewTags: {"body":{"Newtype":{"Alias":"string[]"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2982,"start":2912}}],"name":"NewTags","span":{"end":3052,"start":2990},"type_params":[]}
+type NewPoint: {"body":{"Newtype":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":3203,"start":3193},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3212,"start":3204},"ts_type":"Date"}]}}},"decorators":[{"args_src":"{ x: 0, at: new Date(0) }","name":"default","span":{"end":3167,"start":3125}},{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3124,"start":3054}}],"name":"NewPoint","span":{"end":3254,"start":3175},"type_params":[]}
+type NewPair: {"body":{"Newtype":{"Tuple":["number","Date"]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3317,"start":3256}}],"name":"NewPair","span":{"end":3394,"start":3325},"type_params":[]}
 
 ## Registry reads
 

@@ -89,3 +89,17 @@ export interface GenericArguments {
     outcome: GenericOutcome<Date>;
     outcomes: GenericOutcome<Date>[];
 }
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class GenericDefaults<T extends string | number = string, U = T[]> {
+    value: T | null = null;
+    many: U | null = null;
+    pair: [T, T] | null = null;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericDefaulted {
+    text: GenericDefaults;
+    counted: GenericDefaults<number>;
+    explicit: GenericDefaults<string, string[]>;
+}

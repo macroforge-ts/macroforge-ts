@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/exotic-shapes.ts
-sha256 a7b310c4f11b7296f5d7c3f4c1d6dbd854e1b3eeaced779a5a5a004451160fc3
+sha256 ca027e944ab25c546a485f444c5c45d65fd6c95ac3754db77bf6cb1f2230576d
 
 ## Changed
 
@@ -13,12 +13,13 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, spellsTemplate as __mf_spellsTemplate, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeNumberKey as __mf_decodeNumberKey, decodeBoolean as __mf_decodeBoolean } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types at the edge of what a type can say: template literal types, `object`,
  * a lone `null`, unions of literals of several kinds, types with nothing in
- * them, and an interface that declares methods.
+ * them, an interface that declares methods, and records by the kind of key
+ * they are over.
  */
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -502,7 +503,7 @@ export function exoticNoneHashCode(_value: ExoticNone): number {
 }
 
 export function exoticNoneDefaultValue(): ExoticNone {
-    return [] as ExoticNone;
+    return ([] as []) as ExoticNone;
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1122,12 +1123,1208 @@ export const ExoticMethods: {
   hashCode: exoticMethodsHashCode
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ExoticLabels = `a-${number}` | `b-${string}` | 'plain' | 5;
+
+export function exoticLabelsToString(value: ExoticLabels): string {
+    return "ExoticLabels(" + __mf_structuralDebug(value) + ")";
+}
+
+export function exoticLabelsClone(value: ExoticLabels): ExoticLabels {
+    return __mf_structuralClone(value);
+}
+
+export function exoticLabelsEquals(a: ExoticLabels, b: ExoticLabels): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function exoticLabelsHashCode(value: ExoticLabels): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticLabelsEncode(value: ExoticLabels, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticLabelsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticLabelsEncodeWithContext(value: ExoticLabels, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticLabelsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticLabels } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = __mf_textOrValue(input, exoticLabelsHasShape);
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticLabelsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticLabels.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticLabelsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticLabels | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticLabels.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ExoticLabels | __mf_PendingRef;
+    }
+
+    
+    const allowedLiterals = ['plain', 5] as const;
+    if (allowedLiterals.includes(value as any)) {
+        return value as ExoticLabels;
+    }
+    if (__mf_spellsTemplate(value, ["a-", ""], ["number"])) {
+        return value as ExoticLabels;
+    }
+    if (__mf_spellsTemplate(value, ["b-", ""], ["string"])) {
+        return value as ExoticLabels;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "ExoticLabels.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function exoticLabelsHasShape(value: unknown): boolean {
+                const allowedLiterals = ['plain', 5] as const;
+                if (allowedLiterals.includes(value as any)) return true;
+                if (__mf_spellsTemplate(value, ["a-", ""], ["number"])) return true;
+                if (__mf_spellsTemplate(value, ["b-", ""], ["string"])) return true;
+                return false;
+}
+export function exoticLabelsIs(value: unknown): value is ExoticLabels {
+    return exoticLabelsHasShape(value);
+}
+
+export const ExoticLabels: {
+  readonly toString: typeof exoticLabelsToString;
+  readonly clone: typeof exoticLabelsClone;
+  readonly equals: typeof exoticLabelsEquals;
+  readonly hashCode: typeof exoticLabelsHashCode;
+  readonly encode: typeof exoticLabelsEncode;
+  readonly encodeWithContext: typeof exoticLabelsEncodeWithContext;
+  readonly decode: typeof exoticLabelsDecode;
+  readonly decodeWithContext: typeof exoticLabelsDecodeWithContext;
+  readonly hasShape: typeof exoticLabelsHasShape;
+  readonly is: typeof exoticLabelsIs;
+} = {
+  toString: exoticLabelsToString,
+  clone: exoticLabelsClone,
+  equals: exoticLabelsEquals,
+  hashCode: exoticLabelsHashCode,
+  encode: exoticLabelsEncode,
+  encodeWithContext: exoticLabelsEncodeWithContext,
+  decode: exoticLabelsDecode,
+  decodeWithContext: exoticLabelsDecodeWithContext,
+  hasShape: exoticLabelsHasShape,
+  is: exoticLabelsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface ExoticTexts {
+    either: `a-${number}` | `b-${string}`;
+    list: `k-${number}`[];
+    mapped: Map<`m-${bigint}`, string>;
+    optional?: `o-${boolean}`;
+    nullable: `n-${string}` | null;
+}
+
+export function exoticTextsToString(value: ExoticTexts): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("either: " + String(value.either));
+    parts.push("list: " + __mf_structuralDebug(value.list));
+    parts.push("mapped: " + __mf_structuralDebug(value.mapped));
+    parts.push("optional: " + String(value.optional));
+    parts.push("nullable: " + String(value.nullable));
+        return "ExoticTexts { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticTextsClone(value: ExoticTexts): ExoticTexts {
+    return __mf_clonedWith(value, (): ExoticTexts => ({
+	either: value.either,
+	list: [...value.list],
+	mapped: new Map(value.mapped),
+	..."optional" in value ? { optional: value.optional } : {},
+	nullable: value.nullable
+}));
+}
+
+export function exoticTextsEquals(a: ExoticTexts, b: ExoticTexts): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.either === b.either && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+	const __other0 = b.list[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+}) && a.mapped.size === b.mapped.size && Array.from(a.mapped).every(([__key0, __item0]) => {
+	const __other0 = b.mapped.get(__key0);
+	return b.mapped.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+}) && a.optional === b.optional && a.nullable === b.nullable);
+}
+
+export function exoticTextsHashCode(value: ExoticTexts): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.either ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 1))) | 0;
+    hash = (hash * 31 + (Array.from(value.mapped).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.optional == null ? 0 : (value.optional ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.nullable == null ? 0 : (value.nullable ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticTextsEncode(value: ExoticTexts, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticTextsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticTextsEncodeWithContext(value: ExoticTexts, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticTexts" });
+    exoticTextsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticTextsEncodePartialWithContext(value: Partial<ExoticTexts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticTexts>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticTexts" };
+        exoticTextsEncodeFields(value as ExoticTexts, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function exoticTextsEncodeFields(value: ExoticTexts, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("either")) {
+        if (value.either !== undefined) {
+            result["either"] = value.either;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result["list"] = value.list;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("mapped")) {
+        if (value.mapped !== undefined) {
+            result["mapped"] = Object.fromEntries(value.mapped.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("optional")) {
+        if (value.optional !== undefined) {
+            result["optional"] = value.optional;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nullable")) {
+        if (value.nullable !== undefined) {
+            result["nullable"] = value.nullable;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticTextsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticTexts } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticTextsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticTexts.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticTexts | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function exoticTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticTexts> | __mf_PendingRef;
+export function exoticTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticTexts> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticTexts.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticTexts.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticTexts") as ExoticTexts | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticTexts.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("either")) && !("either" in obj)) {
+        errors.push({ field: "either", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("mapped")) && !("mapped" in obj)) {
+        errors.push({ field: "mapped", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nullable")) && !("nullable" in obj)) {
+        errors.push({ field: "nullable", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticTexts");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("either")) ? "either" in obj : (__fields.keeps("either") && obj["either"] !== undefined)) {
+        const __raw_either = obj["either"] as `a-${number}` | `b-${string}`;
+
+        if (!(__mf_spellsTemplate(__raw_either, ["a-", ""], ["number"]) || __mf_spellsTemplate(__raw_either, ["b-", ""], ["string"]))) {
+            errors.push({ field: "either", message: __raw_either == null ? "ExoticTexts.either is required" : "expected `a-${number}` | `b-${string}`" });
+        } else {
+            instance.either = __raw_either;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as `k-${number}`[];
+        if (Array.isArray(__raw_list)) {
+            ctx.pushScope("list");
+            try {
+                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __mf_spellsTemplate(__raw0, ["k-", ""], ["number"]), "`k-${number}`") as `k-${number}`));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "list" : "list." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "ExoticTexts.list is required" : "expected `k-${number}`[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("mapped")) ? "mapped" in obj : (__fields.keeps("mapped") && obj["mapped"] !== undefined)) {
+        const __raw_mapped = obj["mapped"] as Record<string, string>;
+        if (typeof __raw_mapped === "object" && __raw_mapped !== null) {
+            ctx.pushScope("mapped");
+            try {
+                instance.mapped = __mf_decodeMap(__raw_mapped, ctx, (__key0) => __mf_decodeChecked(__key0, __mf_spellsTemplate(__key0, ["m-", ""], ["bigint"]), "`m-${bigint}`") as `m-${bigint}`, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "mapped" : "mapped." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "mapped", message: __raw_mapped == null ? "ExoticTexts.mapped is required" : "expected Map<`m-${bigint}`, string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("optional"))) {
+        if (("optional" in obj && obj["optional"] !== undefined)) {
+            const __raw_optional = obj["optional"] as `o-${boolean}`;
+
+            if (!__mf_spellsTemplate(__raw_optional, ["o-", ""], [["true", "false"]])) {
+                errors.push({ field: "optional", message: "expected `o-${boolean}`" });
+            } else {
+                instance.optional = __raw_optional;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nullable")) ? "nullable" in obj : (__fields.keeps("nullable") && obj["nullable"] !== undefined)) {
+        const __raw_nullable = obj["nullable"] as `n-${string}` | null;
+
+        if (!(__mf_spellsTemplate(__raw_nullable, ["n-", ""], ["string"]) || __raw_nullable === null)) {
+            errors.push({ field: "nullable", message: "expected `n-${string}` | null" });
+        } else {
+            instance.nullable = __raw_nullable;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ExoticTexts;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticTextsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticTexts>): Partial<ExoticTexts> | __mf_PendingRef {
+    return exoticTextsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function exoticTextsValidateField<K extends keyof ExoticTexts>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function exoticTextsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function exoticTextsValidateFields(partial: { readonly [K in keyof ExoticTexts]?: unknown }): Array<{ field: string; message: string }>;
+export function exoticTextsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function exoticTextsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "either") && __mf_holds(obj, "list") && __mf_holds(obj, "mapped") && __mf_holds(obj, "nullable");
+}
+
+export function exoticTextsIs(obj: unknown): obj is ExoticTexts {
+    return exoticTextsHasShape(obj) && exoticTextsDecode(obj).success;
+}
+
+export const ExoticTexts: {
+  readonly toString: typeof exoticTextsToString;
+  readonly clone: typeof exoticTextsClone;
+  readonly equals: typeof exoticTextsEquals;
+  readonly hashCode: typeof exoticTextsHashCode;
+  readonly encode: typeof exoticTextsEncode;
+  readonly encodeWithContext: typeof exoticTextsEncodeWithContext;
+  readonly encodePartialWithContext: typeof exoticTextsEncodePartialWithContext;
+  readonly decode: typeof exoticTextsDecode;
+  readonly decodeWithContext: typeof exoticTextsDecodeWithContext;
+  readonly decodePartialWithContext: typeof exoticTextsDecodePartialWithContext;
+  readonly validateField: typeof exoticTextsValidateField;
+  readonly validateFields: typeof exoticTextsValidateFields;
+  readonly hasShape: typeof exoticTextsHasShape;
+  readonly is: typeof exoticTextsIs;
+} = {
+  toString: exoticTextsToString,
+  clone: exoticTextsClone,
+  equals: exoticTextsEquals,
+  hashCode: exoticTextsHashCode,
+  encode: exoticTextsEncode,
+  encodeWithContext: exoticTextsEncodeWithContext,
+  encodePartialWithContext: exoticTextsEncodePartialWithContext,
+  decode: exoticTextsDecode,
+  decodeWithContext: exoticTextsDecodeWithContext,
+  decodePartialWithContext: exoticTextsDecodePartialWithContext,
+  validateField: exoticTextsValidateField,
+  validateFields: exoticTextsValidateFields,
+  hasShape: exoticTextsHasShape,
+  is: exoticTextsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticKeyed {
+    finite: Record<'a' | 'b', number>;
+    counted: Record<number, string>;
+    patterned: Record<`k-${number}`, boolean>;
+    open: Record<string, number>;
+}
+
+export function exoticKeyedToString(value: ExoticKeyed): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("finite: " + __mf_structuralDebug(value.finite));
+    parts.push("counted: " + __mf_structuralDebug(value.counted));
+    parts.push("patterned: " + __mf_structuralDebug(value.patterned));
+    parts.push("open: " + __mf_structuralDebug(value.open));
+        return "ExoticKeyed { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticKeyedClone(value: ExoticKeyed): ExoticKeyed {
+    return __mf_clonedWith(value, (): ExoticKeyed => ({
+	finite: __mf_structuralClone(value.finite),
+	counted: __mf_structuralClone(value.counted),
+	patterned: __mf_structuralClone(value.patterned),
+	open: __mf_structuralClone(value.open)
+}));
+}
+
+export function exoticKeyedEquals(a: ExoticKeyed, b: ExoticKeyed): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.finite, b.finite) && __mf_structuralEquals(a.counted, b.counted) && __mf_structuralEquals(a.patterned, b.patterned) && __mf_structuralEquals(a.open, b.open));
+}
+
+export function exoticKeyedHashCode(value: ExoticKeyed): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.finite))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.counted))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.patterned))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.open))) | 0;
+        return hash;
+    });
+}
+
+export function exoticKeyedDefaultValue(): ExoticKeyed {
+    return {
+        finite: ({
+	"a": 0,
+	"b": 0
+}),
+        counted: ({}),
+        patterned: ({}),
+        open: ({}),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticKeyedEncode(value: ExoticKeyed, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticKeyedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticKeyedEncodeWithContext(value: ExoticKeyed, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticKeyed" });
+    exoticKeyedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticKeyedEncodePartialWithContext(value: Partial<ExoticKeyed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticKeyed>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticKeyed" };
+        exoticKeyedEncodeFields(value as ExoticKeyed, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function exoticKeyedEncodeFields(value: ExoticKeyed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("finite")) {
+        if (value.finite !== undefined) {
+            result["finite"] = value.finite;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("counted")) {
+        if (value.counted !== undefined) {
+            result["counted"] = value.counted;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("patterned")) {
+        if (value.patterned !== undefined) {
+            result["patterned"] = value.patterned;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("open")) {
+        if (value.open !== undefined) {
+            result["open"] = value.open;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticKeyedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticKeyed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticKeyedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticKeyed.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticKeyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticKeyed | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function exoticKeyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticKeyed> | __mf_PendingRef;
+export function exoticKeyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticKeyed> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticKeyed.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticKeyed.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticKeyed") as ExoticKeyed | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticKeyed.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("finite")) && !("finite" in obj)) {
+        errors.push({ field: "finite", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("counted")) && !("counted" in obj)) {
+        errors.push({ field: "counted", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("patterned")) && !("patterned" in obj)) {
+        errors.push({ field: "patterned", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("open")) && !("open" in obj)) {
+        errors.push({ field: "open", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticKeyed");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("finite")) ? "finite" in obj : (__fields.keeps("finite") && obj["finite"] !== undefined)) {
+        const __raw_finite = obj["finite"] as Record<'a' | 'b', number>;
+        if (typeof __raw_finite === "object" && __raw_finite !== null) {
+            ctx.pushScope("finite");
+            try {
+                instance.finite = (__mf_decodeRecord(__raw_finite, ctx, __mf_decodeNumber, (__key0) => __mf_decodeChecked(__key0, __key0 === 'a' || __key0 === 'b', "'a' | 'b'") as 'a' | 'b', [String('a'), String('b')]) as Record<'a' | 'b', number>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "finite" : "finite." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "finite", message: __raw_finite == null ? "ExoticKeyed.finite is required" : "expected Record<'a' | 'b', number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("counted")) ? "counted" in obj : (__fields.keeps("counted") && obj["counted"] !== undefined)) {
+        const __raw_counted = obj["counted"] as Record<number, string>;
+        if (typeof __raw_counted === "object" && __raw_counted !== null) {
+            ctx.pushScope("counted");
+            try {
+                instance.counted = (__mf_decodeRecord(__raw_counted, ctx, __mf_decodeString, (__key0) => __mf_decodeNumberKey(__key0), []) as Record<number, string>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "counted" : "counted." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "counted", message: __raw_counted == null ? "ExoticKeyed.counted is required" : "expected Record<number, string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("patterned")) ? "patterned" in obj : (__fields.keeps("patterned") && obj["patterned"] !== undefined)) {
+        const __raw_patterned = obj["patterned"] as Record<`k-${number}`, boolean>;
+        if (typeof __raw_patterned === "object" && __raw_patterned !== null) {
+            ctx.pushScope("patterned");
+            try {
+                instance.patterned = (__mf_decodeRecord(__raw_patterned, ctx, __mf_decodeBoolean, (__key0) => __mf_decodeChecked(__key0, __mf_spellsTemplate(__key0, ["k-", ""], ["number"]), "`k-${number}`") as `k-${number}`, []) as Record<`k-${number}`, boolean>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "patterned" : "patterned." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "patterned", message: __raw_patterned == null ? "ExoticKeyed.patterned is required" : "expected Record<`k-${number}`, boolean>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("open")) ? "open" in obj : (__fields.keeps("open") && obj["open"] !== undefined)) {
+        const __raw_open = obj["open"] as Record<string, number>;
+        if (typeof __raw_open === "object" && __raw_open !== null) {
+            ctx.pushScope("open");
+            try {
+                instance.open = (__mf_decodeRecord(__raw_open, ctx, __mf_decodeNumber) as Record<string, number>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "open" : "open." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "open", message: __raw_open == null ? "ExoticKeyed.open is required" : "expected Record<string, number>" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ExoticKeyed;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticKeyedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticKeyed>): Partial<ExoticKeyed> | __mf_PendingRef {
+    return exoticKeyedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function exoticKeyedValidateField<K extends keyof ExoticKeyed>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function exoticKeyedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function exoticKeyedValidateFields(partial: { readonly [K in keyof ExoticKeyed]?: unknown }): Array<{ field: string; message: string }>;
+export function exoticKeyedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function exoticKeyedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "finite") && __mf_holds(obj, "counted") && __mf_holds(obj, "patterned") && __mf_holds(obj, "open");
+}
+
+export function exoticKeyedIs(obj: unknown): obj is ExoticKeyed {
+    return exoticKeyedHasShape(obj) && exoticKeyedDecode(obj).success;
+}
+
+export const ExoticKeyed: {
+  readonly toString: typeof exoticKeyedToString;
+  readonly clone: typeof exoticKeyedClone;
+  readonly equals: typeof exoticKeyedEquals;
+  readonly hashCode: typeof exoticKeyedHashCode;
+  readonly defaultValue: typeof exoticKeyedDefaultValue;
+  readonly encode: typeof exoticKeyedEncode;
+  readonly encodeWithContext: typeof exoticKeyedEncodeWithContext;
+  readonly encodePartialWithContext: typeof exoticKeyedEncodePartialWithContext;
+  readonly decode: typeof exoticKeyedDecode;
+  readonly decodeWithContext: typeof exoticKeyedDecodeWithContext;
+  readonly decodePartialWithContext: typeof exoticKeyedDecodePartialWithContext;
+  readonly validateField: typeof exoticKeyedValidateField;
+  readonly validateFields: typeof exoticKeyedValidateFields;
+  readonly hasShape: typeof exoticKeyedHasShape;
+  readonly is: typeof exoticKeyedIs;
+} = {
+  toString: exoticKeyedToString,
+  clone: exoticKeyedClone,
+  equals: exoticKeyedEquals,
+  hashCode: exoticKeyedHashCode,
+  defaultValue: exoticKeyedDefaultValue,
+  encode: exoticKeyedEncode,
+  encodeWithContext: exoticKeyedEncodeWithContext,
+  encodePartialWithContext: exoticKeyedEncodePartialWithContext,
+  decode: exoticKeyedDecode,
+  decodeWithContext: exoticKeyedDecodeWithContext,
+  decodePartialWithContext: exoticKeyedDecodePartialWithContext,
+  validateField: exoticKeyedValidateField,
+  validateFields: exoticKeyedValidateFields,
+  hasShape: exoticKeyedHasShape,
+  is: exoticKeyedIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticAccessors {
+    id: string;
+    get size(): number;
+    set size(value: number);
+    get stamp(): Date;
+}
+
+export function exoticAccessorsToString(value: ExoticAccessors): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("size: " + String(value.size));
+    parts.push("stamp: " + String(value.stamp));
+        return "ExoticAccessors { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticAccessorsClone(value: ExoticAccessors): ExoticAccessors {
+    return __mf_clonedWith(value, (): ExoticAccessors => ({
+	id: value.id,
+	size: value.size,
+	stamp: new Date(value.stamp.getTime())
+}));
+}
+
+export function exoticAccessorsEquals(a: ExoticAccessors, b: ExoticAccessors): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id && (a.size === b.size || a.size !== a.size && b.size !== b.size) && (a.stamp.getTime() === b.stamp.getTime() || a.stamp.getTime() !== a.stamp.getTime() && b.stamp.getTime() !== b.stamp.getTime()));
+}
+
+export function exoticAccessorsHashCode(value: ExoticAccessors): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.size) ? value.size | 0 : value.size.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.stamp.getTime() | 0)) | 0;
+        return hash;
+    });
+}
+
+export function exoticAccessorsDefaultValue(): ExoticAccessors {
+    return {
+        id: "",
+        size: 0,
+        stamp: new Date(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticAccessorsEncode(value: ExoticAccessors, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticAccessorsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticAccessorsEncodeWithContext(value: ExoticAccessors, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticAccessors" });
+    exoticAccessorsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticAccessorsEncodePartialWithContext(value: Partial<ExoticAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticAccessors>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticAccessors" };
+        exoticAccessorsEncodeFields(value as ExoticAccessors, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function exoticAccessorsEncodeFields(value: ExoticAccessors, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("size")) {
+        if (value.size !== undefined) {
+            result["size"] = value.size;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("stamp")) {
+        if (value.stamp !== undefined) {
+            result["stamp"] = value.stamp.toISOString();
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticAccessorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticAccessors } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticAccessorsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticAccessors.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticAccessorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticAccessors | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function exoticAccessorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticAccessors> | __mf_PendingRef;
+export function exoticAccessorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticAccessors> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticAccessors.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticAccessors.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticAccessors") as ExoticAccessors | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticAccessors.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
+        errors.push({ field: "size", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("stamp")) && !("stamp" in obj)) {
+        errors.push({ field: "stamp", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticAccessors");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "ExoticAccessors.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+        const __raw_size = obj["size"] as number;
+
+        if (!(typeof __raw_size === "number" && globalThis.Number.isFinite(__raw_size))) {
+            errors.push({ field: "size", message: __raw_size == null ? "ExoticAccessors.size is required" : "expected number" });
+        } else {
+            instance.size = __raw_size;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("stamp")) ? "stamp" in obj : (__fields.keeps("stamp") && obj["stamp"] !== undefined)) {
+        const __raw_stamp = obj["stamp"] as string | Date;
+
+        {
+            const __dateVal = (__raw_stamp instanceof Date ? __raw_stamp : typeof __raw_stamp === "string" ? new Date(__raw_stamp) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "stamp", message: __raw_stamp == null ? "ExoticAccessors.stamp is required" : "expected Date" });
+            } else {
+                instance.stamp = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ExoticAccessors;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticAccessorsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticAccessors>): Partial<ExoticAccessors> | __mf_PendingRef {
+    return exoticAccessorsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function exoticAccessorsValidateField<K extends keyof ExoticAccessors>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function exoticAccessorsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function exoticAccessorsValidateFields(partial: { readonly [K in keyof ExoticAccessors]?: unknown }): Array<{ field: string; message: string }>;
+export function exoticAccessorsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function exoticAccessorsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id") && __mf_holds(obj, "size") && __mf_holds(obj, "stamp");
+}
+
+export function exoticAccessorsIs(obj: unknown): obj is ExoticAccessors {
+    return exoticAccessorsHasShape(obj) && exoticAccessorsDecode(obj).success;
+}
+
+export const ExoticAccessors: {
+  readonly toString: typeof exoticAccessorsToString;
+  readonly clone: typeof exoticAccessorsClone;
+  readonly equals: typeof exoticAccessorsEquals;
+  readonly hashCode: typeof exoticAccessorsHashCode;
+  readonly defaultValue: typeof exoticAccessorsDefaultValue;
+  readonly encode: typeof exoticAccessorsEncode;
+  readonly encodeWithContext: typeof exoticAccessorsEncodeWithContext;
+  readonly encodePartialWithContext: typeof exoticAccessorsEncodePartialWithContext;
+  readonly decode: typeof exoticAccessorsDecode;
+  readonly decodeWithContext: typeof exoticAccessorsDecodeWithContext;
+  readonly decodePartialWithContext: typeof exoticAccessorsDecodePartialWithContext;
+  readonly validateField: typeof exoticAccessorsValidateField;
+  readonly validateFields: typeof exoticAccessorsValidateFields;
+  readonly hasShape: typeof exoticAccessorsHasShape;
+  readonly is: typeof exoticAccessorsIs;
+} = {
+  toString: exoticAccessorsToString,
+  clone: exoticAccessorsClone,
+  equals: exoticAccessorsEquals,
+  hashCode: exoticAccessorsHashCode,
+  defaultValue: exoticAccessorsDefaultValue,
+  encode: exoticAccessorsEncode,
+  encodeWithContext: exoticAccessorsEncodeWithContext,
+  encodePartialWithContext: exoticAccessorsEncodePartialWithContext,
+  decode: exoticAccessorsDecode,
+  decodeWithContext: exoticAccessorsDecodeWithContext,
+  decodePartialWithContext: exoticAccessorsDecodePartialWithContext,
+  validateField: exoticAccessorsValidateField,
+  validateFields: exoticAccessorsValidateFields,
+  hasShape: exoticAccessorsHasShape,
+  is: exoticAccessorsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export type ExoticMethodAlias = {
+    id: string;
+    run(): string;
+};
+
+export function exoticMethodAliasToString(value: ExoticMethodAlias): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("run: " + String(value.run));
+        return "ExoticMethodAlias { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticMethodAliasClone(value: ExoticMethodAlias): ExoticMethodAlias {
+    return __mf_clonedWith(value, (): ExoticMethodAlias => ({
+	id: value.id,
+	run: value.run
+}));
+}
+
+export function exoticMethodAliasEquals(a: ExoticMethodAlias, b: ExoticMethodAlias): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.run === b.run);
+}
+
+export function exoticMethodAliasHashCode(value: ExoticMethodAlias): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (0)) | 0;
+        return hash;
+    });
+}
+
+export const ExoticMethodAlias: {
+  readonly toString: typeof exoticMethodAliasToString;
+  readonly clone: typeof exoticMethodAliasClone;
+  readonly equals: typeof exoticMethodAliasEquals;
+  readonly hashCode: typeof exoticMethodAliasHashCode;
+} = {
+  toString: exoticMethodAliasToString,
+  clone: exoticMethodAliasClone,
+  equals: exoticMethodAliasEquals,
+  hashCode: exoticMethodAliasHashCode
+};
+
 ## DTS
 
 /**
 * Types at the edge of what a type can say: template literal types, `object`,
 * a lone `null`, unions of literals of several kinds, types with nothing in
-* them, and an interface that declares methods.
+* them, an interface that declares methods, and records by the kind of key
+* they are over.
 */
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface ExoticScalars {
@@ -1412,6 +2609,243 @@ export declare const ExoticMethods: {
 	readonly equals: typeof exoticMethodsEquals;
 	readonly hashCode: typeof exoticMethodsHashCode;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ExoticLabels = `a-${number}` | `b-${string}` | "plain" | 5;
+export declare function exoticLabelsToString(value: ExoticLabels): string;
+export declare function exoticLabelsClone(value: ExoticLabels): ExoticLabels;
+export declare function exoticLabelsEquals(a: ExoticLabels, b: ExoticLabels): boolean;
+export declare function exoticLabelsHashCode(value: ExoticLabels): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticLabelsEncode(value: ExoticLabels, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticLabelsEncodeWithContext(value: ExoticLabels, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticLabelsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticLabels;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticLabelsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticLabels | __mf_PendingRef;
+export declare function exoticLabelsHasShape(value: unknown): boolean;
+export declare function exoticLabelsIs(value: unknown): value is ExoticLabels;
+export declare const ExoticLabels: {
+	readonly toString: typeof exoticLabelsToString;
+	readonly clone: typeof exoticLabelsClone;
+	readonly equals: typeof exoticLabelsEquals;
+	readonly hashCode: typeof exoticLabelsHashCode;
+	readonly encode: typeof exoticLabelsEncode;
+	readonly encodeWithContext: typeof exoticLabelsEncodeWithContext;
+	readonly decode: typeof exoticLabelsDecode;
+	readonly decodeWithContext: typeof exoticLabelsDecodeWithContext;
+	readonly hasShape: typeof exoticLabelsHasShape;
+	readonly is: typeof exoticLabelsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface ExoticTexts {
+	either: `a-${number}` | `b-${string}`;
+	list: `k-${number}`[];
+	mapped: Map<`m-${bigint}`, string>;
+	optional?: `o-${boolean}`;
+	nullable: `n-${string}` | null;
+}
+export declare function exoticTextsToString(value: ExoticTexts): string;
+export declare function exoticTextsClone(value: ExoticTexts): ExoticTexts;
+export declare function exoticTextsEquals(a: ExoticTexts, b: ExoticTexts): boolean;
+export declare function exoticTextsHashCode(value: ExoticTexts): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticTextsEncode(value: ExoticTexts, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticTextsEncodeWithContext(value: ExoticTexts, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticTextsEncodePartialWithContext(value: Partial<ExoticTexts>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticTexts>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticTextsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticTexts;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticTexts | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function exoticTextsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticTexts> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticTextsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticTexts>): Partial<ExoticTexts> | __mf_PendingRef;
+export declare function exoticTextsValidateField<K extends keyof ExoticTexts>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticTextsValidateFields(partial: { readonly [K in keyof ExoticTexts]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticTextsHasShape(obj: unknown): boolean;
+export declare function exoticTextsIs(obj: unknown): obj is ExoticTexts;
+export declare const ExoticTexts: {
+	readonly toString: typeof exoticTextsToString;
+	readonly clone: typeof exoticTextsClone;
+	readonly equals: typeof exoticTextsEquals;
+	readonly hashCode: typeof exoticTextsHashCode;
+	readonly encode: typeof exoticTextsEncode;
+	readonly encodeWithContext: typeof exoticTextsEncodeWithContext;
+	readonly encodePartialWithContext: typeof exoticTextsEncodePartialWithContext;
+	readonly decode: typeof exoticTextsDecode;
+	readonly decodeWithContext: typeof exoticTextsDecodeWithContext;
+	readonly decodePartialWithContext: typeof exoticTextsDecodePartialWithContext;
+	readonly validateField: typeof exoticTextsValidateField;
+	readonly validateFields: typeof exoticTextsValidateFields;
+	readonly hasShape: typeof exoticTextsHasShape;
+	readonly is: typeof exoticTextsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticKeyed {
+	finite: Record<"a" | "b", number>;
+	counted: Record<number, string>;
+	patterned: Record<`k-${number}`, boolean>;
+	open: Record<string, number>;
+}
+export declare function exoticKeyedToString(value: ExoticKeyed): string;
+export declare function exoticKeyedClone(value: ExoticKeyed): ExoticKeyed;
+export declare function exoticKeyedEquals(a: ExoticKeyed, b: ExoticKeyed): boolean;
+export declare function exoticKeyedHashCode(value: ExoticKeyed): number;
+export declare function exoticKeyedDefaultValue(): ExoticKeyed;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticKeyedEncode(value: ExoticKeyed, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticKeyedEncodeWithContext(value: ExoticKeyed, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticKeyedEncodePartialWithContext(value: Partial<ExoticKeyed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticKeyed>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticKeyedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticKeyed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticKeyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticKeyed | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function exoticKeyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticKeyed> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticKeyedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticKeyed>): Partial<ExoticKeyed> | __mf_PendingRef;
+export declare function exoticKeyedValidateField<K extends keyof ExoticKeyed>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticKeyedValidateFields(partial: { readonly [K in keyof ExoticKeyed]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticKeyedHasShape(obj: unknown): boolean;
+export declare function exoticKeyedIs(obj: unknown): obj is ExoticKeyed;
+export declare const ExoticKeyed: {
+	readonly toString: typeof exoticKeyedToString;
+	readonly clone: typeof exoticKeyedClone;
+	readonly equals: typeof exoticKeyedEquals;
+	readonly hashCode: typeof exoticKeyedHashCode;
+	readonly defaultValue: typeof exoticKeyedDefaultValue;
+	readonly encode: typeof exoticKeyedEncode;
+	readonly encodeWithContext: typeof exoticKeyedEncodeWithContext;
+	readonly encodePartialWithContext: typeof exoticKeyedEncodePartialWithContext;
+	readonly decode: typeof exoticKeyedDecode;
+	readonly decodeWithContext: typeof exoticKeyedDecodeWithContext;
+	readonly decodePartialWithContext: typeof exoticKeyedDecodePartialWithContext;
+	readonly validateField: typeof exoticKeyedValidateField;
+	readonly validateFields: typeof exoticKeyedValidateFields;
+	readonly hasShape: typeof exoticKeyedHasShape;
+	readonly is: typeof exoticKeyedIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticAccessors {
+	id: string;
+	get size(): number;
+	set size(value: number);
+	get stamp(): Date;
+}
+export declare function exoticAccessorsToString(value: ExoticAccessors): string;
+export declare function exoticAccessorsClone(value: ExoticAccessors): ExoticAccessors;
+export declare function exoticAccessorsEquals(a: ExoticAccessors, b: ExoticAccessors): boolean;
+export declare function exoticAccessorsHashCode(value: ExoticAccessors): number;
+export declare function exoticAccessorsDefaultValue(): ExoticAccessors;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticAccessorsEncode(value: ExoticAccessors, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticAccessorsEncodeWithContext(value: ExoticAccessors, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticAccessorsEncodePartialWithContext(value: Partial<ExoticAccessors>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticAccessors>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticAccessorsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticAccessors;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticAccessorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticAccessors | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function exoticAccessorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticAccessors> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticAccessorsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticAccessors>): Partial<ExoticAccessors> | __mf_PendingRef;
+export declare function exoticAccessorsValidateField<K extends keyof ExoticAccessors>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticAccessorsValidateFields(partial: { readonly [K in keyof ExoticAccessors]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticAccessorsHasShape(obj: unknown): boolean;
+export declare function exoticAccessorsIs(obj: unknown): obj is ExoticAccessors;
+export declare const ExoticAccessors: {
+	readonly toString: typeof exoticAccessorsToString;
+	readonly clone: typeof exoticAccessorsClone;
+	readonly equals: typeof exoticAccessorsEquals;
+	readonly hashCode: typeof exoticAccessorsHashCode;
+	readonly defaultValue: typeof exoticAccessorsDefaultValue;
+	readonly encode: typeof exoticAccessorsEncode;
+	readonly encodeWithContext: typeof exoticAccessorsEncodeWithContext;
+	readonly encodePartialWithContext: typeof exoticAccessorsEncodePartialWithContext;
+	readonly decode: typeof exoticAccessorsDecode;
+	readonly decodeWithContext: typeof exoticAccessorsDecodeWithContext;
+	readonly decodePartialWithContext: typeof exoticAccessorsDecodePartialWithContext;
+	readonly validateField: typeof exoticAccessorsValidateField;
+	readonly validateFields: typeof exoticAccessorsValidateFields;
+	readonly hasShape: typeof exoticAccessorsHasShape;
+	readonly is: typeof exoticAccessorsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export type ExoticMethodAlias = {
+	id: string;
+	run(): string;
+};
+export declare function exoticMethodAliasToString(value: ExoticMethodAlias): string;
+export declare function exoticMethodAliasClone(value: ExoticMethodAlias): ExoticMethodAlias;
+export declare function exoticMethodAliasEquals(a: ExoticMethodAlias, b: ExoticMethodAlias): boolean;
+export declare function exoticMethodAliasHashCode(value: ExoticMethodAlias): number;
+export declare const ExoticMethodAlias: {
+	readonly toString: typeof exoticMethodAliasToString;
+	readonly clone: typeof exoticMethodAliasClone;
+	readonly equals: typeof exoticMethodAliasEquals;
+	readonly hashCode: typeof exoticMethodAliasHashCode;
+};
 
 ## Diagnostics
 
@@ -1419,84 +2853,146 @@ export declare const ExoticMethods: {
 
 ## Mapping
 
-original 0..447 -> expanded 1130..1577
-original 447..553 -> expanded 16026..16132
-original 553..654 -> expanded 20993..21094
-original 654..758 -> expanded 25967..26071
-original 758..857 -> expanded 34948..35047
-original 857..858 -> expanded 41730..41731
-original 858..1000 -> expanded 45472..45614
-original 1000..1001 -> expanded 47159..47160
-generated 0..1130 <- imports
-generated 1577..2068 <- Debug
-generated 2068..2350 <- Clone
-generated 2350..2654 <- PartialEq
-generated 2654..3222 <- Hash
-generated 3222..3413 <- Default
-generated 3413..6253 <- Encode
-generated 6253..14497 <- Decode
-generated 14497..16026 <- __convenience_const
-generated 16132..16261 <- Debug
-generated 16261..16369 <- Clone
-generated 16369..16516 <- PartialEq
-generated 16516..16622 <- Hash
-generated 16622..17628 <- Encode
-generated 17628..20145 <- Decode
-generated 20145..20993 <- __convenience_const
-generated 21094..21223 <- Debug
-generated 21223..21307 <- Clone
-generated 21307..21431 <- PartialEq
-generated 21431..21513 <- Hash
-generated 21513..21600 <- Default
-generated 21600..22420 <- Encode
-generated 22420..25023 <- Decode
-generated 25023..25967 <- __convenience_const
-generated 26071..26170 <- Debug
-generated 26170..26301 <- Clone
-generated 26301..26458 <- PartialEq
-generated 26458..26623 <- Hash
-generated 26623..26703 <- Default
-generated 26703..28724 <- Encode
-generated 28724..33481 <- Decode
-generated 33481..34948 <- __convenience_const
-generated 35047..35138 <- Debug
-generated 35138..35248 <- Clone
-generated 35248..35401 <- PartialEq
-generated 35401..35570 <- Hash
-generated 35570..35723 <- Default
-generated 35723..37142 <- Encode
-generated 37142..37471 <- Encode
-generated 37471..41730 <- Decode
-generated 41731..41842 <- Debug
-generated 41842..41950 <- Clone
-generated 41950..42067 <- PartialEq
-generated 42067..42176 <- Hash
-generated 42176..42275 <- Default
-generated 42275..43645 <- Encode
-generated 43645..45472 <- Decode
-generated 45614..45985 <- Debug
-generated 45985..46218 <- Clone
-generated 46218..46442 <- PartialEq
-generated 46442..46796 <- Hash
-generated 46796..47159 <- __convenience_const
+original 0..492 -> expanded 1451..1943
+original 492..598 -> expanded 16392..16498
+original 598..699 -> expanded 21359..21460
+original 699..803 -> expanded 26341..26445
+original 803..902 -> expanded 35322..35421
+original 902..903 -> expanded 42104..42105
+original 903..1045 -> expanded 45846..45988
+original 1045..1180 -> expanded 47533..47668
+original 1180..1453 -> expanded 53477..53750
+original 1453..1715 -> expanded 70099..70361
+original 1715..1916 -> expanded 86829..87030
+original 1916..2035 -> expanded 99832..99951
+original 2035..2036 -> expanded 101392..101393
+generated 0..1451 <- imports
+generated 1943..2434 <- Debug
+generated 2434..2716 <- Clone
+generated 2716..3020 <- PartialEq
+generated 3020..3588 <- Hash
+generated 3588..3779 <- Default
+generated 3779..6619 <- Encode
+generated 6619..14863 <- Decode
+generated 14863..16392 <- __convenience_const
+generated 16498..16627 <- Debug
+generated 16627..16735 <- Clone
+generated 16735..16882 <- PartialEq
+generated 16882..16988 <- Hash
+generated 16988..17994 <- Encode
+generated 17994..20511 <- Decode
+generated 20511..21359 <- __convenience_const
+generated 21460..21589 <- Debug
+generated 21589..21673 <- Clone
+generated 21673..21797 <- PartialEq
+generated 21797..21879 <- Hash
+generated 21879..21974 <- Default
+generated 21974..22794 <- Encode
+generated 22794..25397 <- Decode
+generated 25397..26341 <- __convenience_const
+generated 26445..26544 <- Debug
+generated 26544..26675 <- Clone
+generated 26675..26832 <- PartialEq
+generated 26832..26997 <- Hash
+generated 26997..27077 <- Default
+generated 27077..29098 <- Encode
+generated 29098..33855 <- Decode
+generated 33855..35322 <- __convenience_const
+generated 35421..35512 <- Debug
+generated 35512..35622 <- Clone
+generated 35622..35775 <- PartialEq
+generated 35775..35944 <- Hash
+generated 35944..36097 <- Default
+generated 36097..37516 <- Encode
+generated 37516..37845 <- Encode
+generated 37845..42104 <- Decode
+generated 42105..42216 <- Debug
+generated 42216..42324 <- Clone
+generated 42324..42441 <- PartialEq
+generated 42441..42550 <- Hash
+generated 42550..42649 <- Default
+generated 42649..44019 <- Encode
+generated 44019..45846 <- Decode
+generated 45988..46359 <- Debug
+generated 46359..46592 <- Clone
+generated 46592..46816 <- PartialEq
+generated 46816..47170 <- Hash
+generated 47170..47533 <- __convenience_const
+generated 47668..47803 <- Debug
+generated 47803..47917 <- Clone
+generated 47917..48070 <- PartialEq
+generated 48070..48180 <- Hash
+generated 48180..49571 <- Encode
+generated 49571..52587 <- Decode
+generated 52587..53477 <- __convenience_const
+generated 53750..54255 <- Debug
+generated 54255..54553 <- Clone
+generated 54553..55217 <- PartialEq
+generated 55217..56296 <- Hash
+generated 56296..59176 <- Encode
+generated 59176..68730 <- Decode
+generated 68730..70099 <- __convenience_const
+generated 70361..70843 <- Debug
+generated 70843..71158 <- Clone
+generated 71158..71491 <- PartialEq
+generated 71491..71922 <- Hash
+generated 71922..72110 <- Default
+generated 72110..74795 <- Encode
+generated 74795..85362 <- Decode
+generated 85362..86829 <- __convenience_const
+generated 87030..87399 <- Debug
+generated 87399..87621 <- Clone
+generated 87621..87995 <- PartialEq
+generated 87995..88513 <- Hash
+generated 88513..88661 <- Default
+generated 88661..91219 <- Encode
+generated 91219..98241 <- Decode
+generated 98241..99832 <- __convenience_const
+generated 99951..100275 <- Debug
+generated 100275..100462 <- Clone
+generated 100462..100665 <- PartialEq
+generated 100665..100993 <- Hash
+generated 100993..101392 <- __convenience_const
 
 ## Metadata
 
-class ExoticBlank: {"body_span":{"end":859,"start":857},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":831,"start":761}}],"fields":[],"heritage":[],"is_abstract":false,"methods":[],"name":"ExoticBlank","span":{"end":859,"start":839},"superclass":null,"type_params":[]}
-interface ExoticScalars: {"body_span":{"end":448,"start":317},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":285,"start":215}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":342,"start":323},"ts_type":"`id-${number}`"},{"decorators":[],"key":"Named","name":"tag","optional":false,"readonly":false,"span":{"end":375,"start":347},"ts_type":"`${string}-${boolean}`"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":393,"start":380},"ts_type":"object"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":412,"start":398},"ts_type":"null"},{"decorators":[],"key":"Named","name":"choice","optional":false,"readonly":false,"span":{"end":446,"start":417},"ts_type":"'a' | 'b' | 3 | true"}],"heritage":[],"methods":[],"name":"ExoticScalars","span":{"end":448,"start":293},"type_params":[]}
-interface ExoticEmpty: {"body_span":{"end":759,"start":757},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":727,"start":657}}],"fields":[],"heritage":[],"methods":[],"name":"ExoticEmpty","span":{"end":759,"start":735},"type_params":[]}
-interface ExoticMethods: {"body_span":{"end":1001,"start":938},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":906,"start":861}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":955,"start":944},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":979,"start":960},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":999,"start":984},"type_params":[]}],"name":"ExoticMethods","span":{"end":1001,"start":914},"type_params":[]}
-type ExoticCode: {"body":{"Other":"`code-${bigint}`"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":511,"start":450}}],"name":"ExoticCode","span":{"end":554,"start":519},"type_params":[]}
-type ExoticNone: {"body":{"Tuple":[]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":626,"start":556}}],"name":"ExoticNone","span":{"end":655,"start":634},"type_params":[]}
+class ExoticBlank: {"body_span":{"end":904,"start":902},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":876,"start":806}}],"fields":[],"heritage":[],"is_abstract":false,"methods":[],"name":"ExoticBlank","span":{"end":904,"start":884},"superclass":null,"type_params":[]}
+interface ExoticScalars: {"body_span":{"end":493,"start":362},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":330,"start":260}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":387,"start":368},"ts_type":"`id-${number}`"},{"decorators":[],"key":"Named","name":"tag","optional":false,"readonly":false,"span":{"end":420,"start":392},"ts_type":"`${string}-${boolean}`"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":438,"start":425},"ts_type":"object"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":457,"start":443},"ts_type":"null"},{"decorators":[],"key":"Named","name":"choice","optional":false,"readonly":false,"span":{"end":491,"start":462},"ts_type":"'a' | 'b' | 3 | true"}],"heritage":[],"methods":[],"name":"ExoticScalars","span":{"end":493,"start":338},"type_params":[]}
+interface ExoticEmpty: {"body_span":{"end":804,"start":802},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":772,"start":702}}],"fields":[],"heritage":[],"methods":[],"name":"ExoticEmpty","span":{"end":804,"start":780},"type_params":[]}
+interface ExoticMethods: {"body_span":{"end":1046,"start":983},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":951,"start":906}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1000,"start":989},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1024,"start":1005},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":1044,"start":1029},"type_params":[]}],"name":"ExoticMethods","span":{"end":1046,"start":959},"type_params":[]}
+interface ExoticTexts: {"body_span":{"end":1454,"start":1274},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1244,"start":1183}}],"fields":[{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1318,"start":1280},"ts_type":"`a-${number}` | `b-${string}`"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1345,"start":1323},"ts_type":"`k-${number}`[]"},{"decorators":[],"key":"Named","name":"mapped","optional":false,"readonly":false,"span":{"end":1385,"start":1350},"ts_type":"Map<`m-${bigint}`, string>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1416,"start":1390},"ts_type":"`o-${boolean}`"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1452,"start":1421},"ts_type":"`n-${string}` | null"}],"heritage":[],"methods":[],"name":"ExoticTexts","span":{"end":1454,"start":1252},"type_params":[]}
+interface ExoticKeyed: {"body_span":{"end":1716,"start":1556},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1526,"start":1456}}],"fields":[{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1596,"start":1562},"ts_type":"Record<'a' | 'b', number>"},{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1633,"start":1601},"ts_type":"Record<number, string>"},{"decorators":[],"key":"Named","name":"patterned","optional":false,"readonly":false,"span":{"end":1680,"start":1638},"ts_type":"Record<`k-${number}`, boolean>"},{"decorators":[],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":1714,"start":1685},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"ExoticKeyed","span":{"end":1716,"start":1534},"type_params":[]}
+interface ExoticAccessors: {"body_span":{"end":1917,"start":1822},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1788,"start":1718}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1839,"start":1828},"ts_type":"string"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":1863,"start":1844},"ts_type":"number"},{"decorators":[],"key":"Named","name":"stamp","optional":false,"readonly":true,"span":{"end":1915,"start":1897},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ExoticAccessors","span":{"end":1917,"start":1796},"type_params":[]}
+type ExoticCode: {"body":{"Other":"`code-${bigint}`"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":556,"start":495}}],"name":"ExoticCode","span":{"end":599,"start":564},"type_params":[]}
+type ExoticNone: {"body":{"Tuple":[]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":671,"start":601}}],"name":"ExoticNone","span":{"end":700,"start":679},"type_params":[]}
+type ExoticLabels: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"`a-${number}`"}},{"decorators":[],"kind":{"TypeRef":"`b-${string}`"}},{"decorators":[],"kind":{"Literal":"'plain'"}},{"decorators":[],"kind":{"Literal":"5"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1109,"start":1048}}],"name":"ExoticLabels","span":{"end":1181,"start":1117},"type_params":[]}
+type ExoticMethodAlias: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2014,"start":2003},"ts_type":"string"},{"decorators":[],"key":"Named","name":"run","optional":false,"readonly":false,"span":{"end":2033,"start":2019},"ts_type":"() => string"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":1964,"start":1919}}],"name":"ExoticMethodAlias","span":{"end":2036,"start":1972},"type_params":[]}
 
 ## Registry reads
 
+Name("'a' | 'b'")
 Name("'a' | 'b' | 3 | true")
+Name("() => string")
+Name("Date")
 Name("ExoticCode")
+Name("ExoticLabels")
+Name("ExoticMethodAlias")
 Name("ExoticNone")
+Name("Map")
+Name("Record")
 Name("`${string}-${boolean}`")
+Name("`a-${number}`")
+Name("`a-${number}` | `b-${string}`")
+Name("`b-${string}`")
 Name("`id-${number}`")
+Name("`k-${number}`")
+Name("`m-${bigint}`")
+Name("`n-${string}`")
+Name("`o-${boolean}`")
+Name("null")
+Name("number")
 Name("object")
+Name("string")
 Name("true")
 
 ## Buildtime dependencies

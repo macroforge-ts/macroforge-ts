@@ -2443,12 +2443,19 @@ interface Order: {"body_span":{"end":3553,"start":644},"decorators":[{"args_src"
 
 ## Registry reads
 
+Name("Account")
+Name("Appointment")
 Name("Array")
 Name("BilledItem")
 Name("DateTime.DateTime")
+Name("Employee")
 Name("Option.Option")
 Name("Option.Option<string>")
 Name("OrderStage")
+Name("Package")
+Name("Payment")
+Name("Promotion")
+Name("Site")
 Name("boolean")
 Name("number")
 Name("string")

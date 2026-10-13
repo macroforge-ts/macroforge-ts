@@ -134,3 +134,94 @@ Deno.test('the methods an interface declares are members a clone keeps', () => {
     assertStrictEquals(mod.exoticMethodsHashCode(value), mod.exoticMethodsHashCode(copy));
     assert(mod.exoticMethodsToString(value).includes('id: a'));
 });
+
+Deno.test('a union alias tells its template literal members by their text', () => {
+    for (const value of ['a-1', 'b-anything', 'b-', 'plain', 5]) {
+        assertStrictEquals(decoded(mod.exoticLabelsDecode(value)), value);
+        assertStrictEquals(decoded(mod.exoticLabelsDecode(mod.exoticLabelsEncode(value))), value);
+        assert(mod.exoticLabelsIs(value));
+        assert(mod.exoticLabelsEquals(value, mod.exoticLabelsClone(value)));
+        assertStrictEquals(typeof mod.exoticLabelsHashCode(value), 'number');
+    }
+    for (const wrong of ['a-x', 'a-', 'c-1', 'Plain', 6, null, {}]) {
+        assert(!mod.exoticLabelsDecode(wrong).success, JSON.stringify(wrong));
+        assert(!mod.exoticLabelsIs(wrong), JSON.stringify(wrong));
+    }
+});
+
+Deno.test('template literal types are checked wherever a type holds them', () => {
+    const texts = () => ({
+        either: 'a-1',
+        list: ['k-1', 'k-2'],
+        mapped: new Map([['m-5', 'five']]),
+        nullable: null
+    });
+    const encoded = JSON.parse(mod.exoticTextsEncode(texts()));
+    assertEquals(encoded, {
+        either: 'a-1',
+        list: ['k-1', 'k-2'],
+        mapped: { 'm-5': 'five' },
+        nullable: null
+    });
+    assertEquals(decoded(mod.exoticTextsDecode(encoded)), texts());
+    assert(mod.exoticTextsEquals(texts(), mod.exoticTextsClone(texts())));
+    assertStrictEquals(mod.exoticTextsHashCode(texts()), mod.exoticTextsHashCode(texts()));
+    assert(!mod.exoticTextsEquals(texts(), { ...texts(), list: ['k-1', 'k-3'] }));
+
+    const fieldsOf = (change) => errorFields(mod.exoticTextsDecode({ ...encoded, ...change }));
+    assertEquals(fieldsOf({ either: 'c-1' }), ['either']);
+    assertEquals(fieldsOf({ either: 'a-one' }), ['either']);
+    assertEquals(fieldsOf({ list: ['k-1', 'k-x'] }), ['list[1]']);
+    assertEquals(fieldsOf({ mapped: { 'm-1.5': 'no' } }), ['mapped.m-1.5']);
+    assertEquals(fieldsOf({ optional: 'o-maybe' }), ['optional']);
+    assertEquals(fieldsOf({ nullable: 5 }), ['nullable']);
+    assertStrictEquals(
+        decoded(mod.exoticTextsDecode({ ...encoded, optional: 'o-true' })).optional,
+        'o-true'
+    );
+});
+
+Deno.test('a record is checked by the keys its key type takes', () => {
+    assertEquals(mod.exoticKeyedDefaultValue(), {
+        finite: { a: 0, b: 0 },
+        counted: {},
+        patterned: {},
+        open: {}
+    });
+    const keyed = {
+        finite: { a: 1, b: 2 },
+        counted: { 1: 'one', 2.5: 'more' },
+        patterned: { 'k-1': true },
+        open: { anything: 1 }
+    };
+    assertEquals(decoded(mod.exoticKeyedDecode(mod.exoticKeyedEncode(keyed))), keyed);
+
+    const fieldsOf = (change) => errorFields(mod.exoticKeyedDecode({ ...keyed, ...change }));
+    assertEquals(fieldsOf({ finite: { a: 1 } }), ['finite.b']);
+    assertEquals(fieldsOf({ finite: { a: 1, b: 2, c: 3 } }), ['finite.c']);
+    assertEquals(fieldsOf({ finite: { a: 'one', b: 2 } }), ['finite.a']);
+    assertEquals(fieldsOf({ counted: { one: 'no' } }), ['counted.one']);
+    assertEquals(fieldsOf({ patterned: { 'k-x': true } }), ['patterned.k-x']);
+    assertEquals(fieldsOf({ open: { anything: 'no' } }), ['open.anything']);
+});
+
+Deno.test('a getter signature declares a field, and a method of an object type a member', () => {
+    const blank = mod.exoticAccessorsDefaultValue();
+    assertStrictEquals(blank.size, 0);
+    assert(blank.stamp instanceof Date);
+
+    const value = { id: 'a', size: 2, stamp: new Date(0) };
+    const encoded = JSON.parse(mod.exoticAccessorsEncode(value));
+    assertEquals(encoded, { id: 'a', size: 2, stamp: '1970-01-01T00:00:00.000Z' });
+    assertEquals(decoded(mod.exoticAccessorsDecode(encoded)), value);
+    assertEquals(errorFields(mod.exoticAccessorsDecode({ ...encoded, size: 'two' })), ['size']);
+    assertEquals(errorFields(mod.exoticAccessorsDecode({ ...encoded, stamp: 'never' })), ['stamp']);
+    assert(mod.exoticAccessorsEquals(value, mod.exoticAccessorsClone(value)));
+    assert(!mod.exoticAccessorsEquals(value, { ...value, size: 3 }));
+
+    const run = () => 'ran';
+    const copy = mod.exoticMethodAliasClone({ id: 'a', run });
+    assertStrictEquals(copy.run, run);
+    assert(mod.exoticMethodAliasEquals({ id: 'a', run }, copy));
+    assert(!mod.exoticMethodAliasEquals({ id: 'a', run }, { id: 'a', run: () => 'other' }));
+});

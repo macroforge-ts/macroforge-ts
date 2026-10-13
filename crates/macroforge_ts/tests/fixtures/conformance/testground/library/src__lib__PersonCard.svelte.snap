@@ -112,7 +112,7 @@ interface CardLabels: {"body_span":{"end":102,"start":70},"decorators":[{"args_s
 
 ## Registry reads
 
-(none)
+Name("string")
 
 ## Buildtime dependencies
 

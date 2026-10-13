@@ -629,6 +629,8 @@ interface Ordered: {"body_span":{"end":365,"start":229},"decorators":[{"args_src
 
 ## Registry reads
 
+Name("Account")
+Name("Order")
 Name("string")
 Name("string | Account")
 Name("string | Order")

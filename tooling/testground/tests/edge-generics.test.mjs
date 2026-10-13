@@ -384,3 +384,28 @@ Deno.test('the value traits treat a type argument by what it is', () => {
     assert(text.includes(String(source.dated.held)), text);
     assert(text.includes('EdgeCard'), text);
 });
+
+Deno.test('a type argument left to its default is coded and checked as that default', () => {
+    const filled = (change) => Object.assign(mod.GenericDefaults.defaultValue(), change);
+    const holder = {
+        text: filled({ value: 'a', many: ['b'], pair: ['x', 'y'] }),
+        counted: filled({ value: 1, many: [2], pair: [3, 4] }),
+        explicit: filled({ value: 's', many: ['t'] })
+    };
+    const encoded = JSON.parse(mod.genericDefaultedEncode(holder));
+    const back = decoded(mod.genericDefaultedDecode(encoded));
+    assert(back.text instanceof mod.GenericDefaults);
+    assert(mod.genericDefaultedEquals(holder, back));
+
+    const fieldsOf = (name, change) =>
+        errorFields(
+            mod.genericDefaultedDecode({ ...encoded, [name]: { ...encoded[name], ...change } })
+        );
+    // `T` defaults to `string`, and `U` to an array of whatever `T` is.
+    assertEquals(fieldsOf('text', { value: 1 }), ['text.value']);
+    assertEquals(fieldsOf('text', { pair: ['x', 2] }), ['text.pair[1]']);
+    assertEquals(fieldsOf('text', { many: [1] }), ['text.many[0]']);
+    assertEquals(fieldsOf('counted', { value: 'one' }), ['counted.value']);
+    assertEquals(fieldsOf('counted', { many: ['two'] }), ['counted.many[0]']);
+    assertEquals(fieldsOf('explicit', { many: [1] }), ['explicit.many[0]']);
+});

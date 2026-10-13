@@ -1,0 +1,753 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/operator-types.ts
+sha256 3180db78bddabb9318143f35c888199756658118c320a1f2533957d7083bfc3d
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * The types `operator-shapes.ts` reads through `keyof` and an indexed access,
+ * without importing the type a field of them names.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface OperatorOwner {
+    name: string;
+    since: Date;
+}
+
+export function operatorOwnerToString(value: OperatorOwner): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    parts.push("since: " + String(value.since));
+        return "OperatorOwner { " + parts.join(", ") + " }";
+    });
+}
+
+export function operatorOwnerClone(value: OperatorOwner): OperatorOwner {
+    return __mf_clonedWith(value, (): OperatorOwner => ({
+	name: value.name,
+	since: new Date(value.since.getTime())
+}));
+}
+
+export function operatorOwnerEquals(a: OperatorOwner, b: OperatorOwner): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.name === b.name && (a.since.getTime() === b.since.getTime() || a.since.getTime() !== a.since.getTime() && b.since.getTime() !== b.since.getTime()));
+}
+
+export function operatorOwnerHashCode(value: OperatorOwner): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.since.getTime() | 0)) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function operatorOwnerEncode(value: OperatorOwner, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = operatorOwnerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function operatorOwnerEncodeWithContext(value: OperatorOwner, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OperatorOwner" });
+    operatorOwnerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function operatorOwnerEncodePartialWithContext(value: Partial<OperatorOwner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OperatorOwner>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OperatorOwner" };
+        operatorOwnerEncodeFields(value as OperatorOwner, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function operatorOwnerEncodeFields(value: OperatorOwner, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result["name"] = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("since")) {
+        if (value.since !== undefined) {
+            result["since"] = value.since.toISOString();
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function operatorOwnerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OperatorOwner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = operatorOwnerDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OperatorOwner.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OperatorOwner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OperatorOwner> | __mf_PendingRef;
+export function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<OperatorOwner> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OperatorOwner.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "OperatorOwner.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "OperatorOwner") as OperatorOwner | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OperatorOwner.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("since")) && !("since" in obj)) {
+        errors.push({ field: "since", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "OperatorOwner");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "OperatorOwner.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("since")) ? "since" in obj : (__fields.keeps("since") && obj["since"] !== undefined)) {
+        const __raw_since = obj["since"] as string | Date;
+
+        {
+            const __dateVal = (__raw_since instanceof Date ? __raw_since : typeof __raw_since === "string" ? new Date(__raw_since) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "since", message: __raw_since == null ? "OperatorOwner.since is required" : "expected Date" });
+            } else {
+                instance.since = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as OperatorOwner;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function operatorOwnerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OperatorOwner>): Partial<OperatorOwner> | __mf_PendingRef {
+    return operatorOwnerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function operatorOwnerValidateField<K extends keyof OperatorOwner>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function operatorOwnerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function operatorOwnerValidateFields(partial: { readonly [K in keyof OperatorOwner]?: unknown }): Array<{ field: string; message: string }>;
+export function operatorOwnerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function operatorOwnerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "name") && __mf_holds(obj, "since");
+}
+
+export function operatorOwnerIs(obj: unknown): obj is OperatorOwner {
+    return operatorOwnerHasShape(obj) && operatorOwnerDecode(obj).success;
+}
+
+export const OperatorOwner: {
+  readonly toString: typeof operatorOwnerToString;
+  readonly clone: typeof operatorOwnerClone;
+  readonly equals: typeof operatorOwnerEquals;
+  readonly hashCode: typeof operatorOwnerHashCode;
+  readonly encode: typeof operatorOwnerEncode;
+  readonly encodeWithContext: typeof operatorOwnerEncodeWithContext;
+  readonly encodePartialWithContext: typeof operatorOwnerEncodePartialWithContext;
+  readonly decode: typeof operatorOwnerDecode;
+  readonly decodeWithContext: typeof operatorOwnerDecodeWithContext;
+  readonly decodePartialWithContext: typeof operatorOwnerDecodePartialWithContext;
+  readonly validateField: typeof operatorOwnerValidateField;
+  readonly validateFields: typeof operatorOwnerValidateFields;
+  readonly hasShape: typeof operatorOwnerHasShape;
+  readonly is: typeof operatorOwnerIs;
+} = {
+  toString: operatorOwnerToString,
+  clone: operatorOwnerClone,
+  equals: operatorOwnerEquals,
+  hashCode: operatorOwnerHashCode,
+  encode: operatorOwnerEncode,
+  encodeWithContext: operatorOwnerEncodeWithContext,
+  encodePartialWithContext: operatorOwnerEncodePartialWithContext,
+  decode: operatorOwnerDecode,
+  decodeWithContext: operatorOwnerDecodeWithContext,
+  decodePartialWithContext: operatorOwnerDecodePartialWithContext,
+  validateField: operatorOwnerValidateField,
+  validateFields: operatorOwnerValidateFields,
+  hasShape: operatorOwnerHasShape,
+  is: operatorOwnerIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface OperatorItem {
+    owner: OperatorOwner;
+    owners: OperatorOwner[];
+    label: string;
+    weight?: number;
+}
+
+export function operatorItemToString(value: OperatorItem): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("owner: " + operatorOwnerToString(value.owner));
+    parts.push("owners: " + "[" + value.owners.map(operatorOwnerToString).join(", ") + "]");
+    parts.push("label: " + String(value.label));
+    parts.push("weight: " + String(value.weight));
+        return "OperatorItem { " + parts.join(", ") + " }";
+    });
+}
+
+export function operatorItemClone(value: OperatorItem): OperatorItem {
+    return __mf_clonedWith(value, (): OperatorItem => ({
+	owner: operatorOwnerClone(value.owner),
+	owners: value.owners.map((__item0) => operatorOwnerClone(__item0)),
+	label: value.label,
+	..."weight" in value ? { weight: value.weight } : {}
+}));
+}
+
+export function operatorItemEquals(a: OperatorItem, b: OperatorItem): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => operatorOwnerEquals(a.owner, b.owner) && a.owners.length === b.owners.length && a.owners.every((__item0, __index0) => {
+	const __other0 = b.owners[__index0];
+	return __other0 === undefined ? __item0 === undefined : operatorOwnerEquals(__item0, __other0);
+}) && a.label === b.label && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight));
+}
+
+export function operatorItemHashCode(value: OperatorItem): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (operatorOwnerHashCode(value.owner))) | 0;
+    hash = (hash * 31 + (value.owners.reduce<number>((__hash0, __item0) => __hash0 * 31 + operatorOwnerHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.weight == null ? 0 : Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function operatorItemEncode(value: OperatorItem, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = operatorItemEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function operatorItemEncodeWithContext(value: OperatorItem, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OperatorItem" });
+    operatorItemEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function operatorItemEncodePartialWithContext(value: Partial<OperatorItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OperatorItem>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OperatorItem" };
+        operatorItemEncodeFields(value as OperatorItem, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function operatorItemEncodeFields(value: OperatorItem, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("owner")) {
+        if (value.owner !== undefined) {
+            result["owner"] = operatorOwnerEncodeWithContext(value.owner, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("owners")) {
+        if (value.owners !== undefined) {
+            result["owners"] = value.owners.map((__item0) => operatorOwnerEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("label")) {
+        if (value.label !== undefined) {
+            result["label"] = value.label;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("weight")) {
+        if (value.weight !== undefined) {
+            result["weight"] = value.weight;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function operatorItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OperatorItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = operatorItemDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OperatorItem.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OperatorItem | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OperatorItem> | __mf_PendingRef;
+export function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<OperatorItem> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OperatorItem.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "OperatorItem.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "OperatorItem") as OperatorItem | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OperatorItem.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("owner")) && !("owner" in obj)) {
+        errors.push({ field: "owner", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("owners")) && !("owners" in obj)) {
+        errors.push({ field: "owners", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "OperatorItem");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("owner")) ? "owner" in obj : (__fields.keeps("owner") && obj["owner"] !== undefined)) {
+        const __raw_owner = obj["owner"] as OperatorOwner;
+
+        ctx.pushScope("owner");
+        try {
+            const __result = operatorOwnerDecodeWithContext(__raw_owner, ctx);
+            ctx.assignOrDefer(instance, "owner", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "owner" : "owner." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "owner", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("owners")) ? "owners" in obj : (__fields.keeps("owners") && obj["owners"] !== undefined)) {
+        const __raw_owners = obj["owners"] as OperatorOwner[];
+        if (Array.isArray(__raw_owners)) {
+            ctx.pushScope("owners");
+            try {
+                instance.owners = __mf_decodeArray(__raw_owners, ctx, (__raw0) => operatorOwnerDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "owners" : "owners." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "owners", message: __raw_owners == null ? "OperatorItem.owners is required" : "expected OperatorOwner[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+        const __raw_label = obj["label"] as string;
+
+        if (!(typeof __raw_label === "string")) {
+            errors.push({ field: "label", message: __raw_label == null ? "OperatorItem.label is required" : "expected string" });
+        } else {
+            instance.label = __raw_label;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("weight"))) {
+        if (("weight" in obj && obj["weight"] !== undefined)) {
+            const __raw_weight = obj["weight"] as number;
+
+            if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                errors.push({ field: "weight", message: "expected number" });
+            } else {
+                instance.weight = __raw_weight;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as OperatorItem;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function operatorItemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OperatorItem>): Partial<OperatorItem> | __mf_PendingRef {
+    return operatorItemDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function operatorItemValidateField<K extends keyof OperatorItem>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function operatorItemValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function operatorItemValidateFields(partial: { readonly [K in keyof OperatorItem]?: unknown }): Array<{ field: string; message: string }>;
+export function operatorItemValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function operatorItemHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "owner") && __mf_holds(obj, "owners") && __mf_holds(obj, "label");
+}
+
+export function operatorItemIs(obj: unknown): obj is OperatorItem {
+    return operatorItemHasShape(obj) && operatorItemDecode(obj).success;
+}
+
+export const OperatorItem: {
+  readonly toString: typeof operatorItemToString;
+  readonly clone: typeof operatorItemClone;
+  readonly equals: typeof operatorItemEquals;
+  readonly hashCode: typeof operatorItemHashCode;
+  readonly encode: typeof operatorItemEncode;
+  readonly encodeWithContext: typeof operatorItemEncodeWithContext;
+  readonly encodePartialWithContext: typeof operatorItemEncodePartialWithContext;
+  readonly decode: typeof operatorItemDecode;
+  readonly decodeWithContext: typeof operatorItemDecodeWithContext;
+  readonly decodePartialWithContext: typeof operatorItemDecodePartialWithContext;
+  readonly validateField: typeof operatorItemValidateField;
+  readonly validateFields: typeof operatorItemValidateFields;
+  readonly hasShape: typeof operatorItemHasShape;
+  readonly is: typeof operatorItemIs;
+} = {
+  toString: operatorItemToString,
+  clone: operatorItemClone,
+  equals: operatorItemEquals,
+  hashCode: operatorItemHashCode,
+  encode: operatorItemEncode,
+  encodeWithContext: operatorItemEncodeWithContext,
+  encodePartialWithContext: operatorItemEncodePartialWithContext,
+  decode: operatorItemDecode,
+  decodeWithContext: operatorItemDecodeWithContext,
+  decodePartialWithContext: operatorItemDecodePartialWithContext,
+  validateField: operatorItemValidateField,
+  validateFields: operatorItemValidateFields,
+  hasShape: operatorItemHasShape,
+  is: operatorItemIs
+};
+
+## DTS
+
+/**
+* The types `operator-shapes.ts` reads through `keyof` and an indexed access,
+* without importing the type a field of them names.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface OperatorOwner {
+	name: string;
+	since: Date;
+}
+export declare function operatorOwnerToString(value: OperatorOwner): string;
+export declare function operatorOwnerClone(value: OperatorOwner): OperatorOwner;
+export declare function operatorOwnerEquals(a: OperatorOwner, b: OperatorOwner): boolean;
+export declare function operatorOwnerHashCode(value: OperatorOwner): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function operatorOwnerEncode(value: OperatorOwner, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function operatorOwnerEncodeWithContext(value: OperatorOwner, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function operatorOwnerEncodePartialWithContext(value: Partial<OperatorOwner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OperatorOwner>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function operatorOwnerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OperatorOwner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OperatorOwner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OperatorOwner> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function operatorOwnerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OperatorOwner>): Partial<OperatorOwner> | __mf_PendingRef;
+export declare function operatorOwnerValidateField<K extends keyof OperatorOwner>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function operatorOwnerValidateFields(partial: { readonly [K in keyof OperatorOwner]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function operatorOwnerHasShape(obj: unknown): boolean;
+export declare function operatorOwnerIs(obj: unknown): obj is OperatorOwner;
+export declare const OperatorOwner: {
+	readonly toString: typeof operatorOwnerToString;
+	readonly clone: typeof operatorOwnerClone;
+	readonly equals: typeof operatorOwnerEquals;
+	readonly hashCode: typeof operatorOwnerHashCode;
+	readonly encode: typeof operatorOwnerEncode;
+	readonly encodeWithContext: typeof operatorOwnerEncodeWithContext;
+	readonly encodePartialWithContext: typeof operatorOwnerEncodePartialWithContext;
+	readonly decode: typeof operatorOwnerDecode;
+	readonly decodeWithContext: typeof operatorOwnerDecodeWithContext;
+	readonly decodePartialWithContext: typeof operatorOwnerDecodePartialWithContext;
+	readonly validateField: typeof operatorOwnerValidateField;
+	readonly validateFields: typeof operatorOwnerValidateFields;
+	readonly hasShape: typeof operatorOwnerHasShape;
+	readonly is: typeof operatorOwnerIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface OperatorItem {
+	owner: OperatorOwner;
+	owners: OperatorOwner[];
+	label: string;
+	weight?: number;
+}
+export declare function operatorItemToString(value: OperatorItem): string;
+export declare function operatorItemClone(value: OperatorItem): OperatorItem;
+export declare function operatorItemEquals(a: OperatorItem, b: OperatorItem): boolean;
+export declare function operatorItemHashCode(value: OperatorItem): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function operatorItemEncode(value: OperatorItem, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function operatorItemEncodeWithContext(value: OperatorItem, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function operatorItemEncodePartialWithContext(value: Partial<OperatorItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OperatorItem>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function operatorItemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OperatorItem;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OperatorItem | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OperatorItem> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function operatorItemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OperatorItem>): Partial<OperatorItem> | __mf_PendingRef;
+export declare function operatorItemValidateField<K extends keyof OperatorItem>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function operatorItemValidateFields(partial: { readonly [K in keyof OperatorItem]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function operatorItemHasShape(obj: unknown): boolean;
+export declare function operatorItemIs(obj: unknown): obj is OperatorItem;
+export declare const OperatorItem: {
+	readonly toString: typeof operatorItemToString;
+	readonly clone: typeof operatorItemClone;
+	readonly equals: typeof operatorItemEquals;
+	readonly hashCode: typeof operatorItemHashCode;
+	readonly encode: typeof operatorItemEncode;
+	readonly encodeWithContext: typeof operatorItemEncodeWithContext;
+	readonly encodePartialWithContext: typeof operatorItemEncodePartialWithContext;
+	readonly decode: typeof operatorItemDecode;
+	readonly decodeWithContext: typeof operatorItemDecodeWithContext;
+	readonly decodePartialWithContext: typeof operatorItemDecodePartialWithContext;
+	readonly validateField: typeof operatorItemValidateField;
+	readonly validateFields: typeof operatorItemValidateFields;
+	readonly hasShape: typeof operatorItemHasShape;
+	readonly is: typeof operatorItemIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..272 -> expanded 896..1168
+original 272..464 -> expanded 12457..12649
+original 464..465 -> expanded 27177..27178
+generated 0..896 <- imports
+generated 1168..1488 <- Debug
+generated 1488..1687 <- Clone
+generated 1687..1994 <- PartialEq
+generated 1994..2340 <- Hash
+generated 2340..4719 <- Encode
+generated 4719..11030 <- Decode
+generated 11030..12457 <- __convenience_const
+generated 12649..13127 <- Debug
+generated 13127..13448 <- Clone
+generated 13448..13961 <- PartialEq
+generated 13961..14654 <- Hash
+generated 14654..17437 <- Encode
+generated 17437..25779 <- Decode
+generated 25779..27177 <- __convenience_const
+
+## Metadata
+
+interface OperatorOwner: {"body_span":{"end":273,"start":235},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":203,"start":142}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":254,"start":241},"ts_type":"string"},{"decorators":[],"key":"Named","name":"since","optional":false,"readonly":false,"span":{"end":271,"start":259},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"OperatorOwner","span":{"end":273,"start":211},"type_params":[]}
+interface OperatorItem: {"body_span":{"end":465,"start":367},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":336,"start":275}}],"fields":[{"decorators":[],"key":"Named","name":"owner","optional":false,"readonly":false,"span":{"end":394,"start":373},"ts_type":"OperatorOwner"},{"decorators":[],"key":"Named","name":"owners","optional":false,"readonly":false,"span":{"end":423,"start":399},"ts_type":"OperatorOwner[]"},{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":442,"start":428},"ts_type":"string"},{"decorators":[],"key":"Named","name":"weight","optional":true,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OperatorItem","span":{"end":465,"start":344},"type_params":[]}
+
+## Registry reads
+
+Name("Date")
+Name("OperatorOwner")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

@@ -2512,6 +2512,7 @@ Name("Pick")
 Name("Record")
 Name("Set")
 Name("[EdgeItem, EdgeItem]")
+Name("string")
 
 ## Buildtime dependencies
 

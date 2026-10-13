@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/generic-shapes.ts
-sha256 f0413c1af7d125096d953d924a6a6b28812e62a02243eb65ca218b87ff74d7d7
+sha256 5e7d1761a453b874b54285be2de69649211ec8d4af58a7a7923c82d509a696fd
 
 ## Changed
 
@@ -2304,7 +2304,7 @@ export function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
         ctx.pushScope("same");
         try {
-            const __result = genericPairDecodeWithContext<number>(__raw_same, ctx, __mf_decodeNumber);
+            const __result = genericPairDecodeWithContext<number, number>(__raw_same, ctx, __mf_decodeNumber, __mf_decodeNumber);
             ctx.assignOrDefer(instance, "same", __result);
         } catch (__e) {
             if (__e instanceof __mf_DecodeError) {
@@ -3709,6 +3709,683 @@ export const GenericArguments: {
   is: genericArgumentsIs
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class GenericDefaults<T extends string | number = string, U = T[]> {
+    value: T | null = null;
+    many: U | null = null;
+    pair: [T, T] | null = null;
+
+    static toString<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("value: " + __mf_structuralDebug(value.value));
+        parts.push("many: " + __mf_structuralDebug(value.many));
+        parts.push("pair: " + __mf_structuralDebug(value.pair));
+            return "GenericDefaults { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>): GenericDefaults<T, U> {
+        return __mf_clonedWith(value, () => ({
+        	value: __mf_structuralClone(value.value),
+        	many: __mf_structuralClone(value.many),
+        	pair: __mf_structuralClone(value.pair)
+        }));
+    }
+
+    static equals<T extends string | number = string, U = T[]>(a: GenericDefaults<T, U>, b: GenericDefaults<T, U>): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.value, b.value) && __mf_structuralEquals(a.many, b.many) && __mf_structuralEquals(a.pair, b.pair));
+    }
+
+    static hashCode<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + (__mf_structuralHash(value.value))) | 0;
+        hash = (hash * 31 + (__mf_structuralHash(value.many))) | 0;
+        hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+            return hash;
+        });
+    }
+
+    static defaultValue<T extends string | number = string, U = T[]>(): GenericDefaults<T, U> {
+        const fields: { value: T | null; many: U | null; pair: [T, T] | null } = {
+            value: null,
+            many: null,
+            pair: null,
+        };
+        return __mf_instanceOf(GenericDefaults.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GenericDefaults" });
+    GenericDefaults.#encodeFields<T, U>(value, ctx, result, undefined, __encodeT, __encodeU);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext<T extends string | number = string, U = T[]>(value: Partial<GenericDefaults<T, U>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericDefaults" };
+        GenericDefaults.#encodeFields<T, U>(value as GenericDefaults<T, U>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeT, __encodeU);
+        return result;
+    });
+}
+
+static #encodeFields<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): void {
+    if (__fields === undefined || __fields.keeps("value")) {
+        if (value.value !== undefined) {
+            result["value"] = value.value === null ? null : (__encodeT === undefined ? value.value : __encodeT(value.value, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("many")) {
+        if (value.many !== undefined) {
+            result["many"] = value.many === null ? null : (__encodeU === undefined ? value.many : __encodeU(value.many, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result["pair"] = value.pair === null ? null : [(__encodeT === undefined ? value.pair[0] : __encodeT(value.pair[0], ctx)), (__encodeT === undefined ? value.pair[1] : __encodeT(value.pair[1], ctx))];
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): string {
+        return genericDefaultsEncode(value, keepMetadata, __encodeT, __encodeU);
+    }
+
+constructor(props: { value: T | null; many: U | null; pair: [T, T] | null }) {
+
+    this.value = props.value;
+    this.many = props.many;
+    this.pair = props.pair;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode<T extends string | number = string, U = T[]>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): { success: true; value: GenericDefaults<T, U> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = GenericDefaults.decodeWithContext<T, U>(data, ctx, __decodeT, __decodeU);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericDefaults.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext<T extends string | number = string, U = T[]>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): GenericDefaults<T, U> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext<T extends string | number = string, U = T[]>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, __decodeU: __mf_Decoder<U> | undefined, fields: __mf_FieldRequirement): Partial<GenericDefaults<T, U>> | __mf_PendingRef;
+static decodeWithContext<T extends string | number = string, U = T[]>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>, __fields?: __mf_FieldRequirement): Partial<GenericDefaults<T, U>> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericDefaults.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericDefaults.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericDefaults") as GenericDefaults<T, U> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericDefaults.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
+        errors.push({ field: "value", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("many")) && !("many" in obj)) {
+        errors.push({ field: "many", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(GenericDefaults.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericDefaults");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
+        const __raw_value = obj["value"] as T | null;
+
+        if (__raw_value === null) {
+            instance.value = null;
+        } else {
+            ctx.pushScope("value");
+            try {
+                const __result = (__decodeT === undefined ? __raw_value as T : __decodeT(__raw_value, ctx));
+                ctx.assignOrDefer(instance, "value", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "value" : "value." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "value", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("many")) ? "many" in obj : (__fields.keeps("many") && obj["many"] !== undefined)) {
+        const __raw_many = obj["many"] as U | null;
+
+        if (__raw_many === null) {
+            instance.many = null;
+        } else {
+            ctx.pushScope("many");
+            try {
+                const __result = (__decodeU === undefined ? __raw_many as U : __decodeU(__raw_many, ctx));
+                ctx.assignOrDefer(instance, "many", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "many" : "many." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "many", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [T, T] | null;
+
+        if (__raw_pair === null) {
+            instance.pair = null;
+        } else {
+            if (Array.isArray(__raw_pair)) {
+                ctx.pushScope("pair");
+                try {
+                    instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx)), (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))], 2) as [T, T]);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+                        throw __e;
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            } else {
+                errors.push({ field: "pair", message: __raw_pair == null ? "GenericDefaults.pair is required" : "expected [T, T]" });
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<T extends string | number = string, U = T[], K extends keyof GenericDefaults<T, U> = keyof GenericDefaults<T, U>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields<T extends string | number = string, U = T[]>(partial: { readonly [K in keyof GenericDefaults<T, U>]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "value") && __mf_holds(obj, "many") && __mf_holds(obj, "pair");
+}
+
+static is<T extends string | number = string, U = T[]>(obj: unknown): obj is GenericDefaults<T, U> {
+    if (obj instanceof GenericDefaults) {
+        return true;
+    }
+    if (!GenericDefaults.hasShape(obj)) {
+        return false;
+    }
+    const result = GenericDefaults.decode(obj);
+    return result.success;
+}
+}
+
+export function genericDefaultsToString<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>): string {
+    return GenericDefaults.toString<T, U>(value);
+}
+
+export function genericDefaultsClone<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>): GenericDefaults<T, U> {
+    return GenericDefaults.clone<T, U>(value);
+}
+
+export function genericDefaultsEquals<T extends string | number = string, U = T[]>(a: GenericDefaults<T, U>, b: GenericDefaults<T, U>): boolean {
+    return GenericDefaults.equals<T, U>(a, b);
+}
+
+export function genericDefaultsHashCode<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>): number {
+    return GenericDefaults.hashCode<T, U>(value);
+}
+
+export function genericDefaultsDefaultValue<T extends string | number = string, U = T[]>(): GenericDefaults<T, U> {
+    return GenericDefaults.defaultValue<T, U>();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericDefaultsEncode<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericDefaultsEncodeWithContext(value, ctx, __encodeT, __encodeU);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericDefaultsEncodeWithContext<T extends string | number = string, U = T[]>(value: GenericDefaults<T, U>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown> {
+    return GenericDefaults.encodeWithContext<T, U>(value, ctx, __encodeT, __encodeU);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericDefaultsEncodePartialWithContext<T extends string | number = string, U = T[]>(value: Partial<GenericDefaults<T, U>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown> {
+    return GenericDefaults.encodePartialWithContext<T, U>(value, ctx, fields, __encodeT, __encodeU);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function genericDefaultsDecode<T extends string | number = string, U = T[]>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): { success: true; value: GenericDefaults<T, U> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GenericDefaults.decode<T, U>(input, opts, __decodeT, __decodeU);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericDefaultsDecodeWithContext<T extends string | number = string, U = T[]>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): GenericDefaults<T, U> | __mf_PendingRef {
+    return GenericDefaults.decodeWithContext<T, U>(value, ctx, __decodeT, __decodeU);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function genericDefaultsHasShape(value: unknown): boolean {
+    return GenericDefaults.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericDefaultsDecodePartialWithContext<T extends string | number = string, U = T[]>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): Partial<GenericDefaults<T, U>> | __mf_PendingRef {
+    return GenericDefaults.decodeWithContext<T, U>(value, ctx, __decodeT, __decodeU, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function genericDefaultsIs<T extends string | number = string, U = T[]>(value: unknown): value is GenericDefaults<T, U> {
+    return GenericDefaults.is<T, U>(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericDefaulted {
+    text: GenericDefaults;
+    counted: GenericDefaults<number>;
+    explicit: GenericDefaults<string, string[]>;
+}
+
+export function genericDefaultedToString(value: GenericDefaulted): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("text: " + genericDefaultsToString(value.text));
+    parts.push("counted: " + genericDefaultsToString(value.counted));
+    parts.push("explicit: " + genericDefaultsToString(value.explicit));
+        return "GenericDefaulted { " + parts.join(", ") + " }";
+    });
+}
+
+export function genericDefaultedClone(value: GenericDefaulted): GenericDefaulted {
+    return __mf_clonedWith(value, (): GenericDefaulted => ({
+	text: genericDefaultsClone(value.text),
+	counted: genericDefaultsClone(value.counted),
+	explicit: genericDefaultsClone(value.explicit)
+}));
+}
+
+export function genericDefaultedEquals(a: GenericDefaulted, b: GenericDefaulted): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => genericDefaultsEquals(a.text, b.text) && genericDefaultsEquals(a.counted, b.counted) && genericDefaultsEquals(a.explicit, b.explicit));
+}
+
+export function genericDefaultedHashCode(value: GenericDefaulted): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (genericDefaultsHashCode(value.text))) | 0;
+    hash = (hash * 31 + (genericDefaultsHashCode(value.counted))) | 0;
+    hash = (hash * 31 + (genericDefaultsHashCode(value.explicit))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericDefaultedEncode(value: GenericDefaulted, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericDefaultedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericDefaultedEncodeWithContext(value: GenericDefaulted, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GenericDefaulted" });
+    genericDefaultedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericDefaultedEncodePartialWithContext(value: Partial<GenericDefaulted>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaulted>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericDefaulted" };
+        genericDefaultedEncodeFields(value as GenericDefaulted, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function genericDefaultedEncodeFields(value: GenericDefaulted, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("text")) {
+        if (value.text !== undefined) {
+            result["text"] = genericDefaultsEncodeWithContext(value.text, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("counted")) {
+        if (value.counted !== undefined) {
+            result["counted"] = genericDefaultsEncodeWithContext(value.counted, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("explicit")) {
+        if (value.explicit !== undefined) {
+            result["explicit"] = genericDefaultsEncodeWithContext(value.explicit, ctx);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericDefaultedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericDefaulted } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericDefaultedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericDefaulted.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericDefaultedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericDefaulted | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function genericDefaultedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericDefaulted> | __mf_PendingRef;
+export function genericDefaultedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GenericDefaulted> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericDefaulted.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericDefaulted.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericDefaulted") as GenericDefaulted | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericDefaulted.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
+        errors.push({ field: "text", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("counted")) && !("counted" in obj)) {
+        errors.push({ field: "counted", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("explicit")) && !("explicit" in obj)) {
+        errors.push({ field: "explicit", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericDefaulted");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+        const __raw_text = obj["text"] as GenericDefaults;
+
+        ctx.pushScope("text");
+        try {
+            const __result = genericDefaultsDecodeWithContext<string, string[]>(__raw_text, ctx, __mf_decodeString, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeString));
+            ctx.assignOrDefer(instance, "text", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "text" : "text." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "text", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("counted")) ? "counted" in obj : (__fields.keeps("counted") && obj["counted"] !== undefined)) {
+        const __raw_counted = obj["counted"] as GenericDefaults<number>;
+
+        ctx.pushScope("counted");
+        try {
+            const __result = genericDefaultsDecodeWithContext<number, number[]>(__raw_counted, ctx, __mf_decodeNumber, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeNumber));
+            ctx.assignOrDefer(instance, "counted", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "counted" : "counted." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "counted", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("explicit")) ? "explicit" in obj : (__fields.keeps("explicit") && obj["explicit"] !== undefined)) {
+        const __raw_explicit = obj["explicit"] as GenericDefaults<string, string[]>;
+
+        ctx.pushScope("explicit");
+        try {
+            const __result = genericDefaultsDecodeWithContext<string, string[]>(__raw_explicit, ctx, __mf_decodeString, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeString));
+            ctx.assignOrDefer(instance, "explicit", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "explicit" : "explicit." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "explicit", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GenericDefaulted;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericDefaultedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericDefaulted>): Partial<GenericDefaulted> | __mf_PendingRef {
+    return genericDefaultedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function genericDefaultedValidateField<K extends keyof GenericDefaulted>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function genericDefaultedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function genericDefaultedValidateFields(partial: { readonly [K in keyof GenericDefaulted]?: unknown }): Array<{ field: string; message: string }>;
+export function genericDefaultedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function genericDefaultedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "text") && __mf_holds(obj, "counted") && __mf_holds(obj, "explicit");
+}
+
+export function genericDefaultedIs(obj: unknown): obj is GenericDefaulted {
+    return genericDefaultedHasShape(obj) && genericDefaultedDecode(obj).success;
+}
+
+export const GenericDefaulted: {
+  readonly toString: typeof genericDefaultedToString;
+  readonly clone: typeof genericDefaultedClone;
+  readonly equals: typeof genericDefaultedEquals;
+  readonly hashCode: typeof genericDefaultedHashCode;
+  readonly encode: typeof genericDefaultedEncode;
+  readonly encodeWithContext: typeof genericDefaultedEncodeWithContext;
+  readonly encodePartialWithContext: typeof genericDefaultedEncodePartialWithContext;
+  readonly decode: typeof genericDefaultedDecode;
+  readonly decodeWithContext: typeof genericDefaultedDecodeWithContext;
+  readonly decodePartialWithContext: typeof genericDefaultedDecodePartialWithContext;
+  readonly validateField: typeof genericDefaultedValidateField;
+  readonly validateFields: typeof genericDefaultedValidateFields;
+  readonly hasShape: typeof genericDefaultedHasShape;
+  readonly is: typeof genericDefaultedIs;
+} = {
+  toString: genericDefaultedToString,
+  clone: genericDefaultedClone,
+  equals: genericDefaultedEquals,
+  hashCode: genericDefaultedHashCode,
+  encode: genericDefaultedEncode,
+  encodeWithContext: genericDefaultedEncodeWithContext,
+  encodePartialWithContext: genericDefaultedEncodePartialWithContext,
+  decode: genericDefaultedDecode,
+  decodeWithContext: genericDefaultedDecodeWithContext,
+  decodePartialWithContext: genericDefaultedDecodePartialWithContext,
+  validateField: genericDefaultedValidateField,
+  validateFields: genericDefaultedValidateFields,
+  hasShape: genericDefaultedHasShape,
+  is: genericDefaultedIs
+};
+
 ## DTS
 
 /**
@@ -4455,6 +5132,225 @@ export declare const GenericArguments: {
 	readonly hasShape: typeof genericArgumentsHasShape;
 	readonly is: typeof genericArgumentsIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class GenericDefaults<
+	T extends string | number = string,
+	U = T[]
+> {
+	#private;
+	value: T | null;
+	many: U | null;
+	pair: [T, T] | null;
+	static toString<
+		T extends string | number = string,
+		U = T[]
+	>(value: GenericDefaults<T, U>): string;
+	static clone<
+		T extends string | number = string,
+		U = T[]
+	>(value: GenericDefaults<T, U>): GenericDefaults<T, U>;
+	static equals<
+		T extends string | number = string,
+		U = T[]
+	>(a: GenericDefaults<T, U>, b: GenericDefaults<T, U>): boolean;
+	static hashCode<
+		T extends string | number = string,
+		U = T[]
+	>(value: GenericDefaults<T, U>): number;
+	static defaultValue<
+		T extends string | number = string,
+		U = T[]
+	>(): GenericDefaults<T, U>;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext<
+		T extends string | number = string,
+		U = T[]
+	>(value: GenericDefaults<T, U>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext<
+		T extends string | number = string,
+		U = T[]
+	>(value: Partial<GenericDefaults<T, U>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode<
+		T extends string | number = string,
+		U = T[]
+	>(value: GenericDefaults<T, U>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): string;
+	constructor(props: {
+		value: T | null;
+		many: U | null;
+		pair: [T, T] | null;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode<
+		T extends string | number = string,
+		U = T[]
+	>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): {
+		success: true;
+		value: GenericDefaults<T, U>;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext<
+		T extends string | number = string,
+		U = T[]
+	>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): GenericDefaults<T, U> | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext<
+		T extends string | number = string,
+		U = T[]
+	>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, __decodeU: __mf_Decoder<U> | undefined, fields: __mf_FieldRequirement): Partial<GenericDefaults<T, U>> | __mf_PendingRef;
+	static validateField<
+		T extends string | number = string,
+		U = T[],
+		K extends keyof GenericDefaults<T, U> = keyof GenericDefaults<T, U>
+	>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields<
+		T extends string | number = string,
+		U = T[]
+	>(partial: { readonly [K in keyof GenericDefaults<T, U>]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is<
+		T extends string | number = string,
+		U = T[]
+	>(obj: unknown): obj is GenericDefaults<T, U>;
+}
+export declare function genericDefaultsToString<
+	T extends string | number = string,
+	U = T[]
+>(value: GenericDefaults<T, U>): string;
+export declare function genericDefaultsClone<
+	T extends string | number = string,
+	U = T[]
+>(value: GenericDefaults<T, U>): GenericDefaults<T, U>;
+export declare function genericDefaultsEquals<
+	T extends string | number = string,
+	U = T[]
+>(a: GenericDefaults<T, U>, b: GenericDefaults<T, U>): boolean;
+export declare function genericDefaultsHashCode<
+	T extends string | number = string,
+	U = T[]
+>(value: GenericDefaults<T, U>): number;
+export declare function genericDefaultsDefaultValue<
+	T extends string | number = string,
+	U = T[]
+>(): GenericDefaults<T, U>;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericDefaultsEncode<
+	T extends string | number = string,
+	U = T[]
+>(value: GenericDefaults<T, U>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericDefaultsEncodeWithContext<
+	T extends string | number = string,
+	U = T[]
+>(value: GenericDefaults<T, U>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericDefaultsEncodePartialWithContext<
+	T extends string | number = string,
+	U = T[]
+>(value: Partial<GenericDefaults<T, U>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __encodeT?: __mf_Encoder<T>, __encodeU?: __mf_Encoder<U>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function genericDefaultsDecode<
+	T extends string | number = string,
+	U = T[]
+>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): {
+	success: true;
+	value: GenericDefaults<T, U>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericDefaultsDecodeWithContext<
+	T extends string | number = string,
+	U = T[]
+>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): GenericDefaults<T, U> | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function genericDefaultsHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericDefaultsDecodePartialWithContext<
+	T extends string | number = string,
+	U = T[]
+>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericDefaults<T, U>>, __decodeT?: __mf_Decoder<T>, __decodeU?: __mf_Decoder<U>): Partial<GenericDefaults<T, U>> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function genericDefaultsIs<
+	T extends string | number = string,
+	U = T[]
+>(value: unknown): value is GenericDefaults<T, U>;
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericDefaulted {
+	text: GenericDefaults;
+	counted: GenericDefaults<number>;
+	explicit: GenericDefaults<string, string[]>;
+}
+export declare function genericDefaultedToString(value: GenericDefaulted): string;
+export declare function genericDefaultedClone(value: GenericDefaulted): GenericDefaulted;
+export declare function genericDefaultedEquals(a: GenericDefaulted, b: GenericDefaulted): boolean;
+export declare function genericDefaultedHashCode(value: GenericDefaulted): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericDefaultedEncode(value: GenericDefaulted, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericDefaultedEncodeWithContext(value: GenericDefaulted, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericDefaultedEncodePartialWithContext(value: Partial<GenericDefaulted>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericDefaulted>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericDefaultedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericDefaulted;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericDefaultedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericDefaulted | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function genericDefaultedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericDefaulted> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericDefaultedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericDefaulted>): Partial<GenericDefaulted> | __mf_PendingRef;
+export declare function genericDefaultedValidateField<K extends keyof GenericDefaulted>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericDefaultedValidateFields(partial: { readonly [K in keyof GenericDefaulted]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericDefaultedHasShape(obj: unknown): boolean;
+export declare function genericDefaultedIs(obj: unknown): obj is GenericDefaulted;
+export declare const GenericDefaulted: {
+	readonly toString: typeof genericDefaultedToString;
+	readonly clone: typeof genericDefaultedClone;
+	readonly equals: typeof genericDefaultedEquals;
+	readonly hashCode: typeof genericDefaultedHashCode;
+	readonly encode: typeof genericDefaultedEncode;
+	readonly encodeWithContext: typeof genericDefaultedEncodeWithContext;
+	readonly encodePartialWithContext: typeof genericDefaultedEncodePartialWithContext;
+	readonly decode: typeof genericDefaultedDecode;
+	readonly decodeWithContext: typeof genericDefaultedDecodeWithContext;
+	readonly decodePartialWithContext: typeof genericDefaultedDecodePartialWithContext;
+	readonly validateField: typeof genericDefaultedValidateField;
+	readonly validateFields: typeof genericDefaultedValidateFields;
+	readonly hasShape: typeof genericDefaultedHasShape;
+	readonly is: typeof genericDefaultedIs;
+};
 
 ## Diagnostics
 
@@ -4471,10 +5367,13 @@ original 1051..1230 -> expanded 73735..73914
 original 1230..1327 -> expanded 81958..82055
 original 1327..1430 -> expanded 88059..88162
 original 1430..1885 -> expanded 94010..94465
-original 1885..2047 -> expanded 121013..121175
-original 2047..2172 -> expanded 134830..134955
-original 2172..2817 -> expanded 144215..144860
-original 2817..2818 -> expanded 180351..180352
+original 1885..2047 -> expanded 121040..121202
+original 2047..2172 -> expanded 134857..134982
+original 2172..2817 -> expanded 144242..144887
+original 2817..3053 -> expanded 180378..180614
+original 3053..3054 -> expanded 194991..194992
+original 3054..3269 -> expanded 200081..200296
+original 3269..3270 -> expanded 214624..214625
 generated 0..1651 <- imports
 generated 2170..2895 <- Debug
 generated 2895..3620 <- Clone
@@ -4538,39 +5437,63 @@ generated 95325..96003 <- Clone
 generated 96003..96922 <- PartialEq
 generated 96922..97982 <- Hash
 generated 97982..102413 <- Encode
-generated 102413..119644 <- Decode
-generated 119644..121013 <- __convenience_const
-generated 121175..121558 <- Debug
-generated 121558..121816 <- Clone
-generated 121816..122235 <- PartialEq
-generated 122235..122609 <- Hash
-generated 122609..125532 <- Encode
-generated 125532..133374 <- Decode
-generated 133374..134830 <- __convenience_const
-generated 134955..135102 <- Debug
-generated 135102..135231 <- Clone
-generated 135231..135399 <- PartialEq
-generated 135399..135519 <- Hash
-generated 135519..137917 <- Encode
-generated 137917..143283 <- Decode
-generated 143283..144215 <- __convenience_const
-generated 144860..146132 <- Debug
-generated 146132..147025 <- Clone
-generated 147025..148108 <- PartialEq
-generated 148108..149341 <- Hash
-generated 149341..155481 <- Encode
-generated 155481..178837 <- Decode
-generated 178837..180351 <- __convenience_const
+generated 102413..119671 <- Decode
+generated 119671..121040 <- __convenience_const
+generated 121202..121585 <- Debug
+generated 121585..121843 <- Clone
+generated 121843..122262 <- PartialEq
+generated 122262..122636 <- Hash
+generated 122636..125559 <- Encode
+generated 125559..133401 <- Decode
+generated 133401..134857 <- __convenience_const
+generated 134982..135129 <- Debug
+generated 135129..135258 <- Clone
+generated 135258..135426 <- PartialEq
+generated 135426..135546 <- Hash
+generated 135546..137944 <- Encode
+generated 137944..143310 <- Decode
+generated 143310..144242 <- __convenience_const
+generated 144887..146159 <- Debug
+generated 146159..147052 <- Clone
+generated 147052..148135 <- PartialEq
+generated 148135..149368 <- Hash
+generated 149368..155508 <- Encode
+generated 155508..178864 <- Decode
+generated 178864..180378 <- __convenience_const
+generated 180614..181092 <- Debug
+generated 181092..181424 <- Clone
+generated 181424..181759 <- PartialEq
+generated 181759..182188 <- Hash
+generated 182188..182525 <- Default
+generated 182525..185184 <- Encode
+generated 185184..185652 <- Encode
+generated 185652..194991 <- Decode
+generated 194992..195170 <- Debug
+generated 195170..195357 <- Clone
+generated 195357..195553 <- PartialEq
+generated 195553..195731 <- Hash
+generated 195731..195899 <- Default
+generated 195899..197720 <- Encode
+generated 197720..200081 <- Decode
+generated 200296..200735 <- Debug
+generated 200735..201023 <- Clone
+generated 201023..201324 <- PartialEq
+generated 201324..201710 <- Hash
+generated 201710..204417 <- Encode
+generated 204417..213110 <- Decode
+generated 213110..214624 <- __convenience_const
 
 ## Metadata
 
 class GenericStack: {"body_span":{"end":1052,"start":979},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":949,"start":879}}],"fields":[{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1001,"start":985},"ts_type":"T[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"top","optional":false,"readonly":false,"span":{"end":1027,"start":1006},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"depth","optional":false,"readonly":false,"span":{"end":1050,"start":1032},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericStack","span":{"end":1052,"start":957},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class GenericDefaults: {"body_span":{"end":3055,"start":2965},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2890,"start":2820}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":2994,"start":2971},"ts_type":"T | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"many","optional":false,"readonly":false,"span":{"end":3021,"start":2999},"ts_type":"U | null","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":3053,"start":3026},"ts_type":"[T, T] | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericDefaults","span":{"end":3055,"start":2898},"superclass":null,"type_params":[{"constraint":"string | number","default":"string","is_const":false,"name":"T"},{"constraint":null,"default":"T[]","is_const":false,"name":"U"}]}
 interface GenericBox: {"body_span":{"end":520,"start":356},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":324,"start":263}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":370,"start":362},"ts_type":"T"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":385,"start":375},"ts_type":"T[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":406,"start":390},"ts_type":"T | null"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":424,"start":411},"ts_type":"T"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":452,"start":429},"ts_type":"Map<string, T>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":469,"start":457},"ts_type":"Set<T>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":500,"start":474},"ts_type":"Record<string, T>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":518,"start":505},"ts_type":"[T, T]"}],"heritage":[],"methods":[],"name":"GenericBox","span":{"end":520,"start":332},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface GenericPair: {"body_span":{"end":670,"start":633},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":583,"start":522}}],"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":650,"start":639},"ts_type":"Left"},{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":668,"start":655},"ts_type":"Right"}],"heritage":[],"methods":[],"name":"GenericPair","span":{"end":670,"start":591},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"Left"},{"constraint":null,"default":"Left","is_const":false,"name":"Right"}]}
 interface GenericConstrained: {"body_span":{"end":877,"start":823},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":733,"start":672}}],"fields":[{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":840,"start":829},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":856,"start":845},"ts_type":"Name"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":875,"start":861},"ts_type":"Item[]"}],"heritage":[],"methods":[],"name":"GenericConstrained","span":{"end":877,"start":741},"type_params":[{"constraint":"EdgeItem","default":null,"is_const":false,"name":"Item"},{"constraint":"string","default":"string","is_const":false,"name":"Name"}]}
 interface GenericUses: {"body_span":{"end":1886,"start":1524},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1494,"start":1433}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":1555,"start":1530},"ts_type":"GenericBox<string>"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":1587,"start":1560},"ts_type":"GenericBox<EdgeItem>"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":1631,"start":1592},"ts_type":"GenericBox<GenericBox<number>>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1672,"start":1636},"ts_type":"GenericPair<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"same","optional":false,"readonly":false,"span":{"end":1703,"start":1677},"ts_type":"GenericPair<number>"},{"decorators":[],"key":"Named","name":"stack","optional":false,"readonly":false,"span":{"end":1738,"start":1708},"ts_type":"GenericStack<EdgeItem>"},{"decorators":[],"key":"Named","name":"stacks","optional":false,"readonly":false,"span":{"end":1774,"start":1743},"ts_type":"GenericStack<string>[]"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1807,"start":1779},"ts_type":"GenericList<EdgeItem>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1842,"start":1812},"ts_type":"GenericMaybe<EdgeItem>"},{"decorators":[],"key":"Named","name":"boxes","optional":false,"readonly":false,"span":{"end":1884,"start":1847},"ts_type":"Map<string, GenericBox<Date>>"}],"heritage":[],"methods":[],"name":"GenericUses","span":{"end":1886,"start":1502},"type_params":[]}
 interface GenericWrapper: {"body_span":{"end":2048,"start":1985},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1949,"start":1888}}],"fields":[{"decorators":[],"key":"Named","name":"inner","optional":false,"readonly":false,"span":{"end":2012,"start":1991},"ts_type":"GenericBox<T>"},{"decorators":[],"key":"Named","name":"pairs","optional":false,"readonly":false,"span":{"end":2046,"start":2017},"ts_type":"GenericPair<T, T[]>[]"}],"heritage":[],"methods":[],"name":"GenericWrapper","span":{"end":2048,"start":1957},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 interface GenericArguments: {"body_span":{"end":2818,"start":2271},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2236,"start":2175}}],"fields":[{"decorators":[],"key":"Named","name":"dated","optional":false,"readonly":false,"span":{"end":2301,"start":2277},"ts_type":"GenericBox<Date>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2337,"start":2306},"ts_type":"GenericBox<Date> | null"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":2374,"start":2342},"ts_type":"GenericBox<EdgeCard>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2422,"start":2379},"ts_type":"GenericPair<Date, Map<string, Date>>"},{"decorators":[],"key":"Named","name":"stack","optional":false,"readonly":false,"span":{"end":2453,"start":2427},"ts_type":"GenericStack<Date>"},{"decorators":[],"key":"Named","name":"result","optional":false,"readonly":false,"span":{"end":2496,"start":2458},"ts_type":"GenericResult<Date, EdgeCard>"},{"decorators":[],"key":"Named","name":"partial","optional":false,"readonly":false,"span":{"end":2536,"start":2501},"ts_type":"Partial<GenericBox<Date>>"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":2590,"start":2541},"ts_type":"Pick<GenericPair<Date, bigint>, 'right'>"},{"decorators":[],"key":"Named","name":"wrapper","optional":false,"readonly":false,"span":{"end":2625,"start":2595},"ts_type":"GenericWrapper<Date>"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":2656,"start":2630},"ts_type":"GenericBox<string>"},{"decorators":[],"key":"Named","name":"link","optional":false,"readonly":false,"span":{"end":2693,"start":2661},"ts_type":"string | GenericBox<Date>"},{"decorators":[],"key":"Named","name":"linkOrNull","optional":false,"readonly":false,"span":{"end":2743,"start":2698},"ts_type":"string | GenericBox<Date> | null"},{"decorators":[],"key":"Named","name":"outcome","optional":false,"readonly":false,"span":{"end":2778,"start":2748},"ts_type":"GenericOutcome<Date>"},{"decorators":[],"key":"Named","name":"outcomes","optional":false,"readonly":false,"span":{"end":2816,"start":2783},"ts_type":"GenericOutcome<Date>[]"}],"heritage":[],"methods":[],"name":"GenericArguments","span":{"end":2818,"start":2244},"type_params":[]}
+interface GenericDefaulted: {"body_span":{"end":3270,"start":3153},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3118,"start":3057}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":3181,"start":3159},"ts_type":"GenericDefaults"},{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":3219,"start":3186},"ts_type":"GenericDefaults<number>"},{"decorators":[],"key":"Named","name":"explicit","optional":false,"readonly":false,"span":{"end":3268,"start":3224},"ts_type":"GenericDefaults<string, string[]>"}],"heritage":[],"methods":[],"name":"GenericDefaulted","span":{"end":3270,"start":3126},"type_params":[]}
 type GenericResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":1177,"start":1168},"ts_type":"true"},{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1190,"start":1178},"ts_type":"Value"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":1211,"start":1201},"ts_type":"false"},{"decorators":[],"key":"Named","name":"failure","optional":false,"readonly":false,"span":{"end":1228,"start":1212},"ts_type":"Failure"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1115,"start":1054}}],"name":"GenericResult","span":{"end":1231,"start":1123},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"Value"},{"constraint":null,"default":null,"is_const":false,"name":"Failure"}]}
 type GenericList: {"body":{"Alias":"T[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1294,"start":1233}}],"name":"GenericList","span":{"end":1328,"start":1302},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 type GenericMaybe: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"T"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1391,"start":1330}}],"name":"GenericMaybe","span":{"end":1431,"start":1399},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
@@ -4581,7 +5504,9 @@ type GenericOutcome: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Gener
 Name("'right'")
 Name("EdgeCard")
 Name("EdgeItem")
+Name("Failure")
 Name("GenericBox")
+Name("GenericDefaults")
 Name("GenericList")
 Name("GenericMaybe")
 Name("GenericOutcome")
@@ -4601,9 +5526,12 @@ Name("Right")
 Name("Set")
 Name("T")
 Name("T[]")
+Name("U")
+Name("Value")
 Name("[T, T]")
 Name("false")
 Name("null")
+Name("number")
 Name("string | GenericBox")
 Name("true")
 

@@ -420,7 +420,9 @@ interface SvelteAllMacrosTest: {"body_span":{"end":354,"start":160},"decorators"
 
 ## Registry reads
 
-(none)
+Name("boolean")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

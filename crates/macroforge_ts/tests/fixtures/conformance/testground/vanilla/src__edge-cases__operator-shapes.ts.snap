@@ -1,0 +1,465 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/operator-shapes.ts
+sha256 7c640a6571dd260934b4814ca8094f56e81bd79337db9db14eafe72f8e8256d5
+
+## Changed
+
+true
+
+## Output
+
+import { operatorOwnerDecodeWithContext, operatorOwnerEncodeWithContext } from "./operator-types";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import type { OperatorOwner } from "./operator-types";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Fields typed by an operator over a type from another module: `keyof` it,
+ * and an indexed access whose type that module names and this one does not
+ * import.
+ */
+
+import type { OperatorItem } from './operator-types';
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface OperatorHolder {
+    owner: OperatorItem['owner'];
+    owners: OperatorItem['owners'];
+    label: OperatorItem['label'];
+    weight: OperatorItem['weight'];
+    key: keyof OperatorItem;
+}
+
+export function operatorHolderToString(value: OperatorHolder): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("owner: " + __mf_structuralDebug(value.owner));
+    parts.push("owners: " + __mf_structuralDebug(value.owners));
+    parts.push("label: " + __mf_structuralDebug(value.label));
+    parts.push("weight: " + __mf_structuralDebug(value.weight));
+    parts.push("key: " + __mf_structuralDebug(value.key));
+        return "OperatorHolder { " + parts.join(", ") + " }";
+    });
+}
+
+export function operatorHolderClone(value: OperatorHolder): OperatorHolder {
+    return __mf_clonedWith(value, (): OperatorHolder => ({
+	owner: __mf_structuralClone(value.owner),
+	owners: __mf_structuralClone(value.owners),
+	label: __mf_structuralClone(value.label),
+	weight: __mf_structuralClone(value.weight),
+	key: __mf_structuralClone(value.key)
+}));
+}
+
+export function operatorHolderEquals(a: OperatorHolder, b: OperatorHolder): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.owner, b.owner) && __mf_structuralEquals(a.owners, b.owners) && __mf_structuralEquals(a.label, b.label) && __mf_structuralEquals(a.weight, b.weight) && __mf_structuralEquals(a.key, b.key));
+}
+
+export function operatorHolderHashCode(value: OperatorHolder): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.owner))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.owners))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.label))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.weight))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.key))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function operatorHolderEncode(value: OperatorHolder, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = operatorHolderEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function operatorHolderEncodeWithContext(value: OperatorHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OperatorHolder" });
+    operatorHolderEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function operatorHolderEncodePartialWithContext(value: Partial<OperatorHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OperatorHolder>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OperatorHolder" };
+        operatorHolderEncodeFields(value as OperatorHolder, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function operatorHolderEncodeFields(value: OperatorHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("owner")) {
+        if (value.owner !== undefined) {
+            result["owner"] = operatorOwnerEncodeWithContext(value.owner, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("owners")) {
+        if (value.owners !== undefined) {
+            result["owners"] = value.owners.map((__item0) => operatorOwnerEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("label")) {
+        if (value.label !== undefined) {
+            result["label"] = value.label;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("weight")) {
+        if (value.weight !== undefined) {
+            result["weight"] = value.weight;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("key")) {
+        if (value.key !== undefined) {
+            result["key"] = value.key;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function operatorHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OperatorHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = operatorHolderDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OperatorHolder.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OperatorHolder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OperatorHolder> | __mf_PendingRef;
+export function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<OperatorHolder> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OperatorHolder.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "OperatorHolder.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "OperatorHolder") as OperatorHolder | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OperatorHolder.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("owner")) && !("owner" in obj)) {
+        errors.push({ field: "owner", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("owners")) && !("owners" in obj)) {
+        errors.push({ field: "owners", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("key")) && !("key" in obj)) {
+        errors.push({ field: "key", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "OperatorHolder");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("owner")) ? "owner" in obj : (__fields.keeps("owner") && obj["owner"] !== undefined)) {
+        const __raw_owner = obj["owner"] as OperatorOwner;
+
+        ctx.pushScope("owner");
+        try {
+            const __result = operatorOwnerDecodeWithContext(__raw_owner, ctx);
+            ctx.assignOrDefer(instance, "owner", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "owner" : "owner." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "owner", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("owners")) ? "owners" in obj : (__fields.keeps("owners") && obj["owners"] !== undefined)) {
+        const __raw_owners = obj["owners"] as OperatorOwner[];
+        if (Array.isArray(__raw_owners)) {
+            ctx.pushScope("owners");
+            try {
+                instance.owners = __mf_decodeArray(__raw_owners, ctx, (__raw0) => operatorOwnerDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "owners" : "owners." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "owners", message: __raw_owners == null ? "OperatorHolder.owners is required" : "expected OperatorOwner[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+        const __raw_label = obj["label"] as string;
+
+        if (!(typeof __raw_label === "string")) {
+            errors.push({ field: "label", message: __raw_label == null ? "OperatorHolder.label is required" : "expected string" });
+        } else {
+            instance.label = __raw_label;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("weight")) || (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+        const __raw_weight = obj["weight"] as number | undefined;
+
+        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight) || __raw_weight === undefined)) {
+            errors.push({ field: "weight", message: "expected number | undefined" });
+        } else {
+            instance.weight = __raw_weight;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
+        const __raw_key = obj["key"] as "owner" | "owners" | "label" | "weight";
+
+        if (!(__raw_key === "owner" || __raw_key === "owners" || __raw_key === "label" || __raw_key === "weight")) {
+            errors.push({ field: "key", message: __raw_key == null ? "OperatorHolder.key is required" : "expected \"owner\" | \"owners\" | \"label\" | \"weight\"" });
+        } else {
+            instance.key = __raw_key;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as OperatorHolder;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function operatorHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OperatorHolder>): Partial<OperatorHolder> | __mf_PendingRef {
+    return operatorHolderDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function operatorHolderValidateField<K extends keyof OperatorHolder>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function operatorHolderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function operatorHolderValidateFields(partial: { readonly [K in keyof OperatorHolder]?: unknown }): Array<{ field: string; message: string }>;
+export function operatorHolderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function operatorHolderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "owner") && __mf_holds(obj, "owners") && __mf_holds(obj, "label") && __mf_holds(obj, "key");
+}
+
+export function operatorHolderIs(obj: unknown): obj is OperatorHolder {
+    return operatorHolderHasShape(obj) && operatorHolderDecode(obj).success;
+}
+
+export const OperatorHolder: {
+  readonly toString: typeof operatorHolderToString;
+  readonly clone: typeof operatorHolderClone;
+  readonly equals: typeof operatorHolderEquals;
+  readonly hashCode: typeof operatorHolderHashCode;
+  readonly encode: typeof operatorHolderEncode;
+  readonly encodeWithContext: typeof operatorHolderEncodeWithContext;
+  readonly encodePartialWithContext: typeof operatorHolderEncodePartialWithContext;
+  readonly decode: typeof operatorHolderDecode;
+  readonly decodeWithContext: typeof operatorHolderDecodeWithContext;
+  readonly decodePartialWithContext: typeof operatorHolderDecodePartialWithContext;
+  readonly validateField: typeof operatorHolderValidateField;
+  readonly validateFields: typeof operatorHolderValidateFields;
+  readonly hasShape: typeof operatorHolderHasShape;
+  readonly is: typeof operatorHolderIs;
+} = {
+  toString: operatorHolderToString,
+  clone: operatorHolderClone,
+  equals: operatorHolderEquals,
+  hashCode: operatorHolderHashCode,
+  encode: operatorHolderEncode,
+  encodeWithContext: operatorHolderEncodeWithContext,
+  encodePartialWithContext: operatorHolderEncodePartialWithContext,
+  decode: operatorHolderDecode,
+  decodeWithContext: operatorHolderDecodeWithContext,
+  decodePartialWithContext: operatorHolderDecodePartialWithContext,
+  validateField: operatorHolderValidateField,
+  validateFields: operatorHolderValidateFields,
+  hasShape: operatorHolderHasShape,
+  is: operatorHolderIs
+};
+
+## DTS
+
+/**
+* Fields typed by an operator over a type from another module: `keyof` it,
+* and an indexed access whose type that module names and this one does not
+* import.
+*/
+import type { OperatorItem } from "./operator-types";
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface OperatorHolder {
+	owner: OperatorItem["owner"];
+	owners: OperatorItem["owners"];
+	label: OperatorItem["label"];
+	weight: OperatorItem["weight"];
+	key: keyof OperatorItem;
+}
+export declare function operatorHolderToString(value: OperatorHolder): string;
+export declare function operatorHolderClone(value: OperatorHolder): OperatorHolder;
+export declare function operatorHolderEquals(a: OperatorHolder, b: OperatorHolder): boolean;
+export declare function operatorHolderHashCode(value: OperatorHolder): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function operatorHolderEncode(value: OperatorHolder, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function operatorHolderEncodeWithContext(value: OperatorHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function operatorHolderEncodePartialWithContext(value: Partial<OperatorHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OperatorHolder>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function operatorHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OperatorHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OperatorHolder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OperatorHolder> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function operatorHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OperatorHolder>): Partial<OperatorHolder> | __mf_PendingRef;
+export declare function operatorHolderValidateField<K extends keyof OperatorHolder>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function operatorHolderValidateFields(partial: { readonly [K in keyof OperatorHolder]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function operatorHolderHasShape(obj: unknown): boolean;
+export declare function operatorHolderIs(obj: unknown): obj is OperatorHolder;
+export declare const OperatorHolder: {
+	readonly toString: typeof operatorHolderToString;
+	readonly clone: typeof operatorHolderClone;
+	readonly equals: typeof operatorHolderEquals;
+	readonly hashCode: typeof operatorHolderHashCode;
+	readonly encode: typeof operatorHolderEncode;
+	readonly encodeWithContext: typeof operatorHolderEncodeWithContext;
+	readonly encodePartialWithContext: typeof operatorHolderEncodePartialWithContext;
+	readonly decode: typeof operatorHolderDecode;
+	readonly decodeWithContext: typeof operatorHolderDecodeWithContext;
+	readonly decodePartialWithContext: typeof operatorHolderDecodePartialWithContext;
+	readonly validateField: typeof operatorHolderValidateField;
+	readonly validateFields: typeof operatorHolderValidateFields;
+	readonly hasShape: typeof operatorHolderHasShape;
+	readonly is: typeof operatorHolderIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..493 -> expanded 1214..1707
+original 493..494 -> expanded 17087..17088
+generated 0..1214 <- imports
+generated 1707..2249 <- Debug
+generated 2249..2607 <- Clone
+generated 2607..2980 <- PartialEq
+generated 2980..3476 <- Hash
+generated 3476..6442 <- Encode
+generated 6442..15631 <- Decode
+generated 15631..17087 <- __convenience_const
+
+## Metadata
+
+interface OperatorHolder: {"body_span":{"end":494,"start":322},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":289,"start":228}}],"fields":[{"decorators":[],"key":"Named","name":"owner","optional":false,"readonly":false,"span":{"end":357,"start":328},"ts_type":"OperatorItem['owner']"},{"decorators":[],"key":"Named","name":"owners","optional":false,"readonly":false,"span":{"end":393,"start":362},"ts_type":"OperatorItem['owners']"},{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":427,"start":398},"ts_type":"OperatorItem['label']"},{"decorators":[],"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":463,"start":432},"ts_type":"OperatorItem['weight']"},{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":492,"start":468},"ts_type":"keyof OperatorItem"}],"heritage":[],"methods":[],"name":"OperatorHolder","span":{"end":494,"start":297},"type_params":[]}
+
+## Registry reads
+
+Name("OperatorItem")
+Name("OperatorItem['label']")
+Name("OperatorItem['owner']")
+Name("OperatorItem['owners']")
+Name("OperatorItem['weight']")
+Name("OperatorOwner")
+Name("keyof OperatorItem")
+
+## Buildtime dependencies
+
+(none)

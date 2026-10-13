@@ -1274,6 +1274,9 @@ Name("ApiStatus")
 Name("Coordinate3D")
 Name("Point")
 Name("UserProfile")
+Name("boolean")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

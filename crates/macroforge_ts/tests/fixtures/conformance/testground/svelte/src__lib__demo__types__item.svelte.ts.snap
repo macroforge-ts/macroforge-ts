@@ -469,9 +469,11 @@ type Item: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"RecordLink<Prod
 ## Registry reads
 
 Name("Item")
+Name("Product")
 Name("RecordLink")
 Name("RecordLink<Product>")
 Name("RecordLink<Service>")
+Name("Service")
 
 ## Buildtime dependencies
 

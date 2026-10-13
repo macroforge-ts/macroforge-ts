@@ -2214,8 +2214,11 @@ interface EdgeNode: {"body_span":{"end":1297,"start":1249},"decorators":[{"args_
 
 ## Registry reads
 
+Name("Date")
 Name("EdgeItem")
 Name("EdgeNode")
+Name("number")
+Name("string")
 
 ## Buildtime dependencies
 

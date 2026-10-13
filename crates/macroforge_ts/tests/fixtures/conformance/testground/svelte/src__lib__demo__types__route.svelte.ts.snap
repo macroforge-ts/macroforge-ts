@@ -1059,6 +1059,7 @@ interface Route: {"body_span":{"end":602,"start":184},"decorators":[{"args_src":
 ## Registry reads
 
 Name("Array")
+Name("Employee")
 Name("boolean")
 Name("number")
 Name("string")
