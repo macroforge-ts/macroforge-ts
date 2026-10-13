@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::parameter_name;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     field_value_type, fixed_tuple, is_primitive_union, js_string, property_key, rendered,
@@ -130,8 +131,9 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             } else {
                 let clone_src = alias_clone_expr(type_alias.body(), type_registry);
                 let clone = parse_clone_expr(&clone_src, &input)?;
+                let parameter = ts_ident!(parameter_name("value", &clone_src));
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{type_names.full_type_ident()}): @{type_names.full_type_ident()} {
+                    export function @{fn_name_ident}(@{parameter}: @{type_names.full_type_ident()}): @{type_names.full_type_ident()} {
                         return @{clone};
                     }
                 })

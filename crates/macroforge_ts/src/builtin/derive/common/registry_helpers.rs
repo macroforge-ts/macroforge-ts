@@ -422,6 +422,10 @@ fn extend_with_inherited(
     for field in &interface.fields {
         declare(fields, field);
     }
+    // A method is a member that holds a function, as a field typed as one is.
+    for method in &interface.methods {
+        declare(fields, &method.as_field());
+    }
     Ok(())
 }
 

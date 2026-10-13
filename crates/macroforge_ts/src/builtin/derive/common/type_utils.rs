@@ -487,6 +487,8 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         // Primitive wrappers and special types
         "unknown" | "any" => "undefined".to_string(),
         "void" | "never" => "undefined".to_string(),
+        "null" => "null".to_string(),
+        "undefined" => "undefined".to_string(),
         "object" => "({})".to_string(),
         "symbol" => "Symbol()".to_string(),
         "Function" => "(() => {})".to_string(),
@@ -562,10 +564,14 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
             }
             _ => "undefined".to_string(),
         },
-        // String literal types: "active", 'pending', `template`
+        // A template literal type defaults to its text, each hole filled.
+        t if t.starts_with('`') && t.ends_with('`') => match template_default(t) {
+            Some(Ok(text)) => text,
+            Some(Err(_)) | None => t.to_string(),
+        },
+        // String literal types: "active", 'pending'
         t if (t.starts_with('"') && t.ends_with('"'))
-            || (t.starts_with('\'') && t.ends_with('\''))
-            || (t.starts_with('`') && t.ends_with('`')) =>
+            || (t.starts_with('\'') && t.ends_with('\'')) =>
         {
             t.to_string()
         }
@@ -624,6 +630,31 @@ fn selected_fields(ts_type: &str, names: &Names<'_>) -> Option<Vec<InterfaceFiel
     )
 }
 
+/// The default text of a template literal type: each `${...}` hole filled
+/// with the default of the primitive it names. `None` when `ts_type` is no
+/// template literal type, and the hole when one names anything else.
+fn template_default(ts_type: &str) -> Option<Result<String, String>> {
+    let body = ts_type.strip_prefix('`')?.strip_suffix('`')?;
+    let mut text = String::from("`");
+    let mut rest = body;
+    while let Some((before, after)) = rest.split_once("${") {
+        let (hole, tail) = after.split_once('}')?;
+        text.push_str(before);
+        text.push_str(match hole.trim() {
+            "string" => "",
+            "number" | "bigint" => "0",
+            "boolean" => "false",
+            "null" => "null",
+            "undefined" => "undefined",
+            other => return Some(Err(other.to_string())),
+        });
+        rest = tail;
+    }
+    text.push_str(rest);
+    text.push('`');
+    Some(Ok(text))
+}
+
 /// Why a field of type `ts_type` has no default the derive can write, when
 /// it has none: a `Required` whose type leaves fields optional, which a
 /// default of that type lacks, and a `Pick` or `Omit` of a type whose
@@ -637,6 +668,11 @@ pub fn undefaultable(ts_type: &str, registry: &TypeRegistry) -> Option<String> {
         file_imports: &[],
     };
     let ts_type = ts_type.trim();
+    if let Some(Err(hole)) = template_default(ts_type) {
+        return Some(format!(
+            "has type `{ts_type}`, whose `${{{hole}}}` names no text a default could hold"
+        ));
+    }
     if !ts_type.ends_with('>') {
         return None;
     }

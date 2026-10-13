@@ -96,6 +96,17 @@ fn strip_nullable(ts_type: &str) -> (&str, bool) {
 }
 
 fn value_kind(ts_type: &str) -> ValueType<'_> {
+    // A union is the primitive all of its members are, and has no single
+    // shape when they differ: `'a' | 3` starts with a quote and is no string.
+    if let Some(members) = split_top_level_union(ts_type) {
+        let mut keywords = members.iter().map(|member| primitive_keyword(member));
+        return match keywords.next().flatten() {
+            Some(first) if keywords.all(|keyword| keyword == Some(first)) => {
+                ValueType::Primitive(first)
+            }
+            _ => ValueType::Structural,
+        };
+    }
     if let Some(keyword) = primitive_keyword(ts_type) {
         return ValueType::Primitive(keyword);
     }

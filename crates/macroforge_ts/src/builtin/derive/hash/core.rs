@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::parameter_name;
 use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
@@ -233,8 +234,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         format!("@derive(Hash): invalid hash expression: {err:?}"),
                     )
                 })?;
+                let parameter = ts_ident!(parameter_name("value", &hash_src));
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{type_names.full_type_ident()}): number {
+                    export function @{fn_name_ident}(@{parameter}: @{type_names.full_type_ident()}): number {
                         return @{hash_expr};
                     }
                 })

@@ -3,11 +3,12 @@
 
 use crate::ast::Expr;
 use crate::macros::ts_template;
-use crate::ts_syn::{MacroforgeError, TsStream};
+use crate::ts_syn::abi::ir::type_alias::TypeBody;
+use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
-use super::super::object_encoder::mentions;
 use super::super::text::encode_text_body;
 use super::{AliasEncode, view};
+use crate::builtin::derive::common::{mentions, parameter_name};
 
 /// Encodes a tuple element by element and an alias of another type as that
 /// type, each by its declared type; any other value, such as a function, is
@@ -27,6 +28,7 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
     let encode_text = encode_text_body(&fn_encode_internal_expr, "__type", passed_coders);
     let mut result = if let Some(params) = &type_params_ident {
         let (body, reads_context) = encode_body(alias)?;
+        let value_param = ts_ident!(parameter_name("value", body.source()));
         ts_template! {
             /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
             export function @{fn_encode_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean@{coders}): string {
@@ -40,13 +42,14 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
             }
             {:else}
             export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}@{coders}): unknown;
-            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}): unknown {
+            export function @{fn_encode_internal_ident}<@{params}>(@{&value_param}: @{full_type_ident}): unknown {
                 {$typescript body}
             }
             {/if}
         }
     } else {
         let (body, reads_context) = encode_body(alias)?;
+        let value_param = ts_ident!(parameter_name("value", body.source()));
         ts_template! {
             /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
             export function @{fn_encode_ident}(value: @{full_type_ident}, keepMetadata?: boolean): string {
@@ -60,7 +63,7 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
             }
             {:else}
             export function @{fn_encode_internal_ident}(value: @{full_type_ident}, ctx: @{encode_context_ident}): unknown;
-            export function @{fn_encode_internal_ident}(value: @{full_type_ident}): unknown {
+            export function @{fn_encode_internal_ident}(@{&value_param}: @{full_type_ident}): unknown {
                 {$typescript body}
             }
             {/if}
@@ -76,6 +79,8 @@ fn encode_body(alias: &AliasEncode) -> Result<(TsStream, bool), MacroforgeError>
     let body = if let Some(elements) = alias.type_alias.body().as_tuple() {
         view::tuple_body(alias, elements)?
     } else if let Some(ts_type) = alias.type_alias.body().as_alias() {
+        view::whole_body(alias, ts_type)?
+    } else if let TypeBody::Other(ts_type) = alias.type_alias.body() {
         view::whole_body(alias, ts_type)?
     } else {
         ts_template! { return value; }

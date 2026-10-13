@@ -8,7 +8,9 @@ use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-use crate::builtin::derive::common::{is_primitive_union, js_string, rendered, structural_call};
+use crate::builtin::derive::common::{
+    is_primitive_union, js_string, parameter_name, rendered, structural_call,
+};
 
 use super::debug_generation::{debug_value_expr, push_statements};
 use super::types::DebugField;
@@ -56,8 +58,10 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     });
                 }
             };
-            let value = rendered(ts_template! { value: @{class_ident} });
-            Ok(class_names.class_function("toString", "ToString", &value, "value", "string", body))
+            let parameter = parameter_name("value", body.source());
+            let value = rendered(ts_template! { @{ts_ident!(parameter.as_str())}: @{class_ident} });
+            Ok(class_names
+                .class_function("toString", "ToString", &value, &parameter, "string", body))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
@@ -115,7 +119,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             if debug_fields.is_empty() {
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
+                    export function @{fn_name_ident}(_value: @{interface_ident.clone()}): string {
                         return "@{interface_name} {}";
                     }
                 })
@@ -159,7 +163,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                 if debug_fields.is_empty() {
                     Ok(ts_template! {
-                        export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
+                        export function @{fn_name_ident}(_value: @{type_ident.clone()}): string {
                             return "@{type_name} {}";
                         }
                     })

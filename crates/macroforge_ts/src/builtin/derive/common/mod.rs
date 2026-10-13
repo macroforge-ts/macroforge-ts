@@ -59,7 +59,9 @@ pub use args::{
 };
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
 pub use ordering::{OrdField, Ordering, generate_field_order, generate_value_order};
-pub use property::{Member, is_identifier_name, local_name_part, property_key};
+pub use property::{
+    Member, is_identifier_name, local_name_part, mentions, parameter_name, property_key,
+};
 pub use registry_helpers::{
     ClassUse, Declared, class_instance_fields, collection_element_type, derive_class_fields,
     derive_interface_fields, fields_from_definition, flatten_intersection_fields,

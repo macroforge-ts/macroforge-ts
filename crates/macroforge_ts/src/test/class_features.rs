@@ -164,7 +164,8 @@ class Singleton {
         let type_output = result.type_output.expect("should have type output");
 
         // Check for static method and standalone function
-        assert!(type_output.contains("static toString(value: Singleton): string"));
+        // A class of no fields reads nothing off the value it is given.
+        assert!(type_output.contains("static toString(_value: Singleton): string"));
         assert!(type_output.contains("export declare function singletonToString"));
     }
 }

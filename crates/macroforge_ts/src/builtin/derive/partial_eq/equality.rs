@@ -96,6 +96,10 @@ pub(crate) fn tuple_equality_statements(elements: &[String], registry: &TypeRegi
             )
         })
         .collect();
+    // Two tuples of no elements have nothing to differ in.
+    if comparisons.is_empty() {
+        return rendered(ts_template! { return true; });
+    }
     let all = comparisons.join(" && ");
     rendered(ts_template! { return @{all}; })
 }

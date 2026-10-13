@@ -11,9 +11,9 @@ use crate::abi::{
 use ::oxc::ast::ast::{
     BindingPattern, Class, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression,
     FormalParameter, Function, MethodDefinitionKind, Program, PropertyKey, Statement,
-    TSAccessibility, TSEnumDeclaration, TSEnumMemberName, TSInterfaceDeclaration, TSSignature,
-    TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeLiteral, TSTypeName,
-    TSTypeOperatorOperator, TSTypeParameterDeclaration, UnaryOperator,
+    TSAccessibility, TSEnumDeclaration, TSEnumMemberName, TSInterfaceDeclaration,
+    TSMethodSignatureKind, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
+    TSTypeLiteral, TSTypeName, TSTypeOperatorOperator, TSTypeParameterDeclaration, UnaryOperator,
 };
 use oxc::span::GetSpan;
 use std::collections::HashSet;
@@ -556,6 +556,16 @@ fn lower_interface(
     }
 }
 
+/// The members of an object type written in place. A method it declares is
+/// a member that holds a function, since the type has no list of methods
+/// apart from its fields.
+fn object_type_fields(literal: &TSTypeLiteral<'_>, source: &str) -> Vec<InterfaceFieldIR> {
+    let (mut fields, methods) =
+        lower_interface_members(&literal.members, literal.span.start, source, None);
+    fields.extend(methods.iter().map(InterfaceMethodIR::as_field));
+    fields
+}
+
 /// The members of an interface or type literal whose body opens with the `{`
 /// at `body_start`.
 fn lower_interface_members(
@@ -566,11 +576,61 @@ fn lower_interface_members(
 ) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
     let mut fields = Vec::new();
     let mut methods = Vec::new();
+    // The properties declared by a `get` or a `set` signature, by name.
+    let accessors = |kind: TSMethodSignatureKind| -> HashSet<String> {
+        body.iter()
+            .filter_map(|member| match member {
+                TSSignature::TSMethodSignature(accessor) if accessor.kind == kind => {
+                    Some(property_name(&accessor.key, accessor.computed, source).0)
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    let (getters, setters) = (
+        accessors(TSMethodSignatureKind::Get),
+        accessors(TSMethodSignatureKind::Set),
+    );
 
     let mut previous_end = body_start as usize + 1;
     for elem in body {
         let floor = std::mem::replace(&mut previous_end, elem.span().end as usize);
         match elem {
+            // `get name(): T` declares a property of type `T`, which nothing
+            // sets without a `set` beside it. A lone `set name(value: T)`
+            // declares one of its parameter's type.
+            TSSignature::TSMethodSignature(accessor)
+                if accessor.kind != TSMethodSignatureKind::Method =>
+            {
+                let (name, key) = property_name(&accessor.key, accessor.computed, source);
+                let is_getter = accessor.kind == TSMethodSignatureKind::Get;
+                if !is_getter && getters.contains(&name) {
+                    continue;
+                }
+                let annotation = if is_getter {
+                    accessor.return_type.as_deref()
+                } else {
+                    accessor
+                        .params
+                        .items
+                        .first()
+                        .and_then(|param| param.type_annotation.as_deref())
+                };
+                fields.push(InterfaceFieldIR {
+                    readonly: is_getter && !setters.contains(&name),
+                    name,
+                    key,
+                    span: oxc_span_ir(accessor.span),
+                    ts_type: annotated_type(annotation, source),
+                    optional: false,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        accessor.span.start as usize,
+                        filter,
+                    ),
+                });
+            }
             TSSignature::TSPropertySignature(prop) => {
                 let (name, key) = property_name(&prop.key, prop.computed, source);
                 fields.push(InterfaceFieldIR {
@@ -827,11 +887,9 @@ fn lower_union_member(t: &TSType<'_>, floor: usize, source: &str) -> TypeMember 
         TSType::TSLiteralType(_) => TypeMemberKind::Literal(text),
         TSType::TSTypeLiteral(lit) => match brand_symbols(lit) {
             Some(symbols) => TypeMemberKind::Brand(symbols),
-            None => {
-                let (fields, _) =
-                    lower_interface_members(&lit.members, lit.span.start, source, None);
-                TypeMemberKind::Object { fields }
-            }
+            None => TypeMemberKind::Object {
+                fields: object_type_fields(lit, source),
+            },
         },
         TSType::TSIntersectionType(inter) => {
             TypeMemberKind::Intersection(lower_union_members(&inter.types, source))
@@ -882,11 +940,9 @@ fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
         TSType::TSIntersectionType(inter) => {
             TypeBody::Intersection(lower_union_members(&inter.types, source))
         }
-        TSType::TSTypeLiteral(lit) => {
-            let (fields, _methods) =
-                lower_interface_members(&lit.members, lit.span.start, source, None);
-            TypeBody::Object { fields }
-        }
+        TSType::TSTypeLiteral(lit) => TypeBody::Object {
+            fields: object_type_fields(lit, source),
+        },
         TSType::TSTupleType(tuple) => {
             let elements = tuple
                 .element_types
@@ -1352,6 +1408,54 @@ mod tests {
                 plain("id", "string"),
                 plain("code", "7"),
                 unsaid("bag"),
+            ]
+        );
+    }
+
+    #[test]
+    fn an_accessor_signature_declares_a_field_and_a_method_a_function() {
+        let interface = single_interface(
+            "interface Sized { id: string; get size(): number; set size(value: number); get stamp(): Date; set mark(value: string); run(): void; }",
+        );
+        assert_eq!(
+            interface
+                .fields
+                .iter()
+                .map(|field| (field.name.as_str(), field.ts_type.as_str(), field.readonly))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id", "string", false),
+                ("size", "number", false),
+                ("stamp", "Date", true),
+                ("mark", "string", false),
+            ]
+        );
+        assert_eq!(
+            interface
+                .methods
+                .iter()
+                .map(|method| method.name.as_str())
+                .collect::<Vec<_>>(),
+            vec!["run"]
+        );
+
+        let allocator = Allocator::default();
+        let source = "type Sized = { id: string; get size(): number; run(count: number): void; };";
+        let aliases =
+            lower_type_aliases(&parse(&allocator, source), source).expect("aliases should lower");
+        let fields = aliases
+            .first()
+            .and_then(|alias| alias.body.as_object())
+            .expect("an object type");
+        assert_eq!(
+            fields
+                .iter()
+                .map(|field| (field.name.as_str(), field.ts_type.as_str()))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id", "string"),
+                ("size", "number"),
+                ("run", "(count: number) => void"),
             ]
         );
     }

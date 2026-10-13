@@ -55,6 +55,30 @@ pub fn property_key(name: &str) -> String {
     }
 }
 
+/// Whether `source` reads the binding `name`: the word on its own, not as a
+/// property of something else, as part of a longer name, or as the text of a
+/// string that names a field.
+pub fn mentions(source: &str, name: &str) -> bool {
+    let is_name_char = |letter: char| letter.is_alphanumeric() || matches!(letter, '_' | '$');
+    source.match_indices(name).any(|(start, _)| {
+        let before = source[..start].chars().next_back();
+        let after = source[start + name.len()..].chars().next();
+        !before.is_some_and(|letter| is_name_char(letter) || matches!(letter, '.' | '"'))
+            && !after.is_some_and(is_name_char)
+    })
+}
+
+/// `name` as a parameter of a function whose body is `body`: itself where
+/// the body reads it, and `_name` where it does not, which is how an unread
+/// parameter passes `noUnusedParameters`.
+pub fn parameter_name(name: &str, body: &str) -> String {
+    if mentions(body, name) {
+        name.to_string()
+    } else {
+        format!("_{name}")
+    }
+}
+
 /// `name` as part of a generated local's name: itself when it is an
 /// identifier, and otherwise with each other character spelled as `$` and its
 /// code point, so two names never share a local.
@@ -71,4 +95,25 @@ pub fn local_name_part(name: &str) -> String {
             }
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{mentions, parameter_name};
+
+    #[test]
+    fn a_binding_is_read_only_as_a_word_of_its_own() {
+        assert!(mentions("f(value.id, ctx)", "ctx"));
+        assert!(mentions("ctx.register(value)", "ctx"));
+        assert!(!mentions(r#"result["ctx"] = value.ctx;"#, "ctx"));
+        assert!(!mentions(r#"__fields.keeps("ctx")"#, "ctx"));
+        assert!(!mentions("const ctxt = 1; context();", "ctx"));
+        assert!(!mentions("", "ctx"));
+    }
+
+    #[test]
+    fn an_unread_parameter_is_named_as_one() {
+        assert_eq!(parameter_name("value", "return [value];"), "value");
+        assert_eq!(parameter_name("value", "return [];"), "_value");
+    }
 }

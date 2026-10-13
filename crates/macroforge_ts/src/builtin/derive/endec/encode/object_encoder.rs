@@ -8,7 +8,7 @@ use crate::ts_syn::{TsStream, ts_ident};
 use super::field::statements::encode_fields;
 use super::text::encode_text_body;
 use super::types::EncodeField;
-use crate::builtin::derive::common::{TypeNames, js_string, rendered};
+use crate::builtin::derive::common::{TypeNames, js_string, mentions, rendered};
 use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
 use crate::builtin::derive::endec::union_guard::Direction;
@@ -197,32 +197,4 @@ pub(super) fn encode_with_context_functions(
     result.add_aliased_type_import("FieldRequirement", crate::package::ENDEC);
     result.add_aliased_import("fieldRequirement", crate::package::ENDEC);
     result
-}
-
-/// Whether `source` reads the binding `name`: the word on its own, not as a
-/// property of something else, as part of a longer name, or as the text of a
-/// string that names a field.
-pub(super) fn mentions(source: &str, name: &str) -> bool {
-    let is_name_char = |letter: char| letter.is_alphanumeric() || matches!(letter, '_' | '$');
-    source.match_indices(name).any(|(start, _)| {
-        let before = source[..start].chars().next_back();
-        let after = source[start + name.len()..].chars().next();
-        !before.is_some_and(|letter| is_name_char(letter) || matches!(letter, '.' | '"'))
-            && !after.is_some_and(is_name_char)
-    })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::mentions;
-
-    #[test]
-    fn a_binding_is_read_only_as_a_word_of_its_own() {
-        assert!(mentions("f(value.id, ctx)", "ctx"));
-        assert!(mentions("ctx.register(value)", "ctx"));
-        assert!(!mentions(r#"result["ctx"] = value.ctx;"#, "ctx"));
-        assert!(!mentions(r#"__fields.keeps("ctx")"#, "ctx"));
-        assert!(!mentions("const ctxt = 1; context();", "ctx"));
-        assert!(!mentions("", "ctx"));
-    }
 }
