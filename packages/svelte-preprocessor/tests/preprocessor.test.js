@@ -52,48 +52,16 @@ describe('script preprocessor', () => {
         );
     });
 
-    test('processes JavaScript when processJavaScript is true', async () => {
-        const preprocessor = macroforgePreprocess({ processJavaScript: true });
-
-        // This will try to process but may return undefined if native bindings
-        // unavailable. Run it to confirm the language check passes; the return
-        // value is ignored because the native binding may not be available in
-        // the test environment.
-        await preprocessor.script({
-            content: '/** @derive(Debug) */ class Foo {}',
-            filename: 'test.svelte',
-            attributes: {} // no lang = JavaScript
-        });
-
-        assert.ok(true, 'Should attempt to process JavaScript blocks');
-    });
-
-    test('a built-in derive in a JavaScript block is refused, not left as TypeScript', async () => {
-        const typed = await macroforgePreprocess().script({
-            content: '/** @derive(Debug) */ class Foo {}',
-            filename: 'test.svelte',
-            attributes: { lang: 'ts' }
-        });
-        // Without the native binding nothing is expanded, and there is
-        // nothing to compare.
-        if (typed === undefined) return;
-
-        const logged = [];
-        const original = console.error;
-        console.error = (...parts) => logged.push(parts.join(' '));
-        try {
-            const result = await macroforgePreprocess({ processJavaScript: true }).script({
+    test('a built-in derive in a JavaScript block fails the block', async () => {
+        // The block is JavaScript and a built-in derive writes TypeScript:
+        // with `processJavaScript` it reaches the engine, which refuses it.
+        await assert.rejects(
+            macroforgePreprocess({ processJavaScript: true }).script({
                 content: '/** @derive(Debug) */ class Foo {}',
                 filename: 'test.svelte',
-                attributes: {}
-            });
-            assert.strictEqual(result, undefined, 'a refused block is left as it was');
-        } finally {
-            console.error = original;
-        }
-        assert.ok(
-            logged.some((line) => line.includes('is a JavaScript file')),
-            `expected the refusal to be logged, got: ${logged.join(' | ')}`
+                attributes: {} // no lang = JavaScript
+            }),
+            /1 macro error\(s\) in test\.svelte:\n.*is a JavaScript file/
         );
     });
 
@@ -106,12 +74,8 @@ describe('script preprocessor', () => {
             attributes: { lang: 'ts' }
         });
 
-        // If native bindings are available, result should have code
-        // If not, result is undefined (graceful degradation)
-        if (result !== undefined) {
-            assert.ok(result.code, 'Result should have code property');
-            assert.strictEqual(typeof result.code, 'string');
-        }
+        assert.ok(result, 'a block with a derive is expanded');
+        assert.strictEqual(typeof result.code, 'string');
     });
 
     test('processes TypeScript blocks with lang="typescript"', async () => {
@@ -123,9 +87,7 @@ describe('script preprocessor', () => {
             attributes: { lang: 'typescript' }
         });
 
-        if (result !== undefined) {
-            assert.ok(result.code, 'Result should have code property');
-        }
+        assert.ok(result?.code, 'a block with a derive is expanded');
     });
 });
 
@@ -199,19 +161,38 @@ class Point {
 });
 
 describe('error handling', () => {
-    test('gracefully handles expansion errors', async () => {
-        const preprocessor = macroforgePreprocess();
+    test('a macro error fails the block, with every message', async () => {
+        await assert.rejects(
+            macroforgePreprocess().script({
+                content: `/** @derive(Default) */
+interface Chain {
+    next: Chain;
+}
 
-        // Invalid syntax that might cause expansion to fail. Return value
-        // is intentionally ignored — the test only verifies the call does
-        // not throw.
-        await preprocessor.script({
-            content: `/** @derive(UnknownMacro) */
+/** @derive(Clone) */
+const unattached = 1;
+`,
+                filename: 'broken.svelte',
+                attributes: { lang: 'ts' }
+            }),
+            (error) => {
+                assert.match(error.message, /2 macro error\(s\) in broken\.svelte/);
+                assert.match(error.message, /needs a default of 'Chain' itself/);
+                assert.match(error.message, /attached to nothing a derive expands/);
+                return true;
+            }
+        );
+    });
+
+    test('a script the engine cannot read fails the block', async () => {
+        await assert.rejects(
+            macroforgePreprocess().script({
+                content: `/** @derive(Debug) */
 class Broken {`,
-            filename: 'broken.svelte',
-            attributes: { lang: 'ts' }
-        });
-
-        assert.ok(true, 'Should not throw on expansion errors');
+                filename: 'broken.svelte',
+                attributes: { lang: 'ts' }
+            }),
+            /broken\.svelte/
+        );
     });
 });

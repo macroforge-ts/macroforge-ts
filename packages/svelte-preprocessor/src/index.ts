@@ -20,7 +20,7 @@
  *
  * - Must be placed BEFORE other preprocessors (like `vitePreprocess()`) in the chain
  * - Uses lazy-loading for native bindings to avoid initialization overhead
- * - Gracefully degrades if native bindings are unavailable
+ * - Fails a script block whose macros fail, as a syntax error in it would
  * - Only processes TypeScript blocks by default (configurable via options)
  *
  * @packageDocumentation
@@ -245,15 +245,14 @@ interface Engine {
  * ## Error Handling
  *
  * If the native bindings fail to load (e.g., missing native module, architecture
- * mismatch), the function logs a warning and returns `null`. Because failure
- * leaves the cache `null`, the import (and the warning) is retried on every
- * subsequent call. This allows the preprocessor to skip macro expansion rather
- * than crashing the build.
+ * mismatch), the function throws with the cause. Without the engine no macro
+ * is expanded, and a component built that way lacks what its macros generate.
+ * A failed load leaves the cache empty, so the next block tries again.
  *
- * @returns The cached engine, or `null` if loading failed
+ * @returns The cached engine
  * @internal
  */
-async function ensureEngine(): Promise<Engine | null> {
+async function ensureEngine(): Promise<Engine> {
     if (engine === null) {
         try {
             // Dynamic import defers loading until first use
@@ -263,12 +262,12 @@ async function ensureEngine(): Promise<Engine | null> {
                 hasMacroAnnotations: macroforge.hasMacroAnnotations
             };
         } catch (error) {
-            // Log warning but don't throw - allows graceful degradation
-            console.warn(
-                '[@macroforge/svelte-preprocessor] Failed to load macroforge native bindings:',
-                error
+            // Without the engine no macro is expanded, and a component that
+            // uses one would be built without what it generates.
+            throw new Error(
+                '[@macroforge/svelte-preprocessor] Failed to load the macro engine `@macroforge/core`',
+                { cause: error }
             );
-            engine = null;
         }
     }
     return engine;
@@ -351,11 +350,11 @@ export interface MacroforgePreprocessorOptions {
  *
  * ## Error Handling
  *
- * The preprocessor is designed to be resilient:
- * - If native bindings fail to load, it logs a warning, skips the block, and
- *   retries the import on the next block (so a warning is emitted per attempt)
- * - If macro expansion throws, it logs a warning and continues
- * - Svelte compilation proceeds even if preprocessing fails
+ * A failure fails the script block, and Svelte reports it for the component:
+ * - If the native bindings fail to load, it throws with the cause
+ * - If the engine reports a macro error, it throws with every message
+ * - If macro expansion throws, it throws with the file and the cause
+ * Warnings are logged and the block is expanded.
  *
  * @param options - Configuration options for the preprocessor
  * @returns A Svelte `PreprocessorGroup` with name "macroforge" and a script preprocessor
@@ -440,12 +439,6 @@ export function macroforgePreprocess(
          * We lazy-load it on first use to avoid startup overhead.
          */
         const loaded = await ensureEngine();
-        if (!loaded) {
-            // Native bindings unavailable (missing module, architecture mismatch, etc.)
-            // ensureEngine already logged a warning; skip this block. The import
-            // is retried on the next block, so the warning repeats per attempt.
-            return;
-        }
 
         // A JavaScript block is expanded under a JavaScript name, so that a
         // macro that writes TypeScript is refused there instead of leaving
@@ -458,72 +451,72 @@ export function macroforgePreprocess(
             return;
         }
 
+        /*
+         * STEP 3: Macro Expansion
+         *
+         * Call the native engine to parse the TypeScript, find @derive decorators,
+         * and generate the expanded code with all macro-derived methods/properties.
+         */
+        let result;
         try {
-            /*
-             * STEP 3: Macro Expansion
-             *
-             * Call the native engine to parse the TypeScript, find @derive decorators,
-             * and generate the expanded code with all macro-derived methods/properties.
-             */
-            const result = loaded.expandSync(content, expandedAs, {
+            result = loaded.expandSync(content, expandedAs, {
                 keepDecorators,
                 emitMetadata: false
             });
-
-            /*
-             * STEP 4: Diagnostic Reporting
-             *
-             * The expansion engine may report errors (invalid macro syntax, unknown macros)
-             * or warnings (deprecated patterns, suggestions). Log these to help developers
-             * debug issues without failing the build.
-             */
-            for (const diag of result.diagnostics) {
-                if (diag.level === 'error') {
-                    console.error(
-                        `[@macroforge/svelte-preprocessor] Error in ${filename}: ${diag.message}`
-                    );
-                } else if (diag.level === 'warning') {
-                    console.warn(
-                        `[@macroforge/svelte-preprocessor] Warning in ${filename}: ${diag.message}`
-                    );
-                }
-            }
-
-            /*
-             * STEP 5: Return Transformed Code
-             *
-             * Only return a result if the code was actually modified. Returning undefined
-             * tells Svelte to keep the original content, which is more efficient than
-             * returning identical code.
-             *
-             * The return object can include:
-             * - code: The transformed source code (required)
-             * - map: v3 source map built from the engine's segment mapping (when available)
-             */
-            if (result.code && result.code !== content) {
-                const mapping = result.sourceMapping;
-                const map = mapping?.segments?.length && filename
-                    ? buildSourceMap(content, result.code, mapping, filename)
-                    : undefined;
-                return { code: result.code, map };
-            }
         } catch (error) {
-            /*
-             * Error Recovery
-             *
-             * If expansion throws (parser error, internal bug, etc.), log a warning
-             * but don't fail the build. This allows:
-             * - Partial builds during development
-             * - Graceful degradation if the macro engine has issues
-             * - Svelte's own error reporting to kick in for syntax errors
-             */
-            console.warn(
-                `[@macroforge/svelte-preprocessor] Failed to expand macros in ${filename}:`,
-                error instanceof Error ? error.message : String(error)
+            throw new Error(
+                `[@macroforge/svelte-preprocessor] Failed to expand macros in ${component}: ${
+                    error instanceof Error ? error.message : String(error)
+                }`,
+                { cause: error }
             );
         }
 
-        // No changes - either expansion produced identical output or an error occurred
+        /*
+         * STEP 4: Diagnostic Reporting
+         *
+         * A macro error fails the block, as a syntax error would: a component
+         * built without the code its macros generate is broken where it is
+         * used, with nothing to say why. Warnings are logged.
+         */
+        const errors = [];
+        for (const diag of result.diagnostics) {
+            if (diag.level === 'error') {
+                errors.push(diag.message);
+            } else if (diag.level === 'warning') {
+                console.warn(
+                    `[@macroforge/svelte-preprocessor] Warning in ${component}: ${diag.message}`
+                );
+            }
+        }
+        if (errors.length > 0) {
+            throw new Error(
+                `[@macroforge/svelte-preprocessor] ${errors.length} macro error(s) in ${component}:\n${
+                    errors.join('\n')
+                }`
+            );
+        }
+
+        /*
+         * STEP 5: Return Transformed Code
+         *
+         * Only return a result if the code was actually modified. Returning undefined
+         * tells Svelte to keep the original content, which is more efficient than
+         * returning identical code.
+         *
+         * The return object can include:
+         * - code: The transformed source code (required)
+         * - map: v3 source map built from the engine's segment mapping (when available)
+         */
+        if (result.code && result.code !== content) {
+            const mapping = result.sourceMapping;
+            const map = mapping?.segments?.length && filename
+                ? buildSourceMap(content, result.code, mapping, filename)
+                : undefined;
+            return { code: result.code, map };
+        }
+
+        // The expansion left the block as it was.
         return;
     };
 
