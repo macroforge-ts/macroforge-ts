@@ -407,36 +407,22 @@ impl<'a> Union<'a> {
                                 ),
                             )
                         })?;
-                    {
-                        // A `{ tag: 'X' } & TypeRef` variant's payload must be decoded
-                        // through `TypeRef`'s own decoder so nested fields (dates,
-                        // records, links) are reconstructed: a shallow `{ ...value, tag }`
-                        // spread leaves them as raw JSON. `encodable_types` only holds
-                        // DIRECT type-ref union members, so an intersection's inner type is
-                        // absent from it; recognize any non-primitive / non-date /
-                        // non-type-param / non-foreign type ref (which has a generated
-                        // `*DecodeWithContext`) as encodable here.
-                        let is_ser = encodable_types.iter().any(|s| s.full_type == rt)
-                            || (!matches!(
-                                TypeCategory::from_ts_type(&rt),
-                                TypeCategory::Primitive | TypeCategory::Date
-                            ) && !type_param_set.contains(rt.as_str())
-                                && TypeCategory::match_foreign_type(&rt, &foreign_types_config)
-                                    .config
-                                    .is_none());
-                        let decoder = member_decoder(&rt, &scope).map_err(|message| {
-                            MacroforgeError::new(
-                                type_alias.inner.span,
-                                format!("@derive(Decode): {message}"),
-                            )
-                        })?;
-                        intersection_variants.push(IntersectionVariant {
-                            tag_value: tv,
-                            type_ref: rt,
-                            is_encodable: is_ser,
-                            decoder: Expr::Source(decoder),
-                        });
-                    }
+                    // The member's fields are decoded through its type's own
+                    // decoder, which a type parameter has only when one is
+                    // handed in for it.
+                    let is_encodable = !type_param_set.contains(rt.as_str());
+                    let decoder = member_decoder(&rt, &scope).map_err(|message| {
+                        MacroforgeError::new(
+                            type_alias.inner.span,
+                            format!("@derive(Decode): {message}"),
+                        )
+                    })?;
+                    intersection_variants.push(IntersectionVariant {
+                        tag_value: tv,
+                        type_ref: rt,
+                        is_encodable,
+                        decoder: Expr::Source(decoder),
+                    });
                 }
                 _ => {}
             }

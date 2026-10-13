@@ -34,6 +34,10 @@ export type MoreFields = ({ kind: 'account'; note: string } & Account) | ({ kind
 /** @endec({ tag: "kind" }) */
 export type WideTag = ({ kind: string } & Account) | ({ kind: 'owner' } & Owner);
 
+/** @derive(Decode) */
+/** @endec({ tag: "kind" }) */
+export type NoFields = ({ kind: 'when' } & Date) | ({ kind: 'many' } & Account[]) | ({ kind: 'owner' } & Owner);
+
 /** A member of the form is read, on either side of the `&`. */
 /** @derive(Encode, Decode) */
 /** @endec({ tag: "kind" }) */
@@ -442,6 +446,9 @@ export type MoreFields = ({ kind: 'account'; note: string } & Account) | ({ kind
 
 export type WideTag = ({ kind: string } & Account) | ({ kind: 'owner' } & Owner);
 
+
+export type NoFields = ({ kind: 'when' } & Date) | ({ kind: 'many' } & Account[]) | ({ kind: 'owner' } & Owner);
+
 /** A member of the form is read, on either side of the `&`. */
 
 export type Read = ({ kind: 'account' } & Account) | (Owner & { kind: "owner" });
@@ -727,6 +734,13 @@ export type WideTag = ({
 } & Account) | ({
 	kind: "owner";
 } & Owner);
+export type NoFields = ({
+	kind: "when";
+} & Date) | ({
+	kind: "many";
+} & Account[]) | ({
+	kind: "owner";
+} & Owner);
 /** A member of the form is read, on either side of the `&`. */
 export type Read = ({
 	kind: "account";
@@ -777,6 +791,7 @@ Error [477..531]: @derive(Decode) on 'Untagged': a member of the union is an int
 Error [563..627]: @derive(Encode) on 'TwoTypes': a member of the union is an intersection that is not of two parts, and a union codes an intersection only as `{ __type: 'name' } & Type`: the tag that tells the member, and the one type that holds its fields; name the member with an alias, `type Member = ...`, derive on that, and use the alias in the union
 Error [690..784]: @derive(Decode) on 'MoreFields': a member of the union is an intersection that holds other fields beside `kind`, or none, and a union codes an intersection only as `{ kind: 'name' } & Type`: the tag that tells the member, and the one type that holds its fields; name the member with an alias, `type Member = ...`, derive on that, and use the alias in the union
 Error [847..921]: @derive(Decode) on 'WideTag': a member of the union is an intersection that has a `kind` of type `string`, which is no one name, and a union codes an intersection only as `{ kind: 'name' } & Type`: the tag that tells the member, and the one type that holds its fields; name the member with an alias, `type Member = ...`, derive on that, and use the alias in the union
+Error [984..1089]: @derive(Decode) on 'NoFields': a member of the union is an intersection that holds `Date`, which has no fields of its own for a tag to stand beside, and a union codes an intersection only as `{ kind: 'name' } & Type`: the tag that tells the member, and the one type that holds its fields; name the member with an alias, `type Member = ...`, derive on that, and use the alias in the union
 
 ## Mapping
 
@@ -789,9 +804,10 @@ original 358..446 -> expanded 17507..17595
 original 468..532 -> expanded 17595..17659
 original 554..628 -> expanded 17659..17733
 original 681..785 -> expanded 17733..17837
-original 838..986 -> expanded 17837..17985
-original 1047..1129 -> expanded 17985..18067
-original 1129..1130 -> expanded 23930..23931
+original 838..922 -> expanded 17837..17921
+original 975..1154 -> expanded 17921..18100
+original 1215..1297 -> expanded 18100..18182
+original 1297..1298 -> expanded 24045..24046
 generated 0..741 <- imports
 generated 883..2989 <- Encode
 generated 2989..8204 <- Decode
@@ -799,9 +815,9 @@ generated 8204..9181 <- __convenience_const
 generated 9228..11312 <- Encode
 generated 11312..16493 <- Decode
 generated 16493..17428 <- __convenience_const
-generated 18067..19834 <- Encode
-generated 19834..23324 <- Decode
-generated 23324..23930 <- __convenience_const
+generated 18182..19949 <- Encode
+generated 19949..23439 <- Decode
+generated 23439..24045 <- __convenience_const
 
 ## Metadata
 
@@ -812,7 +828,8 @@ type Untagged: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"deco
 type TwoTypes: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"__type","optional":false,"readonly":false,"span":{"end":596,"start":582},"ts_type":"'both'"}]}}},{"decorators":[],"kind":{"TypeRef":"Account"}},{"decorators":[],"kind":{"TypeRef":"Owner"}}]}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":555,"start":533}}],"name":"TwoTypes","span":{"end":627,"start":563},"type_params":[]}
 type MoreFields: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":727,"start":711},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":740,"start":728},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"Account"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":772,"start":759},"ts_type":"'owner'"}]}}},{"decorators":[],"kind":{"TypeRef":"Owner"}}]}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":682,"start":652}},{"args_src":"Decode","name":"Derive","span":{"end":651,"start":629}}],"name":"MoreFields","span":{"end":784,"start":690},"type_params":[]}
 type WideTag: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":877,"start":865},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"Account"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":909,"start":896},"ts_type":"'owner'"}]}}},{"decorators":[],"kind":{"TypeRef":"Owner"}}]}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":839,"start":809}},{"args_src":"Decode","name":"Derive","span":{"end":808,"start":786}}],"name":"WideTag","span":{"end":921,"start":847},"type_params":[]}
-type Read: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1086,"start":1071},"ts_type":"'account'"}]}}},{"decorators":[],"kind":{"TypeRef":"Account"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"Owner"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1126,"start":1113},"ts_type":"\"owner\""}]}}}]}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1048,"start":1018}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1017,"start":987}}],"name":"Read","span":{"end":1130,"start":1056},"type_params":[]}
+type NoFields: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1015,"start":1003},"ts_type":"'when'"}]}}},{"decorators":[],"kind":{"TypeRef":"Date"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1043,"start":1031},"ts_type":"'many'"}]}}},{"decorators":[],"kind":{"TypeRef":"Account[]"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1077,"start":1064},"ts_type":"'owner'"}]}}},{"decorators":[],"kind":{"TypeRef":"Owner"}}]}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":976,"start":946}},{"args_src":"Decode","name":"Derive","span":{"end":945,"start":923}}],"name":"NoFields","span":{"end":1089,"start":984},"type_params":[]}
+type Read: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1254,"start":1239},"ts_type":"'account'"}]}}},{"decorators":[],"kind":{"TypeRef":"Account"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"Owner"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1294,"start":1281},"ts_type":"\"owner\""}]}}}]}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1216,"start":1186}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1185,"start":1155}}],"name":"Read","span":{"end":1298,"start":1224},"type_params":[]}
 
 ## Registry reads
 

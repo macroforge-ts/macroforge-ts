@@ -37,6 +37,18 @@ pub(crate) fn tagged_member<'member>(
         }
         _ => return Err(unread("is not an object type and a named type")),
     };
+    // A tag stands beside the fields of a type that has fields of its own.
+    let has_fields = matches!(
+        TypeCategory::from_ts_type(type_ref),
+        TypeCategory::Encodable(_)
+    ) && TypeCategory::match_foreign_type(type_ref, &get_foreign_types())
+        .config
+        .is_none();
+    if !has_fields {
+        return Err(unread(&format!(
+            "holds `{type_ref}`, which has no fields of its own for a tag to stand beside"
+        )));
+    }
     let [tag] = fields.as_slice() else {
         return Err(unread(&format!(
             "holds other fields beside `{tag_field}`, or none"

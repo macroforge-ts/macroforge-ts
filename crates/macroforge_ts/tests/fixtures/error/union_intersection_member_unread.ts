@@ -27,6 +27,10 @@ export type MoreFields = ({ kind: 'account'; note: string } & Account) | ({ kind
 /** @endec({ tag: "kind" }) */
 export type WideTag = ({ kind: string } & Account) | ({ kind: 'owner' } & Owner);
 
+/** @derive(Decode) */
+/** @endec({ tag: "kind" }) */
+export type NoFields = ({ kind: 'when' } & Date) | ({ kind: 'many' } & Account[]) | ({ kind: 'owner' } & Owner);
+
 /** A member of the form is read, on either side of the `&`. */
 /** @derive(Encode, Decode) */
 /** @endec({ tag: "kind" }) */
