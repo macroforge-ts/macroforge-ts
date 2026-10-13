@@ -1,0 +1,144 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_validator_misuse.ts
+---
+## Input
+
+/** @derive(Decode) */
+export interface Misused {
+    /** @endec(email) */
+    count: number;
+    /** @endec(positive) */
+    name: string;
+    /** @endec(positive) */
+    scores: number[];
+    /** @endec(email) */
+    when: Date;
+    /** @endec(nonEmpty) */
+    flag: boolean;
+    /** @endec(minLength(1)) */
+    byName: Record<string, string>;
+    /** @endec(emial) */
+    address: string;
+    /** @endec({ renme: "n" }) */
+    renamed: string;
+    /** @endec(minLength(2)) */
+    maybe: string | null;
+    /** @endec(nonEmpty) */
+    tags: string[];
+    /** @endec(nonEmpty) */
+    code: `c-${number}`;
+    /** @endec(positive) */
+    later?: number;
+    /** @endec(email) */
+    named: Address;
+}
+
+/** @derive(Decode) */
+/** @endec(email) */
+export type Meters = number;
+
+## Changed
+
+true
+
+## Output
+
+import { decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText } from "@macroforge/core/endec";
+
+export interface Misused {
+    
+    count: number;
+    
+    name: string;
+    
+    scores: number[];
+    
+    when: Date;
+    
+    flag: boolean;
+    
+    byName: Record<string, string>;
+    
+    address: string;
+    
+    renamed: string;
+    
+    maybe: string | null;
+    
+    tags: string[];
+    
+    code: `c-${number}`;
+    
+    later?: number;
+    
+    named: Address;
+}
+
+
+export type Meters = number;
+
+## DTS
+
+export interface Misused {
+	count: number;
+	name: string;
+	scores: number[];
+	when: Date;
+	flag: boolean;
+	byName: Record<string, string>;
+	address: string;
+	renamed: string;
+	maybe: string | null;
+	tags: string[];
+	code: `c-${number}`;
+	later?: number;
+	named: Address;
+}
+export type Meters = number;
+
+## Diagnostics
+
+Error [80..94]: @derive(Decode): field 'count': validator `Email` checks text, and `number` is a number
+Error [127..140]: @derive(Decode): field 'name': validator `Positive` checks a number, and `string` is text
+Error [173..190]: @derive(Decode): field 'scores': validator `Positive` checks a number, and `number[]` is an array
+Error [220..231]: @derive(Decode): field 'when': validator `Email` checks text, and `Date` is a date
+Error [264..278]: @derive(Decode): field 'flag': validator `NonEmpty` checks the length of text or of an array, and `boolean` is a boolean
+Error [315..346]: @derive(Decode): field 'byName': validator `MinLength(1)` checks the length of text or of an array, and `Record<string, string>` is a collection
+Error [351..371]: field 'address': unknown option or validator 'emial'
+  help: did you mean 'email'?
+Error [397..426]: field 'renamed': unknown option or validator 'renme'
+Error [754..775]: @derive(Decode): type 'Meters': validator `Email` checks text, and `number` is a number
+
+## Mapping
+
+original 22..54 -> expanded 210..242
+original 74..98 -> expanded 242..266
+original 121..144 -> expanded 266..289
+original 167..194 -> expanded 289..316
+original 214..235 -> expanded 316..337
+original 258..282 -> expanded 337..361
+original 309..350 -> expanded 361..402
+original 370..396 -> expanded 402..428
+original 425..451 -> expanded 428..454
+original 478..509 -> expanded 454..485
+original 532..557 -> expanded 485..510
+original 580..610 -> expanded 510..540
+original 633..658 -> expanded 540..565
+original 678..702 -> expanded 565..589
+original 745..775 -> expanded 589..619
+generated 0..210 <- imports
+
+## Metadata
+
+interface Misused: {"body_span":{"end":701,"start":49},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":75,"start":55}}],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":94,"start":80},"ts_type":"number"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":122,"start":99}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":140,"start":127},"ts_type":"string"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":168,"start":145}}],"key":"Named","name":"scores","optional":false,"readonly":false,"span":{"end":190,"start":173},"ts_type":"number[]"},{"decorators":[{"args_src":"email","name":"endec","span":{"end":215,"start":195}}],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":231,"start":220},"ts_type":"Date"},{"decorators":[{"args_src":"nonEmpty","name":"endec","span":{"end":259,"start":236}}],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":278,"start":264},"ts_type":"boolean"},{"decorators":[{"args_src":"minLength(1)","name":"endec","span":{"end":310,"start":283}}],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":346,"start":315},"ts_type":"Record<string, string>"},{"decorators":[{"args_src":"emial","name":"endec","span":{"end":371,"start":351}}],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":392,"start":376},"ts_type":"string"},{"decorators":[{"args_src":"{ renme: \"n\" }","name":"endec","span":{"end":426,"start":397}}],"key":"Named","name":"renamed","optional":false,"readonly":false,"span":{"end":447,"start":431},"ts_type":"string"},{"decorators":[{"args_src":"minLength(2)","name":"endec","span":{"end":479,"start":452}}],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":505,"start":484},"ts_type":"string | null"},{"decorators":[{"args_src":"nonEmpty","name":"endec","span":{"end":533,"start":510}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":553,"start":538},"ts_type":"string[]"},{"decorators":[{"args_src":"nonEmpty","name":"endec","span":{"end":581,"start":558}}],"key":"Named","name":"code","optional":false,"readonly":false,"span":{"end":606,"start":586},"ts_type":"`c-${number}`"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":634,"start":611}}],"key":"Named","name":"later","optional":true,"readonly":false,"span":{"end":654,"start":639},"ts_type":"number"},{"decorators":[{"args_src":"email","name":"endec","span":{"end":679,"start":659}}],"key":"Named","name":"named","optional":false,"readonly":false,"span":{"end":699,"start":684},"ts_type":"Address"}],"heritage":[],"methods":[],"name":"Misused","span":{"end":701,"start":31},"type_params":[]}
+type Meters: {"body":{"Alias":"number"},"decorators":[{"args_src":"email","name":"endec","span":{"end":746,"start":726}},{"args_src":"Decode","name":"Derive","span":{"end":725,"start":703}}],"name":"Meters","span":{"end":775,"start":754},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
