@@ -72,7 +72,7 @@ fn aliased_default(
             input.decorator_span(),
         )),
         names,
-        sources.registry,
+        sources,
         &mut diagnostics,
     );
     if diagnostics.has_errors() {

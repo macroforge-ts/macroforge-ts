@@ -30,7 +30,7 @@ pub(super) fn object_default(
             .filter(undeclared)
             .map(|field| (field.name.as_str(), field.ts_type.as_str(), field.span)),
         names,
-        sources.registry,
+        sources,
         &mut diagnostics,
     );
     if diagnostics.has_errors() {

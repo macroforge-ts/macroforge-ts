@@ -13,6 +13,7 @@ use crate::builtin::derive::common::{
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
     FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry,
+    resolve_generic_aliases,
 };
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
 use crate::ts_syn::ts_ident;
@@ -226,12 +227,21 @@ pub(super) fn contains_top_level_pipe(s: &str) -> bool {
 pub(super) fn missing_default_derives<'f>(
     fields: impl Iterator<Item = (&'f str, &'f str, SpanIR)>,
     names: &TypeNames,
-    registry: &TypeRegistry,
+    sources: &DefaultSources,
     diagnostics: &mut DiagnosticCollector,
 ) {
     let parent_name = &names.type_name;
-    for (field_name, ts_type, span) in fields {
-        let ts_type = ts_type.trim();
+    let registry = sources.registry;
+    for (field_name, written, span) in fields {
+        // A generic alias defaults as what it stands for, which is what the
+        // default written for the field resolves it to.
+        let resolved = resolve_generic_aliases(
+            written.trim(),
+            registry,
+            sources.caller_file_path,
+            sources.file_imports,
+        );
+        let ts_type = resolved.trim();
         if names.params.iter().any(|param| param == ts_type) {
             diagnostics.error(
                 span,
@@ -268,7 +278,8 @@ pub(super) fn missing_default_derives<'f>(
             diagnostics.error(
                 span,
                 format!(
-                    "@derive(Default) on '{parent_name}': field '{field_name}' has type '{ts_type}', which does not derive Default; derive it or add @default(value)"
+                    "@derive(Default) on '{parent_name}': field '{field_name}' has type '{}', which does not derive Default; derive it or add @default(value)",
+                    written.trim()
                 ),
             );
         }
