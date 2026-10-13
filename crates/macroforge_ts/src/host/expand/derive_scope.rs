@@ -2,6 +2,7 @@
 //! declaration has to spell out, for the derive to read it.
 
 use crate::ts_syn::abi::ir::class::MemberKey;
+use crate::ts_syn::abi::ir::split_top_level_commas;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMember, TypeMemberKind};
 use crate::ts_syn::abi::{DecoratorIR, Diagnostic, DiagnosticLevel, InterfaceFieldIR, SpanIR};
 use crate::ts_syn::import_registry::SourceImportEntry;
@@ -10,6 +11,7 @@ use super::DERIVE_MODULE_PATH;
 use super::derive_targets::{DeriveTarget, DeriveTargetIR, diagnostic_span_for_derive};
 use crate::builtin::derive::common::{
     DecoratorOption, MAX_TYPE_DEPTH, Takes, decorator_options, extract_named_string, has_flag,
+    tuple_element,
 };
 use crate::builtin::derive::endec::{ENDEC_OPTIONS, KNOWN_VALIDATORS, Placement, endec_option};
 
@@ -730,9 +732,57 @@ pub(super) fn type_depth(ts_type: &str) -> usize {
     deepest
 }
 
+/// A tuple written in `ts_type` whose rest element is not its last, as
+/// `[string, ...number[], boolean]`, by its text. A derive reads a tuple's
+/// rest as all that follows the elements before it.
+pub(super) fn tuple_with_early_rest(ts_type: &str) -> Option<&str> {
+    // The `[` of each tuple still open: an index (`T['key']`) and an array's
+    // `[]` follow what they belong to, and a tuple follows nothing.
+    let mut open: Vec<Option<usize>> = Vec::new();
+    let mut quote = None;
+    let mut previous = ' ';
+    for (at, letter) in ts_type.char_indices() {
+        match (quote, letter) {
+            (Some(opened), _) => {
+                if letter == opened && previous != '\\' {
+                    quote = None;
+                }
+            }
+            (None, '"' | '\'' | '`') => quote = Some(letter),
+            (None, '[') => {
+                let follows = previous.is_alphanumeric()
+                    || matches!(previous, '_' | '$' | ']' | ')' | '>' | '"' | '\'' | '`');
+                open.push((!follows).then_some(at));
+            }
+            (None, ']') => {
+                let tuple = open
+                    .pop()
+                    .flatten()
+                    .and_then(|start| ts_type.get(start..=at));
+                let body = tuple.and_then(|tuple| tuple.get(1..tuple.len() - 1));
+                let early = body.is_some_and(|body| {
+                    split_top_level_commas(body)
+                        .into_iter()
+                        .filter(|element| !element.trim().is_empty())
+                        .rev()
+                        .skip(1)
+                        .any(|element| tuple_element(element).rest)
+                });
+                if early {
+                    return tuple;
+                }
+            }
+            (None, _) => {}
+        }
+        previous = letter;
+    }
+    None
+}
+
 /// Takes out of `targets` each type with a built-in derive that nests past
-/// [`MAX_TYPE_DEPTH`], and gives an error for it: expanding one would run
-/// the expander out of stack.
+/// [`MAX_TYPE_DEPTH`], or holds a tuple whose rest element is not its last,
+/// and gives an error for it: expanding the first would run the expander out
+/// of stack, and the second would be coded as another tuple than it is.
 pub(super) fn reject_deep_types(targets: &mut Vec<DeriveTarget>, source: &str) -> Vec<Diagnostic> {
     let mut diagnostics = Vec::new();
     targets.retain(|target| {
@@ -758,23 +808,37 @@ pub(super) fn reject_deep_types(targets: &mut Vec<DeriveTarget>, source: &str) -
             )],
             DeriveTargetIR::Enum(_) => Vec::new(),
         };
-        let too_deep: Vec<Diagnostic> = parts
+        let refused: Vec<Diagnostic> = parts
             .iter()
             .filter_map(|(part, ts_type)| {
                 let depth = type_depth(ts_type);
-                (depth > MAX_TYPE_DEPTH).then(|| Diagnostic {
+                let (message, help) = if depth > MAX_TYPE_DEPTH {
+                    (
+                        format!(
+                            "{part} nests {depth} levels deep, and a built-in derive reads a type {MAX_TYPE_DEPTH} levels deep at most"
+                        ),
+                        "name its inner types with aliases, and derive on those",
+                    )
+                } else {
+                    let tuple = tuple_with_early_rest(ts_type)?;
+                    (
+                        format!(
+                            "{part} holds the tuple `{tuple}`, whose rest element is not its last, and a built-in derive reads a tuple's rest as all that follows the elements before it"
+                        ),
+                        "put the rest element last, or hold what follows it in a field of its own",
+                    )
+                };
+                Some(Diagnostic {
                     level: DiagnosticLevel::Error,
-                    message: format!(
-                        "{part} nests {depth} levels deep, and a built-in derive reads a type {MAX_TYPE_DEPTH} levels deep at most"
-                    ),
+                    message,
                     span: Some(diagnostic_span_for_derive(target.decorator_span, source)),
                     notes: vec![],
-                    help: Some("name its inner types with aliases, and derive on those".to_string()),
+                    help: Some(help.to_string()),
                 })
             })
             .collect();
-        let keeps = too_deep.is_empty();
-        diagnostics.extend(too_deep);
+        let keeps = refused.is_empty();
+        diagnostics.extend(refused);
         keeps
     });
     diagnostics

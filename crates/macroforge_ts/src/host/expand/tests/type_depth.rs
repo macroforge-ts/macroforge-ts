@@ -17,3 +17,40 @@ fn a_type_nests_by_its_brackets_and_its_array_suffixes() {
     assert_eq!(type_depth("'[[[[' | \"((((\""), 0);
     assert_eq!(type_depth("(a: string) => Array<number>"), 1);
 }
+
+/// A rest element that other elements follow is found wherever its tuple is
+/// written, and a rest that ends its tuple is none.
+#[test]
+fn a_tuple_whose_rest_is_not_its_last_is_found() {
+    use crate::host::expand::derive_scope::tuple_with_early_rest;
+
+    for (ts_type, tuple) in [
+        (
+            "[string, ...number[], boolean]",
+            "[string, ...number[], boolean]",
+        ),
+        ("readonly [...string[], number]", "[...string[], number]"),
+        (
+            "Map<string, [first: string, ...rest: number[], last: Date]>",
+            "[first: string, ...rest: number[], last: Date]",
+        ),
+        (
+            "type Middle = [a: string, ...b: [number, string][], c: boolean];",
+            "[a: string, ...b: [number, string][], c: boolean]",
+        ),
+    ] {
+        assert_eq!(tuple_with_early_rest(ts_type), Some(tuple), "{ts_type}");
+    }
+    for ts_type in [
+        "[string, ...number[]]",
+        "[...string[]]",
+        "[string, number?]",
+        "Config['a, ...b, c']",
+        "Record<'[x, ...y, z]', number>",
+        "string[]",
+        "[[string, ...number[]], boolean]",
+        "Lookup[Key][]",
+    ] {
+        assert_eq!(tuple_with_early_rest(ts_type), None, "{ts_type}");
+    }
+}
