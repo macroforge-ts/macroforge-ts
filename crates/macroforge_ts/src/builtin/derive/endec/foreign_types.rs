@@ -95,7 +95,8 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
             r#"(v) => {
                 const raw: unknown = v;
                 if (typeof raw === "bigint") return raw;
-                if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                // A number past the safe integers has lost digits already.
+                if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 return BigInt(raw);
             }"#,

@@ -89,16 +89,24 @@ pub(in crate::builtin::derive::endec::decode) fn read_keys(
 /// when present and gets no default.
 fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStream {
     if field.never_read {
-        let default_expr = field.default_expr.as_ref();
-        return when_kept(
-            field,
-            required,
-            ts_template! {
-                {#if let Some(default_expr) = default_expr}
-                    instance@{field.member} = @{default_expr};
-                {/if}
-            },
-        );
+        let Some(default_expr) = field.default_expr.as_ref() else {
+            return TsStream::merge_all(std::iter::empty());
+        };
+        let assigned = ts_template! {
+            instance@{field.member} = (@{default_expr}) satisfies @{field.ts_type};
+        };
+        // A selection that keeps the field without requiring it gets no default.
+        return match required {
+            Required::All => assigned,
+            Required::Selected => {
+                let is_required = requires(field);
+                ts_template! {
+                    if (@{is_required}) {
+                        {$typescript assigned}
+                    }
+                }
+            }
+        };
     }
     let present: Expr = rendered(ts_template! {
         ("@{field.json_key_text()}" in obj && obj["@{field.json_key_text()}"] !== undefined)
@@ -137,7 +145,7 @@ fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStrea
                 }
                 {#if let Some(default_expr) = default_expr}
                     if (@{defaulted}) {
-                        instance@{field.member} = @{default_expr};
+                        instance@{field.member} = (@{default_expr}) satisfies @{field.ts_type};
                     }
                 {/if}
             },
@@ -268,11 +276,27 @@ fn decode_flattened_field(
                 }
             };
             let is_required = requires(field);
+            // A value that is not there is `null` where the type says so.
+            let absent_is_null = matches!(field.type_cat, TypeCategory::Nullable(_));
             match (absent_allowed, required) {
                 (false, Required::All) => decode,
                 (false, Required::Selected) => ts_template! {
                     if (@{is_required} || @{has_shape}(obj)) {
                         {$typescript decode}
+                    }
+                },
+                (true, Required::All) if absent_is_null => ts_template! {
+                    if (@{has_shape}(obj)) {
+                        {$typescript decode}
+                    } else {
+                        instance@{field.member} = null;
+                    }
+                },
+                (true, Required::Selected) if absent_is_null => ts_template! {
+                    if (@{has_shape}(obj)) {
+                        {$typescript decode}
+                    } else if (@{is_required}) {
+                        instance@{field.member} = null;
                     }
                 },
                 (true, Required::All | Required::Selected) => ts_template! {
@@ -297,8 +321,15 @@ fn decode_flattened_field(
                 }
             }
         }
-        _ => ts_template! {
-            instance@{field.member} = obj as any;
-        },
+        // Any other type is refused where the field is prepared.
+        TypeCategory::Primitive
+        | TypeCategory::Array(_)
+        | TypeCategory::Optional(_)
+        | TypeCategory::Nullable(_)
+        | TypeCategory::Date
+        | TypeCategory::Map(_, _)
+        | TypeCategory::Set(_)
+        | TypeCategory::Wrapper(_)
+        | TypeCategory::Unknown => TsStream::merge_all(std::iter::empty()),
     }
 }

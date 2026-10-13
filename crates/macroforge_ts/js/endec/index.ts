@@ -195,7 +195,8 @@ export interface DecodeContext {
   applyPatches(): void;
 
   /**
-   * Freezes all tracked objects for immutability.
+   * Freezes all tracked objects for immutability: every object, array,
+   * tuple and record decoded. A `Map` and a `Set` have no frozen form.
    * Call this after `applyPatches()` if immutable objects are desired.
    */
   freezeAll(): void;
@@ -748,6 +749,7 @@ export function decodeArray<Item>(
   if (!Array.isArray(raw)) throw mismatch("an array");
   const items: Item[] = [];
   items.length = raw.length;
+  ctx.trackForFreeze(items);
   // By index, so that a hole in the array is an element too, and refused as
   // the `undefined` it is.
   for (let index = 0; index < raw.length; index++) {
@@ -829,6 +831,7 @@ export function decodeRecord<Value>(
 ): Record<string, Value> {
   if (!isRawObject(raw)) throw mismatch("an object");
   const members: Record<string, Value> = {};
+  ctx.trackForFreeze(members);
   for (const [text, member] of Object.entries(raw)) {
     inScope(ctx, text, () => {
       key?.(text);
@@ -859,6 +862,7 @@ export function decodeObject(
 ): Record<string, unknown> {
   if (!isRawObject(raw)) throw mismatch("an object");
   const decoded: Record<string, unknown> = {};
+  ctx.trackForFreeze(decoded);
   for (const [key, decode] of Object.entries(members)) {
     const member = holds(raw, key) ? raw[key] : undefined;
     inScope(ctx, key, () => {
@@ -892,6 +896,7 @@ export function decodeTuple(
   }
   const elements: unknown[] = [];
   elements.length = raw.length;
+  ctx.trackForFreeze(elements);
   for (let index = 0; index < raw.length; index++) {
     const element: unknown = raw[index];
     const decode = items[index] ?? rest;

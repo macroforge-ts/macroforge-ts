@@ -9,7 +9,7 @@ use crate::ts_syn::config::ForeignHandler;
 
 use crate::builtin::derive::endec::coder::{
     TypeScope, decode_expr, dictionary_record, json_keys_of, nullable_foreign_decoder,
-    object_members,
+    object_members, unflattenable,
 };
 use crate::builtin::derive::endec::decode::helpers::{
     alias_primitive_arm_validators, parse_default_expr, primitive_accepts,
@@ -45,17 +45,41 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     diagnostics.extend(parse_result.diagnostics);
     let opts = parse_result.options;
 
-    // A field skipped on decode is never read. With a default it is still
-    // set, to that default; without one it is left to the caller.
-    let never_read = !opts.should_decode();
-    if never_read && (opts.skip || !opts.default) {
-        return None;
-    }
-
     let json_key = opts
         .rename
         .clone()
         .unwrap_or_else(|| container_opts.rename_all.apply(field.name));
+
+    // A field skipped on decode is never read, and the value built still has
+    // it: it takes its default, the one written or its type's own. Only an
+    // optional field can be left out.
+    if !opts.should_decode() {
+        if field.optional && !opts.default {
+            return None;
+        }
+        let default_parsed = match &opts.default_expr {
+            Some(expr_src) => parse_default_expr(expr_src),
+            None => Expr::parse(&get_type_default_with_registry(
+                field.ts_type,
+                type_registry,
+                caller_file_path,
+                file_imports,
+            )),
+        };
+        return match default_parsed {
+            Ok(default_expr) => Some(never_read_field(&field, &opts, json_key, default_expr)),
+            Err(err) => {
+                diagnostics.error(
+                    field.span,
+                    format!(
+                        "@endec({{default: ...}}): invalid expression for '{}': {err:?}",
+                        field.name
+                    ),
+                );
+                None
+            }
+        };
+    }
 
     let scope = TypeScope {
         registry: type_registry,
@@ -81,6 +105,26 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
             }
             Some(Err(_)) | None => resolved_ts_type,
         };
+    if opts.format == Some(EndecFormat::Decimal) && resolved_ts_type.trim() != "number" {
+        diagnostics.error(
+            field.span,
+            format!(
+                "@derive(Decode): field '{}': `format: \"decimal\"` reads a number from its text, and `{resolved_ts_type}` is not `number`",
+                field.name
+            ),
+        );
+        return None;
+    }
+    if opts.flatten
+        && opts.decode_with.is_none()
+        && let Some(reason) = unflattenable(&resolved_ts_type, &scope, Direction::Decode)
+    {
+        diagnostics.error(
+            field.span,
+            format!("@derive(Decode): field '{}': {reason}", field.name),
+        );
+        return None;
+    }
     for spec in &opts.validators {
         if let Some(misapplied) = spec.validator.misapplied_to(&resolved_ts_type) {
             diagnostics.error(
@@ -387,7 +431,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         type_cat,
         optional: field.optional || opts.default || opts.default_expr.is_some(),
         default_expr,
-        never_read,
+        never_read: false,
         flattened_keys,
         flatten: opts.flatten,
         validators: opts.validators.clone(),
@@ -404,4 +448,41 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         nullable_union_guard,
         union_string_validators,
     })
+}
+
+/// A field `Decode` never reads, which the value it builds still has: it is
+/// set to `default_expr`.
+fn never_read_field(
+    field: &SourceField<'_>,
+    opts: &EndecFieldOptions,
+    json_key: String,
+    default_expr: Expr,
+) -> DecodeField {
+    let type_cat = TypeCategory::from_ts_type(field.ts_type);
+    DecodeField {
+        json_key,
+        field_name: field.name.to_string(),
+        member: Member::of(field.name),
+        raw_cast_type: raw_cast_type(field.ts_type, &type_cat),
+        ts_type: field.ts_type.to_string(),
+        type_cat,
+        optional: true,
+        default_expr: Some(default_expr),
+        never_read: true,
+        flattened_keys: None,
+        flatten: false,
+        validators: opts.validators.clone(),
+        nullable_inner_kind: None,
+        nullable_encodable_type: None,
+        nullable_nested: None,
+        present_inner: None,
+        decode_with: None,
+        decimal_format: false,
+        composite: None,
+        wrapped: None,
+        by_parameter: None,
+        union_guard: None,
+        nullable_union_guard: None,
+        union_string_validators: Vec::new(),
+    }
 }

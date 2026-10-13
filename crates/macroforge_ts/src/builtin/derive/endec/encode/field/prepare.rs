@@ -4,7 +4,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry};
 
-use crate::builtin::derive::endec::coder::{TypeScope, encode_expr};
+use crate::builtin::derive::endec::coder::{TypeScope, encode_expr, unflattenable};
 use crate::builtin::derive::endec::encode::types::{EncodeField, FieldEncoding};
 use crate::builtin::derive::endec::nested::NestedType;
 use crate::builtin::derive::endec::source_field::SourceField;
@@ -49,6 +49,26 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
     };
     let resolved_ts_type = scope.resolved(field.ts_type, Direction::Encode);
     let type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
+    if opts.format == Some(EndecFormat::Decimal) && resolved_ts_type.trim() != "number" {
+        diagnostics.error(
+            field.span,
+            format!(
+                "@derive(Encode): field '{}': `format: \"decimal\"` writes a number as its text, and `{resolved_ts_type}` is not `number`",
+                field.name
+            ),
+        );
+        return None;
+    }
+    if opts.flatten
+        && opts.encode_with.is_none()
+        && let Some(reason) = unflattenable(&resolved_ts_type, &scope, Direction::Encode)
+    {
+        diagnostics.error(
+            field.span,
+            format!("@derive(Encode): field '{}': {reason}", field.name),
+        );
+        return None;
+    }
 
     // A near miss of a configured foreign type is worth a hint.
     let foreign_types = get_foreign_types();

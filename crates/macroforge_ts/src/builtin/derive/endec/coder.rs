@@ -15,6 +15,7 @@ use crate::builtin::derive::common::{
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::class::MemberKey;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
+use crate::ts_syn::abi::ir::type_alias::TypeBody;
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 use crate::ts_syn::abi::ir::{
     Unadopted, adopt_type_scope, resolve_generic_aliases_where, split_top_level_commas,
@@ -906,6 +907,57 @@ fn encode_tuple(
     }
     let encoded_elements = encoded_elements.join(", ");
     Ok(any_encoded.then(|| rendered(ts_template! { [@{encoded_elements}] })))
+}
+
+/// Why a field of type `ts_type` cannot be flattened, when it cannot: only
+/// a type with fields of its own, or a `Record`, has members the enclosing
+/// object can hold as its own.
+pub(crate) fn unflattenable(
+    ts_type: &str,
+    scope: &TypeScope<'_>,
+    direction: Direction,
+) -> Option<String> {
+    let mut present = ts_type.trim().to_string();
+    while let TypeCategory::Optional(inner) | TypeCategory::Nullable(inner) =
+        TypeCategory::from_ts_type(&present)
+    {
+        present = inner;
+    }
+    let named = match TypeCategory::from_ts_type(&present) {
+        TypeCategory::Record(_, _) => return None,
+        TypeCategory::Encodable(name) => Some(name),
+        // A type named in lowercase is known for one by the registry alone.
+        TypeCategory::Unknown => scope.derived(&present, direction),
+        TypeCategory::Primitive
+        | TypeCategory::Array(_)
+        | TypeCategory::Optional(_)
+        | TypeCategory::Nullable(_)
+        | TypeCategory::Date
+        | TypeCategory::Map(_, _)
+        | TypeCategory::Set(_)
+        | TypeCategory::Wrapper(_) => None,
+    };
+    let has_fields = named.is_some_and(|name| {
+        let declared = scope
+            .registry
+            .resolve_in_file(&name, scope.file_path, scope.file_imports)
+            .map(|entry| &entry.definition);
+        !scope.is_param(&name)
+            && match declared {
+                // A type the project does not declare is taken at its word.
+                Some(TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_)) | None => true,
+                Some(TypeDefinitionIR::TypeAlias(alias)) => matches!(
+                    alias.body.unbranded(),
+                    TypeBody::Object { .. } | TypeBody::Intersection(_)
+                ),
+                Some(TypeDefinitionIR::Enum(_)) => false,
+            }
+    });
+    (!has_fields).then(|| {
+        format!(
+            "`flatten` holds a value's fields as the enclosing object's own, and `{present}` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened"
+        )
+    })
 }
 
 /// The JSON keys the type `name` reads its fields from, flattened ones

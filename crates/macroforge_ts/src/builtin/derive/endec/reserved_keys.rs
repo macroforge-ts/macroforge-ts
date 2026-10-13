@@ -32,6 +32,8 @@ pub(super) fn check_field_keys<'a>(
     };
     // Each key met so far, with the field coded under it.
     let mut taken: HashMap<String, &'a str> = HashMap::new();
+    // The flattened record met so far, which holds every key no field reads.
+    let mut holds_the_rest: Option<&'a str> = None;
     for field in fields {
         let options = EndecFieldOptions::from_decorators(field.decorators, field.name).options;
         let coded = match direction {
@@ -53,6 +55,17 @@ pub(super) fn check_field_keys<'a>(
             match TypeCategory::from_ts_type(&present) {
                 TypeCategory::Encodable(flattened) => {
                     json_keys_of(&flattened, scope).unwrap_or_default()
+                }
+                TypeCategory::Record(_, _) => {
+                    if let Some(other) = holds_the_rest.replace(name) {
+                        diagnostics.error(
+                            field.span,
+                            format!(
+                                "@derive({derive}): '{other}' and '{name}' are both flattened records, and each holds every key no other field is {coded_under}, so nothing tells which a key belongs to; flatten one of them"
+                            ),
+                        );
+                    }
+                    Vec::new()
                 }
                 _ => Vec::new(),
             }

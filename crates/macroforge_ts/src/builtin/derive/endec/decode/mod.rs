@@ -13,7 +13,8 @@
 //! - `static decode(input: unknown, opts?: DecodeOptions):
 //!   { success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }` -
 //!   Auto-detects JSON string vs object; never throws. `opts.freeze` freezes all
-//!   decoded objects.
+//!   decoded objects, arrays, tuples and records; a `Map` and a `Set` have no
+//!   frozen form.
 //! - `static decodeWithContext(value, ctx): T | PendingRef` - Internal method used
 //!   for nested/cyclic graphs; throws `DecodeError` on structural errors
 //! - `static hasShape(obj): boolean` - Checks all required JSON keys are present
@@ -83,7 +84,7 @@
 //! | `Date` | A `Date` from its ISO string |
 //! | Arrays, `Set<T>` | From an array, each element decoded by the element type |
 //! | `Map<K,V>` | From an object, each value decoded by `V` and each key read back as `K`: a number, bigint, boolean, `Date`, enum or newtype from its text |
-//! | `Record<K,V>` | From an object, each value decoded by `V` |
+//! | `Record<K,V>` | From an object, each value decoded by `V` and each key checked to be a `K`. Over a finite set of keys, `Record<'a' \| 'b', V>` or an enum, every key has to be there |
 //! | Tuples | From an array of the tuple's length, each element decoded by its own type |
 //! | An object type written in place | An object of exactly its members, each decoded by its own type |
 //! | `Partial<T>`, `Pick<T,K>`, `Omit<T,K>` | `{name}DecodePartialWithContext` |
@@ -94,7 +95,19 @@
 //! | `string \| User`, a primitive beside one type deriving `Decode` | The primitive as it is, anything else through the type |
 //! | Any other union with a member that is decoded, `Circle \| Square`, `Date \| number` | An expansion error: nothing in a field says which member a value is. Name the union with an alias and derive on that |
 //! | A union of values that are their own encoding, `string \| string[]`, `Date \| string` | The value as it is, checked to be one of the members |
-//! | `unknown`, any other type | The value as it is, unchecked |
+//! | `object` | The value, when it is an object |
+//! | A template literal type, `` `id-${number}` `` | The text, when it spells the template: its fixed text in place, a `${number}` or `${bigint}` hole a number in decimal, a hole of literals one of them. A hole of any other type is an expansion error |
+//! | `keyof T`, `T['field']` over a type the project declares | As what the operator yields |
+//! | A function, a symbol, `void`, `never`, a mapped, conditional or `typeof` type | An expansion error: code the field with `decodeWith`, or leave it out with `skip` |
+//! | `unknown`, `any`, a type the project does not declare | The value as it is, unchecked |
+//!
+//! A number has to be finite. `NaN`, an infinity, and JSON text that spells a
+//! number too large to hold (`1e999`) are refused: `encode` could not write
+//! them back. Only the members an input holds itself are read, so one it
+//! inherits is not there.
+//!
+//! A `$Newtype<T>` is decoded as the `T` it brands, whatever kind of type
+//! that is, and a union alias tells a template literal member by its text.
 //!
 //! A member that fails is reported under its path: `grid[0][1]`,
 //! `byName.key.id`. Members share the context of the value that holds them, so
@@ -111,14 +124,19 @@
 //! hands the decoders on to a member written with type arguments. The
 //! top-level `{name}Decode` and a class's static `decode` take the same
 //! decoders after their options, `boxDecode(text, undefined, decodeDate)`.
-//! Without a decoder a value of the parameter is kept as it is.
+//! Without a decoder a value of the parameter is kept as it is. A type
+//! argument a field leaves to its default, `Box` for `Box<T = Date>`, is
+//! decoded and checked as that default.
 //!
 //! ## Reserved Keys
 //!
 //! `__id` and `__ref` mark a value held in more than one place, and the tag
 //! key (`__type`, or the container's `tag`) holds the type's name. A field
 //! read from or written under one of them is an expansion error: give it
-//! another key with `@endec({ rename: "..." })`.
+//! another key with `@endec({ rename: "..." })`. So are two fields under one
+//! key, whether by `rename`, `renameAll` or a flattened type's own fields,
+//! and two flattened `Record`s, each of which holds every key nothing else
+//! reads.
 //!
 //! ## References
 //!

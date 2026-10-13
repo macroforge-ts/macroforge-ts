@@ -58,8 +58,18 @@
 //! | `flatten` | Flatten nested object fields into parent |
 //! | `encodeWith = "fn"` | Use custom function for encoding |
 //! | `decodeWith = "fn"` | Use custom function for decoding |
-//! | `format = "decimal"` | Encode a number field as a string |
+//! | `format = "decimal"` | Encode a `number` field as a string |
 //! | `validate: [...]` | Run validators during decoding (see below) |
+//!
+//! A field `Decode` skips is still a field of the value it builds, so it is
+//! set to its `default`, or else to its type's own default; only an optional
+//! field is left out. A default is checked against the field's type where
+//! the generated code is type-checked.
+//!
+//! `flatten` takes a class, an interface, an object type alias or a `Record`,
+//! which may be `null` or optional: any other type has no fields for the
+//! enclosing object to hold, and is an expansion error. One type flattens
+//! at most one `Record`, which holds every key no other field reads.
 //!
 //! An option's value is read as written. A flag (`skip`, `flatten`,
 //! `denyUnknownFields`, `untagged`, ...) stands alone or takes `true` or
