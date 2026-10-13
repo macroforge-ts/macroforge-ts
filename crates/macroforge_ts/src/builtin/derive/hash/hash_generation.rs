@@ -4,7 +4,7 @@ use crate::builtin::derive::common::{
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
-use crate::ts_syn::ts_ident;
+use crate::ts_syn::{TsStream, ts_ident};
 
 use super::types::HashField;
 
@@ -93,20 +93,22 @@ pub(crate) fn generate_value_hash(
     value_hash(ts_type, value, resolved, registry, 0)
 }
 
-/// An expression hashing the fixed-length tuple `value` element by element.
-pub(crate) fn tuple_hash_expr(elements: &[String], registry: &TypeRegistry) -> String {
-    elements
-        .iter()
-        .enumerate()
-        .fold("1".to_string(), |hash, (index, source)| {
-            let element = generate_value_hash(
-                tuple_element(source).ts_type,
-                &rendered(ts_template! { value[@{index}] }),
-                None,
-                registry,
-            );
-            rendered(ts_template! { ((@{hash}) * 31 + (@{element})) | 0 })
-        })
+/// Statements hashing the fixed-length tuple `value` element by element and
+/// returning the hash. An element takes a statement of its own: one
+/// expression over them all would nest as deep as the tuple is long.
+pub(crate) fn tuple_hash_statements(elements: &[String], registry: &TypeRegistry) -> String {
+    let mut steps = vec![ts_template! { let hash = 1; }];
+    for (index, source) in elements.iter().enumerate() {
+        let element = generate_value_hash(
+            tuple_element(source).ts_type,
+            &rendered(ts_template! { value[@{index}] }),
+            None,
+            registry,
+        );
+        steps.push(ts_template! { hash = (hash * 31 + (@{element})) | 0; });
+    }
+    steps.push(ts_template! { return hash; });
+    rendered(TsStream::merge_all(steps))
 }
 
 fn value_hash(

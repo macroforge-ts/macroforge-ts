@@ -1,0 +1,89 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_tuple_hash.ts
+---
+## Input
+
+/** @derive(Hash) */
+export type Reading = [string, number, boolean];
+
+/** @derive(Hash) */
+export type Nothing = [];
+
+## Changed
+
+true
+
+## Output
+
+export type Reading = [string, number, boolean];
+
+export function readingHashCode(value: Reading): number {
+    let hash = 1;
+    hash = (hash * 31 + ((value[0] ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) | 0;
+    hash = (hash * 31 + ((Number.isInteger(value[1]) ? value[1] | 0 : value[1].toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)))) | 0;
+    hash = (hash * 31 + ((value[2] ? 1231 : 1237))) | 0;
+    return hash;
+}
+
+export const Reading: {
+  readonly hashCode: typeof readingHashCode;
+} = {
+  hashCode: readingHashCode
+};
+
+
+export type Nothing = [];
+
+export function nothingHashCode(_value: Nothing): number {
+    let hash = 1;
+    return hash;
+}
+
+export const Nothing: {
+  readonly hashCode: typeof nothingHashCode;
+} = {
+  hashCode: nothingHashCode
+};
+
+## DTS
+
+export type Reading = [string, number, boolean];
+export declare function readingHashCode(value: Reading): number;
+export declare const Reading: {
+	readonly hashCode: typeof readingHashCode;
+};
+export type Nothing = [];
+export declare function nothingHashCode(_value: Nothing): number;
+export declare const Nothing: {
+	readonly hashCode: typeof nothingHashCode;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 20..69 -> expanded 0..49
+original 69..71 -> expanded 596..598
+original 91..117 -> expanded 598..624
+original 117..118 -> expanded 828..829
+generated 49..489 <- Hash
+generated 489..596 <- __convenience_const
+generated 624..721 <- Hash
+generated 721..828 <- __convenience_const
+
+## Metadata
+
+type Reading: {"body":{"Tuple":["string","number","boolean"]},"decorators":[{"args_src":"Hash","name":"Derive","span":{"end":21,"start":1}}],"name":"Reading","span":{"end":70,"start":29},"type_params":[]}
+type Nothing: {"body":{"Tuple":[]},"decorators":[{"args_src":"Hash","name":"Derive","span":{"end":92,"start":72}}],"name":"Nothing","span":{"end":118,"start":100},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

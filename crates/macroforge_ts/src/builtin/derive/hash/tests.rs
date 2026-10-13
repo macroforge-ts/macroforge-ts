@@ -117,3 +117,15 @@ fn map_hash_ignores_insertion_order() {
     assert!(result.contains("(__hash0 + ("), "{result}");
     assert!(!result.contains("__hash0 * 31"), "{result}");
 }
+
+#[test]
+fn a_tuple_hashes_a_statement_an_element() {
+    let elements = vec!["number".to_string(); 5000];
+    let body = super::hash_generation::tuple_hash_statements(&elements, &TypeRegistry::default());
+    assert_eq!(body.matches("hash = (hash * 31 + ").count(), elements.len());
+    let wrapped = format!("function hashed(value: number[]): number {{ {body} }}");
+    assert!(
+        macroforge_ts_syn::parse_statement(&oxc::allocator::Allocator::default(), &wrapped).is_ok(),
+        "the statements of a long tuple parse"
+    );
+}

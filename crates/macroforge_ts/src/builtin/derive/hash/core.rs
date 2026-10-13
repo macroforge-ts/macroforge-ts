@@ -14,7 +14,8 @@ use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
 use super::hash_generation::{
-    generate_field_hash_for_interface, generate_value_hash, primitive_hash_expr, tuple_hash_expr,
+    generate_field_hash_for_interface, generate_value_hash, primitive_hash_expr,
+    tuple_hash_statements,
 };
 use super::types::HashField;
 
@@ -225,6 +226,19 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         });
                     }
                 })
+            } else if let Some(elements) = type_alias
+                .body()
+                .as_tuple()
+                .filter(|elements| fixed_tuple(elements))
+            {
+                let fn_name_ident = type_names.generic_function("HashCode");
+                let hash_body = tuple_hash_statements(elements, type_registry);
+                let parameter = ts_ident!(parameter_name("value", &hash_body));
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(@{parameter}: @{type_names.full_type_ident()}): number {
+                        {$typescript TsStream::from_string(hash_body)}
+                    }
+                })
             } else {
                 let fn_name_ident = type_names.generic_function("HashCode");
                 let hash_src = alias_hash_expr(type_alias.body(), type_registry);
@@ -245,13 +259,11 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
     }
 }
 
-/// The hash of `value`, a value of a non-object alias with `body`.
+/// The hash of `value`, a value of an alias with `body` that is neither an
+/// object nor a fixed-length tuple.
 fn alias_hash_expr(body: &TypeBody, registry: &TypeRegistry) -> String {
     if let Some(base) = body.primitive_base() {
         return primitive_hash_expr(base, "value");
-    }
-    if let Some(elements) = body.as_tuple().filter(|elements| fixed_tuple(elements)) {
-        return tuple_hash_expr(elements, registry);
     }
     match body.as_alias() {
         Some(ts_type) => generate_value_hash(ts_type, "value", None, registry),
