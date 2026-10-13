@@ -276,3 +276,20 @@ fn test_type_category_non_encodable_utility_types() {
         TypeCategory::Unknown
     );
 }
+
+#[test]
+fn test_type_category_reads_a_grouped_type_as_the_type_in_it() {
+    assert_eq!(
+        TypeCategory::from_ts_type("(string | undefined)"),
+        TypeCategory::Optional("string".to_string())
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("((Date | null))"),
+        TypeCategory::Nullable("Date".to_string())
+    );
+    // The parentheses of an array's element type group the element, not the array.
+    assert!(matches!(
+        TypeCategory::from_ts_type("(string | number)[]"),
+        TypeCategory::Array(_)
+    ));
+}

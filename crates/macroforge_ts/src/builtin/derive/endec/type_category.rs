@@ -2,7 +2,7 @@
 
 use super::foreign_types::{ForeignTypeMatch, register_foreign_type_import};
 use super::helpers::find_top_level_comma;
-use crate::builtin::derive::common::{array_element_type, parse_generic_type};
+use crate::builtin::derive::common::{array_element_type, parse_generic_type, ungrouped};
 use crate::host::ForeignTypeConfig;
 use crate::host::import_registry::with_registry;
 use crate::ts_syn::abi::ir::is_primitive_keyword;
@@ -159,7 +159,8 @@ impl TypeCategory {
     }
 
     fn classify(ts_type: &str) -> Self {
-        let trimmed = ts_type.trim();
+        // A type in parentheses is the type in them.
+        let trimmed = ungrouped(ts_type);
 
         // Handle string literal types (e.g., "Zoned", 'foo') and template
         // literal types (`id-${number}`) - these are primitive-like
