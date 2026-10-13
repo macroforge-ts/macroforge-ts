@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use std::collections::HashMap;
 
@@ -85,7 +85,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Enum(_) => {
             // Enums are primitive values, cloning is just returning the value
             let enum_name = input.name();
-            let fn_name_ident = ts_ident!("{}Clone", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Clone", function_prefix(enum_name));
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): @{ts_ident!(enum_name)} {
                     return value;

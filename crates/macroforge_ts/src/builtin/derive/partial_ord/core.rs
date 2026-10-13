@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
@@ -80,7 +80,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let fn_name_ident = ts_ident!("{}PartialCompare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}PartialCompare", function_prefix(enum_name));
             let value_kinds = EnumValueKinds::of(enum_data.variants());
 
             // Get return type

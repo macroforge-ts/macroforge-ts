@@ -1,7 +1,7 @@
 use crate::ast::Expr;
 use crate::builtin::derive::common::Member;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 /// Generates the EncodePartialWithContext function name for a nested
 /// encodable type, which encodes whichever of its fields a value has.
@@ -10,7 +10,7 @@ pub(crate) fn nested_encode_partial_fn_name(type_name: &str) -> String {
     let base = type_name
         .find('<')
         .map_or(type_name, |generics| &type_name[..generics]);
-    format!("{}EncodePartialWithContext", base.to_case(Case::Camel))
+    format!("{}EncodePartialWithContext", function_prefix(base))
 }
 
 /// Generates the EncodeWithContext function name for a nested encodable type.
@@ -24,7 +24,7 @@ pub(crate) fn nested_encode_fn_name(type_name: &str) -> String {
     } else {
         type_name
     };
-    format!("{}EncodeWithContext", base.to_case(Case::Camel))
+    format!("{}EncodeWithContext", function_prefix(base))
 }
 
 /// How a field's value is encoded once it is known to be there.

@@ -10,6 +10,17 @@ use super::value_type::rendered;
 
 use convert_case::{Case, Casing};
 
+/// What the functions generated for the type `type_name` are named by: the
+/// name in camel case, `user` for `User` and `httpServer` for `HTTPServer`.
+/// The underscores a name opens with stay where they are, so `_Hidden` gives
+/// `_hidden`: case tells nothing apart before them, and a name of nothing
+/// else would leave no prefix at all.
+pub fn function_prefix(type_name: &str) -> String {
+    let named = type_name.trim_start_matches('_');
+    let underscores = type_name.strip_suffix(named).unwrap_or_default();
+    format!("{underscores}{}", named.to_case(Case::Camel))
+}
+
 /// A type's name and parameters, which name its generated functions.
 pub(crate) struct TypeNames {
     /// The type as written in messages, e.g. `Box`.
@@ -57,7 +68,7 @@ impl TypeNames {
 
     /// `{camelName}{suffix}`, the name of one generated function.
     pub fn function(&self, suffix: &str) -> String {
-        format!("{}{suffix}", self.type_name.to_case(Case::Camel))
+        format!("{}{suffix}", function_prefix(&self.type_name))
     }
 
     /// `{camelName}{suffix}<T extends Shape>`, a generated function declaring

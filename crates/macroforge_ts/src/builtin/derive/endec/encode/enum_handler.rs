@@ -3,7 +3,7 @@
 use crate::macros::ts_template;
 use crate::ts_syn::{DeriveInput, MacroforgeError, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::text::encoded_text_helper;
 use crate::builtin::return_types::ENCODE_CONTEXT;
@@ -13,8 +13,8 @@ pub(super) fn handle_enum(input: &DeriveInput) -> Result<TsStream, MacroforgeErr
     let enum_name = input.name();
     let enum_ident = ts_ident!(enum_name);
 
-    let fn_name_ident = ts_ident!("{}Encode", enum_name.to_case(Case::Camel));
-    let fn_name_internal_ident = ts_ident!("{}EncodeWithContext", enum_name.to_case(Case::Camel));
+    let fn_name_ident = ts_ident!("{}Encode", function_prefix(enum_name));
+    let fn_name_internal_ident = ts_ident!("{}EncodeWithContext", function_prefix(enum_name));
     let encoded_text = encoded_text_helper();
     let mut result = ts_template! {
         /** Encodes this enum value to a JSON string. */

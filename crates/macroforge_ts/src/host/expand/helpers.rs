@@ -1,3 +1,4 @@
+use crate::builtin::derive::common::function_prefix;
 use convert_case::{Case, Casing};
 
 use crate::ts_syn::abi::{ClassIR, Patch, SpanIR};
@@ -11,7 +12,7 @@ pub(super) fn extract_function_names_from_patches(
     type_name: &str,
 ) -> Vec<(String, String)> {
     let mut functions: Vec<(String, String)> = Vec::new();
-    let camel_type_name = type_name.to_case(Case::Camel);
+    let camel_type_name = function_prefix(type_name);
 
     for patch in patches {
         let code = match patch {

@@ -2,7 +2,8 @@
 
 use super::{make_decorator, zero_span};
 use crate::builtin::derive::common::{
-    collection_element_type, resolved_type_has_derive, standalone_fn_name, type_has_derive,
+    collection_element_type, function_prefix, resolved_type_has_derive, standalone_fn_name,
+    type_has_derive,
 };
 use crate::ts_syn::ResolvedTypeRef;
 use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
@@ -259,4 +260,29 @@ fn test_standalone_fn_name() {
         standalone_fn_name("MyLongType", "PartialCompare"),
         "myLongTypePartialCompare"
     );
+}
+
+/// Every generated function of a type starts as this says, and the name is
+/// one a function can take whatever the type's is.
+#[test]
+fn a_types_functions_are_named_by_its_name_in_camel_case() {
+    for (type_name, prefix) in [
+        ("User", "user"),
+        ("HTTPServer", "httpServer"),
+        ("IOError", "ioError"),
+        ("point2D", "point2D"),
+        ("my_type", "myType"),
+        ("Foo_Bar", "fooBar"),
+        ("lower", "lower"),
+        ("$Dollar", "$dollar"),
+        ("Ünïcode", "ünïcode"),
+        // The underscores a name opens with are kept.
+        ("_Hidden", "_hidden"),
+        ("__Double", "__double"),
+        ("_1", "_1"),
+        ("_", "_"),
+    ] {
+        assert_eq!(function_prefix(type_name), prefix, "{type_name}");
+    }
+    assert_eq!(standalone_fn_name("_Hidden", "Clone"), "_hiddenClone");
 }

@@ -2,7 +2,7 @@ use crate::ast::Expr;
 use crate::builtin::derive::endec::TypeCategory;
 use crate::ts_syn::TsSynError;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::super::uncodable::{TemplateHole, template_text};
 use super::super::value_kind::is_ts_literal;
@@ -419,7 +419,7 @@ pub(crate) fn nested_decode_fn_name(type_name: &str) -> String {
     } else {
         type_name
     };
-    format!("{}DecodeWithContext", base.to_case(Case::Camel))
+    format!("{}DecodeWithContext", function_prefix(base))
 }
 
 /// Generates the DecodePartialWithContext function name for a nested
@@ -429,7 +429,7 @@ pub(crate) fn nested_decode_partial_fn_name(type_name: &str) -> String {
     let base = type_name
         .find('<')
         .map_or(type_name, |generics| &type_name[..generics]);
-    format!("{}DecodePartialWithContext", base.to_case(Case::Camel))
+    format!("{}DecodePartialWithContext", function_prefix(base))
 }
 
 /// Generates the HasShape function name for a type.
@@ -440,5 +440,5 @@ pub(crate) fn nested_has_shape_fn_name(type_name: &str) -> String {
     } else {
         type_name
     };
-    format!("{}HasShape", base.to_case(Case::Camel))
+    format!("{}HasShape", function_prefix(base))
 }

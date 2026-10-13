@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
-use convert_case::{Case, Casing};
-
+use super::type_names::function_prefix;
 use crate::host::expand::derive_scope::{prototype_member_message, unnamed_member_message};
 use crate::ts_syn::abi::ir::class::{ClassIR, FieldIR, MemberKey, Visibility};
 use crate::ts_syn::abi::ir::interface::InterfaceIR;
@@ -113,7 +112,7 @@ pub fn collection_element_type(resolved: &ResolvedTypeRef) -> Option<&ResolvedTy
 /// Generate the standalone function name for a given type and derive macro.
 /// E.g., `("User", "Clone")` → `"userClone"`, `("User", "HashCode")` → `"userHashCode"`.
 pub fn standalone_fn_name(type_name: &str, suffix: &str) -> String {
-    format!("{}{}", type_name.to_case(Case::Camel), suffix)
+    format!("{}{suffix}", function_prefix(type_name))
 }
 
 /// Extract fields from a type the registry holds.

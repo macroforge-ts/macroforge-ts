@@ -7,7 +7,7 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticCollector};
 use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::super::field::prepare::to_encode_field;
 use super::super::field::statements::encode_fields;
@@ -166,7 +166,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                         }
                     }
                     if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
-                        let camel = rt.to_case(Case::Camel);
+                        let camel = function_prefix(&rt);
                         ser_variants.push(SerVariant {
                             tag_value: tv,
                             ser_fn: member_encoder_of(&rt)?,
@@ -181,7 +181,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                             .config
                             .is_none()
                     {
-                        let camel = name.to_case(Case::Camel);
+                        let camel = function_prefix(&name);
                         ref_variants.push(SerVariant {
                             tag_value: name,
                             ser_fn: member_encoder_of(t)?,

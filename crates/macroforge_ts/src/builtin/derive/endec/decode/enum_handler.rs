@@ -2,9 +2,9 @@ use crate::ast::Expr;
 use crate::macros::ts_template;
 use crate::ts_syn::{DeriveInput, MacroforgeError, TsStream, ts_ident};
 
+use crate::builtin::derive::common::function_prefix;
 use crate::builtin::derive::common::rendered;
 use crate::builtin::return_types::{DECODE_CONTEXT, DECODE_ERROR};
-use convert_case::{Case, Casing};
 
 pub(super) fn handle_enum(
     input: &DeriveInput,
@@ -12,10 +12,10 @@ pub(super) fn handle_enum(
 ) -> Result<TsStream, MacroforgeError> {
     let enum_name = input.name();
     let enum_ident = ts_ident!(enum_name);
-    let fn_decode_ident = ts_ident!("{}Decode", enum_name.to_case(Case::Camel));
-    let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext", enum_name.to_case(Case::Camel));
+    let fn_decode_ident = ts_ident!("{}Decode", function_prefix(enum_name));
+    let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext", function_prefix(enum_name));
     let fn_decode_internal_expr: Expr = fn_decode_internal_ident.clone().into();
-    let fn_is_ident = ts_ident!("{}Is", enum_name.to_case(Case::Camel));
+    let fn_is_ident = ts_ident!("{}Is", function_prefix(enum_name));
     let fn_is_expr: Expr = fn_is_ident.clone().into();
     let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
         "textOrValue"

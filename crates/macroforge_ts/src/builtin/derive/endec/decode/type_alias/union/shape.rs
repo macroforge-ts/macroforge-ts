@@ -5,10 +5,10 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
 use crate::builtin::derive::common::js_string;
 use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
-use convert_case::{Case, Casing};
 
 /// True when a value has the shape of some member.
 pub(super) fn has_shape(u: &Union) -> TsStream {
@@ -41,7 +41,7 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
         encodable_type_check_condition,
         ..
     } = u;
-    let fn_has_shape_ident = ts_ident!("{}HasShape", type_name.to_case(Case::Camel));
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(type_name));
     ts_template! {
         export function @{fn_has_shape_ident}(value: unknown): boolean {
                         {#if *is_literal_only}
@@ -226,7 +226,7 @@ pub(super) fn is_guard(u: &Union) -> TsStream {
         full_type_ident,
         ..
     } = u;
-    let camel = type_name.to_case(Case::Camel);
+    let camel = function_prefix(type_name);
     let fn_is_ident = ts_ident!("{}Is{}", camel, generic_decl);
     let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", camel).into();
     let fn_decode_expr: Expr = ts_ident!("{}Decode", camel).into();

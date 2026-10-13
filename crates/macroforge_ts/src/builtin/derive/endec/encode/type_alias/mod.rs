@@ -16,7 +16,7 @@ use crate::ts_syn::{
     DataTypeAlias, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident,
 };
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::field::prepare::to_encode_field;
 use super::object_encoder::object_encode_functions;
@@ -68,8 +68,8 @@ pub(super) fn handle_type_alias(
     let full_type_ident = names.full_type_ident();
 
     // Generate function names based on naming style
-    let fn_encode_ident = ts_ident!("{}Encode", type_name.to_case(Case::Camel));
-    let fn_encode_internal_ident = ts_ident!("{}EncodeWithContext", type_name.to_case(Case::Camel));
+    let fn_encode_ident = ts_ident!("{}Encode", function_prefix(type_name));
+    let fn_encode_internal_ident = ts_ident!("{}EncodeWithContext", function_prefix(type_name));
 
     let encode_context_ident = ts_ident!(ENCODE_CONTEXT);
     let alias = AliasEncode {

@@ -5,8 +5,8 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
 use crate::builtin::return_types::decode_return_type;
-use convert_case::{Case, Casing};
 
 /// `decode`, `decodeWithContext`, `hasShape` and `is` for a union of
 /// literals: no JSON parsing, no context and no references.
@@ -23,14 +23,14 @@ pub(super) fn literal_union(u: &Union) -> TsStream {
         full_type_ident,
         ..
     } = u;
-    let fn_decode_ident = ts_ident!("{}Decode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_decl
     );
-    let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
-    let fn_has_shape_ident = ts_ident!("{}HasShape", type_name.to_case(Case::Camel));
+    let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(type_name));
     let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
     let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
         "textOrValue"

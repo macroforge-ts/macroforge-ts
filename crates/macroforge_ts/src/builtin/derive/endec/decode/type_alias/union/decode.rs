@@ -7,8 +7,8 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
-use convert_case::{Case, Casing};
 
 use super::encodable::encodable_dispatch;
 use super::mixed::mixed_dispatch;
@@ -39,10 +39,10 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
         file_imports,
         ..
     } = u;
-    let fn_decode_ident = ts_ident!("{}Decode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
     let fn_decode_internal_expr: Expr = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_args
     )
     .into();
@@ -90,7 +90,7 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
     let data_init = if has_string_variant {
         // A string may be a member itself or the JSON text of one.
         let text_or_value = crate::builtin::derive::endec::coder::endec_helper("textOrValue");
-        let has_shape = format!("{}HasShape", type_name.to_case(Case::Camel));
+        let has_shape = format!("{}HasShape", function_prefix(type_name));
         rendered(ts_template! { @{text_or_value}(input, @{has_shape}) })
     } else {
         let parsed_text = crate::builtin::derive::endec::coder::endec_helper("parsedText");
@@ -158,7 +158,7 @@ pub(super) fn decode_with_context(u: &Union) -> TsStream {
     let reference = decode_reference(type_name, &returns);
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_decl
     );
     let body = if *is_primitive_only {

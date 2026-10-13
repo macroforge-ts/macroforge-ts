@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::value_type::rendered;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
@@ -662,7 +662,7 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
                     .is_some()
                     && super::declared_type_has_derive(names.declared(), base, "Default") =>
             {
-                let callee = ts_ident!("{}DefaultValue", base.to_case(Case::Camel));
+                let callee = ts_ident!("{}DefaultValue", function_prefix(base));
                 rendered(ts_template! { @{callee}<@{arguments}>() })
             }
             _ => "undefined".to_string(),
@@ -807,6 +807,6 @@ pub fn undefaultable(ts_type: &str, declared: super::Declared<'_>) -> Option<Str
 }
 
 fn format_default_call(type_name: &str) -> String {
-    let callee = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
+    let callee = ts_ident!("{}DefaultValue", function_prefix(type_name));
     rendered(ts_template! { @{callee}() })
 }

@@ -170,7 +170,7 @@ pub(super) fn check_generated_names<'a>(
     names: impl Iterator<Item = ModuleName<'a>>,
     source: &str,
 ) -> Vec<Diagnostic> {
-    use convert_case::{Case, Casing};
+    use crate::builtin::derive::common::function_prefix;
 
     let module_names: Vec<&str> = names.map(|module_name| module_name.name).collect();
     // Each generated function, with the type that names it.
@@ -180,7 +180,7 @@ pub(super) fn check_generated_names<'a>(
     let mut diagnostics = Vec::new();
     for target in targets {
         let type_name = target_name(target);
-        let prefix = type_name.to_case(Case::Camel);
+        let prefix = function_prefix(type_name);
         let span = diagnostic_span_for_derive(target.decorator_span, source);
         for (derive, module) in &target.macro_names {
             if module != DERIVE_MODULE_PATH {

@@ -70,6 +70,7 @@ pub use registry_helpers::{
     type_has_derive,
 };
 pub(crate) use type_names::TypeNames;
+pub use type_names::function_prefix;
 pub use type_utils::{
     EnumValueKinds, MAX_TYPE_DEPTH, array_element_type, detect_primitive_encodable_union,
     get_type_default, get_type_default_with_registry, has_known_default, is_generic_type,

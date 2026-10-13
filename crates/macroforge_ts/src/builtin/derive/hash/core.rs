@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
@@ -93,7 +93,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let fn_name_ident = ts_ident!("{}HashCode", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}HashCode", function_prefix(enum_name));
 
             // A member is a string or a number, hashed as a field of that
             // type is: an enum of both tells them apart first.

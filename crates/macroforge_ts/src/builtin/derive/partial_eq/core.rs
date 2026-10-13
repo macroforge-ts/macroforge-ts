@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
@@ -82,7 +82,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
         Data::Enum(_) => {
             // Enums: direct comparison with ===
             let enum_name = input.name();
-            let fn_name_ident = ts_ident!("{}Equals", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Equals", function_prefix(enum_name));
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(a: @{ts_ident!(enum_name)}, b: @{ts_ident!(enum_name)}): boolean {

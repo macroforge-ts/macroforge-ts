@@ -1,7 +1,7 @@
 //! `Default` for a union type alias: the member marked `@default`, the first
 //! member of an object union, or `@default(expression)` on the alias.
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::{
@@ -198,7 +198,7 @@ pub(super) fn union_default(
         let return_type_ident = names.full_type_ident();
         let generic_params_ident = ts_ident!(names.generic_decl.as_str());
 
-        let fn_name_ident = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
+        let fn_name_ident = ts_ident!("{}DefaultValue", function_prefix(type_name));
         let return_expr = Expr::parse(&default_expr).map_err(|err| {
             MacroforgeError::new(
                 input.decorator_span(),
@@ -255,7 +255,7 @@ fn build_intersection_default(
     let mut parts: Vec<String> = Vec::new();
     for member in intersection_members {
         if let Some(type_name) = member.as_type_ref() {
-            let default_fn = ts_ident!("{}DefaultValue", type_name.trim().to_case(Case::Camel));
+            let default_fn = ts_ident!("{}DefaultValue", function_prefix(type_name.trim()));
             parts.push(rendered(ts_template! { ...@{default_fn}() }));
         } else if let Some(fields) = member.as_object() {
             for f in fields {

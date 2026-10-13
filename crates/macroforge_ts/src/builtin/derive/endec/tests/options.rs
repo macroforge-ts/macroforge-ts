@@ -178,16 +178,6 @@ fn test_container_untagged() {
 }
 
 #[test]
-fn test_convert_case_with_angle_brackets() {
-    use convert_case::{Case, Casing};
-    // Generics must be stripped before camelCase conversion since `<>` chars
-    // are not recognized as word boundaries by convert_case.
-    let base = "RecordLink";
-    let fn_name = format!("{}EncodeWithContext", base.to_case(Case::Camel));
-    assert_eq!(fn_name, "recordLinkEncodeWithContext");
-}
-
-#[test]
 fn test_rename_all_camel_case() {
     assert_eq!(RenameAll::CamelCase.apply("user_name"), "userName");
     assert_eq!(RenameAll::CamelCase.apply("created_at"), "createdAt");

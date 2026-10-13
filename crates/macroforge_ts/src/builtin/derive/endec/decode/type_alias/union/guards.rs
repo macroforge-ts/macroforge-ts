@@ -5,6 +5,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::common::function_prefix;
 use convert_case::{Case, Casing};
 
 /// One guard per inline variant: internally tagged objects, `{ tag } & Type`
@@ -19,7 +20,7 @@ pub(super) fn variant_guards(u: &Union) -> TsStream {
         tag_field,
         ..
     } = u;
-    let camel_name = type_name.to_case(Case::Camel);
+    let camel_name = function_prefix(type_name);
     let mut guards: Vec<TsStream> = Vec::new();
 
     // Internally tagged inline object variants: discriminate by the tag

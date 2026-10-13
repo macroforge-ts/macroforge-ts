@@ -2,7 +2,7 @@
 //! type. The value is viewed as an object whose fields the regular field
 //! decoders handle, so each element decodes by its own type.
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
@@ -36,10 +36,10 @@ pub(super) fn tuple_view(
     let layout = tuple_layout(alias, elements)?;
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        alias.type_name.to_case(Case::Camel),
+        function_prefix(alias.type_name),
         alias.generic_decl
     );
-    let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(alias.type_name));
     let decode_context_ident = &alias.decode_context_ident;
     let decode_error_expr = &alias.decode_error_expr;
     let full_type_ident = ts_ident!(alias.full_type_name.as_str());
@@ -130,10 +130,10 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
     }
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        alias.type_name.to_case(Case::Camel),
+        function_prefix(alias.type_name),
         alias.generic_decl
     );
-    let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
+    let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(alias.type_name));
     let decode_context_ident = &alias.decode_context_ident;
     let full_type_ident = ts_ident!(alias.full_type_name.as_str());
     let field_statements = decode_fields(

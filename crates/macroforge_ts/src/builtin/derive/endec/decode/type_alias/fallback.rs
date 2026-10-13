@@ -7,7 +7,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::TypeBody;
 use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::builtin::derive::endec::decode::helpers::type_accepts_string;
 use crate::builtin::derive::endec::get_foreign_types;
@@ -29,15 +29,15 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
         ..
     } = alias;
     // Fallback for other type alias forms (simple alias, tuple, etc.)
-    let fn_decode_ident = ts_ident!("{}Decode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_decode_ident = ts_ident!("{}Decode{}", function_prefix(type_name), generic_decl);
     let fn_decode_internal_ident = ts_ident!(
         "{}DecodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_args
     );
     let fn_decode_internal_expr: Expr = fn_decode_internal_ident.into();
-    let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
-    let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", type_name.to_case(Case::Camel)).into();
+    let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
+    let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", function_prefix(type_name)).into();
     let full_type_ident = ts_ident!(full_type_name);
 
     // Compute return type and wrappers

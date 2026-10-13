@@ -2,7 +2,7 @@
 
 use std::cell::RefCell;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::macros::{ts_macro_derive, ts_template};
@@ -54,7 +54,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             match marked.as_slice() {
                 [variant] => {
                     let variant_name = &variant.name;
-                    let fn_name_ident = ts_ident!("{}DefaultValue", enum_name.to_case(Case::Camel));
+                    let fn_name_ident = ts_ident!("{}DefaultValue", function_prefix(enum_name));
                     let enum_expr: Expr = ts_ident!(enum_name).into();
                     let variant_ident = ts_ident!(variant_name.as_str());
                     Ok(ts_template! {

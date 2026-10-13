@@ -6,7 +6,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::builtin::derive::endec::decode::helpers::{
     Reported, decoded_keyword_test, decoded_keyword_test_leaving,
@@ -37,7 +37,7 @@ pub(super) fn handle_primitive_type_alias(
         full_type_name,
         ..
     } = alias;
-    let camel = type_name.to_case(Case::Camel);
+    let camel = function_prefix(type_name);
     let fn_decode_ident = ts_ident!("{}Decode{}", camel, generic_decl);
     let fn_decode_expr: Expr = ts_ident!("{}Decode", camel).into();
     let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext{}", camel, generic_decl);

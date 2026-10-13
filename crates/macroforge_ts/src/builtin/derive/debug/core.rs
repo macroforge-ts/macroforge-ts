@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
@@ -83,7 +83,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            let fn_name_ident = ts_ident!("{}ToString", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}ToString", function_prefix(enum_name));
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{enum_ident.clone()}): string {
                     {#if !members.is_empty()}

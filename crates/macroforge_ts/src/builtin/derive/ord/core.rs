@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::{Expr, Ident};
 use crate::builtin::derive::common::TypeNames;
@@ -96,7 +96,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let fn_name_ident = ts_ident!("{}Compare", enum_name.to_case(Case::Camel));
+            let fn_name_ident = ts_ident!("{}Compare", function_prefix(enum_name));
             let value_kinds = EnumValueKinds::of(enum_data.variants());
 
             Ok(ts_template! {

@@ -2,7 +2,7 @@
 
 use std::cell::RefCell;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::literal::decode_literal_default;
 use crate::builtin::derive::common::undefaultable;
@@ -324,12 +324,7 @@ fn wrap_string_for_tagged_union(
             .trim_matches('\'');
         if lit == variant_name {
             return Some(if let Some(p) = payload_type {
-                let camel = p
-                    .split('<')
-                    .next()
-                    .unwrap_or(&p)
-                    .trim()
-                    .to_case(Case::Camel);
+                let camel = function_prefix(p.split('<').next().unwrap_or(&p).trim());
                 let (tag, variant) = (js_string(&tag), js_string(variant_name));
                 let payload_default = ts_ident!("{}DefaultValue", camel);
                 rendered(ts_template! { ({ @{tag}: @{variant}, ...@{payload_default}() }) })

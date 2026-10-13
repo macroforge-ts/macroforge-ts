@@ -6,7 +6,7 @@ use crate::ts_syn::abi::ir::TypeParamIR;
 use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use super::super::text::encoded_text_helper;
 use super::AliasEncode;
@@ -34,10 +34,10 @@ pub(super) fn encode_primitive_alias(
             .and_then(|foreign| foreign.handler_callee(ForeignHandler::Encode))
             .map(|callee| Expr::parse(&callee).expect("foreign encode expression should parse"));
     let generic_decl = TypeParamIR::declare_all(type_params);
-    let fn_encode_decl = ts_ident!("{}Encode{}", type_name.to_case(Case::Camel), generic_decl);
+    let fn_encode_decl = ts_ident!("{}Encode{}", function_prefix(type_name), generic_decl);
     let fn_encode_internal_decl = ts_ident!(
         "{}EncodeWithContext{}",
-        type_name.to_case(Case::Camel),
+        function_prefix(type_name),
         generic_decl
     );
     let encoded_text = encoded_text_helper();

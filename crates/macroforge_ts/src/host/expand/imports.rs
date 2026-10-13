@@ -88,7 +88,7 @@ pub(super) fn external_type_function_import_patches(
     extra_suffixes: &[String],
     extra_type_suffixes: &[String],
 ) -> Vec<Patch> {
-    use convert_case::{Case, Casing};
+    use crate::builtin::derive::common::function_prefix;
 
     let identifiers = Identifiers::of(tokens);
 
@@ -116,11 +116,11 @@ pub(super) fn external_type_function_import_patches(
         } else {
             type_name.as_str()
         };
-        let camel = base_type.to_case(Case::Camel);
+        let camel = function_prefix(base_type);
         let exported_type = exported_names
             .get(base_type)
             .map_or(base_type, String::as_str);
-        let exported_camel = exported_type.to_case(Case::Camel);
+        let exported_camel = function_prefix(exported_type);
 
         // Built-in suffixes from core macros (Default, Encode, Decode, etc.)
         // These are always camelCase value references (function calls).

@@ -2,7 +2,7 @@
 
 mod union;
 
-use convert_case::{Case, Casing};
+use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::{DefaultFieldOptions, rendered};
@@ -157,7 +157,7 @@ fn fallback_default(
     };
 
     if let Some(default_variant) = default_value {
-        let fn_name_ident = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
+        let fn_name_ident = ts_ident!("{}DefaultValue", function_prefix(type_name));
         let return_expr = Expr::parse(&default_variant).map_err(|err| {
             MacroforgeError::new(
                 input.decorator_span(),
