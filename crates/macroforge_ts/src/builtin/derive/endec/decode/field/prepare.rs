@@ -81,6 +81,14 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
             }
             Some(Err(_)) | None => resolved_ts_type,
         };
+    for spec in &opts.validators {
+        if let Some(misapplied) = spec.validator.misapplied_to(&resolved_ts_type) {
+            diagnostics.error(
+                field.span,
+                format!("@derive(Decode): field '{}': {misapplied}", field.name),
+            );
+        }
+    }
     if opts.decode_with.is_none()
         && let Some(reason) = crate::builtin::derive::endec::uncodable::uncodable(&resolved_ts_type)
     {

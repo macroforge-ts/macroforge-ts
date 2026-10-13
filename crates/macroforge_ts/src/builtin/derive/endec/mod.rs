@@ -87,7 +87,10 @@
 //!
 //! ## Validation
 //!
-//! The Decode macro supports 40+ validators for runtime validation:
+//! The Decode macro supports 40+ validators for runtime validation. A name in
+//! `@endec(...)` that is neither an option nor a validator is an expansion
+//! error, as is a validator on a field whose type is plainly of another kind
+//! than it checks: `email` on a `number`, `positive` on a `string[]`.
 //!
 //! ### String Validators
 //! - `email` - Valid email format

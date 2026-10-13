@@ -78,6 +78,15 @@ pub(super) fn handle_primitive_type_alias(
         }))
     };
 
+    if let Some(misapplied) = validators
+        .iter()
+        .find_map(|spec| spec.validator.misapplied_to(primitive))
+    {
+        return Err(MacroforgeError::new(
+            alias.type_alias.inner.span,
+            format!("@derive(Decode): type '{type_name}': {misapplied}"),
+        ));
+    }
     let has_validators = !validators.is_empty();
     let validation_code = generate_field_validations(
         validators,

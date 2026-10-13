@@ -1,8 +1,8 @@
 //! Reading validators out of `@endec(...)` decorator arguments.
 
-use super::ValidatorSpec;
 use super::parse::{parse_validator_object, parse_validator_string};
 use super::suggest::KNOWN_VALIDATORS;
+use super::{ValidatorParseError, ValidatorSpec};
 use crate::builtin::derive::common::parse_string_literal;
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
 
@@ -22,6 +22,12 @@ pub(super) const KNOWN_OPTIONS: &[&str] = &[
     "encodeWith",
     "decodeWith",
     "format",
+    "renameAll",
+    "denyUnknownFields",
+    "tag",
+    "content",
+    "untagged",
+    "externallyTagged",
 ];
 
 /// Extract validators from decorator arguments with diagnostic collection
@@ -108,6 +114,15 @@ pub fn extract_validators(
                         diagnostics.error(decorator_span, format!("{}: {}", subject, err.message));
                     }
                 }
+            }
+        } else {
+            // A name that is neither an option nor a validator would
+            // otherwise check nothing, as a misspelled validator does.
+            let unknown = ValidatorParseError::unknown_validator(base_name);
+            let message = format!("{subject}: unknown option or validator '{base_name}'");
+            match unknown.help {
+                Some(help) => diagnostics.error_with_help(decorator_span, message, help),
+                None => diagnostics.error(decorator_span, message),
             }
         }
     }
