@@ -2071,15 +2071,16 @@ impl MacroExpander {
         // Emit all generated imports from the registry (namespace + type-only)
         let import_block =
             crate::host::import_registry::with_registry(|r| r.emit_generated_imports());
-        if !import_block.is_empty() {
-            code = format!("{}{}", import_block, code);
-        }
+        // The imports go below what has to stay first in the file: a `#!`
+        // line, `"use client"`, a `/// <reference>`.
+        let imports_at = crate::ts_syn::preamble_end(&code);
+        code.insert_str(imports_at, &import_block);
 
         let source_mapping = prepass_mapping
             .map_or(runtime_result.mapping.clone(), |mapping| {
                 mapping.compose(&runtime_result.mapping)
             })
-            .with_prefix(import_block.len() as u32, "imports");
+            .with_insertion(imports_at as u32, import_block.len() as u32, "imports");
         let source_mapping = (!source_mapping.is_empty()).then_some(source_mapping);
 
         // Derives that read a declaration alike each report what is wrong

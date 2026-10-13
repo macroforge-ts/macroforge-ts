@@ -100,6 +100,7 @@ pub mod errors;
 pub mod import_registry;
 pub mod jsdoc;
 pub mod lower;
+pub mod preamble;
 mod quote_helpers;
 pub mod stream;
 pub mod type_normalize;
@@ -115,6 +116,7 @@ pub use lower::{
     collect_exported_names, initializer_type, lower_classes, lower_enums, lower_functions,
     lower_interfaces, lower_targets, lower_type_aliases,
 };
+pub use preamble::preamble_end;
 pub use quote_helpers::{
     QuoteArena, ToAssignTargetSource, ToExprSource, ToIdentSource, ToPatSource,
     ToStringLiteralSource, ToTypeSource, assignment_target_to_string, binding_pattern_to_string,
