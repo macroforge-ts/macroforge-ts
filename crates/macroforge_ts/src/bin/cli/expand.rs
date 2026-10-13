@@ -335,7 +335,9 @@ pub(crate) fn expand_file_in_memory(
         )?,
     };
 
-    if !expansion.changed {
+    // An expansion that changed nothing may still have refused something,
+    // as an `@derive` attached to nothing: that is no file without macros.
+    if !expansion.changed && error_count(&expansion) == 0 {
         return Ok(None);
     }
 

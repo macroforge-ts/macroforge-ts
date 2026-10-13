@@ -562,6 +562,45 @@ Deno.test('CLI expand: exits with code 2 when no macros found', () => {
     }
 });
 
+Deno.test('CLI expand: a derive that expands nothing fails, where a file without macros exits 2', () => {
+    setupTmpDir();
+    try {
+        const cases = {
+            'unattached.ts': [
+                '/** @derive(Clone) */\nexport const one = 1;\n',
+                'attached to nothing a derive expands'
+            ],
+            'unnamed.ts': [
+                '/** @derive(Clone) */\nexport default class {\n    x = 0;\n}\n',
+                'class without a name'
+            ],
+            'ambient.d.ts': [
+                '/** @derive(Clone) */\nexport interface Shape {\n    x: number;\n}\n',
+                'is a declaration file'
+            ],
+            'script.js': [
+                '/** @derive(Clone) */\nexport class Point {\n    x = 0;\n}\n',
+                'is a JavaScript file'
+            ],
+            'module.mjs': [
+                '/** @derive(Clone) */\nexport class Point {\n    x = 0;\n}\n',
+                'is a JavaScript file'
+            ]
+        };
+        for (const [name, [source, message]] of Object.entries(cases)) {
+            const input = path.join(tmpDir, name);
+            const out = path.join(tmpDir, `${name}.out`);
+            fs.writeFileSync(input, source);
+            const result = runCli(['expand', input, '--out', out]);
+            assertEquals(result.status, 1, `${name}:\n${result.stderr}`);
+            assert(result.stderr.includes(message), `${name}:\n${result.stderr}`);
+            assert(!existsSync(out), `${name} wrote an expansion`);
+        }
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
 Deno.test('CLI expand: a relative path names the file an absolute one does', () => {
     setupTmpDir();
     try {
