@@ -534,7 +534,7 @@ fn encode_object(
 pub(crate) fn object_shape_test(members: &[InterfaceFieldIR], value: &str) -> String {
     let is_literal = |ts_type: &str| {
         ts_type.starts_with(['"', '\''])
-            || ts_type.parse::<f64>().is_ok()
+            || crate::ts_syn::abi::ir::number_literal(ts_type).is_some()
             || matches!(ts_type, "true" | "false")
     };
     std::iter::once(rendered(ts_template! {
@@ -563,7 +563,7 @@ pub(crate) fn object_shape_test(members: &[InterfaceFieldIR], value: &str) -> St
 pub(crate) fn raw_shape_test(members: &[InterfaceFieldIR], value: &str) -> String {
     let is_literal = |ts_type: &str| {
         ts_type.starts_with(['"', '\''])
-            || ts_type.parse::<f64>().is_ok()
+            || crate::ts_syn::abi::ir::number_literal(ts_type).is_some()
             || matches!(ts_type, "true" | "false")
     };
     let holds = endec_helper("holds");
@@ -717,8 +717,11 @@ fn map_key(key_type: &str, scope: &TypeScope<'_>) -> Result<MapKey, String> {
     let literal_base = |member: &str| {
         if member.starts_with(['"', '\'', '`']) {
             Some(KeyBase::Text)
-        } else if member.parse::<f64>().is_ok() {
-            Some(KeyBase::Number)
+        } else if let Some(kind) = crate::ts_syn::abi::ir::number_literal(member) {
+            Some(match kind {
+                crate::ts_syn::abi::ir::NumberLiteral::Number => KeyBase::Number,
+                crate::ts_syn::abi::ir::NumberLiteral::BigInt => KeyBase::BigInt,
+            })
         } else {
             match member {
                 "string" => Some(KeyBase::Text),
@@ -1377,8 +1380,9 @@ pub(crate) fn wrapper_over_structure(ts_type: &str) -> Option<Result<String, Str
     ) {
         return None;
     }
-    let is_literal =
-        |member: &str| member.starts_with(['"', '\'']) || member.parse::<f64>().is_ok();
+    let is_literal = |member: &str| {
+        member.starts_with(['"', '\'']) || crate::ts_syn::abi::ir::number_literal(member).is_some()
+    };
     Some(match (base, category) {
         ("NonNullable", _) => Ok(split_top_level_union(inner)
             .unwrap_or_else(|| vec![inner])

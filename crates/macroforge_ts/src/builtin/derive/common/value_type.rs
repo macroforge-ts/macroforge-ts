@@ -157,18 +157,10 @@ fn primitive_keyword(ts_type: &str) -> Option<&'static str> {
         {
             Some("string")
         }
-        _ if ts_type.ends_with('n')
-            && ts_type
-                .trim_end_matches('n')
-                .trim_start_matches('-')
-                .chars()
-                .all(|c| c.is_ascii_digit())
-            && ts_type.len() > 1 =>
-        {
-            Some("bigint")
-        }
-        _ if ts_type.parse::<f64>().is_ok() => Some("number"),
-        _ => None,
+        _ => crate::ts_syn::abi::ir::number_literal(ts_type).map(|kind| match kind {
+            crate::ts_syn::abi::ir::NumberLiteral::Number => "number",
+            crate::ts_syn::abi::ir::NumberLiteral::BigInt => "bigint",
+        }),
     }
 }
 

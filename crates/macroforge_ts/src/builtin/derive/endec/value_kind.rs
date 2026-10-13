@@ -26,16 +26,7 @@ pub(crate) fn is_ts_literal(s: &str) -> bool {
         return true;
     }
 
-    // Very small heuristic: numeric / bigint literals
-    if let Some(digits) = s.strip_suffix('n') {
-        return !digits.is_empty()
-            && digits
-                .chars()
-                .all(|c| c.is_ascii_digit() || c == '_' || c == '-' || c == '+');
-    }
-
-    s.chars()
-        .all(|c| c.is_ascii_digit() || c == '_' || c == '-' || c == '+' || c == '.')
+    crate::ts_syn::abi::ir::number_literal(s).is_some()
 }
 
 pub(crate) fn is_union_of_primitive_like(s: &str) -> bool {

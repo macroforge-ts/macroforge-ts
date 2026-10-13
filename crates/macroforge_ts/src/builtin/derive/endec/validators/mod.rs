@@ -234,7 +234,16 @@ impl Held {
             "string" => Self::Text,
             _ if quoted => Self::Text,
             "number" => Self::Number,
-            _ if member.parse::<f64>().is_ok() => Self::Number,
+            _ if crate::ts_syn::abi::ir::number_literal(member)
+                == Some(crate::ts_syn::abi::ir::NumberLiteral::Number) =>
+            {
+                Self::Number
+            }
+            _ if crate::ts_syn::abi::ir::number_literal(member)
+                == Some(crate::ts_syn::abi::ir::NumberLiteral::BigInt) =>
+            {
+                Self::BigInt
+            }
             "boolean" | "true" | "false" => Self::Boolean,
             "bigint" => Self::BigInt,
             _ => match super::TypeCategory::from_ts_type(member) {

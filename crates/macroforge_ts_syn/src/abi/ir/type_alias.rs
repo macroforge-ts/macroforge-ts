@@ -327,6 +327,57 @@ pub fn typeof_primitive(name: &str) -> Option<&str> {
     matches!(trimmed, "string" | "number" | "boolean" | "bigint").then_some(trimmed)
 }
 
+/// Which kind of number a literal type is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NumberLiteral {
+    Number,
+    BigInt,
+}
+
+/// Whether a letter is a digit of a radix.
+type DigitTest = fn(&char) -> bool;
+
+/// The kind of number `text` is as a literal type, written as TypeScript
+/// writes one: `-1`, `1_000`, `0x10`, `1e3`, and a bigint with an `n` behind
+/// it. `None` for anything else, the words a float parser takes for a
+/// number (`inf`, `nan`) among them, which name types.
+pub fn number_literal(text: &str) -> Option<NumberLiteral> {
+    let text = text.trim();
+    let unsigned = text.strip_prefix('-').map_or(text, str::trim_start);
+    let (digits, kind) = match unsigned.strip_suffix('n') {
+        Some(digits) => (digits, NumberLiteral::BigInt),
+        None => (unsigned, NumberLiteral::Number),
+    };
+    // A number starts with a digit or a point: `_1` is a name.
+    if !digits.starts_with(|first: char| first.is_ascii_digit() || first == '.') {
+        return None;
+    }
+    let written_in = |digits: &str, is_digit: DigitTest| {
+        digits.starts_with(|first: char| is_digit(&first))
+            && digits.chars().all(|digit| is_digit(&digit) || digit == '_')
+    };
+    let radixes: [(&str, DigitTest); 3] = [
+        ("0x", char::is_ascii_hexdigit),
+        ("0b", |digit| matches!(digit, '0' | '1')),
+        ("0o", |digit| matches!(digit, '0'..='7')),
+    ];
+    for (prefix, is_digit) in radixes {
+        let lowered = digits.get(..prefix.len()).map(str::to_ascii_lowercase);
+        if lowered.as_deref() == Some(prefix) {
+            let rest = digits.get(prefix.len()..).unwrap_or_default();
+            return written_in(rest, is_digit).then_some(kind);
+        }
+    }
+    let plain: String = digits.chars().filter(|digit| *digit != '_').collect();
+    let is_number = match kind {
+        NumberLiteral::BigInt => written_in(&plain, char::is_ascii_digit),
+        NumberLiteral::Number => {
+            plain.chars().any(|digit| digit.is_ascii_digit()) && plain.parse::<f64>().is_ok()
+        }
+    };
+    is_number.then_some(kind)
+}
+
 /// Whether `name` is a primitive keyword whose values are never objects: a
 /// [`typeof_primitive`], `null` or `undefined`.
 pub fn is_primitive_keyword(name: &str) -> bool {
@@ -509,5 +560,38 @@ impl TypeMember {
         self.decorators
             .iter()
             .any(|d| d.name.eq_ignore_ascii_case(name))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{NumberLiteral, number_literal};
+
+    #[test]
+    fn a_number_literal_is_read_as_typescript_writes_one() {
+        for written in [
+            "0", "-1", "3.14", ".5", "1.", "1e3", "2.5e-1", "1_000", "0x10", "0XfF", "0b11", "0o17",
+        ] {
+            assert_eq!(
+                number_literal(written),
+                Some(NumberLiteral::Number),
+                "{written}"
+            );
+        }
+        for written in ["1n", "-2n", "1_000n", "0x10n"] {
+            assert_eq!(
+                number_literal(written),
+                Some(NumberLiteral::BigInt),
+                "{written}"
+            );
+        }
+        // The words a float parser takes for a number name types, and a
+        // literal starts with a digit.
+        for written in [
+            "inf", "Inf", "nan", "NaN", "infinity", "Infinity", "+1", "n", "-n", "_1", "0x", "0b2",
+            "1.5n", "number", "",
+        ] {
+            assert_eq!(number_literal(written), None, "{written}");
+        }
     }
 }

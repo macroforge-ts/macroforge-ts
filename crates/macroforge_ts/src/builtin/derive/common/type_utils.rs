@@ -451,7 +451,7 @@ fn finite_record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<RecordKey
     let literal_key = |member: &str| {
         let member = member.trim();
         let is_literal = member.starts_with(['"', '\''])
-            || member.parse::<f64>().is_ok()
+            || crate::ts_syn::abi::ir::number_literal(member).is_some()
             || matches!(member, "true" | "false");
         is_literal.then(|| RecordKey::Literal(member.to_string()))
     };
@@ -552,7 +552,7 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
             if (p.starts_with('"') && p.ends_with('"'))
                 || (p.starts_with('\'') && p.ends_with('\''))
                 || (p.starts_with('`') && p.ends_with('`'))
-                || p.parse::<f64>().is_ok()
+                || crate::ts_syn::abi::ir::number_literal(p).is_some()
                 || matches!(p, "true" | "false")
             {
                 return get_type_default_resolved(p, names);
@@ -678,8 +678,8 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         {
             t.to_string()
         }
-        // Number literal types: 42, 3.14
-        t if t.parse::<f64>().is_ok() => t.to_string(),
+        // Number literal types: 42, 3.14, 1_000, 0x10, 1n
+        t if crate::ts_syn::abi::ir::number_literal(t).is_some() => t.to_string(),
         // Boolean literal types
         "true" | "false" => t.to_string(),
         // Unknown types: assume they implement Default trait

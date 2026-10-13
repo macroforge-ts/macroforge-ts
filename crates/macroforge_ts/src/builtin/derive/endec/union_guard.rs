@@ -40,7 +40,7 @@ impl UnionGuard {
             Self::Primitive(keyword) => {
                 let keyword = keyword.trim();
                 let is_literal = keyword.starts_with(['"', '\'', '`'])
-                    || keyword.parse::<f64>().is_ok()
+                    || crate::ts_syn::abi::ir::number_literal(keyword).is_some()
                     || matches!(keyword, "true" | "false");
                 if is_literal {
                     rendered(ts_template! { @{value} === @{keyword} }).into()
