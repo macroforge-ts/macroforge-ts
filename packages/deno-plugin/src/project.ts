@@ -39,6 +39,8 @@ export interface ExpandFileEvent {
     expanded: boolean;
     /** True when the file was skipped because no macro annotations were found. */
     skipped: boolean;
+    /** True when the engine reported an error for the file. Nothing is written for it. */
+    failed: boolean;
     /** Diagnostics emitted by the engine (forwarded for logging). */
     diagnostics: Array<{ level: string; message: string }>;
 }
@@ -108,6 +110,7 @@ export async function expandProject(
                     dest,
                     expanded: false,
                     skipped: true,
+                    failed: false,
                     diagnostics: []
                 };
                 events.push(event);
@@ -120,14 +123,20 @@ export async function expandProject(
                 projectRoot: root
             });
 
-            await ensureDir(path.dirname(dest));
-            await Deno.writeTextFile(dest, result.code);
+            // Code a macro reported an error in is not written, as a compile
+            // error writes none.
+            const failed = result.diagnostics.some((diag) => diag.level === 'error');
+            if (!failed) {
+                await ensureDir(path.dirname(dest));
+                await Deno.writeTextFile(dest, result.code);
+            }
 
             const event: ExpandFileEvent = {
                 source,
                 dest,
-                expanded: result.hasMacros,
+                expanded: result.hasMacros && !failed,
                 skipped: false,
+                failed,
                 diagnostics: result.diagnostics
             };
             events.push(event);
@@ -185,14 +194,18 @@ export async function watchProject(
                         ...resident.options,
                         projectRoot: root
                     });
-                    await ensureDir(path.dirname(dest));
-                    await Deno.writeTextFile(dest, result.code);
+                    const failed = result.diagnostics.some((diag) => diag.level === 'error');
+                    if (!failed) {
+                        await ensureDir(path.dirname(dest));
+                        await Deno.writeTextFile(dest, result.code);
+                    }
 
                     options.onFile?.({
                         source: changed,
                         dest,
-                        expanded: result.hasMacros,
+                        expanded: result.hasMacros && !failed,
                         skipped: false,
+                        failed,
                         diagnostics: result.diagnostics
                     });
                 } catch (error) {
