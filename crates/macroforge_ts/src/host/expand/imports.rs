@@ -77,11 +77,14 @@ pub(super) fn check_builtin_import_warnings(
 /// `tokens` calls. The generated code names such a function after the type
 /// as the file names it; `exported_names` gives the name its module exports
 /// it under where that differs (`import { User as Member }`), which is the
-/// name its functions carry there.
+/// name its functions carry there. `project_types` names the imported types
+/// the project declares: theirs are imported however the module is written
+/// (`@/types/user`), where a package's type has none to import.
 pub(super) fn external_type_function_import_patches(
     tokens: &str,
     import_sources: &HashMap<String, String>,
     exported_names: &HashMap<String, String>,
+    project_types: &std::collections::HashSet<String>,
     extra_suffixes: &[String],
     extra_type_suffixes: &[String],
 ) -> Vec<Patch> {
@@ -95,9 +98,13 @@ pub(super) fn external_type_function_import_patches(
         Default::default();
 
     for (type_name, module_src) in import_sources {
-        // For now, only add external imports for relative module specifiers.
-        // This matches the common `./foo` / `../foo` patterns for sharing types across files.
-        if !module_src.starts_with('.') && !module_src.starts_with('$') {
+        // A relative or `$` specifier names a module of the project. Any
+        // other may name a package, unless the project is known to declare
+        // the type it brings in.
+        if !module_src.starts_with('.')
+            && !module_src.starts_with('$')
+            && !project_types.contains(type_name)
+        {
             continue;
         }
 

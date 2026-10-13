@@ -1,6 +1,6 @@
 use super::super::imports::external_type_function_import_patches;
 use crate::host::import_registry::{clear_registry, with_registry};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 fn make_import_sources(entries: &[(&str, &str)]) -> HashMap<String, String> {
     entries
@@ -33,8 +33,14 @@ fn generates_builtin_suffix_imports() {
     let tokens = "const val = companyNameDefaultValue();";
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &HashSet::new(),
+        &[],
+        &[],
+    );
     assert!(patches.is_empty(), "registry path returns no patches");
 
     let generated = snapshot_generated();
@@ -56,6 +62,7 @@ fn generates_extra_suffix_imports() {
         tokens,
         &import_sources,
         &HashMap::new(),
+        &HashSet::new(),
         &extra,
         &[],
     );
@@ -73,8 +80,14 @@ fn no_import_when_suffix_not_registered() {
     let tokens = "const fields = companyNameGetFields();";
     let import_sources = make_import_sources(&[("CompanyName", "./account.svelte")]);
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &HashSet::new(),
+        &[],
+        &[],
+    );
     assert!(patches.is_empty());
     assert!(snapshot_generated().is_empty());
 }
@@ -88,8 +101,14 @@ fn skips_already_imported_identifiers() {
         ("companyNameDefaultValue", "./account.svelte"),
     ]);
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &HashSet::new(),
+        &[],
+        &[],
+    );
     assert!(patches.is_empty());
     // The identifier is already present in source imports, so the
     // registry should not be asked to generate it.
@@ -108,10 +127,44 @@ fn skips_non_relative_module_specifiers() {
     let tokens = "const val = companyNameDefaultValue();";
     let import_sources = make_import_sources(&[("CompanyName", "some-package")]);
 
-    let patches =
-        external_type_function_import_patches(tokens, &import_sources, &HashMap::new(), &[], &[]);
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &HashSet::new(),
+        &[],
+        &[],
+    );
     assert!(patches.is_empty());
     assert!(snapshot_generated().is_empty());
+}
+
+/// A type the project declares has functions to import by whatever path its
+/// module is written, a `paths` alias that reads like a package included.
+#[test]
+fn a_project_type_under_a_path_alias_has_its_functions_imported() {
+    clear_registry();
+    let tokens = "const val = companyNameDefaultValue();";
+    let import_sources = make_import_sources(&[("CompanyName", "@/types/company")]);
+    let project_types = HashSet::from(["CompanyName".to_string()]);
+
+    let patches = external_type_function_import_patches(
+        tokens,
+        &import_sources,
+        &HashMap::new(),
+        &project_types,
+        &[],
+        &[],
+    );
+    assert!(patches.is_empty());
+    assert_eq!(
+        snapshot_generated(),
+        vec![(
+            "companyNameDefaultValue".to_string(),
+            "@/types/company".to_string(),
+            false
+        )]
+    );
 }
 
 #[test]
@@ -128,6 +181,7 @@ fn multiple_extra_suffixes_all_resolve() {
         tokens,
         &import_sources,
         &HashMap::new(),
+        &HashSet::new(),
         &extra,
         &[],
     );
@@ -152,6 +206,7 @@ fn extra_suffix_only_matches_when_referenced_in_tokens() {
         tokens,
         &import_sources,
         &HashMap::new(),
+        &HashSet::new(),
         &extra,
         &[],
     );
@@ -179,6 +234,7 @@ fn generates_pascal_case_type_imports() {
         tokens,
         &import_sources,
         &HashMap::new(),
+        &HashSet::new(),
         &[],
         &type_suffixes,
     );
@@ -211,6 +267,7 @@ fn pascal_case_type_imports_skip_already_imported() {
         tokens,
         &import_sources,
         &HashMap::new(),
+        &HashSet::new(),
         &[],
         &type_suffixes,
     );
@@ -238,6 +295,7 @@ fn mixed_camel_and_pascal_imports() {
         tokens,
         &import_sources,
         &HashMap::new(),
+        &HashSet::new(),
         &extra,
         &type_suffixes,
     );
@@ -270,6 +328,7 @@ fn a_renamed_import_brings_its_functions_under_the_exported_name() {
         tokens,
         &import_sources,
         &exported_names,
+        &HashSet::new(),
         &[],
         &type_suffixes,
     );

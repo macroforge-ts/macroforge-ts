@@ -1663,10 +1663,23 @@ impl MacroExpander {
                             .into_iter()
                             .filter(|(_, exported)| !matches!(exported.as_str(), "default" | "*"))
                             .collect();
+                        // A type the registry holds is the project's own,
+                        // by whatever path the file imports it.
+                        let file_imports = ctx.import_registry.file_import_entries();
+                        let project_types: std::collections::HashSet<String> = import_sources
+                            .keys()
+                            .filter(|name| {
+                                self.type_registry
+                                    .resolve_in_file(name, &ctx.file_name, &file_imports)
+                                    .is_some()
+                            })
+                            .cloned()
+                            .collect();
                         let external_imports = external_type_function_import_patches(
                             tokens,
                             &import_sources,
                             &exported_names,
+                            &project_types,
                             &result.cross_module_suffixes,
                             &result.cross_module_type_suffixes,
                         );
