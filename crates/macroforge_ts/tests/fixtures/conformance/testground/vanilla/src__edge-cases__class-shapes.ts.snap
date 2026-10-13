@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/class-shapes.ts
-sha256 ed569e3a2d78634121213a043c91ddd29b379a4bede4f2b6142d8398d6481399
+sha256 4491058859c22c71d024abe46058944b1fcaac67177fa80fa0c9cb9679d32723
 
 ## Changed
 
@@ -3892,6 +3892,324 @@ export const ClassAccount: {
   is: classAccountIs
 };
 
+/** A base that leaves a field for its subclasses to give. */
+export abstract class ClassShapeBase {
+    abstract kind: string;
+    id: string = '';
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class ClassCircle extends ClassShapeBase {
+    kind: string = 'circle';
+    radius: number = 1;
+
+    static override toString(value: ClassCircle): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("kind: " + String(value.kind));
+        parts.push("id: " + String(value.id));
+        parts.push("radius: " + String(value.radius));
+            return "ClassCircle { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: ClassCircle): ClassCircle {
+        return __mf_clonedWith(value, () => ({
+        	kind: value.kind,
+        	id: value.id,
+        	radius: value.radius
+        }));
+    }
+
+    static equals(a: ClassCircle, b: ClassCircle): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => a.kind === b.kind && a.id === b.id && (a.radius === b.radius || a.radius !== a.radius && b.radius !== b.radius));
+    }
+
+    static hashCode(value: ClassCircle): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.kind ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.radius) ? value.radius | 0 : value.radius.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+    static defaultValue(): ClassCircle {
+        const fields: { kind: string; id: string; radius: number } = {
+            kind: "circle",
+            id: "",
+            radius: 1,
+        };
+        return __mf_instanceOf(ClassCircle.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: ClassCircle, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassCircle" });
+    ClassCircle.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<ClassCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ClassCircle" };
+        ClassCircle.#encodeFields(value as ClassCircle, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: ClassCircle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("kind")) {
+        if (value.kind !== undefined) {
+            result["kind"] = value.kind;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("radius")) {
+        if (value.radius !== undefined) {
+            result["radius"] = value.radius;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: ClassCircle, keepMetadata?: boolean): string {
+        return classCircleEncode(value, keepMetadata);
+    }
+
+constructor(props: { kind: string; id: string; radius: number }) {
+    super();
+    this.kind = props.kind;
+    this.id = props.id;
+    this.radius = props.radius;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = ClassCircle.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ClassCircle.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassCircle | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassCircle> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ClassCircle> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ClassCircle.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ClassCircle.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ClassCircle") as ClassCircle | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ClassCircle.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
+        errors.push({ field: "kind", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
+        errors.push({ field: "radius", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(ClassCircle.prototype);
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassCircle");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+        const __raw_kind = obj["kind"] as string;
+
+        if (!(typeof __raw_kind === "string")) {
+            errors.push({ field: "kind", message: __raw_kind == null ? "ClassCircle.kind is required" : "expected string" });
+        } else {
+            instance.kind = __raw_kind;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "ClassCircle.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
+        const __raw_radius = obj["radius"] as number;
+
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
+            errors.push({ field: "radius", message: __raw_radius == null ? "ClassCircle.radius is required" : "expected number" });
+        } else {
+            instance.radius = __raw_radius;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof ClassCircle>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof ClassCircle]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "kind") && __mf_holds(obj, "id") && __mf_holds(obj, "radius");
+}
+
+static is(obj: unknown): obj is ClassCircle {
+    if (obj instanceof ClassCircle) {
+        return true;
+    }
+    if (!ClassCircle.hasShape(obj)) {
+        return false;
+    }
+    const result = ClassCircle.decode(obj);
+    return result.success;
+}
+}
+
+export function classCircleToString(value: ClassCircle): string {
+    return ClassCircle.toString(value);
+}
+
+export function classCircleClone(value: ClassCircle): ClassCircle {
+    return ClassCircle.clone(value);
+}
+
+export function classCircleEquals(a: ClassCircle, b: ClassCircle): boolean {
+    return ClassCircle.equals(a, b);
+}
+
+export function classCircleHashCode(value: ClassCircle): number {
+    return ClassCircle.hashCode(value);
+}
+
+export function classCircleDefaultValue(): ClassCircle {
+    return ClassCircle.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function classCircleEncode(value: ClassCircle, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = classCircleEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function classCircleEncodeWithContext(value: ClassCircle, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return ClassCircle.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function classCircleEncodePartialWithContext(value: Partial<ClassCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Record<string, unknown> {
+    return ClassCircle.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function classCircleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassCircle } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ClassCircle.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function classCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassCircle | __mf_PendingRef {
+    return ClassCircle.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function classCircleHasShape(value: unknown): boolean {
+    return ClassCircle.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function classCircleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Partial<ClassCircle> | __mf_PendingRef {
+    return ClassCircle.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function classCircleIs(value: unknown): value is ClassCircle {
+    return ClassCircle.is(value);
+}
+
 ## DTS
 
 /**
@@ -4760,6 +5078,88 @@ export declare const ClassAccount: {
 	readonly hasShape: typeof classAccountHasShape;
 	readonly is: typeof classAccountIs;
 };
+/** A base that leaves a field for its subclasses to give. */
+export declare abstract class ClassShapeBase {
+	abstract kind: string;
+	id: string;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class ClassCircle extends ClassShapeBase {
+	#private;
+	kind: string;
+	radius: number;
+	static override toString(value: ClassCircle): string;
+	static clone(value: ClassCircle): ClassCircle;
+	static equals(a: ClassCircle, b: ClassCircle): boolean;
+	static hashCode(value: ClassCircle): number;
+	static defaultValue(): ClassCircle;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: ClassCircle, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<ClassCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: ClassCircle, keepMetadata?: boolean): string;
+	constructor(props: {
+		kind: string;
+		id: string;
+		radius: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ClassCircle;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassCircle | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassCircle> | __mf_PendingRef;
+	static validateField<K extends keyof ClassCircle>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof ClassCircle]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is ClassCircle;
+}
+export declare function classCircleToString(value: ClassCircle): string;
+export declare function classCircleClone(value: ClassCircle): ClassCircle;
+export declare function classCircleEquals(a: ClassCircle, b: ClassCircle): boolean;
+export declare function classCircleHashCode(value: ClassCircle): number;
+export declare function classCircleDefaultValue(): ClassCircle;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function classCircleEncode(value: ClassCircle, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function classCircleEncodeWithContext(value: ClassCircle, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function classCircleEncodePartialWithContext(value: Partial<ClassCircle>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function classCircleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ClassCircle;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function classCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassCircle | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function classCircleHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function classCircleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ClassCircle>): Partial<ClassCircle> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function classCircleIs(value: unknown): value is ClassCircle;
 
 ## Diagnostics
 
@@ -4792,7 +5192,9 @@ original 3464..3465 -> expanded 141585..141586
 original 3465..3604 -> expanded 142162..142301
 original 3604..3722 -> expanded 153242..153360
 original 3722..3902 -> expanded 163490..163670
-original 3902..3903 -> expanded 177214..177215
+original 3902..4230 -> expanded 177214..177542
+original 4230..4231 -> expanded 187775..187776
+original 4231..4232 -> expanded 191515..191516
 generated 0..1252 <- imports
 generated 2188..2724 <- Debug
 generated 2724..3074 <- Clone
@@ -4970,6 +5372,21 @@ generated 165329..165496 <- Default
 generated 165496..168166 <- Encode
 generated 168166..175716 <- Decode
 generated 175716..177214 <- __convenience_const
+generated 177542..177926 <- Debug
+generated 177926..178125 <- Clone
+generated 178125..178385 <- PartialEq
+generated 178385..178978 <- Hash
+generated 178978..179242 <- Default
+generated 179242..181124 <- Encode
+generated 181124..181453 <- Encode
+generated 181453..187775 <- Decode
+generated 187776..187885 <- Debug
+generated 187885..187993 <- Clone
+generated 187993..188110 <- PartialEq
+generated 188110..188219 <- Hash
+generated 188219..188318 <- Default
+generated 188318..189688 <- Encode
+generated 189688..191515 <- Decode
 
 ## Metadata
 
@@ -4985,6 +5402,8 @@ class ClassAbstract: {"body_span":{"end":2556,"start":2493},"decorators":[{"args
 class ClassHolder: {"body_span":{"end":2827,"start":2654},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2628,"start":2558}}],"fields":[{"accessor":false,"decorators":[],"initializer":"ClassMembers.defaultValue()","key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2709,"start":2660},"ts_type":"ClassMembers","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":2741,"start":2714},"ts_type":"ClassMembers[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2789,"start":2746},"ts_type":"Map<string, ClassBase>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2825,"start":2794},"ts_type":"ClassBase | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ClassHolder","span":{"end":2827,"start":2636},"superclass":null,"type_params":[]}
 class ClassInferred: {"body_span":{"end":3307,"start":2927},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2899,"start":2829}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2943,"start":2933},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'none'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":2963,"start":2948},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"false","key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":2983,"start":2968},"ts_type":"boolean","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"10n","key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":2998,"start":2988},"ts_type":"bigint","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"-1","key":"Named","name":"offset","optional":false,"readonly":false,"span":{"end":3015,"start":3003},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"`n${1}`","key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":3035,"start":3020},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Date(0)","key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3057,"start":3040},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set<string>()","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":3087,"start":3062},"ts_type":"Set<string>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0.5 as number","key":"Named","name":"ratio","optional":false,"readonly":false,"span":{"end":3114,"start":3092},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'inferred'","key":"Named","name":"kind","optional":false,"readonly":true,"span":{"end":3146,"start":3119},"ts_type":"'inferred'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"3","key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":3169,"start":3151},"ts_type":"3","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3210,"start":3196},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"7","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":3238,"start":3220},"ts_type":"number","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":3247,"start":3245},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id = '',\n        private secret = 7","return_type_src":"","span":{"end":3247,"start":3175},"type_params":[],"visibility":"Public"},{"body_span":{"end":3305,"start":3270},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"number","span":{"end":3305,"start":3253},"type_params":[],"visibility":"Public"}],"name":"ClassInferred","span":{"end":3307,"start":2907},"superclass":null,"type_params":[]}
 class ClassCallback: {"body_span":{"end":3466,"start":3391},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":3363,"start":3309}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3415,"start":3397},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"() => {}","key":"Named","name":"onChange","optional":false,"readonly":false,"span":{"end":3464,"start":3420},"ts_type":"(name: string) => void","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ClassCallback","span":{"end":3466,"start":3371},"superclass":null,"type_params":[]}
+class ClassShapeBase: {"body_span":{"end":4055,"start":4004},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4032,"start":4010},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":4053,"start":4037},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":true,"is_declare":false,"methods":[],"name":"ClassShapeBase","span":{"end":4055,"start":3974},"superclass":null,"type_params":[]}
+class ClassCircle: {"body_span":{"end":4232,"start":4176},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":4127,"start":4057}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'circle'","key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4206,"start":4182},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":4230,"start":4211},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["ClassShapeBase"],"is_abstract":false,"is_declare":false,"methods":[],"name":"ClassCircle","span":{"end":4232,"start":4135},"superclass":"ClassShapeBase","type_params":[]}
 interface ClassEntity: {"body_span":{"end":3605,"start":3568},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3538,"start":3468}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3585,"start":3574},"ts_type":"string"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3603,"start":3590},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":3605,"start":3546},"type_params":[]}
 interface ClassDated: {"body_span":{"end":3723,"start":3706},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3677,"start":3607}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3721,"start":3712},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":3723,"start":3685},"type_params":[]}
 interface ClassAccount: {"body_span":{"end":3903,"start":3858},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3795,"start":3725}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3880,"start":3864},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3901,"start":3885},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3903,"start":3803},"type_params":[]}
@@ -5000,6 +5419,7 @@ Name("ClassDated")
 Name("ClassEntity")
 Name("ClassMembers")
 Name("ClassOwnStatic")
+Name("ClassShapeBase")
 Name("Date")
 Name("EdgeItem")
 Name("Map")

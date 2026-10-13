@@ -149,3 +149,15 @@ export interface ClassAccount extends ClassEntity, ClassDated {
     kind: 'account';
     balance: number;
 }
+
+/** A base that leaves a field for its subclasses to give. */
+export abstract class ClassShapeBase {
+    abstract kind: string;
+    id: string = '';
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class ClassCircle extends ClassShapeBase {
+    kind: string = 'circle';
+    radius: number = 1;
+}

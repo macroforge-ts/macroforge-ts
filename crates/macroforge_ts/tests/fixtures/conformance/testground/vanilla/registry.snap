@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (420)
+## Types (422)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -55,6 +55,7 @@ ClassAccessors ec7110a09e9c4814
 ClassAccount d1effb4279f85a6c
 ClassBase ed12be86ef275e30
 ClassCallback 0294b6e34accad04
+ClassCircle 84e539fc2ac05c4b
 ClassConstructed 18c1aecbc0769e5a
 ClassDated f0db8af065de7263
 ClassDerived f2226611afd50239
@@ -66,6 +67,7 @@ ClassMembers 661c5e9f8e6585bc
 ClassOverStatic 69c528d232e523b9
 ClassOwnStatic 1de6e44e707f5e7b
 ClassParameters 3a4b51d11a401306
+ClassShapeBase b4259b03e8a1a95f
 Code f20bf1867bd2a709
 CollectionBig 81120bd64f5c8c3c
 CollectionKeys 6d7fe070c24afe51
@@ -424,7 +426,7 @@ Version e26b0a39c845b678
 Wall 901e5f02bdf9c4fc
 point2D 9c3236f9adc43b41
 
-## Qualified types (423)
+## Qualified types (425)
 
 checks/repeated-error.ts::Holder e348868fb978f545
 checks/repeated-error.ts::Plain d98534e25d4536f1
@@ -479,6 +481,7 @@ src/edge-cases/class-shapes.ts::ClassAbstract 89def61fc6d5ccb0
 src/edge-cases/class-shapes.ts::ClassAccount d1effb4279f85a6c
 src/edge-cases/class-shapes.ts::ClassBase ed12be86ef275e30
 src/edge-cases/class-shapes.ts::ClassCallback 0294b6e34accad04
+src/edge-cases/class-shapes.ts::ClassCircle 84e539fc2ac05c4b
 src/edge-cases/class-shapes.ts::ClassConstructed 18c1aecbc0769e5a
 src/edge-cases/class-shapes.ts::ClassDated f0db8af065de7263
 src/edge-cases/class-shapes.ts::ClassDerived f2226611afd50239
@@ -490,6 +493,7 @@ src/edge-cases/class-shapes.ts::ClassMembers 661c5e9f8e6585bc
 src/edge-cases/class-shapes.ts::ClassOverStatic 69c528d232e523b9
 src/edge-cases/class-shapes.ts::ClassOwnStatic 1de6e44e707f5e7b
 src/edge-cases/class-shapes.ts::ClassParameters 3a4b51d11a401306
+src/edge-cases/class-shapes.ts::ClassShapeBase b4259b03e8a1a95f
 src/edge-cases/collection-shapes.ts::CollectionBig 81120bd64f5c8c3c
 src/edge-cases/collection-shapes.ts::CollectionKeys 6d7fe070c24afe51
 src/edge-cases/collection-shapes.ts::CollectionKind d4fc3b30d99543e8

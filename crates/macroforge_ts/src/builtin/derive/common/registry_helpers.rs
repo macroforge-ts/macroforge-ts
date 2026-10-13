@@ -337,14 +337,17 @@ pub fn class_instance_fields(
                 field.name.trim_start_matches('#')
             ));
         }
-        fields.push(match rune_state_type(field) {
-            Some(ts_type) => FieldIR {
-                ts_type,
-                untyped: false,
-                ..field.clone()
+        declare_field(
+            &mut fields,
+            match rune_state_type(field) {
+                Some(ts_type) => FieldIR {
+                    ts_type,
+                    untyped: false,
+                    ..field.clone()
+                },
+                None => field.clone(),
             },
-            None => field.clone(),
-        });
+        );
     }
     if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
         return Err(unnamed_member_message(&unnamed.name, &class.name));
@@ -400,9 +403,19 @@ fn superclass_fields(
                 field.name
             ));
         }
-        fields.push(field.clone());
+        declare_field(&mut fields, field.clone());
     }
     Ok(fields)
+}
+
+/// Adds `field` to the fields of a class: in the place of the one of its
+/// name a superclass declared, which a class declares again to say more of
+/// it (`abstract kind: string` and then `kind = "circle"`), or after them.
+fn declare_field(fields: &mut Vec<FieldIR>, field: FieldIR) {
+    match fields.iter_mut().find(|known| known.name == field.name) {
+        Some(known) => *known = field,
+        None => fields.push(field),
+    }
 }
 
 /// Every field a value of `interface` has: those of the types it extends,

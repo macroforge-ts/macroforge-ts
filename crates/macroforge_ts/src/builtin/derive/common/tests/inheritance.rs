@@ -107,6 +107,42 @@ fn names(fields: &[FieldIR]) -> Vec<&str> {
     fields.iter().map(|field| field.name.as_str()).collect()
 }
 
+/// A field a class declares again is one field: the subclass's declaration
+/// of it, in the place its superclass gave it.
+#[test]
+fn a_field_a_subclass_declares_again_takes_the_place_of_the_one_it_inherits() {
+    let typed = |name: &str, ts_type: &str| FieldIR {
+        ts_type: ts_type.to_string(),
+        ..field(name, Visibility::Public)
+    };
+    let root = class(
+        "Root",
+        None,
+        vec![typed("kind", "string"), typed("id", "string")],
+    );
+    let middle = class(
+        "Middle",
+        Some("Root"),
+        vec![typed("kind", "'middle' | 'leaf'")],
+    );
+    let leaf = class(
+        "Leaf",
+        Some("Middle"),
+        vec![typed("extra", "number"), typed("kind", "'leaf'")],
+    );
+    let registry = registry_of(vec![
+        TypeDefinitionIR::Class(root),
+        TypeDefinitionIR::Class(middle),
+        TypeDefinitionIR::Class(leaf.clone()),
+    ]);
+    let fields = class_instance_fields(&leaf, declared(&registry)).expect("the fields resolve");
+    assert_eq!(names(&fields), ["kind", "id", "extra"]);
+    assert_eq!(
+        fields.first().map(|field| field.ts_type.as_str()),
+        Some("'leaf'")
+    );
+}
+
 #[test]
 fn a_subclass_holds_its_superclasses_fields_outermost_first() {
     let root = class("Root", None, vec![field("id", Visibility::Public)]);

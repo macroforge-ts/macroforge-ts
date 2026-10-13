@@ -394,3 +394,17 @@ Deno.test('a derived static stands over the one its superclass has', () => {
     assertEquals(copy, derived);
     assert(mod.ClassBase.equals(derived, copy));
 });
+
+Deno.test('a field a subclass declares again is one field of it', () => {
+    const blank = mod.ClassCircle.defaultValue();
+    assert(blank instanceof mod.ClassCircle);
+    assertEquals({ ...blank }, { id: '', kind: 'circle', radius: 1 });
+
+    const encoded = JSON.parse(mod.ClassCircle.encode(blank));
+    assertEquals(encoded, { kind: 'circle', id: '', radius: 1 });
+    const back = mod.ClassCircle.decode({ kind: 'wide', id: 'a', radius: 2 });
+    assert(back.success, JSON.stringify(back.errors));
+    assertEquals({ ...back.value }, { id: 'a', kind: 'wide', radius: 2 });
+    assert(mod.ClassCircle.equals(back.value, mod.ClassCircle.clone(back.value)));
+    assert(mod.ClassCircle.toString(back.value).includes('kind: wide'));
+});
