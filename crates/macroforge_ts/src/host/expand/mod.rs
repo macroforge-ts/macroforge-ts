@@ -2188,29 +2188,41 @@ impl MacroExpander {
     }
 
     fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
-        let max = self.config.max_diagnostics;
-        if max == 0 {
-            diagnostics.clear();
-            return;
-        }
-
-        if diagnostics.len() > max {
-            diagnostics.truncate(max.saturating_sub(1));
-            diagnostics.push(Diagnostic {
-                level: DiagnosticLevel::Warning,
-                message: format!(
-                    "Diagnostic output truncated to {} entries per macro host configuration",
-                    max
-                ),
-                span: None,
-                notes: vec![],
-                help: Some(
-                    "Adjust `limits.maxDiagnostics` in macroforge.config.ts to see all diagnostics"
-                        .to_string(),
-                ),
-            });
-        }
+        limit_diagnostics(diagnostics, self.config.max_diagnostics);
     }
+}
+
+/// Keeps `max` of an expansion's diagnostics at most, the errors ahead of
+/// the rest, and says in the last how many were left out. Whether an
+/// expansion failed is never lost to the limit: a notice that stands for an
+/// error is one.
+pub(crate) fn limit_diagnostics(diagnostics: &mut Vec<Diagnostic>, max: usize) {
+    if diagnostics.len() <= max {
+        return;
+    }
+    let (mut kept, others): (Vec<Diagnostic>, Vec<Diagnostic>) = std::mem::take(diagnostics)
+        .into_iter()
+        .partition(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
+    let errors = kept.len();
+    kept.extend(others);
+    let shown = max.saturating_sub(1);
+    let left_out = kept.len() - shown.min(kept.len());
+    let errors_left_out = errors.saturating_sub(shown);
+    kept.truncate(shown);
+    kept.push(Diagnostic {
+        level: if errors_left_out > 0 {
+            DiagnosticLevel::Error
+        } else {
+            DiagnosticLevel::Warning
+        },
+        message: format!(
+            "{left_out} more diagnostics are not shown, {errors_left_out} of them errors: an expansion reports {max} at most"
+        ),
+        span: None,
+        notes: vec![],
+        help: Some("fix the diagnostics shown, and the rest are shown in their turn".to_string()),
+    });
+    *diagnostics = kept;
 }
 
 impl Default for MacroExpander {
