@@ -64,12 +64,13 @@
 //!
 //! ## Values That Hold Themselves
 //!
-//! `Encode` and `Decode` keep track of the values they have seen: a value
-//! held in several places is written once and read back as one, and a cycle
-//! closes. The other derives walk a value field by field with no such record,
-//! as their Rust counterparts do. A value held twice is copied, compared,
-//! hashed and printed at each place, and one that holds itself overflows the
-//! stack with a `RangeError`.
+//! Every derive knows a value it has met before in the same walk. `Encode`
+//! writes a value held in several places once, and `Decode` reads it back as
+//! one. `Clone` gives the copy the shape of the original: a value held twice
+//! is one value in the copy, and a cycle closes on the copy. `PartialEq`,
+//! `PartialOrd` and `Ord` take a pair they are already comparing for equal,
+//! `Hash` lets a value it is already hashing add nothing, and `Debug` prints
+//! it as `[Circular]`.
 //!
 //! ## Names A Derive Reads
 //!

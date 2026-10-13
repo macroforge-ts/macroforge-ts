@@ -212,6 +212,12 @@ pub fn structural_helper(name: &str) -> String {
     alias
 }
 
+/// A `@macroforge/core/structural` helper as a callee, requesting its
+/// import for the file being expanded.
+pub fn structural_callee(name: &str) -> crate::ast::Expr {
+    crate::ts_syn::ts_ident!(structural_helper(name)).into()
+}
+
 /// The standalone function (`userEquals`, `userHashCode`) of the type
 /// `resolved` names, when the registry records it deriving `derive`.
 pub fn derived_function(

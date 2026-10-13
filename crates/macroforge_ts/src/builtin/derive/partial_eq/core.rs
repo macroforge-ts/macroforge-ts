@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     CompareFieldOptions, fixed_tuple, is_primitive_union, rendered, structural_call,
@@ -70,7 +71,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
 
             let body = ts_template! {
                 if (a === b) return true;
-                return @{comparison_expr};
+                return @{structural_callee("equalWithin")}(a, b, () => @{comparison_expr});
             };
             let both = rendered(ts_template! { a: @{&class_ident}, b: @{&class_ident} });
             Ok(class_names.class_function("equals", "Equals", &both, "a, b", "boolean", body))
@@ -131,7 +132,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             Ok(ts_template! {
                 export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): boolean {
                     if (a === b) return true;
-                    return @{comparison_expr};
+                    return @{structural_callee("equalWithin")}(a, b, () => @{comparison_expr});
                 }
             })
         }
@@ -190,7 +191,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {
                         if (a === b) return true;
-                        return @{comparison_expr};
+                        return @{structural_callee("equalWithin")}(a, b, () => @{comparison_expr});
                     }
                 })
             } else {

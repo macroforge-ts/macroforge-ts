@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     CompareFieldOptions, EnumValueKinds, fixed_tuple, rendered, structural_call,
@@ -72,13 +73,15 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 .collect::<Result<_, MacroforgeError>>()?;
 
             let body = ts_template! {
-                let hash = 17;
+                return @{structural_callee("hashedWithin")}(value, () => {
+                    let hash = 17;
                 {#if has_fields}
                     {#for hash_expr in hash_exprs}
                         hash = (hash * 31 + (@{hash_expr})) | 0;
                     {/for}
                 {/if}
-                return hash;
+                    return hash;
+                });
             };
             let value = rendered(ts_template! { value: @{class_ident} });
             Ok(class_names.class_function("hashCode", "HashCode", &value, "value", "number", body))
@@ -151,13 +154,15 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{interface_names.full_type_ident()}): number {
-                    let hash = 17;
+                    return @{structural_callee("hashedWithin")}(value, () => {
+                        let hash = 17;
                     {#if has_fields}
                         {#for hash_expr in hash_exprs}
                             hash = (hash * 31 + (@{hash_expr})) | 0;
                         {/for}
                     {/if}
-                    return hash;
+                        return hash;
+                    });
                 }
             })
         }
@@ -208,13 +213,15 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{type_names.full_type_ident()}): number {
-                        let hash = 17;
+                        return @{structural_callee("hashedWithin")}(value, () => {
+                            let hash = 17;
                         {#if has_fields}
                             {#for hash_expr in hash_exprs}
                                 hash = (hash * 31 + (@{hash_expr})) | 0;
                             {/for}
                         {/if}
-                        return hash;
+                            return hash;
+                        });
                     }
                 })
             } else {

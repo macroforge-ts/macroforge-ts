@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::{Expr, Ident};
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
@@ -73,11 +74,13 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
                 ts_template! {
                     if (a === b) return 0;
+                    return @{structural_callee("comparedWithin")}(a, b, () => {
                     {#for (cmp_ident, cmp_expr) in &compare_steps}
                         const @{cmp_ident.clone()} = @{cmp_expr.clone()};
                         if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
                     {/for}
-                    return 0;
+                        return 0;
+                    });
                 }
             } else {
                 ts_template! {
@@ -167,11 +170,13 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): number {
                         if (a === b) return 0;
+                        return @{structural_callee("comparedWithin")}(a, b, () => {
                         {#for (cmp_ident, cmp_expr) in &compare_steps}
                             const @{cmp_ident.clone()} = @{cmp_expr.clone()};
                             if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
                         {/for}
-                        return 0;
+                            return 0;
+                        });
                     }
                 })
             } else {
@@ -233,11 +238,13 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     Ok(ts_template! {
                         export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
                             if (a === b) return 0;
+                            return @{structural_callee("comparedWithin")}(a, b, () => {
                             {#for (cmp_ident, cmp_expr) in &compare_steps}
                                 const @{cmp_ident.clone()} = @{cmp_expr.clone()};
                                 if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
                             {/for}
-                            return 0;
+                                return 0;
+                            });
                         }
                     })
                 } else {

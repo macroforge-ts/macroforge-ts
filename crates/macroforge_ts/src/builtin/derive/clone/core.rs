@@ -64,9 +64,9 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 type_registry,
             );
             let fields = parse_clone_expr(&literal, &input)?;
-            let instance_with: Expr = ts_ident!(structural_helper("instanceWith")).into();
+            let cloned_with: Expr = ts_ident!(structural_helper("clonedWith")).into();
             let body = ts_template! {
-                return @{instance_with}(value, @{fields});
+                return @{cloned_with}(value, () => @{fields});
             };
             let value = rendered(ts_template! { value: @{&class_ident} });
             Ok(class_names.class_function(
@@ -100,9 +100,10 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 type_registry,
             );
             let clone = parse_clone_expr(&literal, &input)?;
+            let cloned_with: Expr = ts_ident!(structural_helper("clonedWith")).into();
             Ok(ts_template! {
-                export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
-                    return @{clone};
+                export function @{fn_name_ident}(value: @{&interface_ident}): @{&interface_ident} {
+                    return @{cloned_with}(value, (): @{&interface_ident} => @{clone});
                 }
             })
         }
@@ -120,9 +121,10 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     type_registry,
                 );
                 let clone = parse_clone_expr(&literal, &input)?;
+                let cloned_with: Expr = ts_ident!(structural_helper("clonedWith")).into();
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{type_names.full_type_ident()}): @{type_names.full_type_ident()} {
-                        return @{clone};
+                        return @{cloned_with}(value, (): @{type_names.full_type_ident()} => @{clone});
                     }
                 })
             } else {

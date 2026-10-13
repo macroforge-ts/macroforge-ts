@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
@@ -48,9 +49,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 }
             } else {
                 ts_template! {
-                    const parts: string[] = [];
+                    return @{structural_callee("debuggedWithin")}(value, () => {
+                        const parts: string[] = [];
                     {$typescript TsStream::from_string(push_stmts)}
-                    return "@{class_name} { " + parts.join(", ") + " }";
+                        return "@{class_name} { " + parts.join(", ") + " }";
+                    });
                 }
             };
             let value = rendered(ts_template! { value: @{class_ident} });
@@ -113,9 +116,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{interface_ident.clone()}): string {
-                        const parts: string[] = [];
+                        return @{structural_callee("debuggedWithin")}(value, () => {
+                            const parts: string[] = [];
                         {$typescript TsStream::from_string(push_stmts)}
-                        return "@{interface_name} { " + parts.join(", ") + " }";
+                            return "@{interface_name} { " + parts.join(", ") + " }";
+                        });
                     }
                 })
             }
@@ -155,9 +160,11 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                     Ok(ts_template! {
                         export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
-                            const parts: string[] = [];
+                            return @{structural_callee("debuggedWithin")}(value, () => {
+                                const parts: string[] = [];
                             {$typescript TsStream::from_string(push_stmts)}
-                            return "@{type_name} { " + parts.join(", ") + " }";
+                                return "@{type_name} { " + parts.join(", ") + " }";
+                            });
                         }
                     })
                 }

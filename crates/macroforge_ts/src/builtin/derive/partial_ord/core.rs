@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
@@ -54,8 +55,10 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     partial_compare_steps(&ord_fields, resolved_fields, type_registry);
                 ts_template! {
                     if (a === b) return 0;
+                    return @{structural_callee("comparedWithin")}(a, b, () => {
                     {$typescript compare_body}
-                    return 0;
+                        return 0;
+                    });
                 }
             } else {
                 ts_template! {
@@ -139,8 +142,10 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 ts_template! {
                     export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): @{return_type_ident} {
                         if (a === b) return 0;
+                        return @{structural_callee("comparedWithin")}(a, b, () => {
                         {$typescript compare_body}
-                        return 0;
+                            return 0;
+                        });
                     }
                 }
             } else {
@@ -192,8 +197,10 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     ts_template! {
                         export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
                             if (a === b) return 0;
+                            return @{structural_callee("comparedWithin")}(a, b, () => {
                             {$typescript compare_body}
-                            return 0;
+                                return 0;
+                            });
                         }
                     }
                 } else {
