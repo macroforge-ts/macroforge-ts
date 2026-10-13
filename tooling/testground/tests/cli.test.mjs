@@ -601,6 +601,53 @@ Deno.test('CLI expand: a derive that expands nothing fails, where a file without
     }
 });
 
+Deno.test('CLI expand: a default that would never end is refused', () => {
+    setupTmpDir();
+    try {
+        const input = path.join(tmpDir, 'endless.ts');
+        fs.writeFileSync(
+            input,
+            [
+                '/** @derive(Default) */',
+                'export interface Left {',
+                '    right: Right;',
+                '}',
+                '',
+                '/** @derive(Default) */',
+                'export interface Right {',
+                '    left: Left;',
+                '}',
+                '',
+                '/** @derive(Default) */',
+                'export interface Fine {',
+                '    next: Fine | null;',
+                '    all: Fine[];',
+                '}',
+                ''
+            ].join('\n')
+        );
+        const result = runCli(['expand', input, '--out', path.join(tmpDir, 'endless.out')], {
+            cwd: tmpDir
+        });
+        assertEquals(result.status, 1, result.stderr);
+        assert(
+            result.stderr.includes(
+                "field 'right' needs a default of 'Left' itself, through `Right.left`"
+            ),
+            result.stderr
+        );
+        assert(
+            result.stderr.includes(
+                "field 'left' needs a default of 'Right' itself, through `Left.right`"
+            ),
+            result.stderr
+        );
+        assert(!result.stderr.includes("'Fine'"), result.stderr);
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
 Deno.test('CLI expand: a relative path names the file an absolute one does', () => {
     setupTmpDir();
     try {

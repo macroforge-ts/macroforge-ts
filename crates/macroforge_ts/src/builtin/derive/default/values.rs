@@ -7,12 +7,13 @@ use convert_case::{Case, Casing};
 use super::literal::decode_literal_default;
 use crate::builtin::derive::common::undefaultable;
 use crate::builtin::derive::common::{
-    Declared, TypeNames, declared_type_has_derive, extract_named_string,
-    get_type_default_with_registry, is_primitive_type, js_string, rendered,
+    Declared, DefaultFieldOptions, TypeNames, declared_type_has_derive, extract_named_string,
+    fields_from_definition, get_type_default_with_registry, is_primitive_type, js_string, mentions,
+    rendered, standalone_fn_name, type_has_derive,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
-    FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry,
+    FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry, TypeRegistryEntry,
     resolve_generic_aliases,
 };
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
@@ -36,6 +37,134 @@ impl<'a> DefaultSources<'a> {
             file_path: self.caller_file_path,
             file_imports: self.file_imports,
         }
+    }
+}
+
+/// How the default of a field typed `ts_type` comes to need a default of
+/// its own type `owner` again, when it does: nothing for a field that holds
+/// an `owner` itself, and the fields of the other types it goes through
+/// otherwise. `None` for a field whose default ends.
+fn endless_default(owner: &str, ts_type: &str, sources: &DefaultSources) -> Option<String> {
+    let mut through = Vec::new();
+    defaults_back_to(
+        (sources.caller_file_path, owner),
+        ts_type,
+        sources.declared(),
+        &mut through,
+        &mut Vec::new(),
+    )
+    .then(|| match through.as_slice() {
+        [] => String::new(),
+        fields => format!(", through {}", fields.join(" and ")),
+    })
+}
+
+/// Whether the default of a value typed `ts_type`, read where `declared`
+/// resolves its names, calls the default of the type `owner` names by its
+/// file and name. `through` gathers the fields it goes by, and `seen` the
+/// types already followed.
+fn defaults_back_to(
+    owner: (&str, &str),
+    ts_type: &str,
+    declared: Declared<'_>,
+    through: &mut Vec<String>,
+    seen: &mut Vec<(String, String)>,
+) -> bool {
+    for (name, entry) in defaulted_types(ts_type, declared) {
+        // Expanded on its own, a file's types are not in the registry: the
+        // owner is still known by its name.
+        let Some(entry) = entry else {
+            if name == owner.1 {
+                return true;
+            }
+            continue;
+        };
+        if (entry.file_path.as_str(), entry.name.as_str()) == owner {
+            return true;
+        }
+        let key = (entry.file_path.clone(), entry.name.clone());
+        if seen.contains(&key) {
+            continue;
+        }
+        seen.push(key);
+        let within = Declared {
+            registry: declared.registry,
+            file_path: &entry.file_path,
+            file_imports: &entry.file_imports,
+        };
+        for (field, field_type) in defaulting_fields(entry, declared.registry) {
+            through.push(format!("`{}.{field}`", entry.name));
+            if defaults_back_to(owner, &field_type, within, through, seen) {
+                return true;
+            }
+            through.pop();
+        }
+    }
+    false
+}
+
+/// The types whose own defaults the default of a value typed `ts_type`
+/// calls, read off the default that is written for it: each by the name the
+/// type gives it, with its declaration where the registry holds one.
+fn defaulted_types<'t, 'r>(
+    ts_type: &'t str,
+    declared: Declared<'r>,
+) -> Vec<(&'t str, Option<&'r TypeRegistryEntry>)> {
+    let written = get_type_default_with_registry(
+        ts_type,
+        declared.registry,
+        declared.file_path,
+        declared.file_imports,
+    );
+    ts_type
+        .split(|letter: char| !(letter.is_alphanumeric() || matches!(letter, '_' | '$')))
+        .filter(|name| !name.is_empty())
+        .filter(|name| mentions(&written, &standalone_fn_name(name, "DefaultValue")))
+        .map(|name| {
+            let entry =
+                declared
+                    .registry
+                    .resolve_in_file(name, declared.file_path, declared.file_imports);
+            (name, entry)
+        })
+        .collect()
+}
+
+/// The fields of the type `entry` declares that its default fills with the
+/// default of their own type, as their names and types: the ones it has to
+/// have, without a `@default` or an initializer of their own. None for a
+/// type that derives no `Default`.
+fn defaulting_fields(entry: &TypeRegistryEntry, registry: &TypeRegistry) -> Vec<(String, String)> {
+    if !type_has_derive(registry, &entry.name, "Default") {
+        return Vec::new();
+    }
+    fn undeclared(decorators: &[crate::ts_syn::abi::DecoratorIR]) -> bool {
+        !DefaultFieldOptions::from_decorators(decorators).has_default
+    }
+    match &entry.definition {
+        TypeDefinitionIR::Class(class) => class
+            .fields
+            .iter()
+            .filter(|field| {
+                !field.optional && field.initializer.is_none() && undeclared(&field.decorators)
+            })
+            .map(|field| (field.name.clone(), field.ts_type.clone()))
+            .collect(),
+        TypeDefinitionIR::TypeAlias(alias) if alias.body.as_alias().is_some() => alias
+            .body
+            .as_alias()
+            .map(|aliased| (alias.name.clone(), aliased.to_string()))
+            .into_iter()
+            .collect(),
+        TypeDefinitionIR::Interface(_) | TypeDefinitionIR::TypeAlias(_) => {
+            fields_from_definition(&entry.definition, registry)
+                .unwrap_or_default()
+                .into_iter()
+                .filter(|field| !field.optional && undeclared(&field.decorators))
+                .map(|field| (field.name, field.ts_type))
+                .collect()
+        }
+        TypeDefinitionIR::Enum(_) => Vec::new(),
     }
 }
 
@@ -258,6 +387,15 @@ pub(super) fn missing_default_derives<'f>(
                 span,
                 format!(
                     "@derive(Default) on '{parent_name}': field '{field_name}' has type parameter '{ts_type}', which has no default; add @default(value)"
+                ),
+            );
+            continue;
+        }
+        if let Some(through) = endless_default(parent_name, written, sources) {
+            diagnostics.error(
+                span,
+                format!(
+                    "@derive(Default) on '{parent_name}': field '{field_name}' needs a default of '{parent_name}' itself{through}, so a default of it would never end; make the field optional or nullable, or add @default(value)"
                 ),
             );
             continue;

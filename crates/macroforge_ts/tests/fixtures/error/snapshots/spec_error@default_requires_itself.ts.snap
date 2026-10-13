@@ -1,0 +1,182 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/default_requires_itself.ts
+---
+## Input
+
+/** @derive(Default) */
+export interface Chain {
+    next: Chain;
+}
+
+/** @derive(Default) */
+export interface Left {
+    right: Right;
+}
+
+/** @derive(Default) */
+export interface Right {
+    left: Left;
+}
+
+/** @derive(Default) */
+export class Boxed {
+    inner: [Boxed, number];
+    kept: Boxed | null = null;
+}
+
+/** @derive(Default) */
+export interface Fine {
+    next: Fine | null;
+    all: Fine[];
+    maybe?: Fine;
+    /** @default(null) */
+    given: Fine | null;
+}
+
+## Changed
+
+true
+
+## Output
+
+export interface Chain {
+    next: Chain;
+}
+
+
+export interface Left {
+    right: Right;
+}
+
+export function leftDefaultValue(): Left {
+    return {
+        right: rightDefaultValue(),
+    };
+}
+
+export const Left: {
+  readonly defaultValue: typeof leftDefaultValue;
+} = {
+  defaultValue: leftDefaultValue
+};
+
+
+export interface Right {
+    left: Left;
+}
+
+export function rightDefaultValue(): Right {
+    return {
+        left: leftDefaultValue(),
+    };
+}
+
+export const Right: {
+  readonly defaultValue: typeof rightDefaultValue;
+} = {
+  defaultValue: rightDefaultValue
+};
+
+
+export class Boxed {
+    inner: [Boxed, number];
+    kept: Boxed | null = null;
+}
+
+
+export interface Fine {
+    next: Fine | null;
+    all: Fine[];
+    maybe?: Fine;
+    
+    given: Fine | null;
+}
+
+export function fineDefaultValue(): Fine {
+    return {
+        next: null,
+        all: [],
+        given: null,
+    };
+}
+
+export const Fine: {
+  readonly defaultValue: typeof fineDefaultValue;
+} = {
+  defaultValue: fineDefaultValue
+};
+
+## DTS
+
+export interface Chain {
+	next: Chain;
+}
+export interface Left {
+	right: Right;
+}
+export declare function leftDefaultValue(): Left;
+export declare const Left: {
+	readonly defaultValue: typeof leftDefaultValue;
+};
+export interface Right {
+	left: Left;
+}
+export declare function rightDefaultValue(): Right;
+export declare const Right: {
+	readonly defaultValue: typeof rightDefaultValue;
+};
+export declare class Boxed {
+	inner: [Boxed, number];
+	kept: Boxed | null;
+}
+export interface Fine {
+	next: Fine | null;
+	all: Fine[];
+	maybe?: Fine;
+	given: Fine | null;
+}
+export declare function fineDefaultValue(): Fine;
+export declare const Fine: {
+	readonly defaultValue: typeof fineDefaultValue;
+};
+
+## Diagnostics
+
+Error [54..66]: @derive(Default) on 'Chain': field 'next' needs a default of 'Chain' itself, so a default of it would never end; make the field optional or nullable, or add @default(value)
+Error [256..279]: @derive(Default) on 'Boxed': field 'inner' needs a default of 'Boxed' itself, so a default of it would never end; make the field optional or nullable, or add @default(value)
+
+## Mapping
+
+original 23..69 -> expanded 0..46
+original 92..136 -> expanded 46..90
+original 136..138 -> expanded 306..308
+original 161..204 -> expanded 308..351
+original 204..206 -> expanded 570..572
+original 229..313 -> expanded 572..656
+original 336..423 -> expanded 656..743
+original 444..470 -> expanded 743..769
+original 470..471 -> expanded 1007..1008
+generated 90..192 <- Default
+generated 192..306 <- __convenience_const
+generated 351..453 <- Default
+generated 453..570 <- __convenience_const
+generated 769..893 <- Default
+generated 893..1007 <- __convenience_const
+
+## Metadata
+
+class Boxed: {"body_span":{"end":312,"start":250},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":230,"start":207}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"inner","optional":false,"readonly":false,"span":{"end":279,"start":256},"ts_type":"[Boxed, number]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"kept","optional":false,"readonly":false,"span":{"end":310,"start":284},"ts_type":"Boxed | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Boxed","span":{"end":312,"start":238},"superclass":null,"type_params":[]}
+interface Chain: {"body_span":{"end":68,"start":48},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"next","optional":false,"readonly":false,"span":{"end":66,"start":54},"ts_type":"Chain"}],"heritage":[],"methods":[],"name":"Chain","span":{"end":68,"start":32},"type_params":[]}
+interface Left: {"body_span":{"end":137,"start":116},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":93,"start":70}}],"fields":[{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":135,"start":122},"ts_type":"Right"}],"heritage":[],"methods":[],"name":"Left","span":{"end":137,"start":101},"type_params":[]}
+interface Right: {"body_span":{"end":205,"start":186},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":162,"start":139}}],"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":203,"start":192},"ts_type":"Left"}],"heritage":[],"methods":[],"name":"Right","span":{"end":205,"start":170},"type_params":[]}
+interface Fine: {"body_span":{"end":471,"start":360},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":337,"start":314}}],"fields":[{"decorators":[],"key":"Named","name":"next","optional":false,"readonly":false,"span":{"end":384,"start":366},"ts_type":"Fine | null"},{"decorators":[],"key":"Named","name":"all","optional":false,"readonly":false,"span":{"end":401,"start":389},"ts_type":"Fine[]"},{"decorators":[],"key":"Named","name":"maybe","optional":true,"readonly":false,"span":{"end":419,"start":406},"ts_type":"Fine"},{"decorators":[{"args_src":"null","name":"default","span":{"end":445,"start":424}}],"key":"Named","name":"given","optional":false,"readonly":false,"span":{"end":469,"start":450},"ts_type":"Fine | null"}],"heritage":[],"methods":[],"name":"Fine","span":{"end":471,"start":345},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
