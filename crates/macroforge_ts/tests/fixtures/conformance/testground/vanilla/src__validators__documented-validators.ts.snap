@@ -13419,8 +13419,7 @@ class DocMessageEscaping: {"body_span":{"end":7465,"start":7349},"decorators":[{
 
 ## Registry reads
 
-Name("Date")
-Name("string")
+(none)
 
 ## Buildtime dependencies
 

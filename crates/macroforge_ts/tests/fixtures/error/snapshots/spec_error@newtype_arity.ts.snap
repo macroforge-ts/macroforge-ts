@@ -14,7 +14,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, decodeNumber as __mf_decodeNumber, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Pair = $Newtype<number, string>;
@@ -79,7 +79,25 @@ export function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     if ("_root" in obj) {
         const __raw__root = obj["_root"] as $Newtype<number, string>;
 
-        instance._root = __raw__root;
+        ctx.pushScope("_root");
+        try {
+            const __result = $newtypeDecodeWithContext<number, string>(__raw__root, ctx, __mf_decodeNumber, __mf_decodeString);
+            ctx.assignOrDefer(instance, "_root", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "_root", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
 
     ctx.pushErrors(errors);
@@ -128,11 +146,11 @@ Error [36..60]: $Newtype takes exactly one type argument, got 2
 
 ## Mapping
 
-original 22..60 -> expanded 225..263
-original 60..61 -> expanded 2785..2786
-generated 0..225 <- imports
-generated 263..2486 <- Decode
-generated 2486..2785 <- __convenience_const
+original 22..60 -> expanded 295..333
+original 60..61 -> expanded 3592..3593
+generated 0..295 <- imports
+generated 333..3293 <- Decode
+generated 3293..3592 <- __convenience_const
 
 ## Metadata
 

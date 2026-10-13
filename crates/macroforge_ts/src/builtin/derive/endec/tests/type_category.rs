@@ -135,6 +135,42 @@ fn test_type_category_encodable() {
     );
 }
 
+/// A name is a type by being one, not by the letter it starts with, and a
+/// word the language keeps for itself is none.
+#[test]
+fn a_name_is_a_type_whatever_it_starts_with() {
+    for name in [
+        "lower",
+        "point2D",
+        "_Hidden",
+        "__double",
+        "$Dollar",
+        "my_type",
+        "élan",
+        "Ünïcode",
+    ] {
+        assert_eq!(
+            TypeCategory::from_ts_type(name),
+            TypeCategory::Encodable(name.to_string()),
+            "{name}"
+        );
+    }
+    assert_eq!(
+        TypeCategory::from_ts_type("box<string>"),
+        TypeCategory::Encodable("box".into())
+    );
+    for keyword in [
+        "any", "unknown", "never", "void", "object", "symbol", "true", "false", "this", "1", "1n",
+        "0x10",
+    ] {
+        assert_eq!(
+            TypeCategory::from_ts_type(keyword),
+            TypeCategory::Unknown,
+            "{keyword}"
+        );
+    }
+}
+
 #[test]
 fn test_type_category_encodable_strips_generics() {
     // Generic type parameters must be stripped from the Encodable variant

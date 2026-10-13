@@ -120,6 +120,15 @@ fn is_type_reference(ts_type: &str) -> bool {
             .all(|letter| letter.is_alphanumeric() || matches!(letter, '_' | '$' | '.'))
 }
 
+/// Whether `name` is a type TypeScript spells itself: a keyword, or a
+/// literal that reads as a name (`true`, `1`, `1n`).
+fn is_keyword_type(name: &str) -> bool {
+    matches!(
+        name,
+        "any" | "unknown" | "never" | "void" | "object" | "symbol" | "true" | "false" | "this"
+    ) || name.starts_with(|first: char| first.is_ascii_digit())
+}
+
 /// How many classified types a thread keeps. A project's field types repeat
 /// across every derive that reads them; the bound keeps a long session from
 /// holding every type it ever saw.
@@ -224,11 +233,10 @@ impl TypeCategory {
             return Self::Unknown;
         }
 
-        // Check if it looks like a class/interface name (starts with uppercase)
-        // Exclude built-in types and utility types
-        if let Some(first_char) = trimmed.chars().next()
-            && first_char.is_uppercase()
-            && is_type_reference(trimmed)
+        // A name that is no keyword of the language names a type, whatever
+        // letter it starts with. Built-in types are not the project's.
+        if is_type_reference(trimmed)
+            && !is_keyword_type(trimmed)
             && !matches!(
                 trimmed,
                 "String"

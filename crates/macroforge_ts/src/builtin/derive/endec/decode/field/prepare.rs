@@ -117,7 +117,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     }
     if opts.flatten
         && opts.decode_with.is_none()
-        && let Some(reason) = unflattenable(&resolved_ts_type, &scope, Direction::Decode)
+        && let Some(reason) = unflattenable(&resolved_ts_type, &scope)
     {
         diagnostics.error(
             field.span,
@@ -154,10 +154,6 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     };
     let mut type_cat = match TypeCategory::from_ts_type(&resolved_ts_type) {
         TypeCategory::Encodable(name) if is_param(&name) => TypeCategory::Unknown,
-        TypeCategory::Unknown => match scope.derived(&resolved_ts_type, Direction::Decode) {
-            Some(name) => TypeCategory::Encodable(name),
-            None => TypeCategory::Unknown,
-        },
         type_cat => type_cat,
     };
     let union_guard = if matches!(type_cat, TypeCategory::Unknown | TypeCategory::Encodable(_)) {
@@ -191,10 +187,9 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         _ => None,
     };
     let nullable_encodable_type = match &type_cat {
-        // A type named in lowercase is known for one by the registry alone.
-        TypeCategory::Nullable(inner) => encodable(inner)
-            .or_else(|| nullable_union.as_ref().map(|(_, name)| name.clone()))
-            .or_else(|| scope.derived(inner, Direction::Decode)),
+        TypeCategory::Nullable(inner) => {
+            encodable(inner).or_else(|| nullable_union.as_ref().map(|(_, name)| name.clone()))
+        }
         _ => None,
     };
     let nullable_union_guard = nullable_union.map(|(guard, _)| guard);

@@ -285,25 +285,6 @@ impl TypeScope<'_> {
             .then(|| param_coder(direction, ts_type))
     }
 
-    /// `name` when it names a type the registry holds deriving the coder
-    /// `direction` calls. A type named in lowercase is only told from an
-    /// unknown word this way.
-    pub(crate) fn derived(&self, name: &str, direction: Direction) -> Option<String> {
-        let name = name.trim();
-        let derive = match direction {
-            Direction::Encode => "Encode",
-            Direction::Decode => "Decode",
-        };
-        (is_identifier_name(name)
-            && !self.is_param(name)
-            && self
-                .registry
-                .resolve_in_file(name, self.file_path, self.file_imports)
-                .is_some()
-            && self.has_derive(name, derive))
-        .then(|| name.to_string())
-    }
-
     /// Whether the type this scope's file knows as `name` derives `derive`.
     fn has_derive(&self, name: &str, derive: &str) -> bool {
         let declared = Declared {
@@ -387,12 +368,10 @@ fn untold_member<'a>(ts_type: &'a str, scope: &TypeScope<'_>) -> Option<&'a str>
             // A date is its text once encoded, which a string member takes.
             TypeCategory::Date => !holds_text,
             TypeCategory::Array(_) | TypeCategory::Record(_, _) | TypeCategory::Unknown => {
-                scope.derived(member, Direction::Encode).is_some()
-                    || scope.derived(member, Direction::Decode).is_some()
-                    || matches!(
-                        encode_expr(member, "__probe", scope, 0),
-                        Ok(Some(_)) | Err(_)
-                    )
+                matches!(
+                    encode_expr(member, "__probe", scope, 0),
+                    Ok(Some(_)) | Err(_)
+                )
             }
             TypeCategory::Primitive | TypeCategory::Optional(_) | TypeCategory::Nullable(_) => {
                 false
@@ -902,9 +881,6 @@ pub(crate) fn encode_expr(
         TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => scope
             .nested(ts_type, Direction::Encode, depth)?
             .map(|nested| nested.encode_call(value)),
-        TypeCategory::Unknown if scope.derived(ts_type, Direction::Encode).is_some() => {
-            Some(NestedType::whole(ts_type.to_string()).encode_call(value))
-        }
         TypeCategory::Unknown => match scope.guard(ts_type, Direction::Encode)? {
             Some((guard, name)) => {
                 let value_expr = crate::ast::Expr::Source(value.to_string());
@@ -962,11 +938,7 @@ fn encode_tuple(
 /// Why a field of type `ts_type` cannot be flattened, when it cannot: only
 /// a type with fields of its own, or a `Record`, has members the enclosing
 /// object can hold as its own.
-pub(crate) fn unflattenable(
-    ts_type: &str,
-    scope: &TypeScope<'_>,
-    direction: Direction,
-) -> Option<String> {
+pub(crate) fn unflattenable(ts_type: &str, scope: &TypeScope<'_>) -> Option<String> {
     let mut present = ts_type.trim().to_string();
     while let TypeCategory::Optional(inner) | TypeCategory::Nullable(inner) =
         TypeCategory::from_ts_type(&present)
@@ -976,9 +948,8 @@ pub(crate) fn unflattenable(
     let named = match TypeCategory::from_ts_type(&present) {
         TypeCategory::Record(_, _) => return None,
         TypeCategory::Encodable(name) => Some(name),
-        // A type named in lowercase is known for one by the registry alone.
-        TypeCategory::Unknown => scope.derived(&present, direction),
-        TypeCategory::Primitive
+        TypeCategory::Unknown
+        | TypeCategory::Primitive
         | TypeCategory::Array(_)
         | TypeCategory::Optional(_)
         | TypeCategory::Nullable(_)
@@ -1258,9 +1229,6 @@ pub(crate) fn decode_expr(
         TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => scope
             .nested(ts_type, Direction::Decode, depth)?
             .map(|nested| nested.decode_call(raw)),
-        TypeCategory::Unknown if scope.derived(ts_type, Direction::Decode).is_some() => {
-            Some(NestedType::whole(ts_type.to_string()).decode_call(raw))
-        }
         TypeCategory::Unknown => match scope.guard(ts_type, Direction::Decode)? {
             Some((guard, name)) => {
                 let raw_expr = crate::ast::Expr::Source(raw.to_string());

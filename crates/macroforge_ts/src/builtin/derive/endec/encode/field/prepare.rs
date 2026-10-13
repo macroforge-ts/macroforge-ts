@@ -61,7 +61,7 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
     }
     if opts.flatten
         && opts.encode_with.is_none()
-        && let Some(reason) = unflattenable(&resolved_ts_type, &scope, Direction::Encode)
+        && let Some(reason) = unflattenable(&resolved_ts_type, &scope)
     {
         diagnostics.error(
             field.span,

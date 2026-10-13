@@ -695,7 +695,6 @@ Name("URL")
 Name("bigint")
 Name("number")
 Name("number & { readonly [__mf_newtype_1]: true }")
-Name("string")
 
 ## Buildtime dependencies
 

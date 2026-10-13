@@ -1,0 +1,1584 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_names_without_capitals.ts
+---
+## Input
+
+/** A type is coded through its functions whatever letter its name starts with. */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface lower {
+    id: string;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface point2D {
+    x: number;
+    y: number;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface my_type {
+    at: Date;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface Holder {
+    held: lower;
+    all: lower[];
+    maybe: my_type | null;
+    left?: point2D;
+    byKey: Map<string, point2D>;
+    byName: Record<string, my_type>;
+    some: Partial<lower>;
+    pair: [lower, point2D];
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/** A type is coded through its functions whatever letter its name starts with. */
+
+export interface lower {
+    id: string;
+}
+
+export function lowerToString(value: lower): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+        return "lower { " + parts.join(", ") + " }";
+    });
+}
+
+export function lowerClone(value: lower): lower {
+    return __mf_clonedWith(value, (): lower => ({ id: value.id }));
+}
+
+export function lowerEquals(a: lower, b: lower): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id);
+}
+
+export function lowerHashCode(value: lower): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function lowerDefaultValue(): lower {
+    return {
+        id: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function lowerEncode(value: lower, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = lowerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function lowerEncodeWithContext(value: lower, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "lower" });
+    lowerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function lowerEncodePartialWithContext(value: Partial<lower>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof lower>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "lower" };
+        lowerEncodeFields(value as lower, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function lowerEncodeFields(value: lower, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function lowerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: lower } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = lowerDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "lower.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lowerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): lower | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function lowerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<lower> | __mf_PendingRef;
+export function lowerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<lower> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "lower.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "lower.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "lower") as lower | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "lower.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "lower");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "lower.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as lower;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function lowerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof lower>): Partial<lower> | __mf_PendingRef {
+    return lowerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function lowerValidateField<K extends keyof lower>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function lowerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function lowerValidateFields(partial: { readonly [K in keyof lower]?: unknown }): Array<{ field: string; message: string }>;
+export function lowerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function lowerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id");
+}
+
+export function lowerIs(obj: unknown): obj is lower {
+    return lowerHasShape(obj) && lowerDecode(obj).success;
+}
+
+export const lower: {
+  readonly toString: typeof lowerToString;
+  readonly clone: typeof lowerClone;
+  readonly equals: typeof lowerEquals;
+  readonly hashCode: typeof lowerHashCode;
+  readonly defaultValue: typeof lowerDefaultValue;
+  readonly encode: typeof lowerEncode;
+  readonly encodeWithContext: typeof lowerEncodeWithContext;
+  readonly encodePartialWithContext: typeof lowerEncodePartialWithContext;
+  readonly decode: typeof lowerDecode;
+  readonly decodeWithContext: typeof lowerDecodeWithContext;
+  readonly decodePartialWithContext: typeof lowerDecodePartialWithContext;
+  readonly validateField: typeof lowerValidateField;
+  readonly validateFields: typeof lowerValidateFields;
+  readonly hasShape: typeof lowerHasShape;
+  readonly is: typeof lowerIs;
+} = {
+  toString: lowerToString,
+  clone: lowerClone,
+  equals: lowerEquals,
+  hashCode: lowerHashCode,
+  defaultValue: lowerDefaultValue,
+  encode: lowerEncode,
+  encodeWithContext: lowerEncodeWithContext,
+  encodePartialWithContext: lowerEncodePartialWithContext,
+  decode: lowerDecode,
+  decodeWithContext: lowerDecodeWithContext,
+  decodePartialWithContext: lowerDecodePartialWithContext,
+  validateField: lowerValidateField,
+  validateFields: lowerValidateFields,
+  hasShape: lowerHasShape,
+  is: lowerIs
+};
+
+
+export interface point2D {
+    x: number;
+    y: number;
+}
+
+export function point2DToString(value: point2D): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+    parts.push("y: " + String(value.y));
+        return "point2D { " + parts.join(", ") + " }";
+    });
+}
+
+export function point2DClone(value: point2D): point2D {
+    return __mf_clonedWith(value, (): point2D => ({
+	x: value.x,
+	y: value.y
+}));
+}
+
+export function point2DEquals(a: point2D, b: point2D): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+}
+
+export function point2DHashCode(value: point2D): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function point2DDefaultValue(): point2D {
+    return {
+        x: 0,
+        y: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function point2DEncode(value: point2D, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = point2DEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function point2DEncodeWithContext(value: point2D, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "point2D" });
+    point2DEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function point2DEncodePartialWithContext(value: Partial<point2D>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof point2D>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "point2D" };
+        point2DEncodeFields(value as point2D, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function point2DEncodeFields(value: point2D, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("x")) {
+        if (value.x !== undefined) {
+            result["x"] = value.x;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("y")) {
+        if (value.y !== undefined) {
+            result["y"] = value.y;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function point2DDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: point2D } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = point2DDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "point2D.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): point2D | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<point2D> | __mf_PendingRef;
+export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<point2D> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "point2D.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "point2D.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "point2D") as point2D | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "point2D.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
+        errors.push({ field: "x", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("y")) && !("y" in obj)) {
+        errors.push({ field: "y", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "point2D");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+        const __raw_x = obj["x"] as number;
+
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+            errors.push({ field: "x", message: __raw_x == null ? "point2D.x is required" : "expected number" });
+        } else {
+            instance.x = __raw_x;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
+        const __raw_y = obj["y"] as number;
+
+        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
+            errors.push({ field: "y", message: __raw_y == null ? "point2D.y is required" : "expected number" });
+        } else {
+            instance.y = __raw_y;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as point2D;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function point2DDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof point2D>): Partial<point2D> | __mf_PendingRef {
+    return point2DDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function point2DValidateField<K extends keyof point2D>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function point2DValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function point2DValidateFields(partial: { readonly [K in keyof point2D]?: unknown }): Array<{ field: string; message: string }>;
+export function point2DValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function point2DHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
+}
+
+export function point2DIs(obj: unknown): obj is point2D {
+    return point2DHasShape(obj) && point2DDecode(obj).success;
+}
+
+export const point2D: {
+  readonly toString: typeof point2DToString;
+  readonly clone: typeof point2DClone;
+  readonly equals: typeof point2DEquals;
+  readonly hashCode: typeof point2DHashCode;
+  readonly defaultValue: typeof point2DDefaultValue;
+  readonly encode: typeof point2DEncode;
+  readonly encodeWithContext: typeof point2DEncodeWithContext;
+  readonly encodePartialWithContext: typeof point2DEncodePartialWithContext;
+  readonly decode: typeof point2DDecode;
+  readonly decodeWithContext: typeof point2DDecodeWithContext;
+  readonly decodePartialWithContext: typeof point2DDecodePartialWithContext;
+  readonly validateField: typeof point2DValidateField;
+  readonly validateFields: typeof point2DValidateFields;
+  readonly hasShape: typeof point2DHasShape;
+  readonly is: typeof point2DIs;
+} = {
+  toString: point2DToString,
+  clone: point2DClone,
+  equals: point2DEquals,
+  hashCode: point2DHashCode,
+  defaultValue: point2DDefaultValue,
+  encode: point2DEncode,
+  encodeWithContext: point2DEncodeWithContext,
+  encodePartialWithContext: point2DEncodePartialWithContext,
+  decode: point2DDecode,
+  decodeWithContext: point2DDecodeWithContext,
+  decodePartialWithContext: point2DDecodePartialWithContext,
+  validateField: point2DValidateField,
+  validateFields: point2DValidateFields,
+  hasShape: point2DHasShape,
+  is: point2DIs
+};
+
+
+export interface my_type {
+    at: Date;
+}
+
+export function myTypeToString(value: my_type): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("at: " + String(value.at));
+        return "my_type { " + parts.join(", ") + " }";
+    });
+}
+
+export function myTypeClone(value: my_type): my_type {
+    return __mf_clonedWith(value, (): my_type => ({ at: new Date(value.at.getTime()) }));
+}
+
+export function myTypeEquals(a: my_type, b: my_type): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime());
+}
+
+export function myTypeHashCode(value: my_type): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (value.at.getTime() | 0)) | 0;
+        return hash;
+    });
+}
+
+export function myTypeDefaultValue(): my_type {
+    return {
+        at: new Date(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function myTypeEncode(value: my_type, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = myTypeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function myTypeEncodeWithContext(value: my_type, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "my_type" });
+    myTypeEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function myTypeEncodePartialWithContext(value: Partial<my_type>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof my_type>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "my_type" };
+        myTypeEncodeFields(value as my_type, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function myTypeEncodeFields(value: my_type, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result["at"] = value.at.toISOString();
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function myTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: my_type } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = myTypeDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "my_type.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function myTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): my_type | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function myTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<my_type> | __mf_PendingRef;
+export function myTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<my_type> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "my_type.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "my_type.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "my_type") as my_type | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "my_type.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "my_type");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "my_type.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as my_type;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function myTypeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof my_type>): Partial<my_type> | __mf_PendingRef {
+    return myTypeDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function myTypeValidateField<K extends keyof my_type>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function myTypeValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function myTypeValidateFields(partial: { readonly [K in keyof my_type]?: unknown }): Array<{ field: string; message: string }>;
+export function myTypeValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function myTypeHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "at");
+}
+
+export function myTypeIs(obj: unknown): obj is my_type {
+    return myTypeHasShape(obj) && myTypeDecode(obj).success;
+}
+
+export const my_type: {
+  readonly toString: typeof myTypeToString;
+  readonly clone: typeof myTypeClone;
+  readonly equals: typeof myTypeEquals;
+  readonly hashCode: typeof myTypeHashCode;
+  readonly defaultValue: typeof myTypeDefaultValue;
+  readonly encode: typeof myTypeEncode;
+  readonly encodeWithContext: typeof myTypeEncodeWithContext;
+  readonly encodePartialWithContext: typeof myTypeEncodePartialWithContext;
+  readonly decode: typeof myTypeDecode;
+  readonly decodeWithContext: typeof myTypeDecodeWithContext;
+  readonly decodePartialWithContext: typeof myTypeDecodePartialWithContext;
+  readonly validateField: typeof myTypeValidateField;
+  readonly validateFields: typeof myTypeValidateFields;
+  readonly hasShape: typeof myTypeHasShape;
+  readonly is: typeof myTypeIs;
+} = {
+  toString: myTypeToString,
+  clone: myTypeClone,
+  equals: myTypeEquals,
+  hashCode: myTypeHashCode,
+  defaultValue: myTypeDefaultValue,
+  encode: myTypeEncode,
+  encodeWithContext: myTypeEncodeWithContext,
+  encodePartialWithContext: myTypeEncodePartialWithContext,
+  decode: myTypeDecode,
+  decodeWithContext: myTypeDecodeWithContext,
+  decodePartialWithContext: myTypeDecodePartialWithContext,
+  validateField: myTypeValidateField,
+  validateFields: myTypeValidateFields,
+  hasShape: myTypeHasShape,
+  is: myTypeIs
+};
+
+
+export interface Holder {
+    held: lower;
+    all: lower[];
+    maybe: my_type | null;
+    left?: point2D;
+    byKey: Map<string, point2D>;
+    byName: Record<string, my_type>;
+    some: Partial<lower>;
+    pair: [lower, point2D];
+}
+
+export function holderToString(value: Holder): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("held: " + __mf_structuralDebug(value.held));
+    parts.push("all: " + __mf_structuralDebug(value.all));
+    parts.push("maybe: " + __mf_structuralDebug(value.maybe));
+    parts.push("left: " + __mf_structuralDebug(value.left));
+    parts.push("byKey: " + __mf_structuralDebug(value.byKey));
+    parts.push("byName: " + __mf_structuralDebug(value.byName));
+    parts.push("some: " + __mf_structuralDebug(value.some));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+        return "Holder { " + parts.join(", ") + " }";
+    });
+}
+
+export function holderClone(value: Holder): Holder {
+    return __mf_clonedWith(value, (): Holder => ({
+	held: __mf_structuralClone(value.held),
+	all: value.all.map((__item0) => __mf_structuralClone(__item0)),
+	maybe: __mf_structuralClone(value.maybe),
+	..."left" in value ? { left: __mf_structuralClone(value.left) } : {},
+	byKey: (() => {
+		const __copy0 = new Map(value.byKey);
+		for (const [__key0, __item0] of value.byKey) __copy0.set(__key0, __mf_structuralClone(__item0));
+		return __copy0;
+	})(),
+	byName: __mf_structuralClone(value.byName),
+	some: __mf_structuralClone(value.some),
+	pair: __mf_structuralClone(value.pair)
+}));
+}
+
+export function holderEquals(a: Holder, b: Holder): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && a.all.length === b.all.length && a.all.every((__item0, __index0) => {
+	const __other0 = b.all[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+}) && __mf_structuralEquals(a.maybe, b.maybe) && __mf_structuralEquals(a.left, b.left) && a.byKey.size === b.byKey.size && Array.from(a.byKey).every(([__key0, __item0]) => {
+	const __other0 = b.byKey.get(__key0);
+	return b.byKey.has(__key0) && (__other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0));
+}) && __mf_structuralEquals(a.byName, b.byName) && __mf_structuralEquals(a.some, b.some) && __mf_structuralEquals(a.pair, b.pair));
+}
+
+export function holderHashCode(value: Holder): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
+    hash = (hash * 31 + (value.all.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.maybe))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.left))) | 0;
+    hash = (hash * 31 + (Array.from(value.byKey).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + __mf_structuralHash(__item0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.byName))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.some))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+        return hash;
+    });
+}
+
+export function holderDefaultValue(): Holder {
+    return {
+        held: lowerDefaultValue(),
+        all: [],
+        maybe: null,
+        byKey: new Map(),
+        byName: ({}),
+        some: ({}),
+        pair: [lowerDefaultValue(), point2DDefaultValue()],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function holderEncode(value: Holder, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = holderEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function holderEncodeWithContext(value: Holder, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Holder" });
+    holderEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Holder>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Holder" };
+        holderEncodeFields(value as Holder, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("held")) {
+        if (value.held !== undefined) {
+            result["held"] = lowerEncodeWithContext(value.held, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("all")) {
+        if (value.all !== undefined) {
+            result["all"] = value.all.map((__item0) => lowerEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result["maybe"] = value.maybe === null ? null : myTypeEncodeWithContext(value.maybe, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("left")) {
+        if (value.left !== undefined) {
+            result["left"] = point2DEncodeWithContext(value.left, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("byKey")) {
+        if (value.byKey !== undefined) {
+            result["byKey"] = Object.fromEntries(Array.from(value.byKey, ([__key0, __item0]) => [__key0, point2DEncodeWithContext(__item0, ctx)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("byName")) {
+        if (value.byName !== undefined) {
+            result["byName"] = Object.fromEntries((Object.entries(value.byName) as [string, my_type][]).map(([__key0, __item0]) => [__key0, myTypeEncodeWithContext(__item0, ctx)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("some")) {
+        if (value.some !== undefined) {
+            result["some"] = lowerEncodePartialWithContext(value.some, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result["pair"] = [lowerEncodeWithContext(value.pair[0], ctx), point2DEncodeWithContext(value.pair[1], ctx)];
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function holderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Holder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = holderDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Holder.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef;
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Holder.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Holder.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Holder") as Holder | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Holder.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
+        errors.push({ field: "held", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("all")) && !("all" in obj)) {
+        errors.push({ field: "all", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("byKey")) && !("byKey" in obj)) {
+        errors.push({ field: "byKey", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
+        errors.push({ field: "byName", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("some")) && !("some" in obj)) {
+        errors.push({ field: "some", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Holder");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+        const __raw_held = obj["held"] as lower;
+
+        ctx.pushScope("held");
+        try {
+            const __result = lowerDecodeWithContext(__raw_held, ctx);
+            ctx.assignOrDefer(instance, "held", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "held" : "held." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("all")) ? "all" in obj : (__fields.keeps("all") && obj["all"] !== undefined)) {
+        const __raw_all = obj["all"] as lower[];
+        if (Array.isArray(__raw_all)) {
+            ctx.pushScope("all");
+            try {
+                instance.all = __mf_decodeArray(__raw_all, ctx, (__raw0) => lowerDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "all" : "all." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "all", message: __raw_all == null ? "Holder.all is required" : "expected lower[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as my_type | null;
+
+        if (__raw_maybe === null) {
+            instance.maybe = null;
+        } else {
+            ctx.pushScope("maybe");
+            try {
+                const __result = myTypeDecodeWithContext(__raw_maybe, ctx);
+                ctx.assignOrDefer(instance, "maybe", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("left"))) {
+        if (("left" in obj && obj["left"] !== undefined)) {
+            const __raw_left = obj["left"] as point2D;
+
+            ctx.pushScope("left");
+            try {
+                const __result = point2DDecodeWithContext(__raw_left, ctx);
+                ctx.assignOrDefer(instance, "left", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "left" : "left." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "left", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("byKey")) ? "byKey" in obj : (__fields.keeps("byKey") && obj["byKey"] !== undefined)) {
+        const __raw_byKey = obj["byKey"] as Record<string, point2D>;
+        if (typeof __raw_byKey === "object" && __raw_byKey !== null) {
+            ctx.pushScope("byKey");
+            try {
+                instance.byKey = __mf_decodeMap(__raw_byKey, ctx, (__key0) => __key0, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byKey" : "byKey." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byKey", message: __raw_byKey == null ? "Holder.byKey is required" : "expected Map<string, point2D>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+        const __raw_byName = obj["byName"] as Record<string, my_type>;
+        if (typeof __raw_byName === "object" && __raw_byName !== null) {
+            ctx.pushScope("byName");
+            try {
+                instance.byName = (__mf_decodeRecord(__raw_byName, ctx, (__raw0) => myTypeDecodeWithContext(__raw0, ctx)) as Record<string, my_type>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byName", message: __raw_byName == null ? "Holder.byName is required" : "expected Record<string, my_type>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
+        const __raw_some = obj["some"] as Partial<lower>;
+
+        ctx.pushScope("some");
+        try {
+            const __result = lowerDecodePartialWithContext(__raw_some, ctx);
+            ctx.assignOrDefer(instance, "some", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "some" : "some." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "some", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [lower, point2D];
+        if (Array.isArray(__raw_pair)) {
+            ctx.pushScope("pair");
+            try {
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => lowerDecodeWithContext(__raw0, ctx), (__raw0) => point2DDecodeWithContext(__raw0, ctx)], 2) as [lower, point2D]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "Holder.pair is required" : "expected [lower, point2D]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Holder;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function holderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Holder>): Partial<Holder> | __mf_PendingRef {
+    return holderDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function holderValidateField<K extends keyof Holder>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function holderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function holderValidateFields(partial: { readonly [K in keyof Holder]?: unknown }): Array<{ field: string; message: string }>;
+export function holderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function holderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "held") && __mf_holds(obj, "all") && __mf_holds(obj, "maybe") && __mf_holds(obj, "byKey") && __mf_holds(obj, "byName") && __mf_holds(obj, "some") && __mf_holds(obj, "pair");
+}
+
+export function holderIs(obj: unknown): obj is Holder {
+    return holderHasShape(obj) && holderDecode(obj).success;
+}
+
+export const Holder: {
+  readonly toString: typeof holderToString;
+  readonly clone: typeof holderClone;
+  readonly equals: typeof holderEquals;
+  readonly hashCode: typeof holderHashCode;
+  readonly defaultValue: typeof holderDefaultValue;
+  readonly encode: typeof holderEncode;
+  readonly encodeWithContext: typeof holderEncodeWithContext;
+  readonly encodePartialWithContext: typeof holderEncodePartialWithContext;
+  readonly decode: typeof holderDecode;
+  readonly decodeWithContext: typeof holderDecodeWithContext;
+  readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
+  readonly validateField: typeof holderValidateField;
+  readonly validateFields: typeof holderValidateFields;
+  readonly hasShape: typeof holderHasShape;
+  readonly is: typeof holderIs;
+} = {
+  toString: holderToString,
+  clone: holderClone,
+  equals: holderEquals,
+  hashCode: holderHashCode,
+  defaultValue: holderDefaultValue,
+  encode: holderEncode,
+  encodeWithContext: holderEncodeWithContext,
+  encodePartialWithContext: holderEncodePartialWithContext,
+  decode: holderDecode,
+  decodeWithContext: holderDecodeWithContext,
+  decodePartialWithContext: holderDecodePartialWithContext,
+  validateField: holderValidateField,
+  validateFields: holderValidateFields,
+  hasShape: holderHasShape,
+  is: holderIs
+};
+
+## DTS
+
+/** A type is coded through its functions whatever letter its name starts with. */
+export interface lower {
+	id: string;
+}
+export declare function lowerToString(value: lower): string;
+export declare function lowerClone(value: lower): lower;
+export declare function lowerEquals(a: lower, b: lower): boolean;
+export declare function lowerHashCode(value: lower): number;
+export declare function lowerDefaultValue(): lower;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function lowerEncode(value: lower, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function lowerEncodeWithContext(value: lower, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function lowerEncodePartialWithContext(value: Partial<lower>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof lower>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function lowerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: lower;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lowerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): lower | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function lowerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<lower> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function lowerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof lower>): Partial<lower> | __mf_PendingRef;
+export declare function lowerValidateField<K extends keyof lower>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function lowerValidateFields(partial: { readonly [K in keyof lower]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function lowerHasShape(obj: unknown): boolean;
+export declare function lowerIs(obj: unknown): obj is lower;
+export declare const lower: {
+	readonly toString: typeof lowerToString;
+	readonly clone: typeof lowerClone;
+	readonly equals: typeof lowerEquals;
+	readonly hashCode: typeof lowerHashCode;
+	readonly defaultValue: typeof lowerDefaultValue;
+	readonly encode: typeof lowerEncode;
+	readonly encodeWithContext: typeof lowerEncodeWithContext;
+	readonly encodePartialWithContext: typeof lowerEncodePartialWithContext;
+	readonly decode: typeof lowerDecode;
+	readonly decodeWithContext: typeof lowerDecodeWithContext;
+	readonly decodePartialWithContext: typeof lowerDecodePartialWithContext;
+	readonly validateField: typeof lowerValidateField;
+	readonly validateFields: typeof lowerValidateFields;
+	readonly hasShape: typeof lowerHasShape;
+	readonly is: typeof lowerIs;
+};
+export interface point2D {
+	x: number;
+	y: number;
+}
+export declare function point2DToString(value: point2D): string;
+export declare function point2DClone(value: point2D): point2D;
+export declare function point2DEquals(a: point2D, b: point2D): boolean;
+export declare function point2DHashCode(value: point2D): number;
+export declare function point2DDefaultValue(): point2D;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function point2DEncode(value: point2D, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function point2DEncodeWithContext(value: point2D, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function point2DEncodePartialWithContext(value: Partial<point2D>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof point2D>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function point2DDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: point2D;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): point2D | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<point2D> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function point2DDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof point2D>): Partial<point2D> | __mf_PendingRef;
+export declare function point2DValidateField<K extends keyof point2D>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function point2DValidateFields(partial: { readonly [K in keyof point2D]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function point2DHasShape(obj: unknown): boolean;
+export declare function point2DIs(obj: unknown): obj is point2D;
+export declare const point2D: {
+	readonly toString: typeof point2DToString;
+	readonly clone: typeof point2DClone;
+	readonly equals: typeof point2DEquals;
+	readonly hashCode: typeof point2DHashCode;
+	readonly defaultValue: typeof point2DDefaultValue;
+	readonly encode: typeof point2DEncode;
+	readonly encodeWithContext: typeof point2DEncodeWithContext;
+	readonly encodePartialWithContext: typeof point2DEncodePartialWithContext;
+	readonly decode: typeof point2DDecode;
+	readonly decodeWithContext: typeof point2DDecodeWithContext;
+	readonly decodePartialWithContext: typeof point2DDecodePartialWithContext;
+	readonly validateField: typeof point2DValidateField;
+	readonly validateFields: typeof point2DValidateFields;
+	readonly hasShape: typeof point2DHasShape;
+	readonly is: typeof point2DIs;
+};
+export interface my_type {
+	at: Date;
+}
+export declare function myTypeToString(value: my_type): string;
+export declare function myTypeClone(value: my_type): my_type;
+export declare function myTypeEquals(a: my_type, b: my_type): boolean;
+export declare function myTypeHashCode(value: my_type): number;
+export declare function myTypeDefaultValue(): my_type;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function myTypeEncode(value: my_type, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function myTypeEncodeWithContext(value: my_type, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function myTypeEncodePartialWithContext(value: Partial<my_type>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof my_type>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function myTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: my_type;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function myTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): my_type | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function myTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<my_type> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function myTypeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof my_type>): Partial<my_type> | __mf_PendingRef;
+export declare function myTypeValidateField<K extends keyof my_type>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function myTypeValidateFields(partial: { readonly [K in keyof my_type]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function myTypeHasShape(obj: unknown): boolean;
+export declare function myTypeIs(obj: unknown): obj is my_type;
+export declare const my_type: {
+	readonly toString: typeof myTypeToString;
+	readonly clone: typeof myTypeClone;
+	readonly equals: typeof myTypeEquals;
+	readonly hashCode: typeof myTypeHashCode;
+	readonly defaultValue: typeof myTypeDefaultValue;
+	readonly encode: typeof myTypeEncode;
+	readonly encodeWithContext: typeof myTypeEncodeWithContext;
+	readonly encodePartialWithContext: typeof myTypeEncodePartialWithContext;
+	readonly decode: typeof myTypeDecode;
+	readonly decodeWithContext: typeof myTypeDecodeWithContext;
+	readonly decodePartialWithContext: typeof myTypeDecodePartialWithContext;
+	readonly validateField: typeof myTypeValidateField;
+	readonly validateFields: typeof myTypeValidateFields;
+	readonly hasShape: typeof myTypeHasShape;
+	readonly is: typeof myTypeIs;
+};
+export interface Holder {
+	held: lower;
+	all: lower[];
+	maybe: my_type | null;
+	left?: point2D;
+	byKey: Map<string, point2D>;
+	byName: Record<string, my_type>;
+	some: Partial<lower>;
+	pair: [lower, point2D];
+}
+export declare function holderToString(value: Holder): string;
+export declare function holderClone(value: Holder): Holder;
+export declare function holderEquals(a: Holder, b: Holder): boolean;
+export declare function holderHashCode(value: Holder): number;
+export declare function holderDefaultValue(): Holder;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function holderEncode(value: Holder, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function holderEncodeWithContext(value: Holder, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Holder>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function holderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Holder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function holderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Holder>): Partial<Holder> | __mf_PendingRef;
+export declare function holderValidateField<K extends keyof Holder>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function holderValidateFields(partial: { readonly [K in keyof Holder]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function holderHasShape(obj: unknown): boolean;
+export declare function holderIs(obj: unknown): obj is Holder;
+export declare const Holder: {
+	readonly toString: typeof holderToString;
+	readonly clone: typeof holderClone;
+	readonly equals: typeof holderEquals;
+	readonly hashCode: typeof holderHashCode;
+	readonly defaultValue: typeof holderDefaultValue;
+	readonly encode: typeof holderEncode;
+	readonly encodeWithContext: typeof holderEncodeWithContext;
+	readonly encodePartialWithContext: typeof holderEncodePartialWithContext;
+	readonly decode: typeof holderDecode;
+	readonly decodeWithContext: typeof holderDecodeWithContext;
+	readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
+	readonly validateField: typeof holderValidateField;
+	readonly validateFields: typeof holderValidateFields;
+	readonly hasShape: typeof holderHasShape;
+	readonly is: typeof holderIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..83 -> expanded 1157..1240
+original 153..196 -> expanded 1240..1283
+original 196..198 -> expanded 10655..10657
+original 268..327 -> expanded 10657..10716
+original 327..329 -> expanded 21399..21401
+original 399..442 -> expanded 21401..21444
+original 442..444 -> expanded 31238..31240
+original 514..748 -> expanded 31240..31474
+original 748..749 -> expanded 54320..54321
+generated 0..1157 <- imports
+generated 1283..1526 <- Debug
+generated 1526..1647 <- Clone
+generated 1647..1795 <- PartialEq
+generated 1795..2065 <- Hash
+generated 2065..2149 <- Default
+generated 2149..4225 <- Encode
+generated 4225..9374 <- Decode
+generated 9374..10655 <- __convenience_const
+generated 10716..11004 <- Debug
+generated 11004..11145 <- Clone
+generated 11145..11376 <- PartialEq
+generated 11376..11855 <- Hash
+generated 11855..11955 <- Default
+generated 11955..14202 <- Encode
+generated 14202..20056 <- Decode
+generated 20056..21399 <- __convenience_const
+generated 21444..21692 <- Debug
+generated 21692..21840 <- Clone
+generated 21840..22087 <- PartialEq
+generated 22087..22298 <- Hash
+generated 22298..22393 <- Default
+generated 22393..24506 <- Encode
+generated 24506..29925 <- Decode
+generated 29925..31238 <- __convenience_const
+generated 31474..32171 <- Debug
+generated 32171..32810 <- Clone
+generated 32810..33659 <- PartialEq
+generated 33659..34578 <- Hash
+generated 34578..34849 <- Default
+generated 34849..38591 <- Encode
+generated 38591..53008 <- Decode
+generated 53008..54320 <- __convenience_const
+
+## Metadata
+
+interface lower: {"body_span":{"end":197,"start":178},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":154,"start":84}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":195,"start":184},"ts_type":"string"}],"heritage":[],"methods":[],"name":"lower","span":{"end":197,"start":162},"type_params":[]}
+interface point2D: {"body_span":{"end":328,"start":295},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":269,"start":199}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":311,"start":301},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":326,"start":316},"ts_type":"number"}],"heritage":[],"methods":[],"name":"point2D","span":{"end":328,"start":277},"type_params":[]}
+interface my_type: {"body_span":{"end":443,"start":426},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":400,"start":330}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":441,"start":432},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"my_type","span":{"end":443,"start":408},"type_params":[]}
+interface Holder: {"body_span":{"end":749,"start":540},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":515,"start":445}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":558,"start":546},"ts_type":"lower"},{"decorators":[],"key":"Named","name":"all","optional":false,"readonly":false,"span":{"end":576,"start":563},"ts_type":"lower[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":603,"start":581},"ts_type":"my_type | null"},{"decorators":[],"key":"Named","name":"left","optional":true,"readonly":false,"span":{"end":623,"start":608},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"byKey","optional":false,"readonly":false,"span":{"end":656,"start":628},"ts_type":"Map<string, point2D>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":693,"start":661},"ts_type":"Record<string, my_type>"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":719,"start":698},"ts_type":"Partial<lower>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":747,"start":724},"ts_type":"[lower, point2D]"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":749,"start":523},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
