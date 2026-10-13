@@ -119,6 +119,10 @@ fn a_module_says_what_it_exports_again() {
         export type { Late } from './late';
         export * as space from './space';
         export { own };
+        import Picked, { Brought, Brought as Local } from './brought';
+        import * as whole from './whole';
+        export { Brought, Local as Sent, whole };
+        export default Picked;
     "#;
 
     let allocator = Allocator::default();
@@ -141,6 +145,9 @@ fn a_module_says_what_it_exports_again() {
             named("./user", "default", "Chosen"),
             named("./user", "User", "Member"),
             named("./late", "Late", "Late"),
+            named("./brought", "Brought", "Brought"),
+            named("./brought", "Brought", "Sent"),
+            named("./brought", "default", "default"),
         ]
     );
 }
@@ -176,6 +183,10 @@ fn an_import_is_followed_through_the_modules_that_export_it_again() {
     write(
         "round.ts",
         "export * from './all';\nexport interface Round { id: string; }\n",
+    );
+    write(
+        "passed.ts",
+        "import Model, { User as Known } from './models/user';\nexport { Known as Handed };\nexport default Model;\n",
     );
     // A name the project declares once elsewhere, which no import below leads to.
     write("other.ts", "export interface Member { id: string; }\n");
@@ -217,6 +228,15 @@ fn an_import_is_followed_through_the_modules_that_export_it_again() {
     );
     assert_eq!(
         resolve("Chosen", &[import("Chosen", None, "./all")]),
+        Some("Model".to_string())
+    );
+    // A module that imports a type and then exports it.
+    assert_eq!(
+        resolve("Handed", &[import("Handed", None, "./passed")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Mine", &[import("Mine", Some("default"), "./passed")]),
         Some("Model".to_string())
     );
     // Two modules that export each other end, with what each declares.

@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (416)
+## Types (417)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -281,11 +281,12 @@ ModuleStatics 09bf227de92bb16e
 Moment 94673f281fa3311f
 MultipleOfValidator f9707710ba55d8d1
 MultipleValidatorsTest 8dc22472500e0d43
-NameBarrelled d0585a6451e7d382
-NameExported e8bf9aebbcd5af1f
+NameBarrelled 93197c63dcd3219f
+NameExported 1ef24e7668612bd5
+NameHanded 92dbb4452375c364
 NameHolder 611673eafee083ea
-NameImports 16261e37b83f5a50
-NameLate ede10f817e949612
+NameImports ae22774dce2d39f0
+NameLate c3438ed16e647e62
 NameLocals 46d7577919cfd708
 NameModel 4c16573ca28971a0
 NameParams 08ad1c99a24a4dcc
@@ -294,7 +295,7 @@ NamePaths 46a86cae2ceea054
 NamePrototype 09a79648f44e2fa8
 NameQuoted f8911889acaefaad
 NameQuotedClass ca5f36048f890996
-NameRenamed 5ec44ac88ae2c253
+NameRenamed d0234ead0bbf50e6
 NegativeBigIntValidator d4d4c504fd802692
 NegativeValidator 53dea6c74b622576
 NestedDeserResults aa224f6019015081
@@ -420,7 +421,7 @@ Version e26b0a39c845b678
 Wall 901e5f02bdf9c4fc
 point2D 9c3236f9adc43b41
 
-## Qualified types (419)
+## Qualified types (420)
 
 src/all-macros-test.ts::AllMacrosTestClass 79287093db2fe287
 src/attributes-test.ts::ServerStatus cfce776f0ee07718
@@ -569,12 +570,13 @@ src/edge-cases/module-shapes.ts::ModulePrivateAlias ae5295a1cfa170be
 src/edge-cases/module-shapes.ts::ModulePrivateClass 811cd607b2db18c6
 src/edge-cases/module-shapes.ts::ModulePrivateEnum 887632787b344885
 src/edge-cases/module-shapes.ts::ModuleStatics 09bf227de92bb16e
-src/edge-cases/name-exports.ts::NameLate ede10f817e949612
+src/edge-cases/name-exports.ts::NameLate c3438ed16e647e62
 src/edge-cases/name-exports.ts::NameModel 4c16573ca28971a0
-src/edge-cases/name-imports.ts::NameBarrelled d0585a6451e7d382
-src/edge-cases/name-imports.ts::NameExported e8bf9aebbcd5af1f
-src/edge-cases/name-imports.ts::NameImports 16261e37b83f5a50
-src/edge-cases/name-imports.ts::NameRenamed 5ec44ac88ae2c253
+src/edge-cases/name-imports.ts::NameBarrelled 93197c63dcd3219f
+src/edge-cases/name-imports.ts::NameExported 1ef24e7668612bd5
+src/edge-cases/name-imports.ts::NameHanded 92dbb4452375c364
+src/edge-cases/name-imports.ts::NameImports ae22774dce2d39f0
+src/edge-cases/name-imports.ts::NameRenamed d0234ead0bbf50e6
 src/edge-cases/name-paths.ts::NamePaths 46a86cae2ceea054
 src/edge-cases/name-shapes.ts::HTTPResponse 753efd6a33926db6
 src/edge-cases/name-shapes.ts::NameHolder 611673eafee083ea

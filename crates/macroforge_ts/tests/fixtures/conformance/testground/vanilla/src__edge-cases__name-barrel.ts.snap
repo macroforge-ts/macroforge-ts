@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/name-barrel.ts
-sha256 add628fc12d9cabc8a4b21bb69457a063f0d071338a4f58580e5d7869535775b
+sha256 4b588996ad25ad83a6f7d3431f78f6106d9d7caba5328a54c7366a2cb60834a3
 
 ## Changed
 

@@ -387,3 +387,28 @@ Deno.test('a type a barrel exports again is coded through its own functions', as
         imports.nameBarrelledEquals(source, { ...source, shown: { ...source.shown, stamp: 7 } })
     );
 });
+
+Deno.test('a type a barrel imports and then exports is coded through its own functions', async () => {
+    const imports = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'name-imports.ts')
+    );
+    const at = new Date(3000);
+    const source = { handed: { note: 'n', at, stamp: 1 }, listed: [{ note: 'm', at, stamp: 2 }] };
+    const encoded = JSON.parse(imports.nameHandedEncode(source));
+    assertEquals(encoded.handed, { note: 'n', at: at.toISOString(), stamp: 1 });
+
+    const value = decoded(imports.nameHandedDecode(encoded));
+    assert(value.handed.at instanceof Date);
+    assertEquals(value.listed, source.listed);
+    assertEquals(
+        errorFields(
+            imports.nameHandedDecode({
+                ...encoded,
+                handed: { note: 1, at: at.toISOString(), stamp: 1 }
+            })
+        ),
+        ['handed.note']
+    );
+    assert(imports.nameHandedEquals(source, { ...source, handed: { ...source.handed, stamp: 7 } }));
+    assertStrictEquals(imports.nameHandedDefaultValue().handed.note, '');
+});

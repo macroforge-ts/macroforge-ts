@@ -1282,12 +1282,34 @@ pub fn collect_export_aliases(program: &Program<'_>) -> Vec<(String, String)> {
 }
 
 /// What a module exports again from other modules: `export { A as B } from
-/// './a'`, `export { default as A } from './a'` and `export * from './a'`.
-/// `export * as space from './a'` exports a namespace, which names no type.
+/// './a'`, `export { default as A } from './a'` and `export * from './a'`,
+/// and a name it imports and then exports (`import { A } from './a'; export
+/// { A as B }`, `export default A`). `export * as space from './a'` and an
+/// exported namespace import export a namespace, which names no type.
 pub fn collect_re_exports(program: &Program<'_>) -> Vec<ModuleReExport> {
+    let imports = crate::import_registry::collect_file_imports(program);
+    let imported_as = |local: &str, exported: &str| {
+        let import = imports.iter().find(|import| import.local_name == local)?;
+        let imported = import.original_name.as_deref().unwrap_or(local);
+        (imported != "*").then(|| ModuleReExport {
+            module_specifier: import.module_specifier.clone(),
+            imported: imported.to_string(),
+            exported: exported.to_string(),
+        })
+    };
     let mut re_exports = Vec::new();
     for statement in &program.body {
         match statement {
+            Statement::ExportNamedDeclaration(export) => {
+                re_exports.extend(export.specifiers.iter().filter_map(|specifier| {
+                    imported_as(&specifier.local.name(), &specifier.exported.name())
+                }));
+            }
+            Statement::ExportDefaultDeclaration(export) => {
+                if let ExportDefaultDeclarationKind::Identifier(name) = &export.declaration {
+                    re_exports.extend(imported_as(&name.name, "default"));
+                }
+            }
             Statement::ExportFromDeclaration(export) => {
                 for specifier in &export.specifiers {
                     re_exports.push(ModuleReExport {
