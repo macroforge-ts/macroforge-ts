@@ -5,7 +5,7 @@
 use std::path::Path;
 use std::sync::Arc;
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result};
 
 use crate::host::declarative::ProjectDeclarativeRegistry;
 use crate::host::scanner::ScanOutput;
@@ -93,8 +93,7 @@ pub fn expand_project_file(
 ) -> Result<MacroExpansion> {
     let thread_state = ThreadStateReset;
     let expansion = expander_for_file(root, path, registries)?
-        .expand_source_recorded(source, &path.display().to_string())
-        .map_err(|err| anyhow!("{err:?}"))?;
+        .expand_source_recorded(source, &path.display().to_string())?;
     drop(thread_state);
     Ok(expansion)
 }

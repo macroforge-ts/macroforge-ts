@@ -355,7 +355,8 @@ fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntr
     let ret = Parser::new(&allocator, &source, source_type).parse();
 
     if !ret.diagnostics.is_empty() {
-        return Err(anyhow::anyhow!("parse errors: {:?}", ret.diagnostics));
+        let messages: Vec<String> = ret.diagnostics.iter().map(ToString::to_string).collect();
+        return Err(anyhow::anyhow!("parse errors: {}", messages.join("; ")));
     }
 
     // Declarative macro discovery shares the same parse. The discovery

@@ -1957,7 +1957,7 @@ Error [290..329]: field 'listed': `5` is no validator: one is written as a strin
 Error [290..329]: field 'listed': `email` is no validator: one is written as a string, such as "email", or as { validate: "...", message: "..." }
 Error [354..400]: field 'ranged': invalid arguments for 'between': the first number is the least and cannot be above the second
 Error [425..470]: field 'sized': invalid arguments for 'length': the first length is the least and cannot be above the second
-Error [780..797]: @endec(encodeWith): invalid expression for 'unclosed': Parse("Expected `)` but found `EOF`")
+Error [780..797]: @endec(encodeWith): invalid expression for 'unclosed': parse error: Expected `)` but found `EOF`
 Error [802..859]: field 'reversed': unknown validator ')('
 Error [802..859]: field 'reversed': invalid arguments for 'minLength': missing closing parenthesis
 Error [269..285]: @derive(Decode): field 'spelled': `format: "decimal"` reads a number from its text, and `string` is not `number`

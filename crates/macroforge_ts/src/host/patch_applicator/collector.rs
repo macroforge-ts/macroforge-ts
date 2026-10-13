@@ -71,7 +71,7 @@ impl PatchCollector {
             dedupe_patches(&mut patches);
             PatchApplicator::new(source, patches)
                 .apply_with_mapping(macro_name)
-                .map_err(|error| MacroError::Patch(format!("Patch error: {error:?}")))?
+                .map_err(|error| MacroError::Patch(format!("Patch error: {error}")))?
         };
         let types = if self.type_patches.is_empty() {
             None
@@ -81,7 +81,7 @@ impl PatchCollector {
             Some(
                 PatchApplicator::new(source, patches)
                     .apply()
-                    .map_err(|error| MacroError::Patch(format!("Type patch error: {error:?}")))?,
+                    .map_err(|error| MacroError::Patch(format!("Type patch error: {error}")))?,
             )
         };
         Ok((runtime, types))

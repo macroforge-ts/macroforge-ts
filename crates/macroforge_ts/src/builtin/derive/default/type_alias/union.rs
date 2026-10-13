@@ -203,7 +203,7 @@ pub(super) fn union_default(
             MacroforgeError::new(
                 input.decorator_span(),
                 format!(
-                    "@derive(Default): invalid default expression for '{}': {err:?}",
+                    "@derive(Default): invalid default expression for '{}': {err}",
                     type_name
                 ),
             )

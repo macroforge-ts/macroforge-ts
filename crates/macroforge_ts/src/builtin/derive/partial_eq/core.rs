@@ -68,7 +68,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
                 MacroforgeError::new(
                     input.decorator_span(),
-                    format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
+                    format!("@derive(PartialEq): invalid comparison expression: {err}"),
                 )
             })?;
 
@@ -126,7 +126,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
                 MacroforgeError::new(
                     input.decorator_span(),
-                    format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
+                    format!("@derive(PartialEq): invalid comparison expression: {err}"),
                 )
             })?;
 
@@ -185,7 +185,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
+                        format!("@derive(PartialEq): invalid comparison expression: {err}"),
                     )
                 })?;
 

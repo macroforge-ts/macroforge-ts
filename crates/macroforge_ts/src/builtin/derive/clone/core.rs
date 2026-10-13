@@ -218,7 +218,7 @@ fn parse_clone_expr(source: &str, input: &DeriveInput) -> Result<Expr, Macroforg
     Expr::parse(source).map_err(|err| {
         MacroforgeError::new(
             input.decorator_span(),
-            format!("@derive(Clone): invalid clone expression: {err:?}"),
+            format!("@derive(Clone): invalid clone expression: {err}"),
         )
     })
 }

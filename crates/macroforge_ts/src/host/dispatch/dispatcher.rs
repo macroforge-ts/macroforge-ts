@@ -157,7 +157,7 @@ impl MacroDispatcher {
                             return MacroResult {
                                 diagnostics: vec![Diagnostic {
                                     level: DiagnosticLevel::Error,
-                                    message: format!("Failed to create TsStream: {:?}", err),
+                                    message: format!("Failed to create TsStream: {err}"),
                                     span: Some(ctx.decorator_span),
                                     notes: vec![],
                                     help: None,

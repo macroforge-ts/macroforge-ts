@@ -103,7 +103,7 @@ pub(super) fn class_default(
             MacroforgeError::new(
                 input.decorator_span(),
                 format!(
-                    "@derive(Default): invalid default expression for '{}': {err:?}",
+                    "@derive(Default): invalid default expression for '{}': {err}",
                     field.name
                 ),
             )

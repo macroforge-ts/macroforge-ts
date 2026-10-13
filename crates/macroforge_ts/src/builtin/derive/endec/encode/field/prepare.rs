@@ -96,7 +96,7 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
                 diagnostics.error(
                     field.span,
                     format!(
-                        "@endec(encodeWith): invalid expression for '{}': {err:?}",
+                        "@endec(encodeWith): invalid expression for '{}': {err}",
                         field.name
                     ),
                 );

@@ -66,7 +66,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
-                                    "@derive(Ord): invalid comparison expression for '{}': {err:?}",
+                                    "@derive(Ord): invalid comparison expression for '{}': {err}",
                                     f.name
                                 ),
                             )
@@ -161,7 +161,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
-                                    "@derive(Ord): invalid comparison expression for '{}': {err:?}",
+                                    "@derive(Ord): invalid comparison expression for '{}': {err}",
                                     f.name
                                 ),
                             )
@@ -229,7 +229,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                 MacroforgeError::new(
                                     input.decorator_span(),
                                     format!(
-                                        "@derive(Ord): invalid comparison expression for '{}': {err:?}",
+                                        "@derive(Ord): invalid comparison expression for '{}': {err}",
                                         f.name
                                     ),
                                 )
@@ -294,7 +294,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 let order = Expr::parse(&order_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(Ord): invalid comparison expression: {err:?}"),
+                        format!("@derive(Ord): invalid comparison expression: {err}"),
                     )
                 })?;
                 Ok(ts_template! {

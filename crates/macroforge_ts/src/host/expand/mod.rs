@@ -960,15 +960,15 @@ impl MacroExpander {
 
         let items = LoweredItems {
             classes: lower_classes(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             interfaces: lower_interfaces(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             enums: lower_enums(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             type_aliases: lower_type_aliases(&parsed.program, source)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             functions: lower_functions(&parsed.program, source, filter)
-                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
+                .map_err(|error| MacroError::Lower(error.to_string()))?,
             imports: crate::host::import_registry::ImportRegistry::from_program(
                 &parsed.program,
                 source,

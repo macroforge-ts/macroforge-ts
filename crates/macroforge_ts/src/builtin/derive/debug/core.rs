@@ -197,7 +197,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 let rendered = Expr::parse(&rendered_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(Debug): invalid debug expression: {err:?}"),
+                        format!("@derive(Debug): invalid debug expression: {err}"),
                     )
                 })?;
                 Ok(ts_template! {

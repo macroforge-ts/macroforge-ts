@@ -68,7 +68,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(
-                                "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                "@derive(Hash): invalid hash expression for '{}': {err}",
                                 f.name
                             ),
                         )
@@ -146,7 +146,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(
-                                "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                "@derive(Hash): invalid hash expression for '{}': {err}",
                                 f.name
                             ),
                         )
@@ -205,7 +205,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
-                                    "@derive(Hash): invalid hash expression for '{}': {err:?}",
+                                    "@derive(Hash): invalid hash expression for '{}': {err}",
                                     f.name
                                 ),
                             )
@@ -248,7 +248,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 let hash_expr = Expr::parse(&hash_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(Hash): invalid hash expression: {err:?}"),
+                        format!("@derive(Hash): invalid hash expression: {err}"),
                     )
                 })?;
                 let parameter = ts_ident!(parameter_name("value", &hash_src));

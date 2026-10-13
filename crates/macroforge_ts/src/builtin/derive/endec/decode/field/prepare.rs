@@ -72,7 +72,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
                 diagnostics.error(
                     field.span,
                     format!(
-                        "@endec({{default: ...}}): invalid expression for '{}': {err:?}",
+                        "@endec({{default: ...}}): invalid expression for '{}': {err}",
                         field.name
                     ),
                 );
@@ -239,7 +239,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
                 diagnostics.error(
                     field.span,
                     format!(
-                        "@endec(decodeWith): invalid expression for '{}': {err:?}",
+                        "@endec(decodeWith): invalid expression for '{}': {err}",
                         field.name
                     ),
                 );
@@ -351,7 +351,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
             diagnostics.error(
                 field.span,
                 format!(
-                    "@endec({{default: ...}}): invalid expression for '{}': {err:?}",
+                    "@endec({{default: ...}}): invalid expression for '{}': {err}",
                     field.name
                 ),
             );

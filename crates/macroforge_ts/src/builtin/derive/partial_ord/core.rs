@@ -262,7 +262,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let order = Expr::parse(&order_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
-                        format!("@derive(PartialOrd): invalid comparison expression: {err:?}"),
+                        format!("@derive(PartialOrd): invalid comparison expression: {err}"),
                     )
                 })?;
                 Ok(ts_template! {
