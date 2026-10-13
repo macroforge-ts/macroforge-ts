@@ -44,6 +44,38 @@ fn test_parse_config_with_foreign_types() {
     assert!(dt.decode_expr.is_some());
 }
 
+/// The handlers of a foreign type are exported under names made of its own,
+/// so a key that is no name is refused where the config is read.
+#[test]
+fn a_foreign_type_goes_by_a_name() {
+    let config = |key: &str| {
+        format!("export default {{ foreignTypes: {{ {key}: {{ from: [\"effect\"] }} }} }}")
+    };
+    for name in ["DateTime", "'DateTime.DateTime'", "'$Id'", "'Ünïcode'"] {
+        assert!(
+            parse(&config(name), "macroforge.config.js").is_ok(),
+            "{name}"
+        );
+    }
+    for key in [
+        "'Map<string, Decimal>'",
+        "'my-type'",
+        "'Date Time'",
+        "''",
+        "'DateTime.'",
+        "'2D'",
+    ] {
+        let message = match parse(&config(key), "macroforge.config.js") {
+            Ok(_) => panic!("{key} was read as a name"),
+            Err(error) => error.to_string(),
+        };
+        assert!(
+            message.contains("is no name a foreign type can go by"),
+            "{key}: {message}"
+        );
+    }
+}
+
 #[test]
 fn test_parse_config_with_multiple_sources() {
     let content = r#"

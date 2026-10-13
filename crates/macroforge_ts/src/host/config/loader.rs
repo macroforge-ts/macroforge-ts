@@ -303,6 +303,15 @@ fn expr_to_json(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::Valu
     }
 }
 
+/// Whether `segment` is an identifier, in any script.
+fn is_identifier(segment: &str) -> bool {
+    let mut letters = segment.chars();
+    letters
+        .next()
+        .is_some_and(|first| first.is_alphabetic() || matches!(first, '_' | '$'))
+        && letters.all(|letter| letter.is_alphanumeric() || matches!(letter, '_' | '$'))
+}
+
 /// One `foreignTypes` entry of the config at `location`. A key it cannot read
 /// is an error, so an option that would be ignored never goes unnoticed.
 pub(super) fn parse_single_foreign_type(
@@ -312,6 +321,13 @@ pub(super) fn parse_single_foreign_type(
     source: &str,
     module: &Path,
 ) -> Result<ForeignTypeConfig> {
+    // The handlers are exported under names made of this one, so it has to
+    // be one: identifiers joined by dots, as the type is named in a field.
+    if !name.split('.').all(is_identifier) {
+        return Err(MacroError::InvalidConfig(format!(
+            "{location}: `{name}` is no name a foreign type can go by; write the type as a field names it, such as `DateTime` or `DateTime.DateTime`, without type arguments"
+        )));
+    }
     let mut ft = ForeignTypeConfig {
         name: name.to_string(),
         ..Default::default()
