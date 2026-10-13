@@ -1593,6 +1593,13 @@ impl MacroExpander {
                     let mut type_def = type_def;
 
                     if let Some(tokens) = &result.tokens {
+                        // A type the expansion brought in from another module
+                        // has its functions imported from there, as one the
+                        // file imports itself does.
+                        let mut import_sources = import_sources.clone();
+                        import_sources.extend(crate::host::import_registry::with_registry(
+                            |registry| registry.borrowed_modules(),
+                        ));
                         let external_imports = external_type_function_import_patches(
                             tokens,
                             &import_sources,

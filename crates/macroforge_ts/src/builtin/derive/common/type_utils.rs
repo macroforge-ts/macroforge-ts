@@ -340,17 +340,64 @@ struct Names<'a> {
     file_imports: &'a [FileImportEntry],
 }
 
-/// The keys of `Record<K, V>` when `K` is a finite set of them, each as it
-/// is written in an object literal: a union of literals, an alias of one, or
+/// A key of a `Record` over a finite set of keys.
+enum RecordKey {
+    /// A literal, as its type writes it: `'a'`, `1`.
+    Literal(String),
+    /// An enum's member, as an expression: `Status.Active`.
+    Member(String),
+}
+
+/// The text of each key a `Record<K, V>` has to have when `K` is a finite
+/// set of keys, as an expression: a union of literals, an alias of one, or
 /// an enum. `None` for a key type such as `string`, which names no key.
+pub fn record_key_texts(
+    key_type: &str,
+    registry: &TypeRegistry,
+    file_path: &str,
+    file_imports: &[FileImportEntry],
+) -> Option<Vec<String>> {
+    let names = Names {
+        registry,
+        file_path,
+        file_imports,
+    };
+    Some(
+        finite_record_keys(key_type, &names)?
+            .into_iter()
+            .map(|key| match key {
+                RecordKey::Literal(value) | RecordKey::Member(value) => {
+                    rendered(ts_template! { String(@{value}) })
+                }
+            })
+            .collect(),
+    )
+}
+
+/// [`finite_record_keys`], each as it is written in an object literal.
 fn record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<String>> {
+    Some(
+        finite_record_keys(key_type, names)?
+            .into_iter()
+            .map(|key| match key {
+                RecordKey::Literal(literal) => literal,
+                RecordKey::Member(member) => rendered(ts_template! { [@{member}] }),
+            })
+            .collect(),
+    )
+}
+
+/// The keys of `Record<K, V>` when `K` is a finite set of them: a union of
+/// literals, an alias of one, or an enum. `None` for a key type such as
+/// `string`, which names no key.
+fn finite_record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<RecordKey>> {
     let key_type = key_type.trim();
     let literal_key = |member: &str| {
         let member = member.trim();
         let is_literal = member.starts_with(['"', '\''])
             || member.parse::<f64>().is_ok()
             || matches!(member, "true" | "false");
-        is_literal.then(|| member.to_string())
+        is_literal.then(|| RecordKey::Literal(member.to_string()))
     };
     let members = split_top_level_union(key_type).unwrap_or_else(|| vec![key_type]);
     if let Some(keys) = members.iter().map(|member| literal_key(member)).collect() {
@@ -366,7 +413,7 @@ fn record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<String>> {
                 .iter()
                 .map(|variant| {
                     let member = super::Member::of(&variant.name);
-                    rendered(ts_template! { [@{key_type}@{member}] })
+                    RecordKey::Member(rendered(ts_template! { @{key_type}@{member} }))
                 })
                 .collect(),
         ),

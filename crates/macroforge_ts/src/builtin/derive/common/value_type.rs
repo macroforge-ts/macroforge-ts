@@ -150,7 +150,13 @@ fn primitive_keyword(ts_type: &str) -> Option<&'static str> {
         "number" => Some("number"),
         "boolean" | "true" | "false" => Some("boolean"),
         "bigint" => Some("bigint"),
-        _ if ts_type.starts_with(['"', '\'', '`']) => Some("string"),
+        // A literal is quoted from end to end: `'a'[]` only starts as one.
+        _ if ['"', '\'', '`'].into_iter().any(|quote| {
+            ts_type.len() > 1 && ts_type.starts_with(quote) && ts_type.ends_with(quote)
+        }) =>
+        {
+            Some("string")
+        }
         _ if ts_type.ends_with('n')
             && ts_type
                 .trim_end_matches('n')

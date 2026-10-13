@@ -590,7 +590,7 @@ impl MacroContextIR {
 /// directory containing `current_file`. Strips `.svelte.ts` → `.svelte`,
 /// `.tsx` → empty, `.ts` → empty, and prepends `./` for sibling/descendant
 /// paths.
-fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
+pub(super) fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
     use std::path::Path;
     let from = Path::new(current_file).parent()?;
     let to = Path::new(target_file);

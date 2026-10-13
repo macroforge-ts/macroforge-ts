@@ -161,9 +161,11 @@ impl TypeCategory {
     fn classify(ts_type: &str) -> Self {
         let trimmed = ts_type.trim();
 
-        // Handle string literal types (e.g., "Zoned", 'foo') - these are primitive-like
+        // Handle string literal types (e.g., "Zoned", 'foo') and template
+        // literal types (`id-${number}`) - these are primitive-like
         if (trimmed.starts_with('"') && trimmed.ends_with('"'))
             || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
+            || (trimmed.starts_with('`') && trimmed.ends_with('`'))
         {
             return Self::Primitive;
         }

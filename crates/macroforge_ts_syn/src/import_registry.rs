@@ -287,6 +287,16 @@ impl ImportRegistry {
         );
     }
 
+    /// The module of each type an expansion [borrowed](Self::borrow_import)
+    /// under its own name, which is the name its generated functions carry.
+    pub fn borrowed_modules(&self) -> HashMap<String, String> {
+        self.borrowed
+            .iter()
+            .filter(|(_, import)| import.original_name.is_none())
+            .map(|(name, import)| (name.clone(), import.source_module.clone()))
+            .collect()
+    }
+
     /// Get all source imports as a reference to the internal HashMap.
     pub fn source_map(&self) -> &HashMap<String, SourceImport> {
         &self.source_imports

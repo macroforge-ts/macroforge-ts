@@ -5,16 +5,20 @@
 //! Both directions return `None` for a type whose values are their own
 //! encoding, so a caller keeps the value as it is.
 
+use std::collections::HashMap;
+
 use crate::builtin::derive::common::{
-    EnumValueKinds, Member, fields_from_definition, is_identifier_name, js_string, property_key,
-    rendered, tuple_body, tuple_element, type_has_derive,
+    EnumValueKinds, Member, fields_from_definition, is_identifier_name, js_string,
+    parse_generic_type, property_key, record_key_texts, rendered, tuple_body, tuple_element,
+    type_has_derive,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::class::MemberKey;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 use crate::ts_syn::abi::ir::{
-    resolve_generic_aliases_where, split_top_level_commas, split_top_level_union, typeof_primitive,
+    Unadopted, adopt_type_scope, resolve_generic_aliases_where, split_top_level_commas,
+    split_top_level_union, substitute_tokens, typeof_primitive,
 };
 use crate::ts_syn::config::ForeignHandler;
 
@@ -48,6 +52,8 @@ impl TypeScope<'_> {
         direction: Direction,
         depth: usize,
     ) -> Result<Option<NestedType>, String> {
+        let defaulted = self.with_default_arguments(ts_type);
+        let ts_type = defaulted.as_deref().unwrap_or(ts_type);
         let Some(mut nested) = NestedType::of(ts_type, &|name| self.is_param(name))? else {
             return Ok(None);
         };
@@ -73,6 +79,48 @@ impl TypeScope<'_> {
             nested.demanded = self.optional_keys(&nested);
         }
         Ok(Some(nested))
+    }
+
+    /// `ts_type` with the type arguments it leaves to their defaults written
+    /// out, when the registry holds the type and it leaves any: `Box` is
+    /// `Box<string>` for `Box<T = string>`. A default may name a parameter
+    /// before it.
+    fn with_default_arguments(&self, ts_type: &str) -> Option<String> {
+        let ts_type = ts_type.trim();
+        let (base, written) = match parse_generic_type(ts_type).filter(|_| ts_type.ends_with('>')) {
+            Some((base, arguments)) => (base, split_top_level_commas(arguments)),
+            None => (ts_type, Vec::new()),
+        };
+        if !is_identifier_name(base) {
+            return None;
+        }
+        let entry = self
+            .registry
+            .resolve_in_file(base, self.file_path, self.file_imports)?;
+        let params = match &entry.definition {
+            TypeDefinitionIR::Class(class) => &class.type_params,
+            TypeDefinitionIR::Interface(interface) => &interface.type_params,
+            TypeDefinitionIR::TypeAlias(alias) => &alias.type_params,
+            TypeDefinitionIR::Enum(_) => return None,
+        };
+        if written.len() >= params.len() {
+            return None;
+        }
+        let mut arguments: Vec<String> = written
+            .iter()
+            .map(|argument| argument.trim().to_string())
+            .collect();
+        for param in params.iter().skip(arguments.len()) {
+            let default = param.default.as_deref()?;
+            let earlier: HashMap<&str, &str> = params
+                .iter()
+                .map(|param| param.name.as_str())
+                .zip(arguments.iter().map(String::as_str))
+                .collect();
+            let default = substitute_tokens(default, &earlier);
+            arguments.push(default);
+        }
+        Some(format!("{base}<{}>", arguments.join(", ")))
     }
 
     /// The fields `nested` keeps that its type lets a value leave out, each
@@ -142,54 +190,97 @@ impl TypeScope<'_> {
 
     /// The type `ts_type` reads off a type this project declares, when it is
     /// `keyof Name` or `Name['field']` and the fields of `Name` are known:
-    /// the names of its fields, or the type of the one named.
-    fn operator_type(&self, ts_type: &str) -> Option<String> {
+    /// the names of its fields, or the type of the one named, whose own
+    /// named types are imported from where they are declared. An error when
+    /// one of those cannot be imported here.
+    fn operator_type(&self, ts_type: &str) -> Result<Option<String>, String> {
         let ts_type = ts_type.trim();
-        let fields_of = |name: &str| {
-            let entry =
-                self.registry
-                    .resolve_in_file(name.trim(), self.file_path, self.file_imports)?;
-            fields_from_definition(&entry.definition, self.registry)
+        let declared = |name: &str| {
+            self.registry
+                .resolve_in_file(name.trim(), self.file_path, self.file_imports)
         };
         if let Some(name) = ts_type.strip_prefix("keyof ") {
-            let keys: Vec<String> = fields_of(name)?
+            let keys: Vec<String> = declared(name)
+                .and_then(|entry| fields_from_definition(&entry.definition, self.registry))
+                .unwrap_or_default()
                 .iter()
                 .map(|field| js_string(&field.name))
                 .collect();
-            return (!keys.is_empty()).then(|| keys.join(" | "));
+            return Ok((!keys.is_empty()).then(|| keys.join(" | ")));
         }
-        let (name, key) = ts_type.strip_suffix(']')?.split_once('[')?;
+        let Some((name, key)) = ts_type
+            .strip_suffix(']')
+            .and_then(|indexed| indexed.split_once('['))
+        else {
+            return Ok(None);
+        };
         let key = key.trim();
-        let key = key
+        let Some(key) = key
             .strip_prefix('\'')
             .and_then(|key| key.strip_suffix('\''))
-            .or_else(|| key.strip_prefix('"').and_then(|key| key.strip_suffix('"')))?;
-        let field = fields_of(name)?
+            .or_else(|| key.strip_prefix('"').and_then(|key| key.strip_suffix('"')))
+        else {
+            return Ok(None);
+        };
+        let Some(entry) = declared(name) else {
+            return Ok(None);
+        };
+        let Some(field) = fields_from_definition(&entry.definition, self.registry)
+            .unwrap_or_default()
             .into_iter()
-            .find(|field| field.name == key)?;
-        Some(if field.optional {
+            .find(|field| field.name == key)
+        else {
+            return Ok(None);
+        };
+        // The field's type is written where `name` is declared, so the types
+        // it names are brought in from there, with their coders.
+        if let Err(unadopted) =
+            adopt_type_scope(&field.ts_type, entry, self.registry, self.file_path)
+        {
+            let (named, why) = match &unadopted {
+                Unadopted::Private(named) => (
+                    named,
+                    format!("a type its module does not export; export `{named}`"),
+                ),
+                Unadopted::Taken(named) => (
+                    named,
+                    format!(
+                        "and this file has another `{named}`; give one of the two another name"
+                    ),
+                ),
+                Unadopted::Unplaced(named) => (
+                    named,
+                    "a type whose module cannot be named from this file".to_string(),
+                ),
+            };
+            return Err(format!(
+                "`{ts_type}` is `{}`, which names `{named}`, {why}, or write the field's type out",
+                field.ts_type
+            ));
+        }
+        Ok(Some(if field.optional {
             format!("{} | undefined", field.ts_type)
         } else {
             field.ts_type
-        })
+        }))
     }
 
     /// `ts_type` with each member an operator reads off a declared type
     /// written as what the operator yields, when it has such a member.
-    pub(crate) fn operators_resolved(&self, ts_type: &str) -> Option<String> {
+    pub(crate) fn operators_resolved(&self, ts_type: &str) -> Result<Option<String>, String> {
         let members = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
         let yielded: Vec<Option<String>> = members
             .iter()
             .map(|member| self.operator_type(member))
-            .collect();
-        yielded.iter().any(Option::is_some).then(|| {
+            .collect::<Result<_, _>>()?;
+        Ok(yielded.iter().any(Option::is_some).then(|| {
             members
                 .iter()
                 .zip(yielded)
                 .map(|(member, yielded)| yielded.unwrap_or_else(|| member.to_string()))
                 .collect::<Vec<_>>()
                 .join(" | ")
-        })
+        }))
     }
 
     /// The coder parameter in scope for `ts_type`, when it is one of the
@@ -699,8 +790,11 @@ pub(crate) fn encode_expr(
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Encode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{value}) })));
     }
-    if let Some(yielded) = scope.operators_resolved(ts_type) {
+    if let Some(yielded) = scope.operators_resolved(ts_type)? {
         return encode_expr(&yielded, value, scope, depth);
+    }
+    if let Some(written) = wrapper_over_structure(ts_type).transpose()? {
+        return encode_expr(&written, value, scope, depth);
     }
     if let Some(reason) = uncodable(ts_type) {
         return Err(reason);
@@ -950,8 +1044,12 @@ pub(crate) fn decode_expr(
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Decode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{raw}) })));
     }
-    if let Some(yielded) = scope.operators_resolved(ts_type) {
+    if let Some(yielded) = scope.operators_resolved(ts_type)? {
         return decode_expr(&yielded, raw, scope, depth);
+    }
+    if let Some(written) = wrapper_over_structure(ts_type).transpose()? {
+        return Ok(decode_expr(&written, raw, scope, depth)?
+            .map(|decoded| rendered(ts_template! { (@{decoded} as @{ts_type}) })));
     }
     if let Some(reason) = uncodable(ts_type) {
         return Err(reason);
@@ -1021,14 +1119,16 @@ pub(crate) fn decode_expr(
                 ts_template! { @{decode_map}(@{raw}, ctx, @{key}, @{item}) },
             ))
         }
-        TypeCategory::Record(_, value_type) => {
-            if item_is_itself(&value_type)? {
+        TypeCategory::Record(key_type, value_type) => {
+            let keys = record_key_arguments(&key_type, scope, depth)?;
+            if keys.is_none() && item_is_itself(&value_type)? {
                 None
             } else {
                 let decode_record = endec_helper("decodeRecord");
                 let item = decoder(&value_type, scope, depth)?;
+                let keys = keys.unwrap_or_default();
                 Some(rendered(
-                    ts_template! { (@{decode_record}(@{raw}, ctx, @{item}) as @{ts_type}) },
+                    ts_template! { (@{decode_record}(@{raw}, ctx, @{item}@{keys}) as @{ts_type}) },
                 ))
             }
         }
@@ -1128,6 +1228,94 @@ fn decode_tuple(
             (@{decode_tuple}(@{raw}, ctx, [@{items}], @{required}) as @{tuple_type})
         }),
     }))
+}
+
+/// The type a wrapper over a type written in place is coded as:
+/// `Readonly<Record<K, V>>` as the record, `NonNullable<T | null>` as `T`,
+/// and `Partial<Record<'a' | 'b', V>>` as an object whose members may be
+/// missing. `None` for any other type, a wrapper of a named type among them,
+/// which that type's own coders take. An error for a wrapper that picks
+/// members out of a type written in place.
+pub(crate) fn wrapper_over_structure(ts_type: &str) -> Option<Result<String, String>> {
+    let ts_type = ts_type.trim();
+    let (base, arguments) = parse_generic_type(ts_type).filter(|_| ts_type.ends_with('>'))?;
+    if !matches!(
+        base,
+        "Readonly" | "Required" | "NonNullable" | "Partial" | "Pick" | "Omit"
+    ) {
+        return None;
+    }
+    let arguments = split_top_level_commas(arguments);
+    let inner = arguments.first()?.trim();
+    let category = TypeCategory::from_ts_type(inner);
+    if matches!(
+        category,
+        TypeCategory::Encodable(_) | TypeCategory::Wrapper(_)
+    ) {
+        return None;
+    }
+    let is_literal =
+        |member: &str| member.starts_with(['"', '\'']) || member.parse::<f64>().is_ok();
+    Some(match (base, category) {
+        ("NonNullable", _) => Ok(split_top_level_union(inner)
+            .unwrap_or_else(|| vec![inner])
+            .into_iter()
+            .filter(|member| !matches!(member.trim(), "null" | "undefined"))
+            .collect::<Vec<_>>()
+            .join(" | ")),
+        ("Readonly", _) => Ok(inner.to_string()),
+        ("Required", _) if !inner.starts_with('{') => Ok(inner.to_string()),
+        ("Partial", TypeCategory::Record(key_type, value_type)) => {
+            let keys = split_top_level_union(&key_type).unwrap_or_else(|| vec![&key_type]);
+            if keys.iter().all(|key| is_literal(key.trim())) {
+                // Over a finite set of keys, any of them may be missing.
+                let members: Vec<String> = keys
+                    .iter()
+                    .map(|key| format!("{}?: {value_type}", key.trim()))
+                    .collect();
+                Ok(format!("{{ {} }}", members.join("; ")))
+            } else if matches!(key_type.trim(), "string" | "number")
+                || key_type.trim().starts_with('`')
+            {
+                // An open key type demands no key to begin with.
+                Ok(inner.to_string())
+            } else {
+                Err(unpicked(ts_type))
+            }
+        }
+        _ => Err(unpicked(ts_type)),
+    })
+}
+
+fn unpicked(ts_type: &str) -> String {
+    format!(
+        "`{ts_type}` picks members out of a type written in place, which a derive does not rewrite; write the type out with the members it has, or name it with an alias and derive on that"
+    )
+}
+
+/// The arguments `decodeRecord` takes for the keys of a `Record<K, V>`: a
+/// check of each key, and the keys the record has to have when `K` is a
+/// finite set of them. `None` for `string` and for a type parameter, which
+/// say nothing of the keys.
+fn record_key_arguments(
+    key_type: &str,
+    scope: &TypeScope<'_>,
+    depth: usize,
+) -> Result<Option<String>, String> {
+    let key_type = ungrouped(key_type);
+    if key_type == "string" || scope.is_param(key_type) {
+        return Ok(None);
+    }
+    let check = key_decoder(key_type, scope, depth)?;
+    let required = record_key_texts(
+        key_type,
+        scope.registry,
+        scope.file_path,
+        scope.file_imports,
+    )
+    .map(|keys| keys.join(", "))
+    .unwrap_or_default();
+    Ok(Some(format!(", {check}, [{required}]")))
 }
 
 /// A function giving a `Map`'s key from the text it is spelled as in JSON.

@@ -814,19 +814,33 @@ function defineMember<Value>(target: Record<string, Value>, key: string, value: 
   });
 }
 
-/** Decodes a `Record`, each value with `value`. */
+/**
+ * Decodes a `Record`, each value with `value`. `key` checks each key where
+ * the record's key type is narrower than `string`, throwing for one that is
+ * not of it, and `required` names the keys a record over a finite set of
+ * keys has to have.
+ */
 export function decodeRecord<Value>(
   raw: unknown,
   ctx: DecodeContext,
   value: Decoder<Value>,
+  key?: (text: string) => unknown,
+  required: ReadonlyArray<string> = [],
 ): Record<string, Value> {
   if (!isRawObject(raw)) throw mismatch("an object");
   const members: Record<string, Value> = {};
-  for (const [key, member] of Object.entries(raw)) {
-    inScope(ctx, key, () => {
+  for (const [text, member] of Object.entries(raw)) {
+    inScope(ctx, text, () => {
+      key?.(text);
       settle(ctx, value(member, ctx), (decoded) => {
-        defineMember(members, key, decoded);
+        defineMember(members, text, decoded);
       });
+    });
+  }
+  for (const name of required) {
+    if (holds(raw, name)) continue;
+    inScope(ctx, name, () => {
+      throw new DecodeError([{ field: "_root", message: "missing required field" }]);
     });
   }
   return members;

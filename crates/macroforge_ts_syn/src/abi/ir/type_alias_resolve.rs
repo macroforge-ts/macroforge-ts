@@ -277,7 +277,7 @@ fn render_member(member: &TypeMember, subs: &HashMap<&str, &str>) -> Option<Stri
 /// Replace identifier tokens in `s` that match a key in `subs` with the
 /// substituted value. Everything else, string literals included, passes
 /// through untouched.
-fn substitute_tokens(s: &str, subs: &HashMap<&str, &str>) -> String {
+pub fn substitute_tokens(s: &str, subs: &HashMap<&str, &str>) -> String {
     let mut out = String::with_capacity(s.len());
     for token in tokens(s) {
         match token {

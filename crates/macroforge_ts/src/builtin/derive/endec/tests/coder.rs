@@ -438,3 +438,110 @@ fn a_bare_true_default_is_the_flag() {
     assert_eq!(options("{ default: 1 }").default_expr.as_deref(), Some("1"));
     assert!(!options("{ default: false }").default);
 }
+
+/// A registry holding `Owner`, an unexported `Hidden` and an `Item` with a
+/// field of each in one file, for a scope in another.
+fn declared_elsewhere() -> TypeRegistry {
+    use crate::ts_syn::abi::ir::InterfaceFieldIR;
+    use crate::ts_syn::abi::ir::class::MemberKey;
+    use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistryEntry};
+    use crate::ts_syn::abi::{InterfaceIR, SpanIR};
+
+    let field = |name: &str, ts_type: &str| InterfaceFieldIR {
+        name: name.to_string(),
+        key: MemberKey::Named,
+        span: SpanIR::default(),
+        ts_type: ts_type.to_string(),
+        optional: false,
+        readonly: false,
+        decorators: vec![],
+    };
+    let interface = |name: &str, fields: Vec<InterfaceFieldIR>| InterfaceIR {
+        name: name.to_string(),
+        span: SpanIR::default(),
+        body_span: SpanIR::default(),
+        type_params: vec![],
+        heritage: vec![],
+        decorators: vec![],
+        fields,
+        methods: vec![],
+    };
+    let mut registry = TypeRegistry::new();
+    for declared in [
+        interface("Owner", vec![field("name", "string")]),
+        interface("Hidden", vec![field("name", "string")]),
+        interface(
+            "Item",
+            vec![
+                field("owner", "Owner"),
+                field("label", "string"),
+                field("secret", "Hidden"),
+            ],
+        ),
+    ] {
+        registry.insert(
+            TypeRegistryEntry {
+                is_exported: declared.name != "Hidden",
+                name: declared.name.clone(),
+                file_path: "/project/src/item.ts".to_string(),
+                definition: TypeDefinitionIR::Interface(declared),
+                file_imports: vec![],
+            },
+            "/project",
+        );
+    }
+    registry
+}
+
+#[test]
+fn an_operator_over_a_declared_type_is_read_as_what_it_yields() {
+    use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
+
+    let registry = declared_elsewhere();
+    let import = |name: &str| FileImportEntry {
+        local_name: name.to_string(),
+        module_specifier: "./item".to_string(),
+        original_name: None,
+        is_type_only: true,
+    };
+    let imports = [import("Item")];
+    let scope = TypeScope {
+        registry: &registry,
+        file_path: "/project/src/holder.ts",
+        file_imports: &imports,
+        type_params: &[],
+    };
+    let decoded = |ts_type: &str| {
+        decode_expr(ts_type, "raw", &scope, 0).map(|coded| coded.map(|source| squeezed(&source)))
+    };
+    assert_eq!(
+        decoded("keyof Item"),
+        Ok(Some(
+            r#"(__mf_decodeChecked(raw,raw==="owner"||raw==="label"||raw==="secret","\"owner\"|\"label\"|\"secret\"")as"owner"|"label"|"secret")"#.to_string()
+        ))
+    );
+    assert_eq!(
+        decoded("Item['label']"),
+        Ok(Some("__mf_decodeString(raw)".to_string()))
+    );
+
+    // `Owner` is named where `Item` is declared: it is imported from there.
+    assert_eq!(
+        decoded("Item['owner']"),
+        Ok(Some("ownerDecodeWithContext(raw,ctx)".to_string()))
+    );
+    crate::host::import_registry::with_registry(|imports| {
+        assert_eq!(imports.get_source("Owner"), Some("./item"));
+        assert_eq!(
+            imports.borrowed_modules().get("Owner").map(String::as_str),
+            Some("./item")
+        );
+    });
+
+    // A type its module keeps to itself cannot be.
+    let hidden = decoded("Item['secret']").expect_err("Hidden is not exported");
+    assert!(
+        hidden.contains("names `Hidden`, a type its module does not export; export `Hidden`"),
+        "{hidden}"
+    );
+}

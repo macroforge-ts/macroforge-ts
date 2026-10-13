@@ -52,8 +52,9 @@ fn accepts_string_visiting(
     foreign_types: &[ForeignTypeConfig],
     visiting: &mut Vec<String>,
 ) -> bool {
-    // A string is a `string`'s value, and a `Date`'s as its ISO text.
-    if matches!(type_name, "string" | "Date") {
+    // A string is a `string`'s value, a `Date`'s as its ISO text, and a
+    // template literal type's.
+    if matches!(type_name, "string" | "Date") || type_name.trim_start().starts_with('`') {
         return true;
     }
 
@@ -311,6 +312,10 @@ fn template_test(ts_type: &str, raw: &str) -> Option<String> {
 /// [`primitive_keyword_test`] for a value being decoded: a `number` has to
 /// be finite as well, since no encoding writes `NaN` or an infinity back.
 pub(crate) fn decoded_keyword_test(keyword: &str, value: &str) -> String {
+    // A template literal type is told by its text, not by a `typeof`.
+    if let Some(spells) = template_test(keyword.trim(), value) {
+        return spells;
+    }
     let test = primitive_keyword_test(keyword, value);
     if keyword.trim() == "number" {
         rendered(ts_template! { (@{test} && globalThis.Number.isFinite(@{value})) })

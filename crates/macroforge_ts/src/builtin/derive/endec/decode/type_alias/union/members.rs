@@ -211,6 +211,10 @@ impl<'a> Union<'a> {
             if type_param_set.contains(member.as_str()) {
                 continue;
             }
+            if let Some(reason) = crate::builtin::derive::endec::uncodable::uncodable(member) {
+                arm_diagnostics.error(type_alias.inner.span, format!("@derive(Decode): {reason}"));
+                continue;
+            }
             if matches!(
                 TypeCategory::from_ts_type(member),
                 TypeCategory::Array(_)

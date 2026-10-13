@@ -64,9 +64,23 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         type_params,
     };
     let resolved_ts_type = scope.resolved(field.ts_type, Direction::Decode);
-    let resolved_ts_type = scope
-        .operators_resolved(&resolved_ts_type)
-        .unwrap_or(resolved_ts_type);
+    let resolved_ts_type = match scope.operators_resolved(&resolved_ts_type) {
+        Ok(yielded) => yielded.unwrap_or(resolved_ts_type),
+        Err(message) => {
+            diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+            return None;
+        }
+    };
+    // A wrapper over a type written in place is read as the type it comes to.
+    let resolved_ts_type =
+        match crate::builtin::derive::endec::coder::wrapper_over_structure(&resolved_ts_type) {
+            Some(Ok(written)) => written,
+            Some(Err(message)) if opts.decode_with.is_none() => {
+                diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+                return None;
+            }
+            Some(Err(_)) | None => resolved_ts_type,
+        };
     if opts.decode_with.is_none()
         && let Some(reason) = crate::builtin::derive::endec::uncodable::uncodable(&resolved_ts_type)
     {

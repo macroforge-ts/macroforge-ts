@@ -6,6 +6,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::{Component, Path, PathBuf};
 
+use super::context::relative_module_specifier;
 use super::type_alias::{TypeAliasIR, is_primitive_keyword};
 use super::type_alias_resolve::{identifiers, render_body};
 use super::type_registry::{FileImportEntry, TypeRegistry, TypeRegistryEntry};
@@ -55,6 +56,79 @@ pub(super) fn adopt_alias_scope(
         }
     }
     Some(names)
+}
+
+/// Why a type named in another module cannot be brought into a file.
+#[derive(Debug, PartialEq, Eq)]
+pub enum Unadopted {
+    /// The type is declared beside the one that names it and not exported.
+    Private(String),
+    /// The file already binds the name to something else.
+    Taken(String),
+    /// The type's module cannot be named from the file.
+    Unplaced(String),
+}
+
+/// Brings each type `ts_type` names, as it is written where `entry` is
+/// declared, into `caller_file_path` as a generated type import under its
+/// own name, so the text means there what it means here. A name the caller
+/// binds to the same type already is left alone, as is a keyword or a global.
+pub fn adopt_type_scope(
+    ts_type: &str,
+    entry: &TypeRegistryEntry,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+) -> Result<(), Unadopted> {
+    if entry.file_path == caller_file_path {
+        return Ok(());
+    }
+    let mut adopted = HashSet::new();
+    for ident in identifiers(ts_type) {
+        if is_primitive_keyword(ident) || !adopted.insert(ident) {
+            continue;
+        }
+        // Where the name comes from in the module that writes it.
+        let (module, exported) = if let Some(import) = entry
+            .file_imports
+            .iter()
+            .find(|import| import.local_name == ident)
+        {
+            let module =
+                rebase_specifier(&import.module_specifier, &entry.file_path, caller_file_path)
+                    .ok_or_else(|| Unadopted::Unplaced(ident.to_string()))?;
+            (module, import.original_name.as_deref().unwrap_or(ident))
+        } else if let Some(declared) = registry
+            .get_all(ident)
+            .find(|declared| declared.file_path == entry.file_path)
+        {
+            if !declared.is_exported {
+                return Err(Unadopted::Private(ident.to_string()));
+            }
+            let module = relative_module_specifier(caller_file_path, &entry.file_path)
+                .ok_or_else(|| Unadopted::Unplaced(ident.to_string()))?;
+            (module, ident)
+        } else {
+            continue;
+        };
+        let declared_in_caller = registry
+            .get_all(ident)
+            .any(|declared| declared.file_path == caller_file_path);
+        with_registry_mut(|imports| {
+            let same_binding = imports.get_source(ident) == Some(module.as_str())
+                && imports.resolve_alias(ident).unwrap_or(ident) == exported;
+            if same_binding {
+                return Ok(());
+            }
+            // The generated functions are named after the type, so it is
+            // brought in under its own name or not at all.
+            if declared_in_caller || imports.is_available(ident) || ident != exported {
+                return Err(Unadopted::Taken(ident.to_string()));
+            }
+            imports.borrow_import(ident, None, &module, true);
+            Ok(())
+        })?;
+    }
+    Ok(())
 }
 
 /// The name `import` goes by in the caller: its own name when the caller
