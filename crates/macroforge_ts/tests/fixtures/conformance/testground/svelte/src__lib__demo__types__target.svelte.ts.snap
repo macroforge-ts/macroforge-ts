@@ -449,26 +449,24 @@ export function targetHasShape(value: unknown): boolean {
                         return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered";
                     }
                 }
-
-                let __matchCount = 0;
-                if (accountHasShape(value)) __matchCount++;
-                if (userHasShape(value)) __matchCount++;
-                if (employeeHasShape(value)) __matchCount++;
-                if (appointmentHasShape(value)) __matchCount++;
-                if (leadHasShape(value)) __matchCount++;
-                if (taxRateHasShape(value)) __matchCount++;
-                if (siteHasShape(value)) __matchCount++;
-                if (routeHasShape(value)) __matchCount++;
-                if (companyHasShape(value)) __matchCount++;
-                if (productHasShape(value)) __matchCount++;
-                if (serviceHasShape(value)) __matchCount++;
-                if (orderHasShape(value)) __matchCount++;
-                if (paymentHasShape(value)) __matchCount++;
-                if (packageHasShape(value)) __matchCount++;
-                if (promotionHasShape(value)) __matchCount++;
-                if (representsHasShape(value)) __matchCount++;
-                if (orderedHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (accountHasShape(value)) return true;
+                if (userHasShape(value)) return true;
+                if (employeeHasShape(value)) return true;
+                if (appointmentHasShape(value)) return true;
+                if (leadHasShape(value)) return true;
+                if (taxRateHasShape(value)) return true;
+                if (siteHasShape(value)) return true;
+                if (routeHasShape(value)) return true;
+                if (companyHasShape(value)) return true;
+                if (productHasShape(value)) return true;
+                if (serviceHasShape(value)) return true;
+                if (orderHasShape(value)) return true;
+                if (paymentHasShape(value)) return true;
+                if (packageHasShape(value)) return true;
+                if (promotionHasShape(value)) return true;
+                if (representsHasShape(value)) return true;
+                if (orderedHasShape(value)) return true;
+                return false;
 }
 export function targetIs(value: unknown): value is Target {
     return targetHasShape(value);
@@ -1158,13 +1156,13 @@ export declare const Target: {
 
 original 0..887 -> expanded 2727..3614
 original 936..1209 -> expanded 3614..3887
-original 1209..1210 -> expanded 38107..38108
+original 1209..1210 -> expanded 38005..38006
 generated 0..2727 <- imports
 generated 3887..3971 <- Default
 generated 3971..9832 <- Encode
-generated 9832..23725 <- Decode
-generated 23725..37355 <- Gigaform
-generated 37355..38107 <- __convenience_const
+generated 9832..23623 <- Decode
+generated 23623..37253 <- Gigaform
+generated 37253..38005 <- __convenience_const
 
 ## Metadata
 

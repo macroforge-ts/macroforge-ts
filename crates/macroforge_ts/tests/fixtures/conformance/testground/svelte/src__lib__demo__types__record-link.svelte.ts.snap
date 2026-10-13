@@ -121,8 +121,7 @@ export function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeC
     }
     return value as RecordLink<T>;
 }
-export function recordLinkHasShape(value: unknown): boolean {
-                if (typeof value === "string") return true;
+export function recordLinkHasShape(_value: unknown): boolean {
                 return true;
 }
 export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {
@@ -168,7 +167,7 @@ export declare function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOp
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): RecordLink<T> | __mf_PendingRef;
-export declare function recordLinkHasShape(value: unknown): boolean;
+export declare function recordLinkHasShape(_value: unknown): boolean;
 export declare function recordLinkIs<T>(value: unknown): value is RecordLink<T>;
 export declare const RecordLink: {
 	readonly defaultValue: typeof recordLinkDefaultValue;
@@ -187,12 +186,12 @@ export declare const RecordLink: {
 ## Mapping
 
 original 39..95 -> expanded 509..565
-original 95..96 -> expanded 5344..5345
+original 95..96 -> expanded 5285..5286
 generated 0..509 <- imports
 generated 565..644 <- Default
 generated 644..2106 <- Encode
-generated 2106..4700 <- Decode
-generated 4700..5344 <- __convenience_const
+generated 2106..4641 <- Decode
+generated 4641..5285 <- __convenience_const
 
 ## Metadata
 

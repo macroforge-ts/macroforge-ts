@@ -1280,11 +1280,8 @@ export function variantUntaggedDecodeWithContext(value: unknown, ctx: __mf_Decod
 export function variantUntaggedHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
                 if ((typeof value === "number" && globalThis.Number.isFinite(value))) return true;
-
-                let __matchCount = 0;
-                if (variantCircleHasShape(value)) __matchCount++;
-                if (variantRectHasShape(value)) __matchCount++;
-                if (__matchCount >= 1) return true;
+                if (variantCircleHasShape(value)) return true;
+                if (variantRectHasShape(value)) return true;
                 return false;
 }
 export function variantUntaggedIs(value: unknown): value is VariantUntagged {
@@ -3002,13 +2999,13 @@ original 479..650 -> expanded 24588..24759
 original 650..814 -> expanded 34163..34327
 original 814..978 -> expanded 41551..41715
 original 978..1152 -> expanded 49501..49675
-original 1152..1318 -> expanded 56588..56754
-original 1318..1319 -> expanded 67378..67379
-original 1319..1510 -> expanded 71118..71309
-original 1510..1511 -> expanded 85058..85059
-original 1511..1727 -> expanded 88756..88972
-original 1727..1728 -> expanded 107734..107735
-original 1728..1729 -> expanded 111474..111475
+original 1152..1318 -> expanded 56491..56657
+original 1318..1319 -> expanded 67281..67282
+original 1319..1510 -> expanded 71021..71212
+original 1510..1511 -> expanded 84961..84962
+original 1511..1727 -> expanded 88659..88875
+original 1727..1728 -> expanded 107637..107638
+original 1728..1729 -> expanded 111377..111378
 generated 0..1418 <- imports
 generated 1734..2009 <- Debug
 generated 2009..2170 <- Clone
@@ -3053,53 +3050,53 @@ generated 49819..49942 <- Clone
 generated 49942..50104 <- PartialEq
 generated 50104..50220 <- Hash
 generated 50220..52287 <- Encode
-generated 52287..55635 <- Decode
-generated 55635..56588 <- __convenience_const
-generated 56754..57135 <- Debug
-generated 57135..57360 <- Clone
-generated 57360..57742 <- PartialEq
-generated 57742..58276 <- Hash
-generated 58276..58547 <- Default
-generated 58547..60455 <- Encode
-generated 60455..60784 <- Encode
-generated 60784..67378 <- Decode
-generated 67379..67488 <- Debug
-generated 67488..67596 <- Clone
-generated 67596..67713 <- PartialEq
-generated 67713..67822 <- Hash
-generated 67822..67921 <- Default
-generated 67921..69291 <- Encode
-generated 69291..71118 <- Decode
-generated 71309..71813 <- Debug
-generated 71813..72108 <- Clone
-generated 72108..72674 <- PartialEq
-generated 72674..73562 <- Hash
-generated 73562..73941 <- Default
-generated 73941..76184 <- Encode
-generated 76184..76520 <- Encode
-generated 76520..85058 <- Decode
-generated 85059..85165 <- Debug
-generated 85165..85269 <- Clone
-generated 85269..85382 <- PartialEq
-generated 85382..85488 <- Hash
-generated 85488..85584 <- Default
-generated 85584..86944 <- Encode
-generated 86944..88756 <- Decode
-generated 88972..89698 <- Debug
-generated 89698..90152 <- Clone
-generated 90152..91034 <- PartialEq
-generated 91034..92259 <- Hash
-generated 92259..92780 <- Default
-generated 92780..95622 <- Encode
-generated 95622..95960 <- Encode
-generated 95960..107734 <- Decode
-generated 107735..107844 <- Debug
-generated 107844..107952 <- Clone
-generated 107952..108069 <- PartialEq
-generated 108069..108178 <- Hash
-generated 108178..108277 <- Default
-generated 108277..109647 <- Encode
-generated 109647..111474 <- Decode
+generated 52287..55538 <- Decode
+generated 55538..56491 <- __convenience_const
+generated 56657..57038 <- Debug
+generated 57038..57263 <- Clone
+generated 57263..57645 <- PartialEq
+generated 57645..58179 <- Hash
+generated 58179..58450 <- Default
+generated 58450..60358 <- Encode
+generated 60358..60687 <- Encode
+generated 60687..67281 <- Decode
+generated 67282..67391 <- Debug
+generated 67391..67499 <- Clone
+generated 67499..67616 <- PartialEq
+generated 67616..67725 <- Hash
+generated 67725..67824 <- Default
+generated 67824..69194 <- Encode
+generated 69194..71021 <- Decode
+generated 71212..71716 <- Debug
+generated 71716..72011 <- Clone
+generated 72011..72577 <- PartialEq
+generated 72577..73465 <- Hash
+generated 73465..73844 <- Default
+generated 73844..76087 <- Encode
+generated 76087..76423 <- Encode
+generated 76423..84961 <- Decode
+generated 84962..85068 <- Debug
+generated 85068..85172 <- Clone
+generated 85172..85285 <- PartialEq
+generated 85285..85391 <- Hash
+generated 85391..85487 <- Default
+generated 85487..86847 <- Encode
+generated 86847..88659 <- Decode
+generated 88875..89601 <- Debug
+generated 89601..90055 <- Clone
+generated 90055..90937 <- PartialEq
+generated 90937..92162 <- Hash
+generated 92162..92683 <- Default
+generated 92683..95525 <- Encode
+generated 95525..95863 <- Encode
+generated 95863..107637 <- Decode
+generated 107638..107747 <- Debug
+generated 107747..107855 <- Clone
+generated 107855..107972 <- PartialEq
+generated 107972..108081 <- Hash
+generated 108081..108180 <- Default
+generated 108180..109550 <- Encode
+generated 109550..111377 <- Decode
 
 ## Metadata
 

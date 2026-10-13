@@ -588,11 +588,9 @@ export function shapeHasShape(value: unknown): boolean {
                         return __typeName === "Box<Date>" || __typeName === "Circle";
                     }
                 }
-
-                let __matchCount = 0;
-                if (boxHasShape(value)) __matchCount++;
-                if (circleHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (boxHasShape(value)) return true;
+                if (circleHasShape(value)) return true;
+                return false;
 }
 export function shapeIs(value: unknown): value is Shape {
     return shapeHasShape(value);
@@ -1113,11 +1111,11 @@ original 64..66 -> expanded 9926..9928
 original 96..137 -> expanded 9928..9969
 original 137..139 -> expanded 18315..18317
 original 169..202 -> expanded 18317..18350
-original 202..204 -> expanded 25887..25889
-original 234..269 -> expanded 25889..25924
-original 269..271 -> expanded 33249..33251
-original 332..409 -> expanded 33251..33328
-original 409..410 -> expanded 39645..39646
+original 202..204 -> expanded 25830..25832
+original 234..269 -> expanded 25832..25867
+original 269..271 -> expanded 33192..33194
+original 332..409 -> expanded 33194..33271
+original 409..410 -> expanded 39588..39589
 generated 0..832 <- imports
 generated 866..3164 <- Encode
 generated 3164..9040 <- Decode
@@ -1126,14 +1124,14 @@ generated 9969..12076 <- Encode
 generated 12076..17366 <- Decode
 generated 17366..18315 <- __convenience_const
 generated 18350..20542 <- Encode
-generated 20542..25411 <- Decode
-generated 25411..25887 <- __convenience_const
-generated 25924..28019 <- Encode
-generated 28019..32747 <- Decode
-generated 32747..33249 <- __convenience_const
-generated 33328..35269 <- Encode
-generated 35269..39024 <- Decode
-generated 39024..39645 <- __convenience_const
+generated 20542..25354 <- Decode
+generated 25354..25830 <- __convenience_const
+generated 25867..27962 <- Encode
+generated 27962..32690 <- Decode
+generated 32690..33192 <- __convenience_const
+generated 33271..35212 <- Encode
+generated 35212..38967 <- Decode
+generated 38967..39588 <- __convenience_const
 
 ## Metadata
 

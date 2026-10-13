@@ -488,7 +488,6 @@ export function httpStatusClone(value: HTTPStatus): HTTPStatus {
 }
 
 export function httpStatusEquals(a: HTTPStatus, b: HTTPStatus): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -1115,9 +1114,9 @@ original 184..186 -> expanded 10355..10357
 original 250..290 -> expanded 10357..10397
 original 290..292 -> expanded 19162..19164
 original 356..396 -> expanded 19164..19204
-original 396..398 -> expanded 23389..23391
-original 462..557 -> expanded 23391..23486
-original 557..558 -> expanded 36502..36503
+original 396..398 -> expanded 23359..23361
+original 462..557 -> expanded 23361..23456
+original 557..558 -> expanded 36472..36473
 generated 0..1025 <- imports
 generated 1145..1394 <- Debug
 generated 1394..1523 <- Clone
@@ -1135,17 +1134,17 @@ generated 12988..18038 <- Decode
 generated 18038..19162 <- __convenience_const
 generated 19204..19319 <- Debug
 generated 19319..19405 <- Clone
-generated 19405..19532 <- PartialEq
-generated 19532..20913 <- Encode
-generated 20913..22621 <- Decode
-generated 22621..23389 <- __convenience_const
-generated 23486..23882 <- Debug
-generated 23882..24126 <- Clone
-generated 24126..24393 <- PartialEq
-generated 24393..24557 <- Default
-generated 24557..27111 <- Encode
-generated 27111..35262 <- Decode
-generated 35262..36502 <- __convenience_const
+generated 19405..19502 <- PartialEq
+generated 19502..20883 <- Encode
+generated 20883..22591 <- Decode
+generated 22591..23359 <- __convenience_const
+generated 23456..23852 <- Debug
+generated 23852..24096 <- Clone
+generated 24096..24363 <- PartialEq
+generated 24363..24527 <- Default
+generated 24527..27081 <- Encode
+generated 27081..35232 <- Decode
+generated 35232..36472 <- __convenience_const
 
 ## Metadata
 

@@ -228,13 +228,11 @@ export function colorsConfigHasShape(value: unknown): boolean {
                         return __typeName === "Cardinal" || __typeName === "Ordinal" || __typeName === "Custom" || __typeName === "Gradient";
                     }
                 }
-
-                let __matchCount = 0;
-                if (cardinalHasShape(value)) __matchCount++;
-                if (ordinalHasShape(value)) __matchCount++;
-                if (customHasShape(value)) __matchCount++;
-                if (gradientHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (cardinalHasShape(value)) return true;
+                if (ordinalHasShape(value)) return true;
+                if (customHasShape(value)) return true;
+                if (gradientHasShape(value)) return true;
+                return false;
 }
 export function colorsConfigIs(value: unknown): value is ColorsConfig {
     return colorsConfigHasShape(value);
@@ -547,13 +545,13 @@ export declare const ColorsConfig: {
 
 original 0..257 -> expanded 1121..1378
 original 306..407 -> expanded 1378..1479
-original 407..408 -> expanded 16897..16898
+original 407..408 -> expanded 16834..16835
 generated 0..1121 <- imports
 generated 1479..1576 <- Default
 generated 1576..4129 <- Encode
-generated 4129..10185 <- Decode
-generated 10185..16031 <- Gigaform
-generated 16031..16897 <- __convenience_const
+generated 4129..10122 <- Decode
+generated 10122..15968 <- Gigaform
+generated 15968..16834 <- __convenience_const
 
 ## Metadata
 

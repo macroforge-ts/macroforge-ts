@@ -192,11 +192,9 @@ export function accountNameHasShape(value: unknown): boolean {
                         return __typeName === "CompanyName" || __typeName === "PersonName";
                     }
                 }
-
-                let __matchCount = 0;
-                if (companyNameHasShape(value)) __matchCount++;
-                if (personNameHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (companyNameHasShape(value)) return true;
+                if (personNameHasShape(value)) return true;
+                return false;
 }
 export function accountNameIs(value: unknown): value is AccountName {
     return accountNameHasShape(value);
@@ -451,13 +449,13 @@ export declare const AccountName: {
 
 original 0..173 -> expanded 903..1076
 original 355..423 -> expanded 1076..1144
-original 423..424 -> expanded 13531..13532
+original 423..424 -> expanded 13474..13475
 generated 0..903 <- imports
 generated 1144..1242 <- Default
 generated 1242..3298 <- Encode
-generated 3298..8131 <- Decode
-generated 8131..12684 <- Gigaform
-generated 12684..13531 <- __convenience_const
+generated 3298..8074 <- Decode
+generated 8074..12627 <- Gigaform
+generated 12627..13474 <- __convenience_const
 
 ## Metadata
 

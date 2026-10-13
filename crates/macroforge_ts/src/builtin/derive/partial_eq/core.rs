@@ -7,7 +7,7 @@ use crate::builtin::derive::common::{
     ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
 };
 use crate::builtin::derive::common::{
-    CompareFieldOptions, fixed_tuple, is_primitive_union, rendered, structural_call,
+    CompareFieldOptions, fixed_tuple, is_primitive_union, parameter_name, rendered, structural_call,
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::abi::ir::TypeBody;
@@ -200,9 +200,10 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             } else {
                 let fn_name_ident = type_names.generic_function("Equals");
                 let body = alias_equality_statements(type_alias.body(), type_registry);
+                let left = ts_ident!(parameter_name("a", &body));
+                let right = ts_ident!(parameter_name("b", &body));
                 Ok(ts_template! {
-                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {
-                        if (a === b) return true;
+                    export function @{fn_name_ident}(@{left}: @{type_ident}, @{right}: @{type_ident}): boolean {
                         {$typescript TsStream::from_string(body)}
                     }
                 })
@@ -224,5 +225,13 @@ fn alias_equality_statements(body: &TypeBody, registry: &TypeRegistry) -> String
         }
         None => structural_call("structuralEquals", "a, b"),
     };
-    rendered(ts_template! { return @{equality}; })
+    // Identity settles it before anything is compared, where it is not all
+    // there is to compare.
+    if equality == "a === b" {
+        return rendered(ts_template! { return a === b; });
+    }
+    rendered(ts_template! {
+        if (a === b) return true;
+        return @{equality};
+    })
 }

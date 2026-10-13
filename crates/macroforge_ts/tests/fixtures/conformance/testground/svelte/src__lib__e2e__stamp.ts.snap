@@ -130,16 +130,6 @@ export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
             if (__typeName === "DateTime.DateTime") {
                 return __foreign__dateTimeDateTimeDecode(value) as Stamped<T>;
             }
-        } else {
-
-            const __shapeMatches: Array<string> = [];
-            if (__shapeMatches.length === 1) {
-            }
-        }
-    } else {
-
-        const __shapeMatches: Array<string> = [];
-        if (__shapeMatches.length === 1) {
         }
     }
     if (__foreign__dateTimeDateTimeHasShape(value)) {
@@ -150,22 +140,7 @@ export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
     }
     return value as Stamped<T>;
 }
-export function stampedHasShape(value: unknown): boolean {
-
-                if (typeof value === "object" && value !== null) {
-                    const __typeName = (value as any)["__type"];
-                    if (typeof __typeName === "string") {
-                        if (__typeName === "DateTime.DateTime") return true;
-                    } else {
-                        let __matchCount = 0;
-                        if (__matchCount === 1) return true;
-                    }
-                } else {
-
-                    let __matchCount = 0;
-                    if (__matchCount === 1) return true;
-                }
-                if (__foreign__dateTimeDateTimeHasShape(value)) return true;
+export function stampedHasShape(_value: unknown): boolean {
                 return true;
 }
 export function stampedIs<T>(value: unknown): value is Stamped<T> {
@@ -316,7 +291,7 @@ export declare function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptio
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Stamped<T> | __mf_PendingRef;
-export declare function stampedHasShape(value: unknown): boolean;
+export declare function stampedHasShape(_value: unknown): boolean;
 export declare function stampedIs<T>(value: unknown): value is Stamped<T>;
 export declare const Stamped: {
 	readonly defaultValue: typeof stampedDefaultValue;
@@ -369,21 +344,21 @@ export {};
 
 original 0..251 -> expanded 730..981
 original 290..354 -> expanded 981..1045
-original 354..356 -> expanded 7015..7017
-original 447..467 -> expanded 7017..7037
-original 483..484 -> expanded 7081..7082
-original 484..485 -> expanded 10413..10414
+original 354..356 -> expanded 6120..6122
+original 447..467 -> expanded 6122..6142
+original 483..484 -> expanded 6186..6187
+original 484..485 -> expanded 9518..9519
 generated 0..685 <- imports
 generated 685..730 <- $Newtype
 generated 1045..1152 <- Default
 generated 1152..2599 <- Encode
-generated 2599..6416 <- Decode
-generated 6416..7015 <- __convenience_const
-generated 7037..7081 <- $Newtype
-generated 7082..7159 <- Default
-generated 7159..7851 <- Encode
-generated 7851..9859 <- Decode
-generated 9859..10413 <- __convenience_const
+generated 2599..5521 <- Decode
+generated 5521..6120 <- __convenience_const
+generated 6142..6186 <- $Newtype
+generated 6187..6264 <- Default
+generated 6264..6956 <- Encode
+generated 6956..8964 <- Decode
+generated 8964..9518 <- __convenience_const
 
 ## Metadata
 

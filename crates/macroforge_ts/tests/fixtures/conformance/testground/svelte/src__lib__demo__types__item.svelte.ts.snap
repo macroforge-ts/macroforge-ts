@@ -194,11 +194,9 @@ export function itemHasShape(value: unknown): boolean {
                         return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>";
                     }
                 }
-
-                let __matchCount = 0;
-                if (recordLinkHasShape(value)) __matchCount++;
-                if (recordLinkHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (recordLinkHasShape(value)) return true;
+                if (recordLinkHasShape(value)) return true;
+                return false;
 }
 export function itemIs(value: unknown): value is Item {
     return itemHasShape(value);
@@ -454,13 +452,13 @@ export declare const Item: {
 
 original 0..213 -> expanded 931..1144
 original 262..340 -> expanded 1144..1222
-original 340..341 -> expanded 14640..14641
+original 340..341 -> expanded 14583..14584
 generated 0..931 <- imports
 generated 1222..1283 <- Default
 generated 1283..3848 <- Encode
-generated 3848..9398 <- Decode
-generated 9398..13926 <- Gigaform
-generated 13926..14640 <- __convenience_const
+generated 3848..9341 <- Decode
+generated 9341..13869 <- Gigaform
+generated 13869..14583 <- __convenience_const
 
 ## Metadata
 

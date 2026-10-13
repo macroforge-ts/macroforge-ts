@@ -262,15 +262,13 @@ export function activityTypeHasShape(value: unknown): boolean {
                         return __typeName === "Created" || __typeName === "Edited" || __typeName === "Sent" || __typeName === "Viewed" || __typeName === "Commented" || __typeName === "Paid";
                     }
                 }
-
-                let __matchCount = 0;
-                if (createdHasShape(value)) __matchCount++;
-                if (editedHasShape(value)) __matchCount++;
-                if (sentHasShape(value)) __matchCount++;
-                if (viewedHasShape(value)) __matchCount++;
-                if (commentedHasShape(value)) __matchCount++;
-                if (paidHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (createdHasShape(value)) return true;
+                if (editedHasShape(value)) return true;
+                if (sentHasShape(value)) return true;
+                if (viewedHasShape(value)) return true;
+                if (commentedHasShape(value)) return true;
+                if (paidHasShape(value)) return true;
+                return false;
 }
 export function activityTypeIs(value: unknown): value is ActivityType {
     return activityTypeHasShape(value);
@@ -641,13 +639,13 @@ export declare const ActivityType: {
 
 original 0..341 -> expanded 1336..1677
 original 390..512 -> expanded 1677..1799
-original 512..513 -> expanded 20120..20121
+original 512..513 -> expanded 20051..20052
 generated 0..1336 <- imports
 generated 1799..1895 <- Default
 generated 1895..4936 <- Encode
-generated 4936..12182 <- Decode
-generated 12182..19254 <- Gigaform
-generated 19254..20120 <- __convenience_const
+generated 4936..12113 <- Decode
+generated 12113..19185 <- Gigaform
+generated 19185..20051 <- __convenience_const
 
 ## Metadata
 

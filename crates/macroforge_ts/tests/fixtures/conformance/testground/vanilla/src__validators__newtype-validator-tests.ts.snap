@@ -114,7 +114,6 @@ export function metersClone(value: Meters): Meters {
 }
 
 export function metersEquals(a: Meters, b: Meters): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -959,13 +958,13 @@ export {};
 
 original 0..308 -> expanded 880..1188
 original 324..325 -> expanded 1232..1233
-original 325..420 -> expanded 6026..6121
-original 436..437 -> expanded 6165..6166
-original 437..496 -> expanded 9589..9648
-original 496..582 -> expanded 12702..12788
-original 598..599 -> expanded 12832..12833
-original 599..741 -> expanded 16650..16792
-original 741..742 -> expanded 29458..29459
+original 325..420 -> expanded 5996..6091
+original 436..437 -> expanded 6135..6136
+original 437..496 -> expanded 9559..9618
+original 496..582 -> expanded 12672..12758
+original 598..599 -> expanded 12802..12803
+original 599..741 -> expanded 16620..16762
+original 741..742 -> expanded 29428..29429
 generated 0..745 <- imports
 generated 745..790 <- $Newtype
 generated 790..835 <- $Newtype
@@ -976,25 +975,25 @@ generated 1941..4142 <- Decode
 generated 4142..4216 <- Default
 generated 4216..4319 <- Debug
 generated 4319..4393 <- Clone
-generated 4393..4508 <- PartialEq
-generated 4508..4702 <- Hash
-generated 4702..4861 <- PartialOrd
-generated 4861..5010 <- Ord
-generated 5010..6026 <- __convenience_const
-generated 6121..6165 <- $Newtype
-generated 6166..6890 <- Encode
-generated 6890..9067 <- Decode
-generated 9067..9589 <- __convenience_const
-generated 9648..10340 <- Encode
-generated 10340..12232 <- Decode
-generated 12232..12702 <- __convenience_const
-generated 12788..12832 <- $Newtype
-generated 12833..13573 <- Encode
-generated 13573..16167 <- Decode
-generated 16167..16650 <- __convenience_const
-generated 16792..19496 <- Encode
-generated 19496..28565 <- Decode
-generated 28565..29458 <- __convenience_const
+generated 4393..4478 <- PartialEq
+generated 4478..4672 <- Hash
+generated 4672..4831 <- PartialOrd
+generated 4831..4980 <- Ord
+generated 4980..5996 <- __convenience_const
+generated 6091..6135 <- $Newtype
+generated 6136..6860 <- Encode
+generated 6860..9037 <- Decode
+generated 9037..9559 <- __convenience_const
+generated 9618..10310 <- Encode
+generated 10310..12202 <- Decode
+generated 12202..12672 <- __convenience_const
+generated 12758..12802 <- $Newtype
+generated 12803..13543 <- Encode
+generated 13543..16137 <- Decode
+generated 16137..16620 <- __convenience_const
+generated 16762..19466 <- Encode
+generated 19466..28535 <- Decode
+generated 28535..29428 <- __convenience_const
 
 ## Metadata
 

@@ -4535,10 +4535,8 @@ export function momentHasShape(value: unknown): boolean {
                         return __typeName === "DateTime.DateTime" || __typeName === "Holiday";
                     }
                 }
-
-                let __matchCount = 0;
-                if (holidayHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (holidayHasShape(value)) return true;
+                return false;
 }
 export function momentIs(value: unknown): value is Moment {
     return momentHasShape(value);
@@ -5511,7 +5509,7 @@ original 3718..3760 -> expanded 195105..195147
 original 3790..3837 -> expanded 195147..195194
 original 3837..3892 -> expanded 203532..203587
 original 3914..3964 -> expanded 203587..203637
-original 3964..3965 -> expanded 208898..208899
+original 3964..3965 -> expanded 208844..208845
 generated 0..879 <- imports
 generated 2357..5119 <- Encode
 generated 5119..12946 <- Decode
@@ -5564,8 +5562,8 @@ generated 193960..195105 <- __convenience_const
 generated 195194..197308 <- Encode
 generated 197308..202555 <- Decode
 generated 202555..203532 <- __convenience_const
-generated 203637..208574 <- Decode
-generated 208574..208898 <- __convenience_const
+generated 203637..208520 <- Decode
+generated 208520..208844 <- __convenience_const
 
 ## Metadata
 

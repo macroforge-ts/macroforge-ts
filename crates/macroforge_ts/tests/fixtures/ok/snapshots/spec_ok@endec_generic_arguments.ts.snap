@@ -833,8 +833,7 @@ export function maybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContex
     }
     return value as Maybe<T>;
 }
-export function maybeHasShape(value: unknown): boolean {
-                if (value === null) return true;
+export function maybeHasShape(_value: unknown): boolean {
                 return true;
 }
 export function maybeIs<T>(value: unknown): value is Maybe<T> {
@@ -1858,7 +1857,7 @@ export declare function maybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function maybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Maybe<T> | __mf_PendingRef;
-export declare function maybeHasShape(value: unknown): boolean;
+export declare function maybeHasShape(_value: unknown): boolean;
 export declare function maybeIs<T>(value: unknown): value is Maybe<T>;
 type Pair<
 	Left,
@@ -1996,13 +1995,13 @@ original 187..189 -> expanded 25579..25581
 original 219..312 -> expanded 25581..25674
 original 312..314 -> expanded 32506..32508
 original 344..370 -> expanded 32508..32534
-original 370..372 -> expanded 37129..37131
-original 402..442 -> expanded 37131..37171
-original 442..444 -> expanded 44183..44185
-original 474..518 -> expanded 44185..44229
-original 518..520 -> expanded 53683..53685
-original 550..803 -> expanded 53685..53938
-original 803..804 -> expanded 73408..73409
+original 370..372 -> expanded 37081..37083
+original 402..442 -> expanded 37083..37123
+original 442..444 -> expanded 44135..44137
+original 474..518 -> expanded 44137..44181
+original 518..520 -> expanded 53635..53637
+original 550..803 -> expanded 53637..53890
+original 803..804 -> expanded 73360..73361
 generated 0..939 <- imports
 generated 1024..4027 <- Encode
 generated 4027..13517 <- Decode
@@ -2016,17 +2015,17 @@ generated 25674..28110 <- Encode
 generated 28110..32004 <- Decode
 generated 32004..32506 <- __convenience_const
 generated 32534..34141 <- Encode
-generated 34141..36653 <- Decode
-generated 36653..37129 <- __convenience_const
-generated 37171..38736 <- Encode
-generated 38736..43720 <- Decode
-generated 43720..44183 <- __convenience_const
-generated 44229..46637 <- Encode
-generated 46637..52713 <- Decode
-generated 52713..53683 <- __convenience_const
-generated 53938..57845 <- Encode
-generated 57845..72480 <- Decode
-generated 72480..73408 <- __convenience_const
+generated 34141..36605 <- Decode
+generated 36605..37081 <- __convenience_const
+generated 37123..38688 <- Encode
+generated 38688..43672 <- Decode
+generated 43672..44135 <- __convenience_const
+generated 44181..46589 <- Encode
+generated 46589..52665 <- Decode
+generated 52665..53635 <- __convenience_const
+generated 53890..57797 <- Encode
+generated 57797..72432 <- Decode
+generated 72432..73360 <- __convenience_const
 
 ## Metadata
 

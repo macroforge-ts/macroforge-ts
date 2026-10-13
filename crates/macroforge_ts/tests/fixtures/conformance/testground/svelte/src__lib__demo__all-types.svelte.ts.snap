@@ -37106,13 +37106,11 @@ export function intervalHasShape(value: unknown): boolean {
                         return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule";
                     }
                 }
-
-                let __matchCount = 0;
-                if (dailyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (weeklyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (monthlyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (yearlyRecurrenceRuleHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (dailyRecurrenceRuleHasShape(value)) return true;
+                if (weeklyRecurrenceRuleHasShape(value)) return true;
+                if (monthlyRecurrenceRuleHasShape(value)) return true;
+                if (yearlyRecurrenceRuleHasShape(value)) return true;
+                return false;
 }
 export function intervalIs(value: unknown): value is Interval {
     return intervalHasShape(value);
@@ -38669,26 +38667,24 @@ export function targetHasShape(value: unknown): boolean {
                         return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered";
                     }
                 }
-
-                let __matchCount = 0;
-                if (accountHasShape(value)) __matchCount++;
-                if (userHasShape(value)) __matchCount++;
-                if (employeeHasShape(value)) __matchCount++;
-                if (appointmentHasShape(value)) __matchCount++;
-                if (leadHasShape(value)) __matchCount++;
-                if (taxRateHasShape(value)) __matchCount++;
-                if (siteHasShape(value)) __matchCount++;
-                if (routeHasShape(value)) __matchCount++;
-                if (companyHasShape(value)) __matchCount++;
-                if (productHasShape(value)) __matchCount++;
-                if (serviceHasShape(value)) __matchCount++;
-                if (orderHasShape(value)) __matchCount++;
-                if (paymentHasShape(value)) __matchCount++;
-                if (packageHasShape(value)) __matchCount++;
-                if (promotionHasShape(value)) __matchCount++;
-                if (representsHasShape(value)) __matchCount++;
-                if (orderedHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (accountHasShape(value)) return true;
+                if (userHasShape(value)) return true;
+                if (employeeHasShape(value)) return true;
+                if (appointmentHasShape(value)) return true;
+                if (leadHasShape(value)) return true;
+                if (taxRateHasShape(value)) return true;
+                if (siteHasShape(value)) return true;
+                if (routeHasShape(value)) return true;
+                if (companyHasShape(value)) return true;
+                if (productHasShape(value)) return true;
+                if (serviceHasShape(value)) return true;
+                if (orderHasShape(value)) return true;
+                if (paymentHasShape(value)) return true;
+                if (packageHasShape(value)) return true;
+                if (promotionHasShape(value)) return true;
+                if (representsHasShape(value)) return true;
+                if (orderedHasShape(value)) return true;
+                return false;
 }
 export function targetIs(value: unknown): value is Target {
     return targetHasShape(value);
@@ -41361,11 +41357,9 @@ export function accountNameHasShape(value: unknown): boolean {
                         return __typeName === "CompanyName" || __typeName === "PersonName";
                     }
                 }
-
-                let __matchCount = 0;
-                if (companyNameHasShape(value)) __matchCount++;
-                if (personNameHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (companyNameHasShape(value)) return true;
+                if (personNameHasShape(value)) return true;
+                return false;
 }
 export function accountNameIs(value: unknown): value is AccountName {
     return accountNameHasShape(value);
@@ -42560,13 +42554,11 @@ export function colorsConfigHasShape(value: unknown): boolean {
                         return __typeName === "Cardinal" || __typeName === "Ordinal" || __typeName === "Custom" || __typeName === "Gradient";
                     }
                 }
-
-                let __matchCount = 0;
-                if (cardinalHasShape(value)) __matchCount++;
-                if (ordinalHasShape(value)) __matchCount++;
-                if (customHasShape(value)) __matchCount++;
-                if (gradientHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (cardinalHasShape(value)) return true;
+                if (ordinalHasShape(value)) return true;
+                if (customHasShape(value)) return true;
+                if (gradientHasShape(value)) return true;
+                return false;
 }
 export function colorsConfigIs(value: unknown): value is ColorsConfig {
     return colorsConfigHasShape(value);
@@ -43270,15 +43262,13 @@ export function activityTypeHasShape(value: unknown): boolean {
                         return __typeName === "Created" || __typeName === "Edited" || __typeName === "Sent" || __typeName === "Viewed" || __typeName === "Commented" || __typeName === "Paid";
                     }
                 }
-
-                let __matchCount = 0;
-                if (createdHasShape(value)) __matchCount++;
-                if (editedHasShape(value)) __matchCount++;
-                if (sentHasShape(value)) __matchCount++;
-                if (viewedHasShape(value)) __matchCount++;
-                if (commentedHasShape(value)) __matchCount++;
-                if (paidHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (createdHasShape(value)) return true;
+                if (editedHasShape(value)) return true;
+                if (sentHasShape(value)) return true;
+                if (viewedHasShape(value)) return true;
+                if (commentedHasShape(value)) return true;
+                if (paidHasShape(value)) return true;
+                return false;
 }
 export function activityTypeIs(value: unknown): value is ActivityType {
     return activityTypeHasShape(value);
@@ -44725,11 +44715,9 @@ export function itemHasShape(value: unknown): boolean {
                         return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>";
                     }
                 }
-
-                let __matchCount = 0;
-                if (recordLinkHasShape(value)) __matchCount++;
-                if (recordLinkHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (recordLinkHasShape(value)) return true;
+                if (recordLinkHasShape(value)) return true;
+                return false;
 }
 export function itemIs(value: unknown): value is Item {
     return itemHasShape(value);
@@ -44990,8 +44978,7 @@ export function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeC
     }
     return value as RecordLink<T>;
 }
-export function recordLinkHasShape(value: unknown): boolean {
-                if (typeof value === "string") return true;
+export function recordLinkHasShape(_value: unknown): boolean {
                 return true;
 }
 export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {
@@ -45198,12 +45185,10 @@ export function actorHasShape(value: unknown): boolean {
                         return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
                     }
                 }
-
-                let __matchCount = 0;
-                if (userHasShape(value)) __matchCount++;
-                if (employeeHasShape(value)) __matchCount++;
-                if (accountHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (userHasShape(value)) return true;
+                if (employeeHasShape(value)) return true;
+                if (accountHasShape(value)) return true;
+                return false;
 }
 export function actorIs(value: unknown): value is Actor {
     return actorHasShape(value);
@@ -54712,7 +54697,7 @@ export declare function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOp
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): RecordLink<T> | __mf_PendingRef;
-export declare function recordLinkHasShape(value: unknown): boolean;
+export declare function recordLinkHasShape(_value: unknown): boolean;
 export declare function recordLinkIs<T>(value: unknown): value is RecordLink<T>;
 export declare const RecordLink: {
 	readonly defaultValue: typeof recordLinkDefaultValue;
@@ -55214,55 +55199,55 @@ original 28068..28070 -> expanded 1571614..1571616
 original 28119..28223 -> expanded 1571616..1571720
 original 28223..28225 -> expanded 1590183..1590185
 original 28274..28422 -> expanded 1590185..1590333
-original 28422..28424 -> expanded 1607140..1607142
-original 28473..29237 -> expanded 1607142..1607906
-original 29237..29239 -> expanded 1640795..1640797
-original 29288..29450 -> expanded 1640797..1640959
-original 29450..29452 -> expanded 1652533..1652535
-original 29501..29774 -> expanded 1652535..1652808
-original 29774..29776 -> expanded 1687028..1687030
-original 29825..29889 -> expanded 1687030..1687094
-original 29889..29891 -> expanded 1696527..1696529
-original 29940..30004 -> expanded 1696529..1696593
-original 30004..30006 -> expanded 1705304..1705306
-original 30055..30133 -> expanded 1705306..1705384
-original 30133..30135 -> expanded 1715200..1715202
-original 30184..30251 -> expanded 1715202..1715269
-original 30251..30253 -> expanded 1723503..1723505
-original 30302..30454 -> expanded 1723505..1723657
-original 30454..30456 -> expanded 1735510..1735512
-original 30505..30578 -> expanded 1735512..1735585
-original 30578..30580 -> expanded 1744389..1744391
-original 30629..30747 -> expanded 1744391..1744509
-original 30747..30749 -> expanded 1754610..1754612
-original 30798..30930 -> expanded 1754612..1754744
-original 30930..30932 -> expanded 1765599..1765601
-original 31114..31182 -> expanded 1765601..1765669
-original 31182..31184 -> expanded 1778056..1778058
-original 31233..31299 -> expanded 1778058..1778124
-original 31299..31301 -> expanded 1786881..1786883
-original 31350..31517 -> expanded 1786883..1787050
-original 31517..31519 -> expanded 1799810..1799812
-original 31568..31708 -> expanded 1799812..1799952
-original 31708..31710 -> expanded 1810613..1810615
-original 31759..31860 -> expanded 1810615..1810716
-original 31860..31862 -> expanded 1826134..1826136
-original 31911..32025 -> expanded 1826136..1826250
-original 32025..32027 -> expanded 1836816..1836818
-original 32076..32198 -> expanded 1836818..1836940
-original 32198..32200 -> expanded 1855261..1855263
-original 32249..32352 -> expanded 1855263..1855366
-original 32352..32354 -> expanded 1865141..1865143
-original 32403..32479 -> expanded 1865143..1865219
-original 32479..32481 -> expanded 1874386..1874388
-original 32530..32848 -> expanded 1874388..1874706
-original 32848..32850 -> expanded 1894058..1894060
-original 32899..32977 -> expanded 1894060..1894138
-original 32977..32979 -> expanded 1907556..1907558
-original 33018..33074 -> expanded 1907558..1907614
-original 33074..33076 -> expanded 1912393..1912395
-original 33125..33188 -> expanded 1912395..1912458
-original 33188..33189 -> expanded 1925414..1925415
+original 28422..28424 -> expanded 1607077..1607079
+original 28473..29237 -> expanded 1607079..1607843
+original 29237..29239 -> expanded 1640732..1640734
+original 29288..29450 -> expanded 1640734..1640896
+original 29450..29452 -> expanded 1652470..1652472
+original 29501..29774 -> expanded 1652472..1652745
+original 29774..29776 -> expanded 1686863..1686865
+original 29825..29889 -> expanded 1686865..1686929
+original 29889..29891 -> expanded 1696362..1696364
+original 29940..30004 -> expanded 1696364..1696428
+original 30004..30006 -> expanded 1705139..1705141
+original 30055..30133 -> expanded 1705141..1705219
+original 30133..30135 -> expanded 1715035..1715037
+original 30184..30251 -> expanded 1715037..1715104
+original 30251..30253 -> expanded 1723338..1723340
+original 30302..30454 -> expanded 1723340..1723492
+original 30454..30456 -> expanded 1735345..1735347
+original 30505..30578 -> expanded 1735347..1735420
+original 30578..30580 -> expanded 1744224..1744226
+original 30629..30747 -> expanded 1744226..1744344
+original 30747..30749 -> expanded 1754445..1754447
+original 30798..30930 -> expanded 1754447..1754579
+original 30930..30932 -> expanded 1765434..1765436
+original 31114..31182 -> expanded 1765436..1765504
+original 31182..31184 -> expanded 1777834..1777836
+original 31233..31299 -> expanded 1777836..1777902
+original 31299..31301 -> expanded 1786659..1786661
+original 31350..31517 -> expanded 1786661..1786828
+original 31517..31519 -> expanded 1799588..1799590
+original 31568..31708 -> expanded 1799590..1799730
+original 31708..31710 -> expanded 1810391..1810393
+original 31759..31860 -> expanded 1810393..1810494
+original 31860..31862 -> expanded 1825849..1825851
+original 31911..32025 -> expanded 1825851..1825965
+original 32025..32027 -> expanded 1836531..1836533
+original 32076..32198 -> expanded 1836533..1836655
+original 32198..32200 -> expanded 1854907..1854909
+original 32249..32352 -> expanded 1854909..1855012
+original 32352..32354 -> expanded 1864787..1864789
+original 32403..32479 -> expanded 1864789..1864865
+original 32479..32481 -> expanded 1874032..1874034
+original 32530..32848 -> expanded 1874034..1874352
+original 32848..32850 -> expanded 1893704..1893706
+original 32899..32977 -> expanded 1893706..1893784
+original 32977..32979 -> expanded 1907145..1907147
+original 33018..33074 -> expanded 1907147..1907203
+original 33074..33076 -> expanded 1911923..1911925
+original 33125..33188 -> expanded 1911925..1911988
+original 33188..33189 -> expanded 1924884..1924885
 generated 0..1192 <- imports
 generated 1701..2189 <- Default
 generated 2189..6841 <- Encode
@@ -55566,128 +55551,128 @@ generated 1581832..1588917 <- Gigaform
 generated 1588917..1590183 <- __convenience_const
 generated 1590333..1590433 <- Default
 generated 1590433..1593170 <- Encode
-generated 1593170..1599730 <- Decode
-generated 1599730..1606350 <- Gigaform
-generated 1606350..1607140 <- __convenience_const
-generated 1607906..1607985 <- Default
-generated 1607985..1609336 <- Encode
-generated 1609336..1614808 <- Decode
-generated 1614808..1640081 <- Gigaform
-generated 1640081..1640795 <- __convenience_const
-generated 1640959..1641041 <- Default
-generated 1641041..1642412 <- Encode
-generated 1642412..1644626 <- Decode
-generated 1644626..1651743 <- Gigaform
-generated 1651743..1652533 <- __convenience_const
-generated 1652808..1652892 <- Default
-generated 1652892..1658753 <- Encode
-generated 1658753..1672646 <- Decode
-generated 1672646..1686276 <- Gigaform
-generated 1686276..1687028 <- __convenience_const
-generated 1687094..1687172 <- Default
-generated 1687172..1688568 <- Encode
-generated 1688568..1691233 <- Decode
-generated 1691233..1695642 <- Gigaform
-generated 1695642..1696527 <- __convenience_const
-generated 1696593..1696680 <- Default
-generated 1696680..1698086 <- Encode
-generated 1698086..1699874 <- Decode
-generated 1699874..1704381 <- Gigaform
-generated 1704381..1705304 <- __convenience_const
-generated 1705384..1705464 <- Default
-generated 1705464..1706855 <- Encode
-generated 1706855..1708757 <- Decode
-generated 1708757..1714334 <- Gigaform
-generated 1714334..1715200 <- __convenience_const
-generated 1715269..1715345 <- Default
-generated 1715345..1716706 <- Encode
-generated 1716706..1718437 <- Decode
-generated 1718437..1722751 <- Gigaform
-generated 1722751..1723503 <- __convenience_const
-generated 1723657..1723730 <- Default
-generated 1723730..1725096 <- Encode
-generated 1725096..1727280 <- Decode
-generated 1727280..1734739 <- Gigaform
-generated 1734739..1735510 <- __convenience_const
-generated 1735585..1735659 <- Default
-generated 1735659..1737020 <- Encode
-generated 1737020..1738815 <- Decode
-generated 1738815..1743637 <- Gigaform
-generated 1743637..1744389 <- __convenience_const
-generated 1744509..1744592 <- Default
-generated 1744592..1745963 <- Encode
-generated 1745963..1747943 <- Decode
-generated 1747943..1753820 <- Gigaform
-generated 1753820..1754610 <- __convenience_const
-generated 1754744..1754819 <- Default
-generated 1754819..1756195 <- Encode
-generated 1756195..1758267 <- Decode
-generated 1758267..1764790 <- Gigaform
-generated 1764790..1765599 <- __convenience_const
-generated 1765669..1765767 <- Default
-generated 1765767..1767823 <- Encode
-generated 1767823..1772656 <- Decode
-generated 1772656..1777209 <- Gigaform
-generated 1777209..1778056 <- __convenience_const
-generated 1778124..1778199 <- Default
-generated 1778199..1779570 <- Encode
-generated 1779570..1781346 <- Decode
-generated 1781346..1786091 <- Gigaform
-generated 1786091..1786881 <- __convenience_const
-generated 1787050..1787132 <- Default
-generated 1787132..1788523 <- Encode
-generated 1788523..1790822 <- Decode
-generated 1790822..1798944 <- Gigaform
-generated 1798944..1799810 <- __convenience_const
-generated 1799952..1800031 <- Default
-generated 1800031..1801402 <- Encode
-generated 1801402..1803492 <- Decode
-generated 1803492..1809823 <- Gigaform
-generated 1809823..1810613 <- __convenience_const
-generated 1810716..1810813 <- Default
-generated 1810813..1813366 <- Encode
-generated 1813366..1819422 <- Decode
-generated 1819422..1825268 <- Gigaform
-generated 1825268..1826134 <- __convenience_const
-generated 1826250..1826330 <- Default
-generated 1826330..1827716 <- Encode
-generated 1827716..1829714 <- Decode
-generated 1829714..1835969 <- Gigaform
-generated 1835969..1836816 <- __convenience_const
-generated 1836940..1837036 <- Default
-generated 1837036..1840077 <- Encode
-generated 1840077..1847323 <- Decode
-generated 1847323..1854395 <- Gigaform
-generated 1854395..1855261 <- __convenience_const
-generated 1855366..1855443 <- Default
-generated 1855443..1856819 <- Encode
-generated 1856819..1858732 <- Decode
-generated 1858732..1864332 <- Gigaform
-generated 1864332..1865141 <- __convenience_const
-generated 1865219..1865300 <- Default
-generated 1865300..1866681 <- Encode
-generated 1866681..1868523 <- Decode
-generated 1868523..1873558 <- Gigaform
-generated 1873558..1874386 <- __convenience_const
-generated 1874706..1874776 <- Default
-generated 1874776..1876132 <- Encode
-generated 1876132..1879284 <- Decode
-generated 1879284..1893325 <- Gigaform
-generated 1893325..1894058 <- __convenience_const
-generated 1894138..1894199 <- Default
-generated 1894199..1896764 <- Encode
-generated 1896764..1902314 <- Decode
-generated 1902314..1906842 <- Gigaform
-generated 1906842..1907556 <- __convenience_const
-generated 1907614..1907693 <- Default
-generated 1907693..1909155 <- Encode
-generated 1909155..1911749 <- Decode
-generated 1911749..1912393 <- __convenience_const
-generated 1912458..1912537 <- Default
-generated 1912537..1914785 <- Encode
-generated 1914785..1920000 <- Decode
-generated 1920000..1924681 <- Gigaform
-generated 1924681..1925414 <- __convenience_const
+generated 1593170..1599667 <- Decode
+generated 1599667..1606287 <- Gigaform
+generated 1606287..1607077 <- __convenience_const
+generated 1607843..1607922 <- Default
+generated 1607922..1609273 <- Encode
+generated 1609273..1614745 <- Decode
+generated 1614745..1640018 <- Gigaform
+generated 1640018..1640732 <- __convenience_const
+generated 1640896..1640978 <- Default
+generated 1640978..1642349 <- Encode
+generated 1642349..1644563 <- Decode
+generated 1644563..1651680 <- Gigaform
+generated 1651680..1652470 <- __convenience_const
+generated 1652745..1652829 <- Default
+generated 1652829..1658690 <- Encode
+generated 1658690..1672481 <- Decode
+generated 1672481..1686111 <- Gigaform
+generated 1686111..1686863 <- __convenience_const
+generated 1686929..1687007 <- Default
+generated 1687007..1688403 <- Encode
+generated 1688403..1691068 <- Decode
+generated 1691068..1695477 <- Gigaform
+generated 1695477..1696362 <- __convenience_const
+generated 1696428..1696515 <- Default
+generated 1696515..1697921 <- Encode
+generated 1697921..1699709 <- Decode
+generated 1699709..1704216 <- Gigaform
+generated 1704216..1705139 <- __convenience_const
+generated 1705219..1705299 <- Default
+generated 1705299..1706690 <- Encode
+generated 1706690..1708592 <- Decode
+generated 1708592..1714169 <- Gigaform
+generated 1714169..1715035 <- __convenience_const
+generated 1715104..1715180 <- Default
+generated 1715180..1716541 <- Encode
+generated 1716541..1718272 <- Decode
+generated 1718272..1722586 <- Gigaform
+generated 1722586..1723338 <- __convenience_const
+generated 1723492..1723565 <- Default
+generated 1723565..1724931 <- Encode
+generated 1724931..1727115 <- Decode
+generated 1727115..1734574 <- Gigaform
+generated 1734574..1735345 <- __convenience_const
+generated 1735420..1735494 <- Default
+generated 1735494..1736855 <- Encode
+generated 1736855..1738650 <- Decode
+generated 1738650..1743472 <- Gigaform
+generated 1743472..1744224 <- __convenience_const
+generated 1744344..1744427 <- Default
+generated 1744427..1745798 <- Encode
+generated 1745798..1747778 <- Decode
+generated 1747778..1753655 <- Gigaform
+generated 1753655..1754445 <- __convenience_const
+generated 1754579..1754654 <- Default
+generated 1754654..1756030 <- Encode
+generated 1756030..1758102 <- Decode
+generated 1758102..1764625 <- Gigaform
+generated 1764625..1765434 <- __convenience_const
+generated 1765504..1765602 <- Default
+generated 1765602..1767658 <- Encode
+generated 1767658..1772434 <- Decode
+generated 1772434..1776987 <- Gigaform
+generated 1776987..1777834 <- __convenience_const
+generated 1777902..1777977 <- Default
+generated 1777977..1779348 <- Encode
+generated 1779348..1781124 <- Decode
+generated 1781124..1785869 <- Gigaform
+generated 1785869..1786659 <- __convenience_const
+generated 1786828..1786910 <- Default
+generated 1786910..1788301 <- Encode
+generated 1788301..1790600 <- Decode
+generated 1790600..1798722 <- Gigaform
+generated 1798722..1799588 <- __convenience_const
+generated 1799730..1799809 <- Default
+generated 1799809..1801180 <- Encode
+generated 1801180..1803270 <- Decode
+generated 1803270..1809601 <- Gigaform
+generated 1809601..1810391 <- __convenience_const
+generated 1810494..1810591 <- Default
+generated 1810591..1813144 <- Encode
+generated 1813144..1819137 <- Decode
+generated 1819137..1824983 <- Gigaform
+generated 1824983..1825849 <- __convenience_const
+generated 1825965..1826045 <- Default
+generated 1826045..1827431 <- Encode
+generated 1827431..1829429 <- Decode
+generated 1829429..1835684 <- Gigaform
+generated 1835684..1836531 <- __convenience_const
+generated 1836655..1836751 <- Default
+generated 1836751..1839792 <- Encode
+generated 1839792..1846969 <- Decode
+generated 1846969..1854041 <- Gigaform
+generated 1854041..1854907 <- __convenience_const
+generated 1855012..1855089 <- Default
+generated 1855089..1856465 <- Encode
+generated 1856465..1858378 <- Decode
+generated 1858378..1863978 <- Gigaform
+generated 1863978..1864787 <- __convenience_const
+generated 1864865..1864946 <- Default
+generated 1864946..1866327 <- Encode
+generated 1866327..1868169 <- Decode
+generated 1868169..1873204 <- Gigaform
+generated 1873204..1874032 <- __convenience_const
+generated 1874352..1874422 <- Default
+generated 1874422..1875778 <- Encode
+generated 1875778..1878930 <- Decode
+generated 1878930..1892971 <- Gigaform
+generated 1892971..1893704 <- __convenience_const
+generated 1893784..1893845 <- Default
+generated 1893845..1896410 <- Encode
+generated 1896410..1901903 <- Decode
+generated 1901903..1906431 <- Gigaform
+generated 1906431..1907145 <- __convenience_const
+generated 1907203..1907282 <- Default
+generated 1907282..1908744 <- Encode
+generated 1908744..1911279 <- Decode
+generated 1911279..1911923 <- __convenience_const
+generated 1911988..1912067 <- Default
+generated 1912067..1914315 <- Encode
+generated 1914315..1919470 <- Decode
+generated 1919470..1924151 <- Gigaform
+generated 1924151..1924884 <- __convenience_const
 
 ## Metadata
 

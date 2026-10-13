@@ -208,12 +208,10 @@ export function actorHasShape(value: unknown): boolean {
                         return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
                     }
                 }
-
-                let __matchCount = 0;
-                if (userHasShape(value)) __matchCount++;
-                if (employeeHasShape(value)) __matchCount++;
-                if (accountHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (userHasShape(value)) return true;
+                if (employeeHasShape(value)) return true;
+                if (accountHasShape(value)) return true;
+                return false;
 }
 export function actorIs(value: unknown): value is Actor {
     return actorHasShape(value);
@@ -497,13 +495,13 @@ export declare const Actor: {
 
 original 0..202 -> expanded 981..1183
 original 251..314 -> expanded 1183..1246
-original 314..315 -> expanded 14202..14203
+original 314..315 -> expanded 14142..14143
 generated 0..981 <- imports
 generated 1246..1325 <- Default
 generated 1325..3573 <- Encode
-generated 3573..8788 <- Decode
-generated 8788..13469 <- Gigaform
-generated 13469..14202 <- __convenience_const
+generated 3573..8728 <- Decode
+generated 8728..13409 <- Gigaform
+generated 13409..14142 <- __convenience_const
 
 ## Metadata
 

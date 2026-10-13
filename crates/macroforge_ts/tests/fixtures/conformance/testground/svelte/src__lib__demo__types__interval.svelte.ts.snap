@@ -228,13 +228,11 @@ export function intervalHasShape(value: unknown): boolean {
                         return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule";
                     }
                 }
-
-                let __matchCount = 0;
-                if (dailyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (weeklyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (monthlyRecurrenceRuleHasShape(value)) __matchCount++;
-                if (yearlyRecurrenceRuleHasShape(value)) __matchCount++;
-                return __matchCount >= 1;
+                if (dailyRecurrenceRuleHasShape(value)) return true;
+                if (weeklyRecurrenceRuleHasShape(value)) return true;
+                if (monthlyRecurrenceRuleHasShape(value)) return true;
+                if (yearlyRecurrenceRuleHasShape(value)) return true;
+                return false;
 }
 export function intervalIs(value: unknown): value is Interval {
     return intervalHasShape(value);
@@ -547,13 +545,13 @@ export declare const Interval: {
 
 original 0..367 -> expanded 1384..1751
 original 416..564 -> expanded 1751..1899
-original 564..565 -> expanded 18706..18707
+original 564..565 -> expanded 18643..18644
 generated 0..1384 <- imports
 generated 1899..1999 <- Default
 generated 1999..4736 <- Encode
-generated 4736..11296 <- Decode
-generated 11296..17916 <- Gigaform
-generated 17916..18706 <- __convenience_const
+generated 4736..11233 <- Decode
+generated 11233..17853 <- Gigaform
+generated 17853..18643 <- __convenience_const
 
 ## Metadata
 

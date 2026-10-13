@@ -23,7 +23,6 @@ export function statusToString(value: Status): string {
 }
 
 export function statusEquals(a: Status, b: Status): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -56,12 +55,12 @@ export {};
 ## Mapping
 
 original 38..87 -> expanded 85..134
-original 87..88 -> expanded 683..684
+original 87..88 -> expanded 653..654
 generated 0..85 <- imports
 generated 134..237 <- Debug
-generated 237..352 <- PartialEq
-generated 352..450 <- Hash
-generated 450..683 <- __convenience_const
+generated 237..322 <- PartialEq
+generated 322..420 <- Hash
+generated 420..653 <- __convenience_const
 
 ## Metadata
 

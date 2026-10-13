@@ -101,7 +101,10 @@ pub(crate) fn tuple_equality_statements(elements: &[String], registry: &TypeRegi
         return rendered(ts_template! { return true; });
     }
     let all = comparisons.join(" && ");
-    rendered(ts_template! { return @{all}; })
+    rendered(ts_template! {
+        if (a === b) return true;
+        return @{all};
+    })
 }
 
 fn value_equality(

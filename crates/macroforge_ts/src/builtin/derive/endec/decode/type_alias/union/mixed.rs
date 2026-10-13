@@ -168,6 +168,21 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             {/if}
                                         {/if}
                                     {/for}
+                                {:else if regular_encodables.is_empty()}
+                                    // Internally tagged (default), with no member told by its shape
+                                    if (typeof value === "object" && value !== null) {
+                                        const __typeName = (value as any)["@{tag_field}"];
+                                        if (typeof __typeName === "string") {
+                                            {#for type_ref in foreign_encodables}
+                                                {#if let Some(ref decode_callee) = type_ref.foreign_decode_callee}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(decode_callee).expect("foreign decode expr should parse")}
+                                                    if (__typeName === "@{type_ref.full_type}") {
+                                                        return @{foreign_deser_expr}(value) as @{full_type_ident};
+                                                    }
+                                                {/if}
+                                            {/for}
+                                        }
+                                    }
                                 {:else}
                                     // Internally tagged (default): tag-based + shape matching fallback
                                     if (typeof value === "object" && value !== null) {

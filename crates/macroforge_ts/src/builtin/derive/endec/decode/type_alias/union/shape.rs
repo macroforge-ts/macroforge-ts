@@ -42,8 +42,13 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
         ..
     } = u;
     let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(type_name));
+    // A type parameter may be any value, so a union with one among members
+    // of several kinds has nothing to ask of the value.
+    let takes_any =
+        *has_generic_params && !*is_literal_only && !*is_primitive_only && !*is_encodable_only;
+    let value_param = ts_ident!(if takes_any { "_value" } else { "value" });
     ts_template! {
-        export function @{fn_has_shape_ident}(value: unknown): boolean {
+        export function @{fn_has_shape_ident}(@{value_param}: unknown): boolean {
                         {#if *is_literal_only}
                             const allowedValues = [@{literals.join(", ")}] as const;
                             return allowedValues.includes(value as any);
@@ -85,12 +90,11 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                                 return false;
                             {:else if *is_untagged}
                                 // Untagged: shape matching only
-                                let __matchCount = 0;
                                 {#for type_ref in regular_encodables}
                                     {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                    if (@{has_shape_fn}(value)) __matchCount++;
+                                    if (@{has_shape_fn}(value)) return true;
                                 {/for}
-                                return __matchCount >= 1;
+                                return false;
                             {:else}
                                 // Internally tagged (default): tag-based + shape matching
                                 if (typeof value === "object" && value !== null) {
@@ -101,13 +105,14 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                                 }
 
                                 // Shape matching works for any value type (including non-objects)
-                                let __matchCount = 0;
                                 {#for type_ref in regular_encodables}
                                     {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                    if (@{has_shape_fn}(value)) __matchCount++;
+                                    if (@{has_shape_fn}(value)) return true;
                                 {/for}
-                                return __matchCount >= 1;
+                                return false;
                             {/if}
+                        {:else if takes_any}
+                            return true;
                         {:else}
                             {#if *has_literals}
                                 const allowedLiterals = [@{literals.join(", ")}] as const;
@@ -148,12 +153,16 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                                     }
                                 {:else if *is_untagged}
                                     // Untagged: shape matching only
-                                    let __matchCount = 0;
                                     {#for type_ref in regular_encodables}
                                         {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                        if (@{has_shape_fn}(value)) __matchCount++;
+                                        if (@{has_shape_fn}(value)) return true;
                                     {/for}
-                                    if (__matchCount >= 1) return true;
+                                {:else if regular_encodables.is_empty()}
+                                    // Internally tagged (default), with no member told by its shape
+                                    if (typeof value === "object" && value !== null) {
+                                        const __typeName = (value as any)["@{tag_field}"];
+                                        if (typeof __typeName === "string" && (@{encodable_type_check_condition})) return true;
+                                    }
                                 {:else}
                                     // Internally tagged (default)
                                     if (typeof value === "object" && value !== null) {
@@ -206,11 +215,7 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                             {#for uv in untagged_object_variants}
                                 if (@{uv.shape_condition}) return true;
                             {/for}
-                            {#if *has_generic_params}
-                                return true;
-                            {:else}
-                                return false;
-                            {/if}
+                            return false;
         {/if}
         }
     }

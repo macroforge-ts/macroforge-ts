@@ -2337,8 +2337,7 @@ export function codeDecodeWithContext<T extends string>(value: unknown, ctx: __m
     }
     return value as Code<T>;
 }
-export function codeHasShape(value: unknown): boolean {
-                if ((typeof value === "number" && globalThis.Number.isFinite(value))) return true;
+export function codeHasShape(_value: unknown): boolean {
                 return true;
 }
 export function codeIs<T extends string>(value: unknown): value is Code<T> {
@@ -3078,7 +3077,7 @@ export declare function codeDecode<T extends string>(input: unknown, opts?: __mf
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Code<T> | __mf_PendingRef;
-export declare function codeHasShape(value: unknown): boolean;
+export declare function codeHasShape(_value: unknown): boolean;
 export declare function codeIs<T extends string>(value: unknown): value is Code<T>;
 export declare const Code: {
 	readonly encode: typeof codeEncode;
@@ -3153,8 +3152,8 @@ original 2463..2636 -> expanded 71168..71341
 original 2636..2637 -> expanded 82451..82452
 original 2637..2722 -> expanded 86587..86672
 original 2722..2803 -> expanded 92963..93044
-original 2803..2883 -> expanded 97618..97698
-original 2883..2884 -> expanded 102513..102514
+original 2803..2883 -> expanded 97520..97600
+original 2883..2884 -> expanded 102415..102416
 generated 0..1328 <- imports
 generated 1677..2704 <- PartialEq
 generated 2704..3466 <- Hash
@@ -3255,11 +3254,11 @@ generated 86672..88065 <- Encode
 generated 88065..92454 <- Decode
 generated 92454..92963 <- __convenience_const
 generated 93044..94506 <- Encode
-generated 94506..97148 <- Decode
-generated 97148..97618 <- __convenience_const
-generated 97698..98792 <- Encode
-generated 98792..102030 <- Decode
-generated 102030..102513 <- __convenience_const
+generated 94506..97050 <- Decode
+generated 97050..97520 <- __convenience_const
+generated 97600..98694 <- Encode
+generated 98694..101932 <- Decode
+generated 101932..102415 <- __convenience_const
 
 ## Metadata
 

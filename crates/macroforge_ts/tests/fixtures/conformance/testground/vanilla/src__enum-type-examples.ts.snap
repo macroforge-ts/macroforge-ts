@@ -869,7 +869,6 @@ export function apiStatusToString(value: ApiStatus): string {
 }
 
 export function apiStatusEquals(a: ApiStatus, b: ApiStatus): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -1214,7 +1213,7 @@ original 766..950 -> expanded 8602..8786
 original 950..1143 -> expanded 19099..19292
 original 1143..1267 -> expanded 33338..33462
 original 1267..1364 -> expanded 35277..35374
-original 1364..3696 -> expanded 35975..38307
+original 1364..3696 -> expanded 35945..38277
 generated 0..935 <- imports
 generated 1462..1830 <- Debug
 generated 1830..1904 <- Clone
@@ -1254,9 +1253,9 @@ generated 33980..34273 <- PartialEq
 generated 34273..34923 <- Hash
 generated 34923..35277 <- __convenience_const
 generated 35374..35486 <- Debug
-generated 35486..35610 <- PartialEq
-generated 35610..35714 <- Hash
-generated 35714..35975 <- __convenience_const
+generated 35486..35580 <- PartialEq
+generated 35580..35684 <- Hash
+generated 35684..35945 <- __convenience_const
 
 ## Metadata
 

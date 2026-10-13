@@ -33,7 +33,6 @@ export function levelClone(value: Level): Level {
 }
 
 export function levelEquals(a: Level, b: Level): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -65,7 +64,6 @@ export function modeClone(value: Mode): Mode {
 }
 
 export function modeEquals(a: Mode, b: Mode): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -147,7 +145,6 @@ export function metersClone(value: Meters): Meters {
 }
 
 export function metersEquals(a: Meters, b: Meters): boolean {
-    if (a === b) return true;
     return a === b;
 }
 
@@ -229,37 +226,37 @@ export {};
 ## Mapping
 
 original 53..84 -> expanded 136..167
-original 84..86 -> expanded 881..883
-original 139..176 -> expanded 883..920
-original 176..178 -> expanded 1613..1615
-original 231..268 -> expanded 1615..1652
-original 268..270 -> expanded 3255..3257
-original 323..345 -> expanded 3257..3279
-original 361..362 -> expanded 3323..3324
-original 362..363 -> expanded 4141..4142
+original 84..86 -> expanded 851..853
+original 139..176 -> expanded 853..890
+original 176..178 -> expanded 1553..1555
+original 231..268 -> expanded 1555..1592
+original 268..270 -> expanded 3195..3197
+original 323..345 -> expanded 3197..3219
+original 361..362 -> expanded 3263..3264
+original 362..363 -> expanded 4051..4052
 generated 0..91 <- imports
 generated 91..136 <- $Newtype
 generated 167..238 <- Clone
-generated 238..350 <- PartialEq
-generated 350..467 <- PartialOrd
-generated 467..570 <- Ord
-generated 570..881 <- __convenience_const
-generated 920..988 <- Clone
-generated 988..1097 <- PartialEq
-generated 1097..1211 <- PartialOrd
-generated 1211..1311 <- Ord
-generated 1311..1613 <- __convenience_const
-generated 1652..1735 <- Clone
-generated 1735..1905 <- PartialEq
-generated 1905..2434 <- PartialOrd
-generated 2434..2953 <- Ord
-generated 2953..3255 <- __convenience_const
-generated 3279..3323 <- $Newtype
-generated 3324..3398 <- Clone
-generated 3398..3513 <- PartialEq
-generated 3513..3672 <- PartialOrd
-generated 3672..3821 <- Ord
-generated 3821..4141 <- __convenience_const
+generated 238..320 <- PartialEq
+generated 320..437 <- PartialOrd
+generated 437..540 <- Ord
+generated 540..851 <- __convenience_const
+generated 890..958 <- Clone
+generated 958..1037 <- PartialEq
+generated 1037..1151 <- PartialOrd
+generated 1151..1251 <- Ord
+generated 1251..1553 <- __convenience_const
+generated 1592..1675 <- Clone
+generated 1675..1845 <- PartialEq
+generated 1845..2374 <- PartialOrd
+generated 2374..2893 <- Ord
+generated 2893..3195 <- __convenience_const
+generated 3219..3263 <- $Newtype
+generated 3264..3338 <- Clone
+generated 3338..3423 <- PartialEq
+generated 3423..3582 <- PartialOrd
+generated 3582..3731 <- Ord
+generated 3731..4051 <- __convenience_const
 
 ## Metadata
 
