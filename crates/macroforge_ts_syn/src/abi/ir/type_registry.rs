@@ -1045,16 +1045,16 @@ impl TypeRegistry {
                 return self.exported_by_specifier(specifier, exported);
             }
             // A relative specifier names one module of the project.
-            if let Some(module_path) = resolve_relative_module(caller_file_path, specifier)
-                && let Some(entry) = self
-                    .exported_by(
-                        &|file_path| file_path_is_module(file_path, &module_path),
-                        exported,
-                    )
-                    .into_iter()
-                    .next()
-            {
-                return Some(entry);
+            if let Some(module_path) = resolve_relative_module(caller_file_path, specifier) {
+                let is_module = |file_path: &str| file_path_is_module(file_path, &module_path);
+                if let Some(entry) = self.exported_by(&is_module, exported).into_iter().next() {
+                    return Some(entry);
+                }
+                // A module the scan read types in exports those it was seen
+                // to, and none the project declares elsewhere under the name.
+                if self.holds_types_of(&is_module) {
+                    return None;
+                }
             }
         }
         // A name imported under another is the type its module exports,
@@ -1180,6 +1180,18 @@ impl TypeRegistry {
             }
         }
         distinct
+    }
+
+    /// Whether a module whose file `is_module` takes declares a type or
+    /// exports one again: a module the scan read, and found types in.
+    fn holds_types_of(&self, is_module: &dyn Fn(&str) -> bool) -> bool {
+        self.qualified_types.entries.by_key.values().any(|entry| {
+            is_module(&entry.file_path)
+                || entry
+                    .re_exported
+                    .iter()
+                    .any(|again| is_module(&again.file_path))
+        })
     }
 
     /// Every definition named `name`, in qualified-key order, so a lookup
@@ -1535,10 +1547,11 @@ mod tests {
     #[test]
     fn a_renamed_import_resolves_to_the_type_it_was_exported_as() {
         let mut registry = TypeRegistry::default();
-        registry.insert(
-            make_interface_entry("User", "/project/src/user.ts", vec![]),
-            "/project",
-        );
+        let user = TypeRegistryEntry {
+            exported_as: vec!["default".to_string()],
+            ..make_interface_entry("User", "/project/src/user.ts", vec![])
+        };
+        registry.insert(user, "/project");
         registry.insert(
             make_interface_entry("Member", "/project/src/club.ts", vec![]),
             "/project",
@@ -1568,6 +1581,43 @@ mod tests {
         }];
         let resolved = registry.resolve_in_file("User", "/project/src/page.ts", &defaulted);
         assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
+    }
+
+    /// A module the scan found types in exports those and no others: a name
+    /// imported from it is not the type another module declares under it.
+    #[test]
+    fn a_name_a_known_module_does_not_export_is_no_type_declared_elsewhere() {
+        let mut registry = TypeRegistry::default();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Other", "/project/src/other.ts", vec![]),
+            "/project",
+        );
+        let barrel = TypeRegistryEntry {
+            re_exported: vec![ReExport {
+                file_path: "/project/src/barrel.ts".to_string(),
+                name: "Shared".to_string(),
+                whole: false,
+            }],
+            ..make_interface_entry("Shared", "/project/src/shared.ts", vec![])
+        };
+        registry.insert(barrel, "/project");
+        let resolve = |module: &str| {
+            let imports = [import_from("User", module)];
+            registry
+                .resolve_in_file("User", "/project/src/page.ts", &imports)
+                .map(|entry| entry.file_path.as_str())
+        };
+
+        assert_eq!(resolve("./user"), Some("/project/src/user.ts"));
+        // A module that declares types, and one that only exports them again.
+        assert_eq!(resolve("./other"), None);
+        assert_eq!(resolve("./barrel"), None);
+        // A module the scan read no types in is not known to export none.
+        assert_eq!(resolve("./unread"), Some("/project/src/user.ts"));
     }
 
     /// A specifier that is not relative names a module of the project by the
