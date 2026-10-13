@@ -3,7 +3,8 @@
 use super::make_decorator;
 use crate::builtin::derive::common::{
     CompareFieldOptions, DefaultFieldOptions, get_type_default, has_known_default, is_generic_type,
-    is_numeric_type, is_primitive_type, parse_generic_type, primitive_keyword_test, tuple_element,
+    is_nullable_type, is_numeric_type, is_primitive_type, parse_generic_type,
+    primitive_keyword_test, tuple_element,
 };
 
 #[test]
@@ -76,6 +77,17 @@ fn test_is_numeric_type() {
     assert!(is_numeric_type("bigint"));
     assert!(!is_numeric_type("string"));
     assert!(!is_numeric_type("boolean"));
+}
+
+#[test]
+fn a_grouped_type_defaults_as_the_type_in_it() {
+    assert_eq!(get_type_default("(number | null)"), "null");
+    assert_eq!(get_type_default("((string | undefined))"), "undefined");
+    assert_eq!(get_type_default("((number | null) | null)"), "null");
+    assert_eq!(get_type_default("(number)"), "0");
+    assert_eq!(get_type_default("(string | number)[]"), "[]");
+    assert!(is_nullable_type("(number | null)"));
+    assert!(!is_nullable_type("(number | null)[]"));
 }
 
 #[test]

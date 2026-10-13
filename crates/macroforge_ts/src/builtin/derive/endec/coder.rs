@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use crate::builtin::derive::common::{
     EnumValueKinds, Member, fields_from_definition, is_identifier_name, js_string,
     parse_generic_type, property_key, record_key_texts, rendered, tuple_body, tuple_element,
-    type_has_derive,
+    type_has_derive, ungrouped,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::class::MemberKey;
@@ -372,35 +372,6 @@ fn told_apart(ts_type: &str, scope: &TypeScope<'_>) -> Result<(), String> {
         )),
         None => Ok(()),
     }
-}
-
-/// `ts_type` without the parentheses that only group it.
-fn ungrouped(ts_type: &str) -> &str {
-    let trimmed = ts_type.trim();
-    match trimmed
-        .strip_prefix('(')
-        .and_then(|inner| inner.strip_suffix(')'))
-    {
-        Some(inner) if !inner.contains("=>") && balanced(inner) => ungrouped(inner),
-        _ => trimmed,
-    }
-}
-
-/// Whether every `)` in `text` closes a `(` in it, so the pair stripped
-/// around it was one pair.
-fn balanced(text: &str) -> bool {
-    let mut depth = 0usize;
-    for byte in text.bytes() {
-        match byte {
-            b'(' => depth += 1,
-            b')' => match depth.checked_sub(1) {
-                Some(open) => depth = open,
-                None => return false,
-            },
-            _ => {}
-        }
-    }
-    depth == 0
 }
 
 /// The element sources of a tuple type, `readonly` or not.

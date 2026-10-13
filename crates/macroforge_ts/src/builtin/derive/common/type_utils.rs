@@ -141,7 +141,36 @@ pub fn is_nullable_type(ts_type: &str) -> bool {
 
 /// Whether `ts_type` is a union with `member` among its own members.
 fn has_union_member(ts_type: &str, member: &str) -> bool {
-    split_top_level_union(ts_type.trim()).is_some_and(|parts| parts.contains(&member))
+    split_top_level_union(ungrouped(ts_type)).is_some_and(|parts| parts.contains(&member))
+}
+
+/// `ts_type` without the parentheses that only group it.
+pub fn ungrouped(ts_type: &str) -> &str {
+    let trimmed = ts_type.trim();
+    match trimmed
+        .strip_prefix('(')
+        .and_then(|inner| inner.strip_suffix(')'))
+    {
+        Some(inner) if !inner.contains("=>") && balanced(inner) => ungrouped(inner),
+        _ => trimmed,
+    }
+}
+
+/// Whether every `)` in `text` closes a `(` in it, so the pair stripped
+/// around it was one pair.
+fn balanced(text: &str) -> bool {
+    let mut depth = 0usize;
+    for byte in text.bytes() {
+        match byte {
+            b'(' => depth += 1,
+            b')' => match depth.checked_sub(1) {
+                Some(open) => depth = open,
+                None => return false,
+            },
+            _ => {}
+        }
+    }
+    depth == 0
 }
 
 /// Which kinds of value an enum's members have, so a generator emits only the
@@ -428,7 +457,7 @@ fn finite_record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<RecordKey
 }
 
 fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
-    let t = ts_type.trim();
+    let t = ungrouped(ts_type);
     // A readonly tuple or array defaults as the mutable one does.
     let t = t.strip_prefix("readonly ").map_or(t, str::trim_start);
 
