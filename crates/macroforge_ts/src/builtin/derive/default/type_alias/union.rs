@@ -59,6 +59,19 @@ pub(super) fn union_default(
         ));
     }
 
+    let marked = members
+        .iter()
+        .filter(|member| member.has_decorator("default"))
+        .count();
+    if marked > 1 {
+        return Err(MacroforgeError::new(
+            input.decorator_span(),
+            format!(
+                "@derive(Default): {marked} members of '{type_name}' are marked @default, and a union has one default: mark one of them"
+            ),
+        ));
+    }
+
     // First, look for a variant with @default decorator
     let default_variant_from_member = members.iter().find_map(|member| {
         if member.has_decorator("default") {

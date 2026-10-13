@@ -159,7 +159,8 @@
 //!
 //! The macro reports an expansion error only if:
 //!
-//! - An enum has no variant marked with `@default`
+//! - An enum has no variant marked with `@default`, or more than one
+//! - A union marks more than one member with `@default`
 //! - A type alias of a type with no default of its own, such as a function or
 //!   a type that does not derive `Default`, has no `@default(value)`
 //! - A primitive alias with `@endec` validators has no `@default(value)`
