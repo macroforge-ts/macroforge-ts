@@ -1180,6 +1180,7 @@ impl MacroExpander {
         ));
         diagnostics.extend(derive_scope::check_unnamed_alias_members(&derive_targets));
         diagnostics.extend(derive_scope::check_ambient_enums(&derive_targets, source));
+        diagnostics.extend(derive_scope::check_decorator_options(&derive_targets));
 
         let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
             &function_map,

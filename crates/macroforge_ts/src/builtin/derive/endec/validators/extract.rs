@@ -10,7 +10,7 @@ use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
 // ============================================================================
 
 /// Known options that are NOT validators (to avoid false positives)
-pub(super) const KNOWN_OPTIONS: &[&str] = &[
+pub(crate) const KNOWN_OPTIONS: &[&str] = &[
     "skip",
     "skipEncoding",
     "skipDecoding",

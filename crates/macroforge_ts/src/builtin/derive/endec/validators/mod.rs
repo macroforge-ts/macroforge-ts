@@ -4,7 +4,9 @@ mod extract;
 pub(super) mod parse;
 mod suggest;
 
+pub(crate) use extract::KNOWN_OPTIONS;
 pub use extract::extract_validators;
+pub(crate) use suggest::KNOWN_VALIDATORS;
 use suggest::find_similar_validator;
 
 // ============================================================================

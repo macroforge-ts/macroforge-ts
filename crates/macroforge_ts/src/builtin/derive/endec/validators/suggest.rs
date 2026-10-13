@@ -1,7 +1,7 @@
 //! Did-you-mean suggestions for misspelled validator names.
 
 /// Every validator name, for typo detection.
-pub(super) const KNOWN_VALIDATORS: &[&str] = &[
+pub(crate) const KNOWN_VALIDATORS: &[&str] = &[
     "email",
     "url",
     "uuid",

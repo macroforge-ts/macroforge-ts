@@ -255,4 +255,5 @@ pub use options::{
     TaggingMode, decorator_validators,
 };
 pub use type_category::{TypeCategory, WrapperFields};
+pub(crate) use validators::{KNOWN_OPTIONS, KNOWN_VALIDATORS};
 pub use validators::{Validator, ValidatorSpec, extract_validators};

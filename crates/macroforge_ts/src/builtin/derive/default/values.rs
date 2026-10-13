@@ -69,6 +69,20 @@ pub(super) fn reads_this(expression: &str) -> bool {
     })
 }
 
+/// Whether `expression` is several expressions with commas between them,
+/// which read as one value nowhere a default is written out.
+fn writes_several(expression: &str) -> bool {
+    use oxc::allocator::Allocator;
+    use oxc::ast::ast::Expression;
+
+    let allocator = Allocator::default();
+    let parser = oxc::parser::Parser::new(&allocator, expression, oxc::span::SourceType::ts());
+    // An unparseable default is reported where it is parsed.
+    parser
+        .parse_expression()
+        .is_ok_and(|parsed| matches!(parsed, Expression::SequenceExpression(_)))
+}
+
 /// Resolve the default expression for a field, wrapping a user-provided
 /// string into `{ [tag]: "value" }` when the field type is a registered
 /// internally-tagged union (e.g. `@default("Fixed")` on a field typed
@@ -80,6 +94,12 @@ pub(super) fn resolve_default_value(
     sources: &DefaultSources,
 ) -> String {
     if let Some(v) = opts_value {
+        if writes_several(&v) {
+            sources.rejected.borrow_mut().push(format!(
+                "@default({v}) writes several values, and a default is one; write an object or an array in its brackets"
+            ));
+            return "undefined".to_string();
+        }
         if let Some(wrapped) = wrap_string_for_tagged_union(&v, ts_type, sources) {
             return wrapped;
         }

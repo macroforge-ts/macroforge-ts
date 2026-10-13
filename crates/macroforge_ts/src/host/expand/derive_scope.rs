@@ -3,7 +3,7 @@
 
 use crate::ts_syn::abi::ir::class::MemberKey;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMember, TypeMemberKind};
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, InterfaceFieldIR, SpanIR};
+use crate::ts_syn::abi::{DecoratorIR, Diagnostic, DiagnosticLevel, InterfaceFieldIR, SpanIR};
 use crate::ts_syn::import_registry::SourceImportEntry;
 
 use super::DERIVE_MODULE_PATH;
@@ -271,6 +271,180 @@ pub(super) fn imported_names(
         },
         declared_at: None,
     })
+}
+
+/// The options each of these built-in decorators takes. `default` takes a
+/// value, and `endec` on a field reports what it does not know where its
+/// options are read.
+const DECORATOR_OPTIONS: &[(&str, &[&str])] = &[
+    ("debug", &["skip", "rename"]),
+    ("hash", &["skip"]),
+    ("partialEq", &["skip"]),
+    ("ord", &["skip"]),
+];
+
+/// The name each option in a decorator's arguments is written under: the
+/// word before a `:`, an `=` or a `(`, or a word on its own.
+fn option_names(args: &str) -> Vec<&str> {
+    let args = args.trim();
+    let args = args
+        .strip_prefix('{')
+        .and_then(|inner| inner.strip_suffix('}'))
+        .unwrap_or(args);
+    let mut names = Vec::new();
+    let (mut depth, mut quote, mut start) = (0usize, None, 0usize);
+    let mut close = |from: usize, to: usize| {
+        let item = args.get(from..to).unwrap_or_default().trim();
+        let name = item
+            .split(|letter: char| !(letter.is_alphanumeric() || letter == '_'))
+            .next()
+            .unwrap_or_default();
+        if !item.is_empty() {
+            names.push(name);
+        }
+    };
+    for (at, letter) in args.char_indices() {
+        match (quote, letter) {
+            (Some(open), _) if letter == open => quote = None,
+            (Some(_), _) => {}
+            (None, '"' | '\'' | '`') => quote = Some(letter),
+            (None, '(' | '[' | '{') => depth += 1,
+            (None, ')' | ']' | '}') => depth = depth.saturating_sub(1),
+            (None, ',') if depth == 0 => {
+                close(start, at);
+                start = at + 1;
+            }
+            (None, _) => {}
+        }
+    }
+    close(start, args.len());
+    names
+}
+
+/// The decorators on `target`'s members, at any depth of an alias's body.
+fn member_decorators(target: &DeriveTargetIR) -> Vec<&DecoratorIR> {
+    fn of_fields<'a>(fields: &'a [InterfaceFieldIR], found: &mut Vec<&'a DecoratorIR>) {
+        found.extend(fields.iter().flat_map(|field| &field.decorators));
+    }
+    fn of_members<'a>(members: &'a [TypeMember], found: &mut Vec<&'a DecoratorIR>) {
+        for member in members {
+            found.extend(&member.decorators);
+            match &member.kind {
+                TypeMemberKind::Object { fields } => of_fields(fields, found),
+                TypeMemberKind::Intersection(members) => of_members(members, found),
+                TypeMemberKind::Literal(_)
+                | TypeMemberKind::TypeRef(_)
+                | TypeMemberKind::Brand(_) => {}
+            }
+        }
+    }
+    fn of_body<'a>(body: &'a TypeBody, found: &mut Vec<&'a DecoratorIR>) {
+        match body {
+            TypeBody::Object { fields } => of_fields(fields, found),
+            TypeBody::Union(members) | TypeBody::Intersection(members) => {
+                of_members(members, found)
+            }
+            TypeBody::Newtype(inner) => of_body(inner, found),
+            TypeBody::Tuple(_) | TypeBody::Alias(_) | TypeBody::Other(_) => {}
+        }
+    }
+    let mut found = Vec::new();
+    match target {
+        DeriveTargetIR::Class(class) => {
+            found.extend(class.fields.iter().flat_map(|field| &field.decorators));
+        }
+        DeriveTargetIR::Interface(interface) => {
+            of_fields(&interface.fields, &mut found);
+            found.extend(
+                interface
+                    .methods
+                    .iter()
+                    .flat_map(|method| &method.decorators),
+            );
+        }
+        DeriveTargetIR::Enum(declared) => {
+            found.extend(
+                declared
+                    .variants
+                    .iter()
+                    .flat_map(|variant| &variant.decorators),
+            );
+        }
+        DeriveTargetIR::TypeAlias(alias) => of_body(&alias.body, &mut found),
+    }
+    found
+}
+
+fn type_decorators(target: &DeriveTargetIR) -> &[DecoratorIR] {
+    match target {
+        DeriveTargetIR::Class(class) => &class.decorators,
+        DeriveTargetIR::Interface(interface) => &interface.decorators,
+        DeriveTargetIR::Enum(declared) => &declared.decorators,
+        DeriveTargetIR::TypeAlias(alias) => &alias.decorators,
+    }
+}
+
+/// An error for each option a built-in decorator is given that it does not
+/// take, on a type with a built-in derive or on a member of one. A
+/// misspelled `skip` would otherwise skip nothing, and a misspelled `tag`
+/// tag nothing.
+pub(super) fn check_decorator_options(targets: &[DeriveTarget]) -> Vec<Diagnostic> {
+    use crate::builtin::derive::endec::{KNOWN_OPTIONS, KNOWN_VALIDATORS};
+
+    let mut checked = Vec::new();
+    let mut diagnostics = Vec::new();
+    let mut refuse = |decorator: &DecoratorIR, takes: &[&str], also: &[&str]| {
+        // A declaration's `@derive` directives each make a target.
+        if checked.contains(&decorator.span.start) {
+            return;
+        }
+        checked.push(decorator.span.start);
+        let known = |option: &str| {
+            takes
+                .iter()
+                .chain(also)
+                .any(|known| known.eq_ignore_ascii_case(option))
+        };
+        for option in option_names(&decorator.args_src) {
+            if !known(option) {
+                diagnostics.push(Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "`@{}` takes `{}`, not `{option}`",
+                        decorator.name,
+                        takes.join("`, `")
+                    ),
+                    span: Some(decorator.span),
+                    notes: vec![],
+                    help: None,
+                });
+            }
+        }
+    };
+    for target in targets.iter().filter(|target| is_builtin(target)) {
+        let on_type = type_decorators(&target.target_ir);
+        for decorator in on_type.iter().chain(member_decorators(&target.target_ir)) {
+            if let Some((_, takes)) = DECORATOR_OPTIONS
+                .iter()
+                .find(|(name, _)| decorator.name.eq_ignore_ascii_case(name))
+            {
+                refuse(decorator, takes, &[]);
+            }
+        }
+        // `Decode` reads an alias's own `@endec` for validators, and reports
+        // what it does not know there.
+        let read_by_decode = matches!(target.target_ir, DeriveTargetIR::TypeAlias(_))
+            && target.macro_names.iter().any(|(name, _)| name == "Decode");
+        if !read_by_decode {
+            for decorator in on_type
+                .iter()
+                .filter(|decorator| decorator.name.eq_ignore_ascii_case("endec"))
+            {
+                refuse(decorator, KNOWN_OPTIONS, KNOWN_VALIDATORS);
+            }
+        }
+    }
+    diagnostics
 }
 
 /// An error for each `declare enum` with a built-in derive. The functions a
