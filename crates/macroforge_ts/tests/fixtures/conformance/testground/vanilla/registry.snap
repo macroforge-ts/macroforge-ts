@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (381)
+## Types (406)
 
 Address f0d229a1409690d0
 AddressPatch 9f24746fc3a6b7e7
@@ -89,6 +89,13 @@ DeclarativeComplexResults f4b85279e07870c4
 DeclarativeMacroResults 2e0328ab8573fcd7
 DefinitelyString c3a0bf01933fa40b
 Derived 85c81c0f0ac9661a
+DirectiveFlat c33c05b060d0f00e
+DirectiveInner 2d5b0f53e981cb5b
+DirectiveRepeated ceeafbe539adba9a
+DirectiveSkipped de1ddc501b0e3aa1
+DirectiveSkippedClass 92170cb39e25bbd2
+DirectiveStacked a655de2c58cc4e1c
+DirectiveTexts cd9f6b7780ea5d98
 DocBetween 183928fafc40d26a
 DocBetweenBigInt f45074d46604dd29
 DocBetweenDate 6f11ef86c6dd7c08
@@ -214,6 +221,10 @@ GreaterThanValidator 0da2815b3112bc83
 Greeter 1608e8b3c68669b6
 Grid 37affa858ebf5f39
 HTTPResponse 10016c188e46c939
+HostileBag 0cd7d37accfd2b49
+HostileClass 464265e54b941364
+HostileItem 4bf8bf4c395f06b8
+HostileStrict 40f307c9d952680e
 ImportedCustomValidator b0f1cb930a3b6f0f
 IncludesValidator 2d6d0e6acbd1a34f
 Inner 1287075938e98cd7
@@ -250,6 +261,20 @@ Meters 634cfaf184303bb9
 MinItemsValidator 29022e83d9d2ba09
 MinLengthValidator 9da02f28665598a1
 MixedValidatorsTest 828bd9dcc8aac79e
+ModuleAbstract 549b91e67ca9d0a1
+ModuleBase 52e1aa5b3b998a32
+ModuleExtendsPlain 2916663c6290e499
+ModuleImplements b9b709435dab4bca
+ModuleLater 4d37f97469bd9814
+ModuleNamed 6f90cd4153942057
+ModuleOptionalMethods c991033ea0e08882
+ModuleOverloads bdebf77f7f28263d
+ModulePlainBase 35187f9950861d36
+ModulePrivate 9188664e152f9f57
+ModulePrivateAlias c4d8938a1260c5ad
+ModulePrivateClass 0667b11eb72d8d26
+ModulePrivateEnum 5209f54da03402aa
+ModuleStatics c953ed388f288429
 Moment db7f0c955cc71743
 MultipleOfValidator bc60609b1610d010
 MultipleValidatorsTest fc9c680d0c488b8b
@@ -385,7 +410,7 @@ Version a97656860d12bbc3
 Wall 5a067be59c2d4675
 point2D 697bb407a60739cf
 
-## Qualified types (384)
+## Qualified types (409)
 
 src/all-macros-test.ts::AllMacrosTestClass 0a3bab42a552ef1b
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -453,6 +478,13 @@ src/edge-cases/collection-shapes.ts::CollectionKind 434090cf3741bfbe
 src/edge-cases/collection-shapes.ts::CollectionNested 81a76a70849921f7
 src/edge-cases/collection-shapes.ts::CollectionTuples 0d2059b3d03cff11
 src/edge-cases/collection-shapes.ts::CollectionUnions d5869f0d70782a1f
+src/edge-cases/directive-shapes.ts::DirectiveFlat c33c05b060d0f00e
+src/edge-cases/directive-shapes.ts::DirectiveInner 2d5b0f53e981cb5b
+src/edge-cases/directive-shapes.ts::DirectiveRepeated ceeafbe539adba9a
+src/edge-cases/directive-shapes.ts::DirectiveSkipped de1ddc501b0e3aa1
+src/edge-cases/directive-shapes.ts::DirectiveSkippedClass 92170cb39e25bbd2
+src/edge-cases/directive-shapes.ts::DirectiveStacked a655de2c58cc4e1c
+src/edge-cases/directive-shapes.ts::DirectiveTexts cd9f6b7780ea5d98
 src/edge-cases/edge-types.ts::EdgeCard 00bd89e468d6f674
 src/edge-cases/edge-types.ts::EdgeItem 8f243e8f8702a746
 src/edge-cases/edge-types.ts::EdgeLabeled e3a59b12be504a95
@@ -500,12 +532,30 @@ src/edge-cases/graph-shapes.ts::GraphPatchedFirst 884af51a6ffb1ebb
 src/edge-cases/graph-shapes.ts::GraphPerson f823fed79694a9e5
 src/edge-cases/graph-shapes.ts::GraphShared 521da43058b02568
 src/edge-cases/graph-shapes.ts::GraphTree 9d90c5a73687b575
+src/edge-cases/hostile-shapes.ts::HostileBag 0cd7d37accfd2b49
+src/edge-cases/hostile-shapes.ts::HostileClass 464265e54b941364
+src/edge-cases/hostile-shapes.ts::HostileItem 4bf8bf4c395f06b8
+src/edge-cases/hostile-shapes.ts::HostileStrict 40f307c9d952680e
 src/edge-cases/keyed-shapes.ts::KeyedInner b1e7008ba1f8b89b
 src/edge-cases/keyed-shapes.ts::KeyedKind f90af488311384da
 src/edge-cases/keyed-shapes.ts::KeyedLevel 285535a410d88999
 src/edge-cases/keyed-shapes.ts::KeyedOptions 4e5d2ac15b6ccc3d
 src/edge-cases/keyed-shapes.ts::KeyedRecords 06f4c8c026171ac1
 src/edge-cases/keyed-shapes.ts::KeyedSelections 05b4b86b269bb5a6
+src/edge-cases/module-shapes.ts::ModuleAbstract 549b91e67ca9d0a1
+src/edge-cases/module-shapes.ts::ModuleBase 52e1aa5b3b998a32
+src/edge-cases/module-shapes.ts::ModuleExtendsPlain 2916663c6290e499
+src/edge-cases/module-shapes.ts::ModuleImplements b9b709435dab4bca
+src/edge-cases/module-shapes.ts::ModuleLater 4d37f97469bd9814
+src/edge-cases/module-shapes.ts::ModuleNamed 6f90cd4153942057
+src/edge-cases/module-shapes.ts::ModuleOptionalMethods c991033ea0e08882
+src/edge-cases/module-shapes.ts::ModuleOverloads bdebf77f7f28263d
+src/edge-cases/module-shapes.ts::ModulePlainBase 35187f9950861d36
+src/edge-cases/module-shapes.ts::ModulePrivate 9188664e152f9f57
+src/edge-cases/module-shapes.ts::ModulePrivateAlias c4d8938a1260c5ad
+src/edge-cases/module-shapes.ts::ModulePrivateClass 0667b11eb72d8d26
+src/edge-cases/module-shapes.ts::ModulePrivateEnum 5209f54da03402aa
+src/edge-cases/module-shapes.ts::ModuleStatics c953ed388f288429
 src/edge-cases/name-imports.ts::NameImports 791d9de3e1bdc618
 src/edge-cases/name-shapes.ts::HTTPResponse 10016c188e46c939
 src/edge-cases/name-shapes.ts::NameHolder dce0fdc5017f52a9

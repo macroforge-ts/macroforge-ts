@@ -1,0 +1,1663 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/hostile-shapes.ts
+sha256 21f0eb141d36995f8ad8cd4a1120c87cca9b808fd7677d5f5ec6aea59a306abc
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Types decoded from input nobody vouches for: keys that reach a prototype,
+ * values of the wrong kind, members that throw, references to nothing and
+ * nesting deeper than the stack.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface HostileItem {
+    id: string;
+    score: number;
+}
+
+export function hostileItemToString(value: HostileItem): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("score: " + String(value.score));
+        return "HostileItem { " + parts.join(", ") + " }";
+    });
+}
+
+export function hostileItemClone(value: HostileItem): HostileItem {
+    return __mf_clonedWith(value, (): HostileItem => ({
+	id: value.id,
+	score: value.score
+}));
+}
+
+export function hostileItemEquals(a: HostileItem, b: HostileItem): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score));
+}
+
+export function hostileItemHashCode(value: HostileItem): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function hostileItemEncode(value: HostileItem, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = hostileItemEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function hostileItemEncodeWithContext(value: HostileItem, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HostileItem" });
+    hostileItemEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function hostileItemEncodePartialWithContext(value: Partial<HostileItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileItem>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "HostileItem" };
+        hostileItemEncodeFields(value as HostileItem, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function hostileItemEncodeFields(value: HostileItem, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("score")) {
+        if (value.score !== undefined) {
+            result["score"] = value.score;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function hostileItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HostileItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = hostileItemDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "HostileItem.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileItem | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileItem> | __mf_PendingRef;
+export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<HostileItem> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileItem.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "HostileItem.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "HostileItem") as HostileItem | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileItem.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
+        errors.push({ field: "score", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "HostileItem");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "HostileItem.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+        const __raw_score = obj["score"] as number;
+
+        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+            errors.push({ field: "score", message: __raw_score == null ? "HostileItem.score is required" : "expected number" });
+        } else {
+            instance.score = __raw_score;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as HostileItem;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function hostileItemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileItem>): Partial<HostileItem> | __mf_PendingRef {
+    return hostileItemDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function hostileItemValidateField<K extends keyof HostileItem>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function hostileItemValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function hostileItemValidateFields(partial: { readonly [K in keyof HostileItem]?: unknown }): Array<{ field: string; message: string }>;
+export function hostileItemValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function hostileItemHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id") && __mf_holds(obj, "score");
+}
+
+export function hostileItemIs(obj: unknown): obj is HostileItem {
+    return hostileItemHasShape(obj) && hostileItemDecode(obj).success;
+}
+
+export const HostileItem: {
+  readonly toString: typeof hostileItemToString;
+  readonly clone: typeof hostileItemClone;
+  readonly equals: typeof hostileItemEquals;
+  readonly hashCode: typeof hostileItemHashCode;
+  readonly encode: typeof hostileItemEncode;
+  readonly encodeWithContext: typeof hostileItemEncodeWithContext;
+  readonly encodePartialWithContext: typeof hostileItemEncodePartialWithContext;
+  readonly decode: typeof hostileItemDecode;
+  readonly decodeWithContext: typeof hostileItemDecodeWithContext;
+  readonly decodePartialWithContext: typeof hostileItemDecodePartialWithContext;
+  readonly validateField: typeof hostileItemValidateField;
+  readonly validateFields: typeof hostileItemValidateFields;
+  readonly hasShape: typeof hostileItemHasShape;
+  readonly is: typeof hostileItemIs;
+} = {
+  toString: hostileItemToString,
+  clone: hostileItemClone,
+  equals: hostileItemEquals,
+  hashCode: hostileItemHashCode,
+  encode: hostileItemEncode,
+  encodeWithContext: hostileItemEncodeWithContext,
+  encodePartialWithContext: hostileItemEncodePartialWithContext,
+  decode: hostileItemDecode,
+  decodeWithContext: hostileItemDecodeWithContext,
+  decodePartialWithContext: hostileItemDecodePartialWithContext,
+  validateField: hostileItemValidateField,
+  validateFields: hostileItemValidateFields,
+  hasShape: hostileItemHasShape,
+  is: hostileItemIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface HostileBag {
+    name: string;
+    item: HostileItem;
+    items: HostileItem[];
+    byName: Record<string, HostileItem>;
+    counts: Record<string, number>;
+    lookup: Map<string, number>;
+    tags: Set<string>;
+    pair: [string, number];
+    at: Date;
+    big: bigint;
+    flag: boolean;
+    nested: HostileBag | null;
+}
+
+export function hostileBagToString(value: HostileBag): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    parts.push("item: " + hostileItemToString(value.item));
+    parts.push("items: " + "[" + value.items.map(hostileItemToString).join(", ") + "]");
+    parts.push("byName: " + __mf_structuralDebug(value.byName));
+    parts.push("counts: " + __mf_structuralDebug(value.counts));
+    parts.push("lookup: " + __mf_structuralDebug(value.lookup));
+    parts.push("tags: " + __mf_structuralDebug(value.tags));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    parts.push("at: " + String(value.at));
+    parts.push("big: " + String(value.big));
+    parts.push("flag: " + String(value.flag));
+    parts.push("nested: " + (value.nested == null ? String(value.nested) : hostileBagToString(value.nested)));
+        return "HostileBag { " + parts.join(", ") + " }";
+    });
+}
+
+export function hostileBagClone(value: HostileBag): HostileBag {
+    return __mf_clonedWith(value, (): HostileBag => ({
+	name: value.name,
+	item: hostileItemClone(value.item),
+	items: value.items.map((__item0) => hostileItemClone(__item0)),
+	byName: __mf_structuralClone(value.byName),
+	counts: __mf_structuralClone(value.counts),
+	lookup: new Map(value.lookup),
+	tags: new Set(value.tags),
+	pair: __mf_structuralClone(value.pair),
+	at: new Date(value.at.getTime()),
+	big: value.big,
+	flag: value.flag,
+	nested: value.nested == null ? value.nested : hostileBagClone(value.nested)
+}));
+}
+
+export function hostileBagEquals(a: HostileBag, b: HostileBag): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.name === b.name && hostileItemEquals(a.item, b.item) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+	const __other0 = b.items[__index0];
+	return __other0 === undefined ? __item0 === undefined : hostileItemEquals(__item0, __other0);
+}) && __mf_structuralEquals(a.byName, b.byName) && __mf_structuralEquals(a.counts, b.counts) && a.lookup.size === b.lookup.size && Array.from(a.lookup).every(([__key0, __item0]) => {
+	const __other0 = b.lookup.get(__key0);
+	return b.lookup.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+}) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && __mf_structuralEquals(a.pair, b.pair) && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && a.big === b.big && a.flag === b.flag && (a.nested == null || b.nested == null ? a.nested === b.nested : hostileBagEquals(a.nested, b.nested)));
+}
+
+export function hostileBagHashCode(value: HostileBag): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (hostileItemHashCode(value.item))) | 0;
+    hash = (hash * 31 + (value.items.reduce<number>((__hash0, __item0) => __hash0 * 31 + hostileItemHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.byName))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.counts))) | 0;
+    hash = (hash * 31 + (Array.from(value.lookup).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.tags).reduce<number>((__hash0, __item0) => __hash0 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    hash = (hash * 31 + (value.at.getTime() | 0)) | 0;
+    hash = (hash * 31 + (value.big.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.flag ? 1231 : 1237)) | 0;
+    hash = (hash * 31 + (value.nested == null ? 0 : hostileBagHashCode(value.nested))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function hostileBagEncode(value: HostileBag, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = hostileBagEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function hostileBagEncodeWithContext(value: HostileBag, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HostileBag" });
+    hostileBagEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function hostileBagEncodePartialWithContext(value: Partial<HostileBag>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileBag>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "HostileBag" };
+        hostileBagEncodeFields(value as HostileBag, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function hostileBagEncodeFields(value: HostileBag, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result["name"] = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("item")) {
+        if (value.item !== undefined) {
+            result["item"] = hostileItemEncodeWithContext(value.item, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("items")) {
+        if (value.items !== undefined) {
+            result["items"] = value.items.map((__item0) => hostileItemEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("byName")) {
+        if (value.byName !== undefined) {
+            result["byName"] = Object.fromEntries(Object.entries(value.byName).map(([__key0, __item0]) => [__key0, hostileItemEncodeWithContext(__item0, ctx)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("counts")) {
+        if (value.counts !== undefined) {
+            result["counts"] = value.counts;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lookup")) {
+        if (value.lookup !== undefined) {
+            result["lookup"] = Object.fromEntries(value.lookup.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tags")) {
+        if (value.tags !== undefined) {
+            result["tags"] = Array.from(value.tags);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result["pair"] = value.pair;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result["at"] = value.at.toISOString();
+        }
+    }
+    if (__fields === undefined || __fields.keeps("big")) {
+        if (value.big !== undefined) {
+            result["big"] = ((v) => String(v))(value.big);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("flag")) {
+        if (value.flag !== undefined) {
+            result["flag"] = value.flag;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nested")) {
+        if (value.nested !== undefined) {
+            result["nested"] = value.nested === null ? null : hostileBagEncodeWithContext(value.nested, ctx);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function hostileBagDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HostileBag } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = hostileBagDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "HostileBag.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileBag | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileBag> | __mf_PendingRef;
+export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<HostileBag> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileBag.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "HostileBag.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "HostileBag") as HostileBag | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileBag.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
+        errors.push({ field: "item", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
+        errors.push({ field: "items", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
+        errors.push({ field: "byName", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("counts")) && !("counts" in obj)) {
+        errors.push({ field: "counts", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("lookup")) && !("lookup" in obj)) {
+        errors.push({ field: "lookup", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
+        errors.push({ field: "tags", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
+        errors.push({ field: "big", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("flag")) && !("flag" in obj)) {
+        errors.push({ field: "flag", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
+        errors.push({ field: "nested", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "HostileBag");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "HostileBag.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+        const __raw_item = obj["item"] as HostileItem;
+
+        ctx.pushScope("item");
+        try {
+            const __result = hostileItemDecodeWithContext(__raw_item, ctx);
+            ctx.assignOrDefer(instance, "item", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "item" : "item." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+        const __raw_items = obj["items"] as HostileItem[];
+        if (Array.isArray(__raw_items)) {
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => hostileItemDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "items", message: __raw_items == null ? "HostileBag.items is required" : "expected HostileItem[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+        const __raw_byName = obj["byName"] as Record<string, HostileItem>;
+        if (typeof __raw_byName === "object" && __raw_byName !== null) {
+            ctx.pushScope("byName");
+            try {
+                instance.byName = (__mf_decodeRecord(__raw_byName, ctx, (__raw0) => hostileItemDecodeWithContext(__raw0, ctx)) as Record<string, HostileItem>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byName", message: __raw_byName == null ? "HostileBag.byName is required" : "expected Record<string, HostileItem>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("counts")) ? "counts" in obj : (__fields.keeps("counts") && obj["counts"] !== undefined)) {
+        const __raw_counts = obj["counts"] as Record<string, number>;
+        if (typeof __raw_counts === "object" && __raw_counts !== null) {
+            ctx.pushScope("counts");
+            try {
+                instance.counts = (__mf_decodeRecord(__raw_counts, ctx, __mf_decodeNumber) as Record<string, number>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "counts" : "counts." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "counts", message: __raw_counts == null ? "HostileBag.counts is required" : "expected Record<string, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("lookup")) ? "lookup" in obj : (__fields.keeps("lookup") && obj["lookup"] !== undefined)) {
+        const __raw_lookup = obj["lookup"] as Record<string, number>;
+        if (typeof __raw_lookup === "object" && __raw_lookup !== null) {
+            ctx.pushScope("lookup");
+            try {
+                instance.lookup = __mf_decodeMap(__raw_lookup, ctx, (__key0) => __key0, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "lookup" : "lookup." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "lookup", message: __raw_lookup == null ? "HostileBag.lookup is required" : "expected Map<string, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+        const __raw_tags = obj["tags"] as Array<string>;
+        if (Array.isArray(__raw_tags)) {
+            ctx.pushScope("tags");
+            try {
+                instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "HostileBag.tags is required" : "expected Set<string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [string, number];
+        if (Array.isArray(__raw_pair)) {
+            ctx.pushScope("pair");
+            try {
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "HostileBag.pair is required" : "expected [string, number]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "HostileBag.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+        try {
+            instance.big = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["big"]);
+        } catch (__error) {
+            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+        const __raw_flag = obj["flag"] as boolean;
+
+        if (!(typeof __raw_flag === "boolean")) {
+            errors.push({ field: "flag", message: __raw_flag == null ? "HostileBag.flag is required" : "expected boolean" });
+        } else {
+            instance.flag = __raw_flag;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+        const __raw_nested = obj["nested"] as HostileBag | null;
+
+        if (__raw_nested === null) {
+            instance.nested = null;
+        } else {
+            ctx.pushScope("nested");
+            try {
+                const __result = hostileBagDecodeWithContext(__raw_nested, ctx);
+                ctx.assignOrDefer(instance, "nested", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as HostileBag;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function hostileBagDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileBag>): Partial<HostileBag> | __mf_PendingRef {
+    return hostileBagDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function hostileBagValidateField<K extends keyof HostileBag>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function hostileBagValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function hostileBagValidateFields(partial: { readonly [K in keyof HostileBag]?: unknown }): Array<{ field: string; message: string }>;
+export function hostileBagValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function hostileBagHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "name") && __mf_holds(obj, "item") && __mf_holds(obj, "items") && __mf_holds(obj, "byName") && __mf_holds(obj, "counts") && __mf_holds(obj, "lookup") && __mf_holds(obj, "tags") && __mf_holds(obj, "pair") && __mf_holds(obj, "at") && __mf_holds(obj, "big") && __mf_holds(obj, "flag") && __mf_holds(obj, "nested");
+}
+
+export function hostileBagIs(obj: unknown): obj is HostileBag {
+    return hostileBagHasShape(obj) && hostileBagDecode(obj).success;
+}
+
+export const HostileBag: {
+  readonly toString: typeof hostileBagToString;
+  readonly clone: typeof hostileBagClone;
+  readonly equals: typeof hostileBagEquals;
+  readonly hashCode: typeof hostileBagHashCode;
+  readonly encode: typeof hostileBagEncode;
+  readonly encodeWithContext: typeof hostileBagEncodeWithContext;
+  readonly encodePartialWithContext: typeof hostileBagEncodePartialWithContext;
+  readonly decode: typeof hostileBagDecode;
+  readonly decodeWithContext: typeof hostileBagDecodeWithContext;
+  readonly decodePartialWithContext: typeof hostileBagDecodePartialWithContext;
+  readonly validateField: typeof hostileBagValidateField;
+  readonly validateFields: typeof hostileBagValidateFields;
+  readonly hasShape: typeof hostileBagHasShape;
+  readonly is: typeof hostileBagIs;
+} = {
+  toString: hostileBagToString,
+  clone: hostileBagClone,
+  equals: hostileBagEquals,
+  hashCode: hostileBagHashCode,
+  encode: hostileBagEncode,
+  encodeWithContext: hostileBagEncodeWithContext,
+  encodePartialWithContext: hostileBagEncodePartialWithContext,
+  decode: hostileBagDecode,
+  decodeWithContext: hostileBagDecodeWithContext,
+  decodePartialWithContext: hostileBagDecodePartialWithContext,
+  validateField: hostileBagValidateField,
+  validateFields: hostileBagValidateFields,
+  hasShape: hostileBagHasShape,
+  is: hostileBagIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export class HostileClass {
+    name: string = '';
+    count: number = 0;
+
+    label(): string {
+        return `${this.name}:${this.count}`;
+    }
+
+    static toString(value: HostileClass): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+        parts.push("count: " + String(value.count));
+            return "HostileClass { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: HostileClass): HostileClass {
+        return __mf_clonedWith(value, () => ({
+        	name: value.name,
+        	count: value.count
+        }));
+    }
+
+    static equals(a: HostileClass, b: HostileClass): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => a.name === b.name && (a.count === b.count || a.count !== a.count && b.count !== b.count));
+    }
+
+    static hashCode(value: HostileClass): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: HostileClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HostileClass" });
+    HostileClass.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<HostileClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileClass>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "HostileClass" };
+        HostileClass.#encodeFields(value as HostileClass, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: HostileClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result["name"] = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result["count"] = value.count;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: HostileClass, keepMetadata?: boolean): string {
+        return hostileClassEncode(value, keepMetadata);
+    }
+
+constructor(props: { name: string; count: number }) {
+
+    this.name = props.name;
+    this.count = props.count;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HostileClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = HostileClass.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "HostileClass.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileClass | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileClass> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<HostileClass> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileClass.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "HostileClass.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "HostileClass") as HostileClass | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileClass.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
+        errors.push({ field: "count", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(HostileClass.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "HostileClass");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "HostileClass.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+        const __raw_count = obj["count"] as number;
+
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+            errors.push({ field: "count", message: __raw_count == null ? "HostileClass.count is required" : "expected number" });
+        } else {
+            instance.count = __raw_count;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof HostileClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof HostileClass]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "name") && __mf_holds(obj, "count");
+}
+
+static is(obj: unknown): obj is HostileClass {
+    if (obj instanceof HostileClass) {
+        return true;
+    }
+    if (!HostileClass.hasShape(obj)) {
+        return false;
+    }
+    const result = HostileClass.decode(obj);
+    return result.success;
+}
+}
+
+export function hostileClassToString(value: HostileClass): string {
+    return HostileClass.toString(value);
+}
+
+export function hostileClassClone(value: HostileClass): HostileClass {
+    return HostileClass.clone(value);
+}
+
+export function hostileClassEquals(a: HostileClass, b: HostileClass): boolean {
+    return HostileClass.equals(a, b);
+}
+
+export function hostileClassHashCode(value: HostileClass): number {
+    return HostileClass.hashCode(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function hostileClassEncode(value: HostileClass, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = hostileClassEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function hostileClassEncodeWithContext(value: HostileClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return HostileClass.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function hostileClassEncodePartialWithContext(value: Partial<HostileClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileClass>): Record<string, unknown> {
+    return HostileClass.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function hostileClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HostileClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return HostileClass.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function hostileClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileClass | __mf_PendingRef {
+    return HostileClass.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function hostileClassHasShape(value: unknown): boolean {
+    return HostileClass.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function hostileClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileClass>): Partial<HostileClass> | __mf_PendingRef {
+    return HostileClass.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function hostileClassIs(value: unknown): value is HostileClass {
+    return HostileClass.is(value);
+}
+
+/** @derive(Encode, Decode) */
+/** @endec({ denyUnknownFields: true }) */
+export interface HostileStrict {
+    name: string;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function hostileStrictEncode(value: HostileStrict, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = hostileStrictEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function hostileStrictEncodeWithContext(value: HostileStrict, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HostileStrict" });
+    hostileStrictEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function hostileStrictEncodePartialWithContext(value: Partial<HostileStrict>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileStrict>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "HostileStrict" };
+        hostileStrictEncodeFields(value as HostileStrict, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function hostileStrictEncodeFields(value: HostileStrict, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result["name"] = value.name;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function hostileStrictDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HostileStrict } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = hostileStrictDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "HostileStrict.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileStrict | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileStrict> | __mf_PendingRef;
+export function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<HostileStrict> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileStrict.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "HostileStrict.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "HostileStrict") as HostileStrict | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "HostileStrict.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    const knownKeys = new Set(["__type", "__id", "__ref", "name"]);
+    for (const key of Object.keys(obj)) {
+        if (!knownKeys.has(key)) {
+            errors.push({ field: key, message: "unknown field" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "HostileStrict");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "HostileStrict.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as HostileStrict;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function hostileStrictDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileStrict>): Partial<HostileStrict> | __mf_PendingRef {
+    return hostileStrictDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function hostileStrictValidateField<K extends keyof HostileStrict>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function hostileStrictValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function hostileStrictValidateFields(partial: { readonly [K in keyof HostileStrict]?: unknown }): Array<{ field: string; message: string }>;
+export function hostileStrictValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function hostileStrictHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "name");
+}
+
+export function hostileStrictIs(obj: unknown): obj is HostileStrict {
+    return hostileStrictHasShape(obj) && hostileStrictDecode(obj).success;
+}
+
+export const HostileStrict: {
+  readonly encode: typeof hostileStrictEncode;
+  readonly encodeWithContext: typeof hostileStrictEncodeWithContext;
+  readonly encodePartialWithContext: typeof hostileStrictEncodePartialWithContext;
+  readonly decode: typeof hostileStrictDecode;
+  readonly decodeWithContext: typeof hostileStrictDecodeWithContext;
+  readonly decodePartialWithContext: typeof hostileStrictDecodePartialWithContext;
+  readonly validateField: typeof hostileStrictValidateField;
+  readonly validateFields: typeof hostileStrictValidateFields;
+  readonly hasShape: typeof hostileStrictHasShape;
+  readonly is: typeof hostileStrictIs;
+} = {
+  encode: hostileStrictEncode,
+  encodeWithContext: hostileStrictEncodeWithContext,
+  encodePartialWithContext: hostileStrictEncodePartialWithContext,
+  decode: hostileStrictDecode,
+  decodeWithContext: hostileStrictDecodeWithContext,
+  decodePartialWithContext: hostileStrictDecodePartialWithContext,
+  validateField: hostileStrictValidateField,
+  validateFields: hostileStrictValidateFields,
+  hasShape: hostileStrictHasShape,
+  is: hostileStrictIs
+};
+
+## DTS
+
+/**
+* Types decoded from input nobody vouches for: keys that reach a prototype,
+* values of the wrong kind, members that throw, references to nothing and
+* nesting deeper than the stack.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface HostileItem {
+	id: string;
+	score: number;
+}
+export declare function hostileItemToString(value: HostileItem): string;
+export declare function hostileItemClone(value: HostileItem): HostileItem;
+export declare function hostileItemEquals(a: HostileItem, b: HostileItem): boolean;
+export declare function hostileItemHashCode(value: HostileItem): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function hostileItemEncode(value: HostileItem, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function hostileItemEncodeWithContext(value: HostileItem, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function hostileItemEncodePartialWithContext(value: Partial<HostileItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileItem>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function hostileItemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: HostileItem;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileItem | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileItem> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function hostileItemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileItem>): Partial<HostileItem> | __mf_PendingRef;
+export declare function hostileItemValidateField<K extends keyof HostileItem>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hostileItemValidateFields(partial: { readonly [K in keyof HostileItem]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hostileItemHasShape(obj: unknown): boolean;
+export declare function hostileItemIs(obj: unknown): obj is HostileItem;
+export declare const HostileItem: {
+	readonly toString: typeof hostileItemToString;
+	readonly clone: typeof hostileItemClone;
+	readonly equals: typeof hostileItemEquals;
+	readonly hashCode: typeof hostileItemHashCode;
+	readonly encode: typeof hostileItemEncode;
+	readonly encodeWithContext: typeof hostileItemEncodeWithContext;
+	readonly encodePartialWithContext: typeof hostileItemEncodePartialWithContext;
+	readonly decode: typeof hostileItemDecode;
+	readonly decodeWithContext: typeof hostileItemDecodeWithContext;
+	readonly decodePartialWithContext: typeof hostileItemDecodePartialWithContext;
+	readonly validateField: typeof hostileItemValidateField;
+	readonly validateFields: typeof hostileItemValidateFields;
+	readonly hasShape: typeof hostileItemHasShape;
+	readonly is: typeof hostileItemIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface HostileBag {
+	name: string;
+	item: HostileItem;
+	items: HostileItem[];
+	byName: Record<string, HostileItem>;
+	counts: Record<string, number>;
+	lookup: Map<string, number>;
+	tags: Set<string>;
+	pair: [string, number];
+	at: Date;
+	big: bigint;
+	flag: boolean;
+	nested: HostileBag | null;
+}
+export declare function hostileBagToString(value: HostileBag): string;
+export declare function hostileBagClone(value: HostileBag): HostileBag;
+export declare function hostileBagEquals(a: HostileBag, b: HostileBag): boolean;
+export declare function hostileBagHashCode(value: HostileBag): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function hostileBagEncode(value: HostileBag, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function hostileBagEncodeWithContext(value: HostileBag, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function hostileBagEncodePartialWithContext(value: Partial<HostileBag>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileBag>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function hostileBagDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: HostileBag;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileBag | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileBag> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function hostileBagDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileBag>): Partial<HostileBag> | __mf_PendingRef;
+export declare function hostileBagValidateField<K extends keyof HostileBag>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hostileBagValidateFields(partial: { readonly [K in keyof HostileBag]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hostileBagHasShape(obj: unknown): boolean;
+export declare function hostileBagIs(obj: unknown): obj is HostileBag;
+export declare const HostileBag: {
+	readonly toString: typeof hostileBagToString;
+	readonly clone: typeof hostileBagClone;
+	readonly equals: typeof hostileBagEquals;
+	readonly hashCode: typeof hostileBagHashCode;
+	readonly encode: typeof hostileBagEncode;
+	readonly encodeWithContext: typeof hostileBagEncodeWithContext;
+	readonly encodePartialWithContext: typeof hostileBagEncodePartialWithContext;
+	readonly decode: typeof hostileBagDecode;
+	readonly decodeWithContext: typeof hostileBagDecodeWithContext;
+	readonly decodePartialWithContext: typeof hostileBagDecodePartialWithContext;
+	readonly validateField: typeof hostileBagValidateField;
+	readonly validateFields: typeof hostileBagValidateFields;
+	readonly hasShape: typeof hostileBagHasShape;
+	readonly is: typeof hostileBagIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export declare class HostileClass {
+	#private;
+	name: string;
+	count: number;
+	label(): string;
+	static toString(value: HostileClass): string;
+	static clone(value: HostileClass): HostileClass;
+	static equals(a: HostileClass, b: HostileClass): boolean;
+	static hashCode(value: HostileClass): number;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: HostileClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<HostileClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileClass>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: HostileClass, keepMetadata?: boolean): string;
+	constructor(props: {
+		name: string;
+		count: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: HostileClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileClass | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileClass> | __mf_PendingRef;
+	static validateField<K extends keyof HostileClass>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof HostileClass]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is HostileClass;
+}
+export declare function hostileClassToString(value: HostileClass): string;
+export declare function hostileClassClone(value: HostileClass): HostileClass;
+export declare function hostileClassEquals(a: HostileClass, b: HostileClass): boolean;
+export declare function hostileClassHashCode(value: HostileClass): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function hostileClassEncode(value: HostileClass, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function hostileClassEncodeWithContext(value: HostileClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function hostileClassEncodePartialWithContext(value: Partial<HostileClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileClass>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function hostileClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: HostileClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function hostileClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileClass | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function hostileClassHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function hostileClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileClass>): Partial<HostileClass> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function hostileClassIs(value: unknown): value is HostileClass;
+/** @derive(Encode, Decode) */
+/** @endec({ denyUnknownFields: true }) */
+export interface HostileStrict {
+	name: string;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function hostileStrictEncode(value: HostileStrict, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function hostileStrictEncodeWithContext(value: HostileStrict, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function hostileStrictEncodePartialWithContext(value: Partial<HostileStrict>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof HostileStrict>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function hostileStrictDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: HostileStrict;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): HostileStrict | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<HostileStrict> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function hostileStrictDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof HostileStrict>): Partial<HostileStrict> | __mf_PendingRef;
+export declare function hostileStrictValidateField<K extends keyof HostileStrict>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hostileStrictValidateFields(partial: { readonly [K in keyof HostileStrict]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function hostileStrictHasShape(obj: unknown): boolean;
+export declare function hostileStrictIs(obj: unknown): obj is HostileStrict;
+export declare const HostileStrict: {
+	readonly encode: typeof hostileStrictEncode;
+	readonly encodeWithContext: typeof hostileStrictEncodeWithContext;
+	readonly encodePartialWithContext: typeof hostileStrictEncodePartialWithContext;
+	readonly decode: typeof hostileStrictDecode;
+	readonly decodeWithContext: typeof hostileStrictDecodeWithContext;
+	readonly decodePartialWithContext: typeof hostileStrictDecodePartialWithContext;
+	readonly validateField: typeof hostileStrictValidateField;
+	readonly validateFields: typeof hostileStrictValidateFields;
+	readonly hasShape: typeof hostileStrictHasShape;
+	readonly is: typeof hostileStrictIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..324 -> expanded 1256..1580
+original 324..728 -> expanded 12474..12878
+original 728..940 -> expanded 40877..41089
+original 940..941 -> expanded 50043..50044
+original 941..1069 -> expanded 53723..53851
+original 1069..1070 -> expanded 62825..62826
+generated 0..1256 <- imports
+generated 1580..1890 <- Debug
+generated 1890..2057 <- Clone
+generated 2057..2294 <- PartialEq
+generated 2294..2749 <- Hash
+generated 2749..5076 <- Encode
+generated 5076..11105 <- Decode
+generated 11105..12474 <- __convenience_const
+generated 12878..13852 <- Debug
+generated 13852..14440 <- Clone
+generated 14440..15689 <- PartialEq
+generated 15689..17232 <- Hash
+generated 17232..21495 <- Encode
+generated 21495..39537 <- Decode
+generated 39537..40877 <- __convenience_const
+generated 41089..41417 <- Debug
+generated 41417..41593 <- Clone
+generated 41593..41832 <- PartialEq
+generated 41832..42302 <- Hash
+generated 42302..44040 <- Encode
+generated 44040..44371 <- Encode
+generated 44371..50043 <- Decode
+generated 50044..50156 <- Debug
+generated 50156..50268 <- Clone
+generated 50268..50389 <- PartialEq
+generated 50389..50501 <- Hash
+generated 50501..51881 <- Encode
+generated 51881..53723 <- Decode
+generated 53851..56055 <- Encode
+generated 56055..61722 <- Decode
+generated 61722..62825 <- __convenience_const
+
+## Metadata
+
+class HostileClass: {"body_span":{"end":942,"start":819},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":792,"start":731}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":843,"start":825},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":866,"start":848},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":940,"start":888},"body_src":"\n        return `${this.name}:${this.count}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":940,"start":872},"type_params":[],"visibility":"Public"}],"name":"HostileClass","span":{"end":942,"start":800},"superclass":null,"type_params":[]}
+interface HostileItem: {"body_span":{"end":325,"start":287},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":257,"start":196}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":304,"start":293},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":323,"start":309},"ts_type":"number"}],"heritage":[],"methods":[],"name":"HostileItem","span":{"end":325,"start":265},"type_params":[]}
+interface HostileBag: {"body_span":{"end":729,"start":417},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":388,"start":327}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":436,"start":423},"ts_type":"string"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":459,"start":441},"ts_type":"HostileItem"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":485,"start":464},"ts_type":"HostileItem[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":526,"start":490},"ts_type":"Record<string, HostileItem>"},{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":562,"start":531},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"lookup","optional":false,"readonly":false,"span":{"end":595,"start":567},"ts_type":"Map<string, number>"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":618,"start":600},"ts_type":"Set<string>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":646,"start":623},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":660,"start":651},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":677,"start":665},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":696,"start":682},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":727,"start":701},"ts_type":"HostileBag | null"}],"heritage":[],"methods":[],"name":"HostileBag","span":{"end":729,"start":396},"type_params":[]}
+interface HostileStrict: {"body_span":{"end":1070,"start":1049},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":1017,"start":975}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":974,"start":944}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1068,"start":1055},"ts_type":"string"}],"heritage":[],"methods":[],"name":"HostileStrict","span":{"end":1070,"start":1025},"type_params":[]}
+
+## Registry reads
+
+Name("Date")
+Name("HostileBag")
+Name("HostileItem")
+Name("Map")
+Name("Record")
+Name("Set")
+Name("[string, number]")
+Name("bigint")
+Name("boolean")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)
