@@ -616,6 +616,7 @@ Name("Array")
 Name("Gigaform")
 Name("boolean")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

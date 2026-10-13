@@ -539,6 +539,7 @@ Name("Array")
 Name("Gigaform")
 Name("Weekday")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

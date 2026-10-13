@@ -480,6 +480,7 @@ interface Promotion: {"body_span":{"end":173,"start":136},"decorators":[{"args_s
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

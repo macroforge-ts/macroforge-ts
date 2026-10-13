@@ -566,6 +566,7 @@ Name("Custom")
 Name("Gigaform")
 Name("Gradient")
 Name("Ordinal")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

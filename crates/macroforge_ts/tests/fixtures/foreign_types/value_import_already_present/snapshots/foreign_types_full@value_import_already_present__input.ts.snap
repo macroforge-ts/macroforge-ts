@@ -295,6 +295,7 @@ interface Tick: {"body_span":{"end":124,"start":99},"decorators":[{"args_src":"D
 
 Name("DateTime")
 Name("DateTime.Utc")
+ExportedAs("DateTime")
 
 ## Buildtime dependencies
 

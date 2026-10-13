@@ -600,6 +600,7 @@ interface Cardinal: {"body_span":{"end":212,"start":135},"decorators":[{"args_sr
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

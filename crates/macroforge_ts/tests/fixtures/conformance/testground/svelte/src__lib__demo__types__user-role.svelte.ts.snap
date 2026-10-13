@@ -459,6 +459,7 @@ type UserRole: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 Name("Gigaform")
 Name("UserRole")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

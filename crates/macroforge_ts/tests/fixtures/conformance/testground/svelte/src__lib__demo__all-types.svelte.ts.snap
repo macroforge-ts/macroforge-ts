@@ -55893,6 +55893,7 @@ Name("string | Site")
 Name("string | Target")
 Name("string | TaxRate")
 Name("{ [key: string]: number }")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

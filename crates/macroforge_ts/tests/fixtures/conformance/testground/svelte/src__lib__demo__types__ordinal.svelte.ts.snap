@@ -824,6 +824,7 @@ interface Ordinal: {"body_span":{"end":303,"start":134},"decorators":[{"args_src
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

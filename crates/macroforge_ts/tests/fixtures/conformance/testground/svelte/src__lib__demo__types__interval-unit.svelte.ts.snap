@@ -423,6 +423,7 @@ type IntervalUnit: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defau
 
 Name("Gigaform")
 Name("IntervalUnit")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

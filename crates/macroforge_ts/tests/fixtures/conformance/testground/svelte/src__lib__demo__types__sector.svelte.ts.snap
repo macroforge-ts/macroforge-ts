@@ -361,6 +361,7 @@ type Sector: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","s
 
 Name("Gigaform")
 Name("Sector")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

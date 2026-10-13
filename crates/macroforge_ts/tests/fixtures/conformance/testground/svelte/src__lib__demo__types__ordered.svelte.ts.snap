@@ -635,6 +635,7 @@ Name("Order")
 Name("string")
 Name("string | Account")
 Name("string | Order")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

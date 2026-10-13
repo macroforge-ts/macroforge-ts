@@ -427,6 +427,7 @@ type NextStep: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 Name("Gigaform")
 Name("NextStep")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -468,6 +468,7 @@ Name("AccountName")
 Name("CompanyName")
 Name("Gigaform")
 Name("PersonName")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

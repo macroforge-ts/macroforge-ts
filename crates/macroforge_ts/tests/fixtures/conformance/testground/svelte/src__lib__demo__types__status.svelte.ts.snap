@@ -392,6 +392,7 @@ type Status: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","s
 
 Name("Gigaform")
 Name("Status")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

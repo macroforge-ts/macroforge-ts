@@ -2469,6 +2469,9 @@ Name("string | Package")
 Name("string | Payment")
 Name("string | Promotion")
 Name("string | Site")
+ExportedAs("DateTime")
+ExportedAs("Gigaform")
+ExportedAs("Option")
 
 ## Buildtime dependencies
 

@@ -2127,6 +2127,7 @@ Name("boolean")
 Name("string")
 Name("string | Site")
 Name("string | TaxRate")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

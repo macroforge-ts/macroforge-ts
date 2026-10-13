@@ -1051,6 +1051,7 @@ Name("Gigaform")
 Name("ServiceDefaults")
 Name("boolean")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

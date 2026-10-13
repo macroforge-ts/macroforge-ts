@@ -662,6 +662,7 @@ Name("Gigaform")
 Name("Paid")
 Name("Sent")
 Name("Viewed")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -518,6 +518,7 @@ interface PersonName: {"body_span":{"end":380,"start":137},"decorators":[{"args_
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

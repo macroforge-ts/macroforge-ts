@@ -690,6 +690,7 @@ interface PhoneNumber: {"body_span":{"end":614,"start":138},"decorators":[{"args
 Name("Gigaform")
 Name("boolean")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

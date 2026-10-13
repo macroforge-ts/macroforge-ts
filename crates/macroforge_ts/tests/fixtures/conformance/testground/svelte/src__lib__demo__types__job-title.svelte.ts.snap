@@ -427,6 +427,7 @@ type JobTitle: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 Name("Gigaform")
 Name("JobTitle")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

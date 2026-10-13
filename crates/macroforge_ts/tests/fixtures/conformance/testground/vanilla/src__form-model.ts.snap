@@ -181,6 +181,7 @@ class FormModel: {"body_span":{"end":1166,"start":511},"decorators":[{"args_src"
 ## Registry reads
 
 Name("Inspect")
+ExportedAs("Inspect")
 
 ## Buildtime dependencies
 

@@ -1190,6 +1190,7 @@ Name("Site")
 Name("Target")
 Name("TaxRate")
 Name("User")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

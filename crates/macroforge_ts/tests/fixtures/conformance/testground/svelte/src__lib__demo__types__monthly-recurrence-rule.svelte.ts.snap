@@ -558,6 +558,7 @@ interface MonthlyRecurrenceRule: {"body_span":{"end":262,"start":148},"decorator
 Name("Gigaform")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

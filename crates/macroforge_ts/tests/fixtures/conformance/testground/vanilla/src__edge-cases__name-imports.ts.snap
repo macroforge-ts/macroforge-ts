@@ -2179,6 +2179,11 @@ Name("NameShown")
 Name("Partial")
 Name("default")
 Name("point2D")
+ExportedAs("NameBarrelHanded")
+ExportedAs("NameBarrelModel")
+ExportedAs("NameBarrelShown")
+ExportedAs("NameShown")
+ExportedAs("default")
 
 ## Buildtime dependencies
 

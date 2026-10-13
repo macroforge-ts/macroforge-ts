@@ -537,6 +537,7 @@ interface Paid: {"body_span":{"end":224,"start":131},"decorators":[{"args_src":"
 Name("Gigaform")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

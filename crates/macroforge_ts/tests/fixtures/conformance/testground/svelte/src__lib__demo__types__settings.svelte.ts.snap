@@ -1439,6 +1439,7 @@ Name("Gigaform")
 Name("OverviewSettings")
 Name("Page")
 Name("ScheduleSettings")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

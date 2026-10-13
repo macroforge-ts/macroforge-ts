@@ -99,6 +99,13 @@ impl TypeRegistryEntry {
         entry.definition.clear_spans();
         entry
     }
+
+    /// Whether some module exports this declaration under `name` where it is
+    /// declared under another: its own module, or one that exports it again.
+    fn is_exported_as(&self, name: &str) -> bool {
+        self.exported_as.iter().any(|exported| exported == name)
+            || self.re_exported.iter().any(|again| again.name == name)
+    }
 }
 
 /// A name a module exports a type under that another module declares.
@@ -154,6 +161,13 @@ pub enum RegistryRead {
     Qualified(String),
     /// The whole registry, for a lookup that enumerated it.
     All,
+    /// The declarations exported under a name they are not declared by: one
+    /// a module gives a declaration of its own (`export { Late as Shown }`),
+    /// or one another module exports it again under.
+    ExportedAs(String),
+    /// Whether the module at this path, written without its extension,
+    /// declares a type or exports one again.
+    Module(String),
 }
 
 /// Where a registry, and every clone of it, notes the lookups made through it.
@@ -569,6 +583,10 @@ pub enum Resolution {
         qualified_types: BTreeMap<String, TypeRegistryEntry>,
         ambiguous_names: BTreeSet<String>,
     },
+    /// The declarations exported under the name, by qualified key.
+    ExportedAs(BTreeMap<String, TypeRegistryEntry>),
+    /// Whether the module holds types.
+    Module(bool),
 }
 
 /// The version of the compact wire form [`RegistryWire`] writes.
@@ -1009,6 +1027,16 @@ impl TypeRegistry {
                 qualified_types: without_spans(self.qualified_types.entries.by_key.iter()),
                 ambiguous_names: self.ambiguous_names.names.members.iter().cloned().collect(),
             },
+            RegistryRead::ExportedAs(name) => Resolution::ExportedAs(without_spans(
+                self.qualified_types
+                    .entries
+                    .by_key
+                    .iter()
+                    .filter(|(_, entry)| entry.is_exported_as(name)),
+            )),
+            RegistryRead::Module(module_path) => {
+                Resolution::Module(self.module_holds_types(module_path))
+            }
         }
     }
 
@@ -1143,7 +1171,8 @@ impl TypeRegistry {
                 }
                 // A module the scan read types in exports those it was seen
                 // to, and none the project declares elsewhere under the name.
-                if self.holds_types_of(&is_module) {
+                self.log.note(|| RegistryRead::Module(module_path.clone()));
+                if self.module_holds_types(&module_path) {
                     return None;
                 }
             }
@@ -1247,6 +1276,8 @@ impl TypeRegistry {
             .copied()
             .collect();
         if found.is_empty() {
+            self.log
+                .note(|| RegistryRead::ExportedAs(exported.to_string()));
             // Qualified keys are ordered, so two declarations a module
             // exports under one name come in the same order each time.
             let mut renamed: Vec<(&String, &TypeRegistryEntry)> = self
@@ -1273,9 +1304,11 @@ impl TypeRegistry {
         distinct
     }
 
-    /// Whether a module whose file `is_module` takes declares a type or
-    /// exports one again: a module the scan read, and found types in.
-    fn holds_types_of(&self, is_module: &dyn Fn(&str) -> bool) -> bool {
+    /// Whether the module at `module_path`, written without its extension,
+    /// declares a type or exports one again: a module the scan read, and
+    /// found types in.
+    fn module_holds_types(&self, module_path: &str) -> bool {
+        let is_module = |file_path: &str| file_path_is_module(file_path, module_path);
         self.qualified_types.entries.by_key.values().any(|entry| {
             is_module(&entry.file_path)
                 || entry
@@ -2170,6 +2203,60 @@ mod tests {
         registry.start_recording();
         assert_eq!(registry.types.iter().count(), 2);
         assert_eq!(reads_of(&registry), vec![RegistryRead::All]);
+    }
+
+    /// A lookup that finds no declaration of a name in a module depends on
+    /// what is exported under the name, and on whether the module holds
+    /// types: each changes what the lookup would find, and each is recorded.
+    #[test]
+    fn a_lookup_through_an_export_name_or_a_module_records_what_it_asked() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("Late", "/project/src/models.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        let import = |module: &str| [import_from("Shown", module)];
+        let page = "/project/src/page.ts";
+
+        registry.start_recording();
+        assert!(
+            registry
+                .resolve_in_file("Shown", page, &import("./models"))
+                .is_none()
+        );
+        let reads = reads_of(&registry);
+        let exported = RegistryRead::ExportedAs("Shown".to_string());
+        let module = RegistryRead::Module("/project/src/models".to_string());
+        assert!(reads.contains(&exported), "{reads:?}");
+        assert!(reads.contains(&module), "{reads:?}");
+
+        // A module that gives one of its declarations the name changes the
+        // first, and one that gains its first type changes the second.
+        let before = registry.resolution_of(&exported);
+        let mut renamed = registry.clone();
+        renamed.insert(
+            TypeRegistryEntry {
+                exported_as: vec!["Shown".to_string()],
+                ..make_interface_entry("Other", "/project/src/models.ts", vec![])
+            },
+            "/project",
+        );
+        assert_ne!(renamed.resolution_of(&exported), before);
+        assert_eq!(registry.resolution_of(&exported), before);
+
+        let empty = RegistryRead::Module("/project/src/empty".to_string());
+        assert_eq!(registry.resolution_of(&empty), Resolution::Module(false));
+        let mut filled = registry.clone();
+        filled.insert(
+            make_interface_entry("First", "/project/src/empty.ts", vec![]),
+            "/project",
+        );
+        assert_eq!(filled.resolution_of(&empty), Resolution::Module(true));
+        assert_eq!(registry.resolution_of(&module), Resolution::Module(true));
     }
 
     #[test]

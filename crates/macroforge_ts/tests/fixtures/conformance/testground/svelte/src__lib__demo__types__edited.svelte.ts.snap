@@ -549,6 +549,7 @@ interface Edited: {"body_span":{"end":263,"start":133},"decorators":[{"args_src"
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

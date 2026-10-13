@@ -662,6 +662,7 @@ Name("RowHeight")
 Name("boolean")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

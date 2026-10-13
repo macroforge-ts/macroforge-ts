@@ -2660,6 +2660,7 @@ Name("boolean")
 Name("number")
 Name("string")
 Name("string | Site")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

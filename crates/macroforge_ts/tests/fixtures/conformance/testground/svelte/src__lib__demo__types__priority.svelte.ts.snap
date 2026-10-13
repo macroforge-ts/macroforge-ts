@@ -392,6 +392,7 @@ type Priority: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default",
 
 Name("Gigaform")
 Name("Priority")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

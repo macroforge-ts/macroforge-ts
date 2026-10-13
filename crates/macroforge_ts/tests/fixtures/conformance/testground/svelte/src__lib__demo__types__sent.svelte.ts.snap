@@ -480,6 +480,7 @@ interface Sent: {"body_span":{"end":191,"start":131},"decorators":[{"args_src":"
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

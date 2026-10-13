@@ -1099,6 +1099,7 @@ type Page: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","spa
 
 Name("Gigaform")
 Name("Page")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

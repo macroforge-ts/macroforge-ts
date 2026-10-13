@@ -875,6 +875,7 @@ type Table: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","sp
 
 Name("Gigaform")
 Name("Table")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

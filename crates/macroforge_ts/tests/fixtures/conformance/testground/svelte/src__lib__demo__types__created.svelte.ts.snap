@@ -428,6 +428,7 @@ interface Created: {"body_span":{"end":169,"start":134},"decorators":[{"args_src
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

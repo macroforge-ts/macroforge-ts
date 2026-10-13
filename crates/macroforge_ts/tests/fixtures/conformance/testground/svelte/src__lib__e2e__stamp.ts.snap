@@ -374,6 +374,7 @@ Name("Slug")
 Name("Stamped")
 Name("T")
 Name("string")
+ExportedAs("DateTime")
 
 ## Buildtime dependencies
 

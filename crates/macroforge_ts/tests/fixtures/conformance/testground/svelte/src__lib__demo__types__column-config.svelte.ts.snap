@@ -536,6 +536,7 @@ Name("Array")
 Name("DataPath")
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

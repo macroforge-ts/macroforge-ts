@@ -1065,6 +1065,7 @@ Name("boolean")
 Name("number")
 Name("string")
 Name("string | Employee")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -1023,6 +1023,8 @@ interface TypeC: {"body_span":{"end":1518,"start":1495},"decorators":[{"args_src
 
 Name("Exit")
 Name("Option")
+ExportedAs("Exit")
+ExportedAs("Option")
 
 ## Buildtime dependencies
 

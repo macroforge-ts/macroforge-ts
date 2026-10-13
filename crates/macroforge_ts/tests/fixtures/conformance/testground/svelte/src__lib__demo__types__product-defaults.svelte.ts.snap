@@ -506,6 +506,7 @@ interface ProductDefaults: {"body_span":{"end":361,"start":142},"decorators":[{"
 Name("Gigaform")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

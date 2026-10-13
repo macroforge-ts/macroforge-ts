@@ -432,6 +432,7 @@ interface YearlyRecurrenceRule: {"body_span":{"end":179,"start":147},"decorators
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

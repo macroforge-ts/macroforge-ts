@@ -361,6 +361,7 @@ type OverviewDisplay: {"body":{"Union":[{"decorators":[{"args_src":"","name":"de
 
 Name("Gigaform")
 Name("OverviewDisplay")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

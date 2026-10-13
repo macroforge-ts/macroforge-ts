@@ -432,6 +432,7 @@ interface DailyRecurrenceRule: {"body_span":{"end":177,"start":146},"decorators"
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

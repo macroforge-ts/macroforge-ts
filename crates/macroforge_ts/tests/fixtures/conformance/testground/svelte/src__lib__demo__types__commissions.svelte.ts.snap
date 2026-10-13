@@ -514,6 +514,7 @@ interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

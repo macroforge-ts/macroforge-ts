@@ -514,6 +514,7 @@ interface AppointmentNotifications: {"body_span":{"end":339,"start":151},"decora
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

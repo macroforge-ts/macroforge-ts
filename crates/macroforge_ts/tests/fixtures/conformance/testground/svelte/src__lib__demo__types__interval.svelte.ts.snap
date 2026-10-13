@@ -566,6 +566,7 @@ Name("Interval")
 Name("MonthlyRecurrenceRule")
 Name("WeeklyRecurrenceRule")
 Name("YearlyRecurrenceRule")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

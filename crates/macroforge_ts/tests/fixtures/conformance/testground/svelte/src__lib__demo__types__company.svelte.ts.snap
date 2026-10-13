@@ -2252,6 +2252,7 @@ Name("number")
 Name("string")
 Name("string | Site")
 Name("string | TaxRate")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

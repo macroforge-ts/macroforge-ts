@@ -1541,6 +1541,9 @@ Name("Settings")
 Name("UserRole")
 Name("boolean")
 Name("string")
+ExportedAs("DateTime")
+ExportedAs("Gigaform")
+ExportedAs("Option")
 
 ## Buildtime dependencies
 

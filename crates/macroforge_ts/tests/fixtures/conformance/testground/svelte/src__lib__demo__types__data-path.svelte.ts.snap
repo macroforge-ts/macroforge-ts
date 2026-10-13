@@ -508,6 +508,7 @@ interface DataPath: {"body_span":{"end":193,"start":135},"decorators":[{"args_sr
 Name("Array")
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

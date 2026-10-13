@@ -459,6 +459,7 @@ type LeadStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default"
 
 Name("Gigaform")
 Name("LeadStage")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -447,6 +447,7 @@ interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

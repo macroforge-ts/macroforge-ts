@@ -544,6 +544,7 @@ interface Color: {"body_span":{"end":189,"start":132},"decorators":[{"args_src":
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

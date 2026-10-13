@@ -997,6 +997,7 @@ Name("Gigaform")
 Name("ProductDefaults")
 Name("boolean")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

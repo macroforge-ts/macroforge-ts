@@ -777,6 +777,7 @@ Name("Target")
 Name("string")
 Name("string | Actor")
 Name("string | Target")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

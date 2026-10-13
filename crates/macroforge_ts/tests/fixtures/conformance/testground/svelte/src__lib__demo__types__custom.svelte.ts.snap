@@ -482,6 +482,7 @@ interface Custom: {"body_span":{"end":232,"start":194},"decorators":[{"args_src"
 Name("Array")
 Name("DirectionHue")
 Name("Gigaform")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

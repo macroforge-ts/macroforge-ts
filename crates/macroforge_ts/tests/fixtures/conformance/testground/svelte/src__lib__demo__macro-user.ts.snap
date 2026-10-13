@@ -466,6 +466,7 @@ class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":
 Name("'Derive' | 'JsonNative'")
 Name("JSON")
 Name("string")
+ExportedAs("JSON")
 
 ## Buildtime dependencies
 

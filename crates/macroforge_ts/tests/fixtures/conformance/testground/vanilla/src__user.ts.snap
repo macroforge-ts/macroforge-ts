@@ -105,6 +105,7 @@ class User: {"body_span":{"end":514,"start":158},"decorators":[{"args_src":"Debu
 ## Registry reads
 
 Name("JSON")
+ExportedAs("JSON")
 
 ## Buildtime dependencies
 

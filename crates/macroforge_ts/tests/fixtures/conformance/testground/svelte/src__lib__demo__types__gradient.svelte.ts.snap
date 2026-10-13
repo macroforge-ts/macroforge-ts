@@ -432,6 +432,7 @@ interface Gradient: {"body_span":{"end":160,"start":135},"decorators":[{"args_sr
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

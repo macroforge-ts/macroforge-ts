@@ -1124,6 +1124,7 @@ interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"
 Name("Coordinates")
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

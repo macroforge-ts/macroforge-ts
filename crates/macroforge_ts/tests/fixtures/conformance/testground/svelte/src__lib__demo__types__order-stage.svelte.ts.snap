@@ -392,6 +392,7 @@ type OrderStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default
 
 Name("Gigaform")
 Name("OrderStage")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

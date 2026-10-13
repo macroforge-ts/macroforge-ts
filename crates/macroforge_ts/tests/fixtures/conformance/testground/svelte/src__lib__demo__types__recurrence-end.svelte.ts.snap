@@ -403,6 +403,7 @@ Name("Gigaform")
 Name("RecurrenceEnd")
 Name("number")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -583,6 +583,7 @@ interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -1394,6 +1394,9 @@ Name("number")
 Name("string")
 Name("string | Employee")
 Name("string | Site")
+ExportedAs("DateTime")
+ExportedAs("Gigaform")
+ExportedAs("Option")
 
 ## Buildtime dependencies
 

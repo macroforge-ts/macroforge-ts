@@ -488,6 +488,7 @@ interface DirectionHue: {"body_span":{"end":180,"start":139},"decorators":[{"arg
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -497,6 +497,7 @@ interface Commented: {"body_span":{"end":234,"start":136},"decorators":[{"args_s
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

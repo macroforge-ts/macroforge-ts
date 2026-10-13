@@ -692,6 +692,7 @@ Name("Array")
 Name("Gigaform")
 Name("Page")
 Name("Table")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

@@ -474,6 +474,7 @@ Name("RecordLink")
 Name("RecordLink<Product>")
 Name("RecordLink<Service>")
 Name("Service")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

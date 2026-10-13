@@ -488,6 +488,7 @@ interface Coordinates: {"body_span":{"end":175,"start":138},"decorators":[{"args
 
 Name("Gigaform")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

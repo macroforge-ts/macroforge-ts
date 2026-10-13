@@ -738,6 +738,7 @@ Name("Gigaform")
 Name("Interval")
 Name("RecurrenceEnd")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

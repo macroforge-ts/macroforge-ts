@@ -723,6 +723,7 @@ Name("Gigaform")
 Name("OverviewDisplay")
 Name("RowHeight")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

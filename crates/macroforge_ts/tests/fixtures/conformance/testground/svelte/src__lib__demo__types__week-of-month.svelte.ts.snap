@@ -459,6 +459,7 @@ type WeekOfMonth: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defaul
 
 Name("Gigaform")
 Name("WeekOfMonth")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

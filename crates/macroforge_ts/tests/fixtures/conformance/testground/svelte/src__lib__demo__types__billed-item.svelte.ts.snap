@@ -644,6 +644,7 @@ Name("Gigaform")
 Name("Item")
 Name("boolean")
 Name("number")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

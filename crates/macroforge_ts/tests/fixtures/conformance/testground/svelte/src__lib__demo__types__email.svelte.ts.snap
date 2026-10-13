@@ -508,6 +508,7 @@ interface Email: {"body_span":{"end":338,"start":132},"decorators":[{"args_src":
 Name("Gigaform")
 Name("boolean")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

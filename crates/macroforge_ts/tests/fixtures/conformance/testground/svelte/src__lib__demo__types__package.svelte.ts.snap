@@ -484,6 +484,7 @@ interface Package: {"body_span":{"end":254,"start":134},"decorators":[{"args_src
 
 Name("Gigaform")
 Name("string")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

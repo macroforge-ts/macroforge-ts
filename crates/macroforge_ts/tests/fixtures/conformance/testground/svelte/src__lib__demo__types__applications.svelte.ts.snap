@@ -523,6 +523,7 @@ type Applications: {"body":{"Union":[{"decorators":[{"args_src":"","name":"defau
 
 Name("Applications")
 Name("Gigaform")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 

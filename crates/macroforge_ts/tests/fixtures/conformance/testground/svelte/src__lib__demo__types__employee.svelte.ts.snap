@@ -1620,6 +1620,7 @@ Name("boolean")
 Name("number")
 Name("string")
 Name("string | Route")
+ExportedAs("Gigaform")
 
 ## Buildtime dependencies
 
