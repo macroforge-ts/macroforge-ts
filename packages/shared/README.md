@@ -28,6 +28,12 @@ npm install @macroforge/shared
 - **`findConfigFile`** - Finds a macroforge config file in the directory tree.
 - **`loadMacroConfig`** - Loads Macroforge configuration from `macroforge.config.js` (or
   .ts/.mjs/.cjs).
+- **`declarationFileOf`** - The name of the declaration file a TypeScript module's types are emitted
+  to: `user.ts` and `user.tsx` give `user.d.ts...
+- **`sourceMapOf`** - The Source Map v3 of `expanded` against `original`, named `source`, or
+  `undefined` when the mapping has no segment.
+- **`lineAndColumn`** - The 1-based line and column of `offset` in `text`, as an error message names
+  a place.
 
 ### Interfaces
 
@@ -44,6 +50,10 @@ npm install @macroforge/shared
 - **`NonExhaustiveConfig`** - Behavior knobs for the `@nonExhaustive` attribute macro.
 - **`VitePluginConfig`** - Vite plugin configuration options.
 - **`MacroConfig`** - Configuration options loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
+- **`SourceMappingSegment`** - One range of the expanded code holding a range of the original as
+  written.
+- **`SourceMapping`** - The engine's source mapping of an expansion: offsets in UTF-16 code units.
+- **`SourceMapV3`** - A Source Map v3 of expanded code against one original source.
 
 ### Types
 
@@ -53,6 +63,10 @@ npm install @macroforge/shared
 ### Constants
 
 - **`CONFIG_FILES`** - Supported config file names in order of precedence.
+- **`TYPESCRIPT_EXTENSIONS`** - The extensions of a TypeScript module, a declaration file among
+  them.
+- **`JAVASCRIPT_EXTENSIONS`** - The extensions of a JavaScript module.
+- **`DECLARATION_ENDINGS`** - The endings of a declaration file.
 
 ## Documentation
 

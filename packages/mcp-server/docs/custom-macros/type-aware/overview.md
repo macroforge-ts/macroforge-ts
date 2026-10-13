@@ -116,15 +116,16 @@ let shape = resolve_generic_aliases(
 
 `macroforge_ts::builtin::derive::common` holds the helpers the built-in macros use:
 
-| Helper                                                                        | Use                                                          |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `type_has_derive(registry, name, "Clone")`                                    | Whether a project type derives a macro                       |
-| `resolved_type_has_derive(registry, resolved, "Clone")`                       | The same, for a field's resolved type                        |
-| `collection_element_type(resolved)`                                           | The element of `User[]`, a `Set`'s value, a `Map`'s value    |
-| `standalone_fn_name("User", "Clone")`                                         | The name of a generated helper: `userClone`                  |
-| `get_effective_fields(alias, registry)`                                       | The fields of an object alias, or of an intersection of them |
-| `is_primitive_type`, `is_numeric_type`, `is_nullable_type`, `is_generic_type` | Classify a type string                                       |
-| `get_type_default`, `get_type_default_with_registry`                          | A default value expression for a type                        |
+| Helper                                                                        | Use                                                                                                               |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `declared_type_has_derive(Declared::of(input, &file_imports), name, "Clone")` | Whether the type the current file knows as `name` derives a macro, through whatever it imports the type as        |
+| `type_has_derive(registry, name, "Clone")`                                    | Whether a type the project declares under `name` derives a macro, whatever the current file imports               |
+| `resolved_type_has_derive(registry, resolved, "Clone")`                       | The same, for a field's resolved type                                                                             |
+| `collection_element_type(resolved)`                                           | The element of `User[]`, a `Set`'s value, a `Map`'s value                                                         |
+| `standalone_fn_name("User", "Clone")`                                         | The name of a generated helper: `userClone`                                                                       |
+| `derive_alias_fields(input, alias)`                                           | The fields of an object alias, or of an intersection of them, each named type read as the current file imports it |
+| `is_primitive_type`, `is_numeric_type`, `is_nullable_type`, `is_generic_type` | Classify a type string                                                                                            |
+| `get_type_default`, `get_type_default_with_registry`                          | A default value expression for a type                                                                             |
 
 ## Importing a Type's Helpers
 

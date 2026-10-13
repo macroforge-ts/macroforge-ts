@@ -99,7 +99,13 @@
 //! | A template literal type, `` `id-${number}` `` | The text, when it spells the template: its fixed text in place, a `${number}` or `${bigint}` hole a number in decimal, a hole of literals one of them. A hole of any other type is an expansion error |
 //! | `keyof T`, `T['field']` over a type the project declares | As what the operator yields |
 //! | A function, a symbol, `void`, `never`, a mapped, conditional or `typeof` type | An expansion error: code the field with `decodeWith`, or leave it out with `skip` |
+//! | A type named through a namespace import, `models.User` | An expansion error: import the type by name |
 //! | `unknown`, `any`, a type the project does not declare | The value as it is, unchecked |
+//!
+//! A `null` in an array, a tuple or a `Set`, or as the value of a `Record`
+//! or `Map` entry, is read as `undefined` where the type there takes
+//! `undefined` and not `null`: it is what `encode` writes for one, as JSON
+//! has no `undefined`.
 //!
 //! A number has to be finite. `NaN`, an infinity, and JSON text that spells a
 //! number too large to hold (`1e999`) are refused: `encode` could not write

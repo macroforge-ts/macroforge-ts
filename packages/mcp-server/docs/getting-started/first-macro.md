@@ -27,7 +27,7 @@ export class User {
 After (Generated)
 
 ```
-import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
 
 export class User {
   name: string;
@@ -41,37 +41,45 @@ export class User {
   }
 
     static toString(value: User): string {
-        return userToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+        parts.push("age: " + String(value.age));
+        parts.push("email: " + String(value.email));
+            return "User { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: User): User {
-        return userClone(value);
+        return __mf_clonedWith(value, () => ({
+        	name: value.name,
+        	age: value.age,
+        	email: value.email
+        }));
     }
 
     static equals(a: User, b: User): boolean {
-        return userEquals(a, b);
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.age === b.age || a.age !== a.age && b.age !== b.age,
+                    () => a.email === b.email,
+                ].every((same) => same());
+            });
     }
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push("name: " + String(value.name));
-    parts.push("age: " + String(value.age));
-    parts.push("email: " + String(value.email));
-    return "User { " + parts.join(", ") + " }";
+    return User.toString(value);
 }
 
 export function userClone(value: User): User {
-    return __mf_instanceWith(value, ({
-	name: value.name,
-	age: value.age,
-	email: value.email
-}));
+    return User.clone(value);
 }
 
 export function userEquals(a: User, b: User): boolean {
-    if (a === b) return true;
-    return a.name === b.name && a.age === b.age && a.email === b.email;
+    return User.equals(a, b);
 }
 ```
 
@@ -129,6 +137,8 @@ export class User {
 After (Generated)
 
 ```
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+
 export class User {
   
   id: number;
@@ -145,15 +155,17 @@ export class User {
   }
 
     static toString(value: User): string {
-        return userToString(value);
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("userId: " + String(value.id));
+        parts.push("name: " + String(value.name));
+            return "User { " + parts.join(", ") + " }";
+        });
     }
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push("userId: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    return "User { " + parts.join(", ") + " }";
+    return User.toString(value);
 }
 ```
 

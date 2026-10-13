@@ -43,6 +43,15 @@
 //! // Creates: { __type: "Node", __id: 1, value: 1, next: { __ref: 1 } }
 //! ```
 //!
+//! ## Absent Values
+//!
+//! JSON has no `undefined`. A field that holds one is written by leaving its
+//! key out, and is `undefined` again when the key is missing. In an array, a
+//! tuple or a `Set`, and as the value of a `Record` or `Map` entry, an
+//! `undefined` is written as `null` and read back as `undefined`, where the
+//! type there takes `undefined` and not `null`. A type that takes both gets
+//! `null` back, which JSON cannot tell from it.
+//!
 //! ## Field-Level Options
 //!
 //! The `@endec` decorator supports many options:

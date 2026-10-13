@@ -24,9 +24,9 @@
 //!
 //! | Type | Comparison Method |
 //! |------|-------------------|
-//! | Primitives and literals | Strict equality (`===`) |
+//! | Primitives and literals | Strict equality (`===`), with `NaN` equal to itself |
 //! | Arrays | Length, then each element by its own type |
-//! | `Date`, `RegExp`, `URL`, typed arrays | By value |
+//! | `Date`, `RegExp`, `URL`, typed arrays | By value, an invalid `Date` equal to another |
 //! | `Map` | Size, then each key's value by its own type |
 //! | `Set` | Size, then each element matched by an equal element |
 //! | Optional and nullable | Equal when both are the same absent value |

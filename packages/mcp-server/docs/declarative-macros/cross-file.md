@@ -10,7 +10,9 @@ A macro defined in one file can be used in another via an `import macro` JSDoc c
 const xs = $vec(1, 2, 3);
 ```
 
-Specifiers resolve in this order: the bare path, then `.ts`, `.tsx`, `index.ts`, `index.tsx`.
+Specifiers resolve in this order: the bare path, the TypeScript source a `.js`, `.mjs` or `.cjs`
+specifier compiles from (`./macros.mjs` finds `macros.mts`), then `.ts`, `.tsx`, `index.ts`,
+`index.tsx`.
 
 ## The project registry requirement
 
@@ -32,7 +34,7 @@ The bundled integrations (Vite plugin, CLI, preprocessor) do this for you. If yo
 directly and omit it, relative `import macro` specifiers emit an error diagnostic per import and
 resolve nothing.
 
-Bare **package** specifiers are skipped silently rather than erroring — they fall through to the
+Bare **package** specifiers are skipped silently rather than erroring: they fall through to the
 proc-macro loader.
 
 ## Proc-macro fallback
@@ -73,10 +75,10 @@ active.
 
 ### Match errors
 
-| Message                   | Cause                                                                                                           |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `NoArmMatched`            | No arm matched. Lists every pattern tried, and notes that backtracking was attempted.                           |
-| `UnsupportedFragmentKind` | A fragment kind that can't appear in this position — includes a per-kind explanation and suggested alternative. |
+| Message                   | Cause                                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `NoArmMatched`            | No arm matched. Lists every pattern tried, and notes that backtracking was attempted.                        |
+| `UnsupportedFragmentKind` | A fragment kind that can't appear in this position, with a per-kind explanation and a suggested alternative. |
 
 ### Expansion errors
 
@@ -92,7 +94,7 @@ active.
 
 | Level   | Message                                                                     |
 | ------- | --------------------------------------------------------------------------- |
-| Warning | Cluster recommendation — call sites partitioned into N clusters             |
+| Warning | Cluster recommendation: call sites partitioned into N clusters              |
 | Warning | ForceExpand — too many distinct shapes; suggests `share-anyway` to override |
 | Warning | A call site matched no cluster; fell back to the single helper              |
 | Info    | Running without a type registry; structural clustering disabled             |

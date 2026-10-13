@@ -31,10 +31,18 @@
 //! | `Map<K,V>`, `ReadonlyMap<K,V>` | `new Map()` |
 //! | `Set<T>`, `ReadonlySet<T>` | `new Set()` |
 //! | `Date` | `new Date()` (current time) |
-//! | `T \| null` | `null` |
-//! | `T \| undefined` | `undefined` |
+//! | `T \| null`, `null` | `null` |
+//! | `T \| undefined`, `undefined` | `undefined` |
+//! | A template literal type, `` `id-${number}` `` | Its text with each hole filled, `` `id-0` `` |
 //! | Unions (`A \| B`) | Default of the first primitive or literal member, else the first member's default |
 //! | `CustomType` | `customTypeDefaultValue()` (recursive standalone-function call) |
+//! | A number literal type, `1_000`, `0x10`, `1n` | The literal |
+//!
+//! A field that is filled from its type's default must not come back to
+//! its own type: `next: Chain` on `Chain`, or two types that require each
+//! other, would give a default that calls itself without end, and is an
+//! expansion error. Make the field optional or nullable, or give it a
+//! `@default`.
 //!
 //! ## Field-Level Options
 //!

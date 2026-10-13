@@ -52,12 +52,12 @@
 //!
 //! | Type | Comparison Method |
 //! |------|-------------------|
-//! | `number` | `<` and `>`; `null` when either is `NaN` |
+//! | `number` | `<` and `>`; `NaN` is equal to `NaN`, and `null` against a number |
 //! | `bigint`, `string` | `<` and `>`, strings by UTF-16 code units |
 //! | `boolean` | `false < true` |
 //! | Optional and nullable | An absent value orders first |
 //! | Arrays | Lexicographic, each element by its own type; `null` on an unordered element |
-//! | `Date` | Timestamp; `null` if invalid |
+//! | `Date` | Timestamp, an invalid date ordering as `NaN` does |
 //! | Types deriving `PartialOrd` | Their `partialCompare` function |
 //! | Anything else | `structuralCompare` from `@macroforge/core/structural` |
 //!

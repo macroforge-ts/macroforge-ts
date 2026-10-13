@@ -7,8 +7,7 @@ basics.
 
 ## Generated API
 
-For a **class**, the macros emit static methods plus standalone functions that the statics delegate
-to:
+For a **class**, the macros emit static methods plus standalone functions that run them:
 
 ```typescript
 /** @derive(Encode, Decode) */
@@ -62,14 +61,15 @@ is the validated constructor and `is` the narrowing guard.
 
 ### Enums differ
 
-Enum `decode` **throws** on invalid input rather than returning the success/errors union. Enum
-`encode` takes no `keepMetadata` parameter.
+Enum `decode` **throws** a `DecodeError` on invalid input rather than returning the success/errors
+union. Enum `encode` takes no `keepMetadata` parameter.
 
 ## Metadata and `keepMetadata`
 
 `encode` adds `__type` and `__id` fields internally to support cycle detection, then **strips them**
-from the JSON output unless you pass `keepMetadata: true`. If you're round-tripping a cyclic graph,
-keep the metadata; if you're producing an API payload, leave it off.
+from the JSON output unless you pass `keepMetadata: true`. Without them a value held in several
+places is written out at each one, and a value that holds itself throws a `TypeError`. If you're
+round-tripping a graph, keep the metadata; if you're producing an API payload, leave it off.
 
 ## Section contents
 

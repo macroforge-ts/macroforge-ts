@@ -18,19 +18,19 @@ class User {
 
 ## Reference
 
-| Option         | Form                | Effect                                              |
-| -------------- | ------------------- | --------------------------------------------------- |
-| `skip`         | flag                | Omit from both encoding and decoding                |
-| `skipEncoding` | flag                | Omit from output only                               |
-| `skipDecoding` | flag                | Ignore in input only                                |
-| `rename`       | `rename: "key"`     | Use a different JSON key                            |
-| `default`      | flag                | Use the type's default when the key is missing      |
-| `default`      | `default: "expr"`   | Use the given expression when the key is missing    |
-| `flatten`      | flag                | Inline the nested object's fields into the parent   |
-| `encodeWith`   | `encodeWith: "fn"`  | Call your function instead of the generated encoder |
-| `decodeWith`   | `decodeWith: "fn"`  | Call your function instead of the generated decoder |
-| `format`       | `format: "decimal"` | Encode a number as a string                         |
-| `validate`     | `validate: [...]`   | Run [validators](/docs/endec/validators)            |
+| Option         | Form                     | Effect                                              |
+| -------------- | ------------------------ | --------------------------------------------------- |
+| `skip`         | flag                     | Omit from both encoding and decoding                |
+| `skipEncoding` | flag                     | Omit from output only                               |
+| `skipDecoding` | flag                     | Ignore in input only                                |
+| `rename`       | `rename: "key"`          | Use a different JSON key                            |
+| `default`      | flag, or `default: true` | Use the type's default when the key is missing      |
+| `default`      | `default: "expr"`        | Use the given expression when the key is missing    |
+| `flatten`      | flag                     | Inline the nested object's fields into the parent   |
+| `encodeWith`   | `encodeWith: "fn"`       | Call your function instead of the generated encoder |
+| `decodeWith`   | `decodeWith: "fn"`       | Call your function instead of the generated decoder |
+| `format`       | `format: "decimal"`      | Encode a number as a string                         |
+| `validate`     | `validate: [...]`        | Run [validators](/docs/endec/validators)            |
 
 ## `skip` and its variants
 
@@ -41,8 +41,9 @@ A skipped-on-decode field needs a value from somewhere, so pair it with `default
 
 ## `default`
 
-The flag form falls back to the type's natural default. The expression form takes a string
-containing the expression to evaluate:
+The flag form falls back to the type's natural default, and `default: true` is the same flag, as
+`skip: true` is `skip`. The expression form takes a string containing the expression to evaluate, so
+a default of `true` itself is written `default: "true"`:
 
 ```typescript
 /** @endec(default) */
@@ -72,6 +73,15 @@ class Post {
 ```json
 { "title": "Hello", "createdAt": "2026-01-01" }
 ```
+
+A flattened value has no identity of its own: it is written out by its fields, and the enclosing
+object's `__id` names the enclosing value. An optional flattened field is decoded when the object
+has the keys its type requires, and left out otherwise. A flattened `Record` takes the keys no other
+field reads.
+
+`denyUnknownFields` on the parent counts a flattened type's keys as known. It cannot be combined
+with a flattened `Record`, or with a flattened type the project does not declare, since nothing then
+says which keys are unknown.
 
 ## Custom encoders
 

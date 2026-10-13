@@ -106,6 +106,14 @@
 //! field or an alias that nests deeper is an expansion error: name its inner
 //! types with aliases, and derive on those.
 //!
+//! A type held from another module is found by the name its module exports
+//! it under: imported under another name (`import type { User as Member }`),
+//! exported under an alias (`export type { User as Member }`) or as the
+//! default, it is coded, defaulted and compared through the functions of
+//! `User`, by whatever path the module is imported. A type named through a
+//! namespace import (`models.User`) is an expansion error under `Encode`
+//! and `Decode`: import it by name.
+//!
 //! ## Type-Position Macros
 //!
 //! | Macro | Expands To | Description |
@@ -150,6 +158,12 @@
 //! So is a derive on a class, an interface or an enum its module declares
 //! more than once: TypeScript merges the declarations, and a derive reads
 //! only the one it is written on.
+//!
+//! A class or an interface that is its module's default export is derived
+//! like any other, given a name: a class without one has none for its
+//! functions to take. The code a derive generates is TypeScript with
+//! bodies, so a derive in a declaration file (`.d.ts`), in a JavaScript
+//! file, or on a `declare class` is an expansion error.
 //!
 //! ## Example Usage
 //!

@@ -8,7 +8,7 @@ relationship.
 
 | Type       | Generated Code                                                     | Description                                          |
 | ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
-| Class      | `classNameCompare(a, b)` + `static compare(a, b)`                  | Standalone function + static wrapper method          |
+| Class      | `classNameCompare(a, b)` + `static compare(a, b)`                  | Static method + standalone function that runs it     |
 | Enum       | `enumNameCompare(a: EnumName, b: EnumName): number`                | Standalone function comparing enum values            |
 | Interface  | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields                 |
 | Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number`                | Standalone function with type-appropriate comparison |
@@ -36,7 +36,7 @@ Fields are compared **lexicographically** in declaration order:
 
 | Type                  | Comparison Method                                                                               |
 | --------------------- | ----------------------------------------------------------------------------------------------- |
-| `number`/`bigint`     | Direct `<` and `>` comparison                                                                   |
+| `number`/`bigint`     | Direct `<` and `>` comparison, `NaN` after every number                                         |
 | `string`              | UTF-16 code units, so `0` exactly when `===` holds                                              |
 | `boolean`             | false &lt; true                                                                                 |
 | Optional and nullable | An absent value orders first                                                                    |
@@ -74,19 +74,19 @@ class Version {
     patch: number;
 
     static compare(a: Version, b: Version): number {
-        return versionCompare(a, b);
+        if (a === b) return 0;
+        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+        if (cmp2 !== 0) return cmp2;
+        return 0;
     }
 }
 
 export function versionCompare(a: Version, b: Version): number {
-    if (a === b) return 0;
-    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
-    if (cmp2 !== 0) return cmp2;
-    return 0;
+    return Version.compare(a, b);
 }
 ```
 

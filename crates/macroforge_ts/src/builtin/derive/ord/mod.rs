@@ -38,7 +38,7 @@
 //!
 //! | Type | Comparison Method |
 //! |------|-------------------|
-//! | `number`/`bigint` | Direct `<` and `>` comparison |
+//! | `number`/`bigint` | Direct `<` and `>` comparison, `NaN` after every number |
 //! | `string` | UTF-16 code units, so `0` exactly when `===` holds |
 //! | `boolean` | false < true |
 //! | Optional and nullable | An absent value orders first |

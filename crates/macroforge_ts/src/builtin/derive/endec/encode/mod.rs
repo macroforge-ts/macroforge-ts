@@ -56,9 +56,22 @@
 //! | A type deriving `Encode` | Its `{name}EncodeWithContext` function |
 //! | A configured foreign type | Its `encode` handler |
 //! | A type parameter | The encoder handed in for it, or the value as it is without one |
+//! | A type named through a namespace import, `models.User` | An expansion error: import the type by name |
 //! | `string \| User`, a primitive beside one type deriving `Encode` | The primitive as it is, anything else through the type |
 //! | Any other union with a member that is encoded, `Circle \| Square`, `Date \| number` | An expansion error: nothing in a field says which member a value is. Name the union with an alias and derive on that |
-//! | `unknown`, any other type | The value as it is |
+//! | `keyof T`, `T['field']` over a type the project declares | As what the operator yields |
+//! | A function, a symbol, `void`, `never`, a mapped, conditional or `typeof` type | An expansion error: code the field with `encodeWith`, or leave it out with `skip` |
+//! | `unknown`, `any`, a type the project does not declare | The value as it is |
+//!
+//! A number has to be finite: `encode` throws a `TypeError` for `NaN` and the
+//! infinities, which JSON would write as `null`. A class field whose
+//! declaration leaves its type unsaid (`items = []`) is an expansion error:
+//! annotate it, or code it with `encodeWith`.
+//!
+//! JSON has no `undefined`. A field that holds one is left out. In an array,
+//! a tuple or a `Set`, and as the value of a `Record` or `Map` entry, one is
+//! written as `null`, which `decode` reads back as `undefined` where the type
+//! there takes `undefined` and not `null`.
 //!
 //! Note: which strategy applies is resolved **statically** from the field's declared
 //! TypeScript type at expansion time: there is no runtime feature detection.
@@ -84,7 +97,9 @@
 //! arguments. The top-level `{name}Encode` and a class's static `encode` take
 //! the same encoders after `keepMetadata`,
 //! `boxEncode(box, false, (date) => date.toISOString())`. Without an encoder
-//! a value of the parameter is written as it is.
+//! a value of the parameter is written as it is. A type argument a field
+//! leaves to its default, `Box` for `Box<T = Date>`, is encoded as that
+//! default.
 //!
 //! ## Field-Level Options
 //!
