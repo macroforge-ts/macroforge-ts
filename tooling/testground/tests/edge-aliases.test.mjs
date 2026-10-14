@@ -51,6 +51,7 @@ Deno.test('object, tuple and collection aliases are coded by their bodies', () =
     assertCoded('aliasTuple', [item('a', 1), at(), null], [item('a', 1), NEW_YEAR, null]);
     assertCoded('aliasArray', [item('a', 1), item('b', 2)], [item('a', 1), item('b', 2)]);
     assertCoded('aliasDates', [at()], [NEW_YEAR]);
+    assertCoded('aliasReadonlyStrings', ['a', 'b'], ['a', 'b']);
     assertCoded('aliasRecord', { a: item('a', 1) }, { a: item('a', 1) });
     assertCoded('aliasMap', new Map([['a', item('a', 1)]]), { a: item('a', 1) });
     assertCoded('aliasSet', new Set([item('a', 1)]), [item('a', 1)]);

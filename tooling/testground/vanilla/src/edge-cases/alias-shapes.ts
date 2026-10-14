@@ -19,6 +19,9 @@ export type AliasTuple = [EdgeItem, Date, string | null];
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasArray = EdgeItem[];
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type AliasReadonlyStrings = readonly string[];
+
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasDates = Date[];
 

@@ -57,13 +57,18 @@ pub fn property_key(name: &str) -> String {
 
 /// Whether `source` reads the binding `name`: the word on its own, not as a
 /// property of something else, as part of a longer name, or as the text of a
-/// string that names a field.
+/// string that names a field. A spread (`...name`) reads it.
 pub fn mentions(source: &str, name: &str) -> bool {
     let is_name_char = |letter: char| letter.is_alphanumeric() || matches!(letter, '_' | '$');
     source.match_indices(name).any(|(start, _)| {
-        let before = source[..start].chars().next_back();
+        let before = &source[..start];
         let after = source[start + name.len()..].chars().next();
-        !before.is_some_and(|letter| is_name_char(letter) || matches!(letter, '.' | '"'))
+        let is_property = before.ends_with('.') && !before.ends_with("...");
+        !is_property
+            && !before
+                .chars()
+                .next_back()
+                .is_some_and(|letter| is_name_char(letter) || letter == '"')
             && !after.is_some_and(is_name_char)
     })
 }
@@ -109,11 +114,15 @@ mod tests {
         assert!(!mentions(r#"__fields.keeps("ctx")"#, "ctx"));
         assert!(!mentions("const ctxt = 1; context();", "ctx"));
         assert!(!mentions("", "ctx"));
+        assert!(mentions("return [...value];", "value"));
+        assert!(mentions("f(...ctx)", "ctx"));
+        assert!(!mentions("other?.value", "value"));
     }
 
     #[test]
     fn an_unread_parameter_is_named_as_one() {
         assert_eq!(parameter_name("value", "return [value];"), "value");
         assert_eq!(parameter_name("value", "return [];"), "_value");
+        assert_eq!(parameter_name("value", "[...value]"), "value");
     }
 }
