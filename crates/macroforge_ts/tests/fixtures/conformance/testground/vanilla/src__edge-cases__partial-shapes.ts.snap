@@ -14,7 +14,7 @@ true
 
 import { edgeLabeledDecodePartialWithContext, edgeNodeDecodePartialWithContext, edgeProfileDecodePartialWithContext, edgeStrictDecodePartialWithContext, edgeLabeledEncodePartialWithContext, edgeNodeEncodePartialWithContext, edgeProfileEncodePartialWithContext, edgeStrictEncodePartialWithContext, edgeCardDecodePartialWithContext, edgeItemDecodePartialWithContext, edgeCardEncodePartialWithContext, edgeItemEncodePartialWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * `Partial`, `Pick` and `Omit` of types from another module, wherever a
@@ -389,7 +389,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_patches)) {
                     ctx.pushScope("patches");
                     try {
-                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx));
+                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx) as Partial<EdgeItem> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -415,7 +415,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_patchList)) {
                     ctx.pushScope("patchList");
                     try {
-                        instance.patchList = __mf_decodeArray(__raw_patchList, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx, { only: ["id"] }));
+                        instance.patchList = __mf_decodeArray(__raw_patchList, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx, { only: ["id"] }) as Pick<EdgeItem, 'id'> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -441,7 +441,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_readonlyPatches)) {
                     ctx.pushScope("readonlyPatches");
                     try {
-                        instance.readonlyPatches = __mf_decodeArray(__raw_readonlyPatches, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx, { except: ["score"] }));
+                        instance.readonlyPatches = __mf_decodeArray(__raw_readonlyPatches, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx, { except: ["score"] }) as Omit<EdgeItem, 'score'> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -467,7 +467,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_patchSet)) {
                     ctx.pushScope("patchSet");
                     try {
-                        instance.patchSet = __mf_decodeSet(__raw_patchSet, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx));
+                        instance.patchSet = __mf_decodeSet(__raw_patchSet, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx) as Partial<EdgeItem> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -493,7 +493,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (typeof __raw_byName === "object" && __raw_byName !== null) {
                     ctx.pushScope("byName");
                     try {
-                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx, { only: ["id"] }));
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx, { only: ["id"] }) as Pick<EdgeItem, 'id'> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -519,7 +519,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (typeof __raw_record === "object" && __raw_record !== null) {
                     ctx.pushScope("record");
                     try {
-                        instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx, { except: ["score"] })) as Record<string, Omit<EdgeItem, 'score'>>);
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx, { except: ["score"] }) as Omit<EdgeItem, 'score'> | __mf_PendingRef)) as Record<string, Omit<EdgeItem, 'score'>>);
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -631,7 +631,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_nullablePatches)) {
                     ctx.pushScope("nullablePatches");
                     try {
-                        instance.nullablePatches = __mf_decodeArray(__raw_nullablePatches, ctx, (__raw0) => (__raw0 === null ? null : edgeItemDecodePartialWithContext(__raw0, ctx)));
+                        instance.nullablePatches = __mf_decodeArray(__raw_nullablePatches, ctx, (__raw0) => (__raw0 === null ? null : (edgeItemDecodePartialWithContext(__raw0, ctx) as Partial<EdgeItem> | __mf_PendingRef)));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -682,7 +682,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_cards)) {
                     ctx.pushScope("cards");
                     try {
-                        instance.cards = __mf_decodeArray(__raw_cards, ctx, (__raw0) => edgeCardDecodePartialWithContext(__raw0, ctx, { only: ["title"] }));
+                        instance.cards = __mf_decodeArray(__raw_cards, ctx, (__raw0) => (edgeCardDecodePartialWithContext(__raw0, ctx, { only: ["title"] }) as Pick<EdgeCard, 'title'> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -1970,7 +1970,7 @@ export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_wholes)) {
                     ctx.pushScope("wholes");
                     try {
-                        instance.wholes = __mf_decodeArray(__raw_wholes, ctx, (__raw0) => edgeOptionalDecodeWithContext(__mf_requireKeys(__raw0, ctx, [["nick", "nick"], ["years", "age"]]), ctx));
+                        instance.wholes = __mf_decodeArray(__raw_wholes, ctx, (__raw0) => (edgeOptionalDecodeWithContext(__mf_requireKeys(__raw0, ctx, [["nick", "nick"], ["years", "age"]]), ctx) as Required<EdgeOptional> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -2328,39 +2328,39 @@ export declare const EdgeRequired: {
 ## Mapping
 
 original 0..963 -> expanded 1647..2610
-original 963..1397 -> expanded 40086..40520
-original 1397..1640 -> expanded 64568..64811
-original 1640..1973 -> expanded 78672..79005
-original 1973..1974 -> expanded 99268..99269
+original 963..1397 -> expanded 40438..40872
+original 1397..1640 -> expanded 64920..65163
+original 1640..1973 -> expanded 79024..79357
+original 1973..1974 -> expanded 99666..99667
 generated 0..1647 <- imports
 generated 2610..3716 <- Debug
 generated 3716..4822 <- Clone
 generated 4822..7373 <- PartialEq
 generated 7373..9014 <- Hash
 generated 9014..15268 <- Encode
-generated 15268..38688 <- Decode
-generated 38688..40086 <- __convenience_const
-generated 40520..41292 <- Debug
-generated 41292..41825 <- Clone
-generated 41825..42559 <- PartialEq
-generated 42559..43273 <- Hash
-generated 43273..47826 <- Encode
-generated 47826..62967 <- Decode
-generated 62967..64568 <- __convenience_const
-generated 64811..65216 <- Debug
-generated 65216..65513 <- Clone
-generated 65513..65956 <- PartialEq
-generated 65956..66774 <- Hash
-generated 66774..69756 <- Encode
-generated 69756..77274 <- Decode
-generated 77274..78672 <- __convenience_const
-generated 79005..79608 <- Debug
-generated 79608..80028 <- Clone
-generated 80028..80811 <- PartialEq
-generated 80811..81439 <- Hash
-generated 81439..85182 <- Encode
-generated 85182..97870 <- Decode
-generated 97870..99268 <- __convenience_const
+generated 15268..39040 <- Decode
+generated 39040..40438 <- __convenience_const
+generated 40872..41644 <- Debug
+generated 41644..42177 <- Clone
+generated 42177..42911 <- PartialEq
+generated 42911..43625 <- Hash
+generated 43625..48178 <- Encode
+generated 48178..63319 <- Decode
+generated 63319..64920 <- __convenience_const
+generated 65163..65568 <- Debug
+generated 65568..65865 <- Clone
+generated 65865..66308 <- PartialEq
+generated 66308..67126 <- Hash
+generated 67126..70108 <- Encode
+generated 70108..77626 <- Decode
+generated 77626..79024 <- __convenience_const
+generated 79357..79960 <- Debug
+generated 79960..80380 <- Clone
+generated 80380..81163 <- PartialEq
+generated 81163..81791 <- Hash
+generated 81791..85534 <- Encode
+generated 85534..98268 <- Decode
+generated 98268..99666 <- __convenience_const
 
 ## Metadata
 

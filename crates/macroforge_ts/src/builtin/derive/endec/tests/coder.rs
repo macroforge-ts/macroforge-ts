@@ -134,7 +134,7 @@ fn a_generic_type_is_handed_the_coders_of_its_arguments() {
     assert_eq!(
         decoded.as_deref(),
         Some(
-            "boxDecodePartialWithContext<T>(raw,ctx,undefined,(__raw0)=>(__decodeT===undefined?__raw0asT:__decodeT(__raw0,ctx)))"
+            "(boxDecodePartialWithContext<T>(raw,ctx,undefined,(__raw0)=>(__decodeT===undefined?__raw0asT:__decodeT(__raw0,ctx)))asPartial<Box<T>>|__mf_PendingRef)"
         )
     );
     let (encoded, _) = coded("Pick<Box<Date>, 'held'>");
@@ -197,9 +197,13 @@ fn a_user_type_is_coded_by_its_own_functions() {
     assert_eq!(encoded.as_deref(), Some("userEncodeWithContext(v,ctx)"));
     assert_eq!(decoded.as_deref(), Some("userDecodeWithContext(raw,ctx)"));
 
+    // A selection of a type's fields is decoded as the selection written.
     let (encoded, decoded) = coded("Readonly<User>");
     assert_eq!(encoded.as_deref(), Some("userEncodeWithContext(v,ctx)"));
-    assert_eq!(decoded.as_deref(), Some("userDecodeWithContext(raw,ctx)"));
+    assert_eq!(
+        decoded.as_deref(),
+        Some("(userDecodeWithContext(raw,ctx)asReadonly<User>|__mf_PendingRef)")
+    );
 }
 
 #[test]
@@ -253,7 +257,9 @@ fn a_partial_pick_or_omit_is_coded_by_the_fields_it_has() {
     );
     assert_eq!(
         decoded.as_deref(),
-        Some("__mf_decodeArray(raw,ctx,(__raw0)=>userDecodePartialWithContext(__raw0,ctx))")
+        Some(
+            "__mf_decodeArray(raw,ctx,(__raw0)=>(userDecodePartialWithContext(__raw0,ctx)asPartial<User>|__mf_PendingRef))"
+        )
     );
 
     let (encoded, _) = coded("Set<Pick<User, 'id' | 'name'>>");
@@ -266,7 +272,9 @@ fn a_partial_pick_or_omit_is_coded_by_the_fields_it_has() {
     let (_, decoded) = coded("Omit<User, 'id'> | null");
     assert_eq!(
         decoded.as_deref(),
-        Some(r#"(raw===null?null:userDecodePartialWithContext(raw,ctx,{except:["id"]}))"#)
+        Some(
+            r#"(raw===null?null:(userDecodePartialWithContext(raw,ctx,{except:["id"]})asOmit<User,'id'>|__mf_PendingRef))"#
+        )
     );
 }
 

@@ -1273,9 +1273,22 @@ pub(crate) fn decode_expr(
         }),
         TypeCategory::Nullable(inner) => decode_expr(&inner, raw, scope, depth)?
             .map(|decoded| rendered(ts_template! { (@{raw} === null ? null : @{decoded}) })),
-        TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => scope
+        TypeCategory::Encodable(_) => scope
             .nested(ts_type, Direction::Decode, depth)?
             .map(|nested| nested.decode_call(raw)),
+        // The decoder of a selection of a type's fields declares the whole
+        // type's `Partial`; the fields it was asked to keep and require make
+        // the value the selection written.
+        TypeCategory::Wrapper(_) => {
+            scope
+                .nested(ts_type, Direction::Decode, depth)?
+                .map(|nested| {
+                    let pending = endec_type("PendingRef");
+                    rendered(
+                        ts_template! { (@{nested.decode_call(raw)} as @{ts_type} | @{pending}) },
+                    )
+                })
+        }
         TypeCategory::Unknown => match scope.guard(ts_type, Direction::Decode)? {
             Some((guard, name)) => {
                 let raw_expr = crate::ast::Expr::Source(raw.to_string());

@@ -1878,7 +1878,7 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                 if (Array.isArray(__raw_patches)) {
                     ctx.pushScope("patches");
                     try {
-                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx));
+                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => (edgeItemDecodePartialWithContext(__raw0, ctx) as Partial<EdgeItem> | __mf_PendingRef));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -2581,8 +2581,8 @@ original 711..712 -> expanded 36751..36752
 original 712..998 -> expanded 40392..40678
 original 998..1238 -> expanded 61951..62191
 original 1238..1389 -> expanded 77828..77979
-original 1389..1511 -> expanded 90867..90989
-original 1511..1512 -> expanded 102511..102512
+original 1389..1511 -> expanded 90908..91030
+original 1511..1512 -> expanded 102552..102553
 generated 0..1306 <- imports
 generated 1741..2203 <- Debug
 generated 2203..2491 <- Clone
@@ -2613,11 +2613,11 @@ generated 62191..65681 <- Encode
 generated 65681..76809 <- Decode
 generated 76809..77828 <- __convenience_const
 generated 77979..80898 <- Encode
-generated 80898..89785 <- Decode
-generated 89785..90867 <- __convenience_const
-generated 90989..93682 <- Encode
-generated 93682..101324 <- Decode
-generated 101324..102511 <- __convenience_const
+generated 80898..89826 <- Decode
+generated 89826..90908 <- __convenience_const
+generated 91030..93723 <- Encode
+generated 93723..101365 <- Decode
+generated 101365..102552 <- __convenience_const
 
 ## Metadata
 
