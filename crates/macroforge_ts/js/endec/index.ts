@@ -1019,6 +1019,35 @@ export function derivedEncoder(
   return (item, ctx) => encoder(item, ctx);
 }
 
+/** What a member coder of a union gives back for a value of another member. */
+export const notTheMember: unique symbol = Symbol("notTheMember");
+
+/**
+ * A member coder of a union: `encode` for a value `is` says is of the member,
+ * and {@link notTheMember} for any other.
+ */
+export function memberCoder<Union, Member extends Union>(
+  is: (value: Union) => value is Member,
+  encode: (value: Member) => unknown,
+): (value: Union) => unknown {
+  return (value) => (is(value) ? encode(value) : notTheMember);
+}
+
+/**
+ * `value` as the first of `coders` whose member it is encodes it, or as it
+ * is when it is of none of them.
+ */
+export function encodedMember<Union>(
+  value: Union,
+  coders: ReadonlyArray<(value: Union) => unknown>,
+): unknown {
+  for (const coder of coders) {
+    const encoded = coder(value);
+    if (encoded !== notTheMember) return encoded;
+  }
+  return value;
+}
+
 /**
  * The fields of a type a value has to have: only those named, or every one
  * but those named. A `Pick` and an `Omit` of the type, as values.

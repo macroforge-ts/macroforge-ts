@@ -107,3 +107,21 @@ Deno.test('a class three levels deep codes and checks every inherited field', ()
     const { weight: _weight, ...withoutWeight } = encoded;
     assert(!mod.VariantLeaf.decode(withoutWeight).success, 'missing inherited field');
 });
+
+Deno.test('members that derive only Encode are each encoded by their own encoder', () => {
+    const born = new Date('2024-01-01T00:00:00.000Z');
+    const encoded = (value) => JSON.parse(mod.variantPetEncode(value, true));
+    assertEquals(encoded({ kind: 'cat', born }), {
+        __id: 0,
+        __type: 'VariantCat',
+        kind: 'cat',
+        born: born.toISOString()
+    });
+    assertEquals(encoded({ fins: 2, seen: born }), {
+        __id: 0,
+        __type: 'VariantFish',
+        fins: 2,
+        seen: born.toISOString()
+    });
+    assertEquals(encoded({ kind: 'bird', at: born }), { kind: 'bird', at: born.toISOString() });
+});

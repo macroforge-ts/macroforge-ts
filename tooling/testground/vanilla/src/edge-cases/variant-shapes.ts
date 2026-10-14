@@ -49,3 +49,19 @@ export class VariantLeaf extends VariantMid {
     readonly kind = 'leaf';
     children: VariantLeaf[] = [];
 }
+
+/** @derive(Encode) */
+export interface VariantCat {
+    kind: 'cat';
+    born: Date;
+}
+
+/** @derive(Encode) */
+export interface VariantFish {
+    fins: number;
+    seen: Date;
+}
+
+/** Members that derive only `Encode`, told by their tag or by their own fields. */
+/** @derive(Encode) */
+export type VariantPet = VariantCat | VariantFish | { kind: 'bird'; at: Date };
