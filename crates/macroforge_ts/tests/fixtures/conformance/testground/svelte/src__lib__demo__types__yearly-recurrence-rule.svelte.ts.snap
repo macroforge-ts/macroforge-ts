@@ -147,7 +147,7 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
         }
     }
 
-    const instance: any = {};
+    const instance: { "quantityOfYears"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "YearlyRecurrenceRule");
@@ -420,13 +420,13 @@ export declare const YearlyRecurrenceRule: {
 
 original 0..58 -> expanded 844..902
 original 107..178 -> expanded 902..973
-original 178..179 -> expanded 15109..15110
+original 178..179 -> expanded 15148..15149
 generated 0..844 <- imports
 generated 973..1099 <- Default
 generated 1099..3452 <- Encode
-generated 3452..9509 <- Decode
-generated 9509..13519 <- Gigaform
-generated 13519..15109 <- __convenience_const
+generated 3452..9548 <- Decode
+generated 9548..13558 <- Gigaform
+generated 13558..15148 <- __convenience_const
 
 ## Metadata
 

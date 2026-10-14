@@ -174,7 +174,7 @@ export function colorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "main"?: string | undefined; "hover"?: string | undefined; "active"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Colors");
@@ -585,13 +585,13 @@ original 107..138 -> expanded 902..933
 original 179..202 -> expanded 933..956
 original 243..267 -> expanded 956..980
 original 308..330 -> expanded 980..1002
-original 330..331 -> expanded 19839..19840
+original 330..331 -> expanded 19928..19929
 generated 0..844 <- imports
 generated 1002..1129 <- Default
 generated 1129..3815 <- Encode
-generated 3815..13273 <- Decode
-generated 13273..18627 <- Gigaform
-generated 18627..19839 <- __convenience_const
+generated 3815..13362 <- Decode
+generated 13362..18716 <- Gigaform
+generated 18716..19928 <- __convenience_const
 
 ## Metadata
 

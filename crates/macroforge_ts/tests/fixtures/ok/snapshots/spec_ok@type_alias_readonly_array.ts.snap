@@ -118,7 +118,7 @@ export function tagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     }
     const obj: Record<string, unknown> = { _root: value };
     const errors: Array<{ field: string; message: string }> = [];
-    const instance: any = {};
+    const instance: { "_root"?: readonly string[] | undefined } = {};
 
     if ("_root" in obj) {
         const __raw__root = obj["_root"] as readonly string[];
@@ -247,9 +247,9 @@ export declare const Counts: {
 
 original 0..48 -> expanded 513..561
 original 118..156 -> expanded 561..599
-original 156..158 -> expanded 6181..6183
-original 179..210 -> expanded 6183..6214
-original 210..211 -> expanded 6385..6386
+original 156..158 -> expanded 6221..6223
+original 179..210 -> expanded 6223..6254
+original 210..211 -> expanded 6425..6426
 generated 0..513 <- imports
 generated 599..710 <- Debug
 generated 710..783 <- Clone
@@ -257,10 +257,10 @@ generated 783..1055 <- PartialEq
 generated 1055..1272 <- Hash
 generated 1272..1364 <- Default
 generated 1364..2332 <- Encode
-generated 2332..5375 <- Decode
-generated 5375..6181 <- __convenience_const
-generated 6214..6293 <- Clone
-generated 6293..6385 <- __convenience_const
+generated 2332..5415 <- Decode
+generated 5415..6221 <- __convenience_const
+generated 6254..6333 <- Clone
+generated 6333..6425 <- __convenience_const
 
 ## Metadata
 

@@ -495,7 +495,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "number"?: number | null | undefined; "accepted"?: boolean | undefined; "probability"?: number | undefined; "priority"?: Priority | undefined; "dueDate"?: string | null | undefined; "closeDate"?: string | null | undefined; "value"?: number | undefined; "stage"?: LeadStage | undefined; "status"?: string | undefined; "description"?: string | null | undefined; "nextStep"?: NextStep | undefined; "favorite"?: boolean | undefined; "dateAdded"?: string | null | undefined; "taxRate"?: (string | TaxRate) | null | undefined; "sector"?: Sector | undefined; "leadName"?: AccountName | undefined; "phones"?: Array<PhoneNumber> | undefined; "email"?: Email | undefined; "leadSource"?: string | null | undefined; "site"?: string | Site | undefined; "memo"?: string | undefined; "needsReview"?: boolean | undefined; "hasAlert"?: boolean | undefined; "salesRep"?: Array<Represents> | null | undefined; "color"?: string | null | undefined; "accountType"?: string | undefined; "subtype"?: string | undefined; "isTaxExempt"?: boolean | undefined; "paymentTerms"?: string | undefined; "tags"?: Array<string> | undefined; "customFields"?: Array<[string, string]> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Lead");
@@ -2675,13 +2675,13 @@ original 4035..4040 -> expanded 3419..3424
 original 4081..4112 -> expanded 3424..3455
 original 4153..4183 -> expanded 3455..3485
 original 4243..4288 -> expanded 3485..3530
-original 4288..4289 -> expanded 100413..100414
+original 4288..4289 -> expanded 101599..101600
 generated 0..1887 <- imports
 generated 3530..4392 <- Default
 generated 4392..14525 <- Encode
-generated 14525..51234 <- Decode
-generated 51234..99255 <- Gigaform
-generated 99255..100413 <- __convenience_const
+generated 14525..52420 <- Decode
+generated 52420..100441 <- Gigaform
+generated 100441..101599 <- __convenience_const
 
 ## Metadata
 

@@ -217,7 +217,7 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "none"?: [] | undefined; "nested"?: [[]] | undefined; "pair"?: [unknown, unknown] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Holder");
@@ -622,9 +622,9 @@ export declare const Nothing: {
 
 original 0..95 -> expanded 1066..1161
 original 165..255 -> expanded 1161..1251
-original 255..257 -> expanded 15729..15731
-original 327..353 -> expanded 15731..15757
-original 353..354 -> expanded 20519..20520
+original 255..257 -> expanded 15823..15825
+original 327..353 -> expanded 15825..15851
+original 353..354 -> expanded 20613..20614
 generated 0..1066 <- imports
 generated 1251..1641 <- Debug
 generated 1641..1879 <- Clone
@@ -632,16 +632,16 @@ generated 1879..2251 <- PartialEq
 generated 2251..2600 <- Hash
 generated 2600..2748 <- Default
 generated 2748..5430 <- Encode
-generated 5430..14417 <- Decode
-generated 14417..15729 <- __convenience_const
-generated 15757..15877 <- Debug
-generated 15877..15952 <- Clone
-generated 15952..16039 <- PartialEq
-generated 16039..16136 <- Hash
-generated 16136..16222 <- Default
-generated 16222..17021 <- Encode
-generated 17021..19644 <- Decode
-generated 19644..20519 <- __convenience_const
+generated 5430..14511 <- Decode
+generated 14511..15823 <- __convenience_const
+generated 15851..15971 <- Debug
+generated 15971..16046 <- Clone
+generated 16046..16133 <- PartialEq
+generated 16133..16230 <- Hash
+generated 16230..16316 <- Default
+generated 16316..17115 <- Encode
+generated 17115..19738 <- Decode
+generated 19738..20613 <- __convenience_const
 
 ## Metadata
 

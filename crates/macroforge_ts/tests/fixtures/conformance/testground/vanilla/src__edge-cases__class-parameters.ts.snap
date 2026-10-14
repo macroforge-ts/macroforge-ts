@@ -174,7 +174,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(ClassTagged.prototype);
+    const made: object = Object.create(ClassTagged.prototype);
+    const instance: { "count"?: number | undefined; "name"?: string | undefined; "plain"?: boolean | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ClassTagged");
@@ -222,7 +223,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ClassTagged)) {
+        throw new TypeError("ClassTagged.decodeWithContext: the value made is no ClassTagged");
+    }
+    return made;
 }
 static validateField<K extends keyof ClassTagged>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -379,16 +383,16 @@ export declare function classTaggedIs(value: unknown): value is ClassTagged;
 ## Mapping
 
 original 0..386 -> expanded 762..1148
-original 386..387 -> expanded 10258..10259
-original 387..388 -> expanded 13555..13556
+original 386..387 -> expanded 10518..10519
+original 387..388 -> expanded 13815..13816
 generated 0..762 <- imports
 generated 1148..1421 <- Default
 generated 1421..3573 <- Encode
 generated 3573..3902 <- Encode
-generated 3902..10258 <- Decode
-generated 10259..10358 <- Default
-generated 10358..11728 <- Encode
-generated 11728..13555 <- Decode
+generated 3902..10518 <- Decode
+generated 10519..10618 <- Default
+generated 10618..11988 <- Encode
+generated 11988..13815 <- Decode
 
 ## Metadata
 

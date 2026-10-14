@@ -151,7 +151,7 @@ export function tickDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "at"?: DateTime.Utc | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Tick");
@@ -161,7 +161,7 @@ export function tickDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         try {
-            instance.at = __foreign__dateTimeUtcDecode(obj["at"]);
+            instance.at = ((__raw: unknown) => __foreign__dateTimeUtcDecode(__raw) as DateTime.Utc)(obj["at"]);
         } catch (__error) {
             errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
         }
@@ -284,12 +284,12 @@ export declare const Tick: {
 
 original 0..36 -> expanded 813..849
 original 75..123 -> expanded 849..897
-original 123..124 -> expanded 9340..9341
+original 123..124 -> expanded 9417..9418
 generated 0..813 <- imports
 generated 897..1008 <- Default
 generated 1008..3099 <- Encode
-generated 3099..8342 <- Decode
-generated 8342..9340 <- __convenience_const
+generated 3099..8419 <- Decode
+generated 8419..9417 <- __convenience_const
 
 ## Metadata
 

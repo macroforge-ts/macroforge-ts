@@ -117,7 +117,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(User.prototype);
+    const made: object = Object.create(User.prototype);
+    const instance: { "name"?: string | undefined; "age"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "User");
@@ -154,7 +155,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof User)) {
+        throw new TypeError("User.decodeWithContext: the value made is no User");
+    }
+    return made;
 }
 static validateField<K extends keyof User>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -274,11 +278,11 @@ export {};
 
 original 0..41 -> expanded 439..480
 original 63..112 -> expanded 480..529
-original 112..113 -> expanded 6238..6239
-original 113..114 -> expanded 7961..7962
+original 112..113 -> expanded 6444..6445
+original 113..114 -> expanded 8167..8168
 generated 0..439 <- imports
-generated 529..6238 <- Decode
-generated 6239..7961 <- Decode
+generated 529..6444 <- Decode
+generated 6445..8167 <- Decode
 
 ## Metadata
 

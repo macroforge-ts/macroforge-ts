@@ -183,7 +183,7 @@ export function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "first"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Merged");
@@ -429,28 +429,28 @@ Error [272..286]: 'Level' is declared 2 times in this module, which TypeScript m
 ## Mapping
 
 original 48..95 -> expanded 834..881
-original 95..146 -> expanded 9901..9952
-original 174..218 -> expanded 9952..9996
-original 218..219 -> expanded 10369..10370
-original 219..267 -> expanded 10538..10586
-original 288..318 -> expanded 10586..10616
-original 318..356 -> expanded 10908..10946
-original 377..423 -> expanded 10946..10992
-original 423..424 -> expanded 11346..11347
+original 95..146 -> expanded 9930..9981
+original 174..218 -> expanded 9981..10025
+original 218..219 -> expanded 10398..10399
+original 219..267 -> expanded 10567..10615
+original 288..318 -> expanded 10615..10645
+original 318..356 -> expanded 10937..10975
+original 377..423 -> expanded 10975..11021
+original 423..424 -> expanded 11375..11376
 generated 0..834 <- imports
 generated 881..1133 <- Debug
 generated 1133..1314 <- PartialEq
 generated 1314..3417 <- Encode
-generated 3417..8809 <- Decode
-generated 8809..9901 <- __convenience_const
-generated 9996..10255 <- Debug
-generated 10255..10369 <- Clone
-generated 10370..10458 <- Debug
-generated 10458..10538 <- Clone
-generated 10616..10817 <- Debug
-generated 10817..10908 <- __convenience_const
-generated 10992..11242 <- Debug
-generated 11242..11346 <- __convenience_const
+generated 3417..8838 <- Decode
+generated 8838..9930 <- __convenience_const
+generated 10025..10284 <- Debug
+generated 10284..10398 <- Clone
+generated 10399..10487 <- Debug
+generated 10487..10567 <- Clone
+generated 10645..10846 <- Debug
+generated 10846..10937 <- __convenience_const
+generated 11021..11271 <- Debug
+generated 11271..11375 <- __convenience_const
 
 ## Metadata
 

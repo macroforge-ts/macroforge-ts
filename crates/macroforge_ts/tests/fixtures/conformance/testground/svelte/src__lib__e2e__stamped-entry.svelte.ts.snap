@@ -154,7 +154,7 @@ export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "text"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Note");
@@ -355,7 +355,7 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "slug"?: Slug | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Label");
@@ -624,7 +624,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "at"?: DateTime.DateTime | Note | undefined; "previous"?: DateTime.DateTime | Note | null | undefined; "history"?: Array<DateTime.DateTime | Note> | undefined; "slug"?: Slug | undefined; "label"?: Label | undefined; "since"?: DateTime.DateTime | Note | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "StampedEntry");
@@ -1032,27 +1032,27 @@ export declare const StampedEntry: {
 
 original 0..341 -> expanded 1089..1430
 original 380..424 -> expanded 1430..1474
-original 424..426 -> expanded 9936..9938
-original 465..508 -> expanded 9938..9981
-original 508..510 -> expanded 19032..19034
-original 549..680 -> expanded 19034..19165
-original 703..724 -> expanded 19165..19186
-original 759..782 -> expanded 19186..19209
-original 825..853 -> expanded 19209..19237
-original 853..854 -> expanded 38367..38368
+original 424..426 -> expanded 9964..9966
+original 465..508 -> expanded 9966..10009
+original 508..510 -> expanded 19086..19088
+original 549..680 -> expanded 19088..19219
+original 703..724 -> expanded 19219..19240
+original 759..782 -> expanded 19240..19263
+original 825..853 -> expanded 19263..19291
+original 853..854 -> expanded 38684..38685
 generated 0..1089 <- imports
 generated 1474..1558 <- Default
 generated 1558..3627 <- Encode
-generated 3627..8938 <- Decode
-generated 8938..9936 <- __convenience_const
-generated 9981..10083 <- Default
-generated 10083..12194 <- Encode
-generated 12194..18011 <- Decode
-generated 18011..19032 <- __convenience_const
-generated 19237..19623 <- Default
-generated 19623..23714 <- Encode
-generated 23714..37185 <- Decode
-generated 37185..38367 <- __convenience_const
+generated 3627..8966 <- Decode
+generated 8966..9964 <- __convenience_const
+generated 10009..10111 <- Default
+generated 10111..12222 <- Encode
+generated 12222..18065 <- Decode
+generated 18065..19086 <- __convenience_const
+generated 19291..19677 <- Default
+generated 19677..23768 <- Encode
+generated 23768..37502 <- Decode
+generated 37502..38684 <- __convenience_const
 
 ## Metadata
 

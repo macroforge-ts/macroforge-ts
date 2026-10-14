@@ -198,7 +198,7 @@ export function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "since"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OperatorOwner");
@@ -505,7 +505,7 @@ export function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "owner"?: OperatorOwner | undefined; "owners"?: OperatorOwner[] | undefined; "label"?: string | undefined; "weight"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OperatorItem");
@@ -792,8 +792,8 @@ export declare const OperatorItem: {
 ## Mapping
 
 original 0..281 -> expanded 902..1183
-original 281..482 -> expanded 13257..13458
-original 482..483 -> expanded 29243..29244
+original 281..482 -> expanded 13313..13514
+original 482..483 -> expanded 29436..29437
 generated 0..902 <- imports
 generated 1183..1503 <- Debug
 generated 1503..1702 <- Clone
@@ -801,16 +801,16 @@ generated 1702..2102 <- PartialEq
 generated 2102..2448 <- Hash
 generated 2448..2577 <- Default
 generated 2577..5150 <- Encode
-generated 5150..11728 <- Decode
-generated 11728..13257 <- __convenience_const
-generated 13458..13936 <- Debug
-generated 13936..14257 <- Clone
-generated 14257..14931 <- PartialEq
-generated 14931..15624 <- Hash
-generated 15624..15789 <- Default
-generated 15789..18900 <- Encode
-generated 18900..27745 <- Decode
-generated 27745..29243 <- __convenience_const
+generated 5150..11784 <- Decode
+generated 11784..13313 <- __convenience_const
+generated 13514..13992 <- Debug
+generated 13992..14313 <- Clone
+generated 14313..14987 <- PartialEq
+generated 14987..15680 <- Hash
+generated 15680..15845 <- Default
+generated 15845..18956 <- Encode
+generated 18956..27938 <- Decode
+generated 27938..29436 <- __convenience_const
 
 ## Metadata
 

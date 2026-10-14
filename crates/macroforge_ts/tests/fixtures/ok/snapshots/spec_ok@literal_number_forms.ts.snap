@@ -269,7 +269,7 @@ export function literalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "sign"?: -1 | 0 | 1 | undefined; "grouped"?: 1_000 | 2_000 | undefined; "hex"?: 0x10 | 0b11 | undefined; "big"?: 1n | -2n | undefined; "exp"?: 1e3 | 2.5e-1 | undefined; "byNumber"?: Record<1 | 2, string> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Literals");
@@ -567,7 +567,7 @@ export function infDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         }
     }
 
-    const instance: any = {};
+    const instance: { "value"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Inf");
@@ -803,7 +803,7 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "inf"?: Inf | undefined; "list"?: Inf[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Holder");
@@ -1109,11 +1109,11 @@ export declare const Holder: {
 ## Mapping
 
 original 70..251 -> expanded 1214..1395
-original 251..323 -> expanded 18325..18397
-original 376..420 -> expanded 18397..18441
-original 420..422 -> expanded 27374..27376
-original 475..534 -> expanded 27376..27435
-original 534..535 -> expanded 39188..39189
+original 251..323 -> expanded 18541..18613
+original 376..420 -> expanded 18613..18657
+original 420..422 -> expanded 27619..27621
+original 475..534 -> expanded 27621..27680
+original 534..535 -> expanded 39485..39486
 generated 0..1214 <- imports
 generated 1395..1908 <- Debug
 generated 1908..2171 <- Clone
@@ -1121,20 +1121,20 @@ generated 2171..2796 <- PartialEq
 generated 2796..3827 <- Hash
 generated 3827..4033 <- Default
 generated 4033..7425 <- Encode
-generated 7425..16951 <- Decode
-generated 16951..18325 <- __convenience_const
-generated 18441..18684 <- Debug
-generated 18684..18803 <- Clone
-generated 18803..18885 <- Default
-generated 18885..20943 <- Encode
-generated 20943..26279 <- Decode
-generated 26279..27374 <- __convenience_const
-generated 27435..27758 <- Debug
-generated 27758..27975 <- Clone
-generated 27975..28095 <- Default
-generated 28095..30620 <- Encode
-generated 30620..38012 <- Decode
-generated 38012..39188 <- __convenience_const
+generated 7425..17167 <- Decode
+generated 17167..18541 <- __convenience_const
+generated 18657..18900 <- Debug
+generated 18900..19019 <- Clone
+generated 19019..19101 <- Default
+generated 19101..21159 <- Encode
+generated 21159..26524 <- Decode
+generated 26524..27619 <- __convenience_const
+generated 27680..28003 <- Debug
+generated 28003..28220 <- Clone
+generated 28220..28340 <- Default
+generated 28340..30865 <- Encode
+generated 30865..38309 <- Decode
+generated 38309..39485 <- __convenience_const
 
 ## Metadata
 

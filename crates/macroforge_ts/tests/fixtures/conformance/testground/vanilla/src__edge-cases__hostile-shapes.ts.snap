@@ -192,7 +192,7 @@ export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "score"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "HostileItem");
@@ -585,7 +585,7 @@ export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "item"?: HostileItem | undefined; "items"?: HostileItem[] | undefined; "byName"?: Record<string, HostileItem> | undefined; "counts"?: Record<string, number> | undefined; "lookup"?: Map<string, number> | undefined; "tags"?: Set<string> | undefined; "pair"?: [string, number] | undefined; "at"?: Date | undefined; "big"?: bigint | undefined; "flag"?: boolean | undefined; "nested"?: HostileBag | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "HostileBag");
@@ -803,13 +803,13 @@ export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         () => {
             if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
                 try {
-                    instance.big = ((v) => {
+                    instance.big = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["big"]);
+                })(__raw) as bigint)(obj["big"]);
                 } catch (__error) {
                     errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -1099,7 +1099,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(HostileClass.prototype);
+    const made: object = Object.create(HostileClass.prototype);
+    const instance: { "name"?: string | undefined; "count"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "HostileClass");
@@ -1136,7 +1137,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof HostileClass)) {
+        throw new TypeError("HostileClass.decodeWithContext: the value made is no HostileClass");
+    }
+    return made;
 }
 static validateField<K extends keyof HostileClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1353,7 +1357,7 @@ export function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "HostileStrict");
@@ -1690,42 +1694,42 @@ export declare const HostileStrict: {
 ## Mapping
 
 original 0..324 -> expanded 1262..1586
-original 324..728 -> expanded 13012..13416
-original 728..940 -> expanded 43181..43393
-original 940..941 -> expanded 52917..52918
-original 941..1069 -> expanded 56597..56725
-original 1069..1070 -> expanded 65868..65869
+original 324..728 -> expanded 13068..13472
+original 728..940 -> expanded 43716..43928
+original 940..941 -> expanded 53684..53685
+original 941..1069 -> expanded 57364..57492
+original 1069..1070 -> expanded 66663..66664
 generated 0..1262 <- imports
 generated 1586..1896 <- Debug
 generated 1896..2063 <- Clone
 generated 2063..2393 <- PartialEq
 generated 2393..2848 <- Hash
 generated 2848..5369 <- Encode
-generated 5369..11643 <- Decode
-generated 11643..13012 <- __convenience_const
-generated 13416..14390 <- Debug
-generated 14390..14978 <- Clone
-generated 14978..16550 <- PartialEq
-generated 16550..18093 <- Hash
-generated 18093..23249 <- Encode
-generated 23249..41841 <- Decode
-generated 41841..43181 <- __convenience_const
-generated 43393..43721 <- Debug
-generated 43721..43897 <- Clone
-generated 43897..44269 <- PartialEq
-generated 44269..44739 <- Hash
-generated 44739..46671 <- Encode
-generated 46671..47002 <- Encode
-generated 47002..52917 <- Decode
-generated 52918..53030 <- Debug
-generated 53030..53142 <- Clone
-generated 53142..53263 <- PartialEq
-generated 53263..53375 <- Hash
-generated 53375..54755 <- Encode
-generated 54755..56597 <- Decode
-generated 56725..58929 <- Encode
-generated 58929..64765 <- Decode
-generated 64765..65868 <- __convenience_const
+generated 5369..11699 <- Decode
+generated 11699..13068 <- __convenience_const
+generated 13472..14446 <- Debug
+generated 14446..15034 <- Clone
+generated 15034..16606 <- PartialEq
+generated 16606..18149 <- Hash
+generated 18149..23305 <- Encode
+generated 23305..42376 <- Decode
+generated 42376..43716 <- __convenience_const
+generated 43928..44256 <- Debug
+generated 44256..44432 <- Clone
+generated 44432..44804 <- PartialEq
+generated 44804..45274 <- Hash
+generated 45274..47206 <- Encode
+generated 47206..47537 <- Encode
+generated 47537..53684 <- Decode
+generated 53685..53797 <- Debug
+generated 53797..53909 <- Clone
+generated 53909..54030 <- PartialEq
+generated 54030..54142 <- Hash
+generated 54142..55522 <- Encode
+generated 55522..57364 <- Decode
+generated 57492..59696 <- Encode
+generated 59696..65560 <- Decode
+generated 65560..66663 <- __convenience_const
 
 ## Metadata
 

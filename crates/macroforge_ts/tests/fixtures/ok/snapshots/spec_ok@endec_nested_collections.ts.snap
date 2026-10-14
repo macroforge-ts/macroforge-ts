@@ -151,7 +151,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Item");
@@ -398,7 +398,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "grid"?: Date[][] | undefined; "setsByName"?: Map<string, Set<Item>> | undefined; "byNumber"?: Map<number, Item | null> | undefined; "pairs"?: [string, Item][] | undefined; "patches"?: Array<Pick<Item, 'id'>> | undefined; "inline"?: { at: Date; item?: Item } | undefined; "sizes"?: ('small' | 'large')[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Nested");
@@ -738,16 +738,16 @@ export {};
 ## Mapping
 
 original 30..65 -> expanded 988..1023
-original 65..67 -> expanded 9272..9274
-original 97..358 -> expanded 9274..9535
-original 358..359 -> expanded 29948..29949
+original 65..67 -> expanded 9298..9300
+original 97..358 -> expanded 9300..9561
+original 358..359 -> expanded 30290..30291
 generated 0..988 <- imports
 generated 1023..3084 <- Encode
-generated 3084..8365 <- Decode
-generated 8365..9272 <- __convenience_const
-generated 9535..13799 <- Encode
-generated 13799..28999 <- Decode
-generated 28999..29948 <- __convenience_const
+generated 3084..8391 <- Decode
+generated 8391..9298 <- __convenience_const
+generated 9561..13825 <- Encode
+generated 13825..29341 <- Decode
+generated 29341..30290 <- __convenience_const
 
 ## Metadata
 

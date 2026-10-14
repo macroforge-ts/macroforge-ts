@@ -217,7 +217,7 @@ export function namePathsDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "held"?: EdgeItem | undefined; "listed"?: EdgeItem[] | undefined; "maybe"?: EdgeItem | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NamePaths");
@@ -449,7 +449,7 @@ export declare const NamePaths: {
 ## Mapping
 
 original 0..392 -> expanded 1089..1481
-original 392..393 -> expanded 16676..16677
+original 392..393 -> expanded 16780..16781
 generated 0..1089 <- imports
 generated 1481..1943 <- Debug
 generated 1943..2236 <- Clone
@@ -457,8 +457,8 @@ generated 2236..2870 <- PartialEq
 generated 2870..3311 <- Hash
 generated 3311..3466 <- Default
 generated 3466..6348 <- Encode
-generated 6348..15271 <- Decode
-generated 15271..16676 <- __convenience_const
+generated 6348..15375 <- Decode
+generated 15375..16780 <- __convenience_const
 
 ## Metadata
 

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/partial-shapes.ts
-sha256 0e159c46158547980311e8dab951157f3f9cb32a5cd0f56dd3451ccf63cbf1bb
+sha256 2171c1bb0ff02e305d8b952192fa0ccede06eabdbd131c3073b8b805333670d8
 
 ## Changed
 
@@ -22,7 +22,14 @@ import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_Fi
  * fields, validators, defaults, flattened fields and cycles.
  */
 
-import type { EdgeCard, EdgeItem, EdgeLabeled, EdgeNode, EdgeProfile, EdgeStrict } from './edge-types';
+import type {
+    EdgeCard,
+    EdgeItem,
+    EdgeLabeled,
+    EdgeNode,
+    EdgeProfile,
+    EdgeStrict
+} from './edge-types';
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface EdgePartials {
@@ -349,7 +356,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "patch"?: Partial<EdgeItem> | undefined; "patches"?: Partial<EdgeItem>[] | undefined; "patchList"?: Array<Pick<EdgeItem, 'id'>> | undefined; "readonlyPatches"?: ReadonlyArray<Omit<EdgeItem, 'score'>> | undefined; "patchSet"?: Set<Partial<EdgeItem>> | undefined; "byName"?: Map<string, Pick<EdgeItem, 'id'>> | undefined; "record"?: Record<string, Omit<EdgeItem, 'score'>> | undefined; "maybe"?: Partial<EdgeItem> | null | undefined; "later"?: Pick<EdgeItem, 'id'> | undefined | undefined; "optional"?: Omit<EdgeItem, 'id'> | undefined; "nullablePatches"?: (Partial<EdgeItem> | null)[] | undefined; "card"?: Partial<EdgeCard> | undefined; "cards"?: Pick<EdgeCard, 'title'>[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EdgePartials");
@@ -1010,7 +1017,7 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
         }
     }
 
-    const instance: any = {};
+    const instance: { "profile"?: Partial<EdgeProfile> | undefined; "contact"?: Pick<EdgeProfile, 'email' | 'displayName'> | undefined; "anonymous"?: Omit<EdgeProfile, 'email' | 'nickname'> | undefined; "strict"?: Pick<EdgeStrict, 'id'> | undefined; "labeled"?: Partial<EdgeLabeled> | undefined; "labelOnly"?: Pick<EdgeLabeled, 'label'> | undefined; "head"?: Pick<EdgeNode, 'name'> | undefined; "link"?: Omit<EdgeNode, 'name'> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EdgeRenamedPartials");
@@ -1481,7 +1488,7 @@ export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "nick"?: string | undefined; "age"?: number | undefined; "level"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EdgeOptional");
@@ -1830,7 +1837,7 @@ export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "plain"?: EdgeOptional | undefined; "whole"?: Required<EdgeOptional> | undefined; "picked"?: Required<Pick<EdgeOptional, 'nick'>> | undefined; "again"?: Required<Partial<EdgeOptional>> | undefined; "loose"?: Partial<Required<EdgeOptional>> | undefined; "wholes"?: Required<EdgeOptional>[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EdgeRequired");
@@ -2327,47 +2334,47 @@ export declare const EdgeRequired: {
 
 ## Mapping
 
-original 0..963 -> expanded 1647..2610
-original 963..1397 -> expanded 40438..40872
-original 1397..1640 -> expanded 64920..65163
-original 1640..1973 -> expanded 79024..79357
-original 1973..1974 -> expanded 99666..99667
+original 0..987 -> expanded 1647..2634
+original 987..1421 -> expanded 41147..41581
+original 1421..1664 -> expanded 66046..66289
+original 1664..1997 -> expanded 80263..80596
+original 1997..1998 -> expanded 101206..101207
 generated 0..1647 <- imports
-generated 2610..3716 <- Debug
-generated 3716..4822 <- Clone
-generated 4822..7373 <- PartialEq
-generated 7373..9014 <- Hash
-generated 9014..15268 <- Encode
-generated 15268..39040 <- Decode
-generated 39040..40438 <- __convenience_const
-generated 40872..41644 <- Debug
-generated 41644..42177 <- Clone
-generated 42177..42911 <- PartialEq
-generated 42911..43625 <- Hash
-generated 43625..48178 <- Encode
-generated 48178..63319 <- Decode
-generated 63319..64920 <- __convenience_const
-generated 65163..65568 <- Debug
-generated 65568..65865 <- Clone
-generated 65865..66308 <- PartialEq
-generated 66308..67126 <- Hash
-generated 67126..70108 <- Encode
-generated 70108..77626 <- Decode
-generated 77626..79024 <- __convenience_const
-generated 79357..79960 <- Debug
-generated 79960..80380 <- Clone
-generated 80380..81163 <- PartialEq
-generated 81163..81791 <- Hash
-generated 81791..85534 <- Encode
-generated 85534..98268 <- Decode
-generated 98268..99666 <- __convenience_const
+generated 2634..3740 <- Debug
+generated 3740..4846 <- Clone
+generated 4846..7397 <- PartialEq
+generated 7397..9038 <- Hash
+generated 9038..15292 <- Encode
+generated 15292..39749 <- Decode
+generated 39749..41147 <- __convenience_const
+generated 41581..42353 <- Debug
+generated 42353..42886 <- Clone
+generated 42886..43620 <- PartialEq
+generated 43620..44334 <- Hash
+generated 44334..48887 <- Encode
+generated 48887..64445 <- Decode
+generated 64445..66046 <- __convenience_const
+generated 66289..66694 <- Debug
+generated 66694..66991 <- Clone
+generated 66991..67434 <- PartialEq
+generated 67434..68252 <- Hash
+generated 68252..71234 <- Encode
+generated 71234..78865 <- Decode
+generated 78865..80263 <- __convenience_const
+generated 80596..81199 <- Debug
+generated 81199..81619 <- Clone
+generated 81619..82402 <- PartialEq
+generated 82402..83030 <- Hash
+generated 83030..86773 <- Encode
+generated 86773..99808 <- Decode
+generated 99808..101206 <- __convenience_const
 
 ## Metadata
 
-interface EdgePartials: {"body_span":{"end":964,"start":417},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":386,"start":325}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":448,"start":423},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"patches","optional":false,"readonly":false,"span":{"end":482,"start":453},"ts_type":"Partial<EdgeItem>[]"},{"decorators":[],"key":"Named","name":"patchList","optional":false,"readonly":false,"span":{"end":526,"start":487},"ts_type":"Array<Pick<EdgeItem, 'id'>>"},{"decorators":[],"key":"Named","name":"readonlyPatches","optional":false,"readonly":false,"span":{"end":587,"start":531},"ts_type":"ReadonlyArray<Omit<EdgeItem, 'score'>>"},{"decorators":[],"key":"Named","name":"patchSet","optional":false,"readonly":false,"span":{"end":625,"start":592},"ts_type":"Set<Partial<EdgeItem>>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":672,"start":630},"ts_type":"Map<string, Pick<EdgeItem, 'id'>>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":725,"start":677},"ts_type":"Record<string, Omit<EdgeItem, 'score'>>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":762,"start":730},"ts_type":"Partial<EdgeItem> | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":807,"start":767},"ts_type":"Pick<EdgeItem, 'id'> | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":844,"start":812},"ts_type":"Omit<EdgeItem, 'id'>"},{"decorators":[],"key":"Named","name":"nullablePatches","optional":false,"readonly":false,"span":{"end":895,"start":849},"ts_type":"(Partial<EdgeItem> | null)[]"},{"decorators":[],"key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":924,"start":900},"ts_type":"Partial<EdgeCard>"},{"decorators":[],"key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":962,"start":929},"ts_type":"Pick<EdgeCard, 'title'>[]"}],"heritage":[],"methods":[],"name":"EdgePartials","span":{"end":964,"start":394},"type_params":[]}
-interface EdgeRenamedPartials: {"body_span":{"end":1398,"start":1065},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1027,"start":966}}],"fields":[{"decorators":[],"key":"Named","name":"profile","optional":false,"readonly":false,"span":{"end":1101,"start":1071},"ts_type":"Partial<EdgeProfile>"},{"decorators":[],"key":"Named","name":"contact","optional":false,"readonly":false,"span":{"end":1158,"start":1106},"ts_type":"Pick<EdgeProfile, 'email' | 'displayName'>"},{"decorators":[],"key":"Named","name":"anonymous","optional":false,"readonly":false,"span":{"end":1214,"start":1163},"ts_type":"Omit<EdgeProfile, 'email' | 'nickname'>"},{"decorators":[],"key":"Named","name":"strict","optional":false,"readonly":false,"span":{"end":1250,"start":1219},"ts_type":"Pick<EdgeStrict, 'id'>"},{"decorators":[],"key":"Named","name":"labeled","optional":false,"readonly":false,"span":{"end":1285,"start":1255},"ts_type":"Partial<EdgeLabeled>"},{"decorators":[],"key":"Named","name":"labelOnly","optional":false,"readonly":false,"span":{"end":1328,"start":1290},"ts_type":"Pick<EdgeLabeled, 'label'>"},{"decorators":[],"key":"Named","name":"head","optional":false,"readonly":false,"span":{"end":1362,"start":1333},"ts_type":"Pick<EdgeNode, 'name'>"},{"decorators":[],"key":"Named","name":"link","optional":false,"readonly":false,"span":{"end":1396,"start":1367},"ts_type":"Omit<EdgeNode, 'name'>"}],"heritage":[],"methods":[],"name":"EdgeRenamedPartials","span":{"end":1398,"start":1035},"type_params":[]}
-interface EdgeOptional: {"body_span":{"end":1641,"start":1492},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1461,"start":1400}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1509,"start":1498},"ts_type":"string"},{"decorators":[],"key":"Named","name":"nick","optional":true,"readonly":false,"span":{"end":1528,"start":1514},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"years\" }","name":"endec","span":{"end":1567,"start":1533}}],"key":"Named","name":"age","optional":true,"readonly":false,"span":{"end":1585,"start":1572},"ts_type":"number"},{"decorators":[{"args_src":"{ default: 1 }","name":"endec","span":{"end":1619,"start":1590}}],"key":"Named","name":"level","optional":true,"readonly":false,"span":{"end":1639,"start":1624},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeOptional","span":{"end":1641,"start":1469},"type_params":[]}
-interface EdgeRequired: {"body_span":{"end":1974,"start":1735},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1704,"start":1643}}],"fields":[{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1761,"start":1741},"ts_type":"EdgeOptional"},{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1796,"start":1766},"ts_type":"Required<EdgeOptional>"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1846,"start":1801},"ts_type":"Required<Pick<EdgeOptional, 'nick'>>"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":1890,"start":1851},"ts_type":"Required<Partial<EdgeOptional>>"},{"decorators":[],"key":"Named","name":"loose","optional":false,"readonly":false,"span":{"end":1934,"start":1895},"ts_type":"Partial<Required<EdgeOptional>>"},{"decorators":[],"key":"Named","name":"wholes","optional":false,"readonly":false,"span":{"end":1972,"start":1939},"ts_type":"Required<EdgeOptional>[]"}],"heritage":[],"methods":[],"name":"EdgeRequired","span":{"end":1974,"start":1712},"type_params":[]}
+interface EdgePartials: {"body_span":{"end":988,"start":441},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":410,"start":349}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":472,"start":447},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"patches","optional":false,"readonly":false,"span":{"end":506,"start":477},"ts_type":"Partial<EdgeItem>[]"},{"decorators":[],"key":"Named","name":"patchList","optional":false,"readonly":false,"span":{"end":550,"start":511},"ts_type":"Array<Pick<EdgeItem, 'id'>>"},{"decorators":[],"key":"Named","name":"readonlyPatches","optional":false,"readonly":false,"span":{"end":611,"start":555},"ts_type":"ReadonlyArray<Omit<EdgeItem, 'score'>>"},{"decorators":[],"key":"Named","name":"patchSet","optional":false,"readonly":false,"span":{"end":649,"start":616},"ts_type":"Set<Partial<EdgeItem>>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":696,"start":654},"ts_type":"Map<string, Pick<EdgeItem, 'id'>>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":749,"start":701},"ts_type":"Record<string, Omit<EdgeItem, 'score'>>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":786,"start":754},"ts_type":"Partial<EdgeItem> | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":831,"start":791},"ts_type":"Pick<EdgeItem, 'id'> | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":868,"start":836},"ts_type":"Omit<EdgeItem, 'id'>"},{"decorators":[],"key":"Named","name":"nullablePatches","optional":false,"readonly":false,"span":{"end":919,"start":873},"ts_type":"(Partial<EdgeItem> | null)[]"},{"decorators":[],"key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":948,"start":924},"ts_type":"Partial<EdgeCard>"},{"decorators":[],"key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":986,"start":953},"ts_type":"Pick<EdgeCard, 'title'>[]"}],"heritage":[],"methods":[],"name":"EdgePartials","span":{"end":988,"start":418},"type_params":[]}
+interface EdgeRenamedPartials: {"body_span":{"end":1422,"start":1089},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1051,"start":990}}],"fields":[{"decorators":[],"key":"Named","name":"profile","optional":false,"readonly":false,"span":{"end":1125,"start":1095},"ts_type":"Partial<EdgeProfile>"},{"decorators":[],"key":"Named","name":"contact","optional":false,"readonly":false,"span":{"end":1182,"start":1130},"ts_type":"Pick<EdgeProfile, 'email' | 'displayName'>"},{"decorators":[],"key":"Named","name":"anonymous","optional":false,"readonly":false,"span":{"end":1238,"start":1187},"ts_type":"Omit<EdgeProfile, 'email' | 'nickname'>"},{"decorators":[],"key":"Named","name":"strict","optional":false,"readonly":false,"span":{"end":1274,"start":1243},"ts_type":"Pick<EdgeStrict, 'id'>"},{"decorators":[],"key":"Named","name":"labeled","optional":false,"readonly":false,"span":{"end":1309,"start":1279},"ts_type":"Partial<EdgeLabeled>"},{"decorators":[],"key":"Named","name":"labelOnly","optional":false,"readonly":false,"span":{"end":1352,"start":1314},"ts_type":"Pick<EdgeLabeled, 'label'>"},{"decorators":[],"key":"Named","name":"head","optional":false,"readonly":false,"span":{"end":1386,"start":1357},"ts_type":"Pick<EdgeNode, 'name'>"},{"decorators":[],"key":"Named","name":"link","optional":false,"readonly":false,"span":{"end":1420,"start":1391},"ts_type":"Omit<EdgeNode, 'name'>"}],"heritage":[],"methods":[],"name":"EdgeRenamedPartials","span":{"end":1422,"start":1059},"type_params":[]}
+interface EdgeOptional: {"body_span":{"end":1665,"start":1516},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1485,"start":1424}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1533,"start":1522},"ts_type":"string"},{"decorators":[],"key":"Named","name":"nick","optional":true,"readonly":false,"span":{"end":1552,"start":1538},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"years\" }","name":"endec","span":{"end":1591,"start":1557}}],"key":"Named","name":"age","optional":true,"readonly":false,"span":{"end":1609,"start":1596},"ts_type":"number"},{"decorators":[{"args_src":"{ default: 1 }","name":"endec","span":{"end":1643,"start":1614}}],"key":"Named","name":"level","optional":true,"readonly":false,"span":{"end":1663,"start":1648},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeOptional","span":{"end":1665,"start":1493},"type_params":[]}
+interface EdgeRequired: {"body_span":{"end":1998,"start":1759},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1728,"start":1667}}],"fields":[{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1785,"start":1765},"ts_type":"EdgeOptional"},{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1820,"start":1790},"ts_type":"Required<EdgeOptional>"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1870,"start":1825},"ts_type":"Required<Pick<EdgeOptional, 'nick'>>"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":1914,"start":1875},"ts_type":"Required<Partial<EdgeOptional>>"},{"decorators":[],"key":"Named","name":"loose","optional":false,"readonly":false,"span":{"end":1958,"start":1919},"ts_type":"Partial<Required<EdgeOptional>>"},{"decorators":[],"key":"Named","name":"wholes","optional":false,"readonly":false,"span":{"end":1996,"start":1963},"ts_type":"Required<EdgeOptional>[]"}],"heritage":[],"methods":[],"name":"EdgeRequired","span":{"end":1998,"start":1736},"type_params":[]}
 
 ## Registry reads
 

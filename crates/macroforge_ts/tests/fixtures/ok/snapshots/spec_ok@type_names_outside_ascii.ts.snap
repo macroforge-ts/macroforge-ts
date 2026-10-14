@@ -179,7 +179,7 @@ export function ünïcodeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Ünïcode");
@@ -405,7 +405,7 @@ export function αβγDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ΑΒΓ");
@@ -656,7 +656,7 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "named"?: Ünïcode[] | undefined; "greek"?: ΑΒΓ | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Holder");
@@ -966,33 +966,33 @@ export declare const Holder: {
 
 original 0..86 -> expanded 992..1078
 original 150..197 -> expanded 1078..1125
-original 197..199 -> expanded 10702..10704
-original 263..307 -> expanded 10704..10748
-original 307..309 -> expanded 20058..20060
-original 373..451 -> expanded 20060..20138
-original 451..452 -> expanded 32815..32816
+original 197..199 -> expanded 10728..10730
+original 263..307 -> expanded 10730..10774
+original 307..309 -> expanded 20110..20112
+original 373..451 -> expanded 20112..20190
+original 451..452 -> expanded 32938..32939
 generated 0..992 <- imports
 generated 1125..1380 <- Debug
 generated 1380..1517 <- Clone
 generated 1517..1701 <- PartialEq
 generated 1701..1793 <- Default
 generated 1793..3929 <- Encode
-generated 3929..9375 <- Decode
-generated 9375..10702 <- __convenience_const
-generated 10748..10994 <- Debug
-generated 10994..11119 <- Clone
-generated 11119..11294 <- PartialEq
-generated 11294..11380 <- Default
-generated 11380..13471 <- Encode
-generated 13471..18818 <- Decode
-generated 18818..20058 <- __convenience_const
-generated 20138..20467 <- Debug
-generated 20467..20690 <- Clone
-generated 20690..21216 <- PartialEq
-generated 21216..21326 <- Default
-generated 21326..23902 <- Encode
-generated 23902..31575 <- Decode
-generated 31575..32815 <- __convenience_const
+generated 3929..9401 <- Decode
+generated 9401..10728 <- __convenience_const
+generated 10774..11020 <- Debug
+generated 11020..11145 <- Clone
+generated 11145..11320 <- PartialEq
+generated 11320..11406 <- Default
+generated 11406..13497 <- Encode
+generated 13497..18870 <- Decode
+generated 18870..20110 <- __convenience_const
+generated 20190..20519 <- Debug
+generated 20519..20742 <- Clone
+generated 20742..21268 <- PartialEq
+generated 21268..21378 <- Default
+generated 21378..23954 <- Encode
+generated 23954..31698 <- Decode
+generated 31698..32938 <- __convenience_const
 
 ## Metadata
 

@@ -165,7 +165,7 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "heading"?: string | undefined; "dataPath"?: DataPath | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ColumnConfig");
@@ -535,13 +535,13 @@ export declare const ColumnConfig: {
 original 0..110 -> expanded 957..1067
 original 159..196 -> expanded 1067..1104
 original 237..284 -> expanded 1104..1151
-original 284..285 -> expanded 18485..18486
+original 284..285 -> expanded 18551..18552
 generated 0..957 <- imports
 generated 1151..1296 <- Default
 generated 1296..3895 <- Encode
-generated 3895..11831 <- Decode
-generated 11831..17111 <- Gigaform
-generated 17111..18485 <- __convenience_const
+generated 3895..11897 <- Decode
+generated 11897..17177 <- Gigaform
+generated 17177..18551 <- __convenience_const
 
 ## Metadata
 

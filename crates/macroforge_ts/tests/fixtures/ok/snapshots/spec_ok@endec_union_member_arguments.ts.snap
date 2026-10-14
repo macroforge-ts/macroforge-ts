@@ -155,7 +155,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "held"?: T | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Box");
@@ -361,7 +361,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "radius"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Circle");
@@ -1088,31 +1088,31 @@ export {};
 ## Mapping
 
 original 30..64 -> expanded 1003..1037
-original 64..66 -> expanded 10260..10262
-original 96..137 -> expanded 10262..10303
-original 137..139 -> expanded 18810..18812
-original 169..202 -> expanded 18812..18845
-original 202..204 -> expanded 26247..26249
-original 234..269 -> expanded 26249..26284
-original 269..271 -> expanded 33523..33525
-original 332..409 -> expanded 33525..33602
-original 409..410 -> expanded 39956..39957
+original 64..66 -> expanded 10283..10285
+original 96..137 -> expanded 10285..10326
+original 137..139 -> expanded 18863..18865
+original 169..202 -> expanded 18865..18898
+original 202..204 -> expanded 26300..26302
+original 234..269 -> expanded 26302..26337
+original 269..271 -> expanded 33576..33578
+original 332..409 -> expanded 33578..33655
+original 409..410 -> expanded 40009..40010
 generated 0..1003 <- imports
 generated 1037..3335 <- Encode
-generated 3335..9374 <- Decode
-generated 9374..10260 <- __convenience_const
-generated 10303..12410 <- Encode
-generated 12410..17861 <- Decode
-generated 17861..18810 <- __convenience_const
-generated 18845..20951 <- Encode
-generated 20951..25771 <- Decode
-generated 25771..26247 <- __convenience_const
-generated 26284..28257 <- Encode
-generated 28257..33021 <- Decode
-generated 33021..33523 <- __convenience_const
-generated 33602..35489 <- Encode
-generated 35489..39335 <- Decode
-generated 39335..39956 <- __convenience_const
+generated 3335..9397 <- Decode
+generated 9397..10283 <- __convenience_const
+generated 10326..12433 <- Encode
+generated 12433..17914 <- Decode
+generated 17914..18863 <- __convenience_const
+generated 18898..21004 <- Encode
+generated 21004..25824 <- Decode
+generated 25824..26300 <- __convenience_const
+generated 26337..28310 <- Encode
+generated 28310..33074 <- Decode
+generated 33074..33576 <- __convenience_const
+generated 33655..35542 <- Encode
+generated 35542..39388 <- Decode
+generated 39388..40009 <- __convenience_const
 
 ## Metadata
 

@@ -164,7 +164,7 @@ export function packageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "date"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Package");
@@ -485,13 +485,13 @@ original 0..58 -> expanded 844..902
 original 107..139 -> expanded 902..934
 original 167..188 -> expanded 934..955
 original 233..253 -> expanded 955..975
-original 253..254 -> expanded 15088..15089
+original 253..254 -> expanded 15143..15144
 generated 0..844 <- imports
 generated 975..1081 <- Default
 generated 1081..3538 <- Encode
-generated 3538..9618 <- Decode
-generated 9618..13849 <- Gigaform
-generated 13849..15088 <- __convenience_const
+generated 3538..9673 <- Decode
+generated 9673..13904 <- Gigaform
+generated 13904..15143 <- __convenience_const
 
 ## Metadata
 

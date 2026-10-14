@@ -264,7 +264,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "appointmentNotifications"?: AppointmentNotifications | null | undefined; "commissions"?: Commissions | null | undefined; "scheduleSettings"?: ScheduleSettings | undefined; "accountOverviewSettings"?: OverviewSettings | undefined; "serviceOverviewSettings"?: OverviewSettings | undefined; "appointmentOverviewSettings"?: OverviewSettings | undefined; "leadOverviewSettings"?: OverviewSettings | undefined; "packageOverviewSettings"?: OverviewSettings | undefined; "productOverviewSettings"?: OverviewSettings | undefined; "orderOverviewSettings"?: OverviewSettings | undefined; "taxRateOverviewSettings"?: OverviewSettings | undefined; "homePage"?: Page | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Settings");
@@ -1445,13 +1445,13 @@ export declare const Settings: {
 original 0..379 -> expanded 1450..1829
 original 428..976 -> expanded 1829..2377
 original 1003..1025 -> expanded 2377..2399
-original 1025..1026 -> expanded 61019..61020
+original 1025..1026 -> expanded 61685..61686
 generated 0..1450 <- imports
 generated 2399..3147 <- Default
 generated 3147..9198 <- Encode
-generated 9198..31378 <- Decode
-generated 31378..59753 <- Gigaform
-generated 59753..61019 <- __convenience_const
+generated 9198..32044 <- Decode
+generated 32044..60419 <- Gigaform
+generated 60419..61685 <- __convenience_const
 
 ## Metadata
 

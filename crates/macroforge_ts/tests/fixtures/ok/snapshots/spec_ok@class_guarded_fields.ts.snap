@@ -265,7 +265,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Guarded.prototype);
+    const made: object = Object.create(Guarded.prototype);
+    const instance: { "name"?: string | undefined; "level"?: number | undefined; "secret"?: boolean | undefined; "sealed"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Guarded");
@@ -324,7 +325,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Guarded)) {
+        throw new TypeError("Guarded.decodeWithContext: the value made is no Guarded");
+    }
+    return made;
 }
 static validateField<K extends keyof Guarded>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -518,8 +522,8 @@ export {};
 ## Mapping
 
 original 91..248 -> expanded 939..1096
-original 248..249 -> expanded 14266..14267
-original 249..250 -> expanded 18063..18064
+original 248..249 -> expanded 14546..14547
+original 249..250 -> expanded 18343..18344
 generated 0..939 <- imports
 generated 1096..1524 <- Debug
 generated 1524..1752 <- Clone
@@ -530,16 +534,16 @@ generated 3553..4221 <- Ord
 generated 4221..4526 <- Default
 generated 4526..6877 <- Encode
 generated 6877..7198 <- Encode
-generated 7198..14266 <- Decode
-generated 14267..14364 <- Debug
-generated 14364..14456 <- Clone
-generated 14456..14557 <- PartialEq
-generated 14557..14654 <- Hash
-generated 14654..14777 <- PartialOrd
-generated 14777..14879 <- Ord
-generated 14879..14966 <- Default
-generated 14966..16296 <- Encode
-generated 16296..18063 <- Decode
+generated 7198..14546 <- Decode
+generated 14547..14644 <- Debug
+generated 14644..14736 <- Clone
+generated 14736..14837 <- PartialEq
+generated 14837..14934 <- Hash
+generated 14934..15057 <- PartialOrd
+generated 15057..15159 <- Ord
+generated 15159..15246 <- Default
+generated 15246..16576 <- Encode
+generated 16576..18343 <- Decode
 
 ## Metadata
 

@@ -184,7 +184,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "street"?: string | undefined; "city"?: string | undefined; "state"?: string | undefined; "zipcode"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Address");
@@ -655,13 +655,13 @@ original 180..205 -> expanded 934..959
 original 246..269 -> expanded 959..982
 original 310..334 -> expanded 982..1006
 original 375..398 -> expanded 1006..1029
-original 398..399 -> expanded 22927..22928
+original 398..399 -> expanded 23048..23049
 generated 0..844 <- imports
 generated 1029..1179 <- Default
 generated 1179..4116 <- Encode
-generated 4116..15199 <- Decode
-generated 15199..21688 <- Gigaform
-generated 21688..22927 <- __convenience_const
+generated 4116..15320 <- Decode
+generated 15320..21809 <- Gigaform
+generated 21809..23048 <- __convenience_const
 
 ## Metadata
 

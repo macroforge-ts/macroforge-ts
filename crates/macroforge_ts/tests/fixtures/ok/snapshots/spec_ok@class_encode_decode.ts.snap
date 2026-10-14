@@ -159,7 +159,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Config.prototype);
+    const made: object = Object.create(Config.prototype);
+    const instance: { "host"?: string | undefined; "port"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Config");
@@ -196,7 +197,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Config)) {
+        throw new TypeError("Config.decodeWithContext: the value made is no Config");
+    }
+    return made;
 }
 static validateField<K extends keyof Config>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -344,14 +348,14 @@ export {};
 ## Mapping
 
 original 30..82 -> expanded 685..737
-original 82..83 -> expanded 8700..8701
-original 83..84 -> expanded 11773..11774
+original 82..83 -> expanded 8913..8914
+original 83..84 -> expanded 11986..11987
 generated 0..685 <- imports
 generated 737..2611 <- Encode
 generated 2611..2930 <- Encode
-generated 2930..8700 <- Decode
-generated 8701..10021 <- Encode
-generated 10021..11773 <- Decode
+generated 2930..8913 <- Decode
+generated 8914..10234 <- Encode
+generated 10234..11986 <- Decode
 
 ## Metadata
 

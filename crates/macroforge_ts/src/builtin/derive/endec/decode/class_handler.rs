@@ -10,7 +10,7 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
 use super::field::statements::{
-    Required, decode_fields, holds_required_keys, missing_keys_check, read_keys,
+    Required, assembly_type, decode_fields, holds_required_keys, missing_keys_check, read_keys,
 };
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
@@ -103,6 +103,7 @@ pub(super) fn handle_class(
     }
 
     let missing_keys = missing_keys_check(&fields);
+    let assembly = assembly_type(&fields);
 
     // Build known keys for deny_unknown_fields
     let known_keys: Vec<String> = read_keys(&fields).collect();
@@ -282,9 +283,10 @@ pub(super) fn handle_class(
             {$typescript missing_keys}
 
             // The instance is made without its constructor and filled in
-            // field by field, as no type over it allows: assignment to a
-            // `readonly` field, and a `private` field by name.
-            const instance: any = Object.create(@{&class_expr}.prototype);
+            // field by field, `readonly` and `private` ones too, through a
+            // type of its fields alone.
+            const made: object = Object.create(@{&class_expr}.prototype);
+            const instance: @{&assembly} = made;
 
             // Register with context if __id is present. Only a whole value
             // can be referred to.
@@ -299,7 +301,11 @@ pub(super) fn handle_class(
 
             ctx.pushErrors(errors);
 
-            return instance;
+            // A value made from the class's prototype is an instance of it.
+            if (!(made instanceof @{&class_expr})) {
+                throw new TypeError("@{class_name}.decodeWithContext: the value made is no @{class_name}");
+            }
+            return made;
         }
 
         {#if fields_with_validators.is_empty()}

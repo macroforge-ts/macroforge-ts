@@ -305,7 +305,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "title"?: string | undefined; "status"?: Status | undefined; "begins"?: DateTime.DateTime | undefined; "duration"?: number | undefined; "timeZone"?: string | undefined; "offsetMs"?: number | undefined; "allDay"?: boolean | undefined; "multiDay"?: boolean | undefined; "employees"?: Array<string | Employee> | undefined; "location"?: string | Site | undefined; "description"?: Option.Option<string> | undefined; "colors"?: Colors | undefined; "recurrenceRule"?: RecurrenceRule | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Appointment");
@@ -367,7 +367,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("begins")) ? "begins" in obj : (__fields.keeps("begins") && obj["begins"] !== undefined)) {
                 try {
-                    instance.begins = __foreign__dateTimeDateTimeDecode(obj["begins"]);
+                    instance.begins = ((__raw: unknown) => __foreign__dateTimeDateTimeDecode(__raw) as DateTime.DateTime)(obj["begins"]);
                 } catch (__error) {
                     errors.push({ field: "begins", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -486,7 +486,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
                 try {
-                    instance.description = __foreign__optionOptionDecode(obj["description"]);
+                    instance.description = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["description"]);
                 } catch (__error) {
                     errors.push({ field: "description", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -1392,13 +1392,13 @@ original 1581..1626 -> expanded 2357..2402
 original 1654..1659 -> expanded 2402..2407
 original 1732..1757 -> expanded 2407..2432
 original 1785..1830 -> expanded 2432..2477
-original 1830..1831 -> expanded 51346..51347
+original 1830..1831 -> expanded 51972..51973
 generated 0..1626 <- imports
 generated 2477..3029 <- Default
 generated 3029..8824 <- Encode
-generated 8824..26939 <- Decode
-generated 26939..49999 <- Gigaform
-generated 49999..51346 <- __convenience_const
+generated 8824..27565 <- Decode
+generated 27565..50625 <- Gigaform
+generated 50625..51972 <- __convenience_const
 
 ## Metadata
 

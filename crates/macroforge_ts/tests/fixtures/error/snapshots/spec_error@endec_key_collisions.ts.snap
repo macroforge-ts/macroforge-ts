@@ -190,7 +190,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "note"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Inner");
@@ -417,7 +417,7 @@ export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: number | undefined; "inner"?: Inner | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Flat");
@@ -603,17 +603,17 @@ original 30..55 -> expanded 685..710
 original 88..129 -> expanded 710..751
 original 159..269 -> expanded 751..861
 original 299..353 -> expanded 861..915
-original 353..355 -> expanded 10282..10284
-original 385..423 -> expanded 10284..10322
-original 445..465 -> expanded 10322..10342
-original 465..466 -> expanded 20117..20118
+original 353..355 -> expanded 10337..10339
+original 385..423 -> expanded 10339..10377
+original 445..465 -> expanded 10377..10397
+original 465..466 -> expanded 20227..20228
 generated 0..685 <- imports
 generated 915..3342 <- Encode
-generated 3342..9354 <- Decode
-generated 9354..10282 <- __convenience_const
-generated 10342..12949 <- Encode
-generated 12949..19210 <- Decode
-generated 19210..20117 <- __convenience_const
+generated 3342..9409 <- Decode
+generated 9409..10337 <- __convenience_const
+generated 10397..13004 <- Encode
+generated 13004..19320 <- Decode
+generated 19320..20227 <- __convenience_const
 
 ## Metadata
 

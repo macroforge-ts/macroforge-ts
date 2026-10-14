@@ -221,7 +221,7 @@ export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string & { readonly __brand: 'Id' } | undefined; "carried"?: unknown | undefined; "parameters"?: Parameters | undefined; "at"?: URL | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Read");
@@ -276,11 +276,11 @@ export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
                 try {
-                    instance.at = ((v) => {
+                    instance.at = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
                 	return new URL(raw);
-                })(obj["at"]);
+                })(__raw) as URL)(obj["at"]);
                 } catch (__error) {
                     errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -440,7 +440,7 @@ Error [419..437]: @derive(Encode): `TypeError` is a built-in class that has no c
 Error [442..472]: @derive(Encode): `Exclude<'a' | 'b', 'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [477..510]: @derive(Encode): `ReturnType<() => string>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [515..537]: @derive(Encode): `Uppercase<'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
-Error [542..580]: @derive(Encode): `{ a: string } | { b: number }` is a type no coder reads; name it with an alias, `type Named = { a: string } | { b: number }`, and derive on that, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [542..580]: @derive(Encode): `{ a: string } | { b: number }` is a type no coder reads; name it with an alias, `type Named = { a: string } | { b: number }`, and derive on that, configure a type of another library under `foreignTypes`, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [585..610]: @derive(Encode): `Promise<string>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [615..654]: @derive(Encode): `Promise<number>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [659..686]: @derive(Encode): `WeakRef<object>` is a weak reference, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
@@ -456,7 +456,7 @@ Error [419..437]: @derive(Decode): `TypeError` is a built-in class that has no c
 Error [442..472]: @derive(Decode): `Exclude<'a' | 'b', 'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [477..510]: @derive(Decode): `ReturnType<() => string>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [515..537]: @derive(Decode): `Uppercase<'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
-Error [542..580]: @derive(Decode): `{ a: string } | { b: number }` is a type no coder reads; name it with an alias, `type Named = { a: string } | { b: number }`, and derive on that, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [542..580]: @derive(Decode): `{ a: string } | { b: number }` is a type no coder reads; name it with an alias, `type Named = { a: string } | { b: number }`, and derive on that, configure a type of another library under `foreignTypes`, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [585..610]: @derive(Decode): `Promise<string>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [615..654]: @derive(Decode): `Promise<number>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [659..686]: @derive(Decode): `WeakRef<object>` is a weak reference, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
@@ -466,11 +466,11 @@ Error [659..686]: @derive(Decode): `WeakRef<object>` is a weak reference, which 
 original 0..129 -> expanded 714..843
 original 159..787 -> expanded 843..1471
 original 817..951 -> expanded 1471..1605
-original 951..952 -> expanded 13174..13175
+original 951..952 -> expanded 13361..13362
 generated 0..714 <- imports
 generated 1605..4549 <- Encode
-generated 4549..12260 <- Decode
-generated 12260..13174 <- __convenience_const
+generated 4549..12447 <- Decode
+generated 12447..13361 <- __convenience_const
 
 ## Metadata
 

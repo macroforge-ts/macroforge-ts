@@ -148,7 +148,7 @@ export function firstNameDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "FirstName");
@@ -433,13 +433,13 @@ export declare const FirstName: {
 original 0..58 -> expanded 844..902
 original 107..141 -> expanded 902..936
 original 182..202 -> expanded 936..956
-original 202..203 -> expanded 14124..14125
+original 202..203 -> expanded 14152..14153
 generated 0..844 <- imports
 generated 956..1050 <- Default
 generated 1050..3194 <- Encode
-generated 3194..9553 <- Decode
-generated 9553..12831 <- Gigaform
-generated 12831..14124 <- __convenience_const
+generated 3194..9581 <- Decode
+generated 9581..12859 <- Gigaform
+generated 12859..14152 <- __convenience_const
 
 ## Metadata
 

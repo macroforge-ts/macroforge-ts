@@ -248,7 +248,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "quickCode"?: string | undefined; "group"?: string | null | undefined; "subgroup"?: string | null | undefined; "unit"?: string | null | undefined; "active"?: boolean | undefined; "commission"?: boolean | undefined; "favorite"?: boolean | undefined; "defaults"?: ProductDefaults | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Product");
@@ -1004,13 +1004,13 @@ original 748..778 -> expanded 1289..1319
 original 823..849 -> expanded 1319..1345
 original 898..928 -> expanded 1345..1375
 original 975..1031 -> expanded 1375..1431
-original 1031..1032 -> expanded 34987..34988
+original 1031..1032 -> expanded 35333..35334
 generated 0..985 <- imports
 generated 1431..1749 <- Default
 generated 1749..6140 <- Encode
-generated 6140..19479 <- Decode
-generated 19479..33748 <- Gigaform
-generated 33748..34987 <- __convenience_const
+generated 6140..19825 <- Decode
+generated 19825..34094 <- Gigaform
+generated 34094..35333 <- __convenience_const
 
 ## Metadata
 

@@ -130,7 +130,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(UserRegistrationForm.prototype);
+    const made: object = Object.create(UserRegistrationForm.prototype);
+    const instance: { "email"?: string | undefined; "password"?: string | undefined; "username"?: string | undefined; "age"?: number | undefined; "website"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "UserRegistrationForm");
@@ -220,7 +221,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof UserRegistrationForm)) {
+        throw new TypeError("UserRegistrationForm.decodeWithContext: the value made is no UserRegistrationForm");
+    }
+    return made;
 }
 static validateField<K extends keyof UserRegistrationForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -455,7 +459,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(ProductForm.prototype);
+    const made: object = Object.create(ProductForm.prototype);
+    const instance: { "name"?: string | undefined; "price"?: number | undefined; "quantity"?: number | undefined; "tags"?: Array<string> | undefined; "sku"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ProductForm");
@@ -559,7 +564,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ProductForm)) {
+        throw new TypeError("ProductForm.decodeWithContext: the value made is no ProductForm");
+    }
+    return made;
 }
 static validateField<K extends keyof ProductForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -788,7 +796,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(EventForm.prototype);
+    const made: object = Object.create(EventForm.prototype);
+    const instance: { "title"?: string | undefined; "startDate"?: Date | undefined; "endDate"?: Date | undefined; "maxAttendees"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EventForm");
@@ -866,7 +875,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof EventForm)) {
+        throw new TypeError("EventForm.decodeWithContext: the value made is no EventForm");
+    }
+    return made;
 }
 static validateField<K extends keyof EventForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1222,30 +1234,30 @@ original 392..420 -> expanded 777..805
 original 529..557 -> expanded 805..833
 original 613..636 -> expanded 833..856
 original 672..694 -> expanded 856..878
-original 694..695 -> expanded 16741..16742
-original 695..697 -> expanded 18704..18706
-original 719..751 -> expanded 18706..18738
-original 810..834 -> expanded 18738..18762
-original 896..921 -> expanded 18762..18787
-original 972..1000 -> expanded 18787..18815
-original 1059..1090 -> expanded 18815..18846
-original 1127..1145 -> expanded 18846..18864
-original 1145..1146 -> expanded 34034..34035
-original 1146..1148 -> expanded 35862..35864
-original 1170..1200 -> expanded 35864..35894
-original 1252..1277 -> expanded 35894..35919
-original 1354..1381 -> expanded 35919..35946
-original 1423..1448 -> expanded 35946..35971
-original 1504..1531 -> expanded 35971..35998
-original 1531..1532 -> expanded 49246..49247
-original 1532..2731 -> expanded 51044..52243
+original 694..695 -> expanded 17094..17095
+original 695..697 -> expanded 19057..19059
+original 719..751 -> expanded 19059..19091
+original 810..834 -> expanded 19091..19115
+original 896..921 -> expanded 19115..19140
+original 972..1000 -> expanded 19140..19168
+original 1059..1090 -> expanded 19168..19199
+original 1127..1145 -> expanded 19199..19217
+original 1145..1146 -> expanded 34713..34714
+original 1146..1148 -> expanded 36541..36543
+original 1170..1200 -> expanded 36543..36573
+original 1252..1277 -> expanded 36573..36598
+original 1354..1381 -> expanded 36598..36625
+original 1423..1448 -> expanded 36625..36650
+original 1504..1531 -> expanded 36650..36677
+original 1531..1532 -> expanded 50218..50219
+original 1532..2731 -> expanded 52016..53215
 generated 0..507 <- imports
-generated 878..16741 <- Decode
-generated 16742..18704 <- Decode
-generated 18864..34034 <- Decode
-generated 34035..35862 <- Decode
-generated 35998..49246 <- Decode
-generated 49247..51044 <- Decode
+generated 878..17094 <- Decode
+generated 17095..19057 <- Decode
+generated 19217..34713 <- Decode
+generated 34714..36541 <- Decode
+generated 36677..50218 <- Decode
+generated 50219..52016 <- Decode
 
 ## Metadata
 

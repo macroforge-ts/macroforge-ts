@@ -158,7 +158,7 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "leg"?: Meters | undefined; "legs"?: Meters[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Trip");
@@ -352,11 +352,11 @@ export declare function greet(name: string): string;
 ## Mapping
 
 original 0..324 -> expanded 815..1139
-original 324..674 -> expanded 11895..12245
+original 324..674 -> expanded 11953..12303
 generated 0..815 <- imports
 generated 1139..3640 <- Encode
-generated 3640..10981 <- Decode
-generated 10981..11895 <- __convenience_const
+generated 3640..11039 <- Decode
+generated 11039..11953 <- __convenience_const
 
 ## Metadata
 

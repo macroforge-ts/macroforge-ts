@@ -147,7 +147,7 @@ export function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "initialData"?: string | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Created");
@@ -416,13 +416,13 @@ export declare const Created: {
 
 original 0..58 -> expanded 844..902
 original 107..168 -> expanded 902..963
-original 168..169 -> expanded 13327..13328
+original 168..169 -> expanded 13369..13370
 generated 0..844 <- imports
 generated 963..1062 <- Default
 generated 1062..3204 <- Encode
-generated 3204..8699 <- Decode
-generated 8699..12088 <- Gigaform
-generated 12088..13327 <- __convenience_const
+generated 3204..8741 <- Decode
+generated 8741..12130 <- Gigaform
+generated 12130..13369 <- __convenience_const
 
 ## Metadata
 

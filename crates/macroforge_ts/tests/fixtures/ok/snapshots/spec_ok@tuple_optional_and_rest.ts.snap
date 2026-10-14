@@ -175,7 +175,7 @@ export function rowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
     obj["rest"] = value.slice(2);
 
     const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
-    const instance: any = {};
+    const instance: { "e0"?: string | undefined; "e1"?: number | undefined; "rest"?: boolean[] | undefined } = {};
     Object.defineProperty(instance, "e0", {
         get: () => tuple[0],
         set: (item: unknown) => {
@@ -405,7 +405,7 @@ export function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Named");
@@ -598,7 +598,7 @@ export function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "at"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Dated");
@@ -808,7 +808,7 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "mixed"?: [Named, ...Dated[]] | undefined; "later"?: [Named, Dated?, ...Date[]] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Holder");
@@ -1124,13 +1124,13 @@ export declare const Holder: {
 
 original 0..98 -> expanded 1029..1127
 original 168..240 -> expanded 1127..1199
-original 240..242 -> expanded 9511..9513
-original 272..317 -> expanded 9513..9558
-original 317..319 -> expanded 17921..17923
-original 349..390 -> expanded 17923..17964
-original 390..392 -> expanded 26522..26524
-original 422..521 -> expanded 26524..26623
-original 521..522 -> expanded 38448..38449
+original 240..242 -> expanded 9596..9598
+original 272..317 -> expanded 9598..9643
+original 317..319 -> expanded 18034..18036
+original 349..390 -> expanded 18036..18077
+original 390..392 -> expanded 26659..26661
+original 422..521 -> expanded 26661..26760
+original 521..522 -> expanded 38677..38678
 generated 0..1029 <- imports
 generated 1199..1307 <- Debug
 generated 1307..1394 <- Clone
@@ -1138,17 +1138,17 @@ generated 1394..1520 <- PartialEq
 generated 1520..1612 <- Hash
 generated 1612..1738 <- Default
 generated 1738..3551 <- Encode
-generated 3551..8728 <- Decode
-generated 8728..9511 <- __convenience_const
-generated 9558..11642 <- Encode
-generated 11642..16986 <- Decode
-generated 16986..17921 <- __convenience_const
-generated 17964..20054 <- Encode
-generated 20054..25587 <- Decode
-generated 25587..26522 <- __convenience_const
-generated 26623..29466 <- Encode
-generated 29466..37492 <- Decode
-generated 37492..38448 <- __convenience_const
+generated 3551..8813 <- Decode
+generated 8813..9596 <- __convenience_const
+generated 9643..11727 <- Encode
+generated 11727..17099 <- Decode
+generated 17099..18034 <- __convenience_const
+generated 18077..20167 <- Encode
+generated 20167..25724 <- Decode
+generated 25724..26659 <- __convenience_const
+generated 26760..29603 <- Encode
+generated 29603..37721 <- Decode
+generated 37721..38677 <- __convenience_const
 
 ## Metadata
 

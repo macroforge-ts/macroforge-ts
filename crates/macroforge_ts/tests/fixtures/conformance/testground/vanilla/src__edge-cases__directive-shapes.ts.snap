@@ -208,7 +208,7 @@ export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "renamed"?: string | undefined; "open"?: string | undefined; "listed"?: string | undefined; "matched"?: string | undefined; "words"?: string[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DirectiveTexts");
@@ -605,7 +605,7 @@ export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "secret"?: string | undefined; "count"?: number | undefined; "tags"?: string[] | undefined; "note"?: string | undefined; "maybe"?: string | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DirectiveSkipped");
@@ -855,7 +855,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DirectiveSkippedClass.prototype);
+    const made: object = Object.create(DirectiveSkippedClass.prototype);
+    const instance: { "name"?: string | undefined; "cache"?: Map<string, number> | undefined; "derived"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DirectiveSkippedClass");
@@ -891,7 +892,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DirectiveSkippedClass)) {
+        throw new TypeError("DirectiveSkippedClass.decodeWithContext: the value made is no DirectiveSkippedClass");
+    }
+    return made;
 }
 static validateField<K extends keyof DirectiveSkippedClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1085,7 +1089,7 @@ export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "depth"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DirectiveInner");
@@ -1295,7 +1299,7 @@ export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "title"?: string | undefined; "inner"?: DirectiveInner | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DirectiveFlat");
@@ -1729,42 +1733,42 @@ export declare const DirectiveFlat: {
 ## Mapping
 
 original 0..678 -> expanded 943..1621
-original 678..790 -> expanded 17359..17471
-original 790..959 -> expanded 18427..18596
-original 959..1414 -> expanded 19581..20036
-original 1414..1665 -> expanded 30759..31010
-original 1665..1666 -> expanded 39390..39391
-original 1666..1753 -> expanded 42838..42925
-original 1753..1900 -> expanded 51971..52118
-original 1900..1901 -> expanded 62659..62660
+original 678..790 -> expanded 17514..17626
+original 790..959 -> expanded 18582..18751
+original 959..1414 -> expanded 19736..20191
+original 1414..1665 -> expanded 31100..31351
+original 1665..1666 -> expanded 40035..40036
+original 1666..1753 -> expanded 43483..43570
+original 1753..1900 -> expanded 52645..52792
+original 1900..1901 -> expanded 63407..63408
 generated 0..943 <- imports
 generated 1621..2116 <- Debug
 generated 2116..2308 <- Default
 generated 2308..5583 <- Encode
-generated 5583..16043 <- Decode
-generated 16043..17359 <- __convenience_const
-generated 17471..17640 <- Clone
-generated 17640..17849 <- PartialEq
-generated 17849..18129 <- Debug
-generated 18129..18427 <- __convenience_const
-generated 18596..18873 <- Debug
-generated 18873..19040 <- Clone
-generated 19040..19276 <- PartialEq
-generated 19276..19581 <- __convenience_const
-generated 20036..22868 <- Encode
-generated 22868..29593 <- Decode
-generated 29593..30759 <- __convenience_const
-generated 31010..33031 <- Encode
-generated 33031..33380 <- Encode
-generated 33380..39390 <- Decode
-generated 39391..40861 <- Encode
-generated 40861..42838 <- Decode
-generated 42925..45148 <- Encode
-generated 45148..50847 <- Decode
-generated 50847..51971 <- __convenience_const
-generated 52118..54905 <- Encode
-generated 54905..61556 <- Decode
-generated 61556..62659 <- __convenience_const
+generated 5583..16198 <- Decode
+generated 16198..17514 <- __convenience_const
+generated 17626..17795 <- Clone
+generated 17795..18004 <- PartialEq
+generated 18004..18284 <- Debug
+generated 18284..18582 <- __convenience_const
+generated 18751..19028 <- Debug
+generated 19028..19195 <- Clone
+generated 19195..19431 <- PartialEq
+generated 19431..19736 <- __convenience_const
+generated 20191..23023 <- Encode
+generated 23023..29934 <- Decode
+generated 29934..31100 <- __convenience_const
+generated 31351..33372 <- Encode
+generated 33372..33721 <- Encode
+generated 33721..40035 <- Decode
+generated 40036..41506 <- Encode
+generated 41506..43483 <- Decode
+generated 43570..45793 <- Encode
+generated 45793..51521 <- Decode
+generated 51521..52645 <- __convenience_const
+generated 52792..55579 <- Encode
+generated 55579..62304 <- Decode
+generated 62304..63407 <- __convenience_const
 
 ## Metadata
 

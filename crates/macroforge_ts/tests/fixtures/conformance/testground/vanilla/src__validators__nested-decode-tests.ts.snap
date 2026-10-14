@@ -142,7 +142,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "x"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Point");
@@ -372,7 +372,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "stops"?: Point[] | undefined; "named"?: Record<string, Point> | undefined; "visits"?: Map<string, number> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Route");
@@ -657,7 +657,7 @@ export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "label"?: string | undefined; "origin"?: Point | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Labeled");
@@ -888,7 +888,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "label"?: string | undefined; "value"?: T | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Box");
@@ -1125,7 +1125,7 @@ export function pairDecodeWithContext<A, B>(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "first"?: A | undefined; "second"?: B | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Pair");
@@ -1740,31 +1740,31 @@ export declare const Outcome: {
 ## Mapping
 
 original 0..255 -> expanded 1032..1287
-original 255..400 -> expanded 10427..10572
-original 400..526 -> expanded 23493..23619
-original 526..619 -> expanded 33631..33724
-original 619..710 -> expanded 44145..44236
-original 710..784 -> expanded 55847..55921
-original 784..785 -> expanded 63261..63262
+original 255..400 -> expanded 10452..10597
+original 400..526 -> expanded 23637..23763
+original 526..619 -> expanded 33834..33927
+original 619..710 -> expanded 44402..44493
+original 710..784 -> expanded 56154..56228
+original 784..785 -> expanded 63568..63569
 generated 0..1032 <- imports
 generated 1287..3359 <- Encode
-generated 3359..9492 <- Decode
-generated 9492..10427 <- __convenience_const
-generated 10572..13465 <- Encode
-generated 13465..22558 <- Decode
-generated 22558..23493 <- __convenience_const
-generated 23619..26286 <- Encode
-generated 26286..32654 <- Decode
-generated 32654..33631 <- __convenience_const
-generated 33724..36382 <- Encode
-generated 36382..43252 <- Decode
-generated 43252..44145 <- __convenience_const
-generated 44236..47160 <- Encode
-generated 47160..54933 <- Decode
-generated 54933..55847 <- __convenience_const
-generated 55921..57988 <- Encode
-generated 57988..62752 <- Decode
-generated 62752..63261 <- __convenience_const
+generated 3359..9517 <- Decode
+generated 9517..10452 <- __convenience_const
+generated 10597..13490 <- Encode
+generated 13490..22702 <- Decode
+generated 22702..23637 <- __convenience_const
+generated 23763..26430 <- Encode
+generated 26430..32857 <- Decode
+generated 32857..33834 <- __convenience_const
+generated 33927..36585 <- Encode
+generated 36585..43509 <- Decode
+generated 43509..44402 <- __convenience_const
+generated 44493..47417 <- Encode
+generated 47417..55240 <- Decode
+generated 55240..56154 <- __convenience_const
+generated 56228..58295 <- Encode
+generated 58295..63059 <- Decode
+generated 63059..63568 <- __convenience_const
 
 ## Metadata
 

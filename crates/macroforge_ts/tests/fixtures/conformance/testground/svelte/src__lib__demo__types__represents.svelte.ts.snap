@@ -187,7 +187,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "in"?: string | Employee | undefined; "out"?: string | Account | undefined; "id"?: string | undefined; "dateStarted"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Represents");
@@ -634,13 +634,13 @@ original 0..159 -> expanded 1021..1180
 original 208..243 -> expanded 1180..1215
 original 262..294 -> expanded 1215..1247
 original 313..383 -> expanded 1247..1317
-original 383..384 -> expanded 21385..21386
+original 383..384 -> expanded 21523..21524
 generated 0..1021 <- imports
 generated 1317..1469 <- Default
 generated 1469..4587 <- Encode
-generated 4587..13534 <- Decode
-generated 13534..20065 <- Gigaform
-generated 20065..21385 <- __convenience_const
+generated 4587..13672 <- Decode
+generated 13672..20203 <- Gigaform
+generated 20203..21523 <- __convenience_const
 
 ## Metadata
 

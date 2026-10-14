@@ -147,7 +147,7 @@ export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_D
         }
     }
 
-    const instance: any = {};
+    const instance: { "quantityOfDays"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DailyRecurrenceRule");
@@ -420,13 +420,13 @@ export declare const DailyRecurrenceRule: {
 
 original 0..58 -> expanded 844..902
 original 107..176 -> expanded 902..971
-original 176..177 -> expanded 14957..14958
+original 176..177 -> expanded 14995..14996
 generated 0..844 <- imports
 generated 971..1094 <- Default
 generated 1094..3428 <- Encode
-generated 3428..9436 <- Decode
-generated 9436..13394 <- Gigaform
-generated 13394..14957 <- __convenience_const
+generated 3428..9474 <- Decode
+generated 9474..13432 <- Gigaform
+generated 13432..14995 <- __convenience_const
 
 ## Metadata
 

@@ -162,7 +162,7 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "recipient"?: string | null | undefined; "method"?: string | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Sent");
@@ -481,13 +481,13 @@ export declare const Sent: {
 
 original 0..58 -> expanded 844..902
 original 107..190 -> expanded 902..985
-original 190..191 -> expanded 15160..15161
+original 190..191 -> expanded 15238..15239
 generated 0..844 <- imports
 generated 985..1098 <- Default
 generated 1098..3546 <- Encode
-generated 3546..9632 <- Decode
-generated 9632..14002 <- Gigaform
-generated 14002..15160 <- __convenience_const
+generated 3546..9710 <- Decode
+generated 9710..14080 <- Gigaform
+generated 14080..15238 <- __convenience_const
 
 ## Metadata
 

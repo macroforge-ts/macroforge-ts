@@ -151,7 +151,7 @@ export function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "at"?: DateTime.Utc | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Event");
@@ -161,7 +161,7 @@ export function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         try {
-            instance.at = __foreign__dateTimeUtcDecode(obj["at"]);
+            instance.at = ((__raw: unknown) => __foreign__dateTimeUtcDecode(__raw) as DateTime.Utc)(obj["at"]);
         } catch (__error) {
             errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
         }
@@ -284,12 +284,12 @@ export declare const Event: {
 
 original 0..36 -> expanded 813..849
 original 75..124 -> expanded 849..898
-original 124..125 -> expanded 9413..9414
+original 124..125 -> expanded 9490..9491
 generated 0..813 <- imports
 generated 898..1011 <- Default
 generated 1011..3117 <- Encode
-generated 3117..8392 <- Decode
-generated 8392..9413 <- __convenience_const
+generated 3117..8469 <- Decode
+generated 8469..9490 <- __convenience_const
 
 ## Metadata
 

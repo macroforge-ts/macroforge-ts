@@ -209,7 +209,7 @@ export function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "score"?: number | undefined; "extra"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameMixed");
@@ -392,7 +392,7 @@ export declare const NameMixed: {
 ## Mapping
 
 original 0..316 -> expanded 869..1185
-original 316..317 -> expanded 13653..13654
+original 316..317 -> expanded 13739..13740
 generated 0..869 <- imports
 generated 1185..1538 <- Debug
 generated 1538..1718 <- Clone
@@ -400,8 +400,8 @@ generated 1718..2057 <- PartialEq
 generated 2057..2628 <- Hash
 generated 2628..2757 <- Default
 generated 2757..5476 <- Encode
-generated 5476..12248 <- Decode
-generated 12248..13653 <- __convenience_const
+generated 5476..12334 <- Decode
+generated 12334..13739 <- __convenience_const
 
 ## Metadata
 

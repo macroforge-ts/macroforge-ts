@@ -112,7 +112,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GreaterThanValidator.prototype);
+    const made: object = Object.create(GreaterThanValidator.prototype);
+    const instance: { "positive"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GreaterThanValidator");
@@ -135,7 +136,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanValidator)) {
+        throw new TypeError("GreaterThanValidator.decodeWithContext: the value made is no GreaterThanValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -297,7 +301,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GreaterThanOrEqualToValidator.prototype);
+    const made: object = Object.create(GreaterThanOrEqualToValidator.prototype);
+    const instance: { "nonNegative"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GreaterThanOrEqualToValidator");
@@ -320,7 +325,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanOrEqualToValidator)) {
+        throw new TypeError("GreaterThanOrEqualToValidator.decodeWithContext: the value made is no GreaterThanOrEqualToValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanOrEqualToValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -482,7 +490,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(LessThanValidator.prototype);
+    const made: object = Object.create(LessThanValidator.prototype);
+    const instance: { "capped"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "LessThanValidator");
@@ -505,7 +514,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanValidator)) {
+        throw new TypeError("LessThanValidator.decodeWithContext: the value made is no LessThanValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -667,7 +679,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(LessThanOrEqualToValidator.prototype);
+    const made: object = Object.create(LessThanOrEqualToValidator.prototype);
+    const instance: { "maxed"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "LessThanOrEqualToValidator");
@@ -690,7 +703,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanOrEqualToValidator)) {
+        throw new TypeError("LessThanOrEqualToValidator.decodeWithContext: the value made is no LessThanOrEqualToValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanOrEqualToValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -852,7 +868,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(BetweenValidator.prototype);
+    const made: object = Object.create(BetweenValidator.prototype);
+    const instance: { "ranged"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "BetweenValidator");
@@ -875,7 +892,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof BetweenValidator)) {
+        throw new TypeError("BetweenValidator.decodeWithContext: the value made is no BetweenValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof BetweenValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1037,7 +1057,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(IntValidator.prototype);
+    const made: object = Object.create(IntValidator.prototype);
+    const instance: { "integer"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "IntValidator");
@@ -1060,7 +1081,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof IntValidator)) {
+        throw new TypeError("IntValidator.decodeWithContext: the value made is no IntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof IntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1222,7 +1246,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NonNaNValidator.prototype);
+    const made: object = Object.create(NonNaNValidator.prototype);
+    const instance: { "valid"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NonNaNValidator");
@@ -1245,7 +1270,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonNaNValidator)) {
+        throw new TypeError("NonNaNValidator.decodeWithContext: the value made is no NonNaNValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonNaNValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1407,7 +1435,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(FiniteValidator.prototype);
+    const made: object = Object.create(FiniteValidator.prototype);
+    const instance: { "finite"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "FiniteValidator");
@@ -1430,7 +1459,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof FiniteValidator)) {
+        throw new TypeError("FiniteValidator.decodeWithContext: the value made is no FiniteValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof FiniteValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1592,7 +1624,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(PositiveValidator.prototype);
+    const made: object = Object.create(PositiveValidator.prototype);
+    const instance: { "positive"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "PositiveValidator");
@@ -1615,7 +1648,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof PositiveValidator)) {
+        throw new TypeError("PositiveValidator.decodeWithContext: the value made is no PositiveValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof PositiveValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1777,7 +1813,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NonNegativeValidator.prototype);
+    const made: object = Object.create(NonNegativeValidator.prototype);
+    const instance: { "nonNegative"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NonNegativeValidator");
@@ -1800,7 +1837,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonNegativeValidator)) {
+        throw new TypeError("NonNegativeValidator.decodeWithContext: the value made is no NonNegativeValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonNegativeValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1962,7 +2002,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NegativeValidator.prototype);
+    const made: object = Object.create(NegativeValidator.prototype);
+    const instance: { "negative"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NegativeValidator");
@@ -1985,7 +2026,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NegativeValidator)) {
+        throw new TypeError("NegativeValidator.decodeWithContext: the value made is no NegativeValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NegativeValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2147,7 +2191,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NonPositiveValidator.prototype);
+    const made: object = Object.create(NonPositiveValidator.prototype);
+    const instance: { "nonPositive"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NonPositiveValidator");
@@ -2170,7 +2215,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonPositiveValidator)) {
+        throw new TypeError("NonPositiveValidator.decodeWithContext: the value made is no NonPositiveValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonPositiveValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2332,7 +2380,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(MultipleOfValidator.prototype);
+    const made: object = Object.create(MultipleOfValidator.prototype);
+    const instance: { "multiple"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "MultipleOfValidator");
@@ -2355,7 +2404,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MultipleOfValidator)) {
+        throw new TypeError("MultipleOfValidator.decodeWithContext: the value made is no MultipleOfValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof MultipleOfValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2517,7 +2569,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Uint8Validator.prototype);
+    const made: object = Object.create(Uint8Validator.prototype);
+    const instance: { "byte"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Uint8Validator");
@@ -2540,7 +2593,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Uint8Validator)) {
+        throw new TypeError("Uint8Validator.decodeWithContext: the value made is no Uint8Validator");
+    }
+    return made;
 }
 static validateField<K extends keyof Uint8Validator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3349,63 +3405,63 @@ export declare function uint8ValidatorIs(value: unknown): value is Uint8Validato
 ## Mapping
 
 original 0..246 -> expanded 474..720
-original 246..247 -> expanded 7153..7154
-original 247..437 -> expanded 9116..9306
-original 437..438 -> expanded 16117..16118
-original 438..589 -> expanded 18215..18366
-original 589..590 -> expanded 24650..24651
-original 590..767 -> expanded 26568..26745
-original 767..768 -> expanded 33259..33260
-original 768..919 -> expanded 35312..35463
-original 919..920 -> expanded 41776..41777
-original 920..1052 -> expanded 43679..43811
-original 1052..1053 -> expanded 50029..50030
-original 1053..1192 -> expanded 51872..52011
-original 1192..1193 -> expanded 58251..58252
-original 1193..1333 -> expanded 60139..60279
-original 1333..1334 -> expanded 66479..66480
-original 1334..1482 -> expanded 68367..68515
-original 1482..1483 -> expanded 74852..74853
-original 1483..1643 -> expanded 76770..76930
-original 1643..1644 -> expanded 83465..83466
-original 1644..1792 -> expanded 85428..85576
-original 1792..1793 -> expanded 91913..91914
-original 1793..1953 -> expanded 93831..93991
-original 1953..1954 -> expanded 100526..100527
-original 1954..2111 -> expanded 102489..102646
-original 2111..2112 -> expanded 109110..109111
-original 2112..2247 -> expanded 111058..111193
-original 2247..2248 -> expanded 117437..117438
-original 2248..2249 -> expanded 119310..119311
+original 246..247 -> expanded 7383..7384
+original 247..437 -> expanded 9346..9536
+original 437..438 -> expanded 16607..16608
+original 438..589 -> expanded 18705..18856
+original 589..590 -> expanded 25359..25360
+original 590..767 -> expanded 27277..27454
+original 767..768 -> expanded 34213..34214
+original 768..919 -> expanded 36266..36417
+original 919..920 -> expanded 42946..42947
+original 920..1052 -> expanded 44849..44981
+original 1052..1053 -> expanded 51404..51405
+original 1053..1192 -> expanded 53247..53386
+original 1192..1193 -> expanded 59838..59839
+original 1193..1333 -> expanded 61726..61866
+original 1333..1334 -> expanded 68279..68280
+original 1334..1482 -> expanded 70167..70315
+original 1482..1483 -> expanded 76873..76874
+original 1483..1643 -> expanded 78791..78951
+original 1643..1644 -> expanded 85719..85720
+original 1644..1792 -> expanded 87682..87830
+original 1792..1793 -> expanded 94388..94389
+original 1793..1953 -> expanded 96306..96466
+original 1953..1954 -> expanded 103234..103235
+original 1954..2111 -> expanded 105197..105354
+original 2111..2112 -> expanded 112045..112046
+original 2112..2247 -> expanded 113993..114128
+original 2247..2248 -> expanded 120580..120581
+original 2248..2249 -> expanded 122453..122454
 generated 0..474 <- imports
-generated 720..7153 <- Decode
-generated 7154..9116 <- Decode
-generated 9306..16117 <- Decode
-generated 16118..18215 <- Decode
-generated 18366..24650 <- Decode
-generated 24651..26568 <- Decode
-generated 26745..33259 <- Decode
-generated 33260..35312 <- Decode
-generated 35463..41776 <- Decode
-generated 41777..43679 <- Decode
-generated 43811..50029 <- Decode
-generated 50030..51872 <- Decode
-generated 52011..58251 <- Decode
-generated 58252..60139 <- Decode
-generated 60279..66479 <- Decode
-generated 66480..68367 <- Decode
-generated 68515..74852 <- Decode
-generated 74853..76770 <- Decode
-generated 76930..83465 <- Decode
-generated 83466..85428 <- Decode
-generated 85576..91913 <- Decode
-generated 91914..93831 <- Decode
-generated 93991..100526 <- Decode
-generated 100527..102489 <- Decode
-generated 102646..109110 <- Decode
-generated 109111..111058 <- Decode
-generated 111193..117437 <- Decode
-generated 117438..119310 <- Decode
+generated 720..7383 <- Decode
+generated 7384..9346 <- Decode
+generated 9536..16607 <- Decode
+generated 16608..18705 <- Decode
+generated 18856..25359 <- Decode
+generated 25360..27277 <- Decode
+generated 27454..34213 <- Decode
+generated 34214..36266 <- Decode
+generated 36417..42946 <- Decode
+generated 42947..44849 <- Decode
+generated 44981..51404 <- Decode
+generated 51405..53247 <- Decode
+generated 53386..59838 <- Decode
+generated 59839..61726 <- Decode
+generated 61866..68279 <- Decode
+generated 68280..70167 <- Decode
+generated 70315..76873 <- Decode
+generated 76874..78791 <- Decode
+generated 78951..85719 <- Decode
+generated 85720..87682 <- Decode
+generated 87830..94388 <- Decode
+generated 94389..96306 <- Decode
+generated 96466..103234 <- Decode
+generated 103235..105197 <- Decode
+generated 105354..112045 <- Decode
+generated 112046..113993 <- Decode
+generated 114128..120580 <- Decode
+generated 120581..122453 <- Decode
 
 ## Metadata
 

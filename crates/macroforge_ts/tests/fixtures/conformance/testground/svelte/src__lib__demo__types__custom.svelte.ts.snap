@@ -150,7 +150,7 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "mappings"?: Array<DirectionHue> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Custom");
@@ -469,13 +469,13 @@ export declare const Custom: {
 
 original 0..119 -> expanded 1002..1121
 original 168..231 -> expanded 1121..1184
-original 231..232 -> expanded 15613..15614
+original 231..232 -> expanded 15658..15659
 generated 0..1002 <- imports
 generated 1184..1276 <- Default
 generated 1276..3452 <- Encode
-generated 3452..9567 <- Decode
-generated 9567..14401 <- Gigaform
-generated 14401..15613 <- __convenience_const
+generated 3452..9612 <- Decode
+generated 9612..14446 <- Gigaform
+generated 14446..15658 <- __convenience_const
 
 ## Metadata
 

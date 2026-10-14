@@ -251,7 +251,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "taxAgency"?: string | undefined; "zip"?: number | undefined; "city"?: string | undefined; "county"?: string | undefined; "state"?: string | undefined; "isActive"?: boolean | undefined; "description"?: string | undefined; "taxComponents"?: { [key: string]: number } | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "TaxRate");
@@ -1055,13 +1055,13 @@ original 952..957 -> expanded 1223..1228
 original 998..1028 -> expanded 1228..1258
 original 1056..1061 -> expanded 1258..1263
 original 1080..1128 -> expanded 1263..1311
-original 1128..1129 -> expanded 38265..38266
+original 1128..1129 -> expanded 38599..38600
 generated 0..914 <- imports
 generated 1311..1592 <- Default
 generated 1592..5949 <- Encode
-generated 5949..23562 <- Decode
-generated 23562..37026 <- Gigaform
-generated 37026..38265 <- __convenience_const
+generated 5949..23896 <- Decode
+generated 23896..37360 <- Gigaform
+generated 37360..38599 <- __convenience_const
 
 ## Metadata
 

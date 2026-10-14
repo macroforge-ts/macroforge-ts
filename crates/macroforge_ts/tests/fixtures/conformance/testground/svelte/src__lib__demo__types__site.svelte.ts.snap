@@ -260,7 +260,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "addressLine1"?: string | undefined; "addressLine2"?: string | null | undefined; "sublocalityLevel1"?: string | null | undefined; "locality"?: string | undefined; "administrativeAreaLevel3"?: string | null | undefined; "administrativeAreaLevel2"?: string | null | undefined; "administrativeAreaLevel1"?: string | undefined; "country"?: string | undefined; "postalCode"?: string | undefined; "postalCodeSuffix"?: string | null | undefined; "coordinates"?: Coordinates | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Site");
@@ -1134,13 +1134,13 @@ original 394..511 -> expanded 1231..1348
 original 552..595 -> expanded 1348..1391
 original 636..662 -> expanded 1391..1417
 original 703..796 -> expanded 1417..1510
-original 796..797 -> expanded 45183..45184
+original 796..797 -> expanded 45689..45690
 generated 0..968 <- imports
 generated 1510..1944 <- Default
 generated 1944..7114 <- Encode
-generated 7114..26093 <- Decode
-generated 26093..44025 <- Gigaform
-generated 44025..45183 <- __convenience_const
+generated 7114..26599 <- Decode
+generated 26599..44531 <- Gigaform
+generated 44531..45689 <- __convenience_const
 
 ## Metadata
 

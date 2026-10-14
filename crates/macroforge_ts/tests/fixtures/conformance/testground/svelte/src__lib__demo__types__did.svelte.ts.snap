@@ -207,7 +207,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         }
     }
 
-    const instance: any = {};
+    const instance: { "in"?: string | Actor | undefined; "out"?: string | Target | undefined; "id"?: string | undefined; "activityType"?: ActivityType | undefined; "createdAt"?: string | undefined; "metadata"?: string | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Did");
@@ -777,13 +777,13 @@ original 0..211 -> expanded 1138..1349
 original 260..288 -> expanded 1349..1377
 original 307..336 -> expanded 1377..1406
 original 355..483 -> expanded 1406..1534
-original 483..484 -> expanded 26314..26315
+original 483..484 -> expanded 26529..26530
 generated 0..1138 <- imports
 generated 1534..1744 <- Default
 generated 1744..5277 <- Encode
-generated 5277..15800 <- Decode
-generated 15800..25183 <- Gigaform
-generated 25183..26314 <- __convenience_const
+generated 5277..16015 <- Decode
+generated 16015..25398 <- Gigaform
+generated 25398..26529 <- __convenience_const
 
 ## Metadata
 

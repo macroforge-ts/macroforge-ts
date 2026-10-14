@@ -165,7 +165,7 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
         }
     }
 
-    const instance: any = {};
+    const instance: { "quantityOfWeeks"?: number | undefined; "weekdays"?: Array<Weekday> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "WeeklyRecurrenceRule");
@@ -538,13 +538,13 @@ export declare const WeeklyRecurrenceRule: {
 
 original 0..108 -> expanded 986..1094
 original 157..258 -> expanded 1094..1195
-original 258..259 -> expanded 20005..20006
+original 258..259 -> expanded 20085..20086
 generated 0..986 <- imports
 generated 1195..1343 <- Default
 generated 1343..4119 <- Encode
-generated 4119..11740 <- Decode
-generated 11740..18415 <- Gigaform
-generated 18415..20005 <- __convenience_const
+generated 4119..11820 <- Decode
+generated 11820..18495 <- Gigaform
+generated 18495..20085 <- __convenience_const
 
 ## Metadata
 

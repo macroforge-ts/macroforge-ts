@@ -417,7 +417,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "writeOnly"?: string | undefined; "readOnly"?: string | undefined; "count"?: number | undefined; "status"?: string | undefined; "tags"?: string[] | undefined; "item"?: EdgeItem | undefined; "balance"?: number | undefined; "optionalBalance"?: number | undefined; "shout"?: string | undefined; "optionalShout"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionFields");
@@ -803,7 +803,7 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
         }
     }
 
-    const instance: any = {};
+    const instance: { "firstName"?: string | undefined; "lastName"?: string | undefined; "homeAddress2"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionScreaming");
@@ -1047,7 +1047,7 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "firstName"?: string | undefined; "isActive"?: boolean | undefined; "items"?: EdgeItem[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionKebab");
@@ -1302,7 +1302,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(OptionPascal.prototype);
+    const made: object = Object.create(OptionPascal.prototype);
+    const instance: { "firstName"?: string | undefined; "homeTown"?: string | null | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionPascal");
@@ -1339,7 +1340,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof OptionPascal)) {
+        throw new TypeError("OptionPascal.decodeWithContext: the value made is no OptionPascal");
+    }
+    return made;
 }
 static validateField<K extends keyof OptionPascal>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1548,7 +1552,7 @@ export function optionCamelDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "first_name"?: string | undefined; "home_town"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionCamel");
@@ -1786,7 +1790,7 @@ export function optionFlattenedDecodeWithContext(value: unknown, ctx: __mf_Decod
         }
     }
 
-    const instance: any = {};
+    const instance: { "title"?: string | undefined; "item"?: EdgeItem | undefined; "profile"?: EdgeProfile | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionFlattened");
@@ -2047,7 +2051,7 @@ export function optionFlattenedOptionalDecodeWithContext(value: unknown, ctx: __
         }
     }
 
-    const instance: any = {};
+    const instance: { "title"?: string | undefined; "item"?: EdgeItem | undefined; "extra"?: Record<string, number> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionFlattenedOptional");
@@ -2324,7 +2328,7 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "firstName"?: string | undefined; "item"?: EdgeItem | undefined; "nested"?: EdgeItem | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionStrict");
@@ -2590,7 +2594,7 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "child"?: OptionTagged | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionTagged");
@@ -2888,7 +2892,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
         }
     }
 
-    const instance: any = {};
+    const instance: { "email"?: string | undefined; "optionalName"?: string | undefined; "nullableCount"?: number | null | undefined; "laterCount"?: number | undefined | undefined; "tags"?: string[] | undefined; "at"?: Date | undefined; "maybeAt"?: Date | null | undefined; "retries"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionValidated");
@@ -3493,7 +3497,7 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "text"?: string | undefined; "count"?: number | undefined; "flag"?: boolean | undefined; "big"?: bigint | undefined; "at"?: Date | undefined; "item"?: EdgeItem | undefined; "size"?: 'small' | 'large' | undefined; "list"?: string[] | undefined; "set"?: Set<number> | undefined; "map"?: Map<string, number> | undefined; "record"?: Record<string, boolean> | undefined; "pair"?: [string, number] | undefined; "inline"?: { x: number } | undefined; "maybeText"?: string | null | undefined; "laterText"?: string | undefined; "partial"?: Partial<EdgeItem> | undefined; "link"?: URL | undefined; "query"?: URLSearchParams | undefined; "pattern"?: RegExp | undefined; "failure"?: Error | undefined; "bytes"?: Uint8Array | undefined; "bigs"?: BigInt64Array | undefined; "buffer"?: ArrayBuffer | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionKinds");
@@ -3538,13 +3542,13 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
                 try {
-                    instance.big = ((v) => {
+                    instance.big = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["big"]);
+                })(__raw) as bigint)(obj["big"]);
                 } catch (__error) {
                     errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3808,11 +3812,11 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("link")) ? "link" in obj : (__fields.keeps("link") && obj["link"] !== undefined)) {
                 try {
-                    instance.link = ((v) => {
+                    instance.link = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
                 	return new URL(raw);
-                })(obj["link"]);
+                })(__raw) as URL)(obj["link"]);
                 } catch (__error) {
                     errors.push({ field: "link", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3821,11 +3825,11 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("query")) ? "query" in obj : (__fields.keeps("query") && obj["query"] !== undefined)) {
                 try {
-                    instance.query = ((v) => {
+                    instance.query = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "string") throw new TypeError("expected the text of a query string");
                 	return new URLSearchParams(raw);
-                })(obj["query"]);
+                })(__raw) as URLSearchParams)(obj["query"]);
                 } catch (__error) {
                     errors.push({ field: "query", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3834,12 +3838,12 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("pattern")) ? "pattern" in obj : (__fields.keeps("pattern") && obj["pattern"] !== undefined)) {
                 try {
-                    instance.pattern = ((v) => {
+                    instance.pattern = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "object" || raw === null || !("source" in raw) || typeof raw.source !== "string") throw new TypeError("expected the source and flags of a RegExp");
                 	const flags = "flags" in raw && typeof raw.flags === "string" ? raw.flags : "";
                 	return new RegExp(raw.source, flags);
-                })(obj["pattern"]);
+                })(__raw) as RegExp)(obj["pattern"]);
                 } catch (__error) {
                     errors.push({ field: "pattern", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3848,13 +3852,13 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("failure")) ? "failure" in obj : (__fields.keeps("failure") && obj["failure"] !== undefined)) {
                 try {
-                    instance.failure = ((v) => {
+                    instance.failure = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "object" || raw === null || !("message" in raw) || typeof raw.message !== "string") throw new TypeError("expected the name and message of an Error");
                 	const error = new Error(raw.message);
                 	if ("name" in raw && typeof raw.name === "string") error.name = raw.name;
                 	return error;
-                })(obj["failure"]);
+                })(__raw) as Error)(obj["failure"]);
                 } catch (__error) {
                     errors.push({ field: "failure", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3863,10 +3867,10 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("bytes")) ? "bytes" in obj : (__fields.keeps("bytes") && obj["bytes"] !== undefined)) {
                 try {
-                    instance.bytes = ((v) => {
+                    instance.bytes = ((__raw: unknown) => ((v) => {
                 	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
                 	return new Uint8Array(v);
-                })(obj["bytes"]);
+                })(__raw) as Uint8Array)(obj["bytes"]);
                 } catch (__error) {
                     errors.push({ field: "bytes", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3875,10 +3879,10 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("bigs")) ? "bigs" in obj : (__fields.keeps("bigs") && obj["bigs"] !== undefined)) {
                 try {
-                    instance.bigs = ((v) => {
+                    instance.bigs = ((__raw: unknown) => ((v) => {
                 	if (!Array.isArray(v) || !v.every((s: unknown): s is string => typeof s === "string" && /^-?\d+$/.test(s))) throw new TypeError("expected an array of whole numbers as text");
                 	return new BigInt64Array(v.map((s) => BigInt(s)));
-                })(obj["bigs"]);
+                })(__raw) as BigInt64Array)(obj["bigs"]);
                 } catch (__error) {
                     errors.push({ field: "bigs", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3887,10 +3891,10 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         () => {
             if ((__fields === undefined || __fields.requires("buffer")) ? "buffer" in obj : (__fields.keeps("buffer") && obj["buffer"] !== undefined)) {
                 try {
-                    instance.buffer = ((v) => {
+                    instance.buffer = ((__raw: unknown) => ((v) => {
                 	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
                 	return new Uint8Array(v).buffer;
-                })(obj["buffer"]);
+                })(__raw) as ArrayBuffer)(obj["buffer"]);
                 } catch (__error) {
                     errors.push({ field: "buffer", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -4253,7 +4257,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(OptionKindsClass.prototype);
+    const made: object = Object.create(OptionKindsClass.prototype);
+    const instance: { "text"?: string | undefined; "count"?: number | undefined; "at"?: Date | undefined; "big"?: bigint | undefined; "item"?: EdgeItem | undefined; "list"?: string[] | undefined; "map"?: Map<string, number> | undefined; "pair"?: [string, number] | undefined; "inline"?: { x: number } | undefined; "picked"?: Pick<EdgeItem, 'id'> | undefined; "required"?: Required<EdgeItem> | undefined; "maybe"?: string | null | undefined; "later"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OptionKindsClass");
@@ -4301,13 +4306,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         () => {
             if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
                 try {
-                    instance.big = ((v) => {
+                    instance.big = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["big"]);
+                })(__raw) as bigint)(obj["big"]);
                 } catch (__error) {
                     errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -4522,7 +4527,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof OptionKindsClass)) {
+        throw new TypeError("OptionKindsClass.decodeWithContext: the value made is no OptionKindsClass");
+    }
+    return made;
 }
 static validateField<K extends keyof OptionKindsClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -5442,21 +5450,21 @@ original 680..1188 -> expanded 5498..6006
 original 1188..1439 -> expanded 6494..6745
 original 1439..1440 -> expanded 7069..7070
 original 1440..2512 -> expanded 7193..8265
-original 2512..2743 -> expanded 27766..27997
-original 2743..2920 -> expanded 39205..39382
-original 2920..3088 -> expanded 51032..51200
-original 3088..3089 -> expanded 59496..59497
-original 3089..3243 -> expanded 62719..62873
-original 3243..3431 -> expanded 72898..73086
-original 3431..3637 -> expanded 84886..85092
-original 3637..3837 -> expanded 98034..98234
-original 3837..3984 -> expanded 110579..110726
-original 3984..4627 -> expanded 121501..122144
-original 4627..5235 -> expanded 145759..146367
-original 5235..5710 -> expanded 181156..181631
-original 5710..6103 -> expanded 182213..182606
-original 6103..6104 -> expanded 206523..206524
-original 6104..6105 -> expanded 209960..209961
+original 2512..2743 -> expanded 28124..28355
+original 2743..2920 -> expanded 39666..39843
+original 2920..3088 -> expanded 51594..51762
+original 3088..3089 -> expanded 60305..60306
+original 3089..3243 -> expanded 63528..63682
+original 3243..3431 -> expanded 73775..73963
+original 3431..3637 -> expanded 85860..86066
+original 3637..3837 -> expanded 99114..99314
+original 3837..3984 -> expanded 111756..111903
+original 3984..4627 -> expanded 122749..123392
+original 4627..5235 -> expanded 147290..147898
+original 5235..5710 -> expanded 183814..184289
+original 5710..6103 -> expanded 184871..185264
+original 6103..6104 -> expanded 209854..209855
+original 6104..6105 -> expanded 213291..213292
 generated 0..1583 <- imports
 generated 2263..2684 <- Debug
 generated 2684..2930 <- Clone
@@ -5470,49 +5478,49 @@ generated 6350..6494 <- __convenience_const
 generated 6745..7069 <- Default
 generated 7070..7193 <- Default
 generated 8265..12795 <- Encode
-generated 12795..26684 <- Decode
-generated 26684..27766 <- __convenience_const
-generated 27997..30873 <- Encode
-generated 30873..38060 <- Decode
-generated 38060..39205 <- __convenience_const
-generated 39382..42230 <- Encode
-generated 42230..49971 <- Decode
-generated 49971..51032 <- __convenience_const
-generated 51200..53164 <- Encode
-generated 53164..53495 <- Encode
-generated 53495..59496 <- Decode
-generated 59497..60877 <- Encode
-generated 60877..62719 <- Decode
-generated 62873..65440 <- Encode
-generated 65440..71837 <- Decode
-generated 71837..72898 <- __convenience_const
-generated 73086..76302 <- Encode
-generated 76302..83741 <- Decode
-generated 83741..84886 <- __convenience_const
-generated 85092..88229 <- Encode
-generated 88229..96721 <- Decode
-generated 96721..98034 <- __convenience_const
-generated 98234..101090 <- Encode
-generated 101090..109497 <- Decode
-generated 109497..110579 <- __convenience_const
-generated 110726..113329 <- Encode
-generated 113329..120419 <- Decode
-generated 120419..121501 <- __convenience_const
-generated 122144..126245 <- Encode
-generated 126245..144614 <- Decode
-generated 144614..145759 <- __convenience_const
-generated 146367..154100 <- Encode
-generated 154100..180095 <- Decode
-generated 180095..181156 <- __convenience_const
-generated 181631..182057 <- Default
-generated 182057..182213 <- __convenience_const
-generated 182606..183355 <- Default
-generated 183355..187995 <- Encode
-generated 187995..188334 <- Encode
-generated 188334..206523 <- Decode
-generated 206524..206638 <- Default
-generated 206638..208058 <- Encode
-generated 208058..209960 <- Decode
+generated 12795..27042 <- Decode
+generated 27042..28124 <- __convenience_const
+generated 28355..31231 <- Encode
+generated 31231..38521 <- Decode
+generated 38521..39666 <- __convenience_const
+generated 39843..42691 <- Encode
+generated 42691..50533 <- Decode
+generated 50533..51594 <- __convenience_const
+generated 51762..53726 <- Encode
+generated 53726..54057 <- Encode
+generated 54057..60305 <- Decode
+generated 60306..61686 <- Encode
+generated 61686..63528 <- Decode
+generated 63682..66249 <- Encode
+generated 66249..72714 <- Decode
+generated 72714..73775 <- __convenience_const
+generated 73963..77179 <- Encode
+generated 77179..84715 <- Decode
+generated 84715..85860 <- __convenience_const
+generated 86066..89203 <- Encode
+generated 89203..97801 <- Decode
+generated 97801..99114 <- __convenience_const
+generated 99314..102170 <- Encode
+generated 102170..110674 <- Decode
+generated 110674..111756 <- __convenience_const
+generated 111903..114506 <- Encode
+generated 114506..121667 <- Decode
+generated 121667..122749 <- __convenience_const
+generated 123392..127493 <- Encode
+generated 127493..146145 <- Decode
+generated 146145..147290 <- __convenience_const
+generated 147898..155631 <- Encode
+generated 155631..182753 <- Decode
+generated 182753..183814 <- __convenience_const
+generated 184289..184715 <- Default
+generated 184715..184871 <- __convenience_const
+generated 185264..186013 <- Default
+generated 186013..190653 <- Encode
+generated 190653..190992 <- Encode
+generated 190992..209854 <- Decode
+generated 209855..209969 <- Default
+generated 209969..211389 <- Encode
+generated 211389..213291 <- Decode
 
 ## Metadata
 

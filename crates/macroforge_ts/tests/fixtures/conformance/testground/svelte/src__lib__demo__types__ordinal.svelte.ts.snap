@@ -216,7 +216,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "north"?: number | undefined; "northeast"?: number | undefined; "east"?: number | undefined; "southeast"?: number | undefined; "south"?: number | undefined; "southwest"?: number | undefined; "west"?: number | undefined; "northwest"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Ordinal");
@@ -831,13 +831,13 @@ export declare const Ordinal: {
 
 original 0..58 -> expanded 844..902
 original 107..302 -> expanded 902..1097
-original 302..303 -> expanded 28972..28973
+original 302..303 -> expanded 29225..29226
 generated 0..844 <- imports
 generated 1097..1327 <- Default
 generated 1327..5224 <- Encode
-generated 5224..15316 <- Decode
-generated 15316..27733 <- Gigaform
-generated 27733..28972 <- __convenience_const
+generated 5224..15569 <- Decode
+generated 15569..27986 <- Gigaform
+generated 27986..29225 <- __convenience_const
 
 ## Metadata
 

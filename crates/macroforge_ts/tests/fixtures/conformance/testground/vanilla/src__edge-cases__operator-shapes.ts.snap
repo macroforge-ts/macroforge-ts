@@ -242,7 +242,7 @@ export function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "owner"?: OperatorOwner | undefined; "owners"?: OperatorOwner[] | undefined; "label"?: string | undefined; "weight"?: number | undefined | undefined; "key"?: "owner" | "owners" | "label" | "weight" | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OperatorHolder");
@@ -481,7 +481,7 @@ export declare const OperatorHolder: {
 ## Mapping
 
 original 0..502 -> expanded 1247..1749
-original 502..503 -> expanded 18401..18402
+original 502..503 -> expanded 18611..18612
 generated 0..1247 <- imports
 generated 1749..2291 <- Debug
 generated 2291..2649 <- Clone
@@ -489,8 +489,8 @@ generated 2649..3165 <- PartialEq
 generated 3165..3661 <- Hash
 generated 3661..3879 <- Default
 generated 3879..7240 <- Encode
-generated 7240..16841 <- Decode
-generated 16841..18401 <- __convenience_const
+generated 7240..17051 <- Decode
+generated 17051..18611 <- __convenience_const
 
 ## Metadata
 

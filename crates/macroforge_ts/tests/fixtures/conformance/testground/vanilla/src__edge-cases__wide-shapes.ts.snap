@@ -4142,7 +4142,7 @@ export function wideRecordDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "f0"?: number | undefined; "f1"?: string | undefined; "f2"?: boolean | undefined; "f3"?: Date | undefined; "f4"?: string[] | undefined; "f5"?: number | null | undefined; "f6"?: string | undefined | undefined; "f7"?: number | undefined; "f8"?: string | undefined; "f9"?: boolean | undefined; "f10"?: Date | undefined; "f11"?: string[] | undefined; "f12"?: number | null | undefined; "f13"?: string | undefined | undefined; "f14"?: number | undefined; "f15"?: string | undefined; "f16"?: boolean | undefined; "f17"?: Date | undefined; "f18"?: string[] | undefined; "f19"?: number | null | undefined; "f20"?: string | undefined | undefined; "f21"?: number | undefined; "f22"?: string | undefined; "f23"?: boolean | undefined; "f24"?: Date | undefined; "f25"?: string[] | undefined; "f26"?: number | null | undefined; "f27"?: string | undefined | undefined; "f28"?: number | undefined; "f29"?: string | undefined; "f30"?: boolean | undefined; "f31"?: Date | undefined; "f32"?: string[] | undefined; "f33"?: number | null | undefined; "f34"?: string | undefined | undefined; "f35"?: number | undefined; "f36"?: string | undefined; "f37"?: boolean | undefined; "f38"?: Date | undefined; "f39"?: string[] | undefined; "f40"?: number | null | undefined; "f41"?: string | undefined | undefined; "f42"?: number | undefined; "f43"?: string | undefined; "f44"?: boolean | undefined; "f45"?: Date | undefined; "f46"?: string[] | undefined; "f47"?: number | null | undefined; "f48"?: string | undefined | undefined; "f49"?: number | undefined; "f50"?: string | undefined; "f51"?: boolean | undefined; "f52"?: Date | undefined; "f53"?: string[] | undefined; "f54"?: number | null | undefined; "f55"?: string | undefined | undefined; "f56"?: number | undefined; "f57"?: string | undefined; "f58"?: boolean | undefined; "f59"?: Date | undefined; "f60"?: string[] | undefined; "f61"?: number | null | undefined; "f62"?: string | undefined | undefined; "f63"?: number | undefined; "f64"?: string | undefined; "f65"?: boolean | undefined; "f66"?: Date | undefined; "f67"?: string[] | undefined; "f68"?: number | null | undefined; "f69"?: string | undefined | undefined; "f70"?: number | undefined; "f71"?: string | undefined; "f72"?: boolean | undefined; "f73"?: Date | undefined; "f74"?: string[] | undefined; "f75"?: number | null | undefined; "f76"?: string | undefined | undefined; "f77"?: number | undefined; "f78"?: string | undefined; "f79"?: boolean | undefined; "f80"?: Date | undefined; "f81"?: string[] | undefined; "f82"?: number | null | undefined; "f83"?: string | undefined | undefined; "f84"?: number | undefined; "f85"?: string | undefined; "f86"?: boolean | undefined; "f87"?: Date | undefined; "f88"?: string[] | undefined; "f89"?: number | null | undefined; "f90"?: string | undefined | undefined; "f91"?: number | undefined; "f92"?: string | undefined; "f93"?: boolean | undefined; "f94"?: Date | undefined; "f95"?: string[] | undefined; "f96"?: number | null | undefined; "f97"?: string | undefined | undefined; "f98"?: number | undefined; "f99"?: string | undefined; "f100"?: boolean | undefined; "f101"?: Date | undefined; "f102"?: string[] | undefined; "f103"?: number | null | undefined; "f104"?: string | undefined | undefined; "f105"?: number | undefined; "f106"?: string | undefined; "f107"?: boolean | undefined; "f108"?: Date | undefined; "f109"?: string[] | undefined; "f110"?: number | null | undefined; "f111"?: string | undefined | undefined; "f112"?: number | undefined; "f113"?: string | undefined; "f114"?: boolean | undefined; "f115"?: Date | undefined; "f116"?: string[] | undefined; "f117"?: number | null | undefined; "f118"?: string | undefined | undefined; "f119"?: number | undefined; "f120"?: string | undefined; "f121"?: boolean | undefined; "f122"?: Date | undefined; "f123"?: string[] | undefined; "f124"?: number | null | undefined; "f125"?: string | undefined | undefined; "f126"?: number | undefined; "f127"?: string | undefined; "f128"?: boolean | undefined; "f129"?: Date | undefined; "f130"?: string[] | undefined; "f131"?: number | null | undefined; "f132"?: string | undefined | undefined; "f133"?: number | undefined; "f134"?: string | undefined; "f135"?: boolean | undefined; "f136"?: Date | undefined; "f137"?: string[] | undefined; "f138"?: number | null | undefined; "f139"?: string | undefined | undefined; "f140"?: number | undefined; "f141"?: string | undefined; "f142"?: boolean | undefined; "f143"?: Date | undefined; "f144"?: string[] | undefined; "f145"?: number | null | undefined; "f146"?: string | undefined | undefined; "f147"?: number | undefined; "f148"?: string | undefined; "f149"?: boolean | undefined; "f150"?: Date | undefined; "f151"?: string[] | undefined; "f152"?: number | null | undefined; "f153"?: string | undefined | undefined; "f154"?: number | undefined; "f155"?: string | undefined; "f156"?: boolean | undefined; "f157"?: Date | undefined; "f158"?: string[] | undefined; "f159"?: number | null | undefined; "f160"?: string | undefined | undefined; "f161"?: number | undefined; "f162"?: string | undefined; "f163"?: boolean | undefined; "f164"?: Date | undefined; "f165"?: string[] | undefined; "f166"?: number | null | undefined; "f167"?: string | undefined | undefined; "f168"?: number | undefined; "f169"?: string | undefined; "f170"?: boolean | undefined; "f171"?: Date | undefined; "f172"?: string[] | undefined; "f173"?: number | null | undefined; "f174"?: string | undefined | undefined; "f175"?: number | undefined; "f176"?: string | undefined; "f177"?: boolean | undefined; "f178"?: Date | undefined; "f179"?: string[] | undefined; "f180"?: number | null | undefined; "f181"?: string | undefined | undefined; "f182"?: number | undefined; "f183"?: string | undefined; "f184"?: boolean | undefined; "f185"?: Date | undefined; "f186"?: string[] | undefined; "f187"?: number | null | undefined; "f188"?: string | undefined | undefined; "f189"?: number | undefined; "f190"?: string | undefined; "f191"?: boolean | undefined; "f192"?: Date | undefined; "f193"?: string[] | undefined; "f194"?: number | null | undefined; "f195"?: string | undefined | undefined; "f196"?: number | undefined; "f197"?: string | undefined; "f198"?: boolean | undefined; "f199"?: Date | undefined; "f200"?: string[] | undefined; "f201"?: number | null | undefined; "f202"?: string | undefined | undefined; "f203"?: number | undefined; "f204"?: string | undefined; "f205"?: boolean | undefined; "f206"?: Date | undefined; "f207"?: string[] | undefined; "f208"?: number | null | undefined; "f209"?: string | undefined | undefined; "f210"?: number | undefined; "f211"?: string | undefined; "f212"?: boolean | undefined; "f213"?: Date | undefined; "f214"?: string[] | undefined; "f215"?: number | null | undefined; "f216"?: string | undefined | undefined; "f217"?: number | undefined; "f218"?: string | undefined; "f219"?: boolean | undefined; "f220"?: Date | undefined; "f221"?: string[] | undefined; "f222"?: number | null | undefined; "f223"?: string | undefined | undefined; "f224"?: number | undefined; "f225"?: string | undefined; "f226"?: boolean | undefined; "f227"?: Date | undefined; "f228"?: string[] | undefined; "f229"?: number | null | undefined; "f230"?: string | undefined | undefined; "f231"?: number | undefined; "f232"?: string | undefined; "f233"?: boolean | undefined; "f234"?: Date | undefined; "f235"?: string[] | undefined; "f236"?: number | null | undefined; "f237"?: string | undefined | undefined; "f238"?: number | undefined; "f239"?: string | undefined; "f240"?: boolean | undefined; "f241"?: Date | undefined; "f242"?: string[] | undefined; "f243"?: number | null | undefined; "f244"?: string | undefined | undefined; "f245"?: number | undefined; "f246"?: string | undefined; "f247"?: boolean | undefined; "f248"?: Date | undefined; "f249"?: string[] | undefined; "f250"?: number | null | undefined; "f251"?: string | undefined | undefined; "f252"?: number | undefined; "f253"?: string | undefined; "f254"?: boolean | undefined; "f255"?: Date | undefined; "f256"?: string[] | undefined; "f257"?: number | null | undefined; "f258"?: string | undefined | undefined; "f259"?: number | undefined; "f260"?: string | undefined; "f261"?: boolean | undefined; "f262"?: Date | undefined; "f263"?: string[] | undefined; "f264"?: number | null | undefined; "f265"?: string | undefined | undefined; "f266"?: number | undefined; "f267"?: string | undefined; "f268"?: boolean | undefined; "f269"?: Date | undefined; "f270"?: string[] | undefined; "f271"?: number | null | undefined; "f272"?: string | undefined | undefined; "f273"?: number | undefined; "f274"?: string | undefined; "f275"?: boolean | undefined; "f276"?: Date | undefined; "f277"?: string[] | undefined; "f278"?: number | null | undefined; "f279"?: string | undefined | undefined; "f280"?: number | undefined; "f281"?: string | undefined; "f282"?: boolean | undefined; "f283"?: Date | undefined; "f284"?: string[] | undefined; "f285"?: number | null | undefined; "f286"?: string | undefined | undefined; "f287"?: number | undefined; "f288"?: string | undefined; "f289"?: boolean | undefined; "f290"?: Date | undefined; "f291"?: string[] | undefined; "f292"?: number | null | undefined; "f293"?: string | undefined | undefined; "f294"?: number | undefined; "f295"?: string | undefined; "f296"?: boolean | undefined; "f297"?: Date | undefined; "f298"?: string[] | undefined; "f299"?: number | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "WideRecord");
@@ -16852,9 +16852,9 @@ export declare const WideShape: {
 ## Mapping
 
 original 0..6475 -> expanded 1464..7939
-original 6475..12244 -> expanded 389429..395198
-original 12244..17982 -> expanded 539809..545547
-original 17982..17983 -> expanded 717565..717566
+original 6475..12244 -> expanded 398866..404635
+original 12244..17982 -> expanded 549246..554984
+original 17982..17983 -> expanded 727002..727003
 generated 0..1464 <- imports
 generated 7939..22636 <- Debug
 generated 22636..31660 <- Clone
@@ -16862,22 +16862,22 @@ generated 31660..60854 <- PartialEq
 generated 60854..101674 <- Hash
 generated 101674..106638 <- Default
 generated 106638..176062 <- Encode
-generated 176062..387993 <- Decode
-generated 387993..389429 <- __convenience_const
-generated 395198..395324 <- Debug
-generated 395324..395429 <- Clone
-generated 395429..395573 <- PartialEq
-generated 395573..395677 <- Hash
-generated 395677..478973 <- Encode
-generated 478973..531022 <- Decode
-generated 531022..539809 <- __convenience_const
-generated 545547..545673 <- Debug
-generated 545673..545778 <- Clone
-generated 545778..545922 <- PartialEq
-generated 545922..546026 <- Hash
-generated 546026..636886 <- Encode
-generated 636886..716738 <- Decode
-generated 716738..717565 <- __convenience_const
+generated 176062..397430 <- Decode
+generated 397430..398866 <- __convenience_const
+generated 404635..404761 <- Debug
+generated 404761..404866 <- Clone
+generated 404866..405010 <- PartialEq
+generated 405010..405114 <- Hash
+generated 405114..488410 <- Encode
+generated 488410..540459 <- Decode
+generated 540459..549246 <- __convenience_const
+generated 554984..555110 <- Debug
+generated 555110..555215 <- Clone
+generated 555215..555359 <- PartialEq
+generated 555359..555463 <- Hash
+generated 555463..646323 <- Encode
+generated 646323..726175 <- Decode
+generated 726175..727002 <- __convenience_const
 
 ## Metadata
 

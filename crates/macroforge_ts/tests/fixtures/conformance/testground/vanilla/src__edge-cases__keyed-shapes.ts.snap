@@ -447,7 +447,7 @@ export function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "byLevel"?: Record<KeyedLevel, string> | undefined; "byKind"?: Record<KeyedKind, number> | undefined; "some"?: { 'x'?: number; 'y'?: number } | undefined; "levels"?: Map<KeyedLevel, string> | undefined; "kinds"?: Set<KeyedKind> | undefined; "codes"?: Set<`c-${number}`> | undefined; "deep"?: { inner?: { at?: Date; tags?: string[] } } | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "KeyedRecords");
@@ -1008,7 +1008,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(KeyedOptions.prototype);
+    const made: object = Object.create(KeyedOptions.prototype);
+    const instance: { "count"?: number | undefined; "userLabel"?: string | undefined; "hidden"?: boolean | undefined; "derived"?: number | undefined; "weight"?: number | undefined; "secret"?: string | undefined; "noise"?: number | undefined; "ignored"?: number | undefined; "five"?: number | undefined; "inner"?: KeyedInner | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "KeyedOptions");
@@ -1142,7 +1143,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof KeyedOptions)) {
+        throw new TypeError("KeyedOptions.decodeWithContext: the value made is no KeyedOptions");
+    }
+    return made;
 }
 static validateField<K extends keyof KeyedOptions>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1401,7 +1405,7 @@ export function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "deepValue"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "KeyedInner");
@@ -1677,7 +1681,7 @@ export function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_Decod
         }
     }
 
-    const instance: any = {};
+    const instance: { "partial"?: Partial<KeyedRecords> | undefined; "picked"?: Pick<KeyedRecords, 'byKind' | 'codes'> | undefined; "omitted"?: Omit<KeyedRecords, 'byLevel' | 'levels' | 'deep'> | undefined; "required"?: Required<Pick<KeyedRecords, 'deep'>> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "KeyedSelections");
@@ -2224,11 +2228,11 @@ export declare const KeyedSelections: {
 original 0..387 -> expanded 1509..1896
 original 387..530 -> expanded 4935..5078
 original 530..912 -> expanded 7985..8367
-original 912..1603 -> expanded 33016..33707
-original 1603..1604 -> expanded 54090..54091
-original 1604..1731 -> expanded 57872..57999
-original 1731..2035 -> expanded 68383..68687
-original 2035..2036 -> expanded 85537..85538
+original 912..1603 -> expanded 33363..34054
+original 1603..1604 -> expanded 54925..54926
+original 1604..1731 -> expanded 58707..58834
+original 1731..2035 -> expanded 69251..69555
+original 2035..2036 -> expanded 86652..86653
 generated 0..1509 <- imports
 generated 1896..2201 <- Debug
 generated 2201..2287 <- Clone
@@ -2252,38 +2256,38 @@ generated 9514..10625 <- PartialEq
 generated 10625..11633 <- Hash
 generated 11633..11944 <- Default
 generated 11944..15927 <- Encode
-generated 15927..31518 <- Decode
-generated 31518..33016 <- __convenience_const
-generated 33707..34438 <- Debug
-generated 34438..34885 <- Clone
-generated 34885..35811 <- PartialEq
-generated 35811..37262 <- Hash
-generated 37262..37838 <- Default
-generated 37838..41599 <- Encode
-generated 41599..41930 <- Encode
-generated 41930..54090 <- Decode
-generated 54091..54203 <- Debug
-generated 54203..54315 <- Clone
-generated 54315..54436 <- PartialEq
-generated 54436..54548 <- Hash
-generated 54548..54650 <- Default
-generated 54650..56030 <- Encode
-generated 56030..57872 <- Decode
-generated 57999..58271 <- Debug
-generated 58271..58426 <- Clone
-generated 58426..58689 <- PartialEq
-generated 58689..59037 <- Hash
-generated 59037..59137 <- Default
-generated 59137..61316 <- Encode
-generated 61316..66947 <- Decode
-generated 66947..68383 <- __convenience_const
-generated 68687..69185 <- Debug
-generated 69185..69520 <- Clone
-generated 69520..69996 <- PartialEq
-generated 69996..70437 <- Hash
-generated 70437..73783 <- Encode
-generated 73783..84052 <- Decode
-generated 84052..85537 <- __convenience_const
+generated 15927..31865 <- Decode
+generated 31865..33363 <- __convenience_const
+generated 34054..34785 <- Debug
+generated 34785..35232 <- Clone
+generated 35232..36158 <- PartialEq
+generated 36158..37609 <- Hash
+generated 37609..38185 <- Default
+generated 38185..41946 <- Encode
+generated 41946..42277 <- Encode
+generated 42277..54925 <- Decode
+generated 54926..55038 <- Debug
+generated 55038..55150 <- Clone
+generated 55150..55271 <- PartialEq
+generated 55271..55383 <- Hash
+generated 55383..55485 <- Default
+generated 55485..56865 <- Encode
+generated 56865..58707 <- Decode
+generated 58834..59106 <- Debug
+generated 59106..59261 <- Clone
+generated 59261..59524 <- PartialEq
+generated 59524..59872 <- Hash
+generated 59872..59972 <- Default
+generated 59972..62151 <- Encode
+generated 62151..67815 <- Decode
+generated 67815..69251 <- __convenience_const
+generated 69555..70053 <- Debug
+generated 70053..70388 <- Clone
+generated 70388..70864 <- PartialEq
+generated 70864..71305 <- Hash
+generated 71305..74651 <- Encode
+generated 74651..85167 <- Decode
+generated 85167..86652 <- __convenience_const
 
 ## Metadata
 

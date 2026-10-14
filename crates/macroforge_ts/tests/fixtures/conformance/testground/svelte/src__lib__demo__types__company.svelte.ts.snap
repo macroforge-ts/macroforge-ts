@@ -427,7 +427,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "legalName"?: string | undefined; "headquarters"?: string | Site | undefined; "phones"?: Array<PhoneNumber> | undefined; "fax"?: string | undefined; "email"?: string | undefined; "website"?: string | undefined; "taxId"?: string | undefined; "referenceNumber"?: number | undefined; "postalCodeLookup"?: string | undefined; "timeZone"?: string | undefined; "defaultTax"?: string | TaxRate | undefined; "defaultTaxLocation"?: string | undefined; "defaultAreaCode"?: number | undefined; "defaultAccountType"?: string | undefined; "lookupFormatting"?: string | undefined; "accountNameFormat"?: string | undefined; "merchantServiceProvider"?: string | null | undefined; "dateDisplayStyle"?: string | undefined; "hasAutoCommission"?: boolean | undefined; "hasAutoDaylightSavings"?: boolean | undefined; "hasAutoFmsTracking"?: boolean | undefined; "hasNotifications"?: boolean | undefined; "hasRequiredLeadSource"?: boolean | undefined; "hasRequiredEmail"?: boolean | undefined; "hasSortServiceItemsAlphabetically"?: boolean | undefined; "hasAttachOrderToAppointmentEmails"?: boolean | undefined; "scheduleInterval"?: number | undefined; "colorsConfig"?: ColorsConfig | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Company");
@@ -2271,13 +2271,13 @@ original 1118..1155 -> expanded 1997..2034
 original 1196..1231 -> expanded 2034..2069
 original 1272..1352 -> expanded 2069..2149
 original 1393..1783 -> expanded 2149..2539
-original 1783..1784 -> expanded 98559..98560
+original 1783..1784 -> expanded 99758..99759
 generated 0..1294 <- imports
 generated 2539..3489 <- Default
 generated 3489..13517 <- Encode
-generated 13517..53982 <- Decode
-generated 53982..97320 <- Gigaform
-generated 97320..98559 <- __convenience_const
+generated 13517..55181 <- Decode
+generated 55181..98519 <- Gigaform
+generated 98519..99758 <- __convenience_const
 
 ## Metadata
 

@@ -152,7 +152,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "retries"?: number | undefined; "extra"?: Record<string, number> | undefined; "name"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Settings");
@@ -395,21 +395,21 @@ original 117..150 -> expanded 672..705
 original 167..193 -> expanded 705..731
 original 215..255 -> expanded 731..771
 original 307..327 -> expanded 771..791
-original 327..329 -> expanded 9317..9319
-original 352..380 -> expanded 9319..9347
-original 397..417 -> expanded 9347..9367
-original 417..418 -> expanded 9547..9548
-original 418..420 -> expanded 9635..9637
-original 471..509 -> expanded 9637..9675
-original 509..717 -> expanded 9877..10085
+original 327..329 -> expanded 9423..9425
+original 352..380 -> expanded 9425..9453
+original 397..417 -> expanded 9453..9473
+original 417..418 -> expanded 9653..9654
+original 418..420 -> expanded 9741..9743
+original 471..509 -> expanded 9743..9781
+original 509..717 -> expanded 9983..10191
 generated 0..586 <- imports
 generated 791..924 <- Default
-generated 924..8547 <- Decode
-generated 8547..9317 <- __convenience_const
-generated 9367..9547 <- Default
-generated 9548..9635 <- Default
-generated 9675..9760 <- Default
-generated 9760..9877 <- __convenience_const
+generated 924..8653 <- Decode
+generated 8653..9423 <- __convenience_const
+generated 9473..9653 <- Default
+generated 9654..9741 <- Default
+generated 9781..9866 <- Default
+generated 9866..9983 <- __convenience_const
 
 ## Metadata
 

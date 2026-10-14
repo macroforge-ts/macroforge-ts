@@ -242,9 +242,17 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         if let Some(warning) = ft_match.warning {
             diagnostics.warning(field.span, warning);
         }
+        // One handler decodes every instance of a foreign type, as its config
+        // says, so what it gives is the field's type.
         ft_match
             .config
             .and_then(|ft| ft.handler_callee(ForeignHandler::Decode))
+            .map(|callee| {
+                format!(
+                    "((__raw: unknown) => ({callee}(__raw) as {}))",
+                    field.ts_type
+                )
+            })
             // A foreign type that may be `null` or `undefined` is decoded
             // when it is there.
             .or_else(

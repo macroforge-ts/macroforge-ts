@@ -1183,8 +1183,12 @@ pub(crate) fn decode_expr(
             (@{&decode} === undefined ? @{raw} as @{ts_type} : @{&decode}(@{raw}, ctx))
         })));
     }
+    // One handler decodes every instance of a foreign type, as its config
+    // says, so what it gives is the type written here.
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Decode) {
-        return Ok(Some(rendered(ts_template! { @{callee}(@{raw}) })));
+        return Ok(Some(rendered(
+            ts_template! { (@{callee}(@{raw}) as @{ts_type}) },
+        )));
     }
     if let Some(reason) = scope.through_namespace(ts_type) {
         return Err(reason);

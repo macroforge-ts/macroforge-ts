@@ -1365,7 +1365,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "counted"?: EnumCounted | undefined; "mixed"?: EnumMixed | undefined; "flags"?: EnumFlags | undefined; "maybe"?: EnumCounted | null | undefined; "later"?: EnumText | undefined | undefined; "optional"?: EnumSigned | undefined; "list"?: EnumMixed[] | undefined; "set"?: Set<EnumCounted> | undefined; "byName"?: Map<string, EnumText> | undefined; "byKind"?: Map<EnumText, number> | undefined; "labels"?: Record<string, EnumSigned> | undefined; "pair"?: [EnumCounted, EnumText] | undefined; "constant"?: EnumConstant | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EnumHolder");
@@ -2295,8 +2295,8 @@ original 1392..1631 -> expanded 26273..26512
 original 1631..1814 -> expanded 30414..30597
 original 1814..1980 -> expanded 33313..33479
 original 1980..2468 -> expanded 37091..37579
-original 2468..2631 -> expanded 73259..73422
-original 2631..2632 -> expanded 75826..75827
+original 2468..2631 -> expanded 73784..73947
+original 2631..2632 -> expanded 76351..76352
 generated 0..1299 <- imports
 generated 1733..2136 <- Debug
 generated 2136..2225 <- Clone
@@ -2393,14 +2393,14 @@ generated 39772..41766 <- PartialEq
 generated 41766..43402 <- Hash
 generated 43402..43882 <- Default
 generated 43882..49698 <- Encode
-generated 49698..71823 <- Decode
-generated 71823..73259 <- __convenience_const
-generated 73422..73823 <- Debug
-generated 73823..74068 <- Clone
-generated 74068..74442 <- PartialEq
-generated 74442..74928 <- PartialOrd
-generated 74928..75379 <- Ord
-generated 75379..75826 <- __convenience_const
+generated 49698..72348 <- Decode
+generated 72348..73784 <- __convenience_const
+generated 73947..74348 <- Debug
+generated 74348..74593 <- Clone
+generated 74593..74967 <- PartialEq
+generated 74967..75453 <- PartialOrd
+generated 75453..75904 <- Ord
+generated 75904..76351 <- __convenience_const
 
 ## Metadata
 

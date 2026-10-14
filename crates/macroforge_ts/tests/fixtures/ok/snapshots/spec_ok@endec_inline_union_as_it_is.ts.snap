@@ -159,7 +159,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "radius"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Circle");
@@ -647,22 +647,22 @@ Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JS
 ## Mapping
 
 original 30..71 -> expanded 1073..1114
-original 71..73 -> expanded 9621..9623
-original 103..133 -> expanded 9623..9653
-original 133..135 -> expanded 15939..15941
-original 165..192 -> expanded 15941..15968
-original 192..194 -> expanded 21622..21624
-original 224..511 -> expanded 21624..21911
+original 71..73 -> expanded 9651..9653
+original 103..133 -> expanded 9653..9683
+original 133..135 -> expanded 15969..15971
+original 165..192 -> expanded 15971..15998
+original 192..194 -> expanded 21652..21654
+original 224..511 -> expanded 21654..21941
 generated 0..1073 <- imports
 generated 1114..3221 <- Encode
-generated 3221..8672 <- Decode
-generated 8672..9621 <- __convenience_const
-generated 9653..11257 <- Encode
-generated 11257..15463 <- Decode
-generated 15463..15939 <- __convenience_const
-generated 15968..17804 <- Encode
-generated 17804..21159 <- Decode
-generated 21159..21622 <- __convenience_const
+generated 3221..8702 <- Decode
+generated 8702..9651 <- __convenience_const
+generated 9683..11287 <- Encode
+generated 11287..15493 <- Decode
+generated 15493..15969 <- __convenience_const
+generated 15998..17834 <- Encode
+generated 17834..21189 <- Decode
+generated 21189..21652 <- __convenience_const
 
 ## Metadata
 

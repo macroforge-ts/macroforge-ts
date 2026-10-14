@@ -215,7 +215,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Point.prototype);
+    const made: object = Object.create(Point.prototype);
+    const instance: { "x"?: number | undefined; "y"?: number | undefined; "label"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Point");
@@ -263,7 +264,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Point)) {
+        throw new TypeError("Point.decodeWithContext: the value made is no Point");
+    }
+    return made;
 }
 static validateField<K extends keyof Point>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -439,8 +443,8 @@ export {};
 ## Mapping
 
 original 70..206 -> expanded 900..1036
-original 206..207 -> expanded 11359..11360
-original 207..208 -> expanded 14847..14848
+original 206..207 -> expanded 11593..11594
+original 207..208 -> expanded 15081..15082
 generated 0..900 <- imports
 generated 1036..1389 <- Debug
 generated 1389..1566 <- Clone
@@ -449,14 +453,14 @@ generated 1971..2588 <- Hash
 generated 2588..2829 <- Default
 generated 2829..4898 <- Encode
 generated 4898..5215 <- Encode
-generated 5215..11359 <- Decode
-generated 11360..11451 <- Debug
-generated 11451..11535 <- Clone
-generated 11535..11628 <- PartialEq
-generated 11628..11719 <- Hash
-generated 11719..11800 <- Default
-generated 11800..13110 <- Encode
-generated 13110..14847 <- Decode
+generated 5215..11593 <- Decode
+generated 11594..11685 <- Debug
+generated 11685..11769 <- Clone
+generated 11769..11862 <- PartialEq
+generated 11862..11953 <- Hash
+generated 11953..12034 <- Default
+generated 12034..13344 <- Encode
+generated 13344..15081 <- Decode
 
 ## Metadata
 

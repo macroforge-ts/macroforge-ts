@@ -137,7 +137,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Settings.prototype);
+    const made: object = Object.create(Settings.prototype);
+    const instance: { "theme"?: string | undefined; "retries"?: number | undefined; "label"?: string | undefined; "tags"?: string[] | undefined; "limit"?: number | undefined; "createdAt"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Settings");
@@ -237,7 +238,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Settings)) {
+        throw new TypeError("Settings.decodeWithContext: the value made is no Settings");
+    }
+    return made;
 }
 static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -486,7 +490,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Counter.prototype);
+    const made: object = Object.create(Counter.prototype);
+    const instance: { "count"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Counter");
@@ -506,7 +511,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Counter)) {
+        throw new TypeError("Counter.decodeWithContext: the value made is no Counter");
+    }
+    return made;
 }
 static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -774,38 +782,38 @@ export declare function counterDefaultValue(): Counter;
 ## Mapping
 
 original 0..396 -> expanded 1007..1403
-original 396..397 -> expanded 10967..10968
-original 397..579 -> expanded 12840..13022
-original 579..580 -> expanded 13295..13296
-original 580..752 -> expanded 13383..13555
-original 752..753 -> expanded 22247..22248
-original 753..754 -> expanded 26044..26045
+original 396..397 -> expanded 11315..11316
+original 397..579 -> expanded 13188..13370
+original 579..580 -> expanded 13643..13644
+original 580..752 -> expanded 13731..13903
+original 752..753 -> expanded 22783..22784
+original 753..754 -> expanded 26580..26581
 generated 0..1007 <- imports
 generated 1403..1769 <- Default
-generated 1769..10967 <- Decode
-generated 10968..11058 <- Default
-generated 11058..12840 <- Decode
-generated 13022..13295 <- Default
-generated 13296..13383 <- Default
-generated 13555..13822 <- Debug
-generated 13822..13944 <- Clone
-generated 13944..14190 <- PartialEq
-generated 14190..14532 <- Hash
-generated 14532..14844 <- PartialOrd
-generated 14844..15142 <- Ord
-generated 15142..16678 <- Encode
-generated 16678..16999 <- Encode
-generated 16999..22067 <- Decode
-generated 22067..22247 <- Default
-generated 22248..22345 <- Debug
-generated 22345..22437 <- Clone
-generated 22437..22538 <- PartialEq
-generated 22538..22635 <- Hash
-generated 22635..22758 <- PartialOrd
-generated 22758..22860 <- Ord
-generated 22860..24190 <- Encode
-generated 24190..25957 <- Decode
-generated 25957..26044 <- Default
+generated 1769..11315 <- Decode
+generated 11316..11406 <- Default
+generated 11406..13188 <- Decode
+generated 13370..13643 <- Default
+generated 13644..13731 <- Default
+generated 13903..14170 <- Debug
+generated 14170..14292 <- Clone
+generated 14292..14538 <- PartialEq
+generated 14538..14880 <- Hash
+generated 14880..15192 <- PartialOrd
+generated 15192..15490 <- Ord
+generated 15490..17026 <- Encode
+generated 17026..17347 <- Encode
+generated 17347..22603 <- Decode
+generated 22603..22783 <- Default
+generated 22784..22881 <- Debug
+generated 22881..22973 <- Clone
+generated 22973..23074 <- PartialEq
+generated 23074..23171 <- Hash
+generated 23171..23294 <- PartialOrd
+generated 23294..23396 <- Ord
+generated 23396..24726 <- Encode
+generated 24726..26493 <- Decode
+generated 26493..26580 <- Default
 
 ## Metadata
 

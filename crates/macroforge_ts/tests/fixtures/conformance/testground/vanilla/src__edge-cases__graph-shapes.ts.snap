@@ -265,7 +265,7 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "parent"?: GraphTree | null | undefined; "children"?: GraphTree[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GraphTree");
@@ -633,7 +633,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GraphPerson.prototype);
+    const made: object = Object.create(GraphPerson.prototype);
+    const instance: { "name"?: string | undefined; "best"?: GraphPerson | null | undefined; "friends"?: GraphPerson[] | undefined; "circle"?: Set<GraphPerson> | undefined; "byName"?: Map<string, GraphPerson> | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GraphPerson");
@@ -766,7 +767,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GraphPerson)) {
+        throw new TypeError("GraphPerson.decodeWithContext: the value made is no GraphPerson");
+    }
+    return made;
 }
 static validateField<K extends keyof GraphPerson>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1038,7 +1042,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "first"?: EdgeItem | undefined; "again"?: EdgeItem | undefined; "maybe"?: EdgeItem | null | undefined; "list"?: EdgeItem[] | undefined; "set"?: Set<EdgeItem> | undefined; "byName"?: Map<string, EdgeItem> | undefined; "record"?: Record<string, EdgeItem> | undefined; "pair"?: [EdgeItem, EdgeItem] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GraphShared");
@@ -1473,7 +1477,7 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "self"?: GraphLoop | null | undefined; "view"?: Pick<GraphLoop, 'name' | 'view'> | null | undefined; "rest"?: Omit<GraphLoop, 'name'> | null | undefined; "patch"?: Partial<GraphLoop> | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GraphLoop");
@@ -1813,7 +1817,7 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "whole"?: EdgeItem | undefined; "patch"?: Partial<EdgeItem> | undefined; "patches"?: Partial<EdgeItem>[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GraphPatched");
@@ -2091,7 +2095,7 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
         }
     }
 
-    const instance: any = {};
+    const instance: { "patch"?: Partial<EdgeItem> | undefined; "whole"?: EdgeItem | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GraphPatchedFirst");
@@ -2576,13 +2580,13 @@ export declare const GraphPatchedFirst: {
 ## Mapping
 
 original 0..435 -> expanded 1306..1741
-original 435..711 -> expanded 18807..19083
-original 711..712 -> expanded 36751..36752
-original 712..998 -> expanded 40392..40678
-original 998..1238 -> expanded 61951..62191
-original 1238..1389 -> expanded 77828..77979
-original 1389..1511 -> expanded 90908..91030
-original 1511..1512 -> expanded 102552..102553
+original 435..711 -> expanded 18914..19190
+original 711..712 -> expanded 37227..37228
+original 712..998 -> expanded 40868..41154
+original 998..1238 -> expanded 62735..62975
+original 1238..1389 -> expanded 78843..78994
+original 1389..1511 -> expanded 92040..92162
+original 1511..1512 -> expanded 103756..103757
 generated 0..1306 <- imports
 generated 1741..2203 <- Debug
 generated 2203..2491 <- Clone
@@ -2591,33 +2595,33 @@ generated 3128..3633 <- Hash
 generated 3633..4909 <- PartialOrd
 generated 4909..6055 <- Ord
 generated 6055..8920 <- Encode
-generated 8920..17320 <- Decode
-generated 17320..18807 <- __convenience_const
-generated 19083..19699 <- Debug
-generated 19699..20312 <- Clone
-generated 20312..21555 <- PartialEq
-generated 21555..22475 <- Hash
-generated 22475..25396 <- Encode
-generated 25396..25725 <- Encode
-generated 25725..36751 <- Decode
-generated 36752..36861 <- Debug
-generated 36861..36969 <- Clone
-generated 36969..37086 <- PartialEq
-generated 37086..37195 <- Hash
-generated 37195..38565 <- Encode
-generated 38565..40392 <- Decode
-generated 40678..45150 <- Encode
-generated 45150..60890 <- Decode
-generated 60890..61951 <- __convenience_const
-generated 62191..65681 <- Encode
-generated 65681..76809 <- Decode
-generated 76809..77828 <- __convenience_const
-generated 77979..80898 <- Encode
-generated 80898..89826 <- Decode
-generated 89826..90908 <- __convenience_const
-generated 91030..93723 <- Encode
-generated 93723..101365 <- Decode
-generated 101365..102552 <- __convenience_const
+generated 8920..17427 <- Decode
+generated 17427..18914 <- __convenience_const
+generated 19190..19806 <- Debug
+generated 19806..20419 <- Clone
+generated 20419..21662 <- PartialEq
+generated 21662..22582 <- Hash
+generated 22582..25503 <- Encode
+generated 25503..25832 <- Encode
+generated 25832..37227 <- Decode
+generated 37228..37337 <- Debug
+generated 37337..37445 <- Clone
+generated 37445..37562 <- PartialEq
+generated 37562..37671 <- Hash
+generated 37671..39041 <- Encode
+generated 39041..40868 <- Decode
+generated 41154..45626 <- Encode
+generated 45626..61674 <- Decode
+generated 61674..62735 <- __convenience_const
+generated 62975..66465 <- Encode
+generated 66465..77824 <- Decode
+generated 77824..78843 <- __convenience_const
+generated 78994..81913 <- Encode
+generated 81913..90958 <- Decode
+generated 90958..92040 <- __convenience_const
+generated 92162..94855 <- Encode
+generated 94855..102569 <- Decode
+generated 102569..103756 <- __convenience_const
 
 ## Metadata
 

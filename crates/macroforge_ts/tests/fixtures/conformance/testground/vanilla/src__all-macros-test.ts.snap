@@ -253,7 +253,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(AllMacrosTestClass.prototype);
+    const made: object = Object.create(AllMacrosTestClass.prototype);
+    const instance: { "id"?: number | undefined; "name"?: string | undefined; "email"?: string | undefined; "secretToken"?: string | undefined; "isActive"?: boolean | undefined; "score"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "AllMacrosTestClass");
@@ -334,7 +335,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof AllMacrosTestClass)) {
+        throw new TypeError("AllMacrosTestClass.decodeWithContext: the value made is no AllMacrosTestClass");
+    }
+    return made;
 }
 static validateField<K extends keyof AllMacrosTestClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -531,8 +535,8 @@ export declare const testInstance: unknown;
 ## Mapping
 
 original 0..449 -> expanded 869..1318
-original 449..450 -> expanded 15660..15661
-original 450..695 -> expanded 19574..19819
+original 449..450 -> expanded 16037..16038
+original 450..695 -> expanded 19951..20196
 generated 0..869 <- imports
 generated 1318..1825 <- Debug
 generated 1825..2141 <- Clone
@@ -540,13 +544,13 @@ generated 2141..2759 <- PartialEq
 generated 2759..3722 <- Hash
 generated 3722..6644 <- Encode
 generated 6644..6987 <- Encode
-generated 6987..15660 <- Decode
-generated 15661..15791 <- Debug
-generated 15791..15927 <- Clone
-generated 15927..16072 <- PartialEq
-generated 16072..16202 <- Hash
-generated 16202..17642 <- Encode
-generated 17642..19574 <- Decode
+generated 6987..16037 <- Decode
+generated 16038..16168 <- Debug
+generated 16168..16304 <- Clone
+generated 16304..16449 <- PartialEq
+generated 16449..16579 <- Hash
+generated 16579..18019 <- Encode
+generated 18019..19951 <- Decode
 
 ## Metadata
 

@@ -108,7 +108,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Item");
@@ -217,11 +217,11 @@ Error [83..114]: @derive(Decode): member `Item[]` of union 'OneOrMany' has no de
 ## Mapping
 
 original 22..57 -> expanded 439..474
-original 57..59 -> expanded 6366..6368
-original 81..114 -> expanded 6368..6401
+original 57..59 -> expanded 6392..6394
+original 81..114 -> expanded 6394..6427
 generated 0..439 <- imports
-generated 474..5755 <- Decode
-generated 5755..6366 <- __convenience_const
+generated 474..5781 <- Decode
+generated 5781..6392 <- __convenience_const
 
 ## Metadata
 

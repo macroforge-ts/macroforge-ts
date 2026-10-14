@@ -125,7 +125,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "age"?: number | undefined; "email"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "UserWithDecode");
@@ -347,7 +347,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: number | undefined; "value"?: string | undefined; "score"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "FullFeaturedType");
@@ -558,7 +558,7 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "fieldA"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "TypeA");
@@ -710,7 +710,7 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "fieldB"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "TypeB");
@@ -1015,34 +1015,34 @@ export declare function verifyImports(): void;
 
 original 0..745 -> expanded 557..1302
 original 767..857 -> expanded 1302..1392
-original 857..921 -> expanded 9105..9169
-original 958..1034 -> expanded 9169..9245
-original 1034..1084 -> expanded 10398..10448
-original 1129..1221 -> expanded 10448..10540
-original 1221..1291 -> expanded 19668..19738
-original 1313..1360 -> expanded 19738..19785
-original 1360..1362 -> expanded 25792..25794
-original 1384..1431 -> expanded 25794..25841
-original 1431..1433 -> expanded 31892..31894
-original 1470..1517 -> expanded 31894..31941
-original 1517..2163 -> expanded 32666..33312
+original 857..921 -> expanded 9191..9255
+original 958..1034 -> expanded 9255..9331
+original 1034..1084 -> expanded 10484..10534
+original 1129..1221 -> expanded 10534..10626
+original 1221..1291 -> expanded 19840..19910
+original 1313..1360 -> expanded 19910..19957
+original 1360..1362 -> expanded 25994..25996
+original 1384..1431 -> expanded 25996..26043
+original 1431..1433 -> expanded 32124..32126
+original 1470..1517 -> expanded 32126..32173
+original 1517..2163 -> expanded 32898..33544
 generated 0..557 <- imports
-generated 1392..8337 <- Decode
-generated 8337..9105 <- __convenience_const
-generated 9245..9606 <- PartialEq
-generated 9606..10166 <- PartialOrd
-generated 10166..10398 <- __convenience_const
-generated 10540..17597 <- Decode
-generated 17597..18015 <- PartialEq
-generated 18015..18670 <- PartialOrd
-generated 18670..19668 <- __convenience_const
-generated 19785..25159 <- Decode
-generated 25159..25792 <- __convenience_const
-generated 25841..31259 <- Decode
-generated 31259..31892 <- __convenience_const
-generated 31941..32171 <- PartialEq
-generated 32171..32479 <- PartialOrd
-generated 32479..32666 <- __convenience_const
+generated 1392..8423 <- Decode
+generated 8423..9191 <- __convenience_const
+generated 9331..9692 <- PartialEq
+generated 9692..10252 <- PartialOrd
+generated 10252..10484 <- __convenience_const
+generated 10626..17769 <- Decode
+generated 17769..18187 <- PartialEq
+generated 18187..18842 <- PartialOrd
+generated 18842..19840 <- __convenience_const
+generated 19957..25361 <- Decode
+generated 25361..25994 <- __convenience_const
+generated 26043..31491 <- Decode
+generated 31491..32124 <- __convenience_const
+generated 32173..32403 <- PartialEq
+generated 32403..32711 <- PartialOrd
+generated 32711..32898 <- __convenience_const
 
 ## Metadata
 

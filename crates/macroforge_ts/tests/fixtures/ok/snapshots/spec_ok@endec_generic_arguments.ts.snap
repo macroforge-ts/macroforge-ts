@@ -204,7 +204,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "held"?: T | undefined; "list"?: T[] | undefined; "maybe"?: T | null | undefined; "later"?: T | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Box");
@@ -500,7 +500,8 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
         }
     }
 
-    const instance: any = Object.create(Stack.prototype);
+    const made: object = Object.create(Stack.prototype);
+    const instance: { "items"?: T[] | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Stack");
@@ -535,7 +536,10 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Stack)) {
+        throw new TypeError("Stack.decodeWithContext: the value made is no Stack");
+    }
+    return made;
 }
 static validateField<T, K extends keyof Stack<T> = keyof Stack<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1000,7 +1004,7 @@ export function pairDecodeWithContext<Left, Right>(value: unknown, ctx: __mf_Dec
     }
 
     const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
-    const instance: any = {};
+    const instance: { "e0"?: Left | undefined; "e1"?: Right | undefined } = {};
     Object.defineProperty(instance, "e0", {
         get: () => tuple[0],
         set: (item: unknown) => {
@@ -1214,7 +1218,7 @@ export function wrapperDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "inner"?: Box<T> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Wrapper");
@@ -1483,7 +1487,7 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "dated"?: Box<Date> | undefined; "stack"?: Stack<Box<Date>> | undefined; "outcome"?: Outcome<Date, string> | undefined; "maybe"?: Maybe<Date> | undefined; "pair"?: Pair<Date, bigint> | undefined; "partial"?: Partial<Box<Date>> | undefined; "wrapper"?: Wrapper<Date> | null | undefined; "plain"?: Box<string> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Shelf");
@@ -1598,14 +1602,14 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
                 ctx.pushScope("pair");
                 try {
-                    const __result = pairDecodeWithContext<Date, bigint>(__raw_pair, ctx, __mf_decodeDate, (__raw0) => ((v) => {
+                    const __result = pairDecodeWithContext<Date, bigint>(__raw_pair, ctx, __mf_decodeDate, (__raw0) => (((v) => {
                                 const raw: unknown = v;
                                 if (typeof raw === "bigint") return raw;
                                 // A number past the safe integers has lost digits already.
                                 if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                                 if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                                 return BigInt(raw);
-                            })(__raw0));
+                            })(__raw0) as bigint));
                     ctx.assignOrDefer(instance, "pair", __result);
                 } catch (__e) {
                     if (__e instanceof __mf_DecodeError) {
@@ -2064,44 +2068,44 @@ export {};
 ## Mapping
 
 original 30..115 -> expanded 1131..1216
-original 115..117 -> expanded 15663..15665
-original 147..186 -> expanded 15665..15704
-original 186..187 -> expanded 23647..23648
-original 187..189 -> expanded 27001..27003
-original 219..312 -> expanded 27003..27096
-original 312..314 -> expanded 34784..34786
-original 344..370 -> expanded 34786..34812
-original 370..372 -> expanded 39296..39298
-original 402..442 -> expanded 39298..39338
-original 442..444 -> expanded 46949..46951
-original 474..518 -> expanded 46951..46995
-original 518..520 -> expanded 56611..56613
-original 550..803 -> expanded 56613..56866
-original 803..804 -> expanded 77621..77622
+original 115..117 -> expanded 15769..15771
+original 147..186 -> expanded 15771..15810
+original 186..187 -> expanded 23932..23933
+original 187..189 -> expanded 27286..27288
+original 219..312 -> expanded 27288..27381
+original 312..314 -> expanded 35069..35071
+original 344..370 -> expanded 35071..35097
+original 370..372 -> expanded 39581..39583
+original 402..442 -> expanded 39583..39623
+original 442..444 -> expanded 47284..47286
+original 474..518 -> expanded 47286..47330
+original 518..520 -> expanded 56975..56977
+original 550..803 -> expanded 56977..57230
+original 803..804 -> expanded 78317..78318
 generated 0..1131 <- imports
 generated 1216..4547 <- Encode
-generated 4547..14777 <- Decode
-generated 14777..15663 <- __convenience_const
-generated 15704..17440 <- Encode
-generated 17440..17803 <- Encode
-generated 17803..23647 <- Decode
-generated 23648..25105 <- Encode
-generated 25105..27001 <- Decode
-generated 27096..30075 <- Encode
-generated 30075..34282 <- Decode
-generated 34282..34784 <- __convenience_const
-generated 34812..36356 <- Encode
-generated 36356..38820 <- Decode
-generated 38820..39296 <- __convenience_const
-generated 39338..40993 <- Encode
-generated 40993..46486 <- Decode
-generated 46486..46949 <- __convenience_const
-generated 46995..49403 <- Encode
-generated 49403..55641 <- Decode
-generated 55641..56611 <- __convenience_const
-generated 56866..61369 <- Encode
-generated 61369..76693 <- Decode
-generated 76693..77621 <- __convenience_const
+generated 4547..14883 <- Decode
+generated 14883..15769 <- __convenience_const
+generated 15810..17546 <- Encode
+generated 17546..17909 <- Encode
+generated 17909..23932 <- Decode
+generated 23933..25390 <- Encode
+generated 25390..27286 <- Decode
+generated 27381..30360 <- Encode
+generated 30360..34567 <- Decode
+generated 34567..35069 <- __convenience_const
+generated 35097..36641 <- Encode
+generated 36641..39105 <- Decode
+generated 39105..39581 <- __convenience_const
+generated 39623..41278 <- Encode
+generated 41278..46821 <- Decode
+generated 46821..47284 <- __convenience_const
+generated 47330..49738 <- Encode
+generated 49738..56005 <- Decode
+generated 56005..56975 <- __convenience_const
+generated 57230..61733 <- Encode
+generated 61733..77389 <- Decode
+generated 77389..78317 <- __convenience_const
 
 ## Metadata
 

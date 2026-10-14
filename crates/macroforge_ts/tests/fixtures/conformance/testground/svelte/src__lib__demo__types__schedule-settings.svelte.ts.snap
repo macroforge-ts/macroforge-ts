@@ -184,7 +184,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "daysPerWeek"?: number | undefined; "rowHeight"?: RowHeight | undefined; "visibleRoutes"?: Array<string> | undefined; "detailedCards"?: boolean | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ScheduleSettings");
@@ -661,13 +661,13 @@ export declare const ScheduleSettings: {
 original 0..113 -> expanded 1028..1141
 original 162..228 -> expanded 1141..1207
 original 253..343 -> expanded 1207..1297
-original 343..344 -> expanded 24618..24619
+original 343..344 -> expanded 24774..24775
 generated 0..1028 <- imports
 generated 1297..1497 <- Default
 generated 1497..4697 <- Encode
-generated 4697..14079 <- Decode
-generated 14079..23136 <- Gigaform
-generated 23136..24618 <- __convenience_const
+generated 4697..14235 <- Decode
+generated 14235..23292 <- Gigaform
+generated 23292..24774 <- __convenience_const
 
 ## Metadata
 

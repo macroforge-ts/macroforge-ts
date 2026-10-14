@@ -164,7 +164,7 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
         }
     }
 
-    const instance: any = {};
+    const instance: { "personalScheduleChangeNotifications"?: string | undefined; "allScheduleChangeNotifications"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "AppointmentNotifications");
@@ -515,13 +515,13 @@ original 0..58 -> expanded 844..902
 original 107..156 -> expanded 902..951
 original 197..251 -> expanded 951..1005
 original 292..338 -> expanded 1005..1051
-original 338..339 -> expanded 22372..22373
+original 338..339 -> expanded 22486..22487
 generated 0..844 <- imports
 generated 1051..1250 <- Default
 generated 1250..4198 <- Encode
-generated 4198..14762 <- Decode
-generated 14762..20674 <- Gigaform
-generated 20674..22372 <- __convenience_const
+generated 4198..14876 <- Decode
+generated 14876..20788 <- Gigaform
+generated 20788..22486 <- __convenience_const
 
 ## Metadata
 

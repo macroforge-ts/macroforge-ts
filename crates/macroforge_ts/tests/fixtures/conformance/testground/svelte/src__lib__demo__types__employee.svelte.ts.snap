@@ -323,7 +323,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "imageUrl"?: string | null | undefined; "name"?: string | undefined; "phones"?: Array<PhoneNumber> | undefined; "role"?: string | undefined; "title"?: JobTitle | undefined; "email"?: Email | undefined; "address"?: string | undefined; "username"?: string | undefined; "route"?: string | Route | undefined; "ratePerHour"?: number | undefined; "active"?: boolean | undefined; "isTechnician"?: boolean | undefined; "isSalesRep"?: boolean | undefined; "description"?: string | null | undefined; "linkedinUrl"?: string | null | undefined; "attendance"?: Array<string> | undefined; "settings"?: Settings | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Employee");
@@ -1626,13 +1626,13 @@ original 626..670 -> expanded 1884..1928
 original 711..737 -> expanded 1928..1954
 original 778..805 -> expanded 1954..1981
 original 824..1070 -> expanded 1981..2227
-original 1070..1071 -> expanded 61657..61658
+original 1070..1071 -> expanded 62293..62294
 generated 0..1418 <- imports
 generated 2227..2747 <- Default
 generated 2747..9287 <- Encode
-generated 9287..33074 <- Decode
-generated 33074..60391 <- Gigaform
-generated 60391..61657 <- __convenience_const
+generated 9287..33710 <- Decode
+generated 33710..61027 <- Gigaform
+generated 61027..62293 <- __convenience_const
 
 ## Metadata
 

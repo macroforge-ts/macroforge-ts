@@ -183,7 +183,7 @@ export function _hiddenDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "_Hidden");
@@ -409,7 +409,7 @@ export function _1DecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __f
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "_1");
@@ -769,7 +769,7 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "hidden"?: _Hidden | undefined; "first"?: _1 | undefined; "status"?: HTTPStatus | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Holder");
@@ -1138,41 +1138,41 @@ Error [297..354]: @derive(Default) on union type 'HTTPStatus' requires @default 
 
 original 0..75 -> expanded 1124..1199
 original 139..184 -> expanded 1199..1244
-original 184..186 -> expanded 10643..10645
-original 250..290 -> expanded 10645..10685
-original 290..292 -> expanded 19639..19641
-original 356..396 -> expanded 19641..19681
-original 396..398 -> expanded 23760..23762
-original 462..557 -> expanded 23762..23857
-original 557..558 -> expanded 37746..37747
+original 184..186 -> expanded 10669..10671
+original 250..290 -> expanded 10671..10711
+original 290..292 -> expanded 19691..19693
+original 356..396 -> expanded 19693..19733
+original 396..398 -> expanded 23812..23814
+original 462..557 -> expanded 23814..23909
+original 557..558 -> expanded 37897..37898
 generated 0..1124 <- imports
 generated 1244..1493 <- Debug
 generated 1493..1622 <- Clone
 generated 1622..1800 <- PartialEq
 generated 1800..1888 <- Default
 generated 1888..3994 <- Encode
-generated 3994..9374 <- Decode
-generated 9374..10643 <- __convenience_const
-generated 10685..10919 <- Debug
-generated 10919..11028 <- Clone
-generated 11028..11191 <- PartialEq
-generated 11191..11269 <- Default
-generated 11269..13300 <- Encode
-generated 13300..18515 <- Decode
-generated 18515..19639 <- __convenience_const
-generated 19681..19796 <- Debug
-generated 19796..19882 <- Clone
-generated 19882..19979 <- PartialEq
-generated 19979..21284 <- Encode
-generated 21284..22992 <- Decode
-generated 22992..23760 <- __convenience_const
-generated 23857..24253 <- Debug
-generated 24253..24497 <- Clone
-generated 24497..24875 <- PartialEq
-generated 24875..25039 <- Default
-generated 25039..27854 <- Encode
-generated 27854..36506 <- Decode
-generated 36506..37746 <- __convenience_const
+generated 3994..9400 <- Decode
+generated 9400..10669 <- __convenience_const
+generated 10711..10945 <- Debug
+generated 10945..11054 <- Clone
+generated 11054..11217 <- PartialEq
+generated 11217..11295 <- Default
+generated 11295..13326 <- Encode
+generated 13326..18567 <- Decode
+generated 18567..19691 <- __convenience_const
+generated 19733..19848 <- Debug
+generated 19848..19934 <- Clone
+generated 19934..20031 <- PartialEq
+generated 20031..21336 <- Encode
+generated 21336..23044 <- Decode
+generated 23044..23812 <- __convenience_const
+generated 23909..24305 <- Debug
+generated 24305..24549 <- Clone
+generated 24549..24927 <- PartialEq
+generated 24927..25091 <- Default
+generated 25091..27906 <- Encode
+generated 27906..36657 <- Decode
+generated 36657..37897 <- __convenience_const
 
 ## Metadata
 

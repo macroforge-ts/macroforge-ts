@@ -169,7 +169,7 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "createdAt"?: DateTime.Utc | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Foo");
@@ -192,7 +192,7 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         () => {
             if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
                 try {
-                    instance.createdAt = __foreign__dateTimeUtcDecode(obj["createdAt"]);
+                    instance.createdAt = ((__raw: unknown) => __foreign__dateTimeUtcDecode(__raw) as DateTime.Utc)(obj["createdAt"]);
                 } catch (__error) {
                     errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -321,12 +321,12 @@ export declare const Foo: {
 original 0..36 -> expanded 813..849
 original 75..103 -> expanded 849..877
 original 134..181 -> expanded 877..924
-original 181..182 -> expanded 10429..10430
+original 181..182 -> expanded 10540..10541
 generated 0..813 <- imports
 generated 924..1068 <- Default
 generated 1068..3515 <- Encode
-generated 3515..9454 <- Decode
-generated 9454..10429 <- __convenience_const
+generated 3515..9565 <- Decode
+generated 9565..10540 <- __convenience_const
 
 ## Metadata
 

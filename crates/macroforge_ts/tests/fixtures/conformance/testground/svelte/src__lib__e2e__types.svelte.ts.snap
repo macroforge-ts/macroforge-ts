@@ -209,7 +209,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "street"?: string | undefined; "city"?: string | undefined; "state"?: string | undefined; "zip"?: string | undefined; "country"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Address");
@@ -474,7 +474,7 @@ export function skillDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "level"?: number | undefined; "certifiedAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Skill");
@@ -720,7 +720,7 @@ export function milestoneDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "title"?: string | undefined; "dueDate"?: Date | undefined; "completedAt"?: Date | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Milestone");
@@ -963,7 +963,7 @@ export function metadataValueDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "value"?: string | undefined; "updatedAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "MetadataValue");
@@ -1198,7 +1198,7 @@ export function tagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         }
     }
 
-    const instance: any = {};
+    const instance: { "label"?: string | undefined; "color"?: string | undefined; "createdAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Tag");
@@ -1436,7 +1436,7 @@ export function featureDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "enabledAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Feature");
@@ -1663,7 +1663,7 @@ export function limitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "max"?: number | undefined; "resetAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Limit");
@@ -1898,7 +1898,7 @@ export function budgetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "amount"?: number | undefined; "currency"?: string | undefined; "approvedAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Budget");
@@ -2162,7 +2162,7 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "milestones"?: Milestone[] | undefined; "metadata"?: Map<string, MetadataValue> | undefined; "startedAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Project");
@@ -2500,7 +2500,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "email"?: string | undefined; "address"?: Address | undefined; "skills"?: Set<Skill> | undefined; "projects"?: Project[] | undefined; "hireDate"?: Date | undefined; "terminatedAt"?: Date | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Employee");
@@ -2842,7 +2842,7 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "features"?: Set<Feature> | undefined; "limits"?: Map<string, Limit> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OrgConfig");
@@ -3130,7 +3130,7 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "lead"?: Employee | undefined; "employees"?: Employee[] | undefined; "budget"?: Budget | undefined; "createdAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Department");
@@ -3476,7 +3476,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "departments"?: Department[] | undefined; "tags"?: Tag[] | undefined; "config"?: OrgConfig | undefined; "foundedAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Organization");
@@ -3809,7 +3809,7 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "balance"?: number | undefined; "createdAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "AccountBase");
@@ -4085,7 +4085,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "variant"?: 'savings' | undefined; "interestRate"?: number | undefined; "id"?: string | undefined; "name"?: string | undefined; "balance"?: number | undefined; "createdAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "SavingsAccount");
@@ -4383,7 +4383,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
         }
     }
 
-    const instance: any = {};
+    const instance: { "variant"?: 'checking' | undefined; "overdraftLimit"?: number | undefined; "id"?: string | undefined; "name"?: string | undefined; "balance"?: number | undefined; "createdAt"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CheckingAccount");
@@ -4642,7 +4642,7 @@ export function holidayDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Holiday");
@@ -5785,95 +5785,95 @@ export declare const Moment: {
 
 original 0..1354 -> expanded 908..2262
 original 1384..1508 -> expanded 2262..2386
-original 1508..1510 -> expanded 14352..14354
-original 1540..1627 -> expanded 14354..14441
-original 1627..1629 -> expanded 25094..25096
-original 1659..1758 -> expanded 25096..25195
-original 1758..1760 -> expanded 36503..36505
-original 1790..1865 -> expanded 36505..36580
-original 1865..1867 -> expanded 46937..46939
-original 1897..1981 -> expanded 46939..47023
-original 1981..1983 -> expanded 57468..57470
-original 2013..2081 -> expanded 57470..57538
-original 2081..2083 -> expanded 67456..67458
-original 2113..2176 -> expanded 67458..67521
-original 2176..2178 -> expanded 77279..77281
-original 2208..2300 -> expanded 77281..77373
-original 2300..2330 -> expanded 88172..88202
-original 2360..2515 -> expanded 88202..88357
-original 2515..2517 -> expanded 102582..102584
-original 2547..2752 -> expanded 102584..102789
-original 2752..2754 -> expanded 120359..120361
-original 2784..2875 -> expanded 120361..120452
-original 2875..2904 -> expanded 132054..132083
-original 2934..3088 -> expanded 132083..132237
-original 3088..3090 -> expanded 147626..147628
-original 3120..3280 -> expanded 147628..147788
-original 3280..3313 -> expanded 163582..163615
-original 3343..3452 -> expanded 163615..163724
-original 3452..3454 -> expanded 175540..175542
-original 3484..3583 -> expanded 175542..175641
-original 3583..3585 -> expanded 189492..189494
-original 3615..3718 -> expanded 189494..189597
-original 3718..3760 -> expanded 203565..203607
-original 3790..3837 -> expanded 203607..203654
-original 3837..3892 -> expanded 212155..212210
-original 3914..3964 -> expanded 212210..212260
-original 3964..3965 -> expanded 217475..217476
+original 1508..1510 -> expanded 14501..14503
+original 1540..1627 -> expanded 14503..14590
+original 1627..1629 -> expanded 25335..25337
+original 1659..1758 -> expanded 25337..25436
+original 1758..1760 -> expanded 36844..36846
+original 1790..1865 -> expanded 36846..36921
+original 1865..1867 -> expanded 47339..47341
+original 1897..1981 -> expanded 47341..47425
+original 1981..1983 -> expanded 57961..57963
+original 2013..2081 -> expanded 57963..58031
+original 2081..2083 -> expanded 68009..68011
+original 2113..2176 -> expanded 68011..68074
+original 2176..2178 -> expanded 77889..77891
+original 2208..2300 -> expanded 77891..77983
+original 2300..2330 -> expanded 88878..88908
+original 2360..2515 -> expanded 88908..89063
+original 2515..2517 -> expanded 103468..103470
+original 2547..2752 -> expanded 103470..103675
+original 2752..2754 -> expanded 121507..121509
+original 2784..2875 -> expanded 121509..121600
+original 2875..2904 -> expanded 133283..133312
+original 2934..3088 -> expanded 133312..133466
+original 3088..3090 -> expanded 149042..149044
+original 3120..3280 -> expanded 149044..149204
+original 3280..3313 -> expanded 165189..165222
+original 3343..3452 -> expanded 165222..165331
+original 3452..3454 -> expanded 177266..177268
+original 3484..3583 -> expanded 177268..177367
+original 3583..3585 -> expanded 191409..191411
+original 3615..3718 -> expanded 191411..191514
+original 3718..3760 -> expanded 205676..205718
+original 3790..3837 -> expanded 205718..205765
+original 3837..3892 -> expanded 214294..214349
+original 3914..3964 -> expanded 214349..214399
+original 3964..3965 -> expanded 219614..219615
 generated 0..908 <- imports
 generated 2386..5543 <- Encode
-generated 5543..13375 <- Decode
-generated 13375..14352 <- __convenience_const
-generated 14441..17146 <- Encode
-generated 17146..24159 <- Decode
-generated 24159..25094 <- __convenience_const
-generated 25195..28022 <- Encode
-generated 28022..35484 <- Decode
-generated 35484..36503 <- __convenience_const
-generated 36580..39173 <- Encode
-generated 39173..45834 <- Decode
-generated 45834..46937 <- __convenience_const
-generated 47023..49694 <- Encode
-generated 49694..56575 <- Decode
-generated 56575..57468 <- __convenience_const
-generated 57538..60037 <- Encode
-generated 60037..66479 <- Decode
-generated 66479..67456 <- __convenience_const
-generated 67521..69978 <- Encode
-generated 69978..76344 <- Decode
-generated 76344..77279 <- __convenience_const
-generated 77373..80109 <- Encode
-generated 80109..87216 <- Decode
-generated 87216..88172 <- __convenience_const
-generated 88357..91729 <- Encode
-generated 91729..101605 <- Decode
-generated 101605..102582 <- __convenience_const
-generated 102789..106908 <- Encode
-generated 106908..119361 <- Decode
-generated 119361..120359 <- __convenience_const
-generated 120452..123138 <- Encode
-generated 123138..131035 <- Decode
-generated 131035..132054 <- __convenience_const
-generated 132237..135816 <- Encode
-generated 135816..146586 <- Decode
-generated 146586..147626 <- __convenience_const
-generated 147788..151431 <- Encode
-generated 151431..162500 <- Decode
-generated 162500..163582 <- __convenience_const
-generated 163724..166735 <- Encode
-generated 166735..174479 <- Decode
-generated 174479..175540 <- __convenience_const
-generated 175641..179189 <- Encode
-generated 179189..188368 <- Decode
-generated 188368..189492 <- __convenience_const
-generated 189597..193168 <- Encode
-generated 193168..202420 <- Decode
-generated 202420..203565 <- __convenience_const
-generated 203654..205768 <- Encode
-generated 205768..211178 <- Decode
-generated 211178..212155 <- __convenience_const
-generated 212260..217151 <- Decode
-generated 217151..217475 <- __convenience_const
+generated 5543..13524 <- Decode
+generated 13524..14501 <- __convenience_const
+generated 14590..17295 <- Encode
+generated 17295..24400 <- Decode
+generated 24400..25335 <- __convenience_const
+generated 25436..28263 <- Encode
+generated 28263..35825 <- Decode
+generated 35825..36844 <- __convenience_const
+generated 36921..39514 <- Encode
+generated 39514..46236 <- Decode
+generated 46236..47339 <- __convenience_const
+generated 47425..50096 <- Encode
+generated 50096..57068 <- Decode
+generated 57068..57961 <- __convenience_const
+generated 58031..60530 <- Encode
+generated 60530..67032 <- Decode
+generated 67032..68009 <- __convenience_const
+generated 68074..70531 <- Encode
+generated 70531..76954 <- Decode
+generated 76954..77889 <- __convenience_const
+generated 77983..80719 <- Encode
+generated 80719..87922 <- Decode
+generated 87922..88878 <- __convenience_const
+generated 89063..92435 <- Encode
+generated 92435..102491 <- Decode
+generated 102491..103468 <- __convenience_const
+generated 103675..107794 <- Encode
+generated 107794..120509 <- Decode
+generated 120509..121507 <- __convenience_const
+generated 121600..124286 <- Encode
+generated 124286..132264 <- Decode
+generated 132264..133283 <- __convenience_const
+generated 133466..137045 <- Encode
+generated 137045..148002 <- Decode
+generated 148002..149042 <- __convenience_const
+generated 149204..152847 <- Encode
+generated 152847..164107 <- Decode
+generated 164107..165189 <- __convenience_const
+generated 165331..168342 <- Encode
+generated 168342..176205 <- Decode
+generated 176205..177266 <- __convenience_const
+generated 177367..180915 <- Encode
+generated 180915..190285 <- Decode
+generated 190285..191409 <- __convenience_const
+generated 191514..195085 <- Encode
+generated 195085..204531 <- Decode
+generated 204531..205676 <- __convenience_const
+generated 205765..207879 <- Encode
+generated 207879..213317 <- Decode
+generated 213317..214294 <- __convenience_const
+generated 214399..219290 <- Decode
+generated 219290..219614 <- __convenience_const
 
 ## Metadata
 

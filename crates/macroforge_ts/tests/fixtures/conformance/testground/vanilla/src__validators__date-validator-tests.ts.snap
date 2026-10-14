@@ -112,7 +112,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(ValidDateValidator.prototype);
+    const made: object = Object.create(ValidDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ValidDateValidator");
@@ -137,7 +138,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ValidDateValidator)) {
+        throw new TypeError("ValidDateValidator.decodeWithContext: the value made is no ValidDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof ValidDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -299,7 +303,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GreaterThanDateValidator.prototype);
+    const made: object = Object.create(GreaterThanDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GreaterThanDateValidator");
@@ -324,7 +329,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanDateValidator)) {
+        throw new TypeError("GreaterThanDateValidator.decodeWithContext: the value made is no GreaterThanDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -486,7 +494,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GreaterThanOrEqualToDateValidator.prototype);
+    const made: object = Object.create(GreaterThanOrEqualToDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GreaterThanOrEqualToDateValidator");
@@ -511,7 +520,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanOrEqualToDateValidator)) {
+        throw new TypeError("GreaterThanOrEqualToDateValidator.decodeWithContext: the value made is no GreaterThanOrEqualToDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanOrEqualToDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -673,7 +685,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(LessThanDateValidator.prototype);
+    const made: object = Object.create(LessThanDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "LessThanDateValidator");
@@ -698,7 +711,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanDateValidator)) {
+        throw new TypeError("LessThanDateValidator.decodeWithContext: the value made is no LessThanDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -860,7 +876,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(LessThanOrEqualToDateValidator.prototype);
+    const made: object = Object.create(LessThanOrEqualToDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "LessThanOrEqualToDateValidator");
@@ -885,7 +902,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanOrEqualToDateValidator)) {
+        throw new TypeError("LessThanOrEqualToDateValidator.decodeWithContext: the value made is no LessThanOrEqualToDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanOrEqualToDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1047,7 +1067,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(BetweenDateValidator.prototype);
+    const made: object = Object.create(BetweenDateValidator.prototype);
+    const instance: { "date"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "BetweenDateValidator");
@@ -1072,7 +1093,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof BetweenDateValidator)) {
+        throw new TypeError("BetweenDateValidator.decodeWithContext: the value made is no BetweenDateValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof BetweenDateValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1465,31 +1489,31 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 ## Mapping
 
 original 0..229 -> expanded 439..668
-original 229..230 -> expanded 7073..7074
-original 230..407 -> expanded 9006..9183
-original 407..408 -> expanded 15861..15862
-original 408..612 -> expanded 17884..18088
-original 612..613 -> expanded 25015..25016
-original 613..781 -> expanded 27173..27341
-original 781..782 -> expanded 33944..33945
-original 782..977 -> expanded 35922..36117
-original 977..978 -> expanded 42969..42970
-original 978..1157 -> expanded 45082..45261
-original 1157..1158 -> expanded 52049..52050
-original 1158..1159 -> expanded 54012..54013
+original 229..230 -> expanded 7291..7292
+original 230..407 -> expanded 9224..9401
+original 407..408 -> expanded 16315..16316
+original 408..612 -> expanded 18338..18542
+original 612..613 -> expanded 25732..25733
+original 613..781 -> expanded 27890..28058
+original 781..782 -> expanded 34888..34889
+original 782..977 -> expanded 36866..37061
+original 977..978 -> expanded 44167..44168
+original 978..1157 -> expanded 46280..46459
+original 1157..1158 -> expanded 53471..53472
+original 1158..1159 -> expanded 55434..55435
 generated 0..439 <- imports
-generated 668..7073 <- Decode
-generated 7074..9006 <- Decode
-generated 9183..15861 <- Decode
-generated 15862..17884 <- Decode
-generated 18088..25015 <- Decode
-generated 25016..27173 <- Decode
-generated 27341..33944 <- Decode
-generated 33945..35922 <- Decode
-generated 36117..42969 <- Decode
-generated 42970..45082 <- Decode
-generated 45261..52049 <- Decode
-generated 52050..54012 <- Decode
+generated 668..7291 <- Decode
+generated 7292..9224 <- Decode
+generated 9401..16315 <- Decode
+generated 16316..18338 <- Decode
+generated 18542..25732 <- Decode
+generated 25733..27890 <- Decode
+generated 28058..34888 <- Decode
+generated 34889..36866 <- Decode
+generated 37061..44167 <- Decode
+generated 44168..46280 <- Decode
+generated 46459..53471 <- Decode
+generated 53472..55434 <- Decode
 
 ## Metadata
 

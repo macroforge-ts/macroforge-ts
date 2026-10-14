@@ -211,7 +211,7 @@ export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "tail"?: [string, ...number[]] | undefined; "nested"?: [[string, ...number[]], boolean] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Fine");
@@ -419,15 +419,15 @@ Error [279..303]: type 'Leading' holds the tuple `[...first: string[], last: num
 
 original 0..408 -> expanded 1099..1507
 original 472..577 -> expanded 1507..1612
-original 577..578 -> expanded 13956..13957
+original 577..578 -> expanded 14056..14057
 generated 0..1099 <- imports
 generated 1612..1935 <- Debug
 generated 1935..2124 <- Clone
 generated 2124..2433 <- PartialEq
 generated 2433..2550 <- Default
 generated 2550..4978 <- Encode
-generated 4978..12774 <- Decode
-generated 12774..13956 <- __convenience_const
+generated 4978..12874 <- Decode
+generated 12874..14056 <- __convenience_const
 
 ## Metadata
 

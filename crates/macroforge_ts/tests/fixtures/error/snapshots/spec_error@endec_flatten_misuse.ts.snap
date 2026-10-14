@@ -165,7 +165,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Inner");
@@ -539,26 +539,26 @@ Error [533..541]: @derive(Decode): field 'held': `flatten` holds a value's field
 ## Mapping
 
 original 30..73 -> expanded 1052..1095
-original 73..75 -> expanded 9420..9422
-original 105..178 -> expanded 9422..9495
-original 178..180 -> expanded 16178..16180
-original 210..247 -> expanded 16180..16217
-original 269..292 -> expanded 16217..16240
-original 314..338 -> expanded 16240..16264
-original 360..395 -> expanded 16264..16299
-original 417..451 -> expanded 16299..16333
-original 473..505 -> expanded 16333..16365
-original 527..545 -> expanded 16365..16383
-original 567..590 -> expanded 16383..16406
-original 612..642 -> expanded 16406..16436
-original 664..701 -> expanded 16436..16473
+original 73..75 -> expanded 9446..9448
+original 105..178 -> expanded 9448..9521
+original 178..180 -> expanded 16204..16206
+original 210..247 -> expanded 16206..16243
+original 269..292 -> expanded 16243..16266
+original 314..338 -> expanded 16266..16290
+original 360..395 -> expanded 16290..16325
+original 417..451 -> expanded 16325..16359
+original 473..505 -> expanded 16359..16391
+original 527..545 -> expanded 16391..16409
+original 567..590 -> expanded 16409..16432
+original 612..642 -> expanded 16432..16462
+original 664..701 -> expanded 16462..16499
 generated 0..1052 <- imports
 generated 1095..3171 <- Encode
-generated 3171..8485 <- Decode
-generated 8485..9420 <- __convenience_const
-generated 9495..12021 <- Encode
-generated 12021..15695 <- Decode
-generated 15695..16178 <- __convenience_const
+generated 3171..8511 <- Decode
+generated 8511..9446 <- __convenience_const
+generated 9521..12047 <- Encode
+generated 12047..15721 <- Decode
+generated 15721..16204 <- __convenience_const
 
 ## Metadata
 

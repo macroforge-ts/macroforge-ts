@@ -261,7 +261,7 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         }
     }
 
-    const instance: any = {};
+    const instance: { "distance"?: Meters | undefined; "splits"?: Meters[] | undefined; "best"?: Meters | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Run");
@@ -480,7 +480,7 @@ original 57..72 -> expanded 763..778
 original 88..89 -> expanded 822..823
 original 89..91 -> expanded 4156..4158
 original 121..196 -> expanded 4158..4233
-original 196..197 -> expanded 16495..16496
+original 196..197 -> expanded 16589..16590
 generated 0..718 <- imports
 generated 718..763 <- $Newtype
 generated 778..822 <- $Newtype
@@ -488,8 +488,8 @@ generated 823..1531 <- Encode
 generated 1531..3667 <- Decode
 generated 3667..4156 <- __convenience_const
 generated 4233..7001 <- Encode
-generated 7001..15609 <- Decode
-generated 15609..16495 <- __convenience_const
+generated 7001..15703 <- Decode
+generated 15703..16589 <- __convenience_const
 
 ## Metadata
 

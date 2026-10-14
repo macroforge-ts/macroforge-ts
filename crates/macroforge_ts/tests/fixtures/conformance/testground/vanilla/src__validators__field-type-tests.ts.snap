@@ -118,7 +118,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "age"?: number | undefined; "active"?: boolean | undefined; "kind"?: 'user' | undefined; "mode"?: 'light' | 'dark' | undefined; "nickname"?: string | null | undefined; "bio"?: string | undefined; "rank"?: number | undefined | undefined; "height"?: number & { readonly [__mf_newtype_1]: true } | undefined; "balance"?: bigint | undefined; "site"?: URL | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Profile");
@@ -231,13 +231,13 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         () => {
             if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
                 try {
-                    instance.balance = ((v) => {
+                    instance.balance = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["balance"]);
+                })(__raw) as bigint)(obj["balance"]);
                 } catch (__error) {
                     errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -246,11 +246,11 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         () => {
             if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
                 try {
-                    instance.site = ((v) => {
+                    instance.site = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
                 	return new URL(raw);
-                })(obj["site"]);
+                })(__raw) as URL)(obj["site"]);
                 } catch (__error) {
                     errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -662,27 +662,27 @@ export {};
 
 original 0..373 -> expanded 632..1005
 original 389..428 -> expanded 1049..1088
-original 428..535 -> expanded 13480..13587
-original 535..601 -> expanded 17144..17210
-original 617..618 -> expanded 17254..17255
-original 618..619 -> expanded 21243..21244
+original 428..535 -> expanded 13947..14054
+original 535..601 -> expanded 17611..17677
+original 617..618 -> expanded 17721..17722
+original 618..619 -> expanded 21710..21711
 generated 0..542 <- imports
 generated 542..587 <- $Newtype
 generated 587..632 <- $Newtype
 generated 1005..1049 <- $Newtype
-generated 1088..12817 <- Decode
-generated 12817..13480 <- __convenience_const
-generated 13587..14295 <- Encode
-generated 14295..16207 <- Decode
-generated 16207..16401 <- Hash
-generated 16401..16504 <- Debug
-generated 16504..17144 <- __convenience_const
-generated 17210..17254 <- $Newtype
-generated 17255..17995 <- Encode
-generated 17995..20366 <- Decode
-generated 20366..20520 <- Hash
-generated 20520..20620 <- Debug
-generated 20620..21243 <- __convenience_const
+generated 1088..13284 <- Decode
+generated 13284..13947 <- __convenience_const
+generated 14054..14762 <- Encode
+generated 14762..16674 <- Decode
+generated 16674..16868 <- Hash
+generated 16868..16971 <- Debug
+generated 16971..17611 <- __convenience_const
+generated 17677..17721 <- $Newtype
+generated 17722..18462 <- Encode
+generated 18462..20833 <- Decode
+generated 20833..20987 <- Hash
+generated 20987..21087 <- Debug
+generated 21087..21710 <- __convenience_const
 
 ## Metadata
 

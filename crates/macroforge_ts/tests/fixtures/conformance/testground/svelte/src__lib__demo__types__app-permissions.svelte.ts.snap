@@ -178,7 +178,7 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "applications"?: Array<Applications> | undefined; "pages"?: Array<Page> | undefined; "data"?: Array<Table> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "AppPermissions");
@@ -691,13 +691,13 @@ export declare const AppPermissions: {
 
 original 0..206 -> expanded 1160..1366
 original 255..378 -> expanded 1366..1489
-original 378..379 -> expanded 25686..25687
+original 378..379 -> expanded 25805..25806
 generated 0..1160 <- imports
 generated 1489..1638 <- Default
 generated 1638..4638 <- Encode
-generated 4638..14041 <- Decode
-generated 14041..24258 <- Gigaform
-generated 24258..25686 <- __convenience_const
+generated 4638..14160 <- Decode
+generated 14160..24377 <- Gigaform
+generated 24377..25805 <- __convenience_const
 
 ## Metadata
 

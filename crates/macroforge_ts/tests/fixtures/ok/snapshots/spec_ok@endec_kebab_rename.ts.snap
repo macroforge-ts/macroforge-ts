@@ -157,7 +157,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "firstName"?: string | undefined; "isActive"?: boolean | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Profile");
@@ -294,11 +294,11 @@ export {};
 ## Mapping
 
 original 30..141 -> expanded 685..796
-original 141..142 -> expanded 10531..10532
+original 141..142 -> expanded 10598..10599
 generated 0..685 <- imports
 generated 796..3299 <- Encode
-generated 3299..9561 <- Decode
-generated 9561..10531 <- __convenience_const
+generated 3299..9628 <- Decode
+generated 9628..10598 <- __convenience_const
 
 ## Metadata
 

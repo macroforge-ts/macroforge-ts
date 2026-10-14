@@ -1312,7 +1312,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "text"?: NewText | undefined; "count"?: NewCount | undefined; "flag"?: NewFlag | undefined; "slug"?: NewSlug | undefined; "nested"?: NewNested | undefined; "plain"?: NewPlain | undefined; "maybe"?: NewSlug | null | undefined; "later"?: NewCount | undefined | undefined; "optional"?: NewText | undefined; "list"?: NewSlug[] | undefined; "set"?: Set<NewText> | undefined; "bySlug"?: Map<NewSlug, NewCount> | undefined; "record"?: Record<string, NewCount> | undefined; "pair"?: [NewText, NewCount] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NewHolder");
@@ -2013,7 +2013,7 @@ export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "total"?: NewTotal | undefined; "totals"?: NewTotal[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NewLedger");
@@ -2234,7 +2234,7 @@ export function newStampDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     }
     const obj: Record<string, unknown> = { _root: value };
     const errors: Array<{ field: string; message: string }> = [];
-    const instance: any = {};
+    const instance: { "_root"?: Date | undefined } = {};
 
     if ("_root" in obj) {
         const __raw__root = obj["_root"] as string | Date;
@@ -2379,7 +2379,7 @@ export function newTagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }
     const obj: Record<string, unknown> = { _root: value };
     const errors: Array<{ field: string; message: string }> = [];
-    const instance: any = {};
+    const instance: { "_root"?: string[] | undefined } = {};
 
     if ("_root" in obj) {
         const __raw__root = obj["_root"] as string[];
@@ -2598,7 +2598,7 @@ export function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "x"?: number | undefined; "at"?: Date | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NewPoint");
@@ -2824,7 +2824,7 @@ export function newPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }
 
     const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
-    const instance: any = {};
+    const instance: { "e0"?: number | undefined; "e1"?: Date | undefined } = {};
     Object.defineProperty(instance, "e0", {
         get: () => tuple[0],
         set: (item: unknown) => {
@@ -3592,17 +3592,17 @@ original 1037..1155 -> expanded 25767..25885
 original 1181..1182 -> expanded 25967..25968
 original 1182..1306 -> expanded 30637..30761
 original 1306..1764 -> expanded 35129..35587
-original 1764..1938 -> expanded 71603..71777
-original 1938..2077 -> expanded 74346..74485
-original 2077..2173 -> expanded 87435..87531
-original 2187..2188 -> expanded 87573..87574
-original 2188..2283 -> expanded 92758..92853
-original 2301..2302 -> expanded 92899..92900
-original 2302..2441 -> expanded 98368..98507
-original 2474..2475 -> expanded 98569..98570
-original 2475..2561 -> expanded 109345..109431
-original 2585..2586 -> expanded 109484..109485
-original 2586..2587 -> expanded 116426..116427
+original 1764..1938 -> expanded 72110..72284
+original 1938..2077 -> expanded 74853..74992
+original 2077..2173 -> expanded 88008..88104
+original 2187..2188 -> expanded 88146..88147
+original 2188..2283 -> expanded 93358..93453
+original 2301..2302 -> expanded 93499..93500
+original 2302..2441 -> expanded 98999..99138
+original 2474..2475 -> expanded 99200..99201
+original 2475..2561 -> expanded 110026..110112
+original 2585..2586 -> expanded 110165..110166
+original 2586..2587 -> expanded 117158..117159
 generated 0..1299 <- imports
 generated 1299..1344 <- $Newtype
 generated 1344..1389 <- $Newtype
@@ -3697,56 +3697,56 @@ generated 37794..39513 <- PartialEq
 generated 39513..40891 <- Hash
 generated 40891..41398 <- Default
 generated 41398..47397 <- Encode
-generated 47397..70198 <- Decode
-generated 70198..71603 <- __convenience_const
-generated 71777..72222 <- Debug
-generated 72222..72487 <- Clone
-generated 72487..72898 <- PartialEq
-generated 72898..73425 <- PartialOrd
-generated 73425..73910 <- Ord
-generated 73910..74346 <- __convenience_const
-generated 74485..74844 <- Debug
-generated 74844..75067 <- Clone
-generated 75067..75592 <- PartialEq
-generated 75592..75946 <- Hash
-generated 75946..78542 <- Encode
-generated 78542..86124 <- Decode
-generated 86124..87435 <- __convenience_const
-generated 87531..87573 <- $Newtype
-generated 87574..87697 <- Debug
-generated 87697..87799 <- Clone
-generated 87799..87940 <- PartialEq
-generated 87940..88042 <- Hash
-generated 88042..88141 <- Default
-generated 88141..89138 <- Encode
-generated 89138..91860 <- Decode
-generated 91860..92758 <- __convenience_const
-generated 92853..92899 <- $Newtype
-generated 92900..93020 <- Debug
-generated 93020..93119 <- Clone
-generated 93119..93257 <- PartialEq
-generated 93257..93357 <- Hash
-generated 93357..93449 <- Default
-generated 93449..94429 <- Encode
-generated 94429..97493 <- Decode
-generated 97493..98368 <- __convenience_const
-generated 98507..98569 <- $Newtype
-generated 98570..98693 <- Debug
-generated 98693..98795 <- Clone
-generated 98795..98936 <- PartialEq
-generated 98936..99038 <- Hash
-generated 99038..99146 <- Default
-generated 99146..101620 <- Encode
-generated 101620..107971 <- Decode
-generated 107971..109345 <- __convenience_const
-generated 109431..109484 <- $Newtype
-generated 109485..109605 <- Debug
-generated 109605..109704 <- Clone
-generated 109704..109842 <- PartialEq
-generated 109842..109942 <- Hash
-generated 109942..111346 <- Encode
-generated 111346..115641 <- Decode
-generated 115641..116426 <- __convenience_const
+generated 47397..70705 <- Decode
+generated 70705..72110 <- __convenience_const
+generated 72284..72729 <- Debug
+generated 72729..72994 <- Clone
+generated 72994..73405 <- PartialEq
+generated 73405..73932 <- PartialOrd
+generated 73932..74417 <- Ord
+generated 74417..74853 <- __convenience_const
+generated 74992..75351 <- Debug
+generated 75351..75574 <- Clone
+generated 75574..76099 <- PartialEq
+generated 76099..76453 <- Hash
+generated 76453..79049 <- Encode
+generated 79049..86697 <- Decode
+generated 86697..88008 <- __convenience_const
+generated 88104..88146 <- $Newtype
+generated 88147..88270 <- Debug
+generated 88270..88372 <- Clone
+generated 88372..88513 <- PartialEq
+generated 88513..88615 <- Hash
+generated 88615..88714 <- Default
+generated 88714..89711 <- Encode
+generated 89711..92460 <- Decode
+generated 92460..93358 <- __convenience_const
+generated 93453..93499 <- $Newtype
+generated 93500..93620 <- Debug
+generated 93620..93719 <- Clone
+generated 93719..93857 <- PartialEq
+generated 93857..93957 <- Hash
+generated 93957..94049 <- Default
+generated 94049..95029 <- Encode
+generated 95029..98124 <- Decode
+generated 98124..98999 <- __convenience_const
+generated 99138..99200 <- $Newtype
+generated 99201..99324 <- Debug
+generated 99324..99426 <- Clone
+generated 99426..99567 <- PartialEq
+generated 99567..99669 <- Hash
+generated 99669..99777 <- Default
+generated 99777..102251 <- Encode
+generated 102251..108652 <- Decode
+generated 108652..110026 <- __convenience_const
+generated 110112..110165 <- $Newtype
+generated 110166..110286 <- Debug
+generated 110286..110385 <- Clone
+generated 110385..110523 <- PartialEq
+generated 110523..110623 <- Hash
+generated 110623..112027 <- Encode
+generated 112027..116373 <- Decode
+generated 116373..117158 <- __convenience_const
 
 ## Metadata
 

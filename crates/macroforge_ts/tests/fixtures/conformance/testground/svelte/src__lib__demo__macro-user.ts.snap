@@ -207,7 +207,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(MacroUser.prototype);
+    const made: object = Object.create(MacroUser.prototype);
+    const instance: { "id"?: string | undefined; "name"?: string | undefined; "role"?: string | undefined; "favoriteMacro"?: 'Derive' | 'JsonNative' | undefined; "since"?: string | undefined; "apiToken"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "MacroUser");
@@ -288,7 +289,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MacroUser)) {
+        throw new TypeError("MacroUser.decodeWithContext: the value made is no MacroUser");
+    }
+    return made;
 }
 static validateField<K extends keyof MacroUser>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -467,16 +471,16 @@ original 0..56 -> expanded 770..826
 original 93..123 -> expanded 826..856
 original 158..278 -> expanded 856..976
 original 307..330 -> expanded 976..999
-original 330..331 -> expanded 13125..13126
-original 331..683 -> expanded 16376..16728
+original 330..331 -> expanded 13492..13493
+original 331..683 -> expanded 16743..17095
 generated 0..770 <- imports
 generated 999..1492 <- Debug
 generated 1492..4337 <- Encode
 generated 4337..4662 <- Encode
-generated 4662..13125 <- Decode
-generated 13126..13229 <- Debug
-generated 13229..14579 <- Encode
-generated 14579..16376 <- Decode
+generated 4662..13492 <- Decode
+generated 13493..13596 <- Debug
+generated 13596..14946 <- Encode
+generated 14946..16743 <- Decode
 
 ## Metadata
 

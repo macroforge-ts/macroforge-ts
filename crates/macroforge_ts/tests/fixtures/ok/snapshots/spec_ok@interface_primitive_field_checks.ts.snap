@@ -132,7 +132,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "age"?: number | undefined; "active"?: boolean | undefined; "kind"?: "user" | undefined; "mode"?: "light" | "dark" | undefined; "nickname"?: string | null | undefined; "bio"?: string | undefined; "rank"?: number | undefined | undefined; "height"?: number & { readonly [__mf_newtype_1]: true } | undefined; "balance"?: bigint | undefined; "site"?: URL | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Profile");
@@ -245,13 +245,13 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         () => {
             if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
                 try {
-                    instance.balance = ((v) => {
+                    instance.balance = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["balance"]);
+                })(__raw) as bigint)(obj["balance"]);
                 } catch (__error) {
                     errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -260,11 +260,11 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         () => {
             if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
                 try {
-                    instance.site = ((v) => {
+                    instance.site = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
                 	return new URL(raw);
-                })(obj["site"]);
+                })(__raw) as URL)(obj["site"]);
                 } catch (__error) {
                     errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -590,23 +590,23 @@ export {};
 
 original 22..216 -> expanded 587..781
 original 232..267 -> expanded 825..860
-original 267..269 -> expanded 13251..13253
-original 312..367 -> expanded 13253..13308
-original 367..369 -> expanded 16858..16860
-original 391..417 -> expanded 16860..16886
-original 417..418 -> expanded 18986..18987
+original 267..269 -> expanded 13718..13720
+original 312..367 -> expanded 13720..13775
+original 367..369 -> expanded 17325..17327
+original 391..417 -> expanded 17327..17353
+original 417..418 -> expanded 19453..19454
 generated 0..542 <- imports
 generated 542..587 <- $Newtype
 generated 781..825 <- $Newtype
-generated 860..12595 <- Decode
-generated 12595..13251 <- __convenience_const
-generated 13308..14016 <- Encode
-generated 14016..15928 <- Decode
-generated 15928..16122 <- Hash
-generated 16122..16225 <- Debug
-generated 16225..16858 <- __convenience_const
-generated 16886..18678 <- Decode
-generated 18678..18986 <- __convenience_const
+generated 860..13062 <- Decode
+generated 13062..13718 <- __convenience_const
+generated 13775..14483 <- Encode
+generated 14483..16395 <- Decode
+generated 16395..16589 <- Hash
+generated 16589..16692 <- Debug
+generated 16692..17325 <- __convenience_const
+generated 17353..19145 <- Decode
+generated 19145..19453 <- __convenience_const
 
 ## Metadata
 

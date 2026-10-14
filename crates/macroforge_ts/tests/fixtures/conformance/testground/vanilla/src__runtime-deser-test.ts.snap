@@ -103,7 +103,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined; "createdAt"?: Date | undefined; "score"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Inner");
@@ -286,7 +286,7 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "items"?: Inner[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Container");
@@ -546,13 +546,13 @@ export {};
 ## Mapping
 
 original 0..107 -> expanded 472..579
-original 107..182 -> expanded 8191..8266
-original 182..2159 -> expanded 15088..17065
+original 107..182 -> expanded 8281..8356
+original 182..2159 -> expanded 15208..17185
 generated 0..472 <- imports
-generated 579..7558 <- Decode
-generated 7558..8191 <- __convenience_const
-generated 8266..14395 <- Decode
-generated 14395..15088 <- __convenience_const
+generated 579..7648 <- Decode
+generated 7648..8281 <- __convenience_const
+generated 8356..14515 <- Decode
+generated 14515..15208 <- __convenience_const
 
 ## Metadata
 

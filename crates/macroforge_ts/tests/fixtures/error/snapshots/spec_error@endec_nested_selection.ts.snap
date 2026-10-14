@@ -160,7 +160,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "score"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Item");
@@ -302,12 +302,12 @@ Error [140..173]: @derive(Decode): `Partial<Pick<Item, 'id'>>` selects fields of
 ## Mapping
 
 original 30..84 -> expanded 685..739
-original 84..86 -> expanded 10098..10100
-original 116..175 -> expanded 10100..10159
+original 84..86 -> expanded 10154..10156
+original 116..175 -> expanded 10156..10215
 generated 0..685 <- imports
 generated 739..3155 <- Encode
-generated 3155..9191 <- Decode
-generated 9191..10098 <- __convenience_const
+generated 3155..9247 <- Decode
+generated 9247..10154 <- __convenience_const
 
 ## Metadata
 

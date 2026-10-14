@@ -171,7 +171,7 @@ export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "amount"?: number | null | undefined; "currency"?: string | null | undefined; "paymentMethod"?: string | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Paid");
@@ -538,13 +538,13 @@ export declare const Paid: {
 
 original 0..58 -> expanded 844..902
 original 107..223 -> expanded 902..1018
-original 223..224 -> expanded 17565..17566
+original 223..224 -> expanded 17687..17688
 generated 0..844 <- imports
 generated 1018..1159 <- Default
 generated 1159..3863 <- Encode
-generated 3863..10641 <- Decode
-generated 10641..16407 <- Gigaform
-generated 16407..17565 <- __convenience_const
+generated 3863..10763 <- Decode
+generated 10763..16529 <- Gigaform
+generated 16529..17687 <- __convenience_const
 
 ## Metadata
 

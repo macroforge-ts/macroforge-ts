@@ -162,7 +162,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "bearing"?: number | undefined; "hue"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DirectionHue");
@@ -489,13 +489,13 @@ export declare const DirectionHue: {
 
 original 0..58 -> expanded 844..902
 original 107..179 -> expanded 902..974
-original 179..180 -> expanded 16187..16188
+original 179..180 -> expanded 16246..16247
 generated 0..844 <- imports
 generated 974..1092 <- Default
 generated 1092..3640 <- Encode
-generated 3640..10036 <- Decode
-generated 10036..14813 <- Gigaform
-generated 14813..16187 <- __convenience_const
+generated 3640..10095 <- Decode
+generated 10095..14872 <- Gigaform
+generated 14872..16246 <- __convenience_const
 
 ## Metadata
 

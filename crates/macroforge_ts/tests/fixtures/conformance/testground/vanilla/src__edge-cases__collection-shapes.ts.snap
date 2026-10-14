@@ -482,7 +482,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "grid"?: number[][] | undefined; "dateGrid"?: Array<Array<Date>> | undefined; "itemGrid"?: EdgeItem[][] | undefined; "datesByName"?: Map<string, Date[]> | undefined; "itemsByName"?: Record<string, EdgeItem[]> | undefined; "setsByName"?: Map<string, Set<string>> | undefined; "mapOfMaps"?: Map<string, Map<string, number>> | undefined; "cardsByName"?: Map<string, EdgeCard> | undefined; "optionalItems"?: EdgeItem[] | undefined; "maybeItems"?: EdgeItem[] | null | undefined; "laterItems"?: EdgeItem[] | undefined | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CollectionNested");
@@ -1152,7 +1152,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "byNumber"?: Map<number, string> | undefined; "byKind"?: Map<CollectionKind, number> | undefined; "byDate"?: Map<Date, string> | undefined; "kindLabels"?: Record<CollectionKind, string> | undefined; "numbered"?: Record<number, EdgeItem> | undefined; "kinds"?: Set<CollectionKind> | undefined; "dates"?: Set<Date> | undefined; "nullableDates"?: (Date | null)[] | undefined; "dateSet"?: Set<Date | null> | undefined; "dateRecord"?: Record<string, Date> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CollectionKeys");
@@ -1750,7 +1750,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "mixed"?: (string | number)[] | undefined; "itemOrText"?: Array<EdgeItem | string> | undefined; "itemOrNull"?: Set<EdgeItem | null> | undefined; "valueOrNull"?: Map<string, EdgeItem | null> | undefined; "recordOrNull"?: Record<string, EdgeItem | null> | undefined; "literal"?: ('on' | 'off')[] | undefined; "kindOrNull"?: (CollectionKind | null)[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CollectionUnions");
@@ -2267,7 +2267,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "pair"?: [string, number] | undefined; "named"?: [label: string, at: Date] | undefined; "itemPair"?: [EdgeItem, EdgeItem | null] | undefined; "readonlyPair"?: readonly [number, number] | undefined; "optionalTail"?: [string, number?] | undefined; "rest"?: [string, ...number[]] | undefined; "pairs"?: [string, EdgeItem][] | undefined; "nested"?: [[number, number], [string, Date]] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CollectionTuples");
@@ -2771,7 +2771,7 @@ export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_Dec
         }
     }
 
-    const instance: any = {};
+    const instance: { "none"?: [] | undefined; "nested"?: [[]] | undefined; "loose"?: [unknown, unknown] | undefined; "mixedRest"?: [EdgeItem, ...Date[]] | undefined; "laterRest"?: [string, EdgeItem?, ...Date[]] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CollectionLengths");
@@ -3181,7 +3181,7 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "total"?: bigint | undefined; "totals"?: bigint[] | undefined; "maybeTotal"?: bigint | null | undefined; "byName"?: Map<string, bigint> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CollectionBig");
@@ -3193,13 +3193,13 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         () => {
             if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
                 try {
-                    instance.total = ((v) => {
+                    instance.total = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["total"]);
+                })(__raw) as bigint)(obj["total"]);
                 } catch (__error) {
                     errors.push({ field: "total", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3211,14 +3211,14 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
                 if (Array.isArray(__raw_totals)) {
                     ctx.pushScope("totals");
                     try {
-                        instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => ((v) => {
+                        instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => (((v) => {
                                 const raw: unknown = v;
                                 if (typeof raw === "bigint") return raw;
                                 // A number past the safe integers has lost digits already.
                                 if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                                 if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                                 return BigInt(raw);
-                            })(__raw0));
+                            })(__raw0) as bigint));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -3247,7 +3247,7 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(__raw))(obj["maybeTotal"]);
+                })(__raw) as bigint)(obj["maybeTotal"]);
                 } catch (__error) {
                     errors.push({ field: "maybeTotal", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -3259,14 +3259,14 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
                 if (typeof __raw_byName === "object" && __raw_byName !== null) {
                     ctx.pushScope("byName");
                     try {
-                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => ((v) => {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => (((v) => {
                                 const raw: unknown = v;
                                 if (typeof raw === "bigint") return raw;
                                 // A number past the safe integers has lost digits already.
                                 if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                                 if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                                 return BigInt(raw);
-                            })(__raw0));
+                            })(__raw0) as bigint));
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -3795,12 +3795,12 @@ export declare const CollectionBig: {
 
 original 0..433 -> expanded 1681..2114
 original 433..948 -> expanded 5986..6501
-original 948..1410 -> expanded 47252..47714
-original 1410..1804 -> expanded 80910..81304
-original 1804..2219 -> expanded 108482..108897
-original 2219..2478 -> expanded 135576..135835
-original 2478..2681 -> expanded 156003..156206
-original 2681..2682 -> expanded 174286..174287
+original 948..1410 -> expanded 47776..48238
+original 1410..1804 -> expanded 81897..82291
+original 1804..2219 -> expanded 109829..110244
+original 2219..2478 -> expanded 137315..137574
+original 2478..2681 -> expanded 157944..158147
+original 2681..2682 -> expanded 176448..176449
 generated 0..1681 <- imports
 generated 2114..2453 <- Debug
 generated 2453..2551 <- Clone
@@ -3818,47 +3818,47 @@ generated 9402..14513 <- PartialEq
 generated 14513..17443 <- Hash
 generated 17443..17804 <- Default
 generated 17804..23600 <- Encode
-generated 23600..45630 <- Decode
-generated 45630..47252 <- __convenience_const
-generated 47714..48627 <- Debug
-generated 48627..49421 <- Clone
-generated 49421..52061 <- PartialEq
-generated 52061..53920 <- Hash
-generated 53920..54330 <- Default
-generated 54330..59513 <- Encode
-generated 59513..79350 <- Decode
-generated 79350..80910 <- __convenience_const
-generated 81304..82038 <- Debug
-generated 82038..82840 <- Clone
-generated 82840..84913 <- PartialEq
-generated 84913..86198 <- Hash
-generated 86198..86467 <- Default
-generated 86467..90929 <- Encode
-generated 90929..106860 <- Decode
-generated 106860..108482 <- __convenience_const
-generated 108897..109666 <- Debug
-generated 109666..110219 <- Clone
-generated 110219..111161 <- PartialEq
-generated 111161..111940 <- Hash
-generated 111940..112277 <- Default
-generated 112277..116613 <- Encode
-generated 116613..133954 <- Decode
-generated 133954..135576 <- __convenience_const
-generated 135835..136402 <- Debug
-generated 136402..136788 <- Clone
-generated 136788..137329 <- PartialEq
-generated 137329..137839 <- Hash
-generated 137839..138080 <- Default
-generated 138080..141786 <- Encode
-generated 141786..154350 <- Decode
-generated 154350..156003 <- __convenience_const
-generated 156206..156668 <- Debug
-generated 156668..156919 <- Clone
-generated 156919..157769 <- PartialEq
-generated 157769..158717 <- Hash
-generated 158717..161979 <- Encode
-generated 161979..172859 <- Decode
-generated 172859..174286 <- __convenience_const
+generated 23600..46154 <- Decode
+generated 46154..47776 <- __convenience_const
+generated 48238..49151 <- Debug
+generated 49151..49945 <- Clone
+generated 49945..52585 <- PartialEq
+generated 52585..54444 <- Hash
+generated 54444..54854 <- Default
+generated 54854..60037 <- Encode
+generated 60037..80337 <- Decode
+generated 80337..81897 <- __convenience_const
+generated 82291..83025 <- Debug
+generated 83025..83827 <- Clone
+generated 83827..85900 <- PartialEq
+generated 85900..87185 <- Hash
+generated 87185..87454 <- Default
+generated 87454..91916 <- Encode
+generated 91916..108207 <- Decode
+generated 108207..109829 <- __convenience_const
+generated 110244..111013 <- Debug
+generated 111013..111566 <- Clone
+generated 111566..112508 <- PartialEq
+generated 112508..113287 <- Hash
+generated 113287..113624 <- Default
+generated 113624..117960 <- Encode
+generated 117960..135693 <- Decode
+generated 135693..137315 <- __convenience_const
+generated 137574..138141 <- Debug
+generated 138141..138527 <- Clone
+generated 138527..139068 <- PartialEq
+generated 139068..139578 <- Hash
+generated 139578..139819 <- Default
+generated 139819..143525 <- Encode
+generated 143525..156291 <- Decode
+generated 156291..157944 <- __convenience_const
+generated 158147..158609 <- Debug
+generated 158609..158860 <- Clone
+generated 158860..159710 <- PartialEq
+generated 159710..160658 <- Hash
+generated 160658..163920 <- Encode
+generated 163920..175021 <- Decode
+generated 175021..176448 <- __convenience_const
 
 ## Metadata
 

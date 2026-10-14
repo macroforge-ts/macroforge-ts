@@ -165,7 +165,7 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
         }
     }
 
-    const instance: any = {};
+    const instance: { "price"?: number | undefined; "description"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ServiceDefaults");
@@ -506,13 +506,13 @@ original 107..147 -> expanded 902..942
 original 211..235 -> expanded 942..966
 original 287..292 -> expanded 966..971
 original 333..360 -> expanded 971..998
-original 360..361 -> expanded 17618..17619
+original 360..361 -> expanded 17683..17684
 generated 0..844 <- imports
 generated 998..1129 <- Default
 generated 1129..3746 <- Encode
-generated 3746..11348 <- Decode
-generated 11348..16163 <- Gigaform
-generated 16163..17618 <- __convenience_const
+generated 3746..11413 <- Decode
+generated 11413..16228 <- Gigaform
+generated 16228..17683 <- __convenience_const
 
 ## Metadata
 

@@ -164,7 +164,7 @@ export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "technician"?: string | undefined; "salesRep"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Commissions");
@@ -515,13 +515,13 @@ original 0..58 -> expanded 844..902
 original 107..143 -> expanded 902..938
 original 184..213 -> expanded 938..967
 original 254..278 -> expanded 967..991
-original 278..279 -> expanded 18057..18058
+original 278..279 -> expanded 18124..18125
 generated 0..844 <- imports
 generated 991..1117 <- Default
 generated 1117..3682 <- Encode
-generated 3682..12123 <- Decode
-generated 12123..16710 <- Gigaform
-generated 16710..18057 <- __convenience_const
+generated 3682..12190 <- Decode
+generated 12190..16777 <- Gigaform
+generated 16777..18124 <- __convenience_const
 
 ## Metadata
 

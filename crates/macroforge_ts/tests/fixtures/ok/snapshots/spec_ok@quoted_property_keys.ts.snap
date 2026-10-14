@@ -258,7 +258,7 @@ export function headersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "content-type"?: string | undefined; "x request id"?: number | undefined; "0"?: boolean | undefined; "class"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Headers");
@@ -439,7 +439,7 @@ export {};
 ## Mapping
 
 original 91..204 -> expanded 908..1021
-original 204..205 -> expanded 16534..16535
+original 204..205 -> expanded 16664..16665
 generated 0..908 <- imports
 generated 1021..1452 <- Debug
 generated 1452..1686 <- Clone
@@ -449,8 +449,8 @@ generated 2833..3611 <- PartialOrd
 generated 3611..4369 <- Ord
 generated 4369..4535 <- Default
 generated 4535..7522 <- Encode
-generated 7522..15030 <- Decode
-generated 15030..16534 <- __convenience_const
+generated 7522..15160 <- Decode
+generated 15160..16664 <- __convenience_const
 
 ## Metadata
 

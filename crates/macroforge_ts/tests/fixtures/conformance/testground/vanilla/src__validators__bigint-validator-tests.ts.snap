@@ -112,7 +112,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GreaterThanBigIntValidator.prototype);
+    const made: object = Object.create(GreaterThanBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GreaterThanBigIntValidator");
@@ -122,13 +123,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
                 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
             }
@@ -140,7 +141,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanBigIntValidator)) {
+        throw new TypeError("GreaterThanBigIntValidator.decodeWithContext: the value made is no GreaterThanBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -302,7 +306,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(GreaterThanOrEqualToBigIntValidator.prototype);
+    const made: object = Object.create(GreaterThanOrEqualToBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "GreaterThanOrEqualToBigIntValidator");
@@ -312,13 +317,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
                 if (__convertedVal < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
             }
@@ -330,7 +335,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof GreaterThanOrEqualToBigIntValidator)) {
+        throw new TypeError("GreaterThanOrEqualToBigIntValidator.decodeWithContext: the value made is no GreaterThanOrEqualToBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -492,7 +500,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(LessThanBigIntValidator.prototype);
+    const made: object = Object.create(LessThanBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "LessThanBigIntValidator");
@@ -502,13 +511,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
                 if (__convertedVal >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
             }
@@ -520,7 +529,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanBigIntValidator)) {
+        throw new TypeError("LessThanBigIntValidator.decodeWithContext: the value made is no LessThanBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -682,7 +694,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(LessThanOrEqualToBigIntValidator.prototype);
+    const made: object = Object.create(LessThanOrEqualToBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "LessThanOrEqualToBigIntValidator");
@@ -692,13 +705,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
                 if (__convertedVal > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
             }
@@ -710,7 +723,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof LessThanOrEqualToBigIntValidator)) {
+        throw new TypeError("LessThanOrEqualToBigIntValidator.decodeWithContext: the value made is no LessThanOrEqualToBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -872,7 +888,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(BetweenBigIntValidator.prototype);
+    const made: object = Object.create(BetweenBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "BetweenBigIntValidator");
@@ -882,13 +899,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
                 if (__convertedVal < 0n || __convertedVal > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
             }
@@ -900,7 +917,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof BetweenBigIntValidator)) {
+        throw new TypeError("BetweenBigIntValidator.decodeWithContext: the value made is no BetweenBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof BetweenBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1062,7 +1082,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(PositiveBigIntValidator.prototype);
+    const made: object = Object.create(PositiveBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "PositiveBigIntValidator");
@@ -1072,13 +1093,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
                 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
             }
@@ -1090,7 +1111,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof PositiveBigIntValidator)) {
+        throw new TypeError("PositiveBigIntValidator.decodeWithContext: the value made is no PositiveBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof PositiveBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1252,7 +1276,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NonNegativeBigIntValidator.prototype);
+    const made: object = Object.create(NonNegativeBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NonNegativeBigIntValidator");
@@ -1262,13 +1287,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
                 if (__convertedVal < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
             }
@@ -1280,7 +1305,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonNegativeBigIntValidator)) {
+        throw new TypeError("NonNegativeBigIntValidator.decodeWithContext: the value made is no NonNegativeBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonNegativeBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1442,7 +1470,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NegativeBigIntValidator.prototype);
+    const made: object = Object.create(NegativeBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NegativeBigIntValidator");
@@ -1452,13 +1481,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
                 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
             }
@@ -1470,7 +1499,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NegativeBigIntValidator)) {
+        throw new TypeError("NegativeBigIntValidator.decodeWithContext: the value made is no NegativeBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NegativeBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1632,7 +1664,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NonPositiveBigIntValidator.prototype);
+    const made: object = Object.create(NonPositiveBigIntValidator.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NonPositiveBigIntValidator");
@@ -1642,13 +1675,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
                 if (__convertedVal > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
             }
@@ -1660,7 +1693,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NonPositiveBigIntValidator)) {
+        throw new TypeError("NonPositiveBigIntValidator.decodeWithContext: the value made is no NonPositiveBigIntValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof NonPositiveBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2209,43 +2245,43 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 ## Mapping
 
 original 0..261 -> expanded 439..700
-original 261..262 -> expanded 7429..7430
-original 262..464 -> expanded 9482..9684
-original 464..465 -> expanded 16671..16672
-original 465..634 -> expanded 18859..19028
-original 634..635 -> expanded 25691..25692
-original 635..831 -> expanded 27699..27895
-original 831..832 -> expanded 34816..34817
-original 832..1001 -> expanded 36959..37128
-original 1001..1002 -> expanded 43826..43827
-original 1002..1165 -> expanded 45819..45982
-original 1165..1166 -> expanded 52618..52619
-original 1166..1338 -> expanded 54626..54798
-original 1338..1339 -> expanded 61518..61519
-original 1339..1502 -> expanded 63571..63734
-original 1502..1503 -> expanded 70370..70371
-original 1503..1675 -> expanded 72378..72550
-original 1675..1676 -> expanded 79270..79271
-original 1676..1677 -> expanded 81323..81324
+original 261..262 -> expanded 7713..7714
+original 262..464 -> expanded 9766..9968
+original 464..465 -> expanded 17266..17267
+original 465..634 -> expanded 19454..19623
+original 634..635 -> expanded 26561..26562
+original 635..831 -> expanded 28569..28765
+original 831..832 -> expanded 35988..35989
+original 832..1001 -> expanded 38131..38300
+original 1001..1002 -> expanded 45270..45271
+original 1002..1165 -> expanded 47263..47426
+original 1165..1166 -> expanded 54337..54338
+original 1166..1338 -> expanded 56345..56517
+original 1338..1339 -> expanded 63521..63522
+original 1339..1502 -> expanded 65574..65737
+original 1502..1503 -> expanded 72648..72649
+original 1503..1675 -> expanded 74656..74828
+original 1675..1676 -> expanded 81832..81833
+original 1676..1677 -> expanded 83885..83886
 generated 0..439 <- imports
-generated 700..7429 <- Decode
-generated 7430..9482 <- Decode
-generated 9684..16671 <- Decode
-generated 16672..18859 <- Decode
-generated 19028..25691 <- Decode
-generated 25692..27699 <- Decode
-generated 27895..34816 <- Decode
-generated 34817..36959 <- Decode
-generated 37128..43826 <- Decode
-generated 43827..45819 <- Decode
-generated 45982..52618 <- Decode
-generated 52619..54626 <- Decode
-generated 54798..61518 <- Decode
-generated 61519..63571 <- Decode
-generated 63734..70370 <- Decode
-generated 70371..72378 <- Decode
-generated 72550..79270 <- Decode
-generated 79271..81323 <- Decode
+generated 700..7713 <- Decode
+generated 7714..9766 <- Decode
+generated 9968..17266 <- Decode
+generated 17267..19454 <- Decode
+generated 19623..26561 <- Decode
+generated 26562..28569 <- Decode
+generated 28765..35988 <- Decode
+generated 35989..38131 <- Decode
+generated 38300..45270 <- Decode
+generated 45271..47263 <- Decode
+generated 47426..54337 <- Decode
+generated 54338..56345 <- Decode
+generated 56517..63521 <- Decode
+generated 63522..65574 <- Decode
+generated 65737..72648 <- Decode
+generated 72649..74656 <- Decode
+generated 74828..81832 <- Decode
+generated 81833..83885 <- Decode
 
 ## Metadata
 

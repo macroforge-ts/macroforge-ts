@@ -149,7 +149,7 @@ export function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "companyName"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CompanyName");
@@ -435,13 +435,13 @@ original 0..58 -> expanded 844..902
 original 107..143 -> expanded 902..938
 original 192..197 -> expanded 938..943
 original 238..265 -> expanded 943..970
-original 265..266 -> expanded 14764..14765
+original 265..266 -> expanded 14799..14800
 generated 0..844 <- imports
 generated 970..1075 <- Default
 generated 1075..3277 <- Encode
-generated 3277..9941 <- Decode
-generated 9941..13417 <- Gigaform
-generated 13417..14764 <- __convenience_const
+generated 3277..9976 <- Decode
+generated 9976..13452 <- Gigaform
+generated 13452..14799 <- __convenience_const
 
 ## Metadata
 

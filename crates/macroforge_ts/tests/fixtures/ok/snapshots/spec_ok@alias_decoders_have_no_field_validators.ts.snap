@@ -171,7 +171,7 @@ export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     }
 
     const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
-    const instance: any = {};
+    const instance: { "e0"?: number | undefined; "e1"?: number | undefined } = {};
     Object.defineProperty(instance, "e0", {
         get: () => tuple[0],
         set: (item: unknown) => {
@@ -278,12 +278,12 @@ export {};
 original 49..71 -> expanded 225..247
 original 71..73 -> expanded 2700..2702
 original 95..125 -> expanded 2702..2732
-original 125..126 -> expanded 7078..7079
+original 125..126 -> expanded 7131..7132
 generated 0..225 <- imports
 generated 247..2383 <- Decode
 generated 2383..2700 <- __convenience_const
-generated 2732..6779 <- Decode
-generated 6779..7078 <- __convenience_const
+generated 2732..6832 <- Decode
+generated 6832..7131 <- __convenience_const
 
 ## Metadata
 

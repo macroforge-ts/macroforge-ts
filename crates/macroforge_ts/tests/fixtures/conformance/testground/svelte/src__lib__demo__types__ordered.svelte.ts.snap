@@ -187,7 +187,7 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "in"?: string | Account | undefined; "out"?: string | Order | undefined; "date"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Ordered");
@@ -634,13 +634,13 @@ original 0..153 -> expanded 1012..1165
 original 202..250 -> expanded 1165..1213
 original 269..300 -> expanded 1213..1244
 original 319..364 -> expanded 1244..1289
-original 364..365 -> expanded 20737..20738
+original 364..365 -> expanded 20865..20866
 generated 0..1012 <- imports
 generated 1289..1428 <- Default
 generated 1428..4470 <- Encode
-generated 4470..13204 <- Decode
-generated 13204..19498 <- Gigaform
-generated 19498..20737 <- __convenience_const
+generated 4470..13332 <- Decode
+generated 13332..19626 <- Gigaform
+generated 19626..20865 <- __convenience_const
 
 ## Metadata
 

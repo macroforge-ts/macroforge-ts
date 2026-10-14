@@ -65,6 +65,37 @@ pub(in crate::builtin::derive::endec::decode) fn missing_keys_check(
     }
 }
 
+/// The type of the value `fields` are decoded onto: each field optional and
+/// writable, as the value holds only those decoded so far. A field named like
+/// a member of `Object.prototype` is `unknown`, as the value inherits that
+/// member until the field is written.
+pub(in crate::builtin::derive::endec::decode) fn assembly_type(fields: &[DecodeField]) -> String {
+    const INHERITED: [&str; 7] = [
+        "constructor",
+        "toString",
+        "toLocaleString",
+        "valueOf",
+        "hasOwnProperty",
+        "isPrototypeOf",
+        "propertyIsEnumerable",
+    ];
+    if fields.is_empty() {
+        return "object".to_string();
+    }
+    let members: Vec<String> = fields
+        .iter()
+        .map(|field| {
+            let key = js_string(&field.field_name);
+            if INHERITED.contains(&field.field_name.as_str()) {
+                format!("{key}?: unknown")
+            } else {
+                format!("{key}?: {} | undefined", field.ts_type)
+            }
+        })
+        .collect();
+    format!("{{ {} }}", members.join("; "))
+}
+
 /// Whether `obj` holds every key `fields` require, as one call over the
 /// keys: a condition a key would nest as deep as the type is wide.
 pub(in crate::builtin::derive::endec::decode) fn holds_required_keys(

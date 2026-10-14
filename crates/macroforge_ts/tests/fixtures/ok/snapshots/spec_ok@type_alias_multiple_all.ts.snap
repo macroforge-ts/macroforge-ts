@@ -191,7 +191,7 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "lat"?: number | undefined; "lng"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Coordinate");
@@ -339,15 +339,15 @@ export {};
 ## Mapping
 
 original 61..118 -> expanded 869..926
-original 118..119 -> expanded 12323..12324
+original 118..119 -> expanded 12378..12379
 generated 0..869 <- imports
 generated 926..1231 <- Debug
 generated 1231..1392 <- Clone
 generated 1392..1727 <- PartialEq
 generated 1727..2224 <- Hash
 generated 2224..4726 <- Encode
-generated 4726..10990 <- Decode
-generated 10990..12323 <- __convenience_const
+generated 4726..11045 <- Decode
+generated 11045..12378 <- __convenience_const
 
 ## Metadata
 

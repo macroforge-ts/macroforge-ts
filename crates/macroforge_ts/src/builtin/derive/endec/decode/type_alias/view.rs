@@ -12,7 +12,9 @@ use crate::ts_syn::{MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 use super::AliasDecode;
 use crate::builtin::derive::common::{TypeNames, tuple_element, undefined_as_null};
 use crate::builtin::derive::endec::decode::field::prepare::to_decode_field;
-use crate::builtin::derive::endec::decode::field::statements::{Required, decode_fields};
+use crate::builtin::derive::endec::decode::field::statements::{
+    Required, assembly_type, decode_fields,
+};
 use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::source_field::SourceField;
@@ -60,6 +62,7 @@ pub(super) fn tuple_view(
         .iter()
         .map(usize::to_string)
         .collect();
+    let assembly = assembly_type(&layout.fields);
     let field_statements = decode_fields(&layout.fields, type_name, "__type", Required::All);
     let reference = decode_reference(type_name, &alias.full_type_name);
     Ok(ts_template! {
@@ -97,7 +100,7 @@ pub(super) fn tuple_view(
             // An element left `undefined` keeps its place before the rest.
             const tuple: unknown[] = new Array<unknown>(Math.min(value.length, @{fixed.clone()})).fill(undefined);
             {#if !slots.is_empty() || has_rest}
-                const instance: any = {};
+                const instance: @{&assembly} = {};
             {/if}
             {#for (slot, index) in &slots}
                 Object.defineProperty(instance, "@{slot}", {
@@ -149,12 +152,9 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
     let fn_has_shape_ident = ts_ident!("{}HasShape", function_prefix(alias.type_name));
     let decode_context_ident = &alias.decode_context_ident;
     let full_type_ident = ts_ident!(alias.full_type_name.as_str());
-    let field_statements = decode_fields(
-        &Vec::from_iter(field),
-        alias.type_name,
-        "__type",
-        Required::All,
-    );
+    let fields = Vec::from_iter(field);
+    let assembly = assembly_type(&fields);
+    let field_statements = decode_fields(&fields, alias.type_name, "__type", Required::All);
     let reference = decode_reference(alias.type_name, &alias.full_type_name);
     // What a value of the aliased type is encoded as, as far as one check
     // tells: enough to tell it from the other members of a union.
@@ -177,7 +177,7 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
             {$typescript reference}
             const obj: Record<string, unknown> = { _root: value };
             const errors: Array<{ field: string; message: string }> = [];
-            const instance: any = {};
+            const instance: @{&assembly} = {};
 
             {$typescript field_statements}
 

@@ -165,7 +165,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "canEmail"?: boolean | undefined; "emailString"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Email");
@@ -508,13 +508,13 @@ original 107..137 -> expanded 902..932
 original 185..213 -> expanded 932..960
 original 255..260 -> expanded 960..965
 original 310..337 -> expanded 965..992
-original 337..338 -> expanded 17064..17065
+original 337..338 -> expanded 17133..17134
 generated 0..844 <- imports
 generated 992..1110 <- Default
 generated 1110..3589 <- Encode
-generated 3589..11302 <- Decode
-generated 11302..15879 <- Gigaform
-generated 15879..17064 <- __convenience_const
+generated 3589..11371 <- Decode
+generated 11371..15948 <- Gigaform
+generated 15948..17133 <- __convenience_const
 
 ## Metadata
 

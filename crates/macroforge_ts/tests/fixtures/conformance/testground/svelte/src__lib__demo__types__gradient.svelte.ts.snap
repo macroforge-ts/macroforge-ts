@@ -147,7 +147,7 @@ export function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "startHue"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Gradient");
@@ -420,13 +420,13 @@ export declare const Gradient: {
 
 original 0..58 -> expanded 844..902
 original 107..159 -> expanded 902..954
-original 159..160 -> expanded 13530..13531
+original 159..160 -> expanded 13562..13563
 generated 0..844 <- imports
 generated 954..1049 <- Default
 generated 1049..3194 <- Encode
-generated 3194..8743 <- Decode
-generated 8743..12264 <- Gigaform
-generated 12264..13530 <- __convenience_const
+generated 3194..8775 <- Decode
+generated 8775..12296 <- Gigaform
+generated 12296..13562 <- __convenience_const
 
 ## Metadata
 

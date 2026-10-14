@@ -112,7 +112,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(MaxItemsValidator.prototype);
+    const made: object = Object.create(MaxItemsValidator.prototype);
+    const instance: { "items"?: Array<string> | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "MaxItemsValidator");
@@ -150,7 +151,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MaxItemsValidator)) {
+        throw new TypeError("MaxItemsValidator.decodeWithContext: the value made is no MaxItemsValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof MaxItemsValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -312,7 +316,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(MinItemsValidator.prototype);
+    const made: object = Object.create(MinItemsValidator.prototype);
+    const instance: { "items"?: Array<string> | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "MinItemsValidator");
@@ -350,7 +355,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MinItemsValidator)) {
+        throw new TypeError("MinItemsValidator.decodeWithContext: the value made is no MinItemsValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof MinItemsValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -512,7 +520,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(ItemsCountValidator.prototype);
+    const made: object = Object.create(ItemsCountValidator.prototype);
+    const instance: { "items"?: Array<string> | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ItemsCountValidator");
@@ -550,7 +559,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ItemsCountValidator)) {
+        throw new TypeError("ItemsCountValidator.decodeWithContext: the value made is no ItemsCountValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof ItemsCountValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -787,19 +799,19 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 ## Mapping
 
 original 0..240 -> expanded 507..747
-original 240..241 -> expanded 7616..7617
-original 241..396 -> expanded 9534..9689
-original 396..397 -> expanded 16561..16562
-original 397..558 -> expanded 18479..18640
-original 558..559 -> expanded 25567..25568
-original 559..560 -> expanded 27515..27516
+original 240..241 -> expanded 7841..7842
+original 241..396 -> expanded 9759..9914
+original 396..397 -> expanded 17011..17012
+original 397..558 -> expanded 18929..19090
+original 558..559 -> expanded 26248..26249
+original 559..560 -> expanded 28196..28197
 generated 0..507 <- imports
-generated 747..7616 <- Decode
-generated 7617..9534 <- Decode
-generated 9689..16561 <- Decode
-generated 16562..18479 <- Decode
-generated 18640..25567 <- Decode
-generated 25568..27515 <- Decode
+generated 747..7841 <- Decode
+generated 7842..9759 <- Decode
+generated 9914..17011 <- Decode
+generated 17012..18929 <- Decode
+generated 19090..26248 <- Decode
+generated 26249..28196 <- Decode
 
 ## Metadata
 

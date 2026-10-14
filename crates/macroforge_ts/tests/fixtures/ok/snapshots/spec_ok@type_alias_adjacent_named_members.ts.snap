@@ -149,7 +149,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "radius"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Circle");
@@ -342,7 +342,7 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "side"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Square");
@@ -660,21 +660,21 @@ export {};
 ## Mapping
 
 original 30..71 -> expanded 817..858
-original 71..73 -> expanded 9365..9367
-original 103..142 -> expanded 9367..9406
-original 142..144 -> expanded 17873..17875
-original 222..252 -> expanded 17875..17905
-original 252..253 -> expanded 23716..23717
+original 71..73 -> expanded 9395..9397
+original 103..142 -> expanded 9397..9436
+original 142..144 -> expanded 17931..17933
+original 222..252 -> expanded 17933..17963
+original 252..253 -> expanded 23774..23775
 generated 0..817 <- imports
 generated 858..2965 <- Encode
-generated 2965..8416 <- Decode
-generated 8416..9365 <- __convenience_const
-generated 9406..11505 <- Encode
-generated 11505..16924 <- Decode
-generated 16924..17873 <- __convenience_const
-generated 17905..19782 <- Encode
-generated 19782..23240 <- Decode
-generated 23240..23716 <- __convenience_const
+generated 2965..8446 <- Decode
+generated 8446..9395 <- __convenience_const
+generated 9436..11535 <- Encode
+generated 11535..16982 <- Decode
+generated 16982..17931 <- __convenience_const
+generated 17963..19840 <- Encode
+generated 19840..23298 <- Decode
+generated 23298..23774 <- __convenience_const
 
 ## Metadata
 

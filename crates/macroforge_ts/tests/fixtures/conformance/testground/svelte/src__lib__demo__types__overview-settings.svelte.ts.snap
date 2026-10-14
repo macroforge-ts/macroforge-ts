@@ -189,7 +189,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         }
     }
 
-    const instance: any = {};
+    const instance: { "rowHeight"?: RowHeight | undefined; "cardOrRow"?: OverviewDisplay | undefined; "perPage"?: number | undefined; "columnConfigs"?: Array<ColumnConfig> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "OverviewSettings");
@@ -722,13 +722,13 @@ original 0..239 -> expanded 1208..1447
 original 288..329 -> expanded 1447..1488
 original 354..385 -> expanded 1488..1519
 original 409..504 -> expanded 1519..1614
-original 504..505 -> expanded 26809..26810
+original 504..505 -> expanded 26971..26972
 generated 0..1208 <- imports
 generated 1614..1808 <- Default
 generated 1808..5077 <- Encode
-generated 5077..14969 <- Decode
-generated 14969..25327 <- Gigaform
-generated 25327..26809 <- __convenience_const
+generated 5077..15131 <- Decode
+generated 15131..25489 <- Gigaform
+generated 25489..26971 <- __convenience_const
 
 ## Metadata
 

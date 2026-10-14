@@ -154,7 +154,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "radius"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Circle");
@@ -347,7 +347,7 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "side"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Square");
@@ -518,17 +518,17 @@ Error [320..349]: @derive(Decode): `Set<string> | string[]` holds `Set<string>`,
 ## Mapping
 
 original 30..71 -> expanded 685..726
-original 71..73 -> expanded 9233..9235
-original 103..142 -> expanded 9235..9274
-original 142..144 -> expanded 17741..17743
-original 174..351 -> expanded 17743..17920
+original 71..73 -> expanded 9263..9265
+original 103..142 -> expanded 9265..9304
+original 142..144 -> expanded 17799..17801
+original 174..351 -> expanded 17801..17978
 generated 0..685 <- imports
 generated 726..2833 <- Encode
-generated 2833..8284 <- Decode
-generated 8284..9233 <- __convenience_const
-generated 9274..11373 <- Encode
-generated 11373..16792 <- Decode
-generated 16792..17741 <- __convenience_const
+generated 2833..8314 <- Decode
+generated 8314..9263 <- __convenience_const
+generated 9304..11403 <- Encode
+generated 11403..16850 <- Decode
+generated 16850..17799 <- __convenience_const
 
 ## Metadata
 

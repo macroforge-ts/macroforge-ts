@@ -174,7 +174,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         }
     }
 
-    const instance: any = {};
+    const instance: { "countryCode"?: string | undefined; "areaCode"?: string | undefined; "localNumber"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Number");
@@ -585,13 +585,13 @@ original 107..138 -> expanded 902..933
 original 179..209 -> expanded 933..963
 original 250..277 -> expanded 963..990
 original 318..345 -> expanded 990..1017
-original 345..346 -> expanded 20739..20740
+original 345..346 -> expanded 20843..20844
 generated 0..844 <- imports
 generated 1017..1159 <- Default
 generated 1159..3905 <- Encode
-generated 3905..13858 <- Decode
-generated 13858..19527 <- Gigaform
-generated 19527..20739 <- __convenience_const
+generated 3905..13962 <- Decode
+generated 13962..19631 <- Gigaform
+generated 19631..20843 <- __convenience_const
 
 ## Metadata
 

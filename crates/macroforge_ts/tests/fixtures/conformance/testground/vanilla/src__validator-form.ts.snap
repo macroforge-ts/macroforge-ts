@@ -134,7 +134,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(UserRegistrationForm.prototype);
+    const made: object = Object.create(UserRegistrationForm.prototype);
+    const instance: { "email"?: string | undefined; "password"?: string | undefined; "username"?: string | undefined; "age"?: number | undefined; "website"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "UserRegistrationForm");
@@ -224,7 +225,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof UserRegistrationForm)) {
+        throw new TypeError("UserRegistrationForm.decodeWithContext: the value made is no UserRegistrationForm");
+    }
+    return made;
 }
 static validateField<K extends keyof UserRegistrationForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -459,7 +463,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(ProductForm.prototype);
+    const made: object = Object.create(ProductForm.prototype);
+    const instance: { "name"?: string | undefined; "price"?: number | undefined; "quantity"?: number | undefined; "tags"?: Array<string> | undefined; "sku"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ProductForm");
@@ -563,7 +568,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ProductForm)) {
+        throw new TypeError("ProductForm.decodeWithContext: the value made is no ProductForm");
+    }
+    return made;
 }
 static validateField<K extends keyof ProductForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -792,7 +800,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(EventForm.prototype);
+    const made: object = Object.create(EventForm.prototype);
+    const instance: { "title"?: string | undefined; "startDate"?: Date | undefined; "endDate"?: Date | undefined; "maxAttendees"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "EventForm");
@@ -870,7 +879,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof EventForm)) {
+        throw new TypeError("EventForm.decodeWithContext: the value made is no EventForm");
+    }
+    return made;
 }
 static validateField<K extends keyof EventForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1081,7 +1093,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(MeasurementForm.prototype);
+    const made: object = Object.create(MeasurementForm.prototype);
+    const instance: { "runner"?: Username | undefined; "distance"?: Meters | undefined; "cents"?: Cents | undefined; "contact"?: Contact | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "MeasurementForm");
@@ -1196,7 +1209,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof MeasurementForm)) {
+        throw new TypeError("MeasurementForm.decodeWithContext: the value made is no MeasurementForm");
+    }
+    return made;
 }
 static validateField<K extends keyof MeasurementForm>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1559,23 +1575,23 @@ export declare function validateMeasurement(data: unknown): ValidationResult<Mea
 ## Mapping
 
 original 0..840 -> expanded 727..1567
-original 840..841 -> expanded 17430..17431
-original 841..1291 -> expanded 19393..19843
-original 1291..1292 -> expanded 35013..35014
-original 1292..1677 -> expanded 36841..37226
-original 1677..1678 -> expanded 50474..50475
-original 1678..1821 -> expanded 52272..52415
-original 1821..1822 -> expanded 62000..62001
-original 1822..2740 -> expanded 63888..64806
+original 840..841 -> expanded 17783..17784
+original 841..1291 -> expanded 19746..20196
+original 1291..1292 -> expanded 35692..35693
+original 1292..1677 -> expanded 37520..37905
+original 1677..1678 -> expanded 51446..51447
+original 1678..1821 -> expanded 53244..53387
+original 1821..1822 -> expanded 63282..63283
+original 1822..2740 -> expanded 65170..66088
 generated 0..727 <- imports
-generated 1567..17430 <- Decode
-generated 17431..19393 <- Decode
-generated 19843..35013 <- Decode
-generated 35014..36841 <- Decode
-generated 37226..50474 <- Decode
-generated 50475..52272 <- Decode
-generated 52415..62000 <- Decode
-generated 62001..63888 <- Decode
+generated 1567..17783 <- Decode
+generated 17784..19746 <- Decode
+generated 20196..35692 <- Decode
+generated 35693..37520 <- Decode
+generated 37905..51446 <- Decode
+generated 51447..53244 <- Decode
+generated 53387..63282 <- Decode
+generated 63283..65170 <- Decode
 
 ## Metadata
 

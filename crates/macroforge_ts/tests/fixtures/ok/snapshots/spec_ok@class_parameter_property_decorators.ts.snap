@@ -183,7 +183,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Tagged.prototype);
+    const made: object = Object.create(Tagged.prototype);
+    const instance: { "count"?: number | undefined; "name"?: string | undefined; "cache"?: number | undefined; "plain"?: boolean | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Tagged");
@@ -236,7 +237,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Tagged)) {
+        throw new TypeError("Tagged.decodeWithContext: the value made is no Tagged");
+    }
+    return made;
 }
 static validateField<K extends keyof Tagged>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -394,16 +398,16 @@ original 120..161 -> expanded 843..884
 original 179..214 -> expanded 884..919
 original 248..298 -> expanded 919..969
 original 327..405 -> expanded 969..1047
-original 405..406 -> expanded 10189..10190
-original 406..407 -> expanded 13346..13347
+original 405..406 -> expanded 10464..10465
+original 406..407 -> expanded 13621..13622
 generated 0..762 <- imports
 generated 1047..1347 <- Default
 generated 1347..3454 <- Encode
 generated 3454..3773 <- Encode
-generated 3773..10189 <- Decode
-generated 10190..10274 <- Default
-generated 10274..11594 <- Encode
-generated 11594..13346 <- Decode
+generated 3773..10464 <- Decode
+generated 10465..10549 <- Default
+generated 10549..11869 <- Encode
+generated 11869..13621 <- Decode
 
 ## Metadata
 

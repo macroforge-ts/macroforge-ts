@@ -315,7 +315,7 @@ export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "value"?: number | undefined; "at"?: Date | undefined; "big"?: bigint | undefined; "text"?: string | undefined; "flag"?: boolean | undefined; "list"?: number[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "SpecialScalars");
@@ -352,13 +352,13 @@ export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_Decode
         () => {
             if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
                 try {
-                    instance.big = ((v) => {
+                    instance.big = ((__raw: unknown) => ((v) => {
                 	const raw: unknown = v;
                 	if (typeof raw === "bigint") return raw;
                 	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                 	return BigInt(raw);
-                })(obj["big"]);
+                })(__raw) as bigint)(obj["big"]);
                 } catch (__error) {
                     errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -891,7 +891,7 @@ export function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_Decode
         }
     }
 
-    const instance: any = {};
+    const instance: { "data"?: unknown | undefined; "amounts"?: Record<string, number> | undefined; "pair"?: [number, string] | undefined; "mixed"?: string | number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "SpecialCarried");
@@ -1273,7 +1273,7 @@ export function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_De
         }
     }
 
-    const instance: any = {};
+    const instance: { "set"?: Set<number> | undefined; "map"?: Map<string, number[]> | undefined; "record"?: Record<string, Date> | undefined; "nested"?: Map<string, Set<string>> | undefined; "optional"?: number | undefined; "nullable"?: number | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "SpecialCollections");
@@ -1741,7 +1741,7 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "list"?: (number | undefined)[] | undefined; "pair"?: [number | undefined, string?] | undefined; "record"?: Record<string, number | undefined> | undefined; "finite"?: Record<'a' | 'b', Date | undefined> | undefined; "set"?: Set<number | undefined> | undefined; "held"?: Map<string, number | undefined> | undefined; "either"?: (number | null | undefined)[] | undefined; "plain"?: string | undefined | undefined; "grouped"?: (string | undefined) | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "SpecialHoles");
@@ -2358,12 +2358,12 @@ export declare const SpecialHoles: {
 ## Mapping
 
 original 0..456 -> expanded 1546..2002
-original 456..524 -> expanded 23173..23241
-original 524..609 -> expanded 26574..26659
-original 609..789 -> expanded 33463..33643
-original 789..1079 -> expanded 46806..47096
-original 1079..1534 -> expanded 69568..70023
-original 1534..1535 -> expanded 98312..98313
+original 456..524 -> expanded 23384..23452
+original 524..609 -> expanded 26785..26870
+original 609..789 -> expanded 33674..33854
+original 789..1079 -> expanded 47172..47462
+original 1079..1534 -> expanded 70176..70631
+original 1534..1535 -> expanded 99376..99377
 generated 0..1546 <- imports
 generated 2002..2521 <- Debug
 generated 2521..2799 <- Clone
@@ -2373,32 +2373,32 @@ generated 4565..6272 <- PartialOrd
 generated 6272..7861 <- Ord
 generated 7861..8063 <- Default
 generated 8063..11555 <- Encode
-generated 11555..21417 <- Decode
-generated 21417..23173 <- __convenience_const
-generated 23241..24005 <- Encode
-generated 24005..25987 <- Decode
-generated 25987..26574 <- __convenience_const
-generated 26659..28492 <- Encode
-generated 28492..32876 <- Decode
-generated 32876..33463 <- __convenience_const
-generated 33643..36677 <- Encode
-generated 36677..45682 <- Decode
-generated 45682..46806 <- __convenience_const
-generated 47096..47693 <- Debug
-generated 47693..48340 <- Clone
-generated 48340..50023 <- PartialEq
-generated 50023..51721 <- Hash
-generated 51721..51936 <- Default
-generated 51936..55748 <- Encode
-generated 55748..67884 <- Decode
-generated 67884..69568 <- __convenience_const
-generated 70023..70797 <- Debug
-generated 70797..71237 <- Clone
-generated 71237..72872 <- PartialEq
-generated 72872..74593 <- Hash
-generated 74593..79208 <- Encode
-generated 79208..96914 <- Decode
-generated 96914..98312 <- __convenience_const
+generated 11555..21628 <- Decode
+generated 21628..23384 <- __convenience_const
+generated 23452..24216 <- Encode
+generated 24216..26198 <- Decode
+generated 26198..26785 <- __convenience_const
+generated 26870..28703 <- Encode
+generated 28703..33087 <- Decode
+generated 33087..33674 <- __convenience_const
+generated 33854..36888 <- Encode
+generated 36888..46048 <- Decode
+generated 46048..47172 <- __convenience_const
+generated 47462..48059 <- Debug
+generated 48059..48706 <- Clone
+generated 48706..50389 <- PartialEq
+generated 50389..52087 <- Hash
+generated 52087..52302 <- Default
+generated 52302..56114 <- Encode
+generated 56114..68492 <- Decode
+generated 68492..70176 <- __convenience_const
+generated 70631..71405 <- Debug
+generated 71405..71845 <- Clone
+generated 71845..73480 <- PartialEq
+generated 73480..75201 <- Hash
+generated 75201..79816 <- Encode
+generated 79816..97978 <- Decode
+generated 97978..99376 <- __convenience_const
 
 ## Metadata
 

@@ -160,7 +160,7 @@ export function customerDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: PersonName | undefined; "email"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Customer");
@@ -327,12 +327,12 @@ export declare const Customer: {
 
 original 0..53 -> expanded 802..855
 original 92..163 -> expanded 855..926
-original 163..164 -> expanded 11411..11412
+original 163..164 -> expanded 11473..11474
 generated 0..802 <- imports
 generated 926..1059 <- Default
 generated 1059..3576 <- Encode
-generated 3576..10321 <- Decode
-generated 10321..11411 <- __convenience_const
+generated 3576..10383 <- Decode
+generated 10383..11473 <- __convenience_const
 
 ## Metadata
 

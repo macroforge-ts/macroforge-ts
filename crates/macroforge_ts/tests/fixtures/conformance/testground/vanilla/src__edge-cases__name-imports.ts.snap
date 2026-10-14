@@ -253,7 +253,7 @@ export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "origin"?: point2D | undefined; "path"?: point2D[] | undefined; "byName"?: Map<string, point2D> | undefined; "maybe"?: point2D | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameImports");
@@ -642,7 +642,7 @@ export function nameRenamedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         }
     }
 
-    const instance: any = {};
+    const instance: { "held"?: Item | undefined; "listed"?: Item[] | undefined; "maybe"?: Item | null | undefined; "some"?: Partial<Item> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameRenamed");
@@ -1030,7 +1030,7 @@ export function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "chosen"?: Chosen | undefined; "shown"?: NameShown | undefined; "listed"?: NameShown[] | undefined; "maybe"?: Chosen | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameExported");
@@ -1418,7 +1418,7 @@ export function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "model"?: NameBarrelModel | undefined; "shown"?: NameBarrelShown | undefined; "item"?: BarrelItem | undefined; "items"?: BarrelItem[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameBarrelled");
@@ -1776,7 +1776,7 @@ export function nameHandedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "handed"?: NameBarrelHanded | undefined; "listed"?: NameBarrelHanded[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameHanded");
@@ -2234,11 +2234,11 @@ export declare const NameHanded: {
 ## Mapping
 
 original 0..921 -> expanded 3738..4659
-original 921..1111 -> expanded 22588..22778
-original 1111..1310 -> expanded 39709..39908
-original 1310..1520 -> expanded 57077..57287
-original 1520..1686 -> expanded 74233..74399
-original 1686..1687 -> expanded 87826..87827
+original 921..1111 -> expanded 22734..22924
+original 1111..1310 -> expanded 39983..40182
+original 1310..1520 -> expanded 57487..57697
+original 1520..1686 -> expanded 74789..74955
+original 1686..1687 -> expanded 88465..88466
 generated 0..3738 <- imports
 generated 4659..5189 <- Debug
 generated 5189..5663 <- Clone
@@ -2246,40 +2246,40 @@ generated 5663..6598 <- PartialEq
 generated 6598..7283 <- Hash
 generated 7283..7468 <- Default
 generated 7468..10714 <- Encode
-generated 10714..21121 <- Decode
-generated 21121..22588 <- __convenience_const
-generated 22778..23295 <- Debug
-generated 23295..23625 <- Clone
-generated 23625..24310 <- PartialEq
-generated 24310..24807 <- Hash
-generated 24807..24982 <- Default
-generated 24982..28141 <- Encode
-generated 28141..38242 <- Decode
-generated 38242..39709 <- __convenience_const
-generated 39908..40440 <- Debug
-generated 40440..40783 <- Clone
-generated 40783..41480 <- PartialEq
-generated 41480..41989 <- Hash
-generated 41989..42190 <- Default
-generated 42190..45383 <- Encode
-generated 45383..55579 <- Decode
-generated 55579..57077 <- __convenience_const
-generated 57287..57790 <- Debug
-generated 57790..58115 <- Clone
-generated 58115..58768 <- PartialEq
-generated 58768..59270 <- Hash
-generated 59270..59505 <- Default
-generated 59505..62691 <- Encode
-generated 62691..72704 <- Decode
-generated 72704..74233 <- __convenience_const
-generated 74399..74779 <- Debug
-generated 74779..75024 <- Clone
-generated 75024..75570 <- PartialEq
-generated 75570..75943 <- Hash
-generated 75943..76089 <- Default
-generated 76089..78720 <- Encode
-generated 78720..86390 <- Decode
-generated 86390..87826 <- __convenience_const
+generated 10714..21267 <- Decode
+generated 21267..22734 <- __convenience_const
+generated 22924..23441 <- Debug
+generated 23441..23771 <- Clone
+generated 23771..24456 <- PartialEq
+generated 24456..24953 <- Hash
+generated 24953..25128 <- Default
+generated 25128..28287 <- Encode
+generated 28287..38516 <- Decode
+generated 38516..39983 <- __convenience_const
+generated 40182..40714 <- Debug
+generated 40714..41057 <- Clone
+generated 41057..41754 <- PartialEq
+generated 41754..42263 <- Hash
+generated 42263..42464 <- Default
+generated 42464..45657 <- Encode
+generated 45657..55989 <- Decode
+generated 55989..57487 <- __convenience_const
+generated 57697..58200 <- Debug
+generated 58200..58525 <- Clone
+generated 58525..59178 <- PartialEq
+generated 59178..59680 <- Hash
+generated 59680..59915 <- Default
+generated 59915..63101 <- Encode
+generated 63101..73260 <- Decode
+generated 73260..74789 <- __convenience_const
+generated 74955..75335 <- Debug
+generated 75335..75580 <- Clone
+generated 75580..76126 <- PartialEq
+generated 76126..76499 <- Hash
+generated 76499..76645 <- Default
+generated 76645..79276 <- Encode
+generated 79276..87029 <- Decode
+generated 87029..88465 <- __convenience_const
 
 ## Metadata
 

@@ -168,7 +168,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(Account.prototype);
+    const made: object = Object.create(Account.prototype);
+    const instance: { "name"?: string | undefined; "balance"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Account");
@@ -205,7 +206,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof Account)) {
+        throw new TypeError("Account.decodeWithContext: the value made is no Account");
+    }
+    return made;
 }
 static validateField<K extends keyof Account>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -358,16 +362,16 @@ export declare function accountIs(value: unknown): value is Account;
 ## Mapping
 
 original 39..111 -> expanded 762..834
-original 111..112 -> expanded 9118..9119
-original 112..113 -> expanded 12303..12304
+original 111..112 -> expanded 9337..9338
+original 112..113 -> expanded 12522..12523
 generated 0..762 <- imports
 generated 834..1054 <- Default
 generated 1054..2949 <- Encode
 generated 2949..3270 <- Encode
-generated 3270..9118 <- Decode
-generated 9119..9206 <- Default
-generated 9206..10536 <- Encode
-generated 10536..12303 <- Decode
+generated 3270..9337 <- Decode
+generated 9338..9425 <- Default
+generated 9425..10755 <- Encode
+generated 10755..12522 <- Decode
 
 ## Metadata
 

@@ -249,7 +249,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "techs"?: Array<string | Employee> | null | undefined; "active"?: boolean | undefined; "name"?: string | undefined; "phone"?: string | undefined; "position"?: string | undefined; "serviceRoute"?: boolean | undefined; "defaultDurationHours"?: number | undefined; "tags"?: Array<string> | undefined; "icon"?: string | null | undefined; "color"?: string | null | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Route");
@@ -1070,13 +1070,13 @@ original 159..270 -> expanded 1134..1245
 original 311..334 -> expanded 1245..1268
 original 375..399 -> expanded 1268..1292
 original 440..601 -> expanded 1292..1453
-original 601..602 -> expanded 39224..39225
+original 601..602 -> expanded 39621..39622
 generated 0..1024 <- imports
 generated 1453..1761 <- Default
 generated 1761..6465 <- Encode
-generated 6465..22555 <- Decode
-generated 22555..38039 <- Gigaform
-generated 38039..39224 <- __convenience_const
+generated 6465..22952 <- Decode
+generated 22952..38436 <- Gigaform
+generated 38436..39621 <- __convenience_const
 
 ## Metadata
 

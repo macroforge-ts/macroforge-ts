@@ -466,7 +466,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "account"?: string | Account | undefined; "stage"?: OrderStage | undefined; "number"?: number | undefined; "payments"?: Array<string | Payment> | undefined; "opportunity"?: string | undefined; "reference"?: string | undefined; "leadSource"?: string | undefined; "salesRep"?: string | Employee | undefined; "group"?: string | undefined; "subgroup"?: string | undefined; "isPosted"?: boolean | undefined; "needsReview"?: boolean | undefined; "actionItem"?: string | undefined; "upsale"?: number | undefined; "dateCreated"?: DateTime.DateTime | undefined; "appointment"?: string | Appointment | undefined; "lastTechs"?: Array<string | Employee> | undefined; "package"?: Array<string | Package> | null | undefined; "promotion"?: Array<string | Promotion> | null | undefined; "balance"?: number | undefined; "due"?: DateTime.DateTime | undefined; "total"?: number | undefined; "site"?: string | Site | undefined; "billedItems"?: Array<BilledItem> | undefined; "memo"?: Option.Option<string> | undefined; "discount"?: number | undefined; "tip"?: number | undefined; "commissions"?: Array<number> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Order");
@@ -726,7 +726,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         () => {
             if ((__fields === undefined || __fields.requires("dateCreated")) ? "dateCreated" in obj : (__fields.keeps("dateCreated") && obj["dateCreated"] !== undefined)) {
                 try {
-                    instance.dateCreated = __foreign__dateTimeDateTimeDecode(obj["dateCreated"]);
+                    instance.dateCreated = ((__raw: unknown) => __foreign__dateTimeDateTimeDecode(__raw) as DateTime.DateTime)(obj["dateCreated"]);
                 } catch (__error) {
                     errors.push({ field: "dateCreated", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -863,7 +863,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         () => {
             if ((__fields === undefined || __fields.requires("due")) ? "due" in obj : (__fields.keeps("due") && obj["due"] !== undefined)) {
                 try {
-                    instance.due = __foreign__dateTimeDateTimeDecode(obj["due"]);
+                    instance.due = ((__raw: unknown) => __foreign__dateTimeDateTimeDecode(__raw) as DateTime.DateTime)(obj["due"]);
                 } catch (__error) {
                     errors.push({ field: "due", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -938,7 +938,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         () => {
             if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
                 try {
-                    instance.memo = __foreign__optionOptionDecode(obj["memo"]);
+                    instance.memo = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["memo"]);
                 } catch (__error) {
                     errors.push({ field: "memo", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -2473,13 +2473,13 @@ original 3347..3385 -> expanded 3465..3503
 original 3413..3440 -> expanded 3503..3530
 original 3468..3490 -> expanded 3530..3552
 original 3518..3552 -> expanded 3552..3586
-original 3552..3553 -> expanded 95885..95886
+original 3552..3553 -> expanded 97168..97169
 generated 0..1978 <- imports
 generated 3586..4387 <- Default
 generated 4387..14279 <- Encode
-generated 14279..51977 <- Decode
-generated 51977..94700 <- Gigaform
-generated 94700..95885 <- __convenience_const
+generated 14279..53260 <- Decode
+generated 53260..95983 <- Gigaform
+generated 95983..97168 <- __convenience_const
 
 ## Metadata
 

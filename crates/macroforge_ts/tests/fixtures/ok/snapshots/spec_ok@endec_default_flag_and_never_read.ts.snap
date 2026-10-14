@@ -165,7 +165,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     
 
-    const instance: any = {};
+    const instance: { "retries"?: number | undefined; "origin"?: string | undefined; "enabled"?: boolean | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Settings");
@@ -320,11 +320,11 @@ original 30..56 -> expanded 658..684
 original 88..114 -> expanded 684..710
 original 176..201 -> expanded 710..735
 original 235..259 -> expanded 735..759
-original 259..260 -> expanded 10945..10946
+original 259..260 -> expanded 11040..11041
 generated 0..658 <- imports
 generated 759..3495 <- Encode
-generated 3495..9954 <- Decode
-generated 9954..10945 <- __convenience_const
+generated 3495..10049 <- Decode
+generated 10049..11040 <- __convenience_const
 
 ## Metadata
 

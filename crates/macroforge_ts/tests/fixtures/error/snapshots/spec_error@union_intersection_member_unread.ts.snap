@@ -174,7 +174,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Account");
@@ -367,7 +367,7 @@ export function ownerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "name"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Owner");
@@ -795,27 +795,27 @@ Error [984..1089]: @derive(Decode) on 'NoFields': a member of the union is an in
 
 original 0..97 -> expanded 889..986
 original 127..172 -> expanded 986..1031
-original 172..174 -> expanded 9494..9496
-original 204..249 -> expanded 9496..9541
-original 249..328 -> expanded 17904..17983
-original 358..446 -> expanded 17983..18071
-original 468..532 -> expanded 18071..18135
-original 554..628 -> expanded 18135..18209
-original 681..785 -> expanded 18209..18313
-original 838..922 -> expanded 18313..18397
-original 975..1154 -> expanded 18397..18576
-original 1215..1297 -> expanded 18576..18658
-original 1297..1298 -> expanded 24502..24503
+original 172..174 -> expanded 9520..9522
+original 204..249 -> expanded 9522..9567
+original 249..328 -> expanded 17958..18037
+original 358..446 -> expanded 18037..18125
+original 468..532 -> expanded 18125..18189
+original 554..628 -> expanded 18189..18263
+original 681..785 -> expanded 18263..18367
+original 838..922 -> expanded 18367..18451
+original 975..1154 -> expanded 18451..18630
+original 1215..1297 -> expanded 18630..18712
+original 1297..1298 -> expanded 24556..24557
 generated 0..889 <- imports
 generated 1031..3137 <- Encode
-generated 3137..8517 <- Decode
-generated 8517..9494 <- __convenience_const
-generated 9541..11625 <- Encode
-generated 11625..16969 <- Decode
-generated 16969..17904 <- __convenience_const
-generated 18658..20313 <- Encode
-generated 20313..23896 <- Decode
-generated 23896..24502 <- __convenience_const
+generated 3137..8543 <- Decode
+generated 8543..9520 <- __convenience_const
+generated 9567..11651 <- Encode
+generated 11651..17023 <- Decode
+generated 17023..17958 <- __convenience_const
+generated 18712..20367 <- Encode
+generated 20367..23950 <- Decode
+generated 23950..24556 <- __convenience_const
 
 ## Metadata
 

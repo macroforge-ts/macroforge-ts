@@ -168,7 +168,7 @@ export function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "value"?: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } } | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "AtTheLimit");
@@ -362,13 +362,13 @@ Error [137..178]: type 'TooNested' nests 17 levels deep, and a built-in derive r
 
 original 0..333 -> expanded 949..1282
 original 381..592 -> expanded 1282..1493
-original 592..593 -> expanded 14080..14081
+original 592..593 -> expanded 14269..14270
 generated 0..949 <- imports
 generated 1493..1662 <- Clone
 generated 1662..1875 <- PartialEq
 generated 1875..4038 <- Encode
-generated 4038..12900 <- Decode
-generated 12900..14080 <- __convenience_const
+generated 4038..13089 <- Decode
+generated 13089..14269 <- __convenience_const
 
 ## Metadata
 

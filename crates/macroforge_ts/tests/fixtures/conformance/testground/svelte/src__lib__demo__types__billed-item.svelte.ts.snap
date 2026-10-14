@@ -188,7 +188,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "item"?: Item | undefined; "quantity"?: number | undefined; "taxed"?: boolean | undefined; "upsale"?: boolean | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "BilledItem");
@@ -645,13 +645,13 @@ original 321..342 -> expanded 1064..1085
 original 406..433 -> expanded 1085..1112
 original 477..502 -> expanded 1112..1137
 original 547..570 -> expanded 1137..1160
-original 570..571 -> expanded 21390..21391
+original 570..571 -> expanded 21512..21513
 generated 0..922 <- imports
 generated 1160..1322 <- Default
 generated 1322..4335 <- Encode
-generated 4335..12380 <- Decode
-generated 12380..20070 <- Gigaform
-generated 20070..21390 <- __convenience_const
+generated 4335..12502 <- Decode
+generated 12502..20192 <- Gigaform
+generated 20192..21512 <- __convenience_const
 
 ## Metadata
 

@@ -123,7 +123,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(CustomNumberValidator.prototype);
+    const made: object = Object.create(CustomNumberValidator.prototype);
+    const instance: { "evenNumber"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CustomNumberValidator");
@@ -146,7 +147,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof CustomNumberValidator)) {
+        throw new TypeError("CustomNumberValidator.decodeWithContext: the value made is no CustomNumberValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof CustomNumberValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -308,7 +312,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(CustomStringValidator.prototype);
+    const made: object = Object.create(CustomStringValidator.prototype);
+    const instance: { "username"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CustomStringValidator");
@@ -331,7 +336,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof CustomStringValidator)) {
+        throw new TypeError("CustomStringValidator.decodeWithContext: the value made is no CustomStringValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof CustomStringValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -494,7 +502,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(ImportedCustomValidator.prototype);
+    const made: object = Object.create(ImportedCustomValidator.prototype);
+    const instance: { "count"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ImportedCustomValidator");
@@ -517,7 +526,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof ImportedCustomValidator)) {
+        throw new TypeError("ImportedCustomValidator.decodeWithContext: the value made is no ImportedCustomValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof ImportedCustomValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -678,7 +690,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(CustomWithMessageValidator.prototype);
+    const made: object = Object.create(CustomWithMessageValidator.prototype);
+    const instance: { "evenNumber"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "CustomWithMessageValidator");
@@ -701,7 +714,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof CustomWithMessageValidator)) {
+        throw new TypeError("CustomWithMessageValidator.decodeWithContext: the value made is no CustomWithMessageValidator");
+    }
+    return made;
 }
 static validateField<K extends keyof CustomWithMessageValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -992,23 +1008,23 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 ## Mapping
 
 original 0..536 -> expanded 541..1077
-original 536..537 -> expanded 7655..7656
-original 537..709 -> expanded 9633..9805
-original 709..710 -> expanded 16317..16318
-original 710..1016 -> expanded 18295..18601
-original 1016..1017 -> expanded 25184..25185
-original 1017..1206 -> expanded 27192..27381
-original 1206..1207 -> expanded 33933..33934
-original 1207..1208 -> expanded 35986..35987
+original 536..537 -> expanded 7890..7891
+original 537..709 -> expanded 9868..10040
+original 709..710 -> expanded 16785..16786
+original 710..1016 -> expanded 18763..19069
+original 1016..1017 -> expanded 25888..25889
+original 1017..1206 -> expanded 27896..28085
+original 1206..1207 -> expanded 34887..34888
+original 1207..1208 -> expanded 36940..36941
 generated 0..541 <- imports
-generated 1077..7655 <- Decode
-generated 7656..9633 <- Decode
-generated 9805..16317 <- Decode
-generated 16318..18295 <- Decode
-generated 18601..25184 <- Decode
-generated 25185..27192 <- Decode
-generated 27381..33933 <- Decode
-generated 33934..35986 <- Decode
+generated 1077..7890 <- Decode
+generated 7891..9868 <- Decode
+generated 10040..16785 <- Decode
+generated 16786..18763 <- Decode
+generated 19069..25888 <- Decode
+generated 25889..27896 <- Decode
+generated 28085..34887 <- Decode
+generated 34888..36940 <- Decode
 
 ## Metadata
 

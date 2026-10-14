@@ -212,7 +212,7 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: any = {};
+    const instance: { "digits"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Phone");
@@ -495,16 +495,16 @@ export {};
 original 22..75 -> expanded 495..548
 original 75..77 -> expanded 3711..3713
 original 99..137 -> expanded 3713..3751
-original 137..139 -> expanded 9751..9753
-original 161..239 -> expanded 9753..9831
-original 239..240 -> expanded 14647..14648
+original 137..139 -> expanded 9781..9783
+original 161..239 -> expanded 9783..9861
+original 239..240 -> expanded 14677..14678
 generated 0..495 <- imports
 generated 548..3385 <- Decode
 generated 3385..3711 <- __convenience_const
-generated 3751..9125 <- Decode
-generated 9125..9751 <- __convenience_const
-generated 9831..14303 <- Decode
-generated 14303..14647 <- __convenience_const
+generated 3751..9155 <- Decode
+generated 9155..9781 <- __convenience_const
+generated 9861..14333 <- Decode
+generated 14333..14677 <- __convenience_const
 
 ## Metadata
 

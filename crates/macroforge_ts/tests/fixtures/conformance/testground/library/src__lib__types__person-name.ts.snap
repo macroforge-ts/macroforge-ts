@@ -159,7 +159,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "firstName"?: string | undefined; "lastName"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "PersonName");
@@ -342,12 +342,12 @@ export declare const PersonName: {
 original 39..74 -> expanded 685..720
 original 115..143 -> expanded 720..748
 original 184..208 -> expanded 748..772
-original 208..209 -> expanded 12941..12942
+original 208..209 -> expanded 13007..13008
 generated 0..685 <- imports
 generated 772..895 <- Default
 generated 895..3441 <- Encode
-generated 3441..11805 <- Decode
-generated 11805..12941 <- __convenience_const
+generated 3441..11871 <- Decode
+generated 11871..13007 <- __convenience_const
 
 ## Metadata
 

@@ -162,7 +162,7 @@ export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "date"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Promotion");
@@ -481,13 +481,13 @@ export declare const Promotion: {
 
 original 0..58 -> expanded 844..902
 original 107..172 -> expanded 902..967
-original 172..173 -> expanded 15288..15289
+original 172..173 -> expanded 15343..15344
 generated 0..844 <- imports
 generated 967..1077 <- Default
 generated 1077..3564 <- Encode
-generated 3564..9712 <- Decode
-generated 9712..13995 <- Gigaform
-generated 13995..15288 <- __convenience_const
+generated 3564..9767 <- Decode
+generated 9767..14050 <- Gigaform
+generated 14050..15343 <- __convenience_const
 
 ## Metadata
 

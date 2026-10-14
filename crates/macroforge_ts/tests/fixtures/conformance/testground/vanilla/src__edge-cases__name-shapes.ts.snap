@@ -524,7 +524,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "value"?: string | undefined; "ctx"?: string | undefined; "result"?: string | undefined; "obj"?: string | undefined; "errors"?: string[] | undefined; "instance"?: string | undefined; "fields"?: string | undefined; "hash"?: number | undefined; "parts"?: string[] | undefined; "a"?: number | undefined; "b"?: number | undefined; "input"?: string | undefined; "opts"?: string | undefined; "data"?: string | undefined; "item"?: string | undefined; "key"?: string | undefined; "idx"?: number | undefined; "other"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameLocals");
@@ -1188,7 +1188,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "kebab-key"?: string | undefined; "with space"?: number | undefined; "dotted.key"?: boolean | undefined; "0"?: string | undefined; "class"?: string | undefined; "default"?: number | undefined; "new"?: boolean | undefined; "function"?: string | undefined; "typeof"?: string | undefined; "$dollar"?: string | undefined; "_underscore"?: string | undefined; "ünïcode"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameQuoted");
@@ -1597,7 +1597,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(NameQuotedClass.prototype);
+    const made: object = Object.create(NameQuotedClass.prototype);
+    const instance: { "kebab-key"?: string | undefined; "class"?: string | undefined; "default"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameQuotedClass");
@@ -1645,7 +1646,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NameQuotedClass)) {
+        throw new TypeError("NameQuotedClass.decodeWithContext: the value made is no NameQuotedClass");
+    }
+    return made;
 }
 static validateField<K extends keyof NameQuotedClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -1906,7 +1910,7 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: any = {};
+    const instance: { "statusCode"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "HTTPResponse");
@@ -2197,7 +2201,7 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "x"?: number | undefined; "y"?: number | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "point2D");
@@ -2513,7 +2517,7 @@ export function nameHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: any = {};
+    const instance: { "response"?: HTTPResponse | undefined; "responses"?: HTTPResponse[] | undefined; "point"?: point2D | undefined; "points"?: Map<string, point2D> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameHolder");
@@ -2889,7 +2893,7 @@ export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ct
         }
     }
 
-    const instance: any = {};
+    const instance: { "key"?: K | undefined; "other"?: Key | undefined; "held"?: T | undefined; "values"?: Value[] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameParams");
@@ -3252,7 +3256,8 @@ static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __d
         }
     }
 
-    const instance: any = Object.create(NameParamsClass.prototype);
+    const made: object = Object.create(NameParamsClass.prototype);
+    const instance: { "key"?: K | null | undefined; "other"?: Key | null | undefined; "held"?: T[] | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NameParamsClass");
@@ -3351,7 +3356,10 @@ static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __d
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof NameParamsClass)) {
+        throw new TypeError("NameParamsClass.decodeWithContext: the value made is no NameParamsClass");
+    }
+    return made;
 }
 static validateField<K, Key, T, K1 extends keyof NameParamsClass<K, Key, T> = keyof NameParamsClass<K, Key, T>>(field: K1, value: unknown): Array<{ field: string; message: string }>;
 static validateField(): Array<{ field: string; message: string }> {
@@ -3669,7 +3677,7 @@ export function namePrototypeDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: any = {};
+    const instance: { "constructor"?: unknown; "toString"?: unknown; "valueOf"?: unknown; "hasOwnProperty"?: unknown; "length"?: number | undefined; "then"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "NamePrototype");
@@ -4625,17 +4633,17 @@ export declare const NamePrototype: {
 ## Mapping
 
 original 0..765 -> expanded 1295..2060
-original 765..1152 -> expanded 38590..38977
-original 1152..1335 -> expanded 65112..65295
-original 1335..1336 -> expanded 76581..76582
-original 1336..1487 -> expanded 80489..80640
-original 1487..1639 -> expanded 92156..92308
-original 1639..1856 -> expanded 104694..104911
-original 1856..2031 -> expanded 122651..122826
-original 2031..2213 -> expanded 141587..141769
-original 2213..2214 -> expanded 156655..156656
-original 2214..2456 -> expanded 161604..161846
-original 2456..2457 -> expanded 178583..178584
+original 765..1152 -> expanded 39119..39506
+original 1152..1335 -> expanded 66028..66211
+original 1335..1336 -> expanded 77775..77776
+original 1336..1487 -> expanded 81683..81834
+original 1487..1639 -> expanded 93384..93536
+original 1639..1856 -> expanded 105973..106190
+original 1856..2031 -> expanded 124086..124261
+original 2031..2213 -> expanded 143127..143309
+original 2213..2214 -> expanded 158467..158468
+original 2214..2456 -> expanded 163416..163658
+original 2456..2457 -> expanded 180550..180551
 generated 0..1295 <- imports
 generated 2060..3157 <- Debug
 generated 3157..3644 <- Clone
@@ -4645,89 +4653,89 @@ generated 7726..10841 <- PartialOrd
 generated 10841..13718 <- Ord
 generated 13718..14120 <- Default
 generated 14120..20230 <- Encode
-generated 20230..36974 <- Decode
-generated 36974..38590 <- __convenience_const
-generated 38977..39847 <- Debug
-generated 39847..40303 <- Clone
-generated 40303..41194 <- PartialEq
-generated 41194..42840 <- Hash
-generated 42840..44321 <- PartialOrd
-generated 44321..45768 <- Ord
-generated 45768..46114 <- Default
-generated 46114..51046 <- Encode
-generated 51046..63496 <- Decode
-generated 63496..65112 <- __convenience_const
-generated 65295..65699 <- Debug
-generated 65699..65929 <- Clone
-generated 65929..66382 <- PartialEq
-generated 66382..66993 <- Hash
-generated 66993..67281 <- Default
-generated 67281..69502 <- Encode
-generated 69502..69839 <- Encode
-generated 69839..76581 <- Decode
-generated 76582..76703 <- Debug
-generated 76703..76827 <- Clone
-generated 76827..76960 <- PartialEq
-generated 76960..77081 <- Hash
-generated 77081..77192 <- Default
-generated 77192..78602 <- Encode
-generated 78602..80489 <- Decode
-generated 80640..80920 <- Debug
-generated 80920..81085 <- Clone
-generated 81085..81360 <- PartialEq
-generated 81360..81715 <- Hash
-generated 81715..82084 <- PartialOrd
-generated 82084..82439 <- Ord
-generated 82439..82544 <- Default
-generated 82544..84757 <- Encode
-generated 84757..90470 <- Decode
-generated 90470..92156 <- __convenience_const
-generated 92308..92596 <- Debug
-generated 92596..92737 <- Clone
-generated 92737..93059 <- PartialEq
-generated 93059..93538 <- Hash
-generated 93538..94048 <- PartialOrd
-generated 94048..94544 <- Ord
-generated 94544..94644 <- Default
-generated 94644..97085 <- Encode
-generated 97085..103183 <- Decode
-generated 103183..104694 <- __convenience_const
-generated 104911..105416 <- Debug
-generated 105416..105874 <- Clone
-generated 105874..106781 <- PartialEq
-generated 106781..107455 <- Hash
-generated 107455..107667 <- Default
-generated 107667..110906 <- Encode
-generated 110906..121215 <- Decode
-generated 121215..122651 <- __convenience_const
-generated 122826..123325 <- Debug
-generated 123325..123718 <- Clone
-generated 123718..124426 <- PartialEq
-generated 124426..124951 <- Hash
-generated 124951..129075 <- Encode
-generated 129075..140247 <- Decode
-generated 140247..141587 <- __convenience_const
-generated 141769..142216 <- Debug
-generated 142216..142548 <- Clone
-generated 142548..143249 <- PartialEq
-generated 143249..143716 <- Hash
-generated 143716..146603 <- Encode
-generated 146603..147088 <- Encode
-generated 147088..156655 <- Decode
-generated 156656..156810 <- Debug
-generated 156810..156978 <- Clone
-generated 156978..157155 <- PartialEq
-generated 157155..157309 <- Hash
-generated 157309..159196 <- Encode
-generated 159196..161604 <- Decode
-generated 161846..162404 <- Debug
-generated 162404..162709 <- Clone
-generated 162709..163305 <- PartialEq
-generated 163305..164264 <- Hash
-generated 164264..164483 <- Default
-generated 164483..168038 <- Encode
-generated 168038..177054 <- Decode
-generated 177054..178583 <- __convenience_const
+generated 20230..37503 <- Decode
+generated 37503..39119 <- __convenience_const
+generated 39506..40376 <- Debug
+generated 40376..40832 <- Clone
+generated 40832..41723 <- PartialEq
+generated 41723..43369 <- Hash
+generated 43369..44850 <- PartialOrd
+generated 44850..46297 <- Ord
+generated 46297..46643 <- Default
+generated 46643..51575 <- Encode
+generated 51575..64412 <- Decode
+generated 64412..66028 <- __convenience_const
+generated 66211..66615 <- Debug
+generated 66615..66845 <- Clone
+generated 66845..67298 <- PartialEq
+generated 67298..67909 <- Hash
+generated 67909..68197 <- Default
+generated 68197..70418 <- Encode
+generated 70418..70755 <- Encode
+generated 70755..77775 <- Decode
+generated 77776..77897 <- Debug
+generated 77897..78021 <- Clone
+generated 78021..78154 <- PartialEq
+generated 78154..78275 <- Hash
+generated 78275..78386 <- Default
+generated 78386..79796 <- Encode
+generated 79796..81683 <- Decode
+generated 81834..82114 <- Debug
+generated 82114..82279 <- Clone
+generated 82279..82554 <- PartialEq
+generated 82554..82909 <- Hash
+generated 82909..83278 <- PartialOrd
+generated 83278..83633 <- Ord
+generated 83633..83738 <- Default
+generated 83738..85951 <- Encode
+generated 85951..91698 <- Decode
+generated 91698..93384 <- __convenience_const
+generated 93536..93824 <- Debug
+generated 93824..93965 <- Clone
+generated 93965..94287 <- PartialEq
+generated 94287..94766 <- Hash
+generated 94766..95276 <- PartialOrd
+generated 95276..95772 <- Ord
+generated 95772..95872 <- Default
+generated 95872..98313 <- Encode
+generated 98313..104462 <- Decode
+generated 104462..105973 <- __convenience_const
+generated 106190..106695 <- Debug
+generated 106695..107153 <- Clone
+generated 107153..108060 <- PartialEq
+generated 108060..108734 <- Hash
+generated 108734..108946 <- Default
+generated 108946..112185 <- Encode
+generated 112185..122650 <- Decode
+generated 122650..124086 <- __convenience_const
+generated 124261..124760 <- Debug
+generated 124760..125153 <- Clone
+generated 125153..125861 <- PartialEq
+generated 125861..126386 <- Hash
+generated 126386..130510 <- Encode
+generated 130510..141787 <- Decode
+generated 141787..143127 <- __convenience_const
+generated 143309..143756 <- Debug
+generated 143756..144088 <- Clone
+generated 144088..144789 <- PartialEq
+generated 144789..145256 <- Hash
+generated 145256..148143 <- Encode
+generated 148143..148628 <- Encode
+generated 148628..158467 <- Decode
+generated 158468..158622 <- Debug
+generated 158622..158790 <- Clone
+generated 158790..158967 <- PartialEq
+generated 158967..159121 <- Hash
+generated 159121..161008 <- Encode
+generated 161008..163416 <- Decode
+generated 163658..164216 <- Debug
+generated 164216..164521 <- Clone
+generated 164521..165117 <- PartialEq
+generated 165117..166076 <- Hash
+generated 166076..166295 <- Default
+generated 166295..169850 <- Encode
+generated 169850..179021 <- Decode
+generated 179021..180550 <- __convenience_const
 
 ## Metadata
 

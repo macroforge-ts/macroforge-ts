@@ -8,7 +8,7 @@ use crate::ts_syn::{TsStream, ts_ident};
 
 use super::super::EndecContainerOptions;
 use super::field::statements::{
-    Required, decode_fields, holds_required_keys, missing_keys_check, read_keys,
+    Required, assembly_type, decode_fields, holds_required_keys, missing_keys_check, read_keys,
 };
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
@@ -119,6 +119,7 @@ fn decode_with_context(
         .map(|key: String| js_string(&key))
         .collect();
     let missing_keys = missing_keys_check(fields);
+    let assembly = assembly_type(fields);
     let field_statements = decode_fields(fields, type_name, tag_field, Required::Selected);
     let returns = rendered(ts_template! { @{&names.full_type} | @{PENDING_REF} });
     let reference = decode_selectable_reference(type_name, &returns);
@@ -160,7 +161,7 @@ fn decode_with_context(
 
             {$typescript missing_keys}
 
-            const instance: any = {};
+            const instance: @{&assembly} = {};
 
             // Only a whole value can be referred to.
             if (__fields === undefined && obj["__id"] !== undefined) {

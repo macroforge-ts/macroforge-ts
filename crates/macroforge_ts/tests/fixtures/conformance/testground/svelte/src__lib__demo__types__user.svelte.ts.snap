@@ -301,7 +301,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "email"?: Option.Option<string> | undefined; "firstName"?: string | undefined; "lastName"?: string | undefined; "password"?: Option.Option<string> | undefined; "metadata"?: Option.Option<Metadata> | undefined; "settings"?: Settings | undefined; "role"?: UserRole | undefined; "emailVerified"?: boolean | undefined; "verificationToken"?: Option.Option<string> | undefined; "verificationExpires"?: Option.Option<DateTime.DateTime> | undefined; "passwordResetToken"?: Option.Option<string> | undefined; "passwordResetExpires"?: Option.Option<DateTime.DateTime> | undefined; "permissions"?: AppPermissions | undefined; "createdAt"?: DateTime.DateTime | undefined; "lastLoginAt"?: Option.Option<DateTime.DateTime> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "User");
@@ -324,7 +324,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
                 try {
-                    instance.email = __foreign__optionOptionDecode(obj["email"]);
+                    instance.email = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["email"]);
                 } catch (__error) {
                     errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -361,7 +361,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("password")) ? "password" in obj : (__fields.keeps("password") && obj["password"] !== undefined)) {
                 try {
-                    instance.password = __foreign__optionOptionDecode(obj["password"]);
+                    instance.password = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["password"]);
                 } catch (__error) {
                     errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -370,7 +370,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
                 try {
-                    instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
+                    instance.metadata = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<Metadata>)(obj["metadata"]);
                 } catch (__error) {
                     errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -440,7 +440,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("verificationToken")) ? "verificationToken" in obj : (__fields.keeps("verificationToken") && obj["verificationToken"] !== undefined)) {
                 try {
-                    instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
+                    instance.verificationToken = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["verificationToken"]);
                 } catch (__error) {
                     errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -449,7 +449,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("verificationExpires")) ? "verificationExpires" in obj : (__fields.keeps("verificationExpires") && obj["verificationExpires"] !== undefined)) {
                 try {
-                    instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
+                    instance.verificationExpires = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<DateTime.DateTime>)(obj["verificationExpires"]);
                 } catch (__error) {
                     errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -458,7 +458,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("passwordResetToken")) ? "passwordResetToken" in obj : (__fields.keeps("passwordResetToken") && obj["passwordResetToken"] !== undefined)) {
                 try {
-                    instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
+                    instance.passwordResetToken = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<string>)(obj["passwordResetToken"]);
                 } catch (__error) {
                     errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -467,7 +467,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("passwordResetExpires")) ? "passwordResetExpires" in obj : (__fields.keeps("passwordResetExpires") && obj["passwordResetExpires"] !== undefined)) {
                 try {
-                    instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
+                    instance.passwordResetExpires = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<DateTime.DateTime>)(obj["passwordResetExpires"]);
                 } catch (__error) {
                     errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -501,7 +501,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
                 try {
-                    instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
+                    instance.createdAt = ((__raw: unknown) => __foreign__dateTimeDateTimeDecode(__raw) as DateTime.DateTime)(obj["createdAt"]);
                 } catch (__error) {
                     errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -510,7 +510,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         () => {
             if ((__fields === undefined || __fields.requires("lastLoginAt")) ? "lastLoginAt" in obj : (__fields.keeps("lastLoginAt") && obj["lastLoginAt"] !== undefined)) {
                 try {
-                    instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
+                    instance.lastLoginAt = ((__raw: unknown) => __foreign__optionOptionDecode(__raw) as Option.Option<DateTime.DateTime>)(obj["lastLoginAt"]);
                 } catch (__error) {
                     errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
                 }
@@ -1541,13 +1541,13 @@ original 374..453 -> expanded 1738..1817
 original 494..522 -> expanded 1817..1845
 original 563..690 -> expanded 1845..1972
 original 722..1102 -> expanded 1972..2352
-original 1102..1103 -> expanded 59096..59097
+original 1102..1103 -> expanded 60361..60362
 generated 0..1413 <- imports
 generated 2352..3148 <- Default
 generated 3148..9512 <- Encode
-generated 9512..27598 <- Decode
-generated 27598..57938 <- Gigaform
-generated 57938..59096 <- __convenience_const
+generated 9512..28863 <- Decode
+generated 28863..59203 <- Gigaform
+generated 59203..60361 <- __convenience_const
 
 ## Metadata
 

@@ -113,7 +113,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocEmail.prototype);
+    const made: object = Object.create(DocEmail.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocEmail");
@@ -136,7 +137,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocEmail)) {
+        throw new TypeError("DocEmail.decodeWithContext: the value made is no DocEmail");
+    }
+    return made;
 }
 static validateField<K extends keyof DocEmail>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -297,7 +301,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocUrl.prototype);
+    const made: object = Object.create(DocUrl.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocUrl");
@@ -320,7 +325,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocUrl)) {
+        throw new TypeError("DocUrl.decodeWithContext: the value made is no DocUrl");
+    }
+    return made;
 }
 static validateField<K extends keyof DocUrl>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -481,7 +489,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocUuid.prototype);
+    const made: object = Object.create(DocUuid.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocUuid");
@@ -504,7 +513,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocUuid)) {
+        throw new TypeError("DocUuid.decodeWithContext: the value made is no DocUuid");
+    }
+    return made;
 }
 static validateField<K extends keyof DocUuid>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -665,7 +677,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocPattern.prototype);
+    const made: object = Object.create(DocPattern.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocPattern");
@@ -688,7 +701,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocPattern)) {
+        throw new TypeError("DocPattern.decodeWithContext: the value made is no DocPattern");
+    }
+    return made;
 }
 static validateField<K extends keyof DocPattern>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -849,7 +865,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocPatternWithSlash.prototype);
+    const made: object = Object.create(DocPatternWithSlash.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocPatternWithSlash");
@@ -872,7 +889,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocPatternWithSlash)) {
+        throw new TypeError("DocPatternWithSlash.decodeWithContext: the value made is no DocPatternWithSlash");
+    }
+    return made;
 }
 static validateField<K extends keyof DocPatternWithSlash>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1033,7 +1053,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMinLength.prototype);
+    const made: object = Object.create(DocMinLength.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMinLength");
@@ -1056,7 +1077,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMinLength)) {
+        throw new TypeError("DocMinLength.decodeWithContext: the value made is no DocMinLength");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMinLength>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1217,7 +1241,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMaxLength.prototype);
+    const made: object = Object.create(DocMaxLength.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMaxLength");
@@ -1240,7 +1265,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMaxLength)) {
+        throw new TypeError("DocMaxLength.decodeWithContext: the value made is no DocMaxLength");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMaxLength>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1401,7 +1429,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLength.prototype);
+    const made: object = Object.create(DocLength.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLength");
@@ -1424,7 +1453,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLength)) {
+        throw new TypeError("DocLength.decodeWithContext: the value made is no DocLength");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLength>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1585,7 +1617,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLengthRange.prototype);
+    const made: object = Object.create(DocLengthRange.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLengthRange");
@@ -1608,7 +1641,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLengthRange)) {
+        throw new TypeError("DocLengthRange.decodeWithContext: the value made is no DocLengthRange");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLengthRange>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1769,7 +1805,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonEmpty.prototype);
+    const made: object = Object.create(DocNonEmpty.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonEmpty");
@@ -1792,7 +1829,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonEmpty)) {
+        throw new TypeError("DocNonEmpty.decodeWithContext: the value made is no DocNonEmpty");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonEmpty>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1953,7 +1993,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocTrimmed.prototype);
+    const made: object = Object.create(DocTrimmed.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocTrimmed");
@@ -1976,7 +2017,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocTrimmed)) {
+        throw new TypeError("DocTrimmed.decodeWithContext: the value made is no DocTrimmed");
+    }
+    return made;
 }
 static validateField<K extends keyof DocTrimmed>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2137,7 +2181,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLowercase.prototype);
+    const made: object = Object.create(DocLowercase.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLowercase");
@@ -2160,7 +2205,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLowercase)) {
+        throw new TypeError("DocLowercase.decodeWithContext: the value made is no DocLowercase");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLowercase>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2321,7 +2369,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocUppercase.prototype);
+    const made: object = Object.create(DocUppercase.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocUppercase");
@@ -2344,7 +2393,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocUppercase)) {
+        throw new TypeError("DocUppercase.decodeWithContext: the value made is no DocUppercase");
+    }
+    return made;
 }
 static validateField<K extends keyof DocUppercase>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2505,7 +2557,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocCapitalized.prototype);
+    const made: object = Object.create(DocCapitalized.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocCapitalized");
@@ -2528,7 +2581,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocCapitalized)) {
+        throw new TypeError("DocCapitalized.decodeWithContext: the value made is no DocCapitalized");
+    }
+    return made;
 }
 static validateField<K extends keyof DocCapitalized>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2689,7 +2745,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocUncapitalized.prototype);
+    const made: object = Object.create(DocUncapitalized.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocUncapitalized");
@@ -2712,7 +2769,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocUncapitalized)) {
+        throw new TypeError("DocUncapitalized.decodeWithContext: the value made is no DocUncapitalized");
+    }
+    return made;
 }
 static validateField<K extends keyof DocUncapitalized>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2873,7 +2933,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocStartsWith.prototype);
+    const made: object = Object.create(DocStartsWith.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocStartsWith");
@@ -2896,7 +2957,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocStartsWith)) {
+        throw new TypeError("DocStartsWith.decodeWithContext: the value made is no DocStartsWith");
+    }
+    return made;
 }
 static validateField<K extends keyof DocStartsWith>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3057,7 +3121,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocStartsWithQuote.prototype);
+    const made: object = Object.create(DocStartsWithQuote.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocStartsWithQuote");
@@ -3080,7 +3145,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocStartsWithQuote)) {
+        throw new TypeError("DocStartsWithQuote.decodeWithContext: the value made is no DocStartsWithQuote");
+    }
+    return made;
 }
 static validateField<K extends keyof DocStartsWithQuote>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3241,7 +3309,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocEndsWith.prototype);
+    const made: object = Object.create(DocEndsWith.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocEndsWith");
@@ -3264,7 +3333,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocEndsWith)) {
+        throw new TypeError("DocEndsWith.decodeWithContext: the value made is no DocEndsWith");
+    }
+    return made;
 }
 static validateField<K extends keyof DocEndsWith>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3425,7 +3497,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocIncludes.prototype);
+    const made: object = Object.create(DocIncludes.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocIncludes");
@@ -3448,7 +3521,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocIncludes)) {
+        throw new TypeError("DocIncludes.decodeWithContext: the value made is no DocIncludes");
+    }
+    return made;
 }
 static validateField<K extends keyof DocIncludes>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3609,7 +3685,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocGreaterThan.prototype);
+    const made: object = Object.create(DocGreaterThan.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocGreaterThan");
@@ -3632,7 +3709,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocGreaterThan)) {
+        throw new TypeError("DocGreaterThan.decodeWithContext: the value made is no DocGreaterThan");
+    }
+    return made;
 }
 static validateField<K extends keyof DocGreaterThan>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3793,7 +3873,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocGreaterThanOrEqualTo.prototype);
+    const made: object = Object.create(DocGreaterThanOrEqualTo.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocGreaterThanOrEqualTo");
@@ -3816,7 +3897,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocGreaterThanOrEqualTo)) {
+        throw new TypeError("DocGreaterThanOrEqualTo.decodeWithContext: the value made is no DocGreaterThanOrEqualTo");
+    }
+    return made;
 }
 static validateField<K extends keyof DocGreaterThanOrEqualTo>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -3977,7 +4061,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLessThan.prototype);
+    const made: object = Object.create(DocLessThan.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLessThan");
@@ -4000,7 +4085,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLessThan)) {
+        throw new TypeError("DocLessThan.decodeWithContext: the value made is no DocLessThan");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLessThan>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -4161,7 +4249,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLessThanOrEqualTo.prototype);
+    const made: object = Object.create(DocLessThanOrEqualTo.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLessThanOrEqualTo");
@@ -4184,7 +4273,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLessThanOrEqualTo)) {
+        throw new TypeError("DocLessThanOrEqualTo.decodeWithContext: the value made is no DocLessThanOrEqualTo");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLessThanOrEqualTo>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -4345,7 +4437,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocBetween.prototype);
+    const made: object = Object.create(DocBetween.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocBetween");
@@ -4368,7 +4461,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocBetween)) {
+        throw new TypeError("DocBetween.decodeWithContext: the value made is no DocBetween");
+    }
+    return made;
 }
 static validateField<K extends keyof DocBetween>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -4529,7 +4625,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocInt.prototype);
+    const made: object = Object.create(DocInt.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocInt");
@@ -4552,7 +4649,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocInt)) {
+        throw new TypeError("DocInt.decodeWithContext: the value made is no DocInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -4713,7 +4813,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonNegativeInt.prototype);
+    const made: object = Object.create(DocNonNegativeInt.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonNegativeInt");
@@ -4736,7 +4837,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonNegativeInt)) {
+        throw new TypeError("DocNonNegativeInt.decodeWithContext: the value made is no DocNonNegativeInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonNegativeInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -4897,7 +5001,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocUint8.prototype);
+    const made: object = Object.create(DocUint8.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocUint8");
@@ -4920,7 +5025,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocUint8)) {
+        throw new TypeError("DocUint8.decodeWithContext: the value made is no DocUint8");
+    }
+    return made;
 }
 static validateField<K extends keyof DocUint8>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -5081,7 +5189,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMultipleOfDecimal.prototype);
+    const made: object = Object.create(DocMultipleOfDecimal.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMultipleOfDecimal");
@@ -5104,7 +5213,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMultipleOfDecimal)) {
+        throw new TypeError("DocMultipleOfDecimal.decodeWithContext: the value made is no DocMultipleOfDecimal");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMultipleOfDecimal>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -5265,7 +5377,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMultipleOfInteger.prototype);
+    const made: object = Object.create(DocMultipleOfInteger.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMultipleOfInteger");
@@ -5288,7 +5401,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMultipleOfInteger)) {
+        throw new TypeError("DocMultipleOfInteger.decodeWithContext: the value made is no DocMultipleOfInteger");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMultipleOfInteger>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -5449,7 +5565,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocPositive.prototype);
+    const made: object = Object.create(DocPositive.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocPositive");
@@ -5472,7 +5589,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocPositive)) {
+        throw new TypeError("DocPositive.decodeWithContext: the value made is no DocPositive");
+    }
+    return made;
 }
 static validateField<K extends keyof DocPositive>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -5633,7 +5753,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonNegative.prototype);
+    const made: object = Object.create(DocNonNegative.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonNegative");
@@ -5656,7 +5777,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonNegative)) {
+        throw new TypeError("DocNonNegative.decodeWithContext: the value made is no DocNonNegative");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonNegative>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -5817,7 +5941,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNegative.prototype);
+    const made: object = Object.create(DocNegative.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNegative");
@@ -5840,7 +5965,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNegative)) {
+        throw new TypeError("DocNegative.decodeWithContext: the value made is no DocNegative");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNegative>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -6001,7 +6129,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonPositive.prototype);
+    const made: object = Object.create(DocNonPositive.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonPositive");
@@ -6024,7 +6153,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonPositive)) {
+        throw new TypeError("DocNonPositive.decodeWithContext: the value made is no DocNonPositive");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonPositive>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -6185,7 +6317,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocFinite.prototype);
+    const made: object = Object.create(DocFinite.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocFinite");
@@ -6208,7 +6341,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocFinite)) {
+        throw new TypeError("DocFinite.decodeWithContext: the value made is no DocFinite");
+    }
+    return made;
 }
 static validateField<K extends keyof DocFinite>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -6369,7 +6505,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonNaN.prototype);
+    const made: object = Object.create(DocNonNaN.prototype);
+    const instance: { "value"?: number | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonNaN");
@@ -6392,7 +6529,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonNaN)) {
+        throw new TypeError("DocNonNaN.decodeWithContext: the value made is no DocNonNaN");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonNaN>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -6553,7 +6693,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocPositiveBigInt.prototype);
+    const made: object = Object.create(DocPositiveBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocPositiveBigInt");
@@ -6563,13 +6704,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocPositiveBigInt.value is required" }); } else {
                 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "DocPositiveBigInt.value must be positive" }); }
             }
@@ -6581,7 +6722,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocPositiveBigInt)) {
+        throw new TypeError("DocPositiveBigInt.decodeWithContext: the value made is no DocPositiveBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocPositiveBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -6742,7 +6886,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonNegativeBigInt.prototype);
+    const made: object = Object.create(DocNonNegativeBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonNegativeBigInt");
@@ -6752,13 +6897,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocNonNegativeBigInt.value is required" }); } else {
                 if (__convertedVal < 0n) { errors.push({ field: "value", message: "DocNonNegativeBigInt.value must be non-negative" }); }
             }
@@ -6770,7 +6915,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonNegativeBigInt)) {
+        throw new TypeError("DocNonNegativeBigInt.decodeWithContext: the value made is no DocNonNegativeBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonNegativeBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -6931,7 +7079,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNegativeBigInt.prototype);
+    const made: object = Object.create(DocNegativeBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNegativeBigInt");
@@ -6941,13 +7090,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocNegativeBigInt.value is required" }); } else {
                 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "DocNegativeBigInt.value must be negative" }); }
             }
@@ -6959,7 +7108,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNegativeBigInt)) {
+        throw new TypeError("DocNegativeBigInt.decodeWithContext: the value made is no DocNegativeBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNegativeBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -7120,7 +7272,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNonPositiveBigInt.prototype);
+    const made: object = Object.create(DocNonPositiveBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNonPositiveBigInt");
@@ -7130,13 +7283,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocNonPositiveBigInt.value is required" }); } else {
                 if (__convertedVal > 0n) { errors.push({ field: "value", message: "DocNonPositiveBigInt.value must be non-positive" }); }
             }
@@ -7148,7 +7301,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNonPositiveBigInt)) {
+        throw new TypeError("DocNonPositiveBigInt.decodeWithContext: the value made is no DocNonPositiveBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNonPositiveBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -7309,7 +7465,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocGreaterThanBigInt.prototype);
+    const made: object = Object.create(DocGreaterThanBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocGreaterThanBigInt");
@@ -7319,13 +7476,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocGreaterThanBigInt.value is required" }); } else {
                 if (__convertedVal <= 5n) { errors.push({ field: "value", message: "DocGreaterThanBigInt.value must be greater than 5" }); }
             }
@@ -7337,7 +7494,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocGreaterThanBigInt)) {
+        throw new TypeError("DocGreaterThanBigInt.decodeWithContext: the value made is no DocGreaterThanBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocGreaterThanBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -7498,7 +7658,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocGreaterThanOrEqualToBigInt.prototype);
+    const made: object = Object.create(DocGreaterThanOrEqualToBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocGreaterThanOrEqualToBigInt");
@@ -7508,13 +7669,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualToBigInt.value is required" }); } else {
                 if (__convertedVal < 5n) { errors.push({ field: "value", message: "DocGreaterThanOrEqualToBigInt.value must be greater than or equal to 5" }); }
             }
@@ -7526,7 +7687,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocGreaterThanOrEqualToBigInt)) {
+        throw new TypeError("DocGreaterThanOrEqualToBigInt.decodeWithContext: the value made is no DocGreaterThanOrEqualToBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocGreaterThanOrEqualToBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -7687,7 +7851,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLessThanBigInt.prototype);
+    const made: object = Object.create(DocLessThanBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLessThanBigInt");
@@ -7697,13 +7862,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocLessThanBigInt.value is required" }); } else {
                 if (__convertedVal >= 5n) { errors.push({ field: "value", message: "DocLessThanBigInt.value must be less than 5" }); }
             }
@@ -7715,7 +7880,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLessThanBigInt)) {
+        throw new TypeError("DocLessThanBigInt.decodeWithContext: the value made is no DocLessThanBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLessThanBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -7876,7 +8044,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLessThanOrEqualToBigInt.prototype);
+    const made: object = Object.create(DocLessThanOrEqualToBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLessThanOrEqualToBigInt");
@@ -7886,13 +8055,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocLessThanOrEqualToBigInt.value is required" }); } else {
                 if (__convertedVal > 5n) { errors.push({ field: "value", message: "DocLessThanOrEqualToBigInt.value must be less than or equal to 5" }); }
             }
@@ -7904,7 +8073,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLessThanOrEqualToBigInt)) {
+        throw new TypeError("DocLessThanOrEqualToBigInt.decodeWithContext: the value made is no DocLessThanOrEqualToBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLessThanOrEqualToBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -8065,7 +8237,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocBetweenBigInt.prototype);
+    const made: object = Object.create(DocBetweenBigInt.prototype);
+    const instance: { "value"?: bigint | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocBetweenBigInt");
@@ -8075,13 +8248,13 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => {
+            const __convertedVal = ((__raw: unknown) => ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
         	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
-        })(obj["value"]);
+        })(__raw) as bigint)(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "DocBetweenBigInt.value is required" }); } else {
                 if (__convertedVal < 1n || __convertedVal > 10n) { errors.push({ field: "value", message: "DocBetweenBigInt.value must be between 1 and 10" }); }
             }
@@ -8093,7 +8266,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocBetweenBigInt)) {
+        throw new TypeError("DocBetweenBigInt.decodeWithContext: the value made is no DocBetweenBigInt");
+    }
+    return made;
 }
 static validateField<K extends keyof DocBetweenBigInt>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -8254,7 +8430,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocValidDate.prototype);
+    const made: object = Object.create(DocValidDate.prototype);
+    const instance: { "value"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocValidDate");
@@ -8279,7 +8456,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocValidDate)) {
+        throw new TypeError("DocValidDate.decodeWithContext: the value made is no DocValidDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocValidDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -8440,7 +8620,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocGreaterThanDate.prototype);
+    const made: object = Object.create(DocGreaterThanDate.prototype);
+    const instance: { "value"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocGreaterThanDate");
@@ -8465,7 +8646,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocGreaterThanDate)) {
+        throw new TypeError("DocGreaterThanDate.decodeWithContext: the value made is no DocGreaterThanDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocGreaterThanDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -8626,7 +8810,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocGreaterThanOrEqualToDate.prototype);
+    const made: object = Object.create(DocGreaterThanOrEqualToDate.prototype);
+    const instance: { "value"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocGreaterThanOrEqualToDate");
@@ -8651,7 +8836,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocGreaterThanOrEqualToDate)) {
+        throw new TypeError("DocGreaterThanOrEqualToDate.decodeWithContext: the value made is no DocGreaterThanOrEqualToDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocGreaterThanOrEqualToDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -8812,7 +9000,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLessThanDate.prototype);
+    const made: object = Object.create(DocLessThanDate.prototype);
+    const instance: { "value"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLessThanDate");
@@ -8837,7 +9026,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLessThanDate)) {
+        throw new TypeError("DocLessThanDate.decodeWithContext: the value made is no DocLessThanDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLessThanDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -8998,7 +9190,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocLessThanOrEqualToDate.prototype);
+    const made: object = Object.create(DocLessThanOrEqualToDate.prototype);
+    const instance: { "value"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocLessThanOrEqualToDate");
@@ -9023,7 +9216,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocLessThanOrEqualToDate)) {
+        throw new TypeError("DocLessThanOrEqualToDate.decodeWithContext: the value made is no DocLessThanOrEqualToDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocLessThanOrEqualToDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -9184,7 +9380,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocBetweenDate.prototype);
+    const made: object = Object.create(DocBetweenDate.prototype);
+    const instance: { "value"?: Date | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocBetweenDate");
@@ -9209,7 +9406,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocBetweenDate)) {
+        throw new TypeError("DocBetweenDate.decodeWithContext: the value made is no DocBetweenDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocBetweenDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -9370,7 +9570,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMinItems.prototype);
+    const made: object = Object.create(DocMinItems.prototype);
+    const instance: { "value"?: number[] | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMinItems");
@@ -9408,7 +9609,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMinItems)) {
+        throw new TypeError("DocMinItems.decodeWithContext: the value made is no DocMinItems");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMinItems>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -9569,7 +9773,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMaxItems.prototype);
+    const made: object = Object.create(DocMaxItems.prototype);
+    const instance: { "value"?: number[] | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMaxItems");
@@ -9607,7 +9812,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMaxItems)) {
+        throw new TypeError("DocMaxItems.decodeWithContext: the value made is no DocMaxItems");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMaxItems>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -9768,7 +9976,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocItemsCount.prototype);
+    const made: object = Object.create(DocItemsCount.prototype);
+    const instance: { "value"?: number[] | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocItemsCount");
@@ -9806,7 +10015,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocItemsCount)) {
+        throw new TypeError("DocItemsCount.decodeWithContext: the value made is no DocItemsCount");
+    }
+    return made;
 }
 static validateField<K extends keyof DocItemsCount>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -9967,7 +10179,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNullableMaxLength.prototype);
+    const made: object = Object.create(DocNullableMaxLength.prototype);
+    const instance: { "value"?: string | null | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNullableMaxLength");
@@ -9989,7 +10202,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNullableMaxLength)) {
+        throw new TypeError("DocNullableMaxLength.decodeWithContext: the value made is no DocNullableMaxLength");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNullableMaxLength>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -10150,7 +10366,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocNullableDate.prototype);
+    const made: object = Object.create(DocNullableDate.prototype);
+    const instance: { "value"?: Date | null | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocNullableDate");
@@ -10177,7 +10394,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocNullableDate)) {
+        throw new TypeError("DocNullableDate.decodeWithContext: the value made is no DocNullableDate");
+    }
+    return made;
 }
 static validateField<K extends keyof DocNullableDate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -10338,7 +10558,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         }
     }
 
-    const instance: any = Object.create(DocMessageEscaping.prototype);
+    const made: object = Object.create(DocMessageEscaping.prototype);
+    const instance: { "value"?: string | undefined } = made;
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "DocMessageEscaping");
@@ -10361,7 +10582,10 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.pushErrors(errors);
 
-    return instance;
+    if (!(made instanceof DocMessageEscaping)) {
+        throw new TypeError("DocMessageEscaping.decodeWithContext: the value made is no DocMessageEscaping");
+    }
+    return made;
 }
 static validateField<K extends keyof DocMessageEscaping>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -13356,231 +13580,231 @@ export declare function docMessageEscapingIs(value: unknown): value is DocMessag
 ## Mapping
 
 original 0..320 -> expanded 542..862
-original 320..321 -> expanded 6919..6920
-original 321..428 -> expanded 8702..8809
-original 428..429 -> expanded 14745..14746
-original 429..538 -> expanded 16498..16607
-original 538..539 -> expanded 22746..22747
-original 539..668 -> expanded 24514..24643
-original 668..669 -> expanded 30728..30729
-original 669..802 -> expanded 32541..32674
-original 802..803 -> expanded 38966..38967
-original 803..925 -> expanded 40914..41036
-original 925..926 -> expanded 47152..47153
-original 926..1048 -> expanded 48995..49117
-original 1048..1049 -> expanded 55230..55231
-original 1049..1165 -> expanded 57073..57189
-original 1165..1166 -> expanded 63230..63231
-original 1166..1290 -> expanded 65028..65152
-original 1290..1291 -> expanded 71401..71402
-original 1291..1408 -> expanded 73274..73391
-original 1408..1409 -> expanded 79445..79446
-original 1409..1524 -> expanded 81273..81388
-original 1524..1525 -> expanded 87428..87429
-original 1525..1644 -> expanded 89241..89360
-original 1644..1645 -> expanded 95479..95480
-original 1645..1764 -> expanded 97322..97441
-original 1764..1765 -> expanded 103560..103561
-original 1765..1888 -> expanded 105403..105526
-original 1888..1889 -> expanded 111787..111788
-original 1889..2016 -> expanded 113660..113787
-original 2016..2017 -> expanded 120106..120107
-original 2017..2145 -> expanded 122009..122137
-original 2145..2146 -> expanded 128273..128274
-original 2146..2281 -> expanded 130131..130266
-original 2281..2282 -> expanded 136538..136539
-original 2282..2406 -> expanded 138471..138595
-original 2406..2407 -> expanded 144667..144668
-original 2407..2531 -> expanded 146495..146619
-original 2531..2532 -> expanded 152688..152689
-original 2532..2658 -> expanded 154516..154642
-original 2658..2659 -> expanded 160808..160809
-original 2659..2803 -> expanded 162681..162825
-original 2803..2804 -> expanded 169258..169259
-original 2804..2924 -> expanded 171266..171386
-original 2924..2925 -> expanded 177465..177466
-original 2925..3063 -> expanded 179293..179431
-original 3063..3064 -> expanded 185777..185778
-original 3064..3186 -> expanded 187740..187862
-original 3186..3187 -> expanded 193975..193976
-original 3187..3294 -> expanded 195788..195895
-original 3294..3295 -> expanded 201883..201884
-original 3295..3424 -> expanded 203636..203765
-original 3424..3425 -> expanded 210120..210121
-original 3425..3536 -> expanded 212038..212149
-original 3536..3537 -> expanded 218276..218277
-original 3537..3670 -> expanded 220059..220192
-original 3670..3671 -> expanded 226583..226584
-original 3671..3802 -> expanded 228546..228677
-original 3802..3803 -> expanded 235056..235057
-original 3803..3920 -> expanded 237019..237136
-original 3920..3921 -> expanded 243206..243207
-original 3921..4044 -> expanded 245034..245157
-original 4044..4045 -> expanded 251314..251315
-original 4045..4162 -> expanded 253187..253304
-original 4162..4163 -> expanded 259374..259375
-original 4163..4286 -> expanded 261202..261325
-original 4286..4287 -> expanded 267482..267483
-original 4287..4400 -> expanded 269355..269468
-original 4400..4401 -> expanded 275476..275477
-original 4401..4514 -> expanded 277274..277387
-original 4514..4515 -> expanded 283471..283472
-original 4515..4644 -> expanded 285269..285398
-original 4644..4645 -> expanded 291884..291885
-original 4645..4780 -> expanded 293802..293937
-original 4780..4781 -> expanded 300507..300508
-original 4781..4910 -> expanded 302470..302599
-original 4910..4911 -> expanded 309085..309086
-original 4911..5046 -> expanded 311003..311138
-original 5046..5047 -> expanded 317708..317709
-original 5047..5185 -> expanded 319671..319809
-original 5185..5186 -> expanded 326388..326389
-original 5186..5342 -> expanded 328351..328507
-original 5342..5343 -> expanded 335344..335345
-original 5343..5475 -> expanded 337442..337574
-original 5475..5476 -> expanded 344069..344070
-original 5476..5626 -> expanded 345987..346137
-original 5626..5627 -> expanded 352890..352891
-original 5627..5761 -> expanded 354943..355077
-original 5761..5762 -> expanded 361613..361614
-original 5762..5879 -> expanded 363516..363633
-original 5879..5880 -> expanded 369918..369919
-original 5880..6023 -> expanded 371761..371904
-original 6023..6024 -> expanded 378462..378463
-original 6024..6185 -> expanded 380395..380556
-original 6185..6186 -> expanded 387363..387364
-original 6186..6323 -> expanded 389431..389568
-original 6323..6324 -> expanded 396051..396052
-original 6324..6479 -> expanded 397939..398094
-original 6479..6480 -> expanded 404826..404827
-original 6480..6629 -> expanded 406849..406998
-original 6629..6630 -> expanded 413666..413667
-original 6630..6752 -> expanded 415539..415661
-original 6752..6753 -> expanded 422352..422353
-original 6753..6875 -> expanded 424180..424302
-original 6875..6876 -> expanded 430990..430991
-original 6876..7002 -> expanded 432818..432944
-original 7002..7003 -> expanded 439690..439691
-original 7003..7140 -> expanded 441548..441685
-original 7140..7141 -> expanded 447700..447701
-original 7141..7290 -> expanded 449663..449812
-original 7290..7291 -> expanded 456081..456082
-original 7291..7463 -> expanded 457969..458141
-original 7463..7464 -> expanded 464314..464315
-original 7464..7465 -> expanded 466247..466248
+original 320..321 -> expanded 7110..7111
+original 321..428 -> expanded 8893..9000
+original 428..429 -> expanded 15121..15122
+original 429..538 -> expanded 16874..16983
+original 538..539 -> expanded 23310..23311
+original 539..668 -> expanded 25078..25207
+original 668..669 -> expanded 31489..31490
+original 669..802 -> expanded 33302..33435
+original 802..803 -> expanded 39951..39952
+original 803..925 -> expanded 41899..42021
+original 925..926 -> expanded 48340..48341
+original 926..1048 -> expanded 50183..50305
+original 1048..1049 -> expanded 56621..56622
+original 1049..1165 -> expanded 58464..58580
+original 1165..1166 -> expanded 64815..64816
+original 1166..1290 -> expanded 66613..66737
+original 1290..1291 -> expanded 73195..73196
+original 1291..1408 -> expanded 75068..75185
+original 1408..1409 -> expanded 81439..81440
+original 1409..1524 -> expanded 83267..83382
+original 1524..1525 -> expanded 89619..89620
+original 1525..1644 -> expanded 91432..91551
+original 1644..1645 -> expanded 97873..97874
+original 1645..1764 -> expanded 99716..99835
+original 1764..1765 -> expanded 106157..106158
+original 1765..1888 -> expanded 108000..108123
+original 1888..1889 -> expanded 114593..114594
+original 1889..2016 -> expanded 116466..116593
+original 2016..2017 -> expanded 123127..123128
+original 2017..2145 -> expanded 125030..125158
+original 2145..2146 -> expanded 131500..131501
+original 2146..2281 -> expanded 133358..133493
+original 2281..2282 -> expanded 139986..139987
+original 2282..2406 -> expanded 141919..142043
+original 2406..2407 -> expanded 148315..148316
+original 2407..2531 -> expanded 150143..150267
+original 2531..2532 -> expanded 156536..156537
+original 2532..2658 -> expanded 158364..158490
+original 2658..2659 -> expanded 164865..164866
+original 2659..2803 -> expanded 166738..166882
+original 2803..2804 -> expanded 173551..173552
+original 2804..2924 -> expanded 175559..175679
+original 2924..2925 -> expanded 181958..181959
+original 2925..3063 -> expanded 183786..183924
+original 3063..3064 -> expanded 190497..190498
+original 3064..3186 -> expanded 192460..192582
+original 3186..3187 -> expanded 198892..198893
+original 3187..3294 -> expanded 200705..200812
+original 3294..3295 -> expanded 206985..206986
+original 3295..3424 -> expanded 208738..208867
+original 3424..3425 -> expanded 215440..215441
+original 3425..3536 -> expanded 217358..217469
+original 3536..3537 -> expanded 223787..223788
+original 3537..3670 -> expanded 225570..225703
+original 3670..3671 -> expanded 232321..232322
+original 3671..3802 -> expanded 234284..234415
+original 3802..3803 -> expanded 241021..241022
+original 3803..3920 -> expanded 242984..243101
+original 3920..3921 -> expanded 249371..249372
+original 3921..4044 -> expanded 251199..251322
+original 4044..4045 -> expanded 257688..257689
+original 4045..4162 -> expanded 259561..259678
+original 4162..4163 -> expanded 265948..265949
+original 4163..4286 -> expanded 267776..267899
+original 4286..4287 -> expanded 274265..274266
+original 4287..4400 -> expanded 276138..276251
+original 4400..4401 -> expanded 282453..282454
+original 4401..4514 -> expanded 284251..284364
+original 4514..4515 -> expanded 290642..290643
+original 4515..4644 -> expanded 292440..292569
+original 4644..4645 -> expanded 299312..299313
+original 4645..4780 -> expanded 301230..301365
+original 4780..4781 -> expanded 308201..308202
+original 4781..4910 -> expanded 310164..310293
+original 4910..4911 -> expanded 317036..317037
+original 4911..5046 -> expanded 318954..319089
+original 5046..5047 -> expanded 325925..325926
+original 5047..5185 -> expanded 327888..328026
+original 5185..5186 -> expanded 334871..334872
+original 5186..5342 -> expanded 336834..336990
+original 5342..5343 -> expanded 344120..344121
+original 5343..5475 -> expanded 346218..346350
+original 5475..5476 -> expanded 353102..353103
+original 5476..5626 -> expanded 355020..355170
+original 5626..5627 -> expanded 362207..362208
+original 5627..5761 -> expanded 364260..364394
+original 5761..5762 -> expanded 371184..371185
+original 5762..5879 -> expanded 373087..373204
+original 5879..5880 -> expanded 379690..379691
+original 5880..6023 -> expanded 381533..381676
+original 6023..6024 -> expanded 388453..388454
+original 6024..6185 -> expanded 390386..390547
+original 6185..6186 -> expanded 397600..397601
+original 6186..6323 -> expanded 399668..399805
+original 6323..6324 -> expanded 406498..406499
+original 6324..6479 -> expanded 408386..408541
+original 6479..6480 -> expanded 415510..415511
+original 6480..6629 -> expanded 417533..417682
+original 6629..6630 -> expanded 424557..424558
+original 6630..6752 -> expanded 426430..426552
+original 6752..6753 -> expanded 433445..433446
+original 6753..6875 -> expanded 435273..435395
+original 6875..6876 -> expanded 442285..442286
+original 6876..7002 -> expanded 444113..444239
+original 7002..7003 -> expanded 451193..451194
+original 7003..7140 -> expanded 453051..453188
+original 7140..7141 -> expanded 459437..459438
+original 7141..7290 -> expanded 461400..461549
+original 7290..7291 -> expanded 468035..468036
+original 7291..7463 -> expanded 469923..470095
+original 7463..7464 -> expanded 476489..476490
+original 7464..7465 -> expanded 478422..478423
 generated 0..542 <- imports
-generated 862..6919 <- Decode
-generated 6920..8702 <- Decode
-generated 8809..14745 <- Decode
-generated 14746..16498 <- Decode
-generated 16607..22746 <- Decode
-generated 22747..24514 <- Decode
-generated 24643..30728 <- Decode
-generated 30729..32541 <- Decode
-generated 32674..38966 <- Decode
-generated 38967..40914 <- Decode
-generated 41036..47152 <- Decode
-generated 47153..48995 <- Decode
-generated 49117..55230 <- Decode
-generated 55231..57073 <- Decode
-generated 57189..63230 <- Decode
-generated 63231..65028 <- Decode
-generated 65152..71401 <- Decode
-generated 71402..73274 <- Decode
-generated 73391..79445 <- Decode
-generated 79446..81273 <- Decode
-generated 81388..87428 <- Decode
-generated 87429..89241 <- Decode
-generated 89360..95479 <- Decode
-generated 95480..97322 <- Decode
-generated 97441..103560 <- Decode
-generated 103561..105403 <- Decode
-generated 105526..111787 <- Decode
-generated 111788..113660 <- Decode
-generated 113787..120106 <- Decode
-generated 120107..122009 <- Decode
-generated 122137..128273 <- Decode
-generated 128274..130131 <- Decode
-generated 130266..136538 <- Decode
-generated 136539..138471 <- Decode
-generated 138595..144667 <- Decode
-generated 144668..146495 <- Decode
-generated 146619..152688 <- Decode
-generated 152689..154516 <- Decode
-generated 154642..160808 <- Decode
-generated 160809..162681 <- Decode
-generated 162825..169258 <- Decode
-generated 169259..171266 <- Decode
-generated 171386..177465 <- Decode
-generated 177466..179293 <- Decode
-generated 179431..185777 <- Decode
-generated 185778..187740 <- Decode
-generated 187862..193975 <- Decode
-generated 193976..195788 <- Decode
-generated 195895..201883 <- Decode
-generated 201884..203636 <- Decode
-generated 203765..210120 <- Decode
-generated 210121..212038 <- Decode
-generated 212149..218276 <- Decode
-generated 218277..220059 <- Decode
-generated 220192..226583 <- Decode
-generated 226584..228546 <- Decode
-generated 228677..235056 <- Decode
-generated 235057..237019 <- Decode
-generated 237136..243206 <- Decode
-generated 243207..245034 <- Decode
-generated 245157..251314 <- Decode
-generated 251315..253187 <- Decode
-generated 253304..259374 <- Decode
-generated 259375..261202 <- Decode
-generated 261325..267482 <- Decode
-generated 267483..269355 <- Decode
-generated 269468..275476 <- Decode
-generated 275477..277274 <- Decode
-generated 277387..283471 <- Decode
-generated 283472..285269 <- Decode
-generated 285398..291884 <- Decode
-generated 291885..293802 <- Decode
-generated 293937..300507 <- Decode
-generated 300508..302470 <- Decode
-generated 302599..309085 <- Decode
-generated 309086..311003 <- Decode
-generated 311138..317708 <- Decode
-generated 317709..319671 <- Decode
-generated 319809..326388 <- Decode
-generated 326389..328351 <- Decode
-generated 328507..335344 <- Decode
-generated 335345..337442 <- Decode
-generated 337574..344069 <- Decode
-generated 344070..345987 <- Decode
-generated 346137..352890 <- Decode
-generated 352891..354943 <- Decode
-generated 355077..361613 <- Decode
-generated 361614..363516 <- Decode
-generated 363633..369918 <- Decode
-generated 369919..371761 <- Decode
-generated 371904..378462 <- Decode
-generated 378463..380395 <- Decode
-generated 380556..387363 <- Decode
-generated 387364..389431 <- Decode
-generated 389568..396051 <- Decode
-generated 396052..397939 <- Decode
-generated 398094..404826 <- Decode
-generated 404827..406849 <- Decode
-generated 406998..413666 <- Decode
-generated 413667..415539 <- Decode
-generated 415661..422352 <- Decode
-generated 422353..424180 <- Decode
-generated 424302..430990 <- Decode
-generated 430991..432818 <- Decode
-generated 432944..439690 <- Decode
-generated 439691..441548 <- Decode
-generated 441685..447700 <- Decode
-generated 447701..449663 <- Decode
-generated 449812..456081 <- Decode
-generated 456082..457969 <- Decode
-generated 458141..464314 <- Decode
-generated 464315..466247 <- Decode
+generated 862..7110 <- Decode
+generated 7111..8893 <- Decode
+generated 9000..15121 <- Decode
+generated 15122..16874 <- Decode
+generated 16983..23310 <- Decode
+generated 23311..25078 <- Decode
+generated 25207..31489 <- Decode
+generated 31490..33302 <- Decode
+generated 33435..39951 <- Decode
+generated 39952..41899 <- Decode
+generated 42021..48340 <- Decode
+generated 48341..50183 <- Decode
+generated 50305..56621 <- Decode
+generated 56622..58464 <- Decode
+generated 58580..64815 <- Decode
+generated 64816..66613 <- Decode
+generated 66737..73195 <- Decode
+generated 73196..75068 <- Decode
+generated 75185..81439 <- Decode
+generated 81440..83267 <- Decode
+generated 83382..89619 <- Decode
+generated 89620..91432 <- Decode
+generated 91551..97873 <- Decode
+generated 97874..99716 <- Decode
+generated 99835..106157 <- Decode
+generated 106158..108000 <- Decode
+generated 108123..114593 <- Decode
+generated 114594..116466 <- Decode
+generated 116593..123127 <- Decode
+generated 123128..125030 <- Decode
+generated 125158..131500 <- Decode
+generated 131501..133358 <- Decode
+generated 133493..139986 <- Decode
+generated 139987..141919 <- Decode
+generated 142043..148315 <- Decode
+generated 148316..150143 <- Decode
+generated 150267..156536 <- Decode
+generated 156537..158364 <- Decode
+generated 158490..164865 <- Decode
+generated 164866..166738 <- Decode
+generated 166882..173551 <- Decode
+generated 173552..175559 <- Decode
+generated 175679..181958 <- Decode
+generated 181959..183786 <- Decode
+generated 183924..190497 <- Decode
+generated 190498..192460 <- Decode
+generated 192582..198892 <- Decode
+generated 198893..200705 <- Decode
+generated 200812..206985 <- Decode
+generated 206986..208738 <- Decode
+generated 208867..215440 <- Decode
+generated 215441..217358 <- Decode
+generated 217469..223787 <- Decode
+generated 223788..225570 <- Decode
+generated 225703..232321 <- Decode
+generated 232322..234284 <- Decode
+generated 234415..241021 <- Decode
+generated 241022..242984 <- Decode
+generated 243101..249371 <- Decode
+generated 249372..251199 <- Decode
+generated 251322..257688 <- Decode
+generated 257689..259561 <- Decode
+generated 259678..265948 <- Decode
+generated 265949..267776 <- Decode
+generated 267899..274265 <- Decode
+generated 274266..276138 <- Decode
+generated 276251..282453 <- Decode
+generated 282454..284251 <- Decode
+generated 284364..290642 <- Decode
+generated 290643..292440 <- Decode
+generated 292569..299312 <- Decode
+generated 299313..301230 <- Decode
+generated 301365..308201 <- Decode
+generated 308202..310164 <- Decode
+generated 310293..317036 <- Decode
+generated 317037..318954 <- Decode
+generated 319089..325925 <- Decode
+generated 325926..327888 <- Decode
+generated 328026..334871 <- Decode
+generated 334872..336834 <- Decode
+generated 336990..344120 <- Decode
+generated 344121..346218 <- Decode
+generated 346350..353102 <- Decode
+generated 353103..355020 <- Decode
+generated 355170..362207 <- Decode
+generated 362208..364260 <- Decode
+generated 364394..371184 <- Decode
+generated 371185..373087 <- Decode
+generated 373204..379690 <- Decode
+generated 379691..381533 <- Decode
+generated 381676..388453 <- Decode
+generated 388454..390386 <- Decode
+generated 390547..397600 <- Decode
+generated 397601..399668 <- Decode
+generated 399805..406498 <- Decode
+generated 406499..408386 <- Decode
+generated 408541..415510 <- Decode
+generated 415511..417533 <- Decode
+generated 417682..424557 <- Decode
+generated 424558..426430 <- Decode
+generated 426552..433445 <- Decode
+generated 433446..435273 <- Decode
+generated 435395..442285 <- Decode
+generated 442286..444113 <- Decode
+generated 444239..451193 <- Decode
+generated 451194..453051 <- Decode
+generated 453188..459437 <- Decode
+generated 459438..461400 <- Decode
+generated 461549..468035 <- Decode
+generated 468036..469923 <- Decode
+generated 470095..476489 <- Decode
+generated 476490..478422 <- Decode
 
 ## Metadata
 

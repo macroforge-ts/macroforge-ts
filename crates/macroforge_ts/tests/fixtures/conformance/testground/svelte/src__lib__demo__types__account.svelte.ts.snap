@@ -391,7 +391,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
 
-    const instance: any = {};
+    const instance: { "id"?: string | undefined; "taxRate"?: string | TaxRate | undefined; "site"?: string | Site | undefined; "salesRep"?: Array<Represents> | null | undefined; "orders"?: Array<Ordered> | undefined; "activity"?: Array<Did> | undefined; "customFields"?: Array<[string, string]> | undefined; "accountName"?: AccountName | undefined; "sector"?: Sector | undefined; "memo"?: string | null | undefined; "phones"?: Array<PhoneNumber> | undefined; "email"?: Email | undefined; "leadSource"?: string | undefined; "colors"?: Colors | undefined; "needsReview"?: boolean | undefined; "hasAlert"?: boolean | undefined; "accountType"?: string | undefined; "subtype"?: string | undefined; "isTaxExempt"?: boolean | undefined; "paymentTerms"?: string | undefined; "tags"?: Array<string> | undefined; "dateAdded"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Account");
@@ -2133,13 +2133,13 @@ original 2747..2752 -> expanded 3111..3116
 original 2793..2824 -> expanded 3116..3147
 original 2865..2895 -> expanded 3147..3177
 original 2923..2948 -> expanded 3177..3202
-original 2948..2949 -> expanded 81951..81952
+original 2948..2949 -> expanded 82765..82766
 generated 0..1904 <- imports
 generated 3202..3832 <- Default
 generated 3832..11645 <- Encode
-generated 11645..42993 <- Decode
-generated 42993..80712 <- Gigaform
-generated 80712..81951 <- __convenience_const
+generated 11645..43807 <- Decode
+generated 43807..81526 <- Gigaform
+generated 81526..82765 <- __convenience_const
 
 ## Metadata
 
