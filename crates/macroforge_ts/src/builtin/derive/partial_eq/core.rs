@@ -11,13 +11,54 @@ use crate::builtin::derive::common::{
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::abi::ir::TypeBody;
-use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
+use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
+use std::collections::HashMap;
 
 use super::equality::{
     generate_field_equality_for_interface, generate_value_equality, tuple_equality_statements,
 };
 use super::types::EqField;
+
+/// Statements returning whether `a` and `b` are equal in each of `fields`,
+/// each field compared in a function of its own: one expression over them
+/// all nests as deep as the type is wide, and one body comparing each in turn
+/// grows past what the checker reads.
+fn fields_equal(
+    fields: &[EqField],
+    resolved_fields: Option<&HashMap<String, ResolvedTypeRef>>,
+    type_registry: &TypeRegistry,
+    input: &DeriveInput,
+) -> Result<TsStream, MacroforgeError> {
+    let mut comparisons = Vec::with_capacity(fields.len());
+    for field in fields {
+        let resolved = resolved_fields.and_then(|resolved| resolved.get(&field.name));
+        let source =
+            generate_field_equality_for_interface(field, "a", "b", resolved, type_registry);
+        comparisons.push(Expr::parse(&source).map_err(|err| {
+            MacroforgeError::new(
+                input.decorator_span(),
+                format!("@derive(PartialEq): invalid comparison expression: {err}"),
+            )
+        })?);
+    }
+    Ok(match comparisons.as_slice() {
+        [] => ts_template! { return true; },
+        [comparison] => ts_template! { return @{comparison.clone()}; },
+        _ => {
+            let each = TsStream::merge_all(
+                comparisons
+                    .into_iter()
+                    .map(|comparison| ts_template! { () => @{comparison}, }),
+            );
+            ts_template! {
+                return [
+                    {$typescript each}
+                ].every((same) => same());
+            }
+        }
+    })
+}
 
 #[ts_macro_derive(
     PartialEq,
@@ -53,28 +94,13 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
                 .collect();
 
-            let comparison_src = if eq_fields.is_empty() {
-                "true".to_string()
-            } else {
-                eq_fields
-                    .iter()
-                    .map(|f| {
-                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
-                        generate_field_equality_for_interface(f, "a", "b", resolved, type_registry)
-                    })
-                    .collect::<Vec<_>>()
-                    .join(" && ")
-            };
-            let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
-                MacroforgeError::new(
-                    input.decorator_span(),
-                    format!("@derive(PartialEq): invalid comparison expression: {err}"),
-                )
-            })?;
+            let comparisons = fields_equal(&eq_fields, resolved_fields, type_registry, &input)?;
 
             let body = ts_template! {
                 if (a === b) return true;
-                return @{structural_callee("equalWithin")}(a, b, () => @{comparison_expr});
+                return @{structural_callee("equalWithin")}(a, b, () => {
+                        {$typescript comparisons}
+                    });
             };
             let both = rendered(ts_template! { a: @{&class_ident}, b: @{&class_ident} });
             Ok(class_names.class_function("equals", "Equals", &both, "a, b", "boolean", body))
@@ -111,31 +137,16 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
                 .collect();
 
-            let comparison_src = if eq_fields.is_empty() {
-                "true".to_string()
-            } else {
-                eq_fields
-                    .iter()
-                    .map(|f| {
-                        let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
-                        generate_field_equality_for_interface(f, "a", "b", resolved, type_registry)
-                    })
-                    .collect::<Vec<_>>()
-                    .join(" && ")
-            };
-            let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
-                MacroforgeError::new(
-                    input.decorator_span(),
-                    format!("@derive(PartialEq): invalid comparison expression: {err}"),
-                )
-            })?;
+            let comparisons = fields_equal(&eq_fields, resolved_fields, type_registry, &input)?;
 
             let fn_name_ident = interface_names.generic_function("Equals");
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): boolean {
                     if (a === b) return true;
-                    return @{structural_callee("equalWithin")}(a, b, () => @{comparison_expr});
+                    return @{structural_callee("equalWithin")}(a, b, () => {
+                        {$typescript comparisons}
+                    });
                 }
             })
         }
@@ -164,37 +175,16 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     })
                     .collect();
 
-                let comparison_src = if eq_fields.is_empty() {
-                    "true".to_string()
-                } else {
-                    eq_fields
-                        .iter()
-                        .map(|f| {
-                            let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
-                            generate_field_equality_for_interface(
-                                f,
-                                "a",
-                                "b",
-                                resolved,
-                                type_registry,
-                            )
-                        })
-                        .collect::<Vec<_>>()
-                        .join(" && ")
-                };
-                let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
-                    MacroforgeError::new(
-                        input.decorator_span(),
-                        format!("@derive(PartialEq): invalid comparison expression: {err}"),
-                    )
-                })?;
+                let comparisons = fields_equal(&eq_fields, resolved_fields, type_registry, &input)?;
 
                 let fn_name_ident = type_names.generic_function("Equals");
 
                 Ok(ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): boolean {
                         if (a === b) return true;
-                        return @{structural_callee("equalWithin")}(a, b, () => @{comparison_expr});
+                        return @{structural_callee("equalWithin")}(a, b, () => {
+                        {$typescript comparisons}
+                    });
                     }
                 })
             } else {

@@ -8,7 +8,7 @@ use crate::ts_syn::{TsStream, ts_ident};
 use super::field::statements::encode_fields;
 use super::text::encode_text_body;
 use super::types::EncodeField;
-use crate::builtin::derive::common::{TypeNames, js_string, mentions, rendered};
+use crate::builtin::derive::common::{TypeNames, each_on_its_own, js_string, mentions, rendered};
 use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
 use crate::builtin::derive::endec::union_guard::Direction;
@@ -91,7 +91,7 @@ pub(super) fn encode_with_context_functions(
     };
     // A partial value may lack any field, so each is written only when
     // present, and only when the selection keeps it.
-    let field_statements = TsStream::merge_all(fields.iter().map(|field| {
+    let field_statements = each_on_its_own(fields.iter().map(|field| {
         let present = EncodeField {
             optional: true,
             ..field.clone()

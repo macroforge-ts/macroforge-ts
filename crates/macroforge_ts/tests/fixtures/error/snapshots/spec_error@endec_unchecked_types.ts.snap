@@ -43,7 +43,7 @@ true
 
 ## Output
 
-import { decodeSet as __mf_decodeSet, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeSet as __mf_decodeSet, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import type { Named, Dated } from './elsewhere';
 
@@ -105,25 +105,37 @@ export function readEncodePartialWithContext(value: Partial<Read>, ctx: __mf_Enc
 }
 
 function readEncodeFields(value: Read, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("carried")) {
-        if (value.carried !== undefined) {
-            result["carried"] = value.carried;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("parameters")) {
-        if (value.parameters !== undefined) {
-            result["parameters"] = parametersEncodeWithContext(value.parameters, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = ((v) => v.toString())(value.at);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("carried")) {
+                if (value.carried !== undefined) {
+                    result["carried"] = value.carried;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("parameters")) {
+                if (value.parameters !== undefined) {
+                    result["parameters"] = parametersEncodeWithContext(value.parameters, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = ((v) => v.toString())(value.at);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -201,17 +213,12 @@ export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("carried")) && !("carried" in obj)) {
-        errors.push({ field: "carried", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("parameters")) && !("parameters" in obj)) {
-        errors.push({ field: "parameters", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["carried", "carried"], ["parameters", "parameters"], ["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -222,53 +229,65 @@ export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string & { readonly __brand: 'Id' };
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string & { readonly __brand: 'Id' };
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Read.id is required" : "expected string & { readonly __brand: 'Id' }" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("carried")) ? "carried" in obj : (__fields.keeps("carried") && obj["carried"] !== undefined)) {
-        const __raw_carried = obj["carried"] as unknown;
-
-        instance.carried = __raw_carried;
-    }
-    if ((__fields === undefined || __fields.requires("parameters")) ? "parameters" in obj : (__fields.keeps("parameters") && obj["parameters"] !== undefined)) {
-        const __raw_parameters = obj["parameters"] as Parameters;
-
-        ctx.pushScope("parameters");
-        try {
-            const __result = parametersDecodeWithContext(__raw_parameters, ctx);
-            ctx.assignOrDefer(instance, "parameters", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "parameters" : "parameters." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Read.id is required" : "expected string & { readonly __brand: 'Id' }" });
+                } else {
+                    instance.id = __raw_id;
                 }
-            } else {
-
-                errors.push({ field: "parameters", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        try {
-            instance.at = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
-        	return new URL(raw);
-        })(obj["at"]);
-        } catch (__error) {
-            errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("carried")) ? "carried" in obj : (__fields.keeps("carried") && obj["carried"] !== undefined)) {
+                const __raw_carried = obj["carried"] as unknown;
+
+                instance.carried = __raw_carried;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("parameters")) ? "parameters" in obj : (__fields.keeps("parameters") && obj["parameters"] !== undefined)) {
+                const __raw_parameters = obj["parameters"] as Parameters;
+
+                ctx.pushScope("parameters");
+                try {
+                    const __result = parametersDecodeWithContext(__raw_parameters, ctx);
+                    ctx.assignOrDefer(instance, "parameters", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "parameters" : "parameters." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "parameters", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                try {
+                    instance.at = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+                	return new URL(raw);
+                })(obj["at"]);
+                } catch (__error) {
+                    errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -293,7 +312,7 @@ export function readHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "carried") && __mf_holds(obj, "parameters") && __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["id", "carried", "parameters", "at"]);
 }
 
 export function readIs(obj: unknown): obj is Read {
@@ -444,14 +463,14 @@ Error [659..686]: @derive(Decode): `WeakRef<object>` is a weak reference, which 
 
 ## Mapping
 
-original 0..129 -> expanded 708..837
-original 159..787 -> expanded 837..1465
-original 817..951 -> expanded 1465..1599
-original 951..952 -> expanded 12663..12664
-generated 0..708 <- imports
-generated 1599..4215 <- Encode
-generated 4215..11749 <- Decode
-generated 11749..12663 <- __convenience_const
+original 0..129 -> expanded 714..843
+original 159..787 -> expanded 843..1471
+original 817..951 -> expanded 1471..1605
+original 951..952 -> expanded 13174..13175
+generated 0..714 <- imports
+generated 1605..4549 <- Encode
+generated 4549..12260 <- Decode
+generated 12260..13174 <- __convenience_const
 
 ## Metadata
 

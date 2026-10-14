@@ -13,7 +13,7 @@ true
 ## Output
 
 import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralClone as __mf_structuralClone, structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, instanceOf as __mf_instanceOf, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, notTheMember as __mf_notTheMember, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * PartialEq, Hash and Clone over built-in, collection, optional, union and
@@ -31,13 +31,20 @@ export interface Timeline {
 
 export function timelineEquals(a: Timeline, b: Timeline): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.events.length === b.events.length && a.events.every((__item0, __index0) => {
-	const __other0 = b.events[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime();
-}) && a.labels.size === b.labels.size && Array.from(a.labels).every(([__key0, __item0]) => {
-	const __other0 = b.labels.get(__key0);
-	return b.labels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime());
-}) && (a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime() || a.started.getTime() !== a.started.getTime() && b.started.getTime() !== b.started.getTime()) && a.note === b.note);
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.events.length === b.events.length && a.events.every((__item0, __index0) => {
+            	const __other0 = b.events[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime();
+            }),
+            () => a.labels.size === b.labels.size && Array.from(a.labels).every(([__key0, __item0]) => {
+            	const __other0 = b.labels.get(__key0);
+            	return b.labels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime());
+            }),
+            () => a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime() || a.started.getTime() !== a.started.getTime() && b.started.getTime() !== b.started.getTime(),
+            () => a.note === b.note,
+        ].every((same) => same());
+    });
 }
 
 export function timelineHashCode(value: Timeline): number {
@@ -80,7 +87,9 @@ export class Badge {
 
     static equals(a: Badge, b: Badge): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.label === b.label);
+        return __mf_equalWithin(a, b, () => {
+                return a.label === b.label;
+            });
     }
 
     static hashCode(value: Badge): number {
@@ -116,7 +125,12 @@ export interface Wall {
 
 export function wallEquals(a: Wall, b: Wall): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.badges.size === b.badges.size && Array.from(a.badges).every((__item0) => b.badges.has(__item0) || Array.from(b.badges).some((__other0) => badgeEquals(__item0, __other0))) && __mf_structuralEquals(a.pinned, b.pinned));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.badges.size === b.badges.size && Array.from(a.badges).every((__item0) => b.badges.has(__item0) || Array.from(b.badges).some((__other0) => badgeEquals(__item0, __other0))),
+            () => __mf_structuralEquals(a.pinned, b.pinned),
+        ].every((same) => same());
+    });
 }
 
 export function wallHashCode(value: Wall): number {
@@ -178,7 +192,9 @@ export type Moment = [label: string, at: Date];
 
 export function momentEquals(a: Moment, b: Moment): boolean {
     if (a === b) return true;
-    return a[0] === b[0] && (a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime()));
+    if (!(a[0] === b[0])) return false;
+    if (!((a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime())))) return false;
+    return true;
 }
 
 export function momentHashCode(value: Moment): number {
@@ -381,8 +397,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("entries")) && !("entries" in obj)) {
-        errors.push({ field: "entries", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["entries", "entries"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Ledger.prototype);
@@ -436,7 +456,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "entries");
+    return __mf_holdsAll(obj, ["entries"]);
 }
 
 static is(obj: unknown): obj is Ledger {
@@ -510,8 +530,16 @@ export function ledgerPairEncodeWithContext(value: LedgerPair, ctx: __mf_EncodeC
     };
     return ((value: { e0: Ledger; e1: Ledger }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result["e0"] = ledgerEncodeWithContext(value.e0, ctx);
-        result["e1"] = ledgerEncodeWithContext(value.e1, ctx);
+        for (const __part of [
+            () => {
+                result["e0"] = ledgerEncodeWithContext(value.e0, ctx);
+            },
+            () => {
+                result["e1"] = ledgerEncodeWithContext(value.e1, ctx);
+            },
+        ]) {
+            __part();
+        }
         const __tuple: unknown[] = [];
         __tuple.push(result["e0"] ?? null);
         __tuple.push(result["e1"] ?? null);
@@ -606,51 +634,59 @@ export function ledgerPairDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as Ledger;
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as Ledger;
 
-        ctx.pushScope("0");
-        try {
-            const __result = ledgerDecodeWithContext(__raw_e0, ctx);
-            ctx.assignOrDefer(instance, "e0", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "0" : "0." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("0");
+                try {
+                    const __result = ledgerDecodeWithContext(__raw_e0, ctx);
+                    ctx.assignOrDefer(instance, "e0", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "0" : "0." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ("1" in obj) {
-        const __raw_e1 = obj["1"] as Ledger;
+        },
+        () => {
+            if ("1" in obj) {
+                const __raw_e1 = obj["1"] as Ledger;
 
-        ctx.pushScope("1");
-        try {
-            const __result = ledgerDecodeWithContext(__raw_e1, ctx);
-            ctx.assignOrDefer(instance, "e1", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "1" : "1." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("1");
+                try {
+                    const __result = ledgerDecodeWithContext(__raw_e1, ctx);
+                    ctx.assignOrDefer(instance, "e1", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "1" : "1." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "1", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "1", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -939,22 +975,12 @@ export function ledgerOrNoteEncode(value: LedgerOrNote, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function ledgerOrNoteEncodeWithContext(value: LedgerOrNote, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "Ledger") { __variant = ledgerEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && ledgerHasShape(value)) { __variant = ledgerEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: LedgerOrNote): member is Ledger => __mf_member(member, "__type") === "Ledger", (member) => ledgerEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: LedgerOrNote): member is Ledger => typeof member === "object" && member !== null && !Array.isArray(member) && "entries" in member, (member) => ledgerEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -986,17 +1012,8 @@ export function optionalNoteEncode(value: OptionalNote, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function optionalNoteEncodeWithContext(value: OptionalNote, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -1033,30 +1050,44 @@ export function tallyEncode(value: Tally, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function tallyEncodeWithContext(value: Tally, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "counts") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["counts"] = Object.fromEntries(value.counts.entries());
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "note") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["text"] = value.text;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Tally): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "counts")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["counts"] = Object.fromEntries(value.counts.entries());
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: Tally): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "note")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["text"] = value.text;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -1103,35 +1134,42 @@ export interface Rank {
 
 export function rankEquals(a: Rank, b: Rank): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.label === b.label && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && __mf_structuralEquals(a.meta, b.meta));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.label === b.label,
+            () => a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+            () => __mf_structuralEquals(a.meta, b.meta),
+        ].every((same) => same());
+    });
 }
 
 export function rankPartialCompare(a: Rank, b: Rank): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) ? 0 : null));
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = __mf_structuralCompare(a.meta, b.meta);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0),
+        () => (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) ? 0 : null)),
+        () => __mf_structuralCompare(a.meta, b.meta),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function rankCompare(a: Rank, b: Rank): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : a.at.getTime() !== a.at.getTime() ? b.at.getTime() !== b.at.getTime() ? 0 : 1 : -1;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = __mf_structuralCompare(a.meta, b.meta);
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => a.label < b.label ? -1 : a.label > b.label ? 1 : 0,
+        () => a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : a.at.getTime() !== a.at.getTime() ? b.at.getTime() !== b.at.getTime() ? 0 : 1 : -1,
+        () => __mf_structuralCompare(a.meta, b.meta),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -1179,7 +1217,12 @@ export interface Labeled<T extends string = string> {
 
 export function labeledEquals<T extends string = string>(a: Labeled<T>, b: Labeled<T>): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.label, b.label) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.label, b.label),
+            () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+        ].every((same) => same());
+    });
 }
 
 export function labeledHashCode<T extends string = string>(value: Labeled<T>): number {
@@ -1235,15 +1278,23 @@ export function labeledEncodePartialWithContext<T extends string = string>(value
 }
 
 function labeledEncodeFields<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = (__encodeT === undefined ? value.label : __encodeT(value.label, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = (__encodeT === undefined ? value.label : __encodeT(value.label, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1321,11 +1372,12 @@ export function labeledDecodeWithContext<T extends string = string>(value: unkno
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
-        errors.push({ field: "weight", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["label", "label"], ["weight", "weight"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1336,36 +1388,44 @@ export function labeledDecodeWithContext<T extends string = string>(value: unkno
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
-        const __raw_label = obj["label"] as T;
-        ctx.pushScope("label");
-        try {
-            const __result = (__decodeT === undefined ? __raw_label as T : __decodeT(__raw_label, ctx));
-            ctx.assignOrDefer(instance, "label", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "label" : "label." + __err.field,
-                        message: __err.message
-                    });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+                const __raw_label = obj["label"] as T;
+                ctx.pushScope("label");
+                try {
+                    const __result = (__decodeT === undefined ? __raw_label as T : __decodeT(__raw_label, ctx));
+                    ctx.assignOrDefer(instance, "label", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "label" : "label." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "label", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "label", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
 
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
-            errors.push({ field: "weight", message: __raw_weight == null ? "Labeled.weight is required" : "expected number" });
-        } else {
-            instance.weight = __raw_weight;
-        }
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "Labeled.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1390,7 +1450,7 @@ export function labeledHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "label") && __mf_holds(obj, "weight");
+    return __mf_holdsAll(obj, ["label", "weight"]);
 }
 
 export function labeledIs<T extends string = string>(obj: unknown): obj is Labeled<T> {
@@ -1453,7 +1513,12 @@ export interface Keyed<K extends string> {
 
 export function keyedEquals<K extends string>(a: Keyed<K>, b: Keyed<K>): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.key, b.key) && (a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.key, b.key),
+            () => a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank,
+        ].every((same) => same());
+    });
 }
 
 export function keyedHashCode<K extends string>(value: Keyed<K>): number {
@@ -1484,24 +1549,28 @@ export function keyedToString<K extends string>(value: Keyed<K>): string {
 export function keyedPartialCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = __mf_structuralCompare(a.key, b.key);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank || (a.rank !== a.rank && b.rank !== b.rank) ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => __mf_structuralCompare(a.key, b.key),
+        () => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank || (a.rank !== a.rank && b.rank !== b.rank) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function keyedCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = __mf_structuralCompare(a.key, b.key);
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank ? 0 : a.rank !== a.rank ? b.rank !== b.rank ? 0 : 1 : -1;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => __mf_structuralCompare(a.key, b.key),
+        () => a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank ? 0 : a.rank !== a.rank ? b.rank !== b.rank ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -1533,15 +1602,23 @@ export function keyedEncodePartialWithContext<K extends string>(value: Partial<K
 }
 
 function keyedEncodeFields<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeK?: __mf_Encoder<K>): void {
-    if (__fields === undefined || __fields.keeps("key")) {
-        if (value.key !== undefined) {
-            result["key"] = (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rank")) {
-        if (value.rank !== undefined) {
-            result["rank"] = value.rank;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("key")) {
+                if (value.key !== undefined) {
+                    result["key"] = (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rank")) {
+                if (value.rank !== undefined) {
+                    result["rank"] = value.rank;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1619,11 +1696,12 @@ export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("key")) && !("key" in obj)) {
-        errors.push({ field: "key", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rank")) && !("rank" in obj)) {
-        errors.push({ field: "rank", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["key", "key"], ["rank", "rank"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1634,36 +1712,44 @@ export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
-        const __raw_key = obj["key"] as K;
-        ctx.pushScope("key");
-        try {
-            const __result = (__decodeK === undefined ? __raw_key as K : __decodeK(__raw_key, ctx));
-            ctx.assignOrDefer(instance, "key", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "key" : "key." + __err.field,
-                        message: __err.message
-                    });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
+                const __raw_key = obj["key"] as K;
+                ctx.pushScope("key");
+                try {
+                    const __result = (__decodeK === undefined ? __raw_key as K : __decodeK(__raw_key, ctx));
+                    ctx.assignOrDefer(instance, "key", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "key" : "key." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "key", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "key", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
-        const __raw_rank = obj["rank"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+                const __raw_rank = obj["rank"] as number;
 
-        if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank))) {
-            errors.push({ field: "rank", message: __raw_rank == null ? "Keyed.rank is required" : "expected number" });
-        } else {
-            instance.rank = __raw_rank;
-        }
+                if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank))) {
+                    errors.push({ field: "rank", message: __raw_rank == null ? "Keyed.rank is required" : "expected number" });
+                } else {
+                    instance.rank = __raw_rank;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1688,7 +1774,7 @@ export function keyedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "key") && __mf_holds(obj, "rank");
+    return __mf_holdsAll(obj, ["key", "rank"]);
 }
 
 export function keyedIs<K extends string>(obj: unknown): obj is Keyed<K> {
@@ -1738,7 +1824,12 @@ export class Slot<T extends object> {
 
     static equals<T extends object>(a: Slot<T>, b: Slot<T>): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && (a.index === b.index || a.index !== a.index && b.index !== b.index));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => __mf_structuralEquals(a.held, b.held),
+                    () => a.index === b.index || a.index !== a.index && b.index !== b.index,
+                ].every((same) => same());
+            });
     }
 
     static hashCode<T extends object>(value: Slot<T>): number {
@@ -1769,24 +1860,28 @@ export class Slot<T extends object> {
     static partialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = __mf_structuralCompare(a.held, b.held);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index || (a.index !== a.index && b.index !== b.index) ? 0 : null);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => __mf_structuralCompare(a.held, b.held),
+            () => (a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index || (a.index !== a.index && b.index !== b.index) ? 0 : null),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
     static compare<T extends object>(a: Slot<T>, b: Slot<T>): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = __mf_structuralCompare(a.held, b.held);
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index ? 0 : a.index !== a.index ? b.index !== b.index ? 0 : 1 : -1;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => __mf_structuralCompare(a.held, b.held),
+            () => a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index ? 0 : a.index !== a.index ? b.index !== b.index ? 0 : 1 : -1,
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
@@ -1811,15 +1906,23 @@ static encodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: 
 }
 
 static #encodeFields<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
-    if (__fields === undefined || __fields.keeps("held")) {
-        if (value.held !== undefined) {
-            result["held"] = value.held === null ? null : (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("index")) {
-        if (value.index !== undefined) {
-            result["index"] = value.index;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("held")) {
+                if (value.held !== undefined) {
+                    result["held"] = value.held === null ? null : (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("index")) {
+                if (value.index !== undefined) {
+                    result["index"] = value.index;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1909,11 +2012,12 @@ static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
-        errors.push({ field: "held", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("index")) && !("index" in obj)) {
-        errors.push({ field: "index", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"], ["index", "index"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Slot.prototype);
@@ -1924,41 +2028,49 @@ static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
-        const __raw_held = obj["held"] as T | null;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+                const __raw_held = obj["held"] as T | null;
 
-        if (__raw_held === null) {
-            instance.held = null;
-        } else {
-            ctx.pushScope("held");
-            try {
-                const __result = (__decodeT === undefined ? __raw_held as T : __decodeT(__raw_held, ctx));
-                ctx.assignOrDefer(instance, "held", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "held" : "held." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_held === null) {
+                    instance.held = null;
                 } else {
+                    ctx.pushScope("held");
+                    try {
+                        const __result = (__decodeT === undefined ? __raw_held as T : __decodeT(__raw_held, ctx));
+                        ctx.assignOrDefer(instance, "held", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "held" : "held." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("index")) ? "index" in obj : (__fields.keeps("index") && obj["index"] !== undefined)) {
-        const __raw_index = obj["index"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("index")) ? "index" in obj : (__fields.keeps("index") && obj["index"] !== undefined)) {
+                const __raw_index = obj["index"] as number;
 
-        if (!(typeof __raw_index === "number" && globalThis.Number.isFinite(__raw_index))) {
-            errors.push({ field: "index", message: __raw_index == null ? "Slot.index is required" : "expected number" });
-        } else {
-            instance.index = __raw_index;
-        }
+                if (!(typeof __raw_index === "number" && globalThis.Number.isFinite(__raw_index))) {
+                    errors.push({ field: "index", message: __raw_index == null ? "Slot.index is required" : "expected number" });
+                } else {
+                    instance.index = __raw_index;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1979,7 +2091,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "held") && __mf_holds(obj, "index");
+    return __mf_holdsAll(obj, ["held", "index"]);
 }
 
 static is<T extends object>(obj: unknown): obj is Slot<T> {
@@ -2077,8 +2189,16 @@ export function countedEncodeWithContext<T extends object>(value: Counted<T>, ct
     };
     return ((value: { e0: T; e1: number }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result["e0"] = (__encodeT === undefined ? value.e0 : __encodeT(value.e0, ctx));
-        result["e1"] = value.e1;
+        for (const __part of [
+            () => {
+                result["e0"] = (__encodeT === undefined ? value.e0 : __encodeT(value.e0, ctx));
+            },
+            () => {
+                result["e1"] = value.e1;
+            },
+        ]) {
+            __part();
+        }
         const __tuple: unknown[] = [];
         __tuple.push(result["e0"] ?? null);
         __tuple.push(result["e1"] ?? null);
@@ -2173,36 +2293,44 @@ export function countedDecodeWithContext<T extends object>(value: unknown, ctx: 
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as T;
-        ctx.pushScope("0");
-        try {
-            const __result = (__decodeT === undefined ? __raw_e0 as T : __decodeT(__raw_e0, ctx));
-            ctx.assignOrDefer(instance, "e0", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "0" : "0." + __err.field,
-                        message: __err.message
-                    });
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as T;
+                ctx.pushScope("0");
+                try {
+                    const __result = (__decodeT === undefined ? __raw_e0 as T : __decodeT(__raw_e0, ctx));
+                    ctx.assignOrDefer(instance, "e0", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "0" : "0." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ("1" in obj) {
-        const __raw_e1 = obj["1"] as number;
+        },
+        () => {
+            if ("1" in obj) {
+                const __raw_e1 = obj["1"] as number;
 
-        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
-            errors.push({ field: "1", message: __raw_e1 == null ? "Counted.1 is required" : "expected number" });
-        } else {
-            instance.e1 = __raw_e1;
-        }
+                if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
+                    errors.push({ field: "1", message: __raw_e1 == null ? "Counted.1 is required" : "expected number" });
+                } else {
+                    instance.e1 = __raw_e1;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2241,17 +2369,8 @@ export function codeEncode<T extends string>(value: Code<T>, keepMetadata?: bool
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -3119,142 +3238,142 @@ export declare const Boxed: {
 
 ## Mapping
 
-original 0..349 -> expanded 1351..1700
-original 349..435 -> expanded 4238..4324
-original 435..436 -> expanded 4885..4886
-original 436..547 -> expanded 5154..5265
-original 547..698 -> expanded 6406..6557
-original 698..786 -> expanded 7099..7187
-original 786..867 -> expanded 8030..8111
-original 867..1002 -> expanded 8683..8818
-original 1002..1074 -> expanded 9320..9392
-original 1074..1175 -> expanded 9613..9714
-original 1175..1176 -> expanded 17182..17183
-original 1176..1251 -> expanded 20255..20330
-original 1251..1316 -> expanded 26873..26938
-original 1316..1390 -> expanded 31400..31474
-original 1390..1458 -> expanded 36155..36223
-original 1458..1529 -> expanded 38279..38350
-original 1529..1696 -> expanded 40022..40189
-original 1696..1791 -> expanded 42422..42517
-original 1791..1792 -> expanded 42735..42736
-original 1792..1928 -> expanded 42826..42962
-original 1928..2064 -> expanded 45022..45158
-original 2064..2217 -> expanded 45779..45932
-original 2217..2303 -> expanded 58012..58098
-original 2303..2304 -> expanded 58293..58294
-original 2304..2463 -> expanded 58399..58558
-original 2463..2636 -> expanded 71323..71496
-original 2636..2637 -> expanded 82606..82607
-original 2637..2722 -> expanded 86742..86827
-original 2722..2803 -> expanded 93105..93186
-original 2803..2883 -> expanded 97709..97789
-original 2883..2884 -> expanded 102604..102605
-generated 0..1351 <- imports
-generated 1700..2727 <- PartialEq
-generated 2727..3489 <- Hash
-generated 3489..3996 <- Clone
-generated 3996..4238 <- __convenience_const
-generated 4324..4480 <- PartialEq
-generated 4480..4767 <- Hash
-generated 4767..4885 <- Clone
-generated 4886..4979 <- PartialEq
-generated 4979..5070 <- Hash
-generated 5070..5154 <- Clone
-generated 5265..5614 <- PartialEq
-generated 5614..5966 <- Hash
-generated 5966..6192 <- Clone
-generated 6192..6406 <- __convenience_const
-generated 6557..6689 <- PartialEq
-generated 6689..6785 <- Hash
-generated 6785..6878 <- Clone
-generated 6878..7099 <- __convenience_const
-generated 7187..7423 <- PartialEq
-generated 7423..7693 <- Hash
-generated 7693..7802 <- Clone
-generated 7802..8030 <- __convenience_const
-generated 8111..8249 <- PartialEq
-generated 8249..8349 <- Hash
-generated 8349..8448 <- Clone
-generated 8448..8683 <- __convenience_const
-generated 8818..9207 <- Debug
-generated 9207..9320 <- __convenience_const
-generated 9392..9509 <- Debug
-generated 9509..9613 <- __convenience_const
-generated 9714..11279 <- Encode
-generated 11279..11598 <- Encode
-generated 11598..17182 <- Decode
-generated 17183..18503 <- Encode
-generated 18503..20255 <- Decode
-generated 20330..21570 <- Encode
-generated 21570..26325 <- Decode
-generated 26325..26873 <- __convenience_const
-generated 26938..27894 <- Encode
-generated 27894..30852 <- Decode
-generated 30852..31400 <- __convenience_const
-generated 31474..32488 <- Encode
-generated 32488..35659 <- Decode
-generated 35659..36155 <- __convenience_const
-generated 36223..38045 <- Encode
-generated 38045..38279 <- __convenience_const
-generated 38350..39788 <- Encode
-generated 39788..40022 <- __convenience_const
-generated 40189..42223 <- Encode
-generated 42223..42422 <- __convenience_const
-generated 42517..42735 <- Default
-generated 42736..42826 <- Default
-generated 42962..43314 <- PartialEq
-generated 43314..44108 <- PartialOrd
-generated 44108..44776 <- Ord
-generated 44776..45022 <- __convenience_const
-generated 45158..45293 <- PartialEq
-generated 45293..45413 <- PartialOrd
-generated 45413..45519 <- Ord
-generated 45519..45779 <- __convenience_const
-generated 45932..46222 <- PartialEq
-generated 46222..46650 <- Hash
-generated 46650..46867 <- Clone
-generated 46867..47217 <- Debug
-generated 47217..49841 <- Encode
-generated 49841..56759 <- Decode
-generated 56759..58012 <- __convenience_const
-generated 58098..58293 <- Default
-generated 58294..58399 <- Default
-generated 58558..58817 <- PartialEq
-generated 58817..59224 <- Hash
-generated 59224..59416 <- Clone
-generated 59416..59743 <- Debug
-generated 59743..60272 <- PartialOrd
-generated 60272..60715 <- Ord
-generated 60715..63255 <- Encode
-generated 63255..69968 <- Decode
-generated 69968..71323 <- __convenience_const
-generated 71496..71763 <- PartialEq
-generated 71763..72191 <- Hash
-generated 72191..72397 <- Clone
-generated 72397..72744 <- Debug
-generated 72744..73317 <- PartialOrd
-generated 73317..73796 <- Ord
-generated 73796..75731 <- Encode
-generated 75731..76107 <- Encode
-generated 76107..82606 <- Decode
-generated 82607..82723 <- PartialEq
-generated 82723..82835 <- Hash
-generated 82835..82942 <- Clone
-generated 82942..83054 <- Debug
-generated 83054..83192 <- PartialOrd
-generated 83192..83309 <- Ord
-generated 83309..84801 <- Encode
-generated 84801..86742 <- Decode
-generated 86827..88148 <- Encode
-generated 88148..92596 <- Decode
-generated 92596..93105 <- __convenience_const
-generated 93186..94695 <- Encode
-generated 94695..97239 <- Decode
-generated 97239..97709 <- __convenience_const
-generated 97789..98883 <- Encode
-generated 98883..102121 <- Decode
-generated 102121..102604 <- __convenience_const
+original 0..349 -> expanded 1462..1811
+original 349..435 -> expanded 4546..4632
+original 435..436 -> expanded 5233..5234
+original 436..547 -> expanded 5502..5613
+original 547..698 -> expanded 6849..7000
+original 698..786 -> expanded 7542..7630
+original 786..867 -> expanded 8527..8608
+original 867..1002 -> expanded 9180..9315
+original 1002..1074 -> expanded 9817..9889
+original 1074..1175 -> expanded 10110..10211
+original 1175..1176 -> expanded 17839..17840
+original 1176..1251 -> expanded 20912..20987
+original 1251..1316 -> expanded 28142..28207
+original 1316..1390 -> expanded 32669..32743
+original 1390..1458 -> expanded 37424..37492
+original 1458..1529 -> expanded 39451..39522
+original 1529..1696 -> expanded 41071..41238
+original 1696..1791 -> expanded 43931..44026
+original 1791..1792 -> expanded 44244..44245
+original 1792..1928 -> expanded 44335..44471
+original 1928..2064 -> expanded 46556..46692
+original 2064..2217 -> expanded 47313..47466
+original 2217..2303 -> expanded 60172..60258
+original 2303..2304 -> expanded 60453..60454
+original 2304..2463 -> expanded 60559..60718
+original 2463..2636 -> expanded 74137..74310
+original 2636..2637 -> expanded 86160..86161
+original 2637..2722 -> expanded 90296..90381
+original 2722..2803 -> expanded 97167..97248
+original 2803..2883 -> expanded 101648..101728
+original 2883..2884 -> expanded 106543..106544
+generated 0..1462 <- imports
+generated 1811..3035 <- PartialEq
+generated 3035..3797 <- Hash
+generated 3797..4304 <- Clone
+generated 4304..4546 <- __convenience_const
+generated 4632..4828 <- PartialEq
+generated 4828..5115 <- Hash
+generated 5115..5233 <- Clone
+generated 5234..5327 <- PartialEq
+generated 5327..5418 <- Hash
+generated 5418..5502 <- Clone
+generated 5613..6057 <- PartialEq
+generated 6057..6409 <- Hash
+generated 6409..6635 <- Clone
+generated 6635..6849 <- __convenience_const
+generated 7000..7132 <- PartialEq
+generated 7132..7228 <- Hash
+generated 7228..7321 <- Clone
+generated 7321..7542 <- __convenience_const
+generated 7630..7920 <- PartialEq
+generated 7920..8190 <- Hash
+generated 8190..8299 <- Clone
+generated 8299..8527 <- __convenience_const
+generated 8608..8746 <- PartialEq
+generated 8746..8846 <- Hash
+generated 8846..8945 <- Clone
+generated 8945..9180 <- __convenience_const
+generated 9315..9704 <- Debug
+generated 9704..9817 <- __convenience_const
+generated 9889..10006 <- Debug
+generated 10006..10110 <- __convenience_const
+generated 10211..11776 <- Encode
+generated 11776..12095 <- Encode
+generated 12095..17839 <- Decode
+generated 17840..19160 <- Encode
+generated 19160..20912 <- Decode
+generated 20987..22389 <- Encode
+generated 22389..27594 <- Decode
+generated 27594..28142 <- __convenience_const
+generated 28207..29163 <- Encode
+generated 29163..32121 <- Decode
+generated 32121..32669 <- __convenience_const
+generated 32743..33757 <- Encode
+generated 33757..36928 <- Decode
+generated 36928..37424 <- __convenience_const
+generated 37492..39217 <- Encode
+generated 39217..39451 <- __convenience_const
+generated 39522..40837 <- Encode
+generated 40837..41071 <- __convenience_const
+generated 41238..43732 <- Encode
+generated 43732..43931 <- __convenience_const
+generated 44026..44244 <- Default
+generated 44245..44335 <- Default
+generated 44471..44932 <- PartialEq
+generated 44932..45630 <- PartialOrd
+generated 45630..46310 <- Ord
+generated 46310..46556 <- __convenience_const
+generated 46692..46827 <- PartialEq
+generated 46827..46947 <- PartialOrd
+generated 46947..47053 <- Ord
+generated 47053..47313 <- __convenience_const
+generated 47466..47849 <- PartialEq
+generated 47849..48277 <- Hash
+generated 48277..48494 <- Clone
+generated 48494..48844 <- Debug
+generated 48844..51662 <- Encode
+generated 51662..58919 <- Decode
+generated 58919..60172 <- __convenience_const
+generated 60258..60453 <- Default
+generated 60454..60559 <- Default
+generated 60718..61070 <- PartialEq
+generated 61070..61477 <- Hash
+generated 61477..61669 <- Clone
+generated 61669..61996 <- Debug
+generated 61996..62501 <- PartialOrd
+generated 62501..62992 <- Ord
+generated 62992..65726 <- Encode
+generated 65726..72782 <- Decode
+generated 72782..74137 <- __convenience_const
+generated 74310..74710 <- PartialEq
+generated 74710..75138 <- Hash
+generated 75138..75344 <- Clone
+generated 75344..75691 <- Debug
+generated 75691..76244 <- PartialOrd
+generated 76244..76783 <- Ord
+generated 76783..78912 <- Encode
+generated 78912..79288 <- Encode
+generated 79288..86160 <- Decode
+generated 86161..86277 <- PartialEq
+generated 86277..86389 <- Hash
+generated 86389..86496 <- Clone
+generated 86496..86608 <- Debug
+generated 86608..86746 <- PartialOrd
+generated 86746..86863 <- Ord
+generated 86863..88355 <- Encode
+generated 88355..90296 <- Decode
+generated 90381..91864 <- Encode
+generated 91864..96658 <- Decode
+generated 96658..97167 <- __convenience_const
+generated 97248..98634 <- Encode
+generated 98634..101178 <- Decode
+generated 101178..101648 <- __convenience_const
+generated 101728..102822 <- Encode
+generated 102822..106060 <- Decode
+generated 106060..106543 <- __convenience_const
 
 ## Metadata
 

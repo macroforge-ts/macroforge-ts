@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -63,15 +63,23 @@ export function serviceDefaultsEncodePartialWithContext(value: Partial<ServiceDe
 }
 
 function serviceDefaultsEncodeFields(value: ServiceDefaults, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("price")) {
-        if (value.price !== undefined) {
-            result["price"] = value.price;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("description")) {
-        if (value.description !== undefined) {
-            result["description"] = value.description;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("price")) {
+                if (value.price !== undefined) {
+                    result["price"] = value.price;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("description")) {
+                if (value.description !== undefined) {
+                    result["description"] = value.description;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -149,11 +157,12 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("price")) && !("price" in obj)) {
-        errors.push({ field: "price", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
-        errors.push({ field: "description", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["price", "price"], ["description", "description"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -164,26 +173,34 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
-        const __raw_price = obj["price"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
+                const __raw_price = obj["price"] as number;
 
-        if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
-            errors.push({ field: "price", message: __raw_price == null ? "ServiceDefaults.price is required" : "expected number" });
-        } else {
-            instance.price = __raw_price;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
-        const __raw_description = obj["description"] as string;
-
-        if (!(typeof __raw_description === "string")) {
-            errors.push({ field: "description", message: __raw_description == null ? "ServiceDefaults.description is required" : "expected string" });
-        } else {
-            if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
-                if (__raw_description.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
+                if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
+                    errors.push({ field: "price", message: __raw_price == null ? "ServiceDefaults.price is required" : "expected number" });
+                } else {
+                    instance.price = __raw_price;
+                }
             }
-            instance.description = __raw_description;
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
+                const __raw_description = obj["description"] as string;
+
+                if (!(typeof __raw_description === "string")) {
+                    errors.push({ field: "description", message: __raw_description == null ? "ServiceDefaults.description is required" : "expected string" });
+                } else {
+                    if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
+                        if (__raw_description.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
+                    }
+                    instance.description = __raw_description;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -220,7 +237,7 @@ export function serviceDefaultsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "price") && __mf_holds(obj, "description");
+    return __mf_holdsAll(obj, ["price", "description"]);
 }
 
 export function serviceDefaultsIs(obj: unknown): obj is ServiceDefaults {
@@ -484,18 +501,18 @@ export declare const ServiceDefaults: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..147 -> expanded 896..936
-original 211..235 -> expanded 936..960
-original 287..292 -> expanded 960..965
-original 333..360 -> expanded 965..992
-original 360..361 -> expanded 17164..17165
-generated 0..838 <- imports
-generated 992..1123 <- Default
-generated 1123..3546 <- Encode
-generated 3546..10894 <- Decode
-generated 10894..15709 <- Gigaform
-generated 15709..17164 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..147 -> expanded 902..942
+original 211..235 -> expanded 942..966
+original 287..292 -> expanded 966..971
+original 333..360 -> expanded 971..998
+original 360..361 -> expanded 17618..17619
+generated 0..844 <- imports
+generated 998..1129 <- Default
+generated 1129..3746 <- Encode
+generated 3746..11348 <- Decode
+generated 11348..16163 <- Gigaform
+generated 16163..17618 <- __convenience_const
 
 ## Metadata
 

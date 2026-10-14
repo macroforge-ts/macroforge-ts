@@ -32,7 +32,7 @@ true
 
 import { setDecodeWithContext, setEncodeWithContext } from "./collections";
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Set } from './collections';
 
@@ -95,15 +95,23 @@ export function indexEncodePartialWithContext(value: Partial<Index>, ctx: __mf_E
 }
 
 function indexEncodeFields(value: Index, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = mapEncodeWithContext(value.byName, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("seen")) {
-        if (value.seen !== undefined) {
-            result["seen"] = setEncodeWithContext(value.seen, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = mapEncodeWithContext(value.byName, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("seen")) {
+                if (value.seen !== undefined) {
+                    result["seen"] = setEncodeWithContext(value.seen, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -181,11 +189,12 @@ export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("seen")) && !("seen" in obj)) {
-        errors.push({ field: "seen", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["byName", "byName"], ["seen", "seen"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -196,51 +205,59 @@ export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Map;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Map;
 
-        ctx.pushScope("byName");
-        try {
-            const __result = mapDecodeWithContext(__raw_byName, ctx);
-            ctx.assignOrDefer(instance, "byName", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("byName");
+                try {
+                    const __result = mapDecodeWithContext(__raw_byName, ctx);
+                    ctx.assignOrDefer(instance, "byName", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "byName", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "byName", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("seen")) ? "seen" in obj : (__fields.keeps("seen") && obj["seen"] !== undefined)) {
-        const __raw_seen = obj["seen"] as Set;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("seen")) ? "seen" in obj : (__fields.keeps("seen") && obj["seen"] !== undefined)) {
+                const __raw_seen = obj["seen"] as Set;
 
-        ctx.pushScope("seen");
-        try {
-            const __result = setDecodeWithContext(__raw_seen, ctx);
-            ctx.assignOrDefer(instance, "seen", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "seen" : "seen." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("seen");
+                try {
+                    const __result = setDecodeWithContext(__raw_seen, ctx);
+                    ctx.assignOrDefer(instance, "seen", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "seen" : "seen." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "seen", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "seen", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -265,7 +282,7 @@ export function indexHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "byName") && __mf_holds(obj, "seen");
+    return __mf_holdsAll(obj, ["byName", "seen"]);
 }
 
 export function indexIs(obj: unknown): obj is Index {
@@ -361,17 +378,17 @@ Error [133..140]: this module gives the name `Partial` to something of its own, 
 
 ## Mapping
 
-original 0..38 -> expanded 840..878
-original 59..96 -> expanded 878..915
-original 96..161 -> expanded 1258..1323
-original 191..243 -> expanded 1323..1375
-original 243..244 -> expanded 11383..11384
-generated 0..840 <- imports
-generated 915..1161 <- Debug
-generated 1161..1258 <- __convenience_const
-generated 1375..3677 <- Encode
-generated 3677..10455 <- Decode
-generated 10455..11383 <- __convenience_const
+original 0..38 -> expanded 846..884
+original 59..96 -> expanded 884..921
+original 96..161 -> expanded 1264..1329
+original 191..243 -> expanded 1329..1381
+original 243..244 -> expanded 12027..12028
+generated 0..846 <- imports
+generated 921..1167 <- Debug
+generated 1167..1264 <- __convenience_const
+generated 1381..3877 <- Encode
+generated 3877..11099 <- Decode
+generated 11099..12027 <- __convenience_const
 
 ## Metadata
 

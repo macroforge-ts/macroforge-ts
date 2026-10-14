@@ -48,7 +48,9 @@ class Dial {
 
     static equals(a: Dial, b: Dial): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.turn === b.turn || a.turn !== a.turn && b.turn !== b.turn);
+        return __mf_equalWithin(a, b, () => {
+                return a.turn === b.turn || a.turn !== a.turn && b.turn !== b.turn;
+            });
     }
 }
 
@@ -83,13 +85,13 @@ original 28..100 -> expanded 118..190
 original 100..101 -> expanded 508..509
 original 101..103 -> expanded 606..608
 original 145..182 -> expanded 608..645
-original 182..183 -> expanded 839..840
-original 183..184 -> expanded 929..930
+original 182..183 -> expanded 879..880
+original 183..184 -> expanded 969..970
 generated 0..118 <- imports
 generated 190..508 <- Debug
 generated 509..606 <- Debug
-generated 645..839 <- PartialEq
-generated 840..929 <- PartialEq
+generated 645..879 <- PartialEq
+generated 880..969 <- PartialEq
 
 ## Metadata
 

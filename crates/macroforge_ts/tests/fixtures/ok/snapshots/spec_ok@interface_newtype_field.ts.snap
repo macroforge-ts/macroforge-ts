@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
@@ -152,20 +152,30 @@ export function runEncodePartialWithContext(value: Partial<Run>, ctx: __mf_Encod
 }
 
 function runEncodeFields(value: Run, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("distance")) {
-        if (value.distance !== undefined) {
-            result["distance"] = metersEncodeWithContext(value.distance, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("splits")) {
-        if (value.splits !== undefined) {
-            result["splits"] = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("best")) {
-        if (value.best !== undefined) {
-            result["best"] = metersEncodeWithContext(value.best, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("distance")) {
+                if (value.distance !== undefined) {
+                    result["distance"] = metersEncodeWithContext(value.distance, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("splits")) {
+                if (value.splits !== undefined) {
+                    result["splits"] = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("best")) {
+                if (value.best !== undefined) {
+                    result["best"] = metersEncodeWithContext(value.best, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -243,11 +253,12 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("distance")) && !("distance" in obj)) {
-        errors.push({ field: "distance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("splits")) && !("splits" in obj)) {
-        errors.push({ field: "splits", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["distance", "distance"], ["splits", "splits"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -258,77 +269,87 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
-        const __raw_distance = obj["distance"] as Meters;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
+                const __raw_distance = obj["distance"] as Meters;
 
-        ctx.pushScope("distance");
-        try {
-            const __result = metersDecodeWithContext(__raw_distance, ctx);
-            ctx.assignOrDefer(instance, "distance", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "distance" : "distance." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("distance");
+                try {
+                    const __result = metersDecodeWithContext(__raw_distance, ctx);
+                    ctx.assignOrDefer(instance, "distance", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "distance" : "distance." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
-        const __raw_splits = obj["splits"] as Meters[];
-        if (Array.isArray(__raw_splits)) {
-            ctx.pushScope("splits");
-            try {
-                instance.splits = __mf_decodeArray(__raw_splits, ctx, (__raw0) => metersDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "splits" : "splits." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
+                const __raw_splits = obj["splits"] as Meters[];
+                if (Array.isArray(__raw_splits)) {
+                    ctx.pushScope("splits");
+                    try {
+                        instance.splits = __mf_decodeArray(__raw_splits, ctx, (__raw0) => metersDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "splits" : "splits." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("best"))) {
-        if (("best" in obj && obj["best"] !== undefined)) {
-            const __raw_best = obj["best"] as Meters;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("best"))) {
+                if (("best" in obj && obj["best"] !== undefined)) {
+                    const __raw_best = obj["best"] as Meters;
 
-            ctx.pushScope("best");
-            try {
-                const __result = metersDecodeWithContext(__raw_best, ctx);
-                ctx.assignOrDefer(instance, "best", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "best" : "best." + __err.field,
-                            message: __err.message
-                        });
+                    ctx.pushScope("best");
+                    try {
+                        const __result = metersDecodeWithContext(__raw_best, ctx);
+                        ctx.assignOrDefer(instance, "best", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -353,7 +374,7 @@ export function runHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "distance") && __mf_holds(obj, "splits");
+    return __mf_holdsAll(obj, ["distance", "splits"]);
 }
 
 export function runIs(obj: unknown): obj is Run {
@@ -455,20 +476,20 @@ export {};
 
 ## Mapping
 
-original 57..72 -> expanded 757..772
-original 88..89 -> expanded 816..817
-original 89..91 -> expanded 4150..4152
-original 121..196 -> expanded 4152..4227
-original 196..197 -> expanded 15553..15554
-generated 0..712 <- imports
-generated 712..757 <- $Newtype
-generated 772..816 <- $Newtype
-generated 817..1525 <- Encode
-generated 1525..3661 <- Decode
-generated 3661..4150 <- __convenience_const
-generated 4227..6734 <- Encode
-generated 6734..14667 <- Decode
-generated 14667..15553 <- __convenience_const
+original 57..72 -> expanded 763..778
+original 88..89 -> expanded 822..823
+original 89..91 -> expanded 4156..4158
+original 121..196 -> expanded 4158..4233
+original 196..197 -> expanded 16495..16496
+generated 0..718 <- imports
+generated 718..763 <- $Newtype
+generated 778..822 <- $Newtype
+generated 823..1531 <- Encode
+generated 1531..3667 <- Decode
+generated 3667..4156 <- __convenience_const
+generated 4233..7001 <- Encode
+generated 7001..15609 <- Decode
+generated 15609..16495 <- __convenience_const
 
 ## Metadata
 

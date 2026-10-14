@@ -29,7 +29,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A type named outside ASCII gets its functions and the object that groups them. */
 
@@ -51,7 +51,9 @@ export function ünïcodeClone(value: Ünïcode): Ünïcode {
 
 export function ünïcodeEquals(a: Ünïcode, b: Ünïcode): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id);
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id;
+    });
 }
 
 export function ünïcodeDefaultValue(): Ünïcode {
@@ -169,8 +171,12 @@ export function ünïcodeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -213,7 +219,7 @@ export function ünïcodeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function ünïcodeIs(obj: unknown): obj is Ünïcode {
@@ -271,7 +277,9 @@ export function αβγClone(value: ΑΒΓ): ΑΒΓ {
 
 export function αβγEquals(a: ΑΒΓ, b: ΑΒΓ): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id);
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id;
+    });
 }
 
 export function αβγDefaultValue(): ΑΒΓ {
@@ -389,8 +397,12 @@ export function αβγDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -433,7 +445,7 @@ export function αβγHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function αβγIs(obj: unknown): obj is ΑΒΓ {
@@ -496,10 +508,15 @@ export function holderClone(value: Holder): Holder {
 
 export function holderEquals(a: Holder, b: Holder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.named.length === b.named.length && a.named.every((__item0, __index0) => {
-	const __other0 = b.named[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.greek, b.greek));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.named.length === b.named.length && a.named.every((__item0, __index0) => {
+            	const __other0 = b.named[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+            () => __mf_structuralEquals(a.greek, b.greek),
+        ].every((same) => same());
+    });
 }
 
 export function holderDefaultValue(): Holder {
@@ -537,15 +554,23 @@ export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf
 }
 
 function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("named")) {
-        if (value.named !== undefined) {
-            result["named"] = value.named.map((__item0) => ünïcodeEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("greek")) {
-        if (value.greek !== undefined) {
-            result["greek"] = value.greek === null ? null : αβγEncodeWithContext(value.greek, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("named")) {
+                if (value.named !== undefined) {
+                    result["named"] = value.named.map((__item0) => ünïcodeEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("greek")) {
+                if (value.greek !== undefined) {
+                    result["greek"] = value.greek === null ? null : αβγEncodeWithContext(value.greek, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -623,11 +648,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("named")) && !("named" in obj)) {
-        errors.push({ field: "named", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("greek")) && !("greek" in obj)) {
-        errors.push({ field: "greek", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["named", "named"], ["greek", "greek"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -638,56 +664,64 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("named")) ? "named" in obj : (__fields.keeps("named") && obj["named"] !== undefined)) {
-        const __raw_named = obj["named"] as Ünïcode[];
-        if (Array.isArray(__raw_named)) {
-            ctx.pushScope("named");
-            try {
-                instance.named = __mf_decodeArray(__raw_named, ctx, (__raw0) => ünïcodeDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "named" : "named." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("named")) ? "named" in obj : (__fields.keeps("named") && obj["named"] !== undefined)) {
+                const __raw_named = obj["named"] as Ünïcode[];
+                if (Array.isArray(__raw_named)) {
+                    ctx.pushScope("named");
+                    try {
+                        instance.named = __mf_decodeArray(__raw_named, ctx, (__raw0) => ünïcodeDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "named" : "named." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "named", message: __raw_named == null ? "Holder.named is required" : "expected Ünïcode[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "named", message: __raw_named == null ? "Holder.named is required" : "expected Ünïcode[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("greek")) ? "greek" in obj : (__fields.keeps("greek") && obj["greek"] !== undefined)) {
-        const __raw_greek = obj["greek"] as ΑΒΓ | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("greek")) ? "greek" in obj : (__fields.keeps("greek") && obj["greek"] !== undefined)) {
+                const __raw_greek = obj["greek"] as ΑΒΓ | null;
 
-        if (__raw_greek === null) {
-            instance.greek = null;
-        } else {
-            ctx.pushScope("greek");
-            try {
-                const __result = αβγDecodeWithContext(__raw_greek, ctx);
-                ctx.assignOrDefer(instance, "greek", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "greek" : "greek." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_greek === null) {
+                    instance.greek = null;
                 } else {
+                    ctx.pushScope("greek");
+                    try {
+                        const __result = αβγDecodeWithContext(__raw_greek, ctx);
+                        ctx.assignOrDefer(instance, "greek", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "greek" : "greek." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "greek", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "greek", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -712,7 +746,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "named") && __mf_holds(obj, "greek");
+    return __mf_holdsAll(obj, ["named", "greek"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -930,35 +964,35 @@ export declare const Holder: {
 
 ## Mapping
 
-original 0..86 -> expanded 986..1072
-original 150..197 -> expanded 1072..1119
-original 197..199 -> expanded 10507..10509
-original 263..307 -> expanded 10509..10553
-original 307..309 -> expanded 19674..19676
-original 373..451 -> expanded 19676..19754
-original 451..452 -> expanded 31606..31607
-generated 0..986 <- imports
-generated 1119..1374 <- Debug
-generated 1374..1511 <- Clone
-generated 1511..1671 <- PartialEq
-generated 1671..1763 <- Default
-generated 1763..3899 <- Encode
-generated 3899..9180 <- Decode
-generated 9180..10507 <- __convenience_const
-generated 10553..10799 <- Debug
-generated 10799..10924 <- Clone
-generated 10924..11075 <- PartialEq
-generated 11075..11161 <- Default
-generated 11161..13252 <- Encode
-generated 13252..18434 <- Decode
-generated 18434..19674 <- __convenience_const
-generated 19754..20083 <- Debug
-generated 20083..20306 <- Clone
-generated 20306..20701 <- PartialEq
-generated 20701..20811 <- Default
-generated 20811..23193 <- Encode
-generated 23193..30366 <- Decode
-generated 30366..31606 <- __convenience_const
+original 0..86 -> expanded 992..1078
+original 150..197 -> expanded 1078..1125
+original 197..199 -> expanded 10702..10704
+original 263..307 -> expanded 10704..10748
+original 307..309 -> expanded 20058..20060
+original 373..451 -> expanded 20060..20138
+original 451..452 -> expanded 32815..32816
+generated 0..992 <- imports
+generated 1125..1380 <- Debug
+generated 1380..1517 <- Clone
+generated 1517..1701 <- PartialEq
+generated 1701..1793 <- Default
+generated 1793..3929 <- Encode
+generated 3929..9375 <- Decode
+generated 9375..10702 <- __convenience_const
+generated 10748..10994 <- Debug
+generated 10994..11119 <- Clone
+generated 11119..11294 <- PartialEq
+generated 11294..11380 <- Default
+generated 11380..13471 <- Encode
+generated 13471..18818 <- Decode
+generated 18818..20058 <- __convenience_const
+generated 20138..20467 <- Debug
+generated 20467..20690 <- Clone
+generated 20690..21216 <- PartialEq
+generated 21216..21326 <- Default
+generated 21326..23902 <- Encode
+generated 23902..31575 <- Decode
+generated 31575..32815 <- __convenience_const
 
 ## Metadata
 

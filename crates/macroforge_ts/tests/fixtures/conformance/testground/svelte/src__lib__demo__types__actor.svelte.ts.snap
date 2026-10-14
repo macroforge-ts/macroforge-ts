@@ -15,7 +15,7 @@ true
 import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
 import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,26 +42,16 @@ export function actorEncode(value: Actor, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && userHasShape(value)) { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && employeeHasShape(value)) { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && accountHasShape(value)) { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Actor): member is User => __mf_member(member, "__type") === "User", (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Employee => __mf_member(member, "__type") === "Employee", (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Account => __mf_member(member, "__type") === "Account", (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is User => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "email" in member && "firstName" in member && "lastName" in member && "password" in member && "metadata" in member && "settings" in member && "role" in member && "emailVerified" in member && "verificationToken" in member && "verificationExpires" in member && "passwordResetToken" in member && "passwordResetExpires" in member && "permissions" in member && "createdAt" in member && "lastLoginAt" in member, (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Employee => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "imageUrl" in member && "name" in member && "phones" in member && "role" in member && "title" in member && "email" in member && "address" in member && "username" in member && "route" in member && "ratePerHour" in member && "active" in member && "isTechnician" in member && "isSalesRep" in member && "description" in member && "linkedinUrl" in member && "attendance" in member && "settings" in member, (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Actor): member is Account => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "taxRate" in member && "site" in member && "salesRep" in member && "orders" in member && "activity" in member && "customFields" in member && "accountName" in member && "sector" in member && "memo" in member && "phones" in member && "email" in member && "leadSource" in member && "colors" in member && "needsReview" in member && "hasAlert" in member && "accountType" in member && "subtype" in member && "isTaxExempt" in member && "paymentTerms" in member && "tags" in member && "dateAdded" in member, (member) => accountEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -494,15 +484,15 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..202 -> expanded 1004..1206
-original 251..314 -> expanded 1206..1269
-original 314..315 -> expanded 14224..14225
-generated 0..1004 <- imports
-generated 1269..1348 <- Default
-generated 1348..3647 <- Encode
-generated 3647..8810 <- Decode
-generated 8810..13491 <- Gigaform
-generated 13491..14224 <- __convenience_const
+original 0..202 -> expanded 1074..1276
+original 251..314 -> expanded 1276..1339
+original 314..315 -> expanded 15706..15707
+generated 0..1074 <- imports
+generated 1339..1418 <- Default
+generated 1418..5129 <- Encode
+generated 5129..10292 <- Decode
+generated 10292..14973 <- Gigaform
+generated 14973..15706 <- __convenience_const
 
 ## Metadata
 

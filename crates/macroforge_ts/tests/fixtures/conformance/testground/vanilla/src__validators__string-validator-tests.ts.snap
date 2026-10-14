@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * String validator test classes for comprehensive decoder validation testing.
@@ -105,8 +105,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["email", "email"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(EmailValidator.prototype);
@@ -160,7 +164,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "email");
+    return __mf_holdsAll(obj, ["email"]);
 }
 
 static is(obj: unknown): obj is EmailValidator {
@@ -286,8 +290,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("url")) && !("url" in obj)) {
-        errors.push({ field: "url", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["url", "url"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(UrlValidator.prototype);
@@ -341,7 +349,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "url");
+    return __mf_holdsAll(obj, ["url"]);
 }
 
 static is(obj: unknown): obj is UrlValidator {
@@ -467,8 +475,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(UuidValidator.prototype);
@@ -522,7 +534,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 static is(obj: unknown): obj is UuidValidator {
@@ -648,8 +660,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("shortText")) && !("shortText" in obj)) {
-        errors.push({ field: "shortText", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["shortText", "shortText"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(MaxLengthValidator.prototype);
@@ -703,7 +719,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "shortText");
+    return __mf_holdsAll(obj, ["shortText"]);
 }
 
 static is(obj: unknown): obj is MaxLengthValidator {
@@ -829,8 +845,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("longText")) && !("longText" in obj)) {
-        errors.push({ field: "longText", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["longText", "longText"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(MinLengthValidator.prototype);
@@ -884,7 +904,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "longText");
+    return __mf_holdsAll(obj, ["longText"]);
 }
 
 static is(obj: unknown): obj is MinLengthValidator {
@@ -1010,8 +1030,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("fixedText")) && !("fixedText" in obj)) {
-        errors.push({ field: "fixedText", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["fixedText", "fixedText"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(LengthValidator.prototype);
@@ -1065,7 +1089,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "fixedText");
+    return __mf_holdsAll(obj, ["fixedText"]);
 }
 
 static is(obj: unknown): obj is LengthValidator {
@@ -1191,8 +1215,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("rangedText")) && !("rangedText" in obj)) {
-        errors.push({ field: "rangedText", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["rangedText", "rangedText"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(LengthRangeValidator.prototype);
@@ -1246,7 +1274,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "rangedText");
+    return __mf_holdsAll(obj, ["rangedText"]);
 }
 
 static is(obj: unknown): obj is LengthRangeValidator {
@@ -1372,8 +1400,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("code")) && !("code" in obj)) {
-        errors.push({ field: "code", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["code", "code"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(PatternValidator.prototype);
@@ -1427,7 +1459,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "code");
+    return __mf_holdsAll(obj, ["code"]);
 }
 
 static is(obj: unknown): obj is PatternValidator {
@@ -1553,8 +1585,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
-        errors.push({ field: "required", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["required", "required"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(NonEmptyValidator.prototype);
@@ -1608,7 +1644,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "required");
+    return __mf_holdsAll(obj, ["required"]);
 }
 
 static is(obj: unknown): obj is NonEmptyValidator {
@@ -1734,8 +1770,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("trimmed")) && !("trimmed" in obj)) {
-        errors.push({ field: "trimmed", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["trimmed", "trimmed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(TrimmedValidator.prototype);
@@ -1789,7 +1829,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "trimmed");
+    return __mf_holdsAll(obj, ["trimmed"]);
 }
 
 static is(obj: unknown): obj is TrimmedValidator {
@@ -1915,8 +1955,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("lower")) && !("lower" in obj)) {
-        errors.push({ field: "lower", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["lower", "lower"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(LowercaseValidator.prototype);
@@ -1970,7 +2014,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "lower");
+    return __mf_holdsAll(obj, ["lower"]);
 }
 
 static is(obj: unknown): obj is LowercaseValidator {
@@ -2096,8 +2140,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("upper")) && !("upper" in obj)) {
-        errors.push({ field: "upper", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["upper", "upper"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(UppercaseValidator.prototype);
@@ -2151,7 +2199,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "upper");
+    return __mf_holdsAll(obj, ["upper"]);
 }
 
 static is(obj: unknown): obj is UppercaseValidator {
@@ -2277,8 +2325,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("cap")) && !("cap" in obj)) {
-        errors.push({ field: "cap", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["cap", "cap"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(CapitalizedValidator.prototype);
@@ -2332,7 +2384,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "cap");
+    return __mf_holdsAll(obj, ["cap"]);
 }
 
 static is(obj: unknown): obj is CapitalizedValidator {
@@ -2458,8 +2510,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("uncap")) && !("uncap" in obj)) {
-        errors.push({ field: "uncap", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["uncap", "uncap"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(UncapitalizedValidator.prototype);
@@ -2513,7 +2569,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "uncap");
+    return __mf_holdsAll(obj, ["uncap"]);
 }
 
 static is(obj: unknown): obj is UncapitalizedValidator {
@@ -2639,8 +2695,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("secureUrl")) && !("secureUrl" in obj)) {
-        errors.push({ field: "secureUrl", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["secureUrl", "secureUrl"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(StartsWithValidator.prototype);
@@ -2694,7 +2754,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "secureUrl");
+    return __mf_holdsAll(obj, ["secureUrl"]);
 }
 
 static is(obj: unknown): obj is StartsWithValidator {
@@ -2820,8 +2880,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("filename")) && !("filename" in obj)) {
-        errors.push({ field: "filename", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["filename", "filename"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(EndsWithValidator.prototype);
@@ -2875,7 +2939,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "filename");
+    return __mf_holdsAll(obj, ["filename"]);
 }
 
 static is(obj: unknown): obj is EndsWithValidator {
@@ -3001,8 +3065,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("emailLike")) && !("emailLike" in obj)) {
-        errors.push({ field: "emailLike", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["emailLike", "emailLike"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(IncludesValidator.prototype);
@@ -3056,7 +3124,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "emailLike");
+    return __mf_holdsAll(obj, ["emailLike"]);
 }
 
 static is(obj: unknown): obj is IncludesValidator {
@@ -3993,76 +4061,76 @@ export declare function includesValidatorIs(value: unknown): value is IncludesVa
 
 ## Mapping
 
-original 0..276 -> expanded 433..709
-original 276..277 -> expanded 6760..6761
-original 277..405 -> expanded 8633..8761
-original 405..406 -> expanded 14617..14618
-original 406..536 -> expanded 16460..16590
-original 536..537 -> expanded 22612..22613
-original 537..693 -> expanded 24470..24626
-original 693..694 -> expanded 30887..30888
-original 694..848 -> expanded 32820..32974
-original 848..849 -> expanded 39195..39196
-original 849..1003 -> expanded 41128..41282
-original 1003..1004 -> expanded 47465..47466
-original 1004..1190 -> expanded 49353..49539
-original 1190..1191 -> expanded 55978..55979
-original 1191..1346 -> expanded 57941..58096
-original 1346..1347 -> expanded 64138..64139
-original 1347..1495 -> expanded 66041..66189
-original 1495..1496 -> expanded 72348..72349
-original 1496..1640 -> expanded 74266..74410
-original 1640..1641 -> expanded 80520..80521
-original 1641..1789 -> expanded 82423..82571
-original 1789..1790 -> expanded 88684..88685
-original 1790..1938 -> expanded 90617..90765
-original 1938..1939 -> expanded 96878..96879
-original 1939..2091 -> expanded 98811..98963
-original 2091..2092 -> expanded 105140..105141
-original 2092..2252 -> expanded 107103..107263
-original 2252..2253 -> expanded 113576..113577
-original 2253..2420 -> expanded 115569..115736
-original 2420..2421 -> expanded 122044..122045
-original 2421..2578 -> expanded 123992..124149
-original 2578..2579 -> expanded 130338..130339
-original 2579..2733 -> expanded 132256..132410
-original 2733..2734 -> expanded 138609..138610
-original 2734..2735 -> expanded 140527..140528
-generated 0..433 <- imports
-generated 709..6760 <- Decode
-generated 6761..8633 <- Decode
-generated 8761..14617 <- Decode
-generated 14618..16460 <- Decode
-generated 16590..22612 <- Decode
-generated 22613..24470 <- Decode
-generated 24626..30887 <- Decode
-generated 30888..32820 <- Decode
-generated 32974..39195 <- Decode
-generated 39196..41128 <- Decode
-generated 41282..47465 <- Decode
-generated 47466..49353 <- Decode
-generated 49539..55978 <- Decode
-generated 55979..57941 <- Decode
-generated 58096..64138 <- Decode
-generated 64139..66041 <- Decode
-generated 66189..72348 <- Decode
-generated 72349..74266 <- Decode
-generated 74410..80520 <- Decode
-generated 80521..82423 <- Decode
-generated 82571..88684 <- Decode
-generated 88685..90617 <- Decode
-generated 90765..96878 <- Decode
-generated 96879..98811 <- Decode
-generated 98963..105140 <- Decode
-generated 105141..107103 <- Decode
-generated 107263..113576 <- Decode
-generated 113577..115569 <- Decode
-generated 115736..122044 <- Decode
-generated 122045..123992 <- Decode
-generated 124149..130338 <- Decode
-generated 130339..132256 <- Decode
-generated 132410..138609 <- Decode
-generated 138610..140527 <- Decode
+original 0..276 -> expanded 439..715
+original 276..277 -> expanded 6928..6929
+original 277..405 -> expanded 8801..8929
+original 405..406 -> expanded 14949..14950
+original 406..536 -> expanded 16792..16922
+original 536..537 -> expanded 23109..23110
+original 537..693 -> expanded 24967..25123
+original 693..694 -> expanded 31542..31543
+original 694..848 -> expanded 33475..33629
+original 848..849 -> expanded 40009..40010
+original 849..1003 -> expanded 41942..42096
+original 1003..1004 -> expanded 48437..48438
+original 1004..1190 -> expanded 50325..50511
+original 1190..1191 -> expanded 57107..57108
+original 1191..1346 -> expanded 59070..59225
+original 1346..1347 -> expanded 65430..65431
+original 1347..1495 -> expanded 67333..67481
+original 1495..1496 -> expanded 73799..73800
+original 1496..1640 -> expanded 75717..75861
+original 1640..1641 -> expanded 82131..82132
+original 1641..1789 -> expanded 84034..84182
+original 1789..1790 -> expanded 90457..90458
+original 1790..1938 -> expanded 92390..92538
+original 1938..1939 -> expanded 98813..98814
+original 1939..2091 -> expanded 100746..100898
+original 2091..2092 -> expanded 107239..107240
+original 2092..2252 -> expanded 109202..109362
+original 2252..2253 -> expanded 115837..115838
+original 2253..2420 -> expanded 117830..117997
+original 2420..2421 -> expanded 124463..124464
+original 2421..2578 -> expanded 126411..126568
+original 2578..2579 -> expanded 132916..132917
+original 2579..2733 -> expanded 134834..134988
+original 2733..2734 -> expanded 141345..141346
+original 2734..2735 -> expanded 143263..143264
+generated 0..439 <- imports
+generated 715..6928 <- Decode
+generated 6929..8801 <- Decode
+generated 8929..14949 <- Decode
+generated 14950..16792 <- Decode
+generated 16922..23109 <- Decode
+generated 23110..24967 <- Decode
+generated 25123..31542 <- Decode
+generated 31543..33475 <- Decode
+generated 33629..40009 <- Decode
+generated 40010..41942 <- Decode
+generated 42096..48437 <- Decode
+generated 48438..50325 <- Decode
+generated 50511..57107 <- Decode
+generated 57108..59070 <- Decode
+generated 59225..65430 <- Decode
+generated 65431..67333 <- Decode
+generated 67481..73799 <- Decode
+generated 73800..75717 <- Decode
+generated 75861..82131 <- Decode
+generated 82132..84034 <- Decode
+generated 84182..90457 <- Decode
+generated 90458..92390 <- Decode
+generated 92538..98813 <- Decode
+generated 98814..100746 <- Decode
+generated 100898..107239 <- Decode
+generated 107240..109202 <- Decode
+generated 109362..115837 <- Decode
+generated 115838..117830 <- Decode
+generated 117997..124463 <- Decode
+generated 124464..126411 <- Decode
+generated 126568..132916 <- Decode
+generated 132917..134834 <- Decode
+generated 134988..141345 <- Decode
+generated 141346..143263 <- Decode
 
 ## Metadata
 

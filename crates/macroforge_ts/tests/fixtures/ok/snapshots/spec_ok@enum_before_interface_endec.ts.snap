@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export enum Stage {
@@ -199,8 +199,12 @@ export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("stage")) && !("stage" in obj)) {
-        errors.push({ field: "stage", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["stage", "stage"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -257,7 +261,7 @@ export function jobHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "stage");
+    return __mf_holdsAll(obj, ["stage"]);
 }
 
 export function jobIs(obj: unknown): obj is Job {
@@ -366,17 +370,17 @@ export declare const Job: {
 
 ## Mapping
 
-original 30..106 -> expanded 712..788
-original 106..108 -> expanded 2684..2686
-original 138..181 -> expanded 2686..2729
-original 181..182 -> expanded 11316..11317
-generated 0..712 <- imports
-generated 788..1192 <- Encode
-generated 1192..2317 <- Decode
-generated 2317..2684 <- __convenience_const
-generated 2729..4815 <- Encode
-generated 4815..10423 <- Decode
-generated 10423..11316 <- __convenience_const
+original 30..106 -> expanded 718..794
+original 106..108 -> expanded 2690..2692
+original 138..181 -> expanded 2692..2735
+original 181..182 -> expanded 11484..11485
+generated 0..718 <- imports
+generated 794..1198 <- Encode
+generated 1198..2323 <- Decode
+generated 2323..2690 <- __convenience_const
+generated 2735..4821 <- Encode
+generated 4821..10591 <- Decode
+generated 10591..11484 <- __convenience_const
 
 ## Metadata
 

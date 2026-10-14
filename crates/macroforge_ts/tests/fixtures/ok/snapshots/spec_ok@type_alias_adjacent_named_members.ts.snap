@@ -25,7 +25,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Circle {
@@ -141,8 +141,12 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
-        errors.push({ field: "radius", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["radius", "radius"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -185,7 +189,7 @@ export function circleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "radius");
+    return __mf_holdsAll(obj, ["radius"]);
 }
 
 export function circleIs(obj: unknown): obj is Circle {
@@ -330,8 +334,12 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("side")) && !("side" in obj)) {
-        errors.push({ field: "side", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["side", "side"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -374,7 +382,7 @@ export function squareHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "side");
+    return __mf_holdsAll(obj, ["side"]);
 }
 
 export function squareIs(obj: unknown): obj is Square {
@@ -417,24 +425,14 @@ export function shapeEncode(value: Shape, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "kind");
-        if (!__matched && __refTag === "Circle") { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Square") { __variant = squareEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && circleHasShape(value)) { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && squareHasShape(value)) { __variant = squareEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Shape): member is Circle => __mf_member(member, "kind") === "Circle", (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Square => __mf_member(member, "kind") === "Square", (member) => squareEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => circleHasShape(member), (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Square => squareHasShape(member), (member) => squareEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -661,22 +659,22 @@ export {};
 
 ## Mapping
 
-original 30..71 -> expanded 741..782
-original 71..73 -> expanded 9128..9130
-original 103..142 -> expanded 9130..9169
-original 142..144 -> expanded 17473..17475
-original 222..252 -> expanded 17475..17505
-original 252..253 -> expanded 23461..23462
-generated 0..741 <- imports
-generated 782..2889 <- Encode
-generated 2889..8179 <- Decode
-generated 8179..9128 <- __convenience_const
-generated 9169..11268 <- Encode
-generated 11268..16524 <- Decode
-generated 16524..17473 <- __convenience_const
-generated 17505..19527 <- Encode
-generated 19527..22985 <- Decode
-generated 22985..23461 <- __convenience_const
+original 30..71 -> expanded 817..858
+original 71..73 -> expanded 9365..9367
+original 103..142 -> expanded 9367..9406
+original 142..144 -> expanded 17873..17875
+original 222..252 -> expanded 17875..17905
+original 252..253 -> expanded 23716..23717
+generated 0..817 <- imports
+generated 858..2965 <- Encode
+generated 2965..8416 <- Decode
+generated 8416..9365 <- __convenience_const
+generated 9406..11505 <- Encode
+generated 11505..16924 <- Decode
+generated 16924..17873 <- __convenience_const
+generated 17905..19782 <- Encode
+generated 19782..23240 <- Decode
+generated 23240..23716 <- __convenience_const
 
 ## Metadata
 

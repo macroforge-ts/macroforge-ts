@@ -29,7 +29,7 @@ import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, se
 import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -87,54 +87,44 @@ export function targetEncode(value: Target, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Appointment") { __variant = appointmentEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Lead") { __variant = leadEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "TaxRate") { __variant = taxRateEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Site") { __variant = siteEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Route") { __variant = routeEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Company") { __variant = companyEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Product") { __variant = productEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Service") { __variant = serviceEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Order") { __variant = orderEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Payment") { __variant = paymentEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Package") { __variant = packageEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Promotion") { __variant = promotionEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Represents") { __variant = representsEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Ordered") { __variant = orderedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && accountHasShape(value)) { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && userHasShape(value)) { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && employeeHasShape(value)) { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && appointmentHasShape(value)) { __variant = appointmentEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && leadHasShape(value)) { __variant = leadEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && taxRateHasShape(value)) { __variant = taxRateEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && siteHasShape(value)) { __variant = siteEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && routeHasShape(value)) { __variant = routeEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && companyHasShape(value)) { __variant = companyEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && productHasShape(value)) { __variant = productEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && serviceHasShape(value)) { __variant = serviceEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && orderHasShape(value)) { __variant = orderEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && paymentHasShape(value)) { __variant = paymentEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && packageHasShape(value)) { __variant = packageEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && promotionHasShape(value)) { __variant = promotionEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && representsHasShape(value)) { __variant = representsEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && orderedHasShape(value)) { __variant = orderedEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Target): member is Account => __mf_member(member, "__type") === "Account", (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is User => __mf_member(member, "__type") === "User", (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Employee => __mf_member(member, "__type") === "Employee", (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Appointment => __mf_member(member, "__type") === "Appointment", (member) => appointmentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Lead => __mf_member(member, "__type") === "Lead", (member) => leadEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is TaxRate => __mf_member(member, "__type") === "TaxRate", (member) => taxRateEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Site => __mf_member(member, "__type") === "Site", (member) => siteEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Route => __mf_member(member, "__type") === "Route", (member) => routeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Company => __mf_member(member, "__type") === "Company", (member) => companyEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Product => __mf_member(member, "__type") === "Product", (member) => productEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Service => __mf_member(member, "__type") === "Service", (member) => serviceEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Order => __mf_member(member, "__type") === "Order", (member) => orderEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Payment => __mf_member(member, "__type") === "Payment", (member) => paymentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Package => __mf_member(member, "__type") === "Package", (member) => packageEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Promotion => __mf_member(member, "__type") === "Promotion", (member) => promotionEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Represents => __mf_member(member, "__type") === "Represents", (member) => representsEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Ordered => __mf_member(member, "__type") === "Ordered", (member) => orderedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Account => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "taxRate" in member && "site" in member && "salesRep" in member && "orders" in member && "activity" in member && "customFields" in member && "accountName" in member && "sector" in member && "memo" in member && "phones" in member && "email" in member && "leadSource" in member && "colors" in member && "needsReview" in member && "hasAlert" in member && "accountType" in member && "subtype" in member && "isTaxExempt" in member && "paymentTerms" in member && "tags" in member && "dateAdded" in member, (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is User => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "email" in member && "firstName" in member && "lastName" in member && "password" in member && "metadata" in member && "settings" in member && "role" in member && "emailVerified" in member && "verificationToken" in member && "verificationExpires" in member && "passwordResetToken" in member && "passwordResetExpires" in member && "permissions" in member && "createdAt" in member && "lastLoginAt" in member, (member) => userEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Employee => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "imageUrl" in member && "name" in member && "phones" in member && "role" in member && "title" in member && "email" in member && "address" in member && "username" in member && "route" in member && "ratePerHour" in member && "active" in member && "isTechnician" in member && "isSalesRep" in member && "description" in member && "linkedinUrl" in member && "attendance" in member && "settings" in member, (member) => employeeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Appointment => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "title" in member && "status" in member && "begins" in member && "duration" in member && "timeZone" in member && "offsetMs" in member && "allDay" in member && "multiDay" in member && "employees" in member && "location" in member && "description" in member && "colors" in member && "recurrenceRule" in member, (member) => appointmentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Lead => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "number" in member && "accepted" in member && "probability" in member && "priority" in member && "dueDate" in member && "closeDate" in member && "value" in member && "stage" in member && "status" in member && "description" in member && "nextStep" in member && "favorite" in member && "dateAdded" in member && "taxRate" in member && "sector" in member && "leadName" in member && "phones" in member && "email" in member && "leadSource" in member && "site" in member && "memo" in member && "needsReview" in member && "hasAlert" in member && "salesRep" in member && "color" in member && "accountType" in member && "subtype" in member && "isTaxExempt" in member && "paymentTerms" in member && "tags" in member && "customFields" in member, (member) => leadEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is TaxRate => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "name" in member && "taxAgency" in member && "zip" in member && "city" in member && "county" in member && "state" in member && "isActive" in member && "description" in member && "taxComponents" in member, (member) => taxRateEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Site => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "addressLine1" in member && "addressLine2" in member && "sublocalityLevel1" in member && "locality" in member && "administrativeAreaLevel3" in member && "administrativeAreaLevel2" in member && "administrativeAreaLevel1" in member && "country" in member && "postalCode" in member && "postalCodeSuffix" in member && "coordinates" in member, (member) => siteEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Route => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "techs" in member && "active" in member && "name" in member && "phone" in member && "position" in member && "serviceRoute" in member && "defaultDurationHours" in member && "tags" in member && "icon" in member && "color" in member, (member) => routeEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Company => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "legalName" in member && "headquarters" in member && "phones" in member && "fax" in member && "email" in member && "website" in member && "taxId" in member && "referenceNumber" in member && "postalCodeLookup" in member && "timeZone" in member && "defaultTax" in member && "defaultTaxLocation" in member && "defaultAreaCode" in member && "defaultAccountType" in member && "lookupFormatting" in member && "accountNameFormat" in member && "merchantServiceProvider" in member && "dateDisplayStyle" in member && "hasAutoCommission" in member && "hasAutoDaylightSavings" in member && "hasAutoFmsTracking" in member && "hasNotifications" in member && "hasRequiredLeadSource" in member && "hasRequiredEmail" in member && "hasSortServiceItemsAlphabetically" in member && "hasAttachOrderToAppointmentEmails" in member && "scheduleInterval" in member && "colorsConfig" in member, (member) => companyEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Product => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "name" in member && "quickCode" in member && "group" in member && "subgroup" in member && "unit" in member && "active" in member && "commission" in member && "favorite" in member && "defaults" in member, (member) => productEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Service => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "name" in member && "quickCode" in member && "group" in member && "subgroup" in member && "unit" in member && "active" in member && "commission" in member && "favorite" in member && "averageTime" in member && "defaults" in member, (member) => serviceEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Order => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "account" in member && "stage" in member && "number" in member && "payments" in member && "opportunity" in member && "reference" in member && "leadSource" in member && "salesRep" in member && "group" in member && "subgroup" in member && "isPosted" in member && "needsReview" in member && "actionItem" in member && "upsale" in member && "dateCreated" in member && "appointment" in member && "lastTechs" in member && "package" in member && "promotion" in member && "balance" in member && "due" in member && "total" in member && "site" in member && "billedItems" in member && "memo" in member && "discount" in member && "tip" in member && "commissions" in member, (member) => orderEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Payment => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "date" in member, (member) => paymentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Package => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "date" in member, (member) => packageEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Promotion => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "date" in member, (member) => promotionEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Represents => typeof member === "object" && member !== null && !Array.isArray(member) && "in" in member && "out" in member && "id" in member && "dateStarted" in member, (member) => representsEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Target): member is Ordered => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "in" in member && "out" in member && "date" in member, (member) => orderedEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -1155,15 +1145,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2750..3637
-original 936..1209 -> expanded 3637..3910
-original 1209..1210 -> expanded 38087..38088
-generated 0..2750 <- imports
-generated 3910..3994 <- Default
-generated 3994..9906 <- Encode
-generated 9906..23705 <- Decode
-generated 23705..37335 <- Gigaform
-generated 37335..38087 <- __convenience_const
+original 0..887 -> expanded 2820..3707
+original 936..1209 -> expanded 3707..3980
+original 1209..1210 -> expanded 45096..45097
+generated 0..2820 <- imports
+generated 3980..4064 <- Default
+generated 4064..16915 <- Encode
+generated 16915..30714 <- Decode
+generated 30714..44344 <- Gigaform
+generated 44344..45096 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,15 +60,23 @@ export function directionHueEncodePartialWithContext(value: Partial<DirectionHue
 }
 
 function directionHueEncodeFields(value: DirectionHue, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("bearing")) {
-        if (value.bearing !== undefined) {
-            result["bearing"] = value.bearing;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("hue")) {
-        if (value.hue !== undefined) {
-            result["hue"] = value.hue;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("bearing")) {
+                if (value.bearing !== undefined) {
+                    result["bearing"] = value.bearing;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("hue")) {
+                if (value.hue !== undefined) {
+                    result["hue"] = value.hue;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -146,11 +154,12 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("bearing")) && !("bearing" in obj)) {
-        errors.push({ field: "bearing", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("hue")) && !("hue" in obj)) {
-        errors.push({ field: "hue", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["bearing", "bearing"], ["hue", "hue"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -161,23 +170,31 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("bearing")) ? "bearing" in obj : (__fields.keeps("bearing") && obj["bearing"] !== undefined)) {
-        const __raw_bearing = obj["bearing"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("bearing")) ? "bearing" in obj : (__fields.keeps("bearing") && obj["bearing"] !== undefined)) {
+                const __raw_bearing = obj["bearing"] as number;
 
-        if (!(typeof __raw_bearing === "number" && globalThis.Number.isFinite(__raw_bearing))) {
-            errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
-        } else {
-            instance.bearing = __raw_bearing;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("hue")) ? "hue" in obj : (__fields.keeps("hue") && obj["hue"] !== undefined)) {
-        const __raw_hue = obj["hue"] as number;
+                if (!(typeof __raw_bearing === "number" && globalThis.Number.isFinite(__raw_bearing))) {
+                    errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
+                } else {
+                    instance.bearing = __raw_bearing;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("hue")) ? "hue" in obj : (__fields.keeps("hue") && obj["hue"] !== undefined)) {
+                const __raw_hue = obj["hue"] as number;
 
-        if (!(typeof __raw_hue === "number" && globalThis.Number.isFinite(__raw_hue))) {
-            errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
-        } else {
-            instance.hue = __raw_hue;
-        }
+                if (!(typeof __raw_hue === "number" && globalThis.Number.isFinite(__raw_hue))) {
+                    errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
+                } else {
+                    instance.hue = __raw_hue;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -202,7 +219,7 @@ export function directionHueHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "bearing") && __mf_holds(obj, "hue");
+    return __mf_holdsAll(obj, ["bearing", "hue"]);
 }
 
 export function directionHueIs(obj: unknown): obj is DirectionHue {
@@ -470,15 +487,15 @@ export declare const DirectionHue: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..179 -> expanded 896..968
-original 179..180 -> expanded 15751..15752
-generated 0..838 <- imports
-generated 968..1086 <- Default
-generated 1086..3440 <- Encode
-generated 3440..9600 <- Decode
-generated 9600..14377 <- Gigaform
-generated 14377..15751 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..179 -> expanded 902..974
+original 179..180 -> expanded 16187..16188
+generated 0..844 <- imports
+generated 974..1092 <- Default
+generated 1092..3640 <- Encode
+generated 3640..10036 <- Decode
+generated 10036..14813 <- Gigaform
+generated 14813..16187 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -63,15 +63,23 @@ export function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_E
 }
 
 function emailEncodeFields(value: Email, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("canEmail")) {
-        if (value.canEmail !== undefined) {
-            result["canEmail"] = value.canEmail;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("emailString")) {
-        if (value.emailString !== undefined) {
-            result["emailString"] = value.emailString;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("canEmail")) {
+                if (value.canEmail !== undefined) {
+                    result["canEmail"] = value.canEmail;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("emailString")) {
+                if (value.emailString !== undefined) {
+                    result["emailString"] = value.emailString;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -149,11 +157,12 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("canEmail")) && !("canEmail" in obj)) {
-        errors.push({ field: "canEmail", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("emailString")) && !("emailString" in obj)) {
-        errors.push({ field: "emailString", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["canEmail", "canEmail"], ["emailString", "emailString"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -164,27 +173,35 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("canEmail")) ? "canEmail" in obj : (__fields.keeps("canEmail") && obj["canEmail"] !== undefined)) {
-        const __raw_canEmail = obj["canEmail"] as boolean;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("canEmail")) ? "canEmail" in obj : (__fields.keeps("canEmail") && obj["canEmail"] !== undefined)) {
+                const __raw_canEmail = obj["canEmail"] as boolean;
 
-        if (!(typeof __raw_canEmail === "boolean")) {
-            errors.push({ field: "canEmail", message: __raw_canEmail == null ? "Email.canEmail is required" : "expected boolean" });
-        } else {
-            instance.canEmail = __raw_canEmail;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("emailString")) ? "emailString" in obj : (__fields.keeps("emailString") && obj["emailString"] !== undefined)) {
-        const __raw_emailString = obj["emailString"] as string;
-
-        if (!(typeof __raw_emailString === "string")) {
-            errors.push({ field: "emailString", message: __raw_emailString == null ? "Email.emailString is required" : "expected string" });
-        } else {
-            if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
-                if (__raw_emailString.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_emailString)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+                if (!(typeof __raw_canEmail === "boolean")) {
+                    errors.push({ field: "canEmail", message: __raw_canEmail == null ? "Email.canEmail is required" : "expected boolean" });
+                } else {
+                    instance.canEmail = __raw_canEmail;
+                }
             }
-            instance.emailString = __raw_emailString;
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("emailString")) ? "emailString" in obj : (__fields.keeps("emailString") && obj["emailString"] !== undefined)) {
+                const __raw_emailString = obj["emailString"] as string;
+
+                if (!(typeof __raw_emailString === "string")) {
+                    errors.push({ field: "emailString", message: __raw_emailString == null ? "Email.emailString is required" : "expected string" });
+                } else {
+                    if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+                        if (__raw_emailString.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_emailString)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+                    }
+                    instance.emailString = __raw_emailString;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -223,7 +240,7 @@ export function emailHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "canEmail") && __mf_holds(obj, "emailString");
+    return __mf_holdsAll(obj, ["canEmail", "emailString"]);
 }
 
 export function emailIs(obj: unknown): obj is Email {
@@ -486,18 +503,18 @@ export declare const Email: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..137 -> expanded 896..926
-original 185..213 -> expanded 926..954
-original 255..260 -> expanded 954..959
-original 310..337 -> expanded 959..986
-original 337..338 -> expanded 16605..16606
-generated 0..838 <- imports
-generated 986..1104 <- Default
-generated 1104..3389 <- Encode
-generated 3389..10843 <- Decode
-generated 10843..15420 <- Gigaform
-generated 15420..16605 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..137 -> expanded 902..932
+original 185..213 -> expanded 932..960
+original 255..260 -> expanded 960..965
+original 310..337 -> expanded 965..992
+original 337..338 -> expanded 17064..17065
+generated 0..844 <- imports
+generated 992..1110 <- Default
+generated 1110..3589 <- Encode
+generated 3589..11302 <- Decode
+generated 11302..15879 <- Gigaform
+generated 15879..17064 <- __convenience_const
 
 ## Metadata
 

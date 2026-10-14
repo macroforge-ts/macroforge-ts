@@ -89,7 +89,18 @@ export function optionsClone(value: Options): Options {
 
 export function optionsEquals(a: Options, b: Options): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.misspelled === b.misspelled && a.unknown === b.unknown && a.ordered === b.ordered && a.several === b.several && (a.twice === b.twice || a.twice !== a.twice && b.twice !== b.twice) && a.known === b.known && a.flagged === b.flagged && __mf_structuralEquals(a.whole, b.whole));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.misspelled === b.misspelled,
+            () => a.unknown === b.unknown,
+            () => a.ordered === b.ordered,
+            () => a.several === b.several,
+            () => a.twice === b.twice || a.twice !== a.twice && b.twice !== b.twice,
+            () => a.known === b.known,
+            () => a.flagged === b.flagged,
+            () => __mf_structuralEquals(a.whole, b.whole),
+        ].every((same) => same());
+    });
 }
 
 export function optionsHashCode(value: Options): number {
@@ -109,49 +120,38 @@ export function optionsHashCode(value: Options): number {
 export function optionsPartialCompare(a: Options, b: Options): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.misspelled < b.misspelled ? -1 : a.misspelled > b.misspelled ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.unknown < b.unknown ? -1 : a.unknown > b.unknown ? 1 : 0);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (a.ordered < b.ordered ? -1 : a.ordered > b.ordered ? 1 : 0);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-    const cmp3 = (a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : a.twice === b.twice || (a.twice !== a.twice && b.twice !== b.twice) ? 0 : null);
-    if (cmp3 === null) return null;
-    if (cmp3 !== 0) return cmp3;
-    const cmp4 = (a.known < b.known ? -1 : a.known > b.known ? 1 : 0);
-    if (cmp4 === null) return null;
-    if (cmp4 !== 0) return cmp4;
-    const cmp5 = (a.flagged < b.flagged ? -1 : a.flagged > b.flagged ? 1 : 0);
-    if (cmp5 === null) return null;
-    if (cmp5 !== 0) return cmp5;
-    const cmp6 = __mf_structuralCompare(a.whole, b.whole);
-    if (cmp6 === null) return null;
-    if (cmp6 !== 0) return cmp6;
-        return 0;
+    for (const __order of [
+        () => (a.misspelled < b.misspelled ? -1 : a.misspelled > b.misspelled ? 1 : 0),
+        () => (a.unknown < b.unknown ? -1 : a.unknown > b.unknown ? 1 : 0),
+        () => (a.ordered < b.ordered ? -1 : a.ordered > b.ordered ? 1 : 0),
+        () => (a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : a.twice === b.twice || (a.twice !== a.twice && b.twice !== b.twice) ? 0 : null),
+        () => (a.known < b.known ? -1 : a.known > b.known ? 1 : 0),
+        () => (a.flagged < b.flagged ? -1 : a.flagged > b.flagged ? 1 : 0),
+        () => __mf_structuralCompare(a.whole, b.whole),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function optionsCompare(a: Options, b: Options): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.misspelled < b.misspelled ? -1 : a.misspelled > b.misspelled ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.unknown < b.unknown ? -1 : a.unknown > b.unknown ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = a.ordered < b.ordered ? -1 : a.ordered > b.ordered ? 1 : 0;
-    if (cmp2 !== 0) return cmp2;
-    const cmp3 = a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : a.twice === b.twice ? 0 : a.twice !== a.twice ? b.twice !== b.twice ? 0 : 1 : -1;
-    if (cmp3 !== 0) return cmp3;
-    const cmp4 = a.known < b.known ? -1 : a.known > b.known ? 1 : 0;
-    if (cmp4 !== 0) return cmp4;
-    const cmp5 = a.flagged < b.flagged ? -1 : a.flagged > b.flagged ? 1 : 0;
-    if (cmp5 !== 0) return cmp5;
-    const cmp6 = __mf_structuralCompare(a.whole, b.whole);
-    if (cmp6 !== 0) return cmp6;
-        return 0;
+    for (const __order of [
+        () => a.misspelled < b.misspelled ? -1 : a.misspelled > b.misspelled ? 1 : 0,
+        () => a.unknown < b.unknown ? -1 : a.unknown > b.unknown ? 1 : 0,
+        () => a.ordered < b.ordered ? -1 : a.ordered > b.ordered ? 1 : 0,
+        () => a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : a.twice === b.twice ? 0 : a.twice !== a.twice ? b.twice !== b.twice ? 0 : 1 : -1,
+        () => a.known < b.known ? -1 : a.known > b.known ? 1 : 0,
+        () => a.flagged < b.flagged ? -1 : a.flagged > b.flagged ? 1 : 0,
+        () => __mf_structuralCompare(a.whole, b.whole),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -299,20 +299,20 @@ original 353..377 -> expanded 1029..1053
 original 432..456 -> expanded 1053..1077
 original 474..500 -> expanded 1077..1103
 original 536..577 -> expanded 1103..1144
-original 577..579 -> expanded 6224..6226
-original 608..712 -> expanded 6226..6330
-original 712..713 -> expanded 9160..9161
+original 577..579 -> expanded 5897..5899
+original 608..712 -> expanded 5899..6003
+original 712..713 -> expanded 8833..8834
 generated 0..890 <- imports
 generated 1144..1733 <- Debug
 generated 1733..2064 <- Clone
-generated 2064..2479 <- PartialEq
-generated 2479..3485 <- Hash
-generated 3485..4754 <- PartialOrd
-generated 4754..5747 <- Ord
-generated 5747..6224 <- __convenience_const
-generated 6330..6585 <- Debug
-generated 6585..8721 <- Encode
-generated 8721..9160 <- __convenience_const
+generated 2064..2668 <- PartialEq
+generated 2668..3674 <- Hash
+generated 3674..4559 <- PartialOrd
+generated 4559..5420 <- Ord
+generated 5420..5897 <- __convenience_const
+generated 6003..6258 <- Debug
+generated 6258..8394 <- Encode
+generated 8394..8833 <- __convenience_const
 
 ## Metadata
 

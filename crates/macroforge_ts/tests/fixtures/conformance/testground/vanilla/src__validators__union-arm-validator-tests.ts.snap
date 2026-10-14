@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, member as __mf_member } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, member as __mf_member } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Untagged unions whose primitive arms carry their own validators.
@@ -196,8 +196,12 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("digits")) && !("digits" in obj)) {
-        errors.push({ field: "digits", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["digits", "digits"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -240,7 +244,7 @@ export function phoneHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "digits");
+    return __mf_holdsAll(obj, ["digits"]);
 }
 
 export function phoneIs(obj: unknown): obj is Phone {
@@ -632,20 +636,20 @@ export declare const Fallback: {
 
 ## Mapping
 
-original 0..159 -> expanded 489..648
-original 159..230 -> expanded 3818..3889
-original 230..343 -> expanded 9735..9848
-original 343..428 -> expanded 14671..14756
-original 428..429 -> expanded 18099..18100
-generated 0..489 <- imports
-generated 648..3485 <- Decode
-generated 3485..3818 <- __convenience_const
-generated 3889..9102 <- Decode
-generated 9102..9735 <- __convenience_const
-generated 9848..14320 <- Decode
-generated 14320..14671 <- __convenience_const
-generated 14756..17757 <- Decode
-generated 17757..18099 <- __convenience_const
+original 0..159 -> expanded 495..654
+original 159..230 -> expanded 3824..3895
+original 230..343 -> expanded 9902..10015
+original 343..428 -> expanded 14838..14923
+original 428..429 -> expanded 18266..18267
+generated 0..495 <- imports
+generated 654..3491 <- Decode
+generated 3491..3824 <- __convenience_const
+generated 3895..9269 <- Decode
+generated 9269..9902 <- __convenience_const
+generated 10015..14487 <- Decode
+generated 14487..14838 <- __convenience_const
+generated 14923..17924 <- Decode
+generated 17924..18266 <- __convenience_const
 
 ## Metadata
 

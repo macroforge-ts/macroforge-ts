@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -53,17 +53,8 @@ export function tableEncode(value: Table, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -857,15 +848,15 @@ export declare const Table: {
 
 ## Mapping
 
-original 0..58 -> expanded 641..699
-original 107..425 -> expanded 699..1017
-original 425..426 -> expanded 20416..20417
-generated 0..641 <- imports
-generated 1017..1087 <- Default
-generated 1087..2490 <- Encode
-generated 2490..5642 <- Decode
-generated 5642..19683 <- Gigaform
-generated 19683..20416 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..425 -> expanded 769..1087
+original 425..426 -> expanded 20363..20364
+generated 0..711 <- imports
+generated 1087..1157 <- Default
+generated 1157..2437 <- Encode
+generated 2437..5589 <- Decode
+generated 5589..19630 <- Gigaform
+generated 19630..20363 <- __convenience_const
 
 ## Metadata
 

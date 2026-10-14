@@ -13,7 +13,7 @@ true
 ## Output
 
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -68,25 +68,37 @@ export function scheduleSettingsEncodePartialWithContext(value: Partial<Schedule
 }
 
 function scheduleSettingsEncodeFields(value: ScheduleSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("daysPerWeek")) {
-        if (value.daysPerWeek !== undefined) {
-            result["daysPerWeek"] = value.daysPerWeek;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rowHeight")) {
-        if (value.rowHeight !== undefined) {
-            result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("visibleRoutes")) {
-        if (value.visibleRoutes !== undefined) {
-            result["visibleRoutes"] = value.visibleRoutes;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("detailedCards")) {
-        if (value.detailedCards !== undefined) {
-            result["detailedCards"] = value.detailedCards;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("daysPerWeek")) {
+                if (value.daysPerWeek !== undefined) {
+                    result["daysPerWeek"] = value.daysPerWeek;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rowHeight")) {
+                if (value.rowHeight !== undefined) {
+                    result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("visibleRoutes")) {
+                if (value.visibleRoutes !== undefined) {
+                    result["visibleRoutes"] = value.visibleRoutes;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("detailedCards")) {
+                if (value.detailedCards !== undefined) {
+                    result["detailedCards"] = value.detailedCards;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -164,17 +176,12 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("daysPerWeek")) && !("daysPerWeek" in obj)) {
-        errors.push({ field: "daysPerWeek", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rowHeight")) && !("rowHeight" in obj)) {
-        errors.push({ field: "rowHeight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("visibleRoutes")) && !("visibleRoutes" in obj)) {
-        errors.push({ field: "visibleRoutes", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("detailedCards")) && !("detailedCards" in obj)) {
-        errors.push({ field: "detailedCards", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["daysPerWeek", "daysPerWeek"], ["rowHeight", "rowHeight"], ["visibleRoutes", "visibleRoutes"], ["detailedCards", "detailedCards"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -185,70 +192,82 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("daysPerWeek")) ? "daysPerWeek" in obj : (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
-        const __raw_daysPerWeek = obj["daysPerWeek"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("daysPerWeek")) ? "daysPerWeek" in obj : (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
+                const __raw_daysPerWeek = obj["daysPerWeek"] as number;
 
-        if (!(typeof __raw_daysPerWeek === "number" && globalThis.Number.isFinite(__raw_daysPerWeek))) {
-            errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
-        } else {
-            instance.daysPerWeek = __raw_daysPerWeek;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
-        const __raw_rowHeight = obj["rowHeight"] as RowHeight;
-
-        ctx.pushScope("rowHeight");
-        try {
-            const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
-            ctx.assignOrDefer(instance, "rowHeight", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_daysPerWeek === "number" && globalThis.Number.isFinite(__raw_daysPerWeek))) {
+                    errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
+                } else {
+                    instance.daysPerWeek = __raw_daysPerWeek;
                 }
-            } else {
-
-                errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("visibleRoutes")) ? "visibleRoutes" in obj : (__fields.keeps("visibleRoutes") && obj["visibleRoutes"] !== undefined)) {
-        const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;
-        if (Array.isArray(__raw_visibleRoutes)) {
-            ctx.pushScope("visibleRoutes");
-            try {
-                instance.visibleRoutes = __mf_decodeArray(__raw_visibleRoutes, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "visibleRoutes" : "visibleRoutes." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
+                const __raw_rowHeight = obj["rowHeight"] as RowHeight;
+
+                ctx.pushScope("rowHeight");
+                try {
+                    const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
+                    ctx.assignOrDefer(instance, "rowHeight", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("visibleRoutes")) ? "visibleRoutes" in obj : (__fields.keeps("visibleRoutes") && obj["visibleRoutes"] !== undefined)) {
+                const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;
+                if (Array.isArray(__raw_visibleRoutes)) {
+                    ctx.pushScope("visibleRoutes");
+                    try {
+                        instance.visibleRoutes = __mf_decodeArray(__raw_visibleRoutes, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "visibleRoutes" : "visibleRoutes." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "visibleRoutes", message: __raw_visibleRoutes == null ? "ScheduleSettings.visibleRoutes is required" : "expected Array<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "visibleRoutes", message: __raw_visibleRoutes == null ? "ScheduleSettings.visibleRoutes is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("detailedCards")) ? "detailedCards" in obj : (__fields.keeps("detailedCards") && obj["detailedCards"] !== undefined)) {
-        const __raw_detailedCards = obj["detailedCards"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("detailedCards")) ? "detailedCards" in obj : (__fields.keeps("detailedCards") && obj["detailedCards"] !== undefined)) {
+                const __raw_detailedCards = obj["detailedCards"] as boolean;
 
-        if (!(typeof __raw_detailedCards === "boolean")) {
-            errors.push({ field: "detailedCards", message: __raw_detailedCards == null ? "ScheduleSettings.detailedCards is required" : "expected boolean" });
-        } else {
-            instance.detailedCards = __raw_detailedCards;
-        }
+                if (!(typeof __raw_detailedCards === "boolean")) {
+                    errors.push({ field: "detailedCards", message: __raw_detailedCards == null ? "ScheduleSettings.detailedCards is required" : "expected boolean" });
+                } else {
+                    instance.detailedCards = __raw_detailedCards;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -273,7 +292,7 @@ export function scheduleSettingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "daysPerWeek") && __mf_holds(obj, "rowHeight") && __mf_holds(obj, "visibleRoutes") && __mf_holds(obj, "detailedCards");
+    return __mf_holdsAll(obj, ["daysPerWeek", "rowHeight", "visibleRoutes", "detailedCards"]);
 }
 
 export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
@@ -639,16 +658,16 @@ export declare const ScheduleSettings: {
 
 ## Mapping
 
-original 0..113 -> expanded 1022..1135
-original 162..228 -> expanded 1135..1201
-original 253..343 -> expanded 1201..1291
-original 343..344 -> expanded 23996..23997
-generated 0..1022 <- imports
-generated 1291..1491 <- Default
-generated 1491..4363 <- Encode
-generated 4363..13457 <- Decode
-generated 13457..22514 <- Gigaform
-generated 22514..23996 <- __convenience_const
+original 0..113 -> expanded 1028..1141
+original 162..228 -> expanded 1141..1207
+original 253..343 -> expanded 1207..1297
+original 343..344 -> expanded 24618..24619
+generated 0..1028 <- imports
+generated 1297..1497 <- Default
+generated 1497..4697 <- Encode
+generated 4697..14079 <- Decode
+generated 14079..23136 <- Gigaform
+generated 23136..24618 <- __convenience_const
 
 ## Metadata
 

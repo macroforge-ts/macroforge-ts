@@ -1,6 +1,9 @@
 //! How the value traits classify a field's type.
 
-use crate::builtin::derive::common::{Builtin, ValueType, classify_value_type, field_value_type};
+use crate::builtin::derive::common::{
+    Builtin, ValueType, classify_value_type, each_on_its_own, field_value_type,
+};
+use crate::ts_syn::TsStream;
 
 fn kind(ts_type: &str) -> ValueType<'_> {
     classify_value_type(ts_type, None).kind
@@ -69,5 +72,20 @@ fn named_types_drop_their_arguments() {
     assert_eq!(
         kind("Float64Array"),
         ValueType::Builtin(Builtin::TypedArray)
+    );
+}
+
+#[test]
+fn parts_each_run_in_a_function_of_their_own() {
+    let part = |source: &str| TsStream::from_string(source.to_string());
+    let squeezed = |stream: TsStream| stream.source().split_whitespace().collect::<String>();
+    assert_eq!(squeezed(each_on_its_own([])), "");
+    assert_eq!(
+        squeezed(each_on_its_own([part("a();"), part("  ")])),
+        "a();"
+    );
+    assert_eq!(
+        squeezed(each_on_its_own([part("a();"), part("b();")])),
+        "for(const__partof[()=>{a();},()=>{b();},]){__part();}"
     );
 }

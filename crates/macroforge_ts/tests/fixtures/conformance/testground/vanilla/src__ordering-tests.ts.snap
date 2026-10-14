@@ -25,16 +25,18 @@ export interface Scores {
 
 export function scoresEquals(a: Scores, b: Scores): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.values.length === b.values.length && a.values.every((__item0, __index0) => {
-	const __other0 = b.values[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
-}));
+    return __mf_equalWithin(a, b, () => {
+        return a.values.length === b.values.length && a.values.every((__item0, __index0) => {
+        	const __other0 = b.values[__index0];
+        	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+        });
+    });
 }
 
 export function scoresPartialCompare(a: Scores, b: Scores): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (() => {
+    return (() => {
         const __left0 = a.values;
         const __right0 = b.values;
         const __shared0 = Math.min(__left0.length, __right0.length);
@@ -49,29 +51,24 @@ export function scoresPartialCompare(a: Scores, b: Scores): number | null {
         return __left0.length < __right0.length ? -1
             : __left0.length > __right0.length ? 1 : 0;
     })();
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-        return 0;
     });
 }
 
 export function scoresCompare(a: Scores, b: Scores): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (() => {
-	const __left0 = a.values;
-	const __right0 = b.values;
-	const __shared0 = Math.min(__left0.length, __right0.length);
-	for (let __index0 = 0; __index0 < __shared0; __index0++) {
-		const __item0 = __left0[__index0];
-		const __other0 = __right0[__index0];
-		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : __item0 !== __item0 ? __other0 !== __other0 ? 0 : 1 : -1;
-		if (__order0 !== 0) return __order0;
-	}
-	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
-})();
-    if (cmp0 !== 0) return cmp0;
-        return 0;
+    return (() => {
+    	const __left0 = a.values;
+    	const __right0 = b.values;
+    	const __shared0 = Math.min(__left0.length, __right0.length);
+    	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+    		const __item0 = __left0[__index0];
+    		const __other0 = __right0[__index0];
+    		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : __item0 !== __item0 ? __other0 !== __other0 ? 0 : 1 : -1;
+    		if (__order0 !== 0) return __order0;
+    	}
+    	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+    })();
     });
 }
 
@@ -218,7 +215,9 @@ export type Grid = [number[], Date];
 
 export function gridEquals(a: Grid, b: Grid): boolean {
     if (a === b) return true;
-    return (a[0].length === b[0].length && a[0].every((__item0, __index0) => { const __other0 = b[0][__index0]; return __other0 === undefined ? __item0 === undefined : (__item0 === __other0 || (__item0 !== __item0 && __other0 !== __other0)); })) && (a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime()));
+    if (!((a[0].length === b[0].length && a[0].every((__item0, __index0) => { const __other0 = b[0][__index0]; return __other0 === undefined ? __item0 === undefined : (__item0 === __other0 || (__item0 !== __item0 && __other0 !== __other0)); })))) return false;
+    if (!((a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime())))) return false;
+    return true;
 }
 
 export function gridPartialCompare(a: Grid, b: Grid): number | null {
@@ -292,30 +291,39 @@ export class Version {
 
     static equals(a: Version, b: Version): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => (a.major === b.major || a.major !== a.major && b.major !== b.major) && (a.minor === b.minor || a.minor !== a.minor && b.minor !== b.minor));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.major === b.major || a.major !== a.major && b.major !== b.major,
+                    () => a.minor === b.minor || a.minor !== a.minor && b.minor !== b.minor,
+                ].every((same) => same());
+            });
     }
 
     static partialCompare(a: Version, b: Version): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major || (a.major !== a.major && b.major !== b.major) ? 0 : null);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor || (a.minor !== a.minor && b.minor !== b.minor) ? 0 : null);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major || (a.major !== a.major && b.major !== b.major) ? 0 : null),
+            () => (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor || (a.minor !== a.minor && b.minor !== b.minor) ? 0 : null),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
     static compare(a: Version, b: Version): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : a.major !== a.major ? b.major !== b.major ? 0 : 1 : -1;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : a.minor !== a.minor ? b.minor !== b.minor ? 0 : 1 : -1;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : a.major !== a.major ? b.major !== b.major ? 0 : 1 : -1,
+            () => a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : a.minor !== a.minor ? b.minor !== b.minor ? 0 : 1 : -1,
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 }
@@ -338,16 +346,18 @@ export class Release {
 
     static equals(a: Release, b: Release): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
-        	const __other0 = b.versions[__index0];
-        	return __other0 === undefined ? __item0 === undefined : versionEquals(__item0, __other0);
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
+                	const __other0 = b.versions[__index0];
+                	return __other0 === undefined ? __item0 === undefined : versionEquals(__item0, __other0);
+                });
+            });
     }
 
     static partialCompare(a: Release, b: Release): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (() => {
+        return (() => {
             const __left0 = a.versions;
             const __right0 = b.versions;
             const __shared0 = Math.min(__left0.length, __right0.length);
@@ -362,16 +372,13 @@ export class Release {
             return __left0.length < __right0.length ? -1
                 : __left0.length > __right0.length ? 1 : 0;
         })();
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-            return 0;
         });
     }
 
     static compare(a: Release, b: Release): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (() => {
+        return (() => {
         	const __left0 = a.versions;
         	const __right0 = b.versions;
         	const __shared0 = Math.min(__left0.length, __right0.length);
@@ -383,8 +390,6 @@ export class Release {
         	}
         	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
         })();
-        if (cmp0 !== 0) return cmp0;
-            return 0;
         });
     }
 }
@@ -478,43 +483,43 @@ export declare function releaseCompare(a: Release, b: Release): number;
 ## Mapping
 
 original 0..235 -> expanded 206..441
-original 235..352 -> expanded 2989..3106
-original 352..450 -> expanded 6049..6147
-original 450..535 -> expanded 7946..8031
-original 535..653 -> expanded 11432..11550
-original 653..654 -> expanded 13027..13028
-original 654..756 -> expanded 13354..13456
-original 756..757 -> expanded 15742..15743
-original 757..758 -> expanded 16069..16070
+original 235..352 -> expanded 2931..3048
+original 352..450 -> expanded 5991..6089
+original 450..535 -> expanded 7888..7973
+original 535..653 -> expanded 11428..11546
+original 653..654 -> expanded 13194..13195
+original 654..756 -> expanded 13521..13623
+original 756..757 -> expanded 15803..15804
+original 757..758 -> expanded 16130..16131
 generated 0..206 <- imports
-generated 441..825 <- PartialEq
-generated 825..1867 <- PartialOrd
-generated 1867..2729 <- Ord
-generated 2729..2989 <- __convenience_const
-generated 3106..3238 <- PartialEq
-generated 3238..4522 <- PartialOrd
-generated 4522..5796 <- Ord
-generated 5796..6049 <- __convenience_const
-generated 6147..6276 <- PartialEq
-generated 6276..6991 <- PartialOrd
-generated 6991..7700 <- Ord
-generated 7700..7946 <- __convenience_const
-generated 8031..8482 <- PartialEq
-generated 8482..9837 <- PartialOrd
-generated 9837..11186 <- Ord
-generated 11186..11432 <- __convenience_const
-generated 11550..11829 <- PartialEq
-generated 11829..12475 <- PartialOrd
-generated 12475..13027 <- Ord
-generated 13028..13129 <- PartialEq
-generated 13129..13252 <- PartialOrd
-generated 13252..13354 <- Ord
-generated 13456..13839 <- PartialEq
-generated 13839..14870 <- PartialOrd
-generated 14870..15742 <- Ord
-generated 15743..15844 <- PartialEq
-generated 15844..15967 <- PartialOrd
-generated 15967..16069 <- Ord
+generated 441..873 <- PartialEq
+generated 873..1822 <- PartialOrd
+generated 1822..2671 <- Ord
+generated 2671..2931 <- __convenience_const
+generated 3048..3180 <- PartialEq
+generated 3180..4464 <- PartialOrd
+generated 4464..5738 <- Ord
+generated 5738..5991 <- __convenience_const
+generated 6089..6218 <- PartialEq
+generated 6218..6933 <- PartialOrd
+generated 6933..7642 <- Ord
+generated 7642..7888 <- __convenience_const
+generated 7973..8478 <- PartialEq
+generated 8478..9833 <- PartialOrd
+generated 9833..11182 <- Ord
+generated 11182..11428 <- __convenience_const
+generated 11546..11956 <- PartialEq
+generated 11956..12582 <- PartialOrd
+generated 12582..13194 <- Ord
+generated 13195..13296 <- PartialEq
+generated 13296..13419 <- PartialOrd
+generated 13419..13521 <- Ord
+generated 13623..14070 <- PartialEq
+generated 14070..14996 <- PartialOrd
+generated 14996..15803 <- Ord
+generated 15804..15905 <- PartialEq
+generated 15905..16028 <- PartialOrd
+generated 16028..16130 <- Ord
 
 ## Metadata
 

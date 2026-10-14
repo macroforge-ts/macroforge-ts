@@ -48,7 +48,7 @@ true
 
 ## Output
 
-import { decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 /** A decorator whose arguments never close is an error, not a decorator left out. */
@@ -144,14 +144,12 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj)) {
-        errors.push({ field: "retries", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
-        errors.push({ field: "extra", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["retries", "retries"], ["extra", "extra"], ["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -162,47 +160,57 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("retries")) ? "retries" in obj : (__fields.keeps("retries") && obj["retries"] !== undefined)) {
-        const __raw_retries = obj["retries"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("retries")) ? "retries" in obj : (__fields.keeps("retries") && obj["retries"] !== undefined)) {
+                const __raw_retries = obj["retries"] as number;
 
-        if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
-            errors.push({ field: "retries", message: __raw_retries == null ? "Settings.retries is required" : "expected number" });
-        } else {
-            instance.retries = __raw_retries;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
-        const __raw_extra = obj["extra"] as Record<string, number>;
-        if (typeof __raw_extra === "object" && __raw_extra !== null) {
-            ctx.pushScope("extra");
-            try {
-                instance.extra = (__mf_decodeRecord(__raw_extra, ctx, __mf_decodeNumber) as Record<string, number>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "extra" : "extra." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
+                    errors.push({ field: "retries", message: __raw_retries == null ? "Settings.retries is required" : "expected number" });
+                } else {
+                    instance.retries = __raw_retries;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+                const __raw_extra = obj["extra"] as Record<string, number>;
+                if (typeof __raw_extra === "object" && __raw_extra !== null) {
+                    ctx.pushScope("extra");
+                    try {
+                        instance.extra = (__mf_decodeRecord(__raw_extra, ctx, __mf_decodeNumber) as Record<string, number>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "extra" : "extra." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "extra", message: __raw_extra == null ? "Settings.extra is required" : "expected Record<string, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "extra", message: __raw_extra == null ? "Settings.extra is required" : "expected Record<string, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Settings.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Settings.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -227,7 +235,7 @@ export function settingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "retries") && __mf_holds(obj, "extra") && __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["retries", "extra", "name"]);
 }
 
 export function settingsIs(obj: unknown): obj is Settings {
@@ -382,26 +390,26 @@ Error [512..532]: the arguments of this `@derive` never close, so it is read as 
 
 ## Mapping
 
-original 0..86 -> expanded 580..666
-original 117..150 -> expanded 666..699
-original 167..193 -> expanded 699..725
-original 215..255 -> expanded 725..765
-original 307..327 -> expanded 765..785
-original 327..329 -> expanded 9025..9027
-original 352..380 -> expanded 9027..9055
-original 397..417 -> expanded 9055..9075
-original 417..418 -> expanded 9255..9256
-original 418..420 -> expanded 9343..9345
-original 471..509 -> expanded 9345..9383
-original 509..717 -> expanded 9585..9793
-generated 0..580 <- imports
-generated 785..918 <- Default
-generated 918..8255 <- Decode
-generated 8255..9025 <- __convenience_const
-generated 9075..9255 <- Default
-generated 9256..9343 <- Default
-generated 9383..9468 <- Default
-generated 9468..9585 <- __convenience_const
+original 0..86 -> expanded 586..672
+original 117..150 -> expanded 672..705
+original 167..193 -> expanded 705..731
+original 215..255 -> expanded 731..771
+original 307..327 -> expanded 771..791
+original 327..329 -> expanded 9317..9319
+original 352..380 -> expanded 9319..9347
+original 397..417 -> expanded 9347..9367
+original 417..418 -> expanded 9547..9548
+original 418..420 -> expanded 9635..9637
+original 471..509 -> expanded 9637..9675
+original 509..717 -> expanded 9877..10085
+generated 0..586 <- imports
+generated 791..924 <- Default
+generated 924..8547 <- Decode
+generated 8547..9317 <- __convenience_const
+generated 9367..9547 <- Default
+generated 9548..9635 <- Default
+generated 9675..9760 <- Default
+generated 9760..9877 <- __convenience_const
 
 ## Metadata
 

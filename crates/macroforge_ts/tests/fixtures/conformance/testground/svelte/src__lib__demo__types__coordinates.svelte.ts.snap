@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,15 +60,23 @@ export function coordinatesEncodePartialWithContext(value: Partial<Coordinates>,
 }
 
 function coordinatesEncodeFields(value: Coordinates, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("lat")) {
-        if (value.lat !== undefined) {
-            result["lat"] = value.lat;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lng")) {
-        if (value.lng !== undefined) {
-            result["lng"] = value.lng;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("lat")) {
+                if (value.lat !== undefined) {
+                    result["lat"] = value.lat;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lng")) {
+                if (value.lng !== undefined) {
+                    result["lng"] = value.lng;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -146,11 +154,12 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("lat")) && !("lat" in obj)) {
-        errors.push({ field: "lat", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lng")) && !("lng" in obj)) {
-        errors.push({ field: "lng", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["lat", "lat"], ["lng", "lng"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -161,23 +170,31 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
-        const __raw_lat = obj["lat"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
+                const __raw_lat = obj["lat"] as number;
 
-        if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
-            errors.push({ field: "lat", message: __raw_lat == null ? "Coordinates.lat is required" : "expected number" });
-        } else {
-            instance.lat = __raw_lat;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
-        const __raw_lng = obj["lng"] as number;
+                if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
+                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinates.lat is required" : "expected number" });
+                } else {
+                    instance.lat = __raw_lat;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
+                const __raw_lng = obj["lng"] as number;
 
-        if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
-            errors.push({ field: "lng", message: __raw_lng == null ? "Coordinates.lng is required" : "expected number" });
-        } else {
-            instance.lng = __raw_lng;
-        }
+                if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
+                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinates.lng is required" : "expected number" });
+                } else {
+                    instance.lng = __raw_lng;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -202,7 +219,7 @@ export function coordinatesHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "lat") && __mf_holds(obj, "lng");
+    return __mf_holdsAll(obj, ["lat", "lng"]);
 }
 
 export function coordinatesIs(obj: unknown): obj is Coordinates {
@@ -470,15 +487,15 @@ export declare const Coordinates: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..174 -> expanded 896..963
-original 174..175 -> expanded 15446..15447
-generated 0..838 <- imports
-generated 963..1075 <- Default
-generated 1075..3398 <- Encode
-generated 3398..9456 <- Decode
-generated 9456..14099 <- Gigaform
-generated 14099..15446 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..174 -> expanded 902..969
+original 174..175 -> expanded 15886..15887
+generated 0..844 <- imports
+generated 969..1081 <- Default
+generated 1081..3598 <- Encode
+generated 3598..9896 <- Decode
+generated 9896..14539 <- Gigaform
+generated 14539..15886 <- __convenience_const
 
 ## Metadata
 

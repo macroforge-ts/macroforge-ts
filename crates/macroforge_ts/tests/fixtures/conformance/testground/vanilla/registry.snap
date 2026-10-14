@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (426)
+## Types (432)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -419,18 +419,24 @@ ValidatorFormResults 2b01a7369bcb0e75
 VanillaTestground 455f7329e45c953c
 VariantAdjacent ffa14e7776fab225
 VariantBase 24a9915b3fc0d016
+VariantCat b6874ae95a1473a8
 VariantCircle ba060002341f89b2
 VariantExternal f594d0523ef61fd0
+VariantFish 151f4385ec5c3621
 VariantInternal 73ad8a37ad3ed7d0
 VariantLeaf afe30f5a3bc25f62
 VariantMid 6679f08bf5092cf1
+VariantPet 0ad3245f653f43b1
 VariantRect 36bc7c1571a3c25f
 VariantUntagged 202b2be69bdec628
 Version e26b0a39c845b678
 Wall 901e5f02bdf9c4fc
+WideEvent 1b8867ee74a4b976
+WideRecord c9bd8ffc061d4d25
+WideShape 5c00c985b1a5c6b3
 point2D 9c3236f9adc43b41
 
-## Qualified types (429)
+## Qualified types (435)
 
 checks/repeated-error.ts::Holder e348868fb978f545
 checks/repeated-error.ts::Plain d98534e25d4536f1
@@ -650,13 +656,19 @@ src/edge-cases/special-shapes.ts::SpecialNumber 7e2d4aebfa661a11
 src/edge-cases/special-shapes.ts::SpecialScalars ddc71c7442c661db
 src/edge-cases/variant-shapes.ts::VariantAdjacent ffa14e7776fab225
 src/edge-cases/variant-shapes.ts::VariantBase 24a9915b3fc0d016
+src/edge-cases/variant-shapes.ts::VariantCat b6874ae95a1473a8
 src/edge-cases/variant-shapes.ts::VariantCircle ba060002341f89b2
 src/edge-cases/variant-shapes.ts::VariantExternal f594d0523ef61fd0
+src/edge-cases/variant-shapes.ts::VariantFish 151f4385ec5c3621
 src/edge-cases/variant-shapes.ts::VariantInternal 73ad8a37ad3ed7d0
 src/edge-cases/variant-shapes.ts::VariantLeaf afe30f5a3bc25f62
 src/edge-cases/variant-shapes.ts::VariantMid 6679f08bf5092cf1
+src/edge-cases/variant-shapes.ts::VariantPet 0ad3245f653f43b1
 src/edge-cases/variant-shapes.ts::VariantRect 36bc7c1571a3c25f
 src/edge-cases/variant-shapes.ts::VariantUntagged 202b2be69bdec628
+src/edge-cases/wide-shapes.ts::WideEvent 1b8867ee74a4b976
+src/edge-cases/wide-shapes.ts::WideRecord c9bd8ffc061d4d25
+src/edge-cases/wide-shapes.ts::WideShape 5c00c985b1a5c6b3
 src/enum-type-examples.ts::ApiStatus e4aaec8ca5a5bfa7
 src/enum-type-examples.ts::Color f7820c206ca7a38d
 src/enum-type-examples.ts::Coordinate3D 1e9eaae57b050787

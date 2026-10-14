@@ -36,7 +36,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 const KEY = 'computed';
 
@@ -83,15 +83,23 @@ export function keyedEncodePartialWithContext(value: Partial<Keyed>, ctx: __mf_E
 }
 
 function keyedEncodeFields(value: Keyed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("[KEY]")) {
-        if (value["[KEY]"] !== undefined) {
-            result["[KEY]"] = value["[KEY]"];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("[KEY]")) {
+                if (value["[KEY]"] !== undefined) {
+                    result["[KEY]"] = value["[KEY]"];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -169,11 +177,12 @@ export function keyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("[KEY]")) && !("[KEY]" in obj)) {
-        errors.push({ field: "[KEY]", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["[KEY]", "[KEY]"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -184,23 +193,31 @@ export function keyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Keyed.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("[KEY]")) ? "[KEY]" in obj : (__fields.keeps("[KEY]") && obj["[KEY]"] !== undefined)) {
-        const __raw_$5bKEY$5d = obj["[KEY]"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Keyed.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("[KEY]")) ? "[KEY]" in obj : (__fields.keeps("[KEY]") && obj["[KEY]"] !== undefined)) {
+                const __raw_$5bKEY$5d = obj["[KEY]"] as number;
 
-        if (!(typeof __raw_$5bKEY$5d === "number" && globalThis.Number.isFinite(__raw_$5bKEY$5d))) {
-            errors.push({ field: "[KEY]", message: __raw_$5bKEY$5d == null ? "Keyed.[KEY] is required" : "expected number" });
-        } else {
-            instance["[KEY]"] = __raw_$5bKEY$5d;
-        }
+                if (!(typeof __raw_$5bKEY$5d === "number" && globalThis.Number.isFinite(__raw_$5bKEY$5d))) {
+                    errors.push({ field: "[KEY]", message: __raw_$5bKEY$5d == null ? "Keyed.[KEY] is required" : "expected number" });
+                } else {
+                    instance["[KEY]"] = __raw_$5bKEY$5d;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -225,7 +242,7 @@ export function keyedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "[KEY]");
+    return __mf_holdsAll(obj, ["id", "[KEY]"]);
 }
 
 export function keyedIs(obj: unknown): obj is Keyed {
@@ -336,20 +353,20 @@ Error [440..485]: @derive(Decode): `{ id: string; [key: string]: Date }` has the
 
 ## Mapping
 
-original 0..25 -> expanded 679..704
-original 53..117 -> expanded 704..768
-original 148..213 -> expanded 768..833
-original 243..287 -> expanded 833..877
-original 287..289 -> expanded 9902..9904
-original 312..383 -> expanded 9904..9975
-original 383..385 -> expanded 10163..10165
-original 415..487 -> expanded 10165..10237
-generated 0..679 <- imports
-generated 877..3120 <- Encode
-generated 3120..8974 <- Decode
-generated 8974..9902 <- __convenience_const
-generated 9975..10053 <- Default
-generated 10053..10163 <- __convenience_const
+original 0..25 -> expanded 685..710
+original 53..117 -> expanded 710..774
+original 148..213 -> expanded 774..839
+original 243..287 -> expanded 839..883
+original 287..289 -> expanded 10341..10343
+original 312..383 -> expanded 10343..10414
+original 383..385 -> expanded 10602..10604
+original 415..487 -> expanded 10604..10676
+generated 0..685 <- imports
+generated 883..3320 <- Encode
+generated 3320..9413 <- Decode
+generated 9413..10341 <- __convenience_const
+generated 10414..10492 <- Default
+generated 10492..10602 <- __convenience_const
 
 ## Metadata
 

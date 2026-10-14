@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface PersonName {
@@ -57,15 +57,23 @@ export function personNameEncodePartialWithContext(value: Partial<PersonName>, c
 }
 
 function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["firstName"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastName")) {
-        if (value.lastName !== undefined) {
-            result["lastName"] = value.lastName;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["firstName"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastName")) {
+                if (value.lastName !== undefined) {
+                    result["lastName"] = value.lastName;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -143,11 +151,12 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("firstName")) && !("firstName" in obj)) {
-        errors.push({ field: "firstName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) && !("lastName" in obj)) {
-        errors.push({ field: "lastName", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "firstName"], ["lastName", "lastName"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -158,29 +167,37 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
-        const __raw_firstName = obj["firstName"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
+                const __raw_firstName = obj["firstName"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
-        } else {
-            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
-                if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
+                } else {
+                    if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+                        if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+                    }
+                    instance.firstName = __raw_firstName;
+                }
             }
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
-        const __raw_lastName = obj["lastName"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
+                const __raw_lastName = obj["lastName"] as string;
 
-        if (!(typeof __raw_lastName === "string")) {
-            errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
-        } else {
-            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
-                if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+                if (!(typeof __raw_lastName === "string")) {
+                    errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
+                } else {
+                    if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+                        if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+                    }
+                    instance.lastName = __raw_lastName;
+                }
             }
-            instance.lastName = __raw_lastName;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -229,7 +246,7 @@ export function personNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "firstName") && __mf_holds(obj, "lastName");
+    return __mf_holdsAll(obj, ["firstName", "lastName"]);
 }
 
 export function personNameIs(obj: unknown): obj is PersonName {
@@ -322,15 +339,15 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 39..74 -> expanded 679..714
-original 115..143 -> expanded 714..742
-original 184..208 -> expanded 742..766
-original 208..209 -> expanded 12464..12465
-generated 0..679 <- imports
-generated 766..889 <- Default
-generated 889..3241 <- Encode
-generated 3241..11328 <- Decode
-generated 11328..12464 <- __convenience_const
+original 39..74 -> expanded 685..720
+original 115..143 -> expanded 720..748
+original 184..208 -> expanded 748..772
+original 208..209 -> expanded 12941..12942
+generated 0..685 <- imports
+generated 772..895 <- Default
+generated 895..3441 <- Encode
+generated 3441..11805 <- Decode
+generated 11805..12941 <- __convenience_const
 
 ## Metadata
 

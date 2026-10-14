@@ -9,7 +9,9 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 
 use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
-use super::field::statements::{Required, decode_fields, read_keys, requires};
+use super::field::statements::{
+    Required, decode_fields, holds_required_keys, missing_keys_check, read_keys,
+};
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
@@ -100,12 +102,7 @@ pub(super) fn handle_class(
         return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
     }
 
-    // Separate required vs optional fields
-    let required_fields: Vec<_> = fields
-        .iter()
-        .filter(|field| field.key_required())
-        .cloned()
-        .collect();
+    let missing_keys = missing_keys_check(&fields);
 
     // Build known keys for deny_unknown_fields
     let known_keys: Vec<String> = read_keys(&fields).collect();
@@ -120,20 +117,7 @@ pub(super) fn handle_class(
         .cloned()
         .collect();
 
-    // Generate shape check condition for hasShape method
-    let shape_check_condition: String = if required_fields.is_empty() {
-        "true".to_string()
-    } else {
-        required_fields
-            .iter()
-            .map(|f| {
-                let key = js_string(&f.json_key);
-                let holds = endec_helper("holds");
-                rendered(ts_template! { @{holds}(obj, @{key}) })
-            })
-            .collect::<Vec<_>>()
-            .join(" && ")
-    };
+    let shape_check_condition = holds_required_keys(&fields);
 
     // Compute return type and wrappers
     let return_type = decode_return_type(&class_names.full_type);
@@ -295,14 +279,7 @@ pub(super) fn handle_class(
                 }
             {/if}
 
-            {#if !required_fields.is_empty()}
-                {#for field in &required_fields}
-                    {$let is_required: Expr = requires(field)}
-                    if (@{is_required} && !("@{field.json_key_text()}" in obj)) {
-                        errors.push({ field: "@{field.json_key_text()}", message: "missing required field" });
-                    }
-                {/for}
-            {/if}
+            {$typescript missing_keys}
 
             // The instance is made without its constructor and filled in
             // field by field, as no type over it allows: assignment to a

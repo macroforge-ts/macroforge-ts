@@ -1,0 +1,408 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/union_encode_only.ts
+---
+## Input
+
+/** The members of a union that derives only `Encode` are told by their tag, or by their own fields. */
+/** @derive(Encode) */
+export interface Cat {
+    kind: 'cat';
+    born: Date;
+}
+
+/** @derive(Encode) */
+export interface Fish {
+    fins: number;
+    seen: Date;
+}
+
+/** @derive(Encode) */
+export enum Mood {
+    Calm = 'calm',
+    Wild = 'wild',
+}
+
+/** @derive(Encode) */
+export type Pet = Cat | Fish | Mood | { kind: 'bird'; at: Date } | ({ __type: 'Mouse' } & Fish);
+
+/** @derive(Encode) */
+/** @endec({ externallyTagged: true }) */
+export type Sighting = 'None' | { Spotted: Cat } | { Heard: Date };
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, memberCoder as __mf_memberCoder, member as __mf_member, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+/** The members of a union that derives only `Encode` are told by their tag, or by their own fields. */
+
+export interface Cat {
+    kind: 'cat';
+    born: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function catEncode(value: Cat, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = catEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function catEncodeWithContext(value: Cat, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Cat" });
+    catEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function catEncodePartialWithContext(value: Partial<Cat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Cat>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Cat" };
+        catEncodeFields(value as Cat, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function catEncodeFields(value: Cat, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("born")) {
+                if (value.born !== undefined) {
+                    result["born"] = value.born.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+export const Cat: {
+  readonly encode: typeof catEncode;
+  readonly encodeWithContext: typeof catEncodeWithContext;
+  readonly encodePartialWithContext: typeof catEncodePartialWithContext;
+} = {
+  encode: catEncode,
+  encodeWithContext: catEncodeWithContext,
+  encodePartialWithContext: catEncodePartialWithContext
+};
+
+
+export interface Fish {
+    fins: number;
+    seen: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function fishEncode(value: Fish, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = fishEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function fishEncodeWithContext(value: Fish, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Fish" });
+    fishEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function fishEncodePartialWithContext(value: Partial<Fish>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Fish>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Fish" };
+        fishEncodeFields(value as Fish, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function fishEncodeFields(value: Fish, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("fins")) {
+                if (value.fins !== undefined) {
+                    result["fins"] = value.fins;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("seen")) {
+                if (value.seen !== undefined) {
+                    result["seen"] = value.seen.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+export const Fish: {
+  readonly encode: typeof fishEncode;
+  readonly encodeWithContext: typeof fishEncodeWithContext;
+  readonly encodePartialWithContext: typeof fishEncodePartialWithContext;
+} = {
+  encode: fishEncode,
+  encodeWithContext: fishEncodeWithContext,
+  encodePartialWithContext: fishEncodePartialWithContext
+};
+
+
+export enum Mood {
+    Calm = 'calm',
+    Wild = 'wild',
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function moodEncode(value: Mood): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function moodEncodeWithContext(value: Mood, ctx: __mf_EncodeContext): string | number;
+export function moodEncodeWithContext(value: Mood): string | number {
+    return value;
+}
+
+export namespace Mood {
+  export const encode: typeof moodEncode = moodEncode;
+  export const encodeWithContext: typeof moodEncodeWithContext = moodEncodeWithContext;
+}
+
+
+export type Pet = Cat | Fish | Mood | { kind: 'bird'; at: Date } | ({ __type: 'Mouse' } & Fish);
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function petEncode(value: Pet, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = petEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function petEncodeWithContext(value: Pet, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Pet): member is { "__type": "Mouse" } & Fish => __mf_member(member, "__type") === "Mouse", (member) => fishEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Cat => __mf_member(member, "__type") === "Cat", (member) => catEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Fish => __mf_member(member, "__type") === "Fish", (member) => fishEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Mood => __mf_member(member, "__type") === "Mood", (member) => moodEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Cat => catHasShape(member), (member) => catEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Fish => fishHasShape(member), (member) => fishEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Mood => moodHasShape(member), (member) => moodEncodeWithContext(member, ctx)),
+        (value: Pet): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'bird' && "at" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+export const Pet: {
+  readonly encode: typeof petEncode;
+  readonly encodeWithContext: typeof petEncodeWithContext;
+} = {
+  encode: petEncode,
+  encodeWithContext: petEncodeWithContext
+};
+
+
+export type Sighting = 'None' | { Spotted: Cat } | { Heard: Date };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function sightingEncode(value: Sighting, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = sightingEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function sightingEncodeWithContext(value: Sighting, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Sighting): unknown => {
+            if (!(typeof value === "object" && value !== null && "Spotted" in value && Object.keys(value)[0] === "Spotted")) {
+                return __mf_notTheMember;
+            }
+            return { "Spotted": catEncodeWithContext(value["Spotted"], ctx) };
+        },
+    ]);
+
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
+    if (typeof __typeName !== "string") return __variant;
+
+    const __outer: Record<string, unknown> = { [__typeName]: fields };
+    if (typeof __idVal === "number") __mf_encodedAs(ctx, __idVal, __outer);
+    return __outer;
+}
+
+export const Sighting: {
+  readonly encode: typeof sightingEncode;
+  readonly encodeWithContext: typeof sightingEncodeWithContext;
+} = {
+  encode: sightingEncode,
+  encodeWithContext: sightingEncodeWithContext
+};
+
+## DTS
+
+/** The members of a union that derives only `Encode` are told by their tag, or by their own fields. */
+export interface Cat {
+	kind: "cat";
+	born: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function catEncode(value: Cat, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function catEncodeWithContext(value: Cat, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function catEncodePartialWithContext(value: Partial<Cat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Cat>): Record<string, unknown>;
+export declare const Cat: {
+	readonly encode: typeof catEncode;
+	readonly encodeWithContext: typeof catEncodeWithContext;
+	readonly encodePartialWithContext: typeof catEncodePartialWithContext;
+};
+export interface Fish {
+	fins: number;
+	seen: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function fishEncode(value: Fish, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function fishEncodeWithContext(value: Fish, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function fishEncodePartialWithContext(value: Partial<Fish>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Fish>): Record<string, unknown>;
+export declare const Fish: {
+	readonly encode: typeof fishEncode;
+	readonly encodeWithContext: typeof fishEncodeWithContext;
+	readonly encodePartialWithContext: typeof fishEncodePartialWithContext;
+};
+export declare enum Mood {
+	Calm = "calm",
+	Wild = "wild"
+}
+/** Encodes this enum value to a JSON string.  */
+export declare function moodEncode(value: Mood): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function moodEncodeWithContext(value: Mood, ctx: __mf_EncodeContext): string | number;
+export declare namespace Mood {
+	const encode: typeof moodEncode;
+	const encodeWithContext: typeof moodEncodeWithContext;
+}
+export type Pet = Cat | Fish | Mood | {
+	kind: "bird";
+	at: Date;
+} | ({
+	__type: "Mouse";
+} & Fish);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function petEncode(value: Pet, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function petEncodeWithContext(value: Pet, ctx: __mf_EncodeContext): unknown;
+export declare const Pet: {
+	readonly encode: typeof petEncode;
+	readonly encodeWithContext: typeof petEncodeWithContext;
+};
+export type Sighting = "None" | {
+	Spotted: Cat;
+} | {
+	Heard: Date;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function sightingEncode(value: Sighting, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function sightingEncodeWithContext(value: Sighting, ctx: __mf_EncodeContext): unknown;
+export declare const Sighting: {
+	readonly encode: typeof sightingEncode;
+	readonly encodeWithContext: typeof sightingEncodeWithContext;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..104 -> expanded 625..729
+original 126..184 -> expanded 729..787
+original 184..186 -> expanded 3525..3527
+original 208..268 -> expanded 3527..3587
+original 268..270 -> expanded 6347..6349
+original 292..351 -> expanded 6349..6408
+original 351..353 -> expanded 6976..6978
+original 375..472 -> expanded 6978..7075
+original 472..474 -> expanded 10192..10194
+original 538..606 -> expanded 10194..10262
+original 606..607 -> expanded 12083..12084
+generated 0..625 <- imports
+generated 787..3206 <- Encode
+generated 3206..3525 <- __convenience_const
+generated 3587..6021 <- Encode
+generated 6021..6347 <- __convenience_const
+generated 6408..6806 <- Encode
+generated 6806..6976 <- __convenience_const
+generated 7075..10003 <- Encode
+generated 10003..10192 <- __convenience_const
+generated 10262..11869 <- Encode
+generated 11869..12083 <- __convenience_const
+
+## Metadata
+
+interface Cat: {"body_span":{"end":185,"start":149},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":127,"start":105}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":167,"start":155},"ts_type":"'cat'"},{"decorators":[],"key":"Named","name":"born","optional":false,"readonly":false,"span":{"end":183,"start":172},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Cat","span":{"end":185,"start":135},"type_params":[]}
+interface Fish: {"body_span":{"end":269,"start":232},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":209,"start":187}}],"fields":[{"decorators":[],"key":"Named","name":"fins","optional":false,"readonly":false,"span":{"end":251,"start":238},"ts_type":"number"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":267,"start":256},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Fish","span":{"end":269,"start":217},"type_params":[]}
+enum Mood: {"body_span":{"end":352,"start":311},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":293,"start":271}}],"is_const":false,"is_declare":false,"name":"Mood","span":{"end":352,"start":301},"variants":[{"decorators":[],"name":"Calm","span":{"end":330,"start":317},"value":{"String":"calm"}},{"decorators":[],"name":"Wild","span":{"end":349,"start":336},"value":{"String":"wild"}}]}
+type Pet: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Cat"}},{"decorators":[],"kind":{"TypeRef":"Fish"}},{"decorators":[],"kind":{"TypeRef":"Mood"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":430,"start":417},"ts_type":"'bird'"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":439,"start":431},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"__type","optional":false,"readonly":false,"span":{"end":462,"start":447},"ts_type":"'Mouse'"}]}}},{"decorators":[],"kind":{"TypeRef":"Fish"}}]}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":376,"start":354}}],"name":"Pet","span":{"end":473,"start":384},"type_params":[]}
+type Sighting: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'None'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"Spotted","optional":false,"readonly":false,"span":{"end":586,"start":574},"ts_type":"Cat"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"Heard","optional":false,"readonly":false,"span":{"end":604,"start":593},"ts_type":"Date"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":539,"start":498}},{"args_src":"Encode","name":"Derive","span":{"end":497,"start":475}}],"name":"Sighting","span":{"end":607,"start":547},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

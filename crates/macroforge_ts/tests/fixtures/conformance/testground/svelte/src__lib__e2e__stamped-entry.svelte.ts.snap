@@ -13,7 +13,7 @@ true
 ## Output
 
 import { slugDecodeWithContext, slugEncodeWithContext, slugDecode, stampedDecode, slugDefaultValue } from "./stamp";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from "effect";
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
@@ -146,8 +146,12 @@ export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
-        errors.push({ field: "text", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["text", "text"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -190,7 +194,7 @@ export function noteHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "text");
+    return __mf_holdsAll(obj, ["text"]);
 }
 
 export function noteIs(obj: unknown): obj is Note {
@@ -343,8 +347,12 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("slug")) && !("slug" in obj)) {
-        errors.push({ field: "slug", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["slug", "slug"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -401,7 +409,7 @@ export function labelHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "slug");
+    return __mf_holdsAll(obj, ["slug"]);
 }
 
 export function labelIs(obj: unknown): obj is Label {
@@ -486,35 +494,51 @@ export function stampedEntryEncodePartialWithContext(value: Partial<StampedEntry
 }
 
 function stampedEntryEncodeFields(value: StampedEntry, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = (__foreign__dateTimeDateTimeHasShape(value.at) ? __foreign__dateTimeDateTimeEncode(value.at) : noteEncodeWithContext(value.at, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("previous")) {
-        if (value.previous !== undefined) {
-            result["previous"] = value.previous === null ? null : (__foreign__dateTimeDateTimeHasShape(value.previous) ? __foreign__dateTimeDateTimeEncode(value.previous) : noteEncodeWithContext(value.previous, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("history")) {
-        if (value.history !== undefined) {
-            result["history"] = value.history.map((__item0) => (__foreign__dateTimeDateTimeHasShape(__item0) ? __foreign__dateTimeDateTimeEncode(__item0) : noteEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("slug")) {
-        if (value.slug !== undefined) {
-            result["slug"] = slugEncodeWithContext(value.slug, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = labelEncodeWithContext(value.label, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("since")) {
-        if (value.since !== undefined) {
-            result["since"] = (__foreign__dateTimeDateTimeHasShape(value.since) ? __foreign__dateTimeDateTimeEncode(value.since) : noteEncodeWithContext(value.since, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = (__foreign__dateTimeDateTimeHasShape(value.at) ? __foreign__dateTimeDateTimeEncode(value.at) : noteEncodeWithContext(value.at, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("previous")) {
+                if (value.previous !== undefined) {
+                    result["previous"] = value.previous === null ? null : (__foreign__dateTimeDateTimeHasShape(value.previous) ? __foreign__dateTimeDateTimeEncode(value.previous) : noteEncodeWithContext(value.previous, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("history")) {
+                if (value.history !== undefined) {
+                    result["history"] = value.history.map((__item0) => (__foreign__dateTimeDateTimeHasShape(__item0) ? __foreign__dateTimeDateTimeEncode(__item0) : noteEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("slug")) {
+                if (value.slug !== undefined) {
+                    result["slug"] = slugEncodeWithContext(value.slug, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = labelEncodeWithContext(value.label, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("since")) {
+                if (value.since !== undefined) {
+                    result["since"] = (__foreign__dateTimeDateTimeHasShape(value.since) ? __foreign__dateTimeDateTimeEncode(value.since) : noteEncodeWithContext(value.since, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -592,23 +616,12 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("previous")) && !("previous" in obj)) {
-        errors.push({ field: "previous", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("history")) && !("history" in obj)) {
-        errors.push({ field: "history", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("slug")) && !("slug" in obj)) {
-        errors.push({ field: "slug", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("since")) && !("since" in obj)) {
-        errors.push({ field: "since", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["at", "at"], ["previous", "previous"], ["history", "history"], ["slug", "slug"], ["label", "label"], ["since", "since"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -619,160 +632,176 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as DateTime.DateTime | Note;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as DateTime.DateTime | Note;
 
-        if (__foreign__dateTimeDateTimeHasShape(__raw_at)) {
-            instance.at = __foreign__dateTimeDateTimeDecode(__raw_at);
-        } else {
-            ctx.pushScope("at");
-            try {
-                const __result = noteDecodeWithContext(__raw_at, ctx);
-                ctx.assignOrDefer(instance, "at", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "at" : "at." + __err.field,
-                            message: __err.message
-                        });
+                if (__foreign__dateTimeDateTimeHasShape(__raw_at)) {
+                    instance.at = __foreign__dateTimeDateTimeDecode(__raw_at);
+                } else {
+                    ctx.pushScope("at");
+                    try {
+                        const __result = noteDecodeWithContext(__raw_at, ctx);
+                        ctx.assignOrDefer(instance, "at", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "at" : "at." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "at", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("previous")) ? "previous" in obj : (__fields.keeps("previous") && obj["previous"] !== undefined)) {
+                const __raw_previous = obj["previous"] as DateTime.DateTime | Note | null;
+
+                if (__raw_previous === null) {
+                    instance.previous = null;
+                } else {
+                    if (__foreign__dateTimeDateTimeHasShape(__raw_previous)) {
+                        instance.previous = __foreign__dateTimeDateTimeDecode(__raw_previous);
+                    } else {
+                        ctx.pushScope("previous");
+                        try {
+                            const __result = noteDecodeWithContext(__raw_previous, ctx);
+                            ctx.assignOrDefer(instance, "previous", __result);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "previous" : "previous." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+
+                                errors.push({ field: "previous", message: __e instanceof Error ? __e.message : String(__e) });
+                            }
+                        } finally {
+                            ctx.popScope();
+                        }
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("history")) ? "history" in obj : (__fields.keeps("history") && obj["history"] !== undefined)) {
+                const __raw_history = obj["history"] as Array<DateTime.DateTime | Note>;
+                if (Array.isArray(__raw_history)) {
+                    ctx.pushScope("history");
+                    try {
+                        instance.history = __mf_decodeArray(__raw_history, ctx, (__raw0) => (__foreign__dateTimeDateTimeHasShape(__raw0) ? __foreign__dateTimeDateTimeDecode(__raw0) : noteDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "history" : "history." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "at", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "history", message: __raw_history == null ? "StampedEntry.history is required" : "expected Array<DateTime.DateTime | Note>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("previous")) ? "previous" in obj : (__fields.keeps("previous") && obj["previous"] !== undefined)) {
-        const __raw_previous = obj["previous"] as DateTime.DateTime | Note | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
+                const __raw_slug = obj["slug"] as Slug;
 
-        if (__raw_previous === null) {
-            instance.previous = null;
-        } else {
-            if (__foreign__dateTimeDateTimeHasShape(__raw_previous)) {
-                instance.previous = __foreign__dateTimeDateTimeDecode(__raw_previous);
-            } else {
-                ctx.pushScope("previous");
+                ctx.pushScope("slug");
                 try {
-                    const __result = noteDecodeWithContext(__raw_previous, ctx);
-                    ctx.assignOrDefer(instance, "previous", __result);
+                    const __result = slugDecodeWithContext(__raw_slug, ctx);
+                    ctx.assignOrDefer(instance, "slug", __result);
                 } catch (__e) {
                     if (__e instanceof __mf_DecodeError) {
                         for (const __err of __e.errors) {
                             errors.push({
-                                field: __err.field === "_root" ? "previous" : "previous." + __err.field,
+                                field: __err.field === "_root" ? "slug" : "slug." + __err.field,
                                 message: __err.message
                             });
                         }
                     } else {
 
-                        errors.push({ field: "previous", message: __e instanceof Error ? __e.message : String(__e) });
+                        errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
                     }
                 } finally {
                     ctx.popScope();
                 }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("history")) ? "history" in obj : (__fields.keeps("history") && obj["history"] !== undefined)) {
-        const __raw_history = obj["history"] as Array<DateTime.DateTime | Note>;
-        if (Array.isArray(__raw_history)) {
-            ctx.pushScope("history");
-            try {
-                instance.history = __mf_decodeArray(__raw_history, ctx, (__raw0) => (__foreign__dateTimeDateTimeHasShape(__raw0) ? __foreign__dateTimeDateTimeDecode(__raw0) : noteDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "history" : "history." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+                const __raw_label = obj["label"] as Label;
+
+                ctx.pushScope("label");
+                try {
+                    const __result = labelDecodeWithContext(__raw_label, ctx);
+                    ctx.assignOrDefer(instance, "label", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "label" : "label." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "label", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("since")) ? "since" in obj : (__fields.keeps("since") && obj["since"] !== undefined)) {
+                const __raw_since = obj["since"] as DateTime.DateTime | Note;
+
+                if (__foreign__dateTimeDateTimeHasShape(__raw_since)) {
+                    instance.since = __foreign__dateTimeDateTimeDecode(__raw_since);
                 } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "history", message: __raw_history == null ? "StampedEntry.history is required" : "expected Array<DateTime.DateTime | Note>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
-        const __raw_slug = obj["slug"] as Slug;
+                    ctx.pushScope("since");
+                    try {
+                        const __result = noteDecodeWithContext(__raw_since, ctx);
+                        ctx.assignOrDefer(instance, "since", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "since" : "since." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        ctx.pushScope("slug");
-        try {
-            const __result = slugDecodeWithContext(__raw_slug, ctx);
-            ctx.assignOrDefer(instance, "slug", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "slug" : "slug." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
-        const __raw_label = obj["label"] as Label;
-
-        ctx.pushScope("label");
-        try {
-            const __result = labelDecodeWithContext(__raw_label, ctx);
-            ctx.assignOrDefer(instance, "label", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "label" : "label." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "label", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("since")) ? "since" in obj : (__fields.keeps("since") && obj["since"] !== undefined)) {
-        const __raw_since = obj["since"] as DateTime.DateTime | Note;
-
-        if (__foreign__dateTimeDateTimeHasShape(__raw_since)) {
-            instance.since = __foreign__dateTimeDateTimeDecode(__raw_since);
-        } else {
-            ctx.pushScope("since");
-            try {
-                const __result = noteDecodeWithContext(__raw_since, ctx);
-                ctx.assignOrDefer(instance, "since", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "since" : "since." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "since", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "since", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -797,7 +826,7 @@ export function stampedEntryHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "at") && __mf_holds(obj, "previous") && __mf_holds(obj, "history") && __mf_holds(obj, "slug") && __mf_holds(obj, "label") && __mf_holds(obj, "since");
+    return __mf_holdsAll(obj, ["at", "previous", "history", "slug", "label", "since"]);
 }
 
 export function stampedEntryIs(obj: unknown): obj is StampedEntry {
@@ -1001,29 +1030,29 @@ export declare const StampedEntry: {
 
 ## Mapping
 
-original 0..341 -> expanded 1083..1424
-original 380..424 -> expanded 1424..1468
-original 424..426 -> expanded 9767..9769
-original 465..508 -> expanded 9769..9812
-original 508..510 -> expanded 18700..18702
-original 549..680 -> expanded 18702..18833
-original 703..724 -> expanded 18833..18854
-original 759..782 -> expanded 18854..18877
-original 825..853 -> expanded 18877..18905
-original 853..854 -> expanded 36870..36871
-generated 0..1083 <- imports
-generated 1468..1552 <- Default
-generated 1552..3621 <- Encode
-generated 3621..8769 <- Decode
-generated 8769..9767 <- __convenience_const
-generated 9812..9914 <- Default
-generated 9914..12025 <- Encode
-generated 12025..17679 <- Decode
-generated 17679..18700 <- __convenience_const
-generated 18905..19291 <- Default
-generated 19291..22920 <- Encode
-generated 22920..35688 <- Decode
-generated 35688..36870 <- __convenience_const
+original 0..341 -> expanded 1089..1430
+original 380..424 -> expanded 1430..1474
+original 424..426 -> expanded 9936..9938
+original 465..508 -> expanded 9938..9981
+original 508..510 -> expanded 19032..19034
+original 549..680 -> expanded 19034..19165
+original 703..724 -> expanded 19165..19186
+original 759..782 -> expanded 19186..19209
+original 825..853 -> expanded 19209..19237
+original 853..854 -> expanded 38367..38368
+generated 0..1089 <- imports
+generated 1474..1558 <- Default
+generated 1558..3627 <- Encode
+generated 3627..8938 <- Decode
+generated 8938..9936 <- __convenience_const
+generated 9981..10083 <- Default
+generated 10083..12194 <- Encode
+generated 12194..18011 <- Decode
+generated 18011..19032 <- __convenience_const
+generated 19237..19623 <- Default
+generated 19623..23714 <- Encode
+generated 23714..37185 <- Decode
+generated 37185..38367 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, member as __mf_member, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeChecked as __mf_decodeChecked, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Field and alias shapes every derive has to generate type-correct code for:
@@ -46,7 +46,12 @@ export function shapeItemClone(value: ShapeItem): ShapeItem {
 
 export function shapeItemEquals(a: ShapeItem, b: ShapeItem): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        ].every((same) => same());
+    });
 }
 
 export function shapeItemHashCode(value: ShapeItem): number {
@@ -61,24 +66,28 @@ export function shapeItemHashCode(value: ShapeItem): number {
 export function shapeItemPartialCompare(a: ShapeItem, b: ShapeItem): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+        () => (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function shapeItemCompare(a: ShapeItem, b: ShapeItem): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : a.score !== a.score ? b.score !== b.score ? 0 : 1 : -1;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+        () => a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : a.score !== a.score ? b.score !== b.score ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -117,15 +126,23 @@ export function shapeItemEncodePartialWithContext(value: Partial<ShapeItem>, ctx
 }
 
 function shapeItemEncodeFields(value: ShapeItem, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-        if (value.score !== undefined) {
-            result["score"] = value.score;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -203,11 +220,12 @@ export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["score", "score"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -218,23 +236,31 @@ export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ShapeItem.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ShapeItem.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "ShapeItem.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "ShapeItem.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -259,7 +285,7 @@ export function shapeItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "score");
+    return __mf_holdsAll(obj, ["id", "score"]);
 }
 
 export function shapeItemIs(obj: unknown): obj is ShapeItem {
@@ -564,25 +590,40 @@ export function shapeFieldsClone(value: ShapeFields): ShapeFields {
 
 export function shapeFieldsEquals(a: ShapeFields, b: ShapeFields): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.note === b.note && a.maybe === b.maybe && __mf_structuralEquals(a.pair, b.pair) && a.nullableTexts.length === b.nullableTexts.length && a.nullableTexts.every((__item0, __index0) => {
-	const __other0 = b.nullableTexts[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-}) && a.nullableItems.length === b.nullableItems.length && a.nullableItems.every((__item0, __index0) => {
-	const __other0 = b.nullableItems[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : shapeItemEquals(__item0, __other0);
-}) && a.parenthesizedItems.length === b.parenthesizedItems.length && a.parenthesizedItems.every((__item0, __index0) => {
-	const __other0 = b.parenthesizedItems[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && a.readonlyItems.length === b.readonlyItems.length && a.readonlyItems.every((__item0, __index0) => {
-	const __other0 = b.readonlyItems[__index0];
-	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
-}) && a.readonlyNumbers.length === b.readonlyNumbers.length && a.readonlyNumbers.every((__item0, __index0) => {
-	const __other0 = b.readonlyNumbers[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
-}) && a.readonlyTags.size === b.readonlyTags.size && Array.from(a.readonlyTags).every((__item0) => b.readonlyTags.has(__item0) || Array.from(b.readonlyTags).some((__other0) => __item0 === __other0)) && a.readonlyCounts.size === b.readonlyCounts.size && Array.from(a.readonlyCounts).every(([__key0, __item0]) => {
-	const __other0 = b.readonlyCounts.get(__key0);
-	return b.readonlyCounts.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
-}) && shapeLevelEquals(a.level, b.level) && shapeRankEquals(a.rank, b.rank));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.note === b.note,
+            () => a.maybe === b.maybe,
+            () => __mf_structuralEquals(a.pair, b.pair),
+            () => a.nullableTexts.length === b.nullableTexts.length && a.nullableTexts.every((__item0, __index0) => {
+            	const __other0 = b.nullableTexts[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+            }),
+            () => a.nullableItems.length === b.nullableItems.length && a.nullableItems.every((__item0, __index0) => {
+            	const __other0 = b.nullableItems[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : shapeItemEquals(__item0, __other0);
+            }),
+            () => a.parenthesizedItems.length === b.parenthesizedItems.length && a.parenthesizedItems.every((__item0, __index0) => {
+            	const __other0 = b.parenthesizedItems[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+            () => a.readonlyItems.length === b.readonlyItems.length && a.readonlyItems.every((__item0, __index0) => {
+            	const __other0 = b.readonlyItems[__index0];
+            	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
+            }),
+            () => a.readonlyNumbers.length === b.readonlyNumbers.length && a.readonlyNumbers.every((__item0, __index0) => {
+            	const __other0 = b.readonlyNumbers[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
+            }),
+            () => a.readonlyTags.size === b.readonlyTags.size && Array.from(a.readonlyTags).every((__item0) => b.readonlyTags.has(__item0) || Array.from(b.readonlyTags).some((__other0) => __item0 === __other0)),
+            () => a.readonlyCounts.size === b.readonlyCounts.size && Array.from(a.readonlyCounts).every(([__key0, __item0]) => {
+            	const __other0 = b.readonlyCounts.get(__key0);
+            	return b.readonlyCounts.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+            }),
+            () => shapeLevelEquals(a.level, b.level),
+            () => shapeRankEquals(a.rank, b.rank),
+        ].every((same) => same());
+    });
 }
 
 export function shapeFieldsHashCode(value: ShapeFields): number {
@@ -649,65 +690,93 @@ export function shapeFieldsEncodePartialWithContext(value: Partial<ShapeFields>,
 }
 
 function shapeFieldsEncodeFields(value: ShapeFields, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nullableTexts")) {
-        if (value.nullableTexts !== undefined) {
-            result["nullableTexts"] = value.nullableTexts;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nullableItems")) {
-        if (value.nullableItems !== undefined) {
-            result["nullableItems"] = value.nullableItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("parenthesizedItems")) {
-        if (value.parenthesizedItems !== undefined) {
-            result["parenthesizedItems"] = value.parenthesizedItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readonlyItems")) {
-        if (value.readonlyItems !== undefined) {
-            result["readonlyItems"] = value.readonlyItems.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readonlyNumbers")) {
-        if (value.readonlyNumbers !== undefined) {
-            result["readonlyNumbers"] = value.readonlyNumbers;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readonlyTags")) {
-        if (value.readonlyTags !== undefined) {
-            result["readonlyTags"] = Array.from(value.readonlyTags);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readonlyCounts")) {
-        if (value.readonlyCounts !== undefined) {
-            result["readonlyCounts"] = Object.fromEntries(value.readonlyCounts.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("level")) {
-        if (value.level !== undefined) {
-            result["level"] = shapeLevelEncodeWithContext(value.level, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rank")) {
-        if (value.rank !== undefined) {
-            result["rank"] = shapeRankEncodeWithContext(value.rank, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nullableTexts")) {
+                if (value.nullableTexts !== undefined) {
+                    result["nullableTexts"] = value.nullableTexts;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nullableItems")) {
+                if (value.nullableItems !== undefined) {
+                    result["nullableItems"] = value.nullableItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("parenthesizedItems")) {
+                if (value.parenthesizedItems !== undefined) {
+                    result["parenthesizedItems"] = value.parenthesizedItems.map((__item0) => (__item0 === null ? null : shapeItemEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readonlyItems")) {
+                if (value.readonlyItems !== undefined) {
+                    result["readonlyItems"] = value.readonlyItems.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readonlyNumbers")) {
+                if (value.readonlyNumbers !== undefined) {
+                    result["readonlyNumbers"] = value.readonlyNumbers;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readonlyTags")) {
+                if (value.readonlyTags !== undefined) {
+                    result["readonlyTags"] = Array.from(value.readonlyTags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readonlyCounts")) {
+                if (value.readonlyCounts !== undefined) {
+                    result["readonlyCounts"] = Object.fromEntries(value.readonlyCounts.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("level")) {
+                if (value.level !== undefined) {
+                    result["level"] = shapeLevelEncodeWithContext(value.level, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rank")) {
+                if (value.rank !== undefined) {
+                    result["rank"] = shapeRankEncodeWithContext(value.rank, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -785,38 +854,12 @@ export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nullableTexts")) && !("nullableTexts" in obj)) {
-        errors.push({ field: "nullableTexts", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nullableItems")) && !("nullableItems" in obj)) {
-        errors.push({ field: "nullableItems", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("parenthesizedItems")) && !("parenthesizedItems" in obj)) {
-        errors.push({ field: "parenthesizedItems", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("readonlyItems")) && !("readonlyItems" in obj)) {
-        errors.push({ field: "readonlyItems", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("readonlyNumbers")) && !("readonlyNumbers" in obj)) {
-        errors.push({ field: "readonlyNumbers", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("readonlyTags")) && !("readonlyTags" in obj)) {
-        errors.push({ field: "readonlyTags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("readonlyCounts")) && !("readonlyCounts" in obj)) {
-        errors.push({ field: "readonlyCounts", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("level")) && !("level" in obj)) {
-        errors.push({ field: "level", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rank")) && !("rank" in obj)) {
-        errors.push({ field: "rank", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["maybe", "maybe"], ["pair", "pair"], ["nullableTexts", "nullableTexts"], ["nullableItems", "nullableItems"], ["parenthesizedItems", "parenthesizedItems"], ["readonlyItems", "readonlyItems"], ["readonlyNumbers", "readonlyNumbers"], ["readonlyTags", "readonlyTags"], ["readonlyCounts", "readonlyCounts"], ["level", "level"], ["rank", "rank"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -827,261 +870,289 @@ export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("note")) || (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string | undefined;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) || (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string | undefined;
 
-        if (!(typeof __raw_note === "string" || __raw_note === undefined)) {
-            errors.push({ field: "note", message: "expected string | undefined" });
-        } else {
-            instance.note = __raw_note;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as string | null;
+                if (!(typeof __raw_note === "string" || __raw_note === undefined)) {
+                    errors.push({ field: "note", message: "expected string | undefined" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as string | null;
 
-        if (!(typeof __raw_maybe === "string" || __raw_maybe === null)) {
-            errors.push({ field: "maybe", message: "expected string | null" });
-        } else {
-            instance.maybe = __raw_maybe;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [string, number];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_maybe === "string" || __raw_maybe === null)) {
+                    errors.push({ field: "maybe", message: "expected string | null" });
+                } else {
+                    instance.maybe = __raw_maybe;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [string, number];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "ShapeFields.pair is required" : "expected [string, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "ShapeFields.pair is required" : "expected [string, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nullableTexts")) ? "nullableTexts" in obj : (__fields.keeps("nullableTexts") && obj["nullableTexts"] !== undefined)) {
-        const __raw_nullableTexts = obj["nullableTexts"] as (string | null)[];
-        if (Array.isArray(__raw_nullableTexts)) {
-            ctx.pushScope("nullableTexts");
-            try {
-                instance.nullableTexts = __mf_decodeArray(__raw_nullableTexts, ctx, (__raw0) => (__mf_decodeChecked(__raw0, typeof __raw0 === "string" || __raw0 === null, "string | null") as string | null));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nullableTexts" : "nullableTexts." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nullableTexts")) ? "nullableTexts" in obj : (__fields.keeps("nullableTexts") && obj["nullableTexts"] !== undefined)) {
+                const __raw_nullableTexts = obj["nullableTexts"] as (string | null)[];
+                if (Array.isArray(__raw_nullableTexts)) {
+                    ctx.pushScope("nullableTexts");
+                    try {
+                        instance.nullableTexts = __mf_decodeArray(__raw_nullableTexts, ctx, (__raw0) => (__mf_decodeChecked(__raw0, typeof __raw0 === "string" || __raw0 === null, "string | null") as string | null));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nullableTexts" : "nullableTexts." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nullableTexts", message: __raw_nullableTexts == null ? "ShapeFields.nullableTexts is required" : "expected (string | null)[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nullableTexts", message: __raw_nullableTexts == null ? "ShapeFields.nullableTexts is required" : "expected (string | null)[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nullableItems")) ? "nullableItems" in obj : (__fields.keeps("nullableItems") && obj["nullableItems"] !== undefined)) {
-        const __raw_nullableItems = obj["nullableItems"] as Array<ShapeItem | null>;
-        if (Array.isArray(__raw_nullableItems)) {
-            ctx.pushScope("nullableItems");
-            try {
-                instance.nullableItems = __mf_decodeArray(__raw_nullableItems, ctx, (__raw0) => (__raw0 === null ? null : shapeItemDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nullableItems" : "nullableItems." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nullableItems")) ? "nullableItems" in obj : (__fields.keeps("nullableItems") && obj["nullableItems"] !== undefined)) {
+                const __raw_nullableItems = obj["nullableItems"] as Array<ShapeItem | null>;
+                if (Array.isArray(__raw_nullableItems)) {
+                    ctx.pushScope("nullableItems");
+                    try {
+                        instance.nullableItems = __mf_decodeArray(__raw_nullableItems, ctx, (__raw0) => (__raw0 === null ? null : shapeItemDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nullableItems" : "nullableItems." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nullableItems", message: __raw_nullableItems == null ? "ShapeFields.nullableItems is required" : "expected Array<ShapeItem | null>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nullableItems", message: __raw_nullableItems == null ? "ShapeFields.nullableItems is required" : "expected Array<ShapeItem | null>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("parenthesizedItems")) ? "parenthesizedItems" in obj : (__fields.keeps("parenthesizedItems") && obj["parenthesizedItems"] !== undefined)) {
-        const __raw_parenthesizedItems = obj["parenthesizedItems"] as (ShapeItem | null)[];
-        if (Array.isArray(__raw_parenthesizedItems)) {
-            ctx.pushScope("parenthesizedItems");
-            try {
-                instance.parenthesizedItems = __mf_decodeArray(__raw_parenthesizedItems, ctx, (__raw0) => (__raw0 === null ? null : shapeItemDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "parenthesizedItems" : "parenthesizedItems." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("parenthesizedItems")) ? "parenthesizedItems" in obj : (__fields.keeps("parenthesizedItems") && obj["parenthesizedItems"] !== undefined)) {
+                const __raw_parenthesizedItems = obj["parenthesizedItems"] as (ShapeItem | null)[];
+                if (Array.isArray(__raw_parenthesizedItems)) {
+                    ctx.pushScope("parenthesizedItems");
+                    try {
+                        instance.parenthesizedItems = __mf_decodeArray(__raw_parenthesizedItems, ctx, (__raw0) => (__raw0 === null ? null : shapeItemDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "parenthesizedItems" : "parenthesizedItems." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "parenthesizedItems", message: __raw_parenthesizedItems == null ? "ShapeFields.parenthesizedItems is required" : "expected (ShapeItem | null)[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "parenthesizedItems", message: __raw_parenthesizedItems == null ? "ShapeFields.parenthesizedItems is required" : "expected (ShapeItem | null)[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readonlyItems")) ? "readonlyItems" in obj : (__fields.keeps("readonlyItems") && obj["readonlyItems"] !== undefined)) {
-        const __raw_readonlyItems = obj["readonlyItems"] as ReadonlyArray<ShapeItem>;
-        if (Array.isArray(__raw_readonlyItems)) {
-            ctx.pushScope("readonlyItems");
-            try {
-                instance.readonlyItems = __mf_decodeArray(__raw_readonlyItems, ctx, (__raw0) => shapeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "readonlyItems" : "readonlyItems." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readonlyItems")) ? "readonlyItems" in obj : (__fields.keeps("readonlyItems") && obj["readonlyItems"] !== undefined)) {
+                const __raw_readonlyItems = obj["readonlyItems"] as ReadonlyArray<ShapeItem>;
+                if (Array.isArray(__raw_readonlyItems)) {
+                    ctx.pushScope("readonlyItems");
+                    try {
+                        instance.readonlyItems = __mf_decodeArray(__raw_readonlyItems, ctx, (__raw0) => shapeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "readonlyItems" : "readonlyItems." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "readonlyItems", message: __raw_readonlyItems == null ? "ShapeFields.readonlyItems is required" : "expected ReadonlyArray<ShapeItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "readonlyItems", message: __raw_readonlyItems == null ? "ShapeFields.readonlyItems is required" : "expected ReadonlyArray<ShapeItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readonlyNumbers")) ? "readonlyNumbers" in obj : (__fields.keeps("readonlyNumbers") && obj["readonlyNumbers"] !== undefined)) {
-        const __raw_readonlyNumbers = obj["readonlyNumbers"] as readonly number[];
-        if (Array.isArray(__raw_readonlyNumbers)) {
-            ctx.pushScope("readonlyNumbers");
-            try {
-                instance.readonlyNumbers = __mf_decodeArray(__raw_readonlyNumbers, ctx, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "readonlyNumbers" : "readonlyNumbers." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readonlyNumbers")) ? "readonlyNumbers" in obj : (__fields.keeps("readonlyNumbers") && obj["readonlyNumbers"] !== undefined)) {
+                const __raw_readonlyNumbers = obj["readonlyNumbers"] as readonly number[];
+                if (Array.isArray(__raw_readonlyNumbers)) {
+                    ctx.pushScope("readonlyNumbers");
+                    try {
+                        instance.readonlyNumbers = __mf_decodeArray(__raw_readonlyNumbers, ctx, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "readonlyNumbers" : "readonlyNumbers." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "readonlyNumbers", message: __raw_readonlyNumbers == null ? "ShapeFields.readonlyNumbers is required" : "expected readonly number[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "readonlyNumbers", message: __raw_readonlyNumbers == null ? "ShapeFields.readonlyNumbers is required" : "expected readonly number[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readonlyTags")) ? "readonlyTags" in obj : (__fields.keeps("readonlyTags") && obj["readonlyTags"] !== undefined)) {
-        const __raw_readonlyTags = obj["readonlyTags"] as Array<string>;
-        if (Array.isArray(__raw_readonlyTags)) {
-            ctx.pushScope("readonlyTags");
-            try {
-                instance.readonlyTags = __mf_decodeSet(__raw_readonlyTags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "readonlyTags" : "readonlyTags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readonlyTags")) ? "readonlyTags" in obj : (__fields.keeps("readonlyTags") && obj["readonlyTags"] !== undefined)) {
+                const __raw_readonlyTags = obj["readonlyTags"] as Array<string>;
+                if (Array.isArray(__raw_readonlyTags)) {
+                    ctx.pushScope("readonlyTags");
+                    try {
+                        instance.readonlyTags = __mf_decodeSet(__raw_readonlyTags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "readonlyTags" : "readonlyTags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "readonlyTags", message: __raw_readonlyTags == null ? "ShapeFields.readonlyTags is required" : "expected ReadonlySet<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "readonlyTags", message: __raw_readonlyTags == null ? "ShapeFields.readonlyTags is required" : "expected ReadonlySet<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readonlyCounts")) ? "readonlyCounts" in obj : (__fields.keeps("readonlyCounts") && obj["readonlyCounts"] !== undefined)) {
-        const __raw_readonlyCounts = obj["readonlyCounts"] as Record<string, number>;
-        if (typeof __raw_readonlyCounts === "object" && __raw_readonlyCounts !== null) {
-            ctx.pushScope("readonlyCounts");
-            try {
-                instance.readonlyCounts = __mf_decodeMap(__raw_readonlyCounts, ctx, (__key0) => __key0, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "readonlyCounts" : "readonlyCounts." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readonlyCounts")) ? "readonlyCounts" in obj : (__fields.keeps("readonlyCounts") && obj["readonlyCounts"] !== undefined)) {
+                const __raw_readonlyCounts = obj["readonlyCounts"] as Record<string, number>;
+                if (typeof __raw_readonlyCounts === "object" && __raw_readonlyCounts !== null) {
+                    ctx.pushScope("readonlyCounts");
+                    try {
+                        instance.readonlyCounts = __mf_decodeMap(__raw_readonlyCounts, ctx, (__key0) => __key0, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "readonlyCounts" : "readonlyCounts." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "readonlyCounts", message: __raw_readonlyCounts == null ? "ShapeFields.readonlyCounts is required" : "expected ReadonlyMap<string, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "readonlyCounts", message: __raw_readonlyCounts == null ? "ShapeFields.readonlyCounts is required" : "expected ReadonlyMap<string, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("level")) ? "level" in obj : (__fields.keeps("level") && obj["level"] !== undefined)) {
-        const __raw_level = obj["level"] as ShapeLevel;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("level")) ? "level" in obj : (__fields.keeps("level") && obj["level"] !== undefined)) {
+                const __raw_level = obj["level"] as ShapeLevel;
 
-        ctx.pushScope("level");
-        try {
-            const __result = shapeLevelDecodeWithContext(__raw_level, ctx);
-            ctx.assignOrDefer(instance, "level", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "level" : "level." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("level");
+                try {
+                    const __result = shapeLevelDecodeWithContext(__raw_level, ctx);
+                    ctx.assignOrDefer(instance, "level", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "level" : "level." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "level", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "level", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
-        const __raw_rank = obj["rank"] as ShapeRank;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+                const __raw_rank = obj["rank"] as ShapeRank;
 
-        ctx.pushScope("rank");
-        try {
-            const __result = shapeRankDecodeWithContext(__raw_rank, ctx);
-            ctx.assignOrDefer(instance, "rank", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "rank" : "rank." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("rank");
+                try {
+                    const __result = shapeRankDecodeWithContext(__raw_rank, ctx);
+                    ctx.assignOrDefer(instance, "rank", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "rank" : "rank." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "rank", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "rank", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1106,7 +1177,7 @@ export function shapeFieldsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "maybe") && __mf_holds(obj, "pair") && __mf_holds(obj, "nullableTexts") && __mf_holds(obj, "nullableItems") && __mf_holds(obj, "parenthesizedItems") && __mf_holds(obj, "readonlyItems") && __mf_holds(obj, "readonlyNumbers") && __mf_holds(obj, "readonlyTags") && __mf_holds(obj, "readonlyCounts") && __mf_holds(obj, "level") && __mf_holds(obj, "rank");
+    return __mf_holdsAll(obj, ["maybe", "pair", "nullableTexts", "nullableItems", "parenthesizedItems", "readonlyItems", "readonlyNumbers", "readonlyTags", "readonlyCounts", "level", "rank"]);
 }
 
 export function shapeFieldsIs(obj: unknown): obj is ShapeFields {
@@ -1170,10 +1241,15 @@ export class ShapeCard {
 
     static equals(a: ShapeCard, b: ShapeCard): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.title === b.title && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
-        	const __other0 = b.items[__index0];
-        	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.title === b.title,
+                    () => a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+                    	const __other0 = b.items[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
+                    }),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ShapeCard): number {
@@ -1214,15 +1290,23 @@ static encodePartialWithContext(value: Partial<ShapeCard>, ctx: __mf_EncodeConte
 }
 
 static #encodeFields(value: ShapeCard, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("title")) {
-        if (value.title !== undefined) {
-            result["title"] = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("items")) {
-        if (value.items !== undefined) {
-            result["items"] = value.items.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("items")) {
+                if (value.items !== undefined) {
+                    result["items"] = value.items.map((__item0) => shapeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1312,11 +1396,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"], ["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ShapeCard.prototype);
@@ -1327,38 +1412,46 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "ShapeCard.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
-        const __raw_items = obj["items"] as ShapeItem[];
-        if (Array.isArray(__raw_items)) {
-            ctx.pushScope("items");
-            try {
-                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => shapeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "items" : "items." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "ShapeCard.title is required" : "expected string" });
+                } else {
+                    instance.title = __raw_title;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+                const __raw_items = obj["items"] as ShapeItem[];
+                if (Array.isArray(__raw_items)) {
+                    ctx.pushScope("items");
+                    try {
+                        instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => shapeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "items" : "items." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "items", message: __raw_items == null ? "ShapeCard.items is required" : "expected ShapeItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "items", message: __raw_items == null ? "ShapeCard.items is required" : "expected ShapeItem[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1379,7 +1472,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "title") && __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["title", "items"]);
 }
 
 static is(obj: unknown): obj is ShapeCard {
@@ -1484,24 +1577,14 @@ export function shapeMemberEncode(value: ShapeMember, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function shapeMemberEncodeWithContext(value: ShapeMember, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "ShapeItem") { __variant = shapeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "ShapeCard") { __variant = shapeCardEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && shapeItemHasShape(value)) { __variant = shapeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && shapeCardHasShape(value)) { __variant = shapeCardEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: ShapeMember): member is ShapeItem => __mf_member(member, "__type") === "ShapeItem", (member) => shapeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ShapeMember): member is ShapeCard => __mf_member(member, "__type") === "ShapeCard", (member) => shapeCardEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ShapeMember): member is ShapeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => shapeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ShapeMember): member is ShapeCard => typeof member === "object" && member !== null && !Array.isArray(member) && "title" in member && "items" in member, (member) => shapeCardEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -1698,22 +1781,12 @@ export function shapeMixedEncode(value: ShapeMixed, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function shapeMixedEncodeWithContext(value: ShapeMixed, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "ShapeItem") { __variant = shapeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && shapeItemHasShape(value)) { __variant = shapeItemEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: ShapeMixed): member is ShapeItem => __mf_member(member, "__type") === "ShapeItem", (member) => shapeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ShapeMixed): member is ShapeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => shapeItemEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -1915,25 +1988,37 @@ export function shapeEventEncodePartialWithContext(value: Partial<ShapeEvent>, c
 }
 
 function shapeEventEncodeFields(value: ShapeEvent, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("owner")) {
-        if (value.owner !== undefined) {
-            result["owner"] = shapeItemEncodeWithContext(value.owner, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("owner")) {
+                if (value.owner !== undefined) {
+                    result["owner"] = shapeItemEncodeWithContext(value.owner, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2011,14 +2096,12 @@ export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["at", "at"], ["tags", "tags"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2029,75 +2112,87 @@ export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ShapeEvent.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "ShapeEvent.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ShapeEvent.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string[];
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "ShapeEvent.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string[];
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "ShapeEvent.tags is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "ShapeEvent.tags is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("owner"))) {
-        if (("owner" in obj && obj["owner"] !== undefined)) {
-            const __raw_owner = obj["owner"] as ShapeItem;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("owner"))) {
+                if (("owner" in obj && obj["owner"] !== undefined)) {
+                    const __raw_owner = obj["owner"] as ShapeItem;
 
-            ctx.pushScope("owner");
-            try {
-                const __result = shapeItemDecodeWithContext(__raw_owner, ctx);
-                ctx.assignOrDefer(instance, "owner", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "owner" : "owner." + __err.field,
-                            message: __err.message
-                        });
+                    ctx.pushScope("owner");
+                    try {
+                        const __result = shapeItemDecodeWithContext(__raw_owner, ctx);
+                        ctx.assignOrDefer(instance, "owner", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "owner" : "owner." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "owner", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "owner", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2122,7 +2217,7 @@ export function shapeEventHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "at") && __mf_holds(obj, "tags");
+    return __mf_holdsAll(obj, ["id", "at", "tags"]);
 }
 
 export function shapeEventIs(obj: unknown): obj is ShapeEvent {
@@ -2190,30 +2285,44 @@ export function shapeDraftEncodePartialWithContext(value: Partial<ShapeDraft>, c
 }
 
 function shapeDraftEncodeFields(value: ShapeDraft, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("patch")) {
-        if (value.patch !== undefined) {
-            result["patch"] = shapeEventEncodePartialWithContext(value.patch, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("header")) {
-        if (value.header !== undefined) {
-            result["header"] = shapeEventEncodePartialWithContext(value.header, ctx, { only: ["id", "at"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rest")) {
-        if (value.rest !== undefined) {
-            result["rest"] = shapeEventEncodePartialWithContext(value.rest, ctx, { except: ["at"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("card")) {
-        if (value.card !== undefined) {
-            result["card"] = shapeCardEncodePartialWithContext(value.card, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("frozen")) {
-        if (value.frozen !== undefined) {
-            result["frozen"] = shapeItemEncodeWithContext(value.frozen, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = shapeEventEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("header")) {
+                if (value.header !== undefined) {
+                    result["header"] = shapeEventEncodePartialWithContext(value.header, ctx, { only: ["id", "at"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rest")) {
+                if (value.rest !== undefined) {
+                    result["rest"] = shapeEventEncodePartialWithContext(value.rest, ctx, { except: ["at"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("card")) {
+                if (value.card !== undefined) {
+                    result["card"] = shapeCardEncodePartialWithContext(value.card, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("frozen")) {
+                if (value.frozen !== undefined) {
+                    result["frozen"] = shapeItemEncodeWithContext(value.frozen, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2291,20 +2400,12 @@ export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
-        errors.push({ field: "patch", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("header")) && !("header" in obj)) {
-        errors.push({ field: "header", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rest")) && !("rest" in obj)) {
-        errors.push({ field: "rest", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("card")) && !("card" in obj)) {
-        errors.push({ field: "card", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("frozen")) && !("frozen" in obj)) {
-        errors.push({ field: "frozen", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["patch", "patch"], ["header", "header"], ["rest", "rest"], ["card", "card"], ["frozen", "frozen"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2315,120 +2416,134 @@ export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
-        const __raw_patch = obj["patch"] as Partial<ShapeEvent>;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<ShapeEvent>;
 
-        ctx.pushScope("patch");
-        try {
-            const __result = shapeEventDecodePartialWithContext(__raw_patch, ctx);
-            ctx.assignOrDefer(instance, "patch", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "patch" : "patch." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("patch");
+                try {
+                    const __result = shapeEventDecodePartialWithContext(__raw_patch, ctx);
+                    ctx.assignOrDefer(instance, "patch", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("header")) ? "header" in obj : (__fields.keeps("header") && obj["header"] !== undefined)) {
-        const __raw_header = obj["header"] as Pick<ShapeEvent, 'id' | 'at'>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("header")) ? "header" in obj : (__fields.keeps("header") && obj["header"] !== undefined)) {
+                const __raw_header = obj["header"] as Pick<ShapeEvent, 'id' | 'at'>;
 
-        ctx.pushScope("header");
-        try {
-            const __result = shapeEventDecodePartialWithContext(__raw_header, ctx, { only: ["id", "at"] });
-            ctx.assignOrDefer(instance, "header", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "header" : "header." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("header");
+                try {
+                    const __result = shapeEventDecodePartialWithContext(__raw_header, ctx, { only: ["id", "at"] });
+                    ctx.assignOrDefer(instance, "header", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "header" : "header." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "header", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "header", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
-        const __raw_rest = obj["rest"] as Omit<ShapeEvent, 'at'>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+                const __raw_rest = obj["rest"] as Omit<ShapeEvent, 'at'>;
 
-        ctx.pushScope("rest");
-        try {
-            const __result = shapeEventDecodePartialWithContext(__raw_rest, ctx, { except: ["at"] });
-            ctx.assignOrDefer(instance, "rest", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "rest" : "rest." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("rest");
+                try {
+                    const __result = shapeEventDecodePartialWithContext(__raw_rest, ctx, { except: ["at"] });
+                    ctx.assignOrDefer(instance, "rest", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "rest", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "rest", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("card")) ? "card" in obj : (__fields.keeps("card") && obj["card"] !== undefined)) {
-        const __raw_card = obj["card"] as Partial<ShapeCard>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("card")) ? "card" in obj : (__fields.keeps("card") && obj["card"] !== undefined)) {
+                const __raw_card = obj["card"] as Partial<ShapeCard>;
 
-        ctx.pushScope("card");
-        try {
-            const __result = shapeCardDecodePartialWithContext(__raw_card, ctx);
-            ctx.assignOrDefer(instance, "card", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "card" : "card." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("card");
+                try {
+                    const __result = shapeCardDecodePartialWithContext(__raw_card, ctx);
+                    ctx.assignOrDefer(instance, "card", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "card" : "card." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "card", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "card", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("frozen")) ? "frozen" in obj : (__fields.keeps("frozen") && obj["frozen"] !== undefined)) {
-        const __raw_frozen = obj["frozen"] as Readonly<ShapeItem>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("frozen")) ? "frozen" in obj : (__fields.keeps("frozen") && obj["frozen"] !== undefined)) {
+                const __raw_frozen = obj["frozen"] as Readonly<ShapeItem>;
 
-        ctx.pushScope("frozen");
-        try {
-            const __result = shapeItemDecodeWithContext(__raw_frozen, ctx);
-            ctx.assignOrDefer(instance, "frozen", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "frozen" : "frozen." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("frozen");
+                try {
+                    const __result = shapeItemDecodeWithContext(__raw_frozen, ctx);
+                    ctx.assignOrDefer(instance, "frozen", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "frozen" : "frozen." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "frozen", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "frozen", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2453,7 +2568,7 @@ export function shapeDraftHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "patch") && __mf_holds(obj, "header") && __mf_holds(obj, "rest") && __mf_holds(obj, "card") && __mf_holds(obj, "frozen");
+    return __mf_holdsAll(obj, ["patch", "header", "rest", "card", "frozen"]);
 }
 
 export function shapeDraftIs(obj: unknown): obj is ShapeDraft {
@@ -2960,91 +3075,91 @@ export declare const ShapeDraft: {
 
 ## Mapping
 
-original 0..445 -> expanded 1423..1868
-original 445..620 -> expanded 13942..14117
-original 620..784 -> expanded 17684..17848
-original 784..1318 -> expanded 21381..21915
-original 1318..1478 -> expanded 54324..54484
-original 1478..1479 -> expanded 64458..64459
-original 1479..1591 -> expanded 68114..68226
-original 1591..1715 -> expanded 76439..76563
-original 1715..1852 -> expanded 84234..84371
-original 1852..2088 -> expanded 96434..96670
-original 2088..2089 -> expanded 111221..111222
-generated 0..1423 <- imports
-generated 1868..2172 <- Debug
-generated 2172..2331 <- Clone
-generated 2331..2562 <- PartialEq
-generated 2562..3013 <- Hash
-generated 3013..3544 <- PartialOrd
-generated 3544..3987 <- Ord
-generated 3987..4097 <- Default
-generated 4097..6394 <- Encode
-generated 6394..12361 <- Decode
-generated 12361..13942 <- __convenience_const
-generated 14117..14422 <- Debug
-generated 14422..14508 <- Clone
-generated 14508..14605 <- PartialEq
-generated 14605..14768 <- Hash
-generated 14768..14980 <- PartialOrd
-generated 14980..15178 <- Ord
-generated 15178..15263 <- Default
-generated 15263..15697 <- Encode
-generated 15697..16739 <- Decode
-generated 16739..17684 <- __convenience_const
-generated 17848..18144 <- Debug
-generated 18144..18227 <- Clone
-generated 18227..18321 <- PartialEq
-generated 18321..18525 <- Hash
-generated 18525..18734 <- PartialOrd
-generated 18734..18929 <- Ord
-generated 18929..19011 <- Default
-generated 19011..19439 <- Encode
-generated 19439..20461 <- Decode
-generated 20461..21381 <- __convenience_const
-generated 21915..23070 <- Debug
-generated 23070..23816 <- Clone
-generated 23816..25980 <- PartialEq
-generated 25980..28097 <- Hash
-generated 28097..28536 <- Default
-generated 28536..33066 <- Encode
-generated 33066..52857 <- Decode
-generated 52857..54324 <- __convenience_const
-generated 54484..54846 <- Debug
-generated 54846..55060 <- Clone
-generated 55060..55460 <- PartialEq
-generated 55460..55886 <- Hash
-generated 55886..56114 <- Default
-generated 56114..57887 <- Encode
-generated 57887..58212 <- Encode
-generated 58212..64458 <- Decode
-generated 64459..64562 <- Debug
-generated 64562..64662 <- Clone
-generated 64662..64771 <- PartialEq
-generated 64771..64874 <- Hash
-generated 64874..64967 <- Default
-generated 64967..66317 <- Encode
-generated 66317..68114 <- Decode
-generated 68226..68358 <- Debug
-generated 68358..68469 <- Clone
-generated 68469..68619 <- PartialEq
-generated 68619..68727 <- Hash
-generated 68727..70822 <- Encode
-generated 70822..75570 <- Decode
-generated 75570..76439 <- __convenience_const
-generated 76563..76692 <- Debug
-generated 76692..76800 <- Clone
-generated 76800..76947 <- PartialEq
-generated 76947..77053 <- Hash
-generated 77053..78877 <- Encode
-generated 78877..83386 <- Decode
-generated 83386..84234 <- __convenience_const
-generated 84371..87035 <- Encode
-generated 87035..95394 <- Decode
-generated 95394..96434 <- __convenience_const
-generated 96670..99716 <- Encode
-generated 99716..110181 <- Decode
-generated 110181..111221 <- __convenience_const
+original 0..445 -> expanded 1499..1944
+original 445..620 -> expanded 14568..14743
+original 620..784 -> expanded 18310..18474
+original 784..1318 -> expanded 22007..22541
+original 1318..1478 -> expanded 57090..57250
+original 1478..1479 -> expanded 67953..67954
+original 1479..1591 -> expanded 71609..71721
+original 1591..1715 -> expanded 80000..80124
+original 1715..1852 -> expanded 87713..87850
+original 1852..2088 -> expanded 100770..101006
+original 2088..2089 -> expanded 116477..116478
+generated 0..1499 <- imports
+generated 1944..2248 <- Debug
+generated 2248..2407 <- Clone
+generated 2407..2731 <- PartialEq
+generated 2731..3182 <- Hash
+generated 3182..3689 <- PartialOrd
+generated 3689..4180 <- Ord
+generated 4180..4290 <- Default
+generated 4290..6781 <- Encode
+generated 6781..12987 <- Decode
+generated 12987..14568 <- __convenience_const
+generated 14743..15048 <- Debug
+generated 15048..15134 <- Clone
+generated 15134..15231 <- PartialEq
+generated 15231..15394 <- Hash
+generated 15394..15606 <- PartialOrd
+generated 15606..15804 <- Ord
+generated 15804..15889 <- Default
+generated 15889..16323 <- Encode
+generated 16323..17365 <- Decode
+generated 17365..18310 <- __convenience_const
+generated 18474..18770 <- Debug
+generated 18770..18853 <- Clone
+generated 18853..18947 <- PartialEq
+generated 18947..19151 <- Hash
+generated 19151..19360 <- PartialOrd
+generated 19360..19555 <- Ord
+generated 19555..19637 <- Default
+generated 19637..20065 <- Encode
+generated 20065..21087 <- Decode
+generated 21087..22007 <- __convenience_const
+generated 22541..23696 <- Debug
+generated 23696..24442 <- Clone
+generated 24442..27077 <- PartialEq
+generated 27077..29194 <- Hash
+generated 29194..29633 <- Default
+generated 29633..35027 <- Encode
+generated 35027..55623 <- Decode
+generated 55623..57090 <- __convenience_const
+generated 57250..57612 <- Debug
+generated 57612..57826 <- Clone
+generated 57826..58397 <- PartialEq
+generated 58397..58823 <- Hash
+generated 58823..59051 <- Default
+generated 59051..61018 <- Encode
+generated 61018..61343 <- Encode
+generated 61343..67953 <- Decode
+generated 67954..68057 <- Debug
+generated 68057..68157 <- Clone
+generated 68157..68266 <- PartialEq
+generated 68266..68369 <- Hash
+generated 68369..68462 <- Default
+generated 68462..69812 <- Encode
+generated 69812..71609 <- Decode
+generated 71721..71853 <- Debug
+generated 71853..71964 <- Clone
+generated 71964..72114 <- PartialEq
+generated 72114..72222 <- Hash
+generated 72222..74383 <- Encode
+generated 74383..79131 <- Decode
+generated 79131..80000 <- __convenience_const
+generated 80124..80253 <- Debug
+generated 80253..80361 <- Clone
+generated 80361..80508 <- PartialEq
+generated 80508..80614 <- Hash
+generated 80614..82356 <- Encode
+generated 82356..86865 <- Decode
+generated 86865..87713 <- __convenience_const
+generated 87850..90842 <- Encode
+generated 90842..99730 <- Decode
+generated 99730..100770 <- __convenience_const
+generated 101006..104447 <- Encode
+generated 104447..115437 <- Decode
+generated 115437..116477 <- __convenience_const
 
 ## Metadata
 

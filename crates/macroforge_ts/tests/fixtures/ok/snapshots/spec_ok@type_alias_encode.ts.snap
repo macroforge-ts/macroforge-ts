@@ -53,15 +53,23 @@ export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_Enc
 }
 
 function userEncodeFields(value: User, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("age")) {
-        if (value.age !== undefined) {
-            result["age"] = value.age;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("age")) {
+                if (value.age !== undefined) {
+                    result["age"] = value.age;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -96,10 +104,10 @@ export {};
 ## Mapping
 
 original 22..74 -> expanded 458..510
-original 74..75 -> expanded 3051..3052
+original 74..75 -> expanded 3245..3246
 generated 0..458 <- imports
-generated 510..2732 <- Encode
-generated 2732..3051 <- __convenience_const
+generated 510..2926 <- Encode
+generated 2926..3245 <- __convenience_const
 
 ## Metadata
 

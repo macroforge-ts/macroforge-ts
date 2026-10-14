@@ -212,9 +212,15 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
                                     }
                                 }
                             {/if}
-                            {#for uv in untagged_object_variants}
-                                if (@{uv.shape_condition}) return true;
-                            {/for}
+                            {#if !untagged_object_variants.is_empty()}
+                                // A test a member, each in a function of its own.
+                                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                                {#for uv in untagged_object_variants}
+                                    (value) => @{uv.shape_condition},
+                                {/for}
+                                ];
+                                if (__shapes.some((shape) => shape(value))) return true;
+                            {/if}
                             return false;
         {/if}
         }

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 // Default on classes whose fields have initializers, derived beside Decode,
 // whose constructor takes arguments.
@@ -129,17 +129,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
-        errors.push({ field: "theme", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("limit")) && !("limit" in obj)) {
-        errors.push({ field: "limit", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
-        errors.push({ field: "createdAt", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["theme", "theme"], ["tags", "tags"], ["limit", "limit"], ["createdAt", "createdAt"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Settings.prototype);
@@ -150,78 +145,94 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
-        const __raw_theme = obj["theme"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
+                const __raw_theme = obj["theme"] as string;
 
-        if (!(typeof __raw_theme === "string")) {
-            errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
-        } else {
-            instance.theme = __raw_theme;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("retries"))) {
-        if (("retries" in obj && obj["retries"] !== undefined)) {
-            const __raw_retries = obj["retries"] as number;
-
-            if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
-                errors.push({ field: "retries", message: "expected number" });
-            } else {
-                instance.retries = __raw_retries;
+                if (!(typeof __raw_theme === "string")) {
+                    errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+                } else {
+                    instance.theme = __raw_theme;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("label"))) {
-        if (("label" in obj && obj["label"] !== undefined)) {
-            const __raw_label = obj["label"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("retries"))) {
+                if (("retries" in obj && obj["retries"] !== undefined)) {
+                    const __raw_retries = obj["retries"] as number;
 
-            if (!(typeof __raw_label === "string")) {
-                errors.push({ field: "label", message: "expected string" });
-            } else {
-                instance.label = __raw_label;
+                    if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
+                        errors.push({ field: "retries", message: "expected number" });
+                    } else {
+                        instance.retries = __raw_retries;
+                    }
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string[];
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("label"))) {
+                if (("label" in obj && obj["label"] !== undefined)) {
+                    const __raw_label = obj["label"] as string;
+
+                    if (!(typeof __raw_label === "string")) {
+                        errors.push({ field: "label", message: "expected string" });
+                    } else {
+                        instance.label = __raw_label;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string[];
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("limit")) ? "limit" in obj : (__fields.keeps("limit") && obj["limit"] !== undefined)) {
-        const __raw_limit = obj["limit"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("limit")) ? "limit" in obj : (__fields.keeps("limit") && obj["limit"] !== undefined)) {
+                const __raw_limit = obj["limit"] as number;
 
-        if (!(typeof __raw_limit === "number" && globalThis.Number.isFinite(__raw_limit))) {
-            errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
-        } else {
-            instance.limit = __raw_limit;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
-        const __raw_createdAt = obj["createdAt"] as number;
+                if (!(typeof __raw_limit === "number" && globalThis.Number.isFinite(__raw_limit))) {
+                    errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
+                } else {
+                    instance.limit = __raw_limit;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+                const __raw_createdAt = obj["createdAt"] as number;
 
-        if (!(typeof __raw_createdAt === "number" && globalThis.Number.isFinite(__raw_createdAt))) {
-            errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
-        } else {
-            instance.createdAt = __raw_createdAt;
-        }
+                if (!(typeof __raw_createdAt === "number" && globalThis.Number.isFinite(__raw_createdAt))) {
+                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
+                } else {
+                    instance.createdAt = __raw_createdAt;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -242,7 +253,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "theme") && __mf_holds(obj, "tags") && __mf_holds(obj, "limit") && __mf_holds(obj, "createdAt");
+    return __mf_holdsAll(obj, ["theme", "tags", "limit", "createdAt"]);
 }
 
 static is(obj: unknown): obj is Settings {
@@ -327,7 +338,9 @@ export class Counter {
 
     static equals(a: Counter, b: Counter): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.count === b.count || a.count !== a.count && b.count !== b.count);
+        return __mf_equalWithin(a, b, () => {
+                return a.count === b.count || a.count !== a.count && b.count !== b.count;
+            });
     }
 
     static hashCode(value: Counter): number {
@@ -341,19 +354,14 @@ export class Counter {
     static partialCompare(a: Counter, b: Counter): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count || (a.count !== a.count && b.count !== b.count) ? 0 : null);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-            return 0;
+        return (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count || (a.count !== a.count && b.count !== b.count) ? 0 : null);
         });
     }
 
     static compare(a: Counter, b: Counter): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : a.count !== a.count ? b.count !== b.count ? 0 : 1 : -1;
-        if (cmp0 !== 0) return cmp0;
-            return 0;
+        return a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : a.count !== a.count ? b.count !== b.count ? 0 : 1 : -1;
         });
     }
 
@@ -470,8 +478,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "count"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Counter.prototype);
@@ -510,7 +522,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "count");
+    return __mf_holdsAll(obj, ["count"]);
 }
 
 static is(obj: unknown): obj is Counter {
@@ -761,39 +773,39 @@ export declare function counterDefaultValue(): Counter;
 
 ## Mapping
 
-original 0..396 -> expanded 1001..1397
-original 396..397 -> expanded 10540..10541
-original 397..579 -> expanded 12413..12595
-original 579..580 -> expanded 12868..12869
-original 580..752 -> expanded 12956..13128
-original 752..753 -> expanded 21788..21789
-original 753..754 -> expanded 25585..25586
-generated 0..1001 <- imports
-generated 1397..1763 <- Default
-generated 1763..10540 <- Decode
-generated 10541..10631 <- Default
-generated 10631..12413 <- Decode
-generated 12595..12868 <- Default
-generated 12869..12956 <- Default
-generated 13128..13395 <- Debug
-generated 13395..13517 <- Clone
-generated 13517..13723 <- PartialEq
-generated 13723..14065 <- Hash
-generated 14065..14482 <- PartialOrd
-generated 14482..14845 <- Ord
-generated 14845..16381 <- Encode
-generated 16381..16702 <- Encode
-generated 16702..21608 <- Decode
-generated 21608..21788 <- Default
-generated 21789..21886 <- Debug
-generated 21886..21978 <- Clone
-generated 21978..22079 <- PartialEq
-generated 22079..22176 <- Hash
-generated 22176..22299 <- PartialOrd
-generated 22299..22401 <- Ord
-generated 22401..23731 <- Encode
-generated 23731..25498 <- Decode
-generated 25498..25585 <- Default
+original 0..396 -> expanded 1007..1403
+original 396..397 -> expanded 10967..10968
+original 397..579 -> expanded 12840..13022
+original 579..580 -> expanded 13295..13296
+original 580..752 -> expanded 13383..13555
+original 752..753 -> expanded 22247..22248
+original 753..754 -> expanded 26044..26045
+generated 0..1007 <- imports
+generated 1403..1769 <- Default
+generated 1769..10967 <- Decode
+generated 10968..11058 <- Default
+generated 11058..12840 <- Decode
+generated 13022..13295 <- Default
+generated 13296..13383 <- Default
+generated 13555..13822 <- Debug
+generated 13822..13944 <- Clone
+generated 13944..14190 <- PartialEq
+generated 14190..14532 <- Hash
+generated 14532..14844 <- PartialOrd
+generated 14844..15142 <- Ord
+generated 15142..16678 <- Encode
+generated 16678..16999 <- Encode
+generated 16999..22067 <- Decode
+generated 22067..22247 <- Default
+generated 22248..22345 <- Debug
+generated 22345..22437 <- Clone
+generated 22437..22538 <- PartialEq
+generated 22538..22635 <- Hash
+generated 22635..22758 <- PartialOrd
+generated 22758..22860 <- Ord
+generated 22860..24190 <- Encode
+generated 24190..25957 <- Decode
+generated 25957..26044 <- Default
 
 ## Metadata
 

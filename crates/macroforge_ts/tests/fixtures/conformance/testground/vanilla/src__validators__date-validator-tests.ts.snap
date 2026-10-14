@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Date validator test classes for comprehensive decoder validation testing.
@@ -104,8 +104,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ValidDateValidator.prototype);
@@ -161,7 +165,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is ValidDateValidator {
@@ -287,8 +291,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(GreaterThanDateValidator.prototype);
@@ -344,7 +352,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is GreaterThanDateValidator {
@@ -470,8 +478,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(GreaterThanOrEqualToDateValidator.prototype);
@@ -527,7 +539,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
@@ -653,8 +665,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(LessThanDateValidator.prototype);
@@ -710,7 +726,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is LessThanDateValidator {
@@ -836,8 +852,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(LessThanOrEqualToDateValidator.prototype);
@@ -893,7 +913,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
@@ -1019,8 +1039,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(BetweenDateValidator.prototype);
@@ -1076,7 +1100,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["date"]);
 }
 
 static is(obj: unknown): obj is BetweenDateValidator {
@@ -1440,32 +1464,32 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 
 ## Mapping
 
-original 0..229 -> expanded 433..662
-original 229..230 -> expanded 6904..6905
-original 230..407 -> expanded 8837..9014
-original 407..408 -> expanded 15529..15530
-original 408..612 -> expanded 17552..17756
-original 612..613 -> expanded 24520..24521
-original 613..781 -> expanded 26678..26846
-original 781..782 -> expanded 33286..33287
-original 782..977 -> expanded 35264..35459
-original 977..978 -> expanded 42148..42149
-original 978..1157 -> expanded 44261..44440
-original 1157..1158 -> expanded 51065..51066
-original 1158..1159 -> expanded 53028..53029
-generated 0..433 <- imports
-generated 662..6904 <- Decode
-generated 6905..8837 <- Decode
-generated 9014..15529 <- Decode
-generated 15530..17552 <- Decode
-generated 17756..24520 <- Decode
-generated 24521..26678 <- Decode
-generated 26846..33286 <- Decode
-generated 33287..35264 <- Decode
-generated 35459..42148 <- Decode
-generated 42149..44261 <- Decode
-generated 44440..51065 <- Decode
-generated 51066..53028 <- Decode
+original 0..229 -> expanded 439..668
+original 229..230 -> expanded 7073..7074
+original 230..407 -> expanded 9006..9183
+original 407..408 -> expanded 15861..15862
+original 408..612 -> expanded 17884..18088
+original 612..613 -> expanded 25015..25016
+original 613..781 -> expanded 27173..27341
+original 781..782 -> expanded 33944..33945
+original 782..977 -> expanded 35922..36117
+original 977..978 -> expanded 42969..42970
+original 978..1157 -> expanded 45082..45261
+original 1157..1158 -> expanded 52049..52050
+original 1158..1159 -> expanded 54012..54013
+generated 0..439 <- imports
+generated 668..7073 <- Decode
+generated 7074..9006 <- Decode
+generated 9183..15861 <- Decode
+generated 15862..17884 <- Decode
+generated 18088..25015 <- Decode
+generated 25016..27173 <- Decode
+generated 27341..33944 <- Decode
+generated 33945..35922 <- Decode
+generated 36117..42969 <- Decode
+generated 42970..45082 <- Decode
+generated 45261..52049 <- Decode
+generated 52050..54012 <- Decode
 
 ## Metadata
 

@@ -45,15 +45,23 @@ static encodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, 
 }
 
 static #encodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-        if (value.y !== undefined) {
-            result["y"] = value.y;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -107,12 +115,12 @@ export {};
 ## Mapping
 
 original 22..67 -> expanded 458..503
-original 67..68 -> expanded 2467..2468
-original 68..69 -> expanded 3778..3779
+original 67..68 -> expanded 2661..2662
+original 68..69 -> expanded 3972..3973
 generated 0..458 <- imports
-generated 503..2150 <- Encode
-generated 2150..2467 <- Encode
-generated 2468..3778 <- Encode
+generated 503..2344 <- Encode
+generated 2344..2661 <- Encode
+generated 2662..3972 <- Encode
 
 ## Metadata
 

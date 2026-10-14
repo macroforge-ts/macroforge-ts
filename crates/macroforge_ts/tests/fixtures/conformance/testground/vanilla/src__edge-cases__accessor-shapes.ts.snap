@@ -39,7 +39,13 @@ export class ClassAccessors {
 
     static equals(a: ClassAccessors, b: ClassAccessors): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => (a.count === b.count || a.count !== a.count && b.count !== b.count) && a.label === b.label && (a.plain === b.plain || a.plain !== a.plain && b.plain !== b.plain));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+                    () => a.label === b.label,
+                    () => a.plain === b.plain || a.plain !== a.plain && b.plain !== b.plain,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassAccessors): number {
@@ -73,20 +79,30 @@ static encodePartialWithContext(value: Partial<ClassAccessors>, ctx: __mf_Encode
 }
 
 static #encodeFields(value: ClassAccessors, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("plain")) {
-        if (value.plain !== undefined) {
-            result["plain"] = value.plain;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("plain")) {
+                if (value.plain !== undefined) {
+                    result["plain"] = value.plain;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -164,18 +180,18 @@ export declare function classAccessorsEncodePartialWithContext(value: Partial<Cl
 ## Mapping
 
 original 0..377 -> expanded 611..988
-original 377..378 -> expanded 4597..4598
-original 378..379 -> expanded 6363..6364
+original 377..378 -> expanded 5013..5014
+original 378..379 -> expanded 6779..6780
 generated 0..611 <- imports
 generated 988..1375 <- Debug
-generated 1375..1691 <- PartialEq
-generated 1691..2341 <- Hash
-generated 2341..4262 <- Encode
-generated 4262..4597 <- Encode
-generated 4598..4716 <- Debug
-generated 4716..4845 <- PartialEq
-generated 4845..4963 <- Hash
-generated 4963..6363 <- Encode
+generated 1375..1846 <- PartialEq
+generated 1846..2496 <- Hash
+generated 2496..4678 <- Encode
+generated 4678..5013 <- Encode
+generated 5014..5132 <- Debug
+generated 5132..5261 <- PartialEq
+generated 5261..5379 <- Hash
+generated 5379..6779 <- Encode
 
 ## Metadata
 

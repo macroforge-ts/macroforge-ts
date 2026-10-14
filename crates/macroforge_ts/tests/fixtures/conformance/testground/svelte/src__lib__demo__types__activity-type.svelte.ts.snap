@@ -18,7 +18,7 @@ import { editedDecodeWithContext, editedHasShape, editedEncodeWithContext, edite
 import { paidDecodeWithContext, paidHasShape, paidEncodeWithContext, paidDefaultValue } from "./paid.svelte";
 import { sentDecodeWithContext, sentHasShape, sentEncodeWithContext, sentDefaultValue } from "./sent.svelte";
 import { viewedDecodeWithContext, viewedHasShape, viewedEncodeWithContext, viewedDefaultValue } from "./viewed.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,32 +54,22 @@ export function activityTypeEncode(value: ActivityType, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "Created") { __variant = createdEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Edited") { __variant = editedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Sent") { __variant = sentEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Viewed") { __variant = viewedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Commented") { __variant = commentedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Paid") { __variant = paidEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && createdHasShape(value)) { __variant = createdEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && editedHasShape(value)) { __variant = editedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && sentHasShape(value)) { __variant = sentEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && viewedHasShape(value)) { __variant = viewedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && commentedHasShape(value)) { __variant = commentedEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && paidHasShape(value)) { __variant = paidEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: ActivityType): member is Created => __mf_member(member, "__type") === "Created", (member) => createdEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Edited => __mf_member(member, "__type") === "Edited", (member) => editedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Sent => __mf_member(member, "__type") === "Sent", (member) => sentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Viewed => __mf_member(member, "__type") === "Viewed", (member) => viewedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Commented => __mf_member(member, "__type") === "Commented", (member) => commentedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Paid => __mf_member(member, "__type") === "Paid", (member) => paidEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Created => typeof member === "object" && member !== null && !Array.isArray(member) && "initialData" in member, (member) => createdEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Edited => typeof member === "object" && member !== null && !Array.isArray(member) && "fieldName" in member && "oldValue" in member && "newValue" in member, (member) => editedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Sent => typeof member === "object" && member !== null && !Array.isArray(member) && "recipient" in member && "method" in member, (member) => sentEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Viewed => typeof member === "object" && member !== null && !Array.isArray(member) && "durationSeconds" in member && "source" in member, (member) => viewedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Commented => typeof member === "object" && member !== null && !Array.isArray(member) && "comment" in member && "replyTo" in member, (member) => commentedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ActivityType): member is Paid => typeof member === "object" && member !== null && !Array.isArray(member) && "amount" in member && "currency" in member && "paymentMethod" in member, (member) => paidEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -638,15 +628,15 @@ export declare const ActivityType: {
 
 ## Mapping
 
-original 0..341 -> expanded 1359..1700
-original 390..512 -> expanded 1700..1822
-original 512..513 -> expanded 20133..20134
-generated 0..1359 <- imports
-generated 1822..1918 <- Default
-generated 1918..5010 <- Encode
-generated 5010..12195 <- Decode
-generated 12195..19267 <- Gigaform
-generated 19267..20133 <- __convenience_const
+original 0..341 -> expanded 1429..1770
+original 390..512 -> expanded 1770..1892
+original 512..513 -> expanded 20919..20920
+generated 0..1429 <- imports
+generated 1892..1988 <- Default
+generated 1988..5796 <- Encode
+generated 5796..12981 <- Decode
+generated 12981..20053 <- Gigaform
+generated 20053..20919 <- __convenience_const
 
 ## Metadata
 

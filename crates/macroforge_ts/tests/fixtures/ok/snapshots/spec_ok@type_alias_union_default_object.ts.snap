@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, decodeNumber as __mf_decodeNumber, decodeBoolean as __mf_decodeBoolean, parsedText as __mf_parsedText, member as __mf_member, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, decodeNumber as __mf_decodeNumber, decodeBoolean as __mf_decodeBoolean, parsedText as __mf_parsedText, member as __mf_member, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export type PropValue =
@@ -50,65 +50,129 @@ export function propValueEncode(value: PropValue, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "String") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Number") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Boolean") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Json") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Asset") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Page") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Expression") {
-        const result: Record<string, unknown> = {};
-        result["type"] = value.type;
-        result["value"] = value.value;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "String")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "Number")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "Boolean")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "Json")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "Asset")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "Page")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: PropValue): unknown => {
+            if (!(typeof value === "object" && value !== null && "type" in value && value["type"] === "Expression")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["type"] = value.type;
+                },
+                () => {
+                    result["value"] = value.value;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -185,26 +249,18 @@ export function propValueDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     if (typeof value === "object" && value !== null) {
         const __typeName = __mf_member(value, "type");
         if (typeof __typeName === "string") {
-            if (__typeName === "String") {
-                return { "type": "String", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
-            }
-            if (__typeName === "Number") {
-                return { "type": "Number", ...__mf_decodeObject(value, ctx, { value: __mf_decodeNumber }) } as PropValue;
-            }
-            if (__typeName === "Boolean") {
-                return { "type": "Boolean", ...__mf_decodeObject(value, ctx, { value: __mf_decodeBoolean }) } as PropValue;
-            }
-            if (__typeName === "Json") {
-                return { "type": "Json", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
-            }
-            if (__typeName === "Asset") {
-                return { "type": "Asset", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
-            }
-            if (__typeName === "Page") {
-                return { "type": "Page", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
-            }
-            if (__typeName === "Expression") {
-                return { "type": "Expression", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "String" ? { "type": "String", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Number" ? { "type": "Number", ...__mf_decodeObject(value, ctx, { value: __mf_decodeNumber }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Boolean" ? { "type": "Boolean", ...__mf_decodeObject(value, ctx, { value: __mf_decodeBoolean }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Json" ? { "type": "Json", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Asset" ? { "type": "Asset", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Page" ? { "type": "Page", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Expression" ? { "type": "Expression", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as PropValue;
             }
         }
     }
@@ -380,13 +436,13 @@ export declare const PropValue: {
 
 ## Mapping
 
-original 88..410 -> expanded 622..944
-original 410..411 -> expanded 11382..11383
-generated 0..622 <- imports
-generated 944..1046 <- Default
-generated 1046..4590 <- Encode
-generated 4590..10207 <- Decode
-generated 10207..11382 <- __convenience_const
+original 88..410 -> expanded 764..1086
+original 410..411 -> expanded 13517..13518
+generated 0..764 <- imports
+generated 1086..1188 <- Default
+generated 1188..6590 <- Encode
+generated 6590..12342 <- Decode
+generated 12342..13517 <- __convenience_const
 
 ## Metadata
 

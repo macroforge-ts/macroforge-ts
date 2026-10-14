@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,20 +62,30 @@ export function colorEncodePartialWithContext(value: Partial<Color>, ctx: __mf_E
 }
 
 function colorEncodeFields(value: Color, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("red")) {
-        if (value.red !== undefined) {
-            result["red"] = value.red;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("green")) {
-        if (value.green !== undefined) {
-            result["green"] = value.green;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("blue")) {
-        if (value.blue !== undefined) {
-            result["blue"] = value.blue;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("red")) {
+                if (value.red !== undefined) {
+                    result["red"] = value.red;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("green")) {
+                if (value.green !== undefined) {
+                    result["green"] = value.green;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("blue")) {
+                if (value.blue !== undefined) {
+                    result["blue"] = value.blue;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -153,14 +163,12 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("red")) && !("red" in obj)) {
-        errors.push({ field: "red", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("green")) && !("green" in obj)) {
-        errors.push({ field: "green", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("blue")) && !("blue" in obj)) {
-        errors.push({ field: "blue", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["red", "red"], ["green", "green"], ["blue", "blue"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -171,32 +179,42 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("red")) ? "red" in obj : (__fields.keeps("red") && obj["red"] !== undefined)) {
-        const __raw_red = obj["red"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("red")) ? "red" in obj : (__fields.keeps("red") && obj["red"] !== undefined)) {
+                const __raw_red = obj["red"] as number;
 
-        if (!(typeof __raw_red === "number" && globalThis.Number.isFinite(__raw_red))) {
-            errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
-        } else {
-            instance.red = __raw_red;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("green")) ? "green" in obj : (__fields.keeps("green") && obj["green"] !== undefined)) {
-        const __raw_green = obj["green"] as number;
+                if (!(typeof __raw_red === "number" && globalThis.Number.isFinite(__raw_red))) {
+                    errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
+                } else {
+                    instance.red = __raw_red;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("green")) ? "green" in obj : (__fields.keeps("green") && obj["green"] !== undefined)) {
+                const __raw_green = obj["green"] as number;
 
-        if (!(typeof __raw_green === "number" && globalThis.Number.isFinite(__raw_green))) {
-            errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
-        } else {
-            instance.green = __raw_green;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("blue")) ? "blue" in obj : (__fields.keeps("blue") && obj["blue"] !== undefined)) {
-        const __raw_blue = obj["blue"] as number;
+                if (!(typeof __raw_green === "number" && globalThis.Number.isFinite(__raw_green))) {
+                    errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
+                } else {
+                    instance.green = __raw_green;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("blue")) ? "blue" in obj : (__fields.keeps("blue") && obj["blue"] !== undefined)) {
+                const __raw_blue = obj["blue"] as number;
 
-        if (!(typeof __raw_blue === "number" && globalThis.Number.isFinite(__raw_blue))) {
-            errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
-        } else {
-            instance.blue = __raw_blue;
-        }
+                if (!(typeof __raw_blue === "number" && globalThis.Number.isFinite(__raw_blue))) {
+                    errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
+                } else {
+                    instance.blue = __raw_blue;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -221,7 +239,7 @@ export function colorHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "red") && __mf_holds(obj, "green") && __mf_holds(obj, "blue");
+    return __mf_holdsAll(obj, ["red", "green", "blue"]);
 }
 
 export function colorIs(obj: unknown): obj is Color {
@@ -526,15 +544,15 @@ export declare const Color: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..188 -> expanded 896..977
-original 188..189 -> expanded 16976..16977
-generated 0..838 <- imports
-generated 977..1096 <- Default
-generated 1096..3494 <- Encode
-generated 3494..10047 <- Decode
-generated 10047..15791 <- Gigaform
-generated 15791..16976 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..188 -> expanded 902..983
+original 188..189 -> expanded 17405..17406
+generated 0..844 <- imports
+generated 983..1102 <- Default
+generated 1102..3761 <- Encode
+generated 3761..10476 <- Decode
+generated 10476..16220 <- Gigaform
+generated 16220..17405 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Coordinate = {
@@ -44,7 +44,12 @@ export function coordinateClone(value: Coordinate): Coordinate {
 
 export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.lat === b.lat || a.lat !== a.lat && b.lat !== b.lat) && (a.lng === b.lng || a.lng !== a.lng && b.lng !== b.lng));
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.lat === b.lat || a.lat !== a.lat && b.lat !== b.lat,
+        () => a.lng === b.lng || a.lng !== a.lng && b.lng !== b.lng,
+    ].every((same) => same());
+});
 }
 
 export function coordinateHashCode(value: Coordinate): number {
@@ -84,15 +89,23 @@ export function coordinateEncodePartialWithContext(value: Partial<Coordinate>, c
 }
 
 function coordinateEncodeFields(value: Coordinate, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("lat")) {
-        if (value.lat !== undefined) {
-            result["lat"] = value.lat;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lng")) {
-        if (value.lng !== undefined) {
-            result["lng"] = value.lng;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("lat")) {
+                if (value.lat !== undefined) {
+                    result["lat"] = value.lat;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lng")) {
+                if (value.lng !== undefined) {
+                    result["lng"] = value.lng;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -170,11 +183,12 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("lat")) && !("lat" in obj)) {
-        errors.push({ field: "lat", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lng")) && !("lng" in obj)) {
-        errors.push({ field: "lng", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["lat", "lat"], ["lng", "lng"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -185,23 +199,31 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
-        const __raw_lat = obj["lat"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
+                const __raw_lat = obj["lat"] as number;
 
-        if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
-            errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
-        } else {
-            instance.lat = __raw_lat;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
-        const __raw_lng = obj["lng"] as number;
+                if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
+                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
+                } else {
+                    instance.lat = __raw_lat;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
+                const __raw_lng = obj["lng"] as number;
 
-        if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
-            errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
-        } else {
-            instance.lng = __raw_lng;
-        }
+                if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
+                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
+                } else {
+                    instance.lng = __raw_lng;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -226,7 +248,7 @@ export function coordinateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "lat") && __mf_holds(obj, "lng");
+    return __mf_holdsAll(obj, ["lat", "lng"]);
 }
 
 export function coordinateIs(obj: unknown): obj is Coordinate {
@@ -316,16 +338,16 @@ export {};
 
 ## Mapping
 
-original 61..118 -> expanded 863..920
-original 118..119 -> expanded 11812..11813
-generated 0..863 <- imports
-generated 920..1225 <- Debug
-generated 1225..1386 <- Clone
-generated 1386..1650 <- PartialEq
-generated 1650..2147 <- Hash
-generated 2147..4455 <- Encode
-generated 4455..10479 <- Decode
-generated 10479..11812 <- __convenience_const
+original 61..118 -> expanded 869..926
+original 118..119 -> expanded 12323..12324
+generated 0..869 <- imports
+generated 926..1231 <- Debug
+generated 1231..1392 <- Clone
+generated 1392..1727 <- PartialEq
+generated 1727..2224 <- Hash
+generated 2224..4726 <- Encode
+generated 4726..10990 <- Decode
+generated 10990..12323 <- __convenience_const
 
 ## Metadata
 

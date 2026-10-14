@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -110,32 +110,12 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
-        errors.push({ field: "age", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("mode")) && !("mode" in obj)) {
-        errors.push({ field: "mode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nickname")) && !("nickname" in obj)) {
-        errors.push({ field: "nickname", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("height")) && !("height" in obj)) {
-        errors.push({ field: "height", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
-        errors.push({ field: "site", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["age", "age"], ["active", "active"], ["kind", "kind"], ["mode", "mode"], ["nickname", "nickname"], ["height", "height"], ["balance", "balance"], ["site", "site"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -146,112 +126,138 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Profile.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
-        const __raw_age = obj["age"] as number;
-
-        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
-            errors.push({ field: "age", message: __raw_age == null ? "Profile.age is required" : "expected number" });
-        } else {
-            instance.age = __raw_age;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
-
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "Profile.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as 'user';
-
-        if (!(__raw_kind === "user")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "Profile.kind is required" : "expected 'user'" });
-        } else {
-            instance.kind = __raw_kind;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("mode")) ? "mode" in obj : (__fields.keeps("mode") && obj["mode"] !== undefined)) {
-        const __raw_mode = obj["mode"] as 'light' | 'dark';
-
-        if (!(__raw_mode === "light" || __raw_mode === "dark")) {
-            errors.push({ field: "mode", message: __raw_mode == null ? "Profile.mode is required" : "expected 'light' | 'dark'" });
-        } else {
-            instance.mode = __raw_mode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nickname")) ? "nickname" in obj : (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
-        const __raw_nickname = obj["nickname"] as string | null;
-
-        if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
-            errors.push({ field: "nickname", message: "expected string | null" });
-        } else {
-            instance.nickname = __raw_nickname;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("bio"))) {
-        if (("bio" in obj && obj["bio"] !== undefined)) {
-            const __raw_bio = obj["bio"] as string;
-
-            if (!(typeof __raw_bio === "string")) {
-                errors.push({ field: "bio", message: "expected string" });
-            } else {
-                instance.bio = __raw_bio;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Profile.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
-        const __raw_rank = obj["rank"] as number | undefined;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
+                const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank) || __raw_rank === undefined)) {
-            errors.push({ field: "rank", message: "expected number | undefined" });
-        } else {
-            instance.rank = __raw_rank;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("height")) ? "height" in obj : (__fields.keeps("height") && obj["height"] !== undefined)) {
-        const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
+                if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                    errors.push({ field: "age", message: __raw_age == null ? "Profile.age is required" : "expected number" });
+                } else {
+                    instance.age = __raw_age;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
 
-        if (!(typeof __raw_height === "number" && globalThis.Number.isFinite(__raw_height))) {
-            errors.push({ field: "height", message: __raw_height == null ? "Profile.height is required" : "expected number & { readonly [__mf_newtype_1]: true }" });
-        } else {
-            instance.height = __raw_height;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        try {
-            instance.balance = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(obj["balance"]);
-        } catch (__error) {
-            errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
-        try {
-            instance.site = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
-        	return new URL(raw);
-        })(obj["site"]);
-        } catch (__error) {
-            errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
-        }
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "Profile.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as 'user';
+
+                if (!(__raw_kind === "user")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "Profile.kind is required" : "expected 'user'" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mode")) ? "mode" in obj : (__fields.keeps("mode") && obj["mode"] !== undefined)) {
+                const __raw_mode = obj["mode"] as 'light' | 'dark';
+
+                if (!(__raw_mode === "light" || __raw_mode === "dark")) {
+                    errors.push({ field: "mode", message: __raw_mode == null ? "Profile.mode is required" : "expected 'light' | 'dark'" });
+                } else {
+                    instance.mode = __raw_mode;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nickname")) ? "nickname" in obj : (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
+                const __raw_nickname = obj["nickname"] as string | null;
+
+                if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
+                    errors.push({ field: "nickname", message: "expected string | null" });
+                } else {
+                    instance.nickname = __raw_nickname;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("bio"))) {
+                if (("bio" in obj && obj["bio"] !== undefined)) {
+                    const __raw_bio = obj["bio"] as string;
+
+                    if (!(typeof __raw_bio === "string")) {
+                        errors.push({ field: "bio", message: "expected string" });
+                    } else {
+                        instance.bio = __raw_bio;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+                const __raw_rank = obj["rank"] as number | undefined;
+
+                if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank) || __raw_rank === undefined)) {
+                    errors.push({ field: "rank", message: "expected number | undefined" });
+                } else {
+                    instance.rank = __raw_rank;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("height")) ? "height" in obj : (__fields.keeps("height") && obj["height"] !== undefined)) {
+                const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
+
+                if (!(typeof __raw_height === "number" && globalThis.Number.isFinite(__raw_height))) {
+                    errors.push({ field: "height", message: __raw_height == null ? "Profile.height is required" : "expected number & { readonly [__mf_newtype_1]: true }" });
+                } else {
+                    instance.height = __raw_height;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                try {
+                    instance.balance = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(obj["balance"]);
+                } catch (__error) {
+                    errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
+                try {
+                    instance.site = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+                	return new URL(raw);
+                })(obj["site"]);
+                } catch (__error) {
+                    errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -276,7 +282,7 @@ export function profileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "age") && __mf_holds(obj, "active") && __mf_holds(obj, "kind") && __mf_holds(obj, "mode") && __mf_holds(obj, "nickname") && __mf_holds(obj, "height") && __mf_holds(obj, "balance") && __mf_holds(obj, "site");
+    return __mf_holdsAll(obj, ["name", "age", "active", "kind", "mode", "nickname", "height", "balance", "site"]);
 }
 
 export function profileIs(obj: unknown): obj is Profile {
@@ -654,29 +660,29 @@ export {};
 
 ## Mapping
 
-original 0..373 -> expanded 626..999
-original 389..428 -> expanded 1043..1082
-original 428..535 -> expanded 13516..13623
-original 535..601 -> expanded 17180..17246
-original 617..618 -> expanded 17290..17291
-original 618..619 -> expanded 21279..21280
-generated 0..536 <- imports
-generated 536..581 <- $Newtype
-generated 581..626 <- $Newtype
-generated 999..1043 <- $Newtype
-generated 1082..12853 <- Decode
-generated 12853..13516 <- __convenience_const
-generated 13623..14331 <- Encode
-generated 14331..16243 <- Decode
-generated 16243..16437 <- Hash
-generated 16437..16540 <- Debug
-generated 16540..17180 <- __convenience_const
-generated 17246..17290 <- $Newtype
-generated 17291..18031 <- Encode
-generated 18031..20402 <- Decode
-generated 20402..20556 <- Hash
-generated 20556..20656 <- Debug
-generated 20656..21279 <- __convenience_const
+original 0..373 -> expanded 632..1005
+original 389..428 -> expanded 1049..1088
+original 428..535 -> expanded 13480..13587
+original 535..601 -> expanded 17144..17210
+original 617..618 -> expanded 17254..17255
+original 618..619 -> expanded 21243..21244
+generated 0..542 <- imports
+generated 542..587 <- $Newtype
+generated 587..632 <- $Newtype
+generated 1005..1049 <- $Newtype
+generated 1088..12817 <- Decode
+generated 12817..13480 <- __convenience_const
+generated 13587..14295 <- Encode
+generated 14295..16207 <- Decode
+generated 16207..16401 <- Hash
+generated 16401..16504 <- Debug
+generated 16504..17144 <- __convenience_const
+generated 17210..17254 <- $Newtype
+generated 17255..17995 <- Encode
+generated 17995..20366 <- Decode
+generated 20366..20520 <- Hash
+generated 20520..20620 <- Debug
+generated 20620..21243 <- __convenience_const
 
 ## Metadata
 

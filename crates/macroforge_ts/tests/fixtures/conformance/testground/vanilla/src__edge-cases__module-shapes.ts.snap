@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Declarations by where and how a module writes them: types it keeps to
@@ -40,7 +40,9 @@ export function modulePrivateClone(value: ModulePrivate): ModulePrivate {
 
 export function modulePrivateEquals(a: ModulePrivate, b: ModulePrivate): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.a === b.a);
+    return __mf_equalWithin(a, b, () => {
+        return a.a === b.a;
+    });
 }
 
 export function modulePrivateHashCode(value: ModulePrivate): number {
@@ -166,8 +168,12 @@ export function modulePrivateDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("a")) && !("a" in obj)) {
-        errors.push({ field: "a", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["a", "a"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -210,7 +216,7 @@ export function modulePrivateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "a");
+    return __mf_holdsAll(obj, ["a"]);
 }
 
 export function modulePrivateIs(obj: unknown): obj is ModulePrivate {
@@ -269,7 +275,9 @@ class ModulePrivateClass {
 
     static equals(a: ModulePrivateClass, b: ModulePrivateClass): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.a === b.a);
+        return __mf_equalWithin(a, b, () => {
+                return a.a === b.a;
+            });
     }
 
     static hashCode(value: ModulePrivateClass): number {
@@ -400,8 +408,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("a")) && !("a" in obj)) {
-        errors.push({ field: "a", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["a", "a"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModulePrivateClass.prototype);
@@ -440,7 +452,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "a");
+    return __mf_holdsAll(obj, ["a"]);
 }
 
 static is(obj: unknown): obj is ModulePrivateClass {
@@ -533,7 +545,9 @@ export function modulePrivateAliasClone(value: ModulePrivateAlias): ModulePrivat
 
 export function modulePrivateAliasEquals(a: ModulePrivateAlias, b: ModulePrivateAlias): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.a === b.a);
+    return __mf_equalWithin(a, b, () => {
+    return a.a === b.a;
+});
 }
 
 export function modulePrivateAliasHashCode(value: ModulePrivateAlias): number {
@@ -659,8 +673,12 @@ export function modulePrivateAliasDecodeWithContext(value: unknown, ctx: __mf_De
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("a")) && !("a" in obj)) {
-        errors.push({ field: "a", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["a", "a"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -703,7 +721,7 @@ export function modulePrivateAliasHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "a");
+    return __mf_holdsAll(obj, ["a"]);
 }
 
 export function modulePrivateAliasIs(obj: unknown): obj is ModulePrivateAlias {
@@ -877,7 +895,9 @@ export function moduleLaterClone(value: ModuleLater): ModuleLater {
 
 export function moduleLaterEquals(a: ModuleLater, b: ModuleLater): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.a === b.a);
+    return __mf_equalWithin(a, b, () => {
+        return a.a === b.a;
+    });
 }
 
 export function moduleLaterHashCode(value: ModuleLater): number {
@@ -997,8 +1017,12 @@ export function moduleLaterDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("a")) && !("a" in obj)) {
-        errors.push({ field: "a", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["a", "a"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1041,7 +1065,7 @@ export function moduleLaterHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "a");
+    return __mf_holdsAll(obj, ["a"]);
 }
 
 export function moduleLaterIs(obj: unknown): obj is ModuleLater {
@@ -1109,7 +1133,9 @@ export class ModuleStatics {
 
     static equals(a: ModuleStatics, b: ModuleStatics): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name);
+        return __mf_equalWithin(a, b, () => {
+                return a.name === b.name;
+            });
     }
 
     static hashCode(value: ModuleStatics): number {
@@ -1240,8 +1266,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleStatics.prototype);
@@ -1280,7 +1310,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 static is(obj: unknown): obj is ModuleStatics {
@@ -1383,7 +1413,9 @@ export class ModuleImplements implements ModuleNamed {
 
     static equals(a: ModuleImplements, b: ModuleImplements): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name);
+        return __mf_equalWithin(a, b, () => {
+                return a.name === b.name;
+            });
     }
 
     static hashCode(value: ModuleImplements): number {
@@ -1514,8 +1546,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleImplements.prototype);
@@ -1554,7 +1590,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 static is(obj: unknown): obj is ModuleImplements {
@@ -1648,7 +1684,9 @@ export class ModuleBase<T> {
 
     static equals<T>(a: ModuleBase<T>, b: ModuleBase<T>): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held));
+        return __mf_equalWithin(a, b, () => {
+                return __mf_structuralEquals(a.held, b.held);
+            });
     }
 
     static hashCode<T>(value: ModuleBase<T>): number {
@@ -1779,8 +1817,12 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
-        errors.push({ field: "held", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleBase.prototype);
@@ -1837,7 +1879,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "held");
+    return __mf_holdsAll(obj, ["held"]);
 }
 
 static is<T>(obj: unknown): obj is ModuleBase<T> {
@@ -1940,7 +1982,12 @@ export class ModuleExtendsPlain extends ModulePlainBase {
 
     static equals(a: ModuleExtendsPlain, b: ModuleExtendsPlain): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.plain === b.plain && (a.extra === b.extra || a.extra !== a.extra && b.extra !== b.extra));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.plain === b.plain,
+                    () => a.extra === b.extra || a.extra !== a.extra && b.extra !== b.extra,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ModuleExtendsPlain): number {
@@ -1981,15 +2028,23 @@ static encodePartialWithContext(value: Partial<ModuleExtendsPlain>, ctx: __mf_En
 }
 
 static #encodeFields(value: ModuleExtendsPlain, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("plain")) {
-        if (value.plain !== undefined) {
-            result["plain"] = value.plain;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("extra")) {
-        if (value.extra !== undefined) {
-            result["extra"] = value.extra;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("plain")) {
+                if (value.plain !== undefined) {
+                    result["plain"] = value.plain;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("extra")) {
+                if (value.extra !== undefined) {
+                    result["extra"] = value.extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2079,11 +2134,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("plain")) && !("plain" in obj)) {
-        errors.push({ field: "plain", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
-        errors.push({ field: "extra", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["plain", "plain"], ["extra", "extra"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleExtendsPlain.prototype);
@@ -2094,23 +2150,31 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
-        const __raw_plain = obj["plain"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+                const __raw_plain = obj["plain"] as string;
 
-        if (!(typeof __raw_plain === "string")) {
-            errors.push({ field: "plain", message: __raw_plain == null ? "ModuleExtendsPlain.plain is required" : "expected string" });
-        } else {
-            instance.plain = __raw_plain;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
-        const __raw_extra = obj["extra"] as number;
+                if (!(typeof __raw_plain === "string")) {
+                    errors.push({ field: "plain", message: __raw_plain == null ? "ModuleExtendsPlain.plain is required" : "expected string" });
+                } else {
+                    instance.plain = __raw_plain;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+                const __raw_extra = obj["extra"] as number;
 
-        if (!(typeof __raw_extra === "number" && globalThis.Number.isFinite(__raw_extra))) {
-            errors.push({ field: "extra", message: __raw_extra == null ? "ModuleExtendsPlain.extra is required" : "expected number" });
-        } else {
-            instance.extra = __raw_extra;
-        }
+                if (!(typeof __raw_extra === "number" && globalThis.Number.isFinite(__raw_extra))) {
+                    errors.push({ field: "extra", message: __raw_extra == null ? "ModuleExtendsPlain.extra is required" : "expected number" });
+                } else {
+                    instance.extra = __raw_extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2131,7 +2195,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "plain") && __mf_holds(obj, "extra");
+    return __mf_holdsAll(obj, ["plain", "extra"]);
 }
 
 static is(obj: unknown): obj is ModuleExtendsPlain {
@@ -2231,7 +2295,9 @@ export class ModuleOverloads {
 
     static equals(a: ModuleOverloads, b: ModuleOverloads): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name);
+        return __mf_equalWithin(a, b, () => {
+                return a.name === b.name;
+            });
     }
 
     static hashCode(value: ModuleOverloads): number {
@@ -2362,8 +2428,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleOverloads.prototype);
@@ -2402,7 +2472,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 static is(obj: unknown): obj is ModuleOverloads {
@@ -2497,7 +2567,9 @@ export abstract class ModuleAbstract {
 
     static equals(a: ModuleAbstract, b: ModuleAbstract): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name);
+        return __mf_equalWithin(a, b, () => {
+                return a.name === b.name;
+            });
     }
 
     static hashCode(value: ModuleAbstract): number {
@@ -2628,8 +2700,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleAbstract.prototype);
@@ -2668,7 +2744,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 static is(obj: unknown): obj is ModuleAbstract {
@@ -2771,10 +2847,16 @@ export class ModuleOptionalMethods {
 
     static equals(a: ModuleOptionalMethods, b: ModuleOptionalMethods): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
-        	const __other0 = b.tags[__index0];
-        	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-        }) && __mf_structuralEquals(a.pair, b.pair));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
+                    	const __other0 = b.tags[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+                    }),
+                    () => __mf_structuralEquals(a.pair, b.pair),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ModuleOptionalMethods): number {
@@ -2817,20 +2899,30 @@ static encodePartialWithContext(value: Partial<ModuleOptionalMethods>, ctx: __mf
 }
 
 static #encodeFields(value: ModuleOptionalMethods, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2921,14 +3013,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["tags", "tags"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ModuleOptionalMethods.prototype);
@@ -2939,62 +3029,72 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "ModuleOptionalMethods.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as readonly string[];
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "ModuleOptionalMethods.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as readonly string[];
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "ModuleOptionalMethods.tags is required" : "expected readonly string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "ModuleOptionalMethods.tags is required" : "expected readonly string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as readonly [string, number];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as readonly [string, number];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "ModuleOptionalMethods.pair is required" : "expected readonly [string, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "ModuleOptionalMethods.pair is required" : "expected readonly [string, number]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -3015,7 +3115,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "tags") && __mf_holds(obj, "pair");
+    return __mf_holdsAll(obj, ["name", "tags", "pair"]);
 }
 
 static is(obj: unknown): obj is ModuleOptionalMethods {
@@ -3898,181 +3998,181 @@ export declare function moduleOptionalMethodsIs(value: unknown): value is Module
 
 ## Mapping
 
-original 0..345 -> expanded 1277..1622
-original 345..465 -> expanded 11703..11823
-original 465..466 -> expanded 19874..19875
-original 466..579 -> expanded 23908..24021
-original 579..744 -> expanded 34567..34732
-original 744..1215 -> expanded 38769..39240
-original 1215..1538 -> expanded 48942..49265
-original 1538..1539 -> expanded 57212..57213
-original 1539..1824 -> expanded 61036..61321
-original 1824..1825 -> expanded 69388..69389
-original 1825..1954 -> expanded 73338..73467
-original 1954..1955 -> expanded 82489..82490
-original 1955..2169 -> expanded 86544..86758
-original 2169..2170 -> expanded 96244..96245
-original 2170..2451 -> expanded 100278..100559
-original 2451..2452 -> expanded 108586..108587
-original 2452..2616 -> expanded 112494..112658
-original 2616..2617 -> expanded 120645..120646
-original 2617..2872 -> expanded 124511..124766
-original 2872..2873 -> expanded 136905..136906
-original 2873..2874 -> expanded 141065..141066
-generated 0..1277 <- imports
-generated 1622..1887 <- Debug
-generated 1887..2038 <- Clone
-generated 2038..2208 <- PartialEq
-generated 2208..2493 <- Hash
-generated 2493..2592 <- Default
-generated 2592..4784 <- Encode
-generated 4784..10181 <- Decode
-generated 10181..11703 <- __convenience_const
-generated 11823..12104 <- Debug
-generated 12104..12240 <- Clone
-generated 12240..12414 <- PartialEq
-generated 12414..12710 <- Hash
-generated 12710..12905 <- Default
-generated 12905..14524 <- Encode
-generated 14524..14867 <- Encode
-generated 14867..19874 <- Decode
-generated 19875..20005 <- Debug
-generated 20005..20141 <- Clone
-generated 20141..20286 <- PartialEq
-generated 20286..20416 <- Hash
-generated 20416..20536 <- Default
-generated 20536..21976 <- Encode
-generated 21976..23908 <- Decode
-generated 24021..24301 <- Debug
-generated 24301..24472 <- Clone
-generated 24472..24657 <- PartialEq
-generated 24657..24952 <- Hash
-generated 24952..25061 <- Default
-generated 25061..27328 <- Encode
-generated 27328..32890 <- Decode
-generated 32890..34567 <- __convenience_const
-generated 34732..35076 <- Debug
-generated 35076..35183 <- Clone
-generated 35183..35301 <- PartialEq
-generated 35301..35478 <- Hash
-generated 35478..35711 <- PartialOrd
-generated 35711..35930 <- Ord
-generated 35930..36034 <- Default
-generated 36034..36510 <- Encode
-generated 36510..37656 <- Decode
-generated 37656..38769 <- __convenience_const
-generated 39240..39499 <- Debug
-generated 39499..39642 <- Clone
-generated 39642..39806 <- PartialEq
-generated 39806..40087 <- Hash
-generated 40087..42249 <- Encode
-generated 42249..47580 <- Decode
-generated 47580..48942 <- __convenience_const
-generated 49265..49542 <- Debug
-generated 49542..49674 <- Clone
-generated 49674..49844 <- PartialEq
-generated 49844..50138 <- Hash
-generated 50138..50329 <- Default
-generated 50329..51915 <- Encode
-generated 51915..52248 <- Encode
-generated 52248..57212 <- Decode
-generated 57213..57328 <- Debug
-generated 57328..57444 <- Clone
-generated 57444..57569 <- PartialEq
-generated 57569..57684 <- Hash
-generated 57684..57789 <- Default
-generated 57789..59179 <- Encode
-generated 59179..61036 <- Decode
-generated 61321..61604 <- Debug
-generated 61604..61742 <- Clone
-generated 61742..61918 <- PartialEq
-generated 61918..62215 <- Hash
-generated 62215..62412 <- Default
-generated 62412..64025 <- Encode
-generated 64025..64364 <- Encode
-generated 64364..69388 <- Decode
-generated 69389..69513 <- Debug
-generated 69513..69641 <- Clone
-generated 69641..69778 <- PartialEq
-generated 69778..69902 <- Hash
-generated 69902..70016 <- Default
-generated 70016..71436 <- Encode
-generated 71436..73338 <- Decode
-generated 73467..73758 <- Debug
-generated 73758..73915 <- Clone
-generated 73915..74108 <- PartialEq
-generated 74108..74350 <- Hash
-generated 74350..74545 <- Default
-generated 74545..76328 <- Encode
-generated 76328..76701 <- Encode
-generated 76701..82489 <- Decode
-generated 82490..82605 <- Debug
-generated 82605..82721 <- Clone
-generated 82721..82846 <- PartialEq
-generated 82846..82961 <- Hash
-generated 82961..83066 <- Default
-generated 83066..84573 <- Encode
-generated 84573..86544 <- Decode
-generated 86758..87109 <- Debug
-generated 87109..87299 <- Clone
-generated 87299..87552 <- PartialEq
-generated 87552..88029 <- Hash
-generated 88029..88270 <- Default
-generated 88270..90066 <- Encode
-generated 90066..90409 <- Encode
-generated 90409..96244 <- Decode
-generated 96245..96375 <- Debug
-generated 96375..96511 <- Clone
-generated 96511..96656 <- PartialEq
-generated 96656..96786 <- Hash
-generated 96786..96906 <- Default
-generated 96906..98346 <- Encode
-generated 98346..100278 <- Decode
-generated 100559..100840 <- Debug
-generated 100840..100976 <- Clone
-generated 100976..101150 <- PartialEq
-generated 101150..101446 <- Hash
-generated 101446..101641 <- Default
-generated 101641..103245 <- Encode
-generated 103245..103582 <- Encode
-generated 103582..108586 <- Decode
-generated 108587..108708 <- Debug
-generated 108708..108832 <- Clone
-generated 108832..108965 <- PartialEq
-generated 108965..109086 <- Hash
-generated 109086..109197 <- Default
-generated 109197..110607 <- Encode
-generated 110607..112494 <- Decode
-generated 112658..112937 <- Debug
-generated 112937..113071 <- Clone
-generated 113071..113243 <- PartialEq
-generated 113243..113538 <- Hash
-generated 113538..113731 <- Default
-generated 113731..115326 <- Encode
-generated 115326..115661 <- Encode
-generated 115661..120645 <- Decode
-generated 120646..120764 <- Debug
-generated 120764..120884 <- Clone
-generated 120884..121013 <- PartialEq
-generated 121013..121131 <- Hash
-generated 121131..121239 <- Default
-generated 121239..122639 <- Encode
-generated 122639..124511 <- Decode
-generated 124766..125189 <- Debug
-generated 125189..125435 <- Clone
-generated 125435..125880 <- PartialEq
-generated 125880..126441 <- Hash
-generated 126441..126756 <- Default
-generated 126756..128728 <- Encode
-generated 128728..129077 <- Encode
-generated 129077..136905 <- Decode
-generated 136906..137045 <- Debug
-generated 137045..137193 <- Clone
-generated 137193..137350 <- PartialEq
-generated 137350..137489 <- Hash
-generated 137489..137618 <- Default
-generated 137618..139088 <- Encode
-generated 139088..141065 <- Decode
+original 0..345 -> expanded 1283..1628
+original 345..465 -> expanded 11899..12019
+original 465..466 -> expanded 20276..20277
+original 466..579 -> expanded 24310..24423
+original 579..744 -> expanded 35151..35316
+original 744..1215 -> expanded 39353..39824
+original 1215..1538 -> expanded 49716..50039
+original 1538..1539 -> expanded 58189..58190
+original 1539..1824 -> expanded 62013..62298
+original 1824..1825 -> expanded 70568..70569
+original 1825..1954 -> expanded 74518..74647
+original 1954..1955 -> expanded 83872..83873
+original 1955..2169 -> expanded 87927..88141
+original 2169..2170 -> expanded 98190..98191
+original 2170..2451 -> expanded 102224..102505
+original 2451..2452 -> expanded 110735..110736
+original 2452..2616 -> expanded 114643..114807
+original 2616..2617 -> expanded 122997..122998
+original 2617..2872 -> expanded 126863..127118
+original 2872..2873 -> expanded 140131..140132
+original 2873..2874 -> expanded 144291..144292
+generated 0..1283 <- imports
+generated 1628..1893 <- Debug
+generated 1893..2044 <- Clone
+generated 2044..2238 <- PartialEq
+generated 2238..2523 <- Hash
+generated 2523..2622 <- Default
+generated 2622..4814 <- Encode
+generated 4814..10377 <- Decode
+generated 10377..11899 <- __convenience_const
+generated 12019..12300 <- Debug
+generated 12300..12436 <- Clone
+generated 12436..12650 <- PartialEq
+generated 12650..12946 <- Hash
+generated 12946..13141 <- Default
+generated 13141..14760 <- Encode
+generated 14760..15103 <- Encode
+generated 15103..20276 <- Decode
+generated 20277..20407 <- Debug
+generated 20407..20543 <- Clone
+generated 20543..20688 <- PartialEq
+generated 20688..20818 <- Hash
+generated 20818..20938 <- Default
+generated 20938..22378 <- Encode
+generated 22378..24310 <- Decode
+generated 24423..24703 <- Debug
+generated 24703..24874 <- Clone
+generated 24874..25075 <- PartialEq
+generated 25075..25370 <- Hash
+generated 25370..25479 <- Default
+generated 25479..27746 <- Encode
+generated 27746..33474 <- Decode
+generated 33474..35151 <- __convenience_const
+generated 35316..35660 <- Debug
+generated 35660..35767 <- Clone
+generated 35767..35885 <- PartialEq
+generated 35885..36062 <- Hash
+generated 36062..36295 <- PartialOrd
+generated 36295..36514 <- Ord
+generated 36514..36618 <- Default
+generated 36618..37094 <- Encode
+generated 37094..38240 <- Decode
+generated 38240..39353 <- __convenience_const
+generated 39824..40083 <- Debug
+generated 40083..40226 <- Clone
+generated 40226..40414 <- PartialEq
+generated 40414..40695 <- Hash
+generated 40695..42857 <- Encode
+generated 42857..48354 <- Decode
+generated 48354..49716 <- __convenience_const
+generated 50039..50316 <- Debug
+generated 50316..50448 <- Clone
+generated 50448..50658 <- PartialEq
+generated 50658..50952 <- Hash
+generated 50952..51143 <- Default
+generated 51143..52729 <- Encode
+generated 52729..53062 <- Encode
+generated 53062..58189 <- Decode
+generated 58190..58305 <- Debug
+generated 58305..58421 <- Clone
+generated 58421..58546 <- PartialEq
+generated 58546..58661 <- Hash
+generated 58661..58766 <- Default
+generated 58766..60156 <- Encode
+generated 60156..62013 <- Decode
+generated 62298..62581 <- Debug
+generated 62581..62719 <- Clone
+generated 62719..62935 <- PartialEq
+generated 62935..63232 <- Hash
+generated 63232..63429 <- Default
+generated 63429..65042 <- Encode
+generated 65042..65381 <- Encode
+generated 65381..70568 <- Decode
+generated 70569..70693 <- Debug
+generated 70693..70821 <- Clone
+generated 70821..70958 <- PartialEq
+generated 70958..71082 <- Hash
+generated 71082..71196 <- Default
+generated 71196..72616 <- Encode
+generated 72616..74518 <- Decode
+generated 74647..74938 <- Debug
+generated 74938..75095 <- Clone
+generated 75095..75328 <- PartialEq
+generated 75328..75570 <- Hash
+generated 75570..75765 <- Default
+generated 75765..77548 <- Encode
+generated 77548..77921 <- Encode
+generated 77921..83872 <- Decode
+generated 83873..83988 <- Debug
+generated 83988..84104 <- Clone
+generated 84104..84229 <- PartialEq
+generated 84229..84344 <- Hash
+generated 84344..84449 <- Default
+generated 84449..85956 <- Encode
+generated 85956..87927 <- Decode
+generated 88141..88492 <- Debug
+generated 88492..88682 <- Clone
+generated 88682..89068 <- PartialEq
+generated 89068..89545 <- Hash
+generated 89545..89786 <- Default
+generated 89786..91776 <- Encode
+generated 91776..92119 <- Encode
+generated 92119..98190 <- Decode
+generated 98191..98321 <- Debug
+generated 98321..98457 <- Clone
+generated 98457..98602 <- PartialEq
+generated 98602..98732 <- Hash
+generated 98732..98852 <- Default
+generated 98852..100292 <- Encode
+generated 100292..102224 <- Decode
+generated 102505..102786 <- Debug
+generated 102786..102922 <- Clone
+generated 102922..103136 <- PartialEq
+generated 103136..103432 <- Hash
+generated 103432..103627 <- Default
+generated 103627..105231 <- Encode
+generated 105231..105568 <- Encode
+generated 105568..110735 <- Decode
+generated 110736..110857 <- Debug
+generated 110857..110981 <- Clone
+generated 110981..111114 <- PartialEq
+generated 111114..111235 <- Hash
+generated 111235..111346 <- Default
+generated 111346..112756 <- Encode
+generated 112756..114643 <- Decode
+generated 114807..115086 <- Debug
+generated 115086..115220 <- Clone
+generated 115220..115432 <- PartialEq
+generated 115432..115727 <- Hash
+generated 115727..115920 <- Default
+generated 115920..117515 <- Encode
+generated 117515..117850 <- Encode
+generated 117850..122997 <- Decode
+generated 122998..123116 <- Debug
+generated 123116..123236 <- Clone
+generated 123236..123365 <- PartialEq
+generated 123365..123483 <- Hash
+generated 123483..123591 <- Default
+generated 123591..124991 <- Encode
+generated 124991..126863 <- Decode
+generated 127118..127541 <- Debug
+generated 127541..127787 <- Clone
+generated 127787..128427 <- PartialEq
+generated 128427..128988 <- Hash
+generated 128988..129303 <- Default
+generated 129303..131536 <- Encode
+generated 131536..131885 <- Encode
+generated 131885..140131 <- Decode
+generated 140132..140271 <- Debug
+generated 140271..140419 <- Clone
+generated 140419..140576 <- PartialEq
+generated 140576..140715 <- Hash
+generated 140715..140844 <- Default
+generated 140844..142314 <- Encode
+generated 142314..144291 <- Decode
 
 ## Metadata
 

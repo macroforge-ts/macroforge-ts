@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { isMultipleOfThree as __mf_isMultipleOfThree__shared_validators } from "./shared-validators";
 /**
@@ -115,8 +115,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("evenNumber")) && !("evenNumber" in obj)) {
-        errors.push({ field: "evenNumber", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["evenNumber", "evenNumber"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(CustomNumberValidator.prototype);
@@ -170,7 +174,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "evenNumber");
+    return __mf_holdsAll(obj, ["evenNumber"]);
 }
 
 static is(obj: unknown): obj is CustomNumberValidator {
@@ -296,8 +300,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
-        errors.push({ field: "username", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["username", "username"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(CustomStringValidator.prototype);
@@ -351,7 +359,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "username");
+    return __mf_holdsAll(obj, ["username"]);
 }
 
 static is(obj: unknown): obj is CustomStringValidator {
@@ -478,8 +486,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "count"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ImportedCustomValidator.prototype);
@@ -533,7 +545,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "count");
+    return __mf_holdsAll(obj, ["count"]);
 }
 
 static is(obj: unknown): obj is ImportedCustomValidator {
@@ -658,8 +670,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("evenNumber")) && !("evenNumber" in obj)) {
-        errors.push({ field: "evenNumber", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["evenNumber", "evenNumber"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(CustomWithMessageValidator.prototype);
@@ -713,7 +729,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "evenNumber");
+    return __mf_holdsAll(obj, ["evenNumber"]);
 }
 
 static is(obj: unknown): obj is CustomWithMessageValidator {
@@ -975,24 +991,24 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 
 ## Mapping
 
-original 0..536 -> expanded 535..1071
-original 536..537 -> expanded 7492..7493
-original 537..709 -> expanded 9470..9642
-original 709..710 -> expanded 15995..15996
-original 710..1016 -> expanded 17973..18279
-original 1016..1017 -> expanded 24700..24701
-original 1017..1206 -> expanded 26708..26897
-original 1206..1207 -> expanded 33292..33293
-original 1207..1208 -> expanded 35345..35346
-generated 0..535 <- imports
-generated 1071..7492 <- Decode
-generated 7493..9470 <- Decode
-generated 9642..15995 <- Decode
-generated 15996..17973 <- Decode
-generated 18279..24700 <- Decode
-generated 24701..26708 <- Decode
-generated 26897..33292 <- Decode
-generated 33293..35345 <- Decode
+original 0..536 -> expanded 541..1077
+original 536..537 -> expanded 7655..7656
+original 537..709 -> expanded 9633..9805
+original 709..710 -> expanded 16317..16318
+original 710..1016 -> expanded 18295..18601
+original 1016..1017 -> expanded 25184..25185
+original 1017..1206 -> expanded 27192..27381
+original 1206..1207 -> expanded 33933..33934
+original 1207..1208 -> expanded 35986..35987
+generated 0..541 <- imports
+generated 1077..7655 <- Decode
+generated 7656..9633 <- Decode
+generated 9805..16317 <- Decode
+generated 16318..18295 <- Decode
+generated 18601..25184 <- Decode
+generated 25185..27192 <- Decode
+generated 27381..33933 <- Decode
+generated 33934..35986 <- Decode
 
 ## Metadata
 

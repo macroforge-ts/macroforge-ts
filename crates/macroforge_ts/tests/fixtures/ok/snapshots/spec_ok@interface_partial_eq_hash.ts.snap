@@ -26,7 +26,12 @@ interface Point {
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
 }
 
 export function pointHashCode(value: Point): number {
@@ -63,11 +68,11 @@ export {};
 ## Mapping
 
 original 31..81 -> expanded 114..164
-original 81..82 -> expanded 1020..1021
+original 81..82 -> expanded 1111..1112
 generated 0..114 <- imports
-generated 164..389 <- PartialEq
-generated 389..864 <- Hash
-generated 864..1020 <- __convenience_const
+generated 164..480 <- PartialEq
+generated 480..955 <- Hash
+generated 955..1111 <- __convenience_const
 
 ## Metadata
 

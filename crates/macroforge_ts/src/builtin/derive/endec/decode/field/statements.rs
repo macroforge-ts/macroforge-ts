@@ -9,7 +9,8 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::value::decode_raw_value;
-use crate::builtin::derive::common::{js_string, rendered};
+use crate::builtin::derive::common::{each_on_its_own, js_string, rendered};
+use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::decode::helpers::nested_has_shape_fn_name;
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::decode::validation::generate_field_validations;
@@ -31,6 +32,55 @@ pub(in crate::builtin::derive::endec::decode) enum Required {
 pub(in crate::builtin::derive::endec::decode) fn requires(field: &DecodeField) -> Expr {
     let name = js_string(&field.field_name);
     rendered(ts_template! { (__fields === undefined || __fields.requires(@{name})) }).into()
+}
+
+/// Statements reporting each required key of `fields` the input lacks, once
+/// a key, where the call requires its field.
+pub(in crate::builtin::derive::endec::decode) fn missing_keys_check(
+    fields: &[DecodeField],
+) -> TsStream {
+    // Each field as the name a selection keeps and the key it is read from.
+    let required: Vec<String> = fields
+        .iter()
+        .filter(|field| field.key_required())
+        .map(|field| {
+            format!(
+                "[{}, {}]",
+                js_string(&field.field_name),
+                js_string(&field.json_key)
+            )
+        })
+        .collect();
+    if required.is_empty() {
+        return TsStream::merge_all(std::iter::empty());
+    }
+    let required = required.join(", ");
+    ts_template! {
+        const __requiredKeys: ReadonlyArray<readonly [string, string]> = [@{required}];
+        for (const [__name, __key] of __requiredKeys) {
+            if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+                errors.push({ field: __key, message: "missing required field" });
+            }
+        }
+    }
+}
+
+/// Whether `obj` holds every key `fields` require, as one call over the
+/// keys: a condition a key would nest as deep as the type is wide.
+pub(in crate::builtin::derive::endec::decode) fn holds_required_keys(
+    fields: &[DecodeField],
+) -> String {
+    let keys: Vec<String> = fields
+        .iter()
+        .filter(|field| field.key_required())
+        .map(|field| js_string(&field.json_key))
+        .collect();
+    if keys.is_empty() {
+        return "true".to_string();
+    }
+    let holds_all = endec_helper("holdsAll");
+    let keys = keys.join(", ");
+    rendered(ts_template! { @{holds_all}(obj, [@{keys}]) })
 }
 
 /// The condition under which the call being generated reads `field` at all.
@@ -65,7 +115,7 @@ pub(in crate::builtin::derive::endec::decode) fn decode_fields(
             decode_flattened_field(field, owner, required, &sibling_keys),
         )
     });
-    TsStream::merge_all(regular.chain(flattened))
+    each_on_its_own(regular.chain(flattened))
 }
 
 /// The JSON keys `fields` read: each regular field's own, and those a

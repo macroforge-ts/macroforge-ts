@@ -32,7 +32,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, decodeBoolean as __mf_decodeBoolean, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeTuple as __mf_decodeTuple, decodeDate as __mf_decodeDate } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, decodeBoolean as __mf_decodeBoolean, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef, decodeTuple as __mf_decodeTuple, decodeDate as __mf_decodeDate } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /** Each element of a tuple is coded as its own type, an optional one and the rest among them. */
 
@@ -78,11 +78,21 @@ export function rowEncodeWithContext(value: Row): unknown {
     }
     return ((value: { e0: string; e1?: number | undefined; rest: boolean[] }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result["e0"] = value.e0;
-        if (value.e1 !== undefined) {
-            result["e1"] = value.e1;
+        for (const __part of [
+            () => {
+                result["e0"] = value.e0;
+            },
+            () => {
+                if (value.e1 !== undefined) {
+                    result["e1"] = value.e1;
+                }
+            },
+            () => {
+                result["rest"] = value.rest;
+            },
+        ]) {
+            __part();
         }
-        result["rest"] = value.rest;
         const __tuple: unknown[] = [];
         __tuple.push(result["e0"] ?? null);
         if ("e1" in value) {
@@ -186,47 +196,57 @@ export function rowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as string;
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as string;
 
-        if (!(typeof __raw_e0 === "string")) {
-            errors.push({ field: "0", message: __raw_e0 == null ? "Row.0 is required" : "expected string" });
-        } else {
-            instance.e0 = __raw_e0;
-        }
-    }
-    if (("1" in obj && obj["1"] !== undefined)) {
-        const __raw_e1 = obj["1"] as number;
+                if (!(typeof __raw_e0 === "string")) {
+                    errors.push({ field: "0", message: __raw_e0 == null ? "Row.0 is required" : "expected string" });
+                } else {
+                    instance.e0 = __raw_e0;
+                }
+            }
+        },
+        () => {
+            if (("1" in obj && obj["1"] !== undefined)) {
+                const __raw_e1 = obj["1"] as number;
 
-        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
-            errors.push({ field: "1", message: "expected number" });
-        } else {
-            instance.e1 = __raw_e1;
-        }
-    }
-    if ("rest" in obj) {
-        const __raw_rest = obj["rest"] as boolean[];
-        if (Array.isArray(__raw_rest)) {
-            ctx.pushScope("rest");
-            try {
-                instance.rest = __mf_decodeArray(__raw_rest, ctx, __mf_decodeBoolean);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "rest" : "rest." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
+                    errors.push({ field: "1", message: "expected number" });
+                } else {
+                    instance.e1 = __raw_e1;
+                }
+            }
+        },
+        () => {
+            if ("rest" in obj) {
+                const __raw_rest = obj["rest"] as boolean[];
+                if (Array.isArray(__raw_rest)) {
+                    ctx.pushScope("rest");
+                    try {
+                        instance.rest = __mf_decodeArray(__raw_rest, ctx, __mf_decodeBoolean);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "rest", message: __raw_rest == null ? "Row.rest is required" : "expected boolean[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "rest", message: __raw_rest == null ? "Row.rest is required" : "expected boolean[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -377,8 +397,12 @@ export function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -421,7 +445,7 @@ export function namedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 export function namedIs(obj: unknown): obj is Named {
@@ -566,8 +590,12 @@ export function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -613,7 +641,7 @@ export function datedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["at"]);
 }
 
 export function datedIs(obj: unknown): obj is Dated {
@@ -678,15 +706,23 @@ export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf
 }
 
 function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("mixed")) {
-        if (value.mixed !== undefined) {
-            result["mixed"] = [namedEncodeWithContext(value.mixed[0], ctx), ...(([, ...__rest0]) => __rest0)(value.mixed).map((__item0) => datedEncodeWithContext(__item0, ctx))];
-        }
-    }
-    if (__fields === undefined || __fields.keeps("later")) {
-        if (value.later !== undefined) {
-            result["later"] = [namedEncodeWithContext(value.later[0], ctx), ...(1 < value.later.length ? [(value.later[1] === undefined ? undefined : datedEncodeWithContext(value.later[1], ctx))] : []), ...(([, , ...__rest0]) => __rest0)(value.later).map((__item0) => __item0.toISOString())];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("mixed")) {
+                if (value.mixed !== undefined) {
+                    result["mixed"] = [namedEncodeWithContext(value.mixed[0], ctx), ...(([, ...__rest0]) => __rest0)(value.mixed).map((__item0) => datedEncodeWithContext(__item0, ctx))];
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("later")) {
+                if (value.later !== undefined) {
+                    result["later"] = [namedEncodeWithContext(value.later[0], ctx), ...(1 < value.later.length ? [(value.later[1] === undefined ? undefined : datedEncodeWithContext(value.later[1], ctx))] : []), ...(([, , ...__rest0]) => __rest0)(value.later).map((__item0) => __item0.toISOString())];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -764,11 +800,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("mixed")) && !("mixed" in obj)) {
-        errors.push({ field: "mixed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("later")) && !("later" in obj)) {
-        errors.push({ field: "later", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["mixed", "mixed"], ["later", "later"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -779,56 +816,64 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
-        const __raw_mixed = obj["mixed"] as [Named, ...Dated[]];
-        if (Array.isArray(__raw_mixed)) {
-            ctx.pushScope("mixed");
-            try {
-                instance.mixed = (__mf_decodeTuple(__raw_mixed, ctx, [(__raw0) => namedDecodeWithContext(__raw0, ctx)], 1, (__raw0) => datedDecodeWithContext(__raw0, ctx)) as [Named, ...Dated[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+                const __raw_mixed = obj["mixed"] as [Named, ...Dated[]];
+                if (Array.isArray(__raw_mixed)) {
+                    ctx.pushScope("mixed");
+                    try {
+                        instance.mixed = (__mf_decodeTuple(__raw_mixed, ctx, [(__raw0) => namedDecodeWithContext(__raw0, ctx)], 1, (__raw0) => datedDecodeWithContext(__raw0, ctx)) as [Named, ...Dated[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "mixed", message: __raw_mixed == null ? "Holder.mixed is required" : "expected [Named, ...Dated[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "mixed", message: __raw_mixed == null ? "Holder.mixed is required" : "expected [Named, ...Dated[]]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("later")) ? "later" in obj : (__fields.keeps("later") && obj["later"] !== undefined)) {
-        const __raw_later = obj["later"] as [Named, Dated?, ...Date[]];
-        if (Array.isArray(__raw_later)) {
-            ctx.pushScope("later");
-            try {
-                instance.later = (__mf_decodeTuple(__raw_later, ctx, [(__raw0) => namedDecodeWithContext(__raw0, ctx), (__raw0) => {
-            const __read0 = __raw0 ?? undefined;
-            return (__read0 === undefined ? undefined : datedDecodeWithContext(__read0, ctx));
-        }], 1, __mf_decodeDate) as [Named, Dated?, ...Date[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "later" : "later." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("later")) ? "later" in obj : (__fields.keeps("later") && obj["later"] !== undefined)) {
+                const __raw_later = obj["later"] as [Named, Dated?, ...Date[]];
+                if (Array.isArray(__raw_later)) {
+                    ctx.pushScope("later");
+                    try {
+                        instance.later = (__mf_decodeTuple(__raw_later, ctx, [(__raw0) => namedDecodeWithContext(__raw0, ctx), (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__read0 === undefined ? undefined : datedDecodeWithContext(__read0, ctx));
+                }], 1, __mf_decodeDate) as [Named, Dated?, ...Date[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "later" : "later." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "later", message: __raw_later == null ? "Holder.later is required" : "expected [Named, Dated?, ...Date[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "later", message: __raw_later == null ? "Holder.later is required" : "expected [Named, Dated?, ...Date[]]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -853,7 +898,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "mixed") && __mf_holds(obj, "later");
+    return __mf_holdsAll(obj, ["mixed", "later"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -1077,33 +1122,33 @@ export declare const Holder: {
 
 ## Mapping
 
-original 0..98 -> expanded 1023..1121
-original 168..240 -> expanded 1121..1193
-original 240..242 -> expanded 8823..8825
-original 272..317 -> expanded 8825..8870
-original 317..319 -> expanded 17070..17072
-original 349..390 -> expanded 17072..17113
-original 390..392 -> expanded 25506..25508
-original 422..521 -> expanded 25508..25607
-original 521..522 -> expanded 36722..36723
-generated 0..1023 <- imports
-generated 1193..1301 <- Debug
-generated 1301..1388 <- Clone
-generated 1388..1514 <- PartialEq
-generated 1514..1606 <- Hash
-generated 1606..1732 <- Default
-generated 1732..3324 <- Encode
-generated 3324..8040 <- Decode
-generated 8040..8823 <- __convenience_const
-generated 8870..10954 <- Encode
-generated 10954..16135 <- Decode
-generated 16135..17070 <- __convenience_const
-generated 17113..19203 <- Encode
-generated 19203..24571 <- Decode
-generated 24571..25506 <- __convenience_const
-generated 25607..28256 <- Encode
-generated 28256..35766 <- Decode
-generated 35766..36722 <- __convenience_const
+original 0..98 -> expanded 1029..1127
+original 168..240 -> expanded 1127..1199
+original 240..242 -> expanded 9511..9513
+original 272..317 -> expanded 9513..9558
+original 317..319 -> expanded 17921..17923
+original 349..390 -> expanded 17923..17964
+original 390..392 -> expanded 26522..26524
+original 422..521 -> expanded 26524..26623
+original 521..522 -> expanded 38448..38449
+generated 0..1029 <- imports
+generated 1199..1307 <- Debug
+generated 1307..1394 <- Clone
+generated 1394..1520 <- PartialEq
+generated 1520..1612 <- Hash
+generated 1612..1738 <- Default
+generated 1738..3551 <- Encode
+generated 3551..8728 <- Decode
+generated 8728..9511 <- __convenience_const
+generated 9558..11642 <- Encode
+generated 11642..16986 <- Decode
+generated 16986..17921 <- __convenience_const
+generated 17964..20054 <- Encode
+generated 20054..25587 <- Decode
+generated 25587..26522 <- __convenience_const
+generated 26623..29466 <- Encode
+generated 29466..37492 <- Decode
+generated 37492..38448 <- __convenience_const
 
 ## Metadata
 

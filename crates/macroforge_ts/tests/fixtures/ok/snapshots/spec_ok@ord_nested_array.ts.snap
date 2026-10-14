@@ -29,25 +29,22 @@ export class Version {
 
     static equals(a: Version, b: Version): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.major === b.major || a.major !== a.major && b.major !== b.major);
+        return __mf_equalWithin(a, b, () => {
+                return a.major === b.major || a.major !== a.major && b.major !== b.major;
+            });
     }
 
     static partialCompare(a: Version, b: Version): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major || (a.major !== a.major && b.major !== b.major) ? 0 : null);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-            return 0;
+        return (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major || (a.major !== a.major && b.major !== b.major) ? 0 : null);
         });
     }
 
     static compare(a: Version, b: Version): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : a.major !== a.major ? b.major !== b.major ? 0 : 1 : -1;
-        if (cmp0 !== 0) return cmp0;
-            return 0;
+        return a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : a.major !== a.major ? b.major !== b.major ? 0 : 1 : -1;
         });
     }
 }
@@ -71,86 +68,95 @@ export class Release {
 
     static equals(a: Release, b: Release): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
-        	const __other0 = b.versions[__index0];
-        	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-        }) && a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
-        	const __other0 = b.tags[__index0];
-        	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
+                    	const __other0 = b.versions[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+                    }),
+                    () => a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
+                    	const __other0 = b.tags[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+                    }),
+                ].every((same) => same());
+            });
     }
 
     static partialCompare(a: Release, b: Release): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (() => {
-            const __left0 = a.versions;
-            const __right0 = b.versions;
-            const __shared0 = Math.min(__left0.length, __right0.length);
-            for (let __index0 = 0; __index0 < __shared0; __index0++) {
-                const __item0 = __left0[__index0];
-                const __other0 = __right0[__index0];
-                const __order0 = __item0 === undefined || __other0 === undefined
-                    ? __mf_structuralCompare(__item0, __other0)
-                    : __mf_structuralCompare(__item0, __other0);
-                if (__order0 !== 0) return __order0;
-            }
-            return __left0.length < __right0.length ? -1
-                : __left0.length > __right0.length ? 1 : 0;
-        })();
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (() => {
-            const __left0 = a.tags;
-            const __right0 = b.tags;
-            const __shared0 = Math.min(__left0.length, __right0.length);
-            for (let __index0 = 0; __index0 < __shared0; __index0++) {
-                const __item0 = __left0[__index0];
-                const __other0 = __right0[__index0];
-                const __order0 = __item0 === undefined || __other0 === undefined
-                    ? __mf_structuralCompare(__item0, __other0)
-                    : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
-                if (__order0 !== 0) return __order0;
-            }
-            return __left0.length < __right0.length ? -1
-                : __left0.length > __right0.length ? 1 : 0;
-        })();
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => (() => {
+                const __left0 = a.versions;
+                const __right0 = b.versions;
+                const __shared0 = Math.min(__left0.length, __right0.length);
+                for (let __index0 = 0; __index0 < __shared0; __index0++) {
+                    const __item0 = __left0[__index0];
+                    const __other0 = __right0[__index0];
+                    const __order0 = __item0 === undefined || __other0 === undefined
+                        ? __mf_structuralCompare(__item0, __other0)
+                        : __mf_structuralCompare(__item0, __other0);
+                    if (__order0 !== 0) return __order0;
+                }
+                return __left0.length < __right0.length ? -1
+                    : __left0.length > __right0.length ? 1 : 0;
+            })(),
+            () => (() => {
+                const __left0 = a.tags;
+                const __right0 = b.tags;
+                const __shared0 = Math.min(__left0.length, __right0.length);
+                for (let __index0 = 0; __index0 < __shared0; __index0++) {
+                    const __item0 = __left0[__index0];
+                    const __other0 = __right0[__index0];
+                    const __order0 = __item0 === undefined || __other0 === undefined
+                        ? __mf_structuralCompare(__item0, __other0)
+                        : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
+                    if (__order0 !== 0) return __order0;
+                }
+                return __left0.length < __right0.length ? -1
+                    : __left0.length > __right0.length ? 1 : 0;
+            })(),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
     static compare(a: Release, b: Release): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (() => {
-        	const __left0 = a.versions;
-        	const __right0 = b.versions;
-        	const __shared0 = Math.min(__left0.length, __right0.length);
-        	for (let __index0 = 0; __index0 < __shared0; __index0++) {
-        		const __item0 = __left0[__index0];
-        		const __other0 = __right0[__index0];
-        		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __mf_structuralCompare(__item0, __other0);
-        		if (__order0 !== 0) return __order0;
-        	}
-        	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
-        })();
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (() => {
-        	const __left0 = a.tags;
-        	const __right0 = b.tags;
-        	const __shared0 = Math.min(__left0.length, __right0.length);
-        	for (let __index0 = 0; __index0 < __shared0; __index0++) {
-        		const __item0 = __left0[__index0];
-        		const __other0 = __right0[__index0];
-        		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0;
-        		if (__order0 !== 0) return __order0;
-        	}
-        	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
-        })();
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => (() => {
+            	const __left0 = a.versions;
+            	const __right0 = b.versions;
+            	const __shared0 = Math.min(__left0.length, __right0.length);
+            	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            		const __item0 = __left0[__index0];
+            		const __other0 = __right0[__index0];
+            		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __mf_structuralCompare(__item0, __other0);
+            		if (__order0 !== 0) return __order0;
+            	}
+            	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+            })(),
+            () => (() => {
+            	const __left0 = a.tags;
+            	const __right0 = b.tags;
+            	const __shared0 = Math.min(__left0.length, __right0.length);
+            	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            		const __item0 = __left0[__index0];
+            		const __other0 = __right0[__index0];
+            		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0;
+            		if (__order0 !== 0) return __order0;
+            	}
+            	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+            })(),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 }
@@ -196,24 +202,24 @@ export declare function releaseCompare(a: Release, b: Release): number;
 ## Mapping
 
 original 46..93 -> expanded 206..253
-original 93..94 -> expanded 1239..1240
-original 94..96 -> expanded 1566..1568
-original 142..221 -> expanded 1568..1647
-original 221..222 -> expanded 5726..5727
-original 222..223 -> expanded 6053..6054
+original 93..94 -> expanded 1109..1110
+original 94..96 -> expanded 1436..1438
+original 142..221 -> expanded 1438..1517
+original 221..222 -> expanded 6043..6044
+original 222..223 -> expanded 6370..6371
 generated 0..206 <- imports
-generated 253..459 <- PartialEq
-generated 459..876 <- PartialOrd
-generated 876..1239 <- Ord
-generated 1240..1341 <- PartialEq
-generated 1341..1464 <- PartialOrd
-generated 1464..1566 <- Ord
-generated 1647..2256 <- PartialEq
-generated 2256..4137 <- PartialOrd
-generated 4137..5726 <- Ord
-generated 5727..5828 <- PartialEq
-generated 5828..5951 <- PartialOrd
-generated 5951..6053 <- Ord
+generated 253..499 <- PartialEq
+generated 499..811 <- PartialOrd
+generated 811..1109 <- Ord
+generated 1110..1211 <- PartialEq
+generated 1211..1334 <- PartialOrd
+generated 1334..1436 <- Ord
+generated 1517..2333 <- PartialEq
+generated 2333..4306 <- PartialOrd
+generated 4306..6043 <- Ord
+generated 6044..6145 <- PartialEq
+generated 6145..6268 <- PartialOrd
+generated 6268..6370 <- Ord
 
 ## Metadata
 

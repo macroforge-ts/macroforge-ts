@@ -22,7 +22,7 @@ import { paymentDecodeWithContext, paymentEncodeWithContext } from "./payment.sv
 import { promotionDecodeWithContext, promotionEncodeWithContext } from "./promotion.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -175,150 +175,212 @@ export function orderEncodePartialWithContext(value: Partial<Order>, ctx: __mf_E
 }
 
 function orderEncodeFields(value: Order, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("account")) {
-        if (value.account !== undefined) {
-            result["account"] = (typeof value.account === "string" ? value.account : accountEncodeWithContext(value.account, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("stage")) {
-        if (value.stage !== undefined) {
-            result["stage"] = orderStageEncodeWithContext(value.stage, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("number")) {
-        if (value.number !== undefined) {
-            result["number"] = value.number;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("payments")) {
-        if (value.payments !== undefined) {
-            result["payments"] = value.payments.map((__item0) => (typeof __item0 === "string" ? __item0 : paymentEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("opportunity")) {
-        if (value.opportunity !== undefined) {
-            result["opportunity"] = value.opportunity;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("reference")) {
-        if (value.reference !== undefined) {
-            result["reference"] = value.reference;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("leadSource")) {
-        if (value.leadSource !== undefined) {
-            result["leadSource"] = value.leadSource;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("salesRep")) {
-        if (value.salesRep !== undefined) {
-            result["salesRep"] = (typeof value.salesRep === "string" ? value.salesRep : employeeEncodeWithContext(value.salesRep, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("group")) {
-        if (value.group !== undefined) {
-            result["group"] = value.group;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("subgroup")) {
-        if (value.subgroup !== undefined) {
-            result["subgroup"] = value.subgroup;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isPosted")) {
-        if (value.isPosted !== undefined) {
-            result["isPosted"] = value.isPosted;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("needsReview")) {
-        if (value.needsReview !== undefined) {
-            result["needsReview"] = value.needsReview;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("actionItem")) {
-        if (value.actionItem !== undefined) {
-            result["actionItem"] = value.actionItem;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("upsale")) {
-        if (value.upsale !== undefined) {
-            result["upsale"] = value.upsale;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dateCreated")) {
-        if (value.dateCreated !== undefined) {
-            result["dateCreated"] = __foreign__dateTimeDateTimeEncode(value.dateCreated);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("appointment")) {
-        if (value.appointment !== undefined) {
-            result["appointment"] = (typeof value.appointment === "string" ? value.appointment : appointmentEncodeWithContext(value.appointment, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastTechs")) {
-        if (value.lastTechs !== undefined) {
-            result["lastTechs"] = value.lastTechs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("package")) {
-        if (value.package !== undefined) {
-            result["package"] = value.package === null ? null : value.package.map((__item0) => (typeof __item0 === "string" ? __item0 : packageEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("promotion")) {
-        if (value.promotion !== undefined) {
-            result["promotion"] = value.promotion === null ? null : value.promotion.map((__item0) => (typeof __item0 === "string" ? __item0 : promotionEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("balance")) {
-        if (value.balance !== undefined) {
-            result["balance"] = value.balance;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("due")) {
-        if (value.due !== undefined) {
-            result["due"] = __foreign__dateTimeDateTimeEncode(value.due);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("total")) {
-        if (value.total !== undefined) {
-            result["total"] = value.total;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("site")) {
-        if (value.site !== undefined) {
-            result["site"] = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("billedItems")) {
-        if (value.billedItems !== undefined) {
-            result["billedItems"] = value.billedItems.map((__item0) => billedItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("memo")) {
-        if (value.memo !== undefined) {
-            result["memo"] = __foreign__optionOptionEncode(value.memo);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("discount")) {
-        if (value.discount !== undefined) {
-            result["discount"] = value.discount;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tip")) {
-        if (value.tip !== undefined) {
-            result["tip"] = value.tip;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("commissions")) {
-        if (value.commissions !== undefined) {
-            result["commissions"] = value.commissions;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("account")) {
+                if (value.account !== undefined) {
+                    result["account"] = (typeof value.account === "string" ? value.account : accountEncodeWithContext(value.account, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("stage")) {
+                if (value.stage !== undefined) {
+                    result["stage"] = orderStageEncodeWithContext(value.stage, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("number")) {
+                if (value.number !== undefined) {
+                    result["number"] = value.number;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("payments")) {
+                if (value.payments !== undefined) {
+                    result["payments"] = value.payments.map((__item0) => (typeof __item0 === "string" ? __item0 : paymentEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("opportunity")) {
+                if (value.opportunity !== undefined) {
+                    result["opportunity"] = value.opportunity;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("reference")) {
+                if (value.reference !== undefined) {
+                    result["reference"] = value.reference;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("leadSource")) {
+                if (value.leadSource !== undefined) {
+                    result["leadSource"] = value.leadSource;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("salesRep")) {
+                if (value.salesRep !== undefined) {
+                    result["salesRep"] = (typeof value.salesRep === "string" ? value.salesRep : employeeEncodeWithContext(value.salesRep, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("group")) {
+                if (value.group !== undefined) {
+                    result["group"] = value.group;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("subgroup")) {
+                if (value.subgroup !== undefined) {
+                    result["subgroup"] = value.subgroup;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isPosted")) {
+                if (value.isPosted !== undefined) {
+                    result["isPosted"] = value.isPosted;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("needsReview")) {
+                if (value.needsReview !== undefined) {
+                    result["needsReview"] = value.needsReview;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("actionItem")) {
+                if (value.actionItem !== undefined) {
+                    result["actionItem"] = value.actionItem;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("upsale")) {
+                if (value.upsale !== undefined) {
+                    result["upsale"] = value.upsale;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dateCreated")) {
+                if (value.dateCreated !== undefined) {
+                    result["dateCreated"] = __foreign__dateTimeDateTimeEncode(value.dateCreated);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("appointment")) {
+                if (value.appointment !== undefined) {
+                    result["appointment"] = (typeof value.appointment === "string" ? value.appointment : appointmentEncodeWithContext(value.appointment, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastTechs")) {
+                if (value.lastTechs !== undefined) {
+                    result["lastTechs"] = value.lastTechs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("package")) {
+                if (value.package !== undefined) {
+                    result["package"] = value.package === null ? null : value.package.map((__item0) => (typeof __item0 === "string" ? __item0 : packageEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("promotion")) {
+                if (value.promotion !== undefined) {
+                    result["promotion"] = value.promotion === null ? null : value.promotion.map((__item0) => (typeof __item0 === "string" ? __item0 : promotionEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("balance")) {
+                if (value.balance !== undefined) {
+                    result["balance"] = value.balance;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("due")) {
+                if (value.due !== undefined) {
+                    result["due"] = __foreign__dateTimeDateTimeEncode(value.due);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("total")) {
+                if (value.total !== undefined) {
+                    result["total"] = value.total;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("site")) {
+                if (value.site !== undefined) {
+                    result["site"] = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("billedItems")) {
+                if (value.billedItems !== undefined) {
+                    result["billedItems"] = value.billedItems.map((__item0) => billedItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("memo")) {
+                if (value.memo !== undefined) {
+                    result["memo"] = __foreign__optionOptionEncode(value.memo);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("discount")) {
+                if (value.discount !== undefined) {
+                    result["discount"] = value.discount;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tip")) {
+                if (value.tip !== undefined) {
+                    result["tip"] = value.tip;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("commissions")) {
+                if (value.commissions !== undefined) {
+                    result["commissions"] = value.commissions;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -396,92 +458,12 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("account")) && !("account" in obj)) {
-        errors.push({ field: "account", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("stage")) && !("stage" in obj)) {
-        errors.push({ field: "stage", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("number")) && !("number" in obj)) {
-        errors.push({ field: "number", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("payments")) && !("payments" in obj)) {
-        errors.push({ field: "payments", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("opportunity")) && !("opportunity" in obj)) {
-        errors.push({ field: "opportunity", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("reference")) && !("reference" in obj)) {
-        errors.push({ field: "reference", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("leadSource")) && !("leadSource" in obj)) {
-        errors.push({ field: "leadSource", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("salesRep")) && !("salesRep" in obj)) {
-        errors.push({ field: "salesRep", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("group")) && !("group" in obj)) {
-        errors.push({ field: "group", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("subgroup")) && !("subgroup" in obj)) {
-        errors.push({ field: "subgroup", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isPosted")) && !("isPosted" in obj)) {
-        errors.push({ field: "isPosted", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("needsReview")) && !("needsReview" in obj)) {
-        errors.push({ field: "needsReview", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("actionItem")) && !("actionItem" in obj)) {
-        errors.push({ field: "actionItem", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("upsale")) && !("upsale" in obj)) {
-        errors.push({ field: "upsale", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dateCreated")) && !("dateCreated" in obj)) {
-        errors.push({ field: "dateCreated", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("appointment")) && !("appointment" in obj)) {
-        errors.push({ field: "appointment", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastTechs")) && !("lastTechs" in obj)) {
-        errors.push({ field: "lastTechs", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("package")) && !("package" in obj)) {
-        errors.push({ field: "package", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("promotion")) && !("promotion" in obj)) {
-        errors.push({ field: "promotion", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("due")) && !("due" in obj)) {
-        errors.push({ field: "due", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("total")) && !("total" in obj)) {
-        errors.push({ field: "total", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
-        errors.push({ field: "site", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("billedItems")) && !("billedItems" in obj)) {
-        errors.push({ field: "billedItems", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("memo")) && !("memo" in obj)) {
-        errors.push({ field: "memo", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("discount")) && !("discount" in obj)) {
-        errors.push({ field: "discount", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tip")) && !("tip" in obj)) {
-        errors.push({ field: "tip", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("commissions")) && !("commissions" in obj)) {
-        errors.push({ field: "commissions", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["account", "account"], ["stage", "stage"], ["number", "number"], ["payments", "payments"], ["opportunity", "opportunity"], ["reference", "reference"], ["leadSource", "leadSource"], ["salesRep", "salesRep"], ["group", "group"], ["subgroup", "subgroup"], ["isPosted", "isPosted"], ["needsReview", "needsReview"], ["actionItem", "actionItem"], ["upsale", "upsale"], ["dateCreated", "dateCreated"], ["appointment", "appointment"], ["lastTechs", "lastTechs"], ["package", "package"], ["promotion", "promotion"], ["balance", "balance"], ["due", "due"], ["total", "total"], ["site", "site"], ["billedItems", "billedItems"], ["memo", "memo"], ["discount", "discount"], ["tip", "tip"], ["commissions", "commissions"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -492,464 +474,526 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("account")) ? "account" in obj : (__fields.keeps("account") && obj["account"] !== undefined)) {
-        const __raw_account = obj["account"] as string | Account;
-
-        if (typeof __raw_account === "string") {
-            instance.account = __raw_account;
-        } else {
-            ctx.pushScope("account");
-            try {
-                const __result = accountDecodeWithContext(__raw_account, ctx);
-                ctx.assignOrDefer(instance, "account", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "account" : "account." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
                 } else {
-
-                    errors.push({ field: "account", message: __e instanceof Error ? __e.message : String(__e) });
+                    instance.id = __raw_id;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("stage")) ? "stage" in obj : (__fields.keeps("stage") && obj["stage"] !== undefined)) {
-        const __raw_stage = obj["stage"] as OrderStage;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("account")) ? "account" in obj : (__fields.keeps("account") && obj["account"] !== undefined)) {
+                const __raw_account = obj["account"] as string | Account;
 
-        ctx.pushScope("stage");
-        try {
-            const __result = orderStageDecodeWithContext(__raw_stage, ctx);
-            ctx.assignOrDefer(instance, "stage", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "stage" : "stage." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "stage", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
-        const __raw_number = obj["number"] as number;
-
-        if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number))) {
-            errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
-        } else {
-            instance.number = __raw_number;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("payments")) ? "payments" in obj : (__fields.keeps("payments") && obj["payments"] !== undefined)) {
-        const __raw_payments = obj["payments"] as Array<string | Payment>;
-        if (Array.isArray(__raw_payments)) {
-            ctx.pushScope("payments");
-            try {
-                instance.payments = __mf_decodeArray(__raw_payments, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : paymentDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "payments" : "payments." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (typeof __raw_account === "string") {
+                    instance.account = __raw_account;
                 } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "payments", message: __raw_payments == null ? "Order.payments is required" : "expected Array<string | Payment>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("opportunity")) ? "opportunity" in obj : (__fields.keeps("opportunity") && obj["opportunity"] !== undefined)) {
-        const __raw_opportunity = obj["opportunity"] as string;
+                    ctx.pushScope("account");
+                    try {
+                        const __result = accountDecodeWithContext(__raw_account, ctx);
+                        ctx.assignOrDefer(instance, "account", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "account" : "account." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        if (!(typeof __raw_opportunity === "string")) {
-            errors.push({ field: "opportunity", message: __raw_opportunity == null ? "Order.opportunity is required" : "expected string" });
-        } else {
-            if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
-                if (__raw_opportunity.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
-            }
-            instance.opportunity = __raw_opportunity;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("reference")) ? "reference" in obj : (__fields.keeps("reference") && obj["reference"] !== undefined)) {
-        const __raw_reference = obj["reference"] as string;
-
-        if (!(typeof __raw_reference === "string")) {
-            errors.push({ field: "reference", message: __raw_reference == null ? "Order.reference is required" : "expected string" });
-        } else {
-            if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
-                if (__raw_reference.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
-            }
-            instance.reference = __raw_reference;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("leadSource")) ? "leadSource" in obj : (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
-        const __raw_leadSource = obj["leadSource"] as string;
-
-        if (!(typeof __raw_leadSource === "string")) {
-            errors.push({ field: "leadSource", message: __raw_leadSource == null ? "Order.leadSource is required" : "expected string" });
-        } else {
-            if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
-                if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
-            }
-            instance.leadSource = __raw_leadSource;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
-        const __raw_salesRep = obj["salesRep"] as string | Employee;
-
-        if (typeof __raw_salesRep === "string") {
-            instance.salesRep = __raw_salesRep;
-        } else {
-            ctx.pushScope("salesRep");
-            try {
-                const __result = employeeDecodeWithContext(__raw_salesRep, ctx);
-                ctx.assignOrDefer(instance, "salesRep", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "salesRep" : "salesRep." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "account", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "salesRep", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("group")) ? "group" in obj : (__fields.keeps("group") && obj["group"] !== undefined)) {
-        const __raw_group = obj["group"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("stage")) ? "stage" in obj : (__fields.keeps("stage") && obj["stage"] !== undefined)) {
+                const __raw_stage = obj["stage"] as OrderStage;
 
-        if (!(typeof __raw_group === "string")) {
-            errors.push({ field: "group", message: __raw_group == null ? "Order.group is required" : "expected string" });
-        } else {
-            if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
-                if (__raw_group.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
-            }
-            instance.group = __raw_group;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("subgroup")) ? "subgroup" in obj : (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
-        const __raw_subgroup = obj["subgroup"] as string;
-
-        if (!(typeof __raw_subgroup === "string")) {
-            errors.push({ field: "subgroup", message: __raw_subgroup == null ? "Order.subgroup is required" : "expected string" });
-        } else {
-            if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
-                if (__raw_subgroup.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
-            }
-            instance.subgroup = __raw_subgroup;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isPosted")) ? "isPosted" in obj : (__fields.keeps("isPosted") && obj["isPosted"] !== undefined)) {
-        const __raw_isPosted = obj["isPosted"] as boolean;
-
-        if (!(typeof __raw_isPosted === "boolean")) {
-            errors.push({ field: "isPosted", message: __raw_isPosted == null ? "Order.isPosted is required" : "expected boolean" });
-        } else {
-            instance.isPosted = __raw_isPosted;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("needsReview")) ? "needsReview" in obj : (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
-        const __raw_needsReview = obj["needsReview"] as boolean;
-
-        if (!(typeof __raw_needsReview === "boolean")) {
-            errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Order.needsReview is required" : "expected boolean" });
-        } else {
-            instance.needsReview = __raw_needsReview;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("actionItem")) ? "actionItem" in obj : (__fields.keeps("actionItem") && obj["actionItem"] !== undefined)) {
-        const __raw_actionItem = obj["actionItem"] as string;
-
-        if (!(typeof __raw_actionItem === "string")) {
-            errors.push({ field: "actionItem", message: __raw_actionItem == null ? "Order.actionItem is required" : "expected string" });
-        } else {
-            if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
-                if (__raw_actionItem.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
-            }
-            instance.actionItem = __raw_actionItem;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
-        const __raw_upsale = obj["upsale"] as number;
-
-        if (!(typeof __raw_upsale === "number" && globalThis.Number.isFinite(__raw_upsale))) {
-            errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
-        } else {
-            instance.upsale = __raw_upsale;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dateCreated")) ? "dateCreated" in obj : (__fields.keeps("dateCreated") && obj["dateCreated"] !== undefined)) {
-        try {
-            instance.dateCreated = __foreign__dateTimeDateTimeDecode(obj["dateCreated"]);
-        } catch (__error) {
-            errors.push({ field: "dateCreated", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("appointment")) ? "appointment" in obj : (__fields.keeps("appointment") && obj["appointment"] !== undefined)) {
-        const __raw_appointment = obj["appointment"] as string | Appointment;
-
-        if (typeof __raw_appointment === "string") {
-            instance.appointment = __raw_appointment;
-        } else {
-            ctx.pushScope("appointment");
-            try {
-                const __result = appointmentDecodeWithContext(__raw_appointment, ctx);
-                ctx.assignOrDefer(instance, "appointment", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "appointment" : "appointment." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-
-                    errors.push({ field: "appointment", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastTechs")) ? "lastTechs" in obj : (__fields.keeps("lastTechs") && obj["lastTechs"] !== undefined)) {
-        const __raw_lastTechs = obj["lastTechs"] as Array<string | Employee>;
-        if (Array.isArray(__raw_lastTechs)) {
-            ctx.pushScope("lastTechs");
-            try {
-                instance.lastTechs = __mf_decodeArray(__raw_lastTechs, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : employeeDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "lastTechs" : "lastTechs." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "lastTechs", message: __raw_lastTechs == null ? "Order.lastTechs is required" : "expected Array<string | Employee>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("package")) ? "package" in obj : (__fields.keeps("package") && obj["package"] !== undefined)) {
-        const __raw_package = obj["package"] as Array<string | Package> | null;
-
-        if (__raw_package === null) {
-            instance.package = null;
-        } else {
-            if (Array.isArray(__raw_package)) {
-                ctx.pushScope("package");
+                ctx.pushScope("stage");
                 try {
-                    instance.package = __mf_decodeArray(__raw_package, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : packageDecodeWithContext(__raw0, ctx)));
+                    const __result = orderStageDecodeWithContext(__raw_stage, ctx);
+                    ctx.assignOrDefer(instance, "stage", __result);
                 } catch (__e) {
                     if (__e instanceof __mf_DecodeError) {
                         for (const __err of __e.errors) {
                             errors.push({
-                                field: __err.field === "_root" ? "package" : "package." + __err.field,
+                                field: __err.field === "_root" ? "stage" : "stage." + __err.field,
                                 message: __err.message
                             });
                         }
                     } else {
-                        throw __e;
+
+                        errors.push({ field: "stage", message: __e instanceof Error ? __e.message : String(__e) });
                     }
                 } finally {
                     ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "package", message: __raw_package == null ? "Order.package is required" : "expected Array<string | Package>" });
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("promotion")) ? "promotion" in obj : (__fields.keeps("promotion") && obj["promotion"] !== undefined)) {
-        const __raw_promotion = obj["promotion"] as Array<string | Promotion> | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
+                const __raw_number = obj["number"] as number;
 
-        if (__raw_promotion === null) {
-            instance.promotion = null;
-        } else {
-            if (Array.isArray(__raw_promotion)) {
-                ctx.pushScope("promotion");
+                if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number))) {
+                    errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
+                } else {
+                    instance.number = __raw_number;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("payments")) ? "payments" in obj : (__fields.keeps("payments") && obj["payments"] !== undefined)) {
+                const __raw_payments = obj["payments"] as Array<string | Payment>;
+                if (Array.isArray(__raw_payments)) {
+                    ctx.pushScope("payments");
+                    try {
+                        instance.payments = __mf_decodeArray(__raw_payments, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : paymentDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "payments" : "payments." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "payments", message: __raw_payments == null ? "Order.payments is required" : "expected Array<string | Payment>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("opportunity")) ? "opportunity" in obj : (__fields.keeps("opportunity") && obj["opportunity"] !== undefined)) {
+                const __raw_opportunity = obj["opportunity"] as string;
+
+                if (!(typeof __raw_opportunity === "string")) {
+                    errors.push({ field: "opportunity", message: __raw_opportunity == null ? "Order.opportunity is required" : "expected string" });
+                } else {
+                    if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
+                        if (__raw_opportunity.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
+                    }
+                    instance.opportunity = __raw_opportunity;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("reference")) ? "reference" in obj : (__fields.keeps("reference") && obj["reference"] !== undefined)) {
+                const __raw_reference = obj["reference"] as string;
+
+                if (!(typeof __raw_reference === "string")) {
+                    errors.push({ field: "reference", message: __raw_reference == null ? "Order.reference is required" : "expected string" });
+                } else {
+                    if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
+                        if (__raw_reference.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
+                    }
+                    instance.reference = __raw_reference;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("leadSource")) ? "leadSource" in obj : (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
+                const __raw_leadSource = obj["leadSource"] as string;
+
+                if (!(typeof __raw_leadSource === "string")) {
+                    errors.push({ field: "leadSource", message: __raw_leadSource == null ? "Order.leadSource is required" : "expected string" });
+                } else {
+                    if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
+                        if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
+                    }
+                    instance.leadSource = __raw_leadSource;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
+                const __raw_salesRep = obj["salesRep"] as string | Employee;
+
+                if (typeof __raw_salesRep === "string") {
+                    instance.salesRep = __raw_salesRep;
+                } else {
+                    ctx.pushScope("salesRep");
+                    try {
+                        const __result = employeeDecodeWithContext(__raw_salesRep, ctx);
+                        ctx.assignOrDefer(instance, "salesRep", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "salesRep" : "salesRep." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "salesRep", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("group")) ? "group" in obj : (__fields.keeps("group") && obj["group"] !== undefined)) {
+                const __raw_group = obj["group"] as string;
+
+                if (!(typeof __raw_group === "string")) {
+                    errors.push({ field: "group", message: __raw_group == null ? "Order.group is required" : "expected string" });
+                } else {
+                    if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
+                        if (__raw_group.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
+                    }
+                    instance.group = __raw_group;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("subgroup")) ? "subgroup" in obj : (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
+                const __raw_subgroup = obj["subgroup"] as string;
+
+                if (!(typeof __raw_subgroup === "string")) {
+                    errors.push({ field: "subgroup", message: __raw_subgroup == null ? "Order.subgroup is required" : "expected string" });
+                } else {
+                    if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
+                        if (__raw_subgroup.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
+                    }
+                    instance.subgroup = __raw_subgroup;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isPosted")) ? "isPosted" in obj : (__fields.keeps("isPosted") && obj["isPosted"] !== undefined)) {
+                const __raw_isPosted = obj["isPosted"] as boolean;
+
+                if (!(typeof __raw_isPosted === "boolean")) {
+                    errors.push({ field: "isPosted", message: __raw_isPosted == null ? "Order.isPosted is required" : "expected boolean" });
+                } else {
+                    instance.isPosted = __raw_isPosted;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("needsReview")) ? "needsReview" in obj : (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
+                const __raw_needsReview = obj["needsReview"] as boolean;
+
+                if (!(typeof __raw_needsReview === "boolean")) {
+                    errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Order.needsReview is required" : "expected boolean" });
+                } else {
+                    instance.needsReview = __raw_needsReview;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("actionItem")) ? "actionItem" in obj : (__fields.keeps("actionItem") && obj["actionItem"] !== undefined)) {
+                const __raw_actionItem = obj["actionItem"] as string;
+
+                if (!(typeof __raw_actionItem === "string")) {
+                    errors.push({ field: "actionItem", message: __raw_actionItem == null ? "Order.actionItem is required" : "expected string" });
+                } else {
+                    if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
+                        if (__raw_actionItem.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
+                    }
+                    instance.actionItem = __raw_actionItem;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
+                const __raw_upsale = obj["upsale"] as number;
+
+                if (!(typeof __raw_upsale === "number" && globalThis.Number.isFinite(__raw_upsale))) {
+                    errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
+                } else {
+                    instance.upsale = __raw_upsale;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dateCreated")) ? "dateCreated" in obj : (__fields.keeps("dateCreated") && obj["dateCreated"] !== undefined)) {
                 try {
-                    instance.promotion = __mf_decodeArray(__raw_promotion, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : promotionDecodeWithContext(__raw0, ctx)));
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "promotion" : "promotion." + __err.field,
-                                message: __err.message
-                            });
+                    instance.dateCreated = __foreign__dateTimeDateTimeDecode(obj["dateCreated"]);
+                } catch (__error) {
+                    errors.push({ field: "dateCreated", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("appointment")) ? "appointment" in obj : (__fields.keeps("appointment") && obj["appointment"] !== undefined)) {
+                const __raw_appointment = obj["appointment"] as string | Appointment;
+
+                if (typeof __raw_appointment === "string") {
+                    instance.appointment = __raw_appointment;
+                } else {
+                    ctx.pushScope("appointment");
+                    try {
+                        const __result = appointmentDecodeWithContext(__raw_appointment, ctx);
+                        ctx.assignOrDefer(instance, "appointment", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "appointment" : "appointment." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "appointment", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastTechs")) ? "lastTechs" in obj : (__fields.keeps("lastTechs") && obj["lastTechs"] !== undefined)) {
+                const __raw_lastTechs = obj["lastTechs"] as Array<string | Employee>;
+                if (Array.isArray(__raw_lastTechs)) {
+                    ctx.pushScope("lastTechs");
+                    try {
+                        instance.lastTechs = __mf_decodeArray(__raw_lastTechs, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : employeeDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "lastTechs" : "lastTechs." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "lastTechs", message: __raw_lastTechs == null ? "Order.lastTechs is required" : "expected Array<string | Employee>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("package")) ? "package" in obj : (__fields.keeps("package") && obj["package"] !== undefined)) {
+                const __raw_package = obj["package"] as Array<string | Package> | null;
+
+                if (__raw_package === null) {
+                    instance.package = null;
+                } else {
+                    if (Array.isArray(__raw_package)) {
+                        ctx.pushScope("package");
+                        try {
+                            instance.package = __mf_decodeArray(__raw_package, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : packageDecodeWithContext(__raw0, ctx)));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "package" : "package." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "package", message: __raw_package == null ? "Order.package is required" : "expected Array<string | Package>" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "promotion", message: __raw_promotion == null ? "Order.promotion is required" : "expected Array<string | Promotion>" });
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        const __raw_balance = obj["balance"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("promotion")) ? "promotion" in obj : (__fields.keeps("promotion") && obj["promotion"] !== undefined)) {
+                const __raw_promotion = obj["promotion"] as Array<string | Promotion> | null;
 
-        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
-            errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
-        } else {
-            instance.balance = __raw_balance;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("due")) ? "due" in obj : (__fields.keeps("due") && obj["due"] !== undefined)) {
-        try {
-            instance.due = __foreign__dateTimeDateTimeDecode(obj["due"]);
-        } catch (__error) {
-            errors.push({ field: "due", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
-        const __raw_total = obj["total"] as number;
+                if (__raw_promotion === null) {
+                    instance.promotion = null;
+                } else {
+                    if (Array.isArray(__raw_promotion)) {
+                        ctx.pushScope("promotion");
+                        try {
+                            instance.promotion = __mf_decodeArray(__raw_promotion, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : promotionDecodeWithContext(__raw0, ctx)));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "promotion" : "promotion." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
+                        }
+                    } else {
+                        errors.push({ field: "promotion", message: __raw_promotion == null ? "Order.promotion is required" : "expected Array<string | Promotion>" });
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_total === "number" && globalThis.Number.isFinite(__raw_total))) {
-            errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
-        } else {
-            instance.total = __raw_total;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
-        const __raw_site = obj["site"] as string | Site;
+                if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
+                    errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
+                } else {
+                    instance.balance = __raw_balance;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("due")) ? "due" in obj : (__fields.keeps("due") && obj["due"] !== undefined)) {
+                try {
+                    instance.due = __foreign__dateTimeDateTimeDecode(obj["due"]);
+                } catch (__error) {
+                    errors.push({ field: "due", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
+                const __raw_total = obj["total"] as number;
 
-        if (typeof __raw_site === "string") {
-            instance.site = __raw_site;
-        } else {
-            ctx.pushScope("site");
-            try {
-                const __result = siteDecodeWithContext(__raw_site, ctx);
-                ctx.assignOrDefer(instance, "site", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "site" : "site." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_total === "number" && globalThis.Number.isFinite(__raw_total))) {
+                    errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
+                } else {
+                    instance.total = __raw_total;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
+                const __raw_site = obj["site"] as string | Site;
+
+                if (typeof __raw_site === "string") {
+                    instance.site = __raw_site;
+                } else {
+                    ctx.pushScope("site");
+                    try {
+                        const __result = siteDecodeWithContext(__raw_site, ctx);
+                        ctx.assignOrDefer(instance, "site", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "site" : "site." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "site", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("billedItems")) ? "billedItems" in obj : (__fields.keeps("billedItems") && obj["billedItems"] !== undefined)) {
+                const __raw_billedItems = obj["billedItems"] as Array<BilledItem>;
+                if (Array.isArray(__raw_billedItems)) {
+                    ctx.pushScope("billedItems");
+                    try {
+                        instance.billedItems = __mf_decodeArray(__raw_billedItems, ctx, (__raw0) => billedItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "billedItems" : "billedItems." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "site", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "billedItems", message: __raw_billedItems == null ? "Order.billedItems is required" : "expected Array<BilledItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("billedItems")) ? "billedItems" in obj : (__fields.keeps("billedItems") && obj["billedItems"] !== undefined)) {
-        const __raw_billedItems = obj["billedItems"] as Array<BilledItem>;
-        if (Array.isArray(__raw_billedItems)) {
-            ctx.pushScope("billedItems");
-            try {
-                instance.billedItems = __mf_decodeArray(__raw_billedItems, ctx, (__raw0) => billedItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "billedItems" : "billedItems." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
+                try {
+                    instance.memo = __foreign__optionOptionDecode(obj["memo"]);
+                } catch (__error) {
+                    errors.push({ field: "memo", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("discount")) ? "discount" in obj : (__fields.keeps("discount") && obj["discount"] !== undefined)) {
+                const __raw_discount = obj["discount"] as number;
+
+                if (!(typeof __raw_discount === "number" && globalThis.Number.isFinite(__raw_discount))) {
+                    errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
+                } else {
+                    instance.discount = __raw_discount;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tip")) ? "tip" in obj : (__fields.keeps("tip") && obj["tip"] !== undefined)) {
+                const __raw_tip = obj["tip"] as number;
+
+                if (!(typeof __raw_tip === "number" && globalThis.Number.isFinite(__raw_tip))) {
+                    errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
+                } else {
+                    instance.tip = __raw_tip;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("commissions")) ? "commissions" in obj : (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
+                const __raw_commissions = obj["commissions"] as Array<number>;
+                if (Array.isArray(__raw_commissions)) {
+                    ctx.pushScope("commissions");
+                    try {
+                        instance.commissions = __mf_decodeArray(__raw_commissions, ctx, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "commissions", message: __raw_commissions == null ? "Order.commissions is required" : "expected Array<number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "billedItems", message: __raw_billedItems == null ? "Order.billedItems is required" : "expected Array<BilledItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
-        try {
-            instance.memo = __foreign__optionOptionDecode(obj["memo"]);
-        } catch (__error) {
-            errors.push({ field: "memo", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("discount")) ? "discount" in obj : (__fields.keeps("discount") && obj["discount"] !== undefined)) {
-        const __raw_discount = obj["discount"] as number;
-
-        if (!(typeof __raw_discount === "number" && globalThis.Number.isFinite(__raw_discount))) {
-            errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
-        } else {
-            instance.discount = __raw_discount;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tip")) ? "tip" in obj : (__fields.keeps("tip") && obj["tip"] !== undefined)) {
-        const __raw_tip = obj["tip"] as number;
-
-        if (!(typeof __raw_tip === "number" && globalThis.Number.isFinite(__raw_tip))) {
-            errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
-        } else {
-            instance.tip = __raw_tip;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("commissions")) ? "commissions" in obj : (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
-        const __raw_commissions = obj["commissions"] as Array<number>;
-        if (Array.isArray(__raw_commissions)) {
-            ctx.pushScope("commissions");
-            try {
-                instance.commissions = __mf_decodeArray(__raw_commissions, ctx, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "commissions", message: __raw_commissions == null ? "Order.commissions is required" : "expected Array<number>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1046,7 +1090,7 @@ export function orderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "account") && __mf_holds(obj, "stage") && __mf_holds(obj, "number") && __mf_holds(obj, "payments") && __mf_holds(obj, "opportunity") && __mf_holds(obj, "reference") && __mf_holds(obj, "leadSource") && __mf_holds(obj, "salesRep") && __mf_holds(obj, "group") && __mf_holds(obj, "subgroup") && __mf_holds(obj, "isPosted") && __mf_holds(obj, "needsReview") && __mf_holds(obj, "actionItem") && __mf_holds(obj, "upsale") && __mf_holds(obj, "dateCreated") && __mf_holds(obj, "appointment") && __mf_holds(obj, "lastTechs") && __mf_holds(obj, "package") && __mf_holds(obj, "promotion") && __mf_holds(obj, "balance") && __mf_holds(obj, "due") && __mf_holds(obj, "total") && __mf_holds(obj, "site") && __mf_holds(obj, "billedItems") && __mf_holds(obj, "memo") && __mf_holds(obj, "discount") && __mf_holds(obj, "tip") && __mf_holds(obj, "commissions");
+    return __mf_holdsAll(obj, ["id", "account", "stage", "number", "payments", "opportunity", "reference", "leadSource", "salesRep", "group", "subgroup", "isPosted", "needsReview", "actionItem", "upsale", "dateCreated", "appointment", "lastTechs", "package", "promotion", "balance", "due", "total", "site", "billedItems", "memo", "discount", "tip", "commissions"]);
 }
 
 export function orderIs(obj: unknown): obj is Order {
@@ -2387,55 +2431,55 @@ export declare const Order: {
 
 ## Mapping
 
-original 0..570 -> expanded 1972..2542
-original 619..649 -> expanded 2542..2572
-original 677..698 -> expanded 2572..2593
-original 796..801 -> expanded 2593..2598
-original 820..856 -> expanded 2598..2634
-original 1031..1036 -> expanded 2634..2639
-original 1063..1091 -> expanded 2639..2667
-original 1119..1144 -> expanded 2667..2692
-original 1172..1216 -> expanded 2692..2736
-original 1264..1269 -> expanded 2736..2741
-original 1310..1340 -> expanded 2741..2771
-original 1386..1391 -> expanded 2771..2776
-original 1432..1460 -> expanded 2776..2804
-original 1531..1536 -> expanded 2804..2809
-original 1577..1606 -> expanded 2809..2838
-original 1707..1712 -> expanded 2838..2843
-original 1731..1769 -> expanded 2843..2881
-original 1834..1839 -> expanded 2881..2886
-original 1880..1904 -> expanded 2886..2910
-original 1972..1977 -> expanded 2910..2915
-original 2018..2045 -> expanded 2915..2942
-original 2090..2118 -> expanded 2942..2970
-original 2169..2200 -> expanded 2970..3001
-original 2248..2253 -> expanded 3001..3006
-original 2294..2323 -> expanded 3006..3035
-original 2351..2376 -> expanded 3035..3060
-original 2404..2445 -> expanded 3060..3101
-original 2551..2556 -> expanded 3101..3106
-original 2575..2619 -> expanded 3106..3150
-original 2710..2756 -> expanded 3150..3196
-original 2784..2834 -> expanded 3196..3246
-original 2862..2916 -> expanded 3246..3300
-original 2944..2970 -> expanded 3300..3326
-original 3014..3047 -> expanded 3326..3359
-original 3075..3099 -> expanded 3359..3383
-original 3148..3153 -> expanded 3383..3388
-original 3172..3202 -> expanded 3388..3418
-original 3261..3302 -> expanded 3418..3459
-original 3347..3385 -> expanded 3459..3497
-original 3413..3440 -> expanded 3497..3524
-original 3468..3490 -> expanded 3524..3546
-original 3518..3552 -> expanded 3546..3580
-original 3552..3553 -> expanded 94191..94192
-generated 0..1972 <- imports
-generated 3580..4381 <- Default
-generated 4381..12270 <- Encode
-generated 12270..50283 <- Decode
-generated 50283..93006 <- Gigaform
-generated 93006..94191 <- __convenience_const
+original 0..570 -> expanded 1978..2548
+original 619..649 -> expanded 2548..2578
+original 677..698 -> expanded 2578..2599
+original 796..801 -> expanded 2599..2604
+original 820..856 -> expanded 2604..2640
+original 1031..1036 -> expanded 2640..2645
+original 1063..1091 -> expanded 2645..2673
+original 1119..1144 -> expanded 2673..2698
+original 1172..1216 -> expanded 2698..2742
+original 1264..1269 -> expanded 2742..2747
+original 1310..1340 -> expanded 2747..2777
+original 1386..1391 -> expanded 2777..2782
+original 1432..1460 -> expanded 2782..2810
+original 1531..1536 -> expanded 2810..2815
+original 1577..1606 -> expanded 2815..2844
+original 1707..1712 -> expanded 2844..2849
+original 1731..1769 -> expanded 2849..2887
+original 1834..1839 -> expanded 2887..2892
+original 1880..1904 -> expanded 2892..2916
+original 1972..1977 -> expanded 2916..2921
+original 2018..2045 -> expanded 2921..2948
+original 2090..2118 -> expanded 2948..2976
+original 2169..2200 -> expanded 2976..3007
+original 2248..2253 -> expanded 3007..3012
+original 2294..2323 -> expanded 3012..3041
+original 2351..2376 -> expanded 3041..3066
+original 2404..2445 -> expanded 3066..3107
+original 2551..2556 -> expanded 3107..3112
+original 2575..2619 -> expanded 3112..3156
+original 2710..2756 -> expanded 3156..3202
+original 2784..2834 -> expanded 3202..3252
+original 2862..2916 -> expanded 3252..3306
+original 2944..2970 -> expanded 3306..3332
+original 3014..3047 -> expanded 3332..3365
+original 3075..3099 -> expanded 3365..3389
+original 3148..3153 -> expanded 3389..3394
+original 3172..3202 -> expanded 3394..3424
+original 3261..3302 -> expanded 3424..3465
+original 3347..3385 -> expanded 3465..3503
+original 3413..3440 -> expanded 3503..3530
+original 3468..3490 -> expanded 3530..3552
+original 3518..3552 -> expanded 3552..3586
+original 3552..3553 -> expanded 95885..95886
+generated 0..1978 <- imports
+generated 3586..4387 <- Default
+generated 4387..14279 <- Encode
+generated 14279..51977 <- Decode
+generated 51977..94700 <- Gigaform
+generated 94700..95885 <- __convenience_const
 
 ## Metadata
 

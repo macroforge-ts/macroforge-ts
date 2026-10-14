@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * An intersection with a type held from another module under another name:
@@ -45,7 +45,13 @@ export function nameMixedClone(value: NameMixed): NameMixed {
 
 export function nameMixedEquals(a: NameMixed, b: NameMixed): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score) && a.extra === b.extra);
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.id === b.id,
+        () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        () => a.extra === b.extra,
+    ].every((same) => same());
+});
 }
 
 export function nameMixedHashCode(value: NameMixed): number {
@@ -94,20 +100,30 @@ export function nameMixedEncodePartialWithContext(value: Partial<NameMixed>, ctx
 }
 
 function nameMixedEncodeFields(value: NameMixed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-        if (value.score !== undefined) {
-            result["score"] = value.score;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("extra")) {
-        if (value.extra !== undefined) {
-            result["extra"] = value.extra;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("extra")) {
+                if (value.extra !== undefined) {
+                    result["extra"] = value.extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -185,14 +201,12 @@ export function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
-        errors.push({ field: "extra", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["score", "score"], ["extra", "extra"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -203,32 +217,42 @@ export function nameMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "NameMixed.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "NameMixed.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "NameMixed.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
-        const __raw_extra = obj["extra"] as string;
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "NameMixed.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+                const __raw_extra = obj["extra"] as string;
 
-        if (!(typeof __raw_extra === "string")) {
-            errors.push({ field: "extra", message: __raw_extra == null ? "NameMixed.extra is required" : "expected string" });
-        } else {
-            instance.extra = __raw_extra;
-        }
+                if (!(typeof __raw_extra === "string")) {
+                    errors.push({ field: "extra", message: __raw_extra == null ? "NameMixed.extra is required" : "expected string" });
+                } else {
+                    instance.extra = __raw_extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -253,7 +277,7 @@ export function nameMixedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "score") && __mf_holds(obj, "extra");
+    return __mf_holdsAll(obj, ["id", "score", "extra"]);
 }
 
 export function nameMixedIs(obj: unknown): obj is NameMixed {
@@ -367,17 +391,17 @@ export declare const NameMixed: {
 
 ## Mapping
 
-original 0..316 -> expanded 863..1179
-original 316..317 -> expanded 13139..13140
-generated 0..863 <- imports
-generated 1179..1532 <- Debug
-generated 1532..1712 <- Clone
-generated 1712..1966 <- PartialEq
-generated 1966..2537 <- Hash
-generated 2537..2666 <- Default
-generated 2666..5124 <- Encode
-generated 5124..11734 <- Decode
-generated 11734..13139 <- __convenience_const
+original 0..316 -> expanded 869..1185
+original 316..317 -> expanded 13653..13654
+generated 0..869 <- imports
+generated 1185..1538 <- Debug
+generated 1538..1718 <- Clone
+generated 1718..2057 <- PartialEq
+generated 2057..2628 <- Hash
+generated 2628..2757 <- Default
+generated 2757..5476 <- Encode
+generated 5476..12248 <- Decode
+generated 12248..13653 <- __convenience_const
 
 ## Metadata
 

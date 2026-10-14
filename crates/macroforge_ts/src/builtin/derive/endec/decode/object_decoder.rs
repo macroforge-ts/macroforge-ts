@@ -7,7 +7,9 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::super::EndecContainerOptions;
-use super::field::statements::{Required, decode_fields, read_keys, requires};
+use super::field::statements::{
+    Required, decode_fields, holds_required_keys, missing_keys_check, read_keys,
+};
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
@@ -116,8 +118,7 @@ fn decode_with_context(
     let known_keys: Vec<String> = read_keys(fields)
         .map(|key: String| js_string(&key))
         .collect();
-    let required_fields: Vec<&DecodeField> =
-        fields.iter().filter(|field| field.key_required()).collect();
+    let missing_keys = missing_keys_check(fields);
     let field_statements = decode_fields(fields, type_name, tag_field, Required::Selected);
     let returns = rendered(ts_template! { @{&names.full_type} | @{PENDING_REF} });
     let reference = decode_selectable_reference(type_name, &returns);
@@ -157,12 +158,7 @@ fn decode_with_context(
                 }
             {/if}
 
-            {#for field in &required_fields}
-                {$let is_required: Expr = requires(field)}
-                if (@{is_required} && !("@{field.json_key_text()}" in obj)) {
-                    errors.push({ field: "@{field.json_key_text()}", message: "missing required field" });
-                }
-            {/for}
+            {$typescript missing_keys}
 
             const instance: any = {};
 
@@ -259,26 +255,13 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
     let fn_is_ident = names.generic_function("Is");
     let fn_decode_expr: Expr = ts_ident!(names.function("Decode")).into();
     let full_type_ident = names.full_type_ident();
-    let required_keys: Vec<String> = fields
-        .iter()
-        .filter(|field| field.key_required())
-        .map(|field| {
-            let key = js_string(&field.json_key);
-            let holds = endec_helper("holds");
-            rendered(ts_template! { @{holds}(obj, @{key}) })
-        })
-        .collect();
-    let shape_check_condition = required_keys.join(" && ");
+    let shape_check_condition = holds_required_keys(fields);
     ts_template! {
         export function @{fn_has_shape_ident}(obj: unknown): boolean {
             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                 return false;
             }
-            {#if required_keys.is_empty()}
-                return true;
-            {:else}
-                return @{shape_check_condition};
-            {/if}
+            return @{shape_check_condition};
         }
 
         export function @{fn_is_ident}(obj: unknown): obj is @{full_type_ident} {

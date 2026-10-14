@@ -13,7 +13,7 @@ true
 ## Output
 
 import { weekdayDecodeWithContext, weekdayEncodeWithContext } from "./weekday.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -63,15 +63,23 @@ export function weeklyRecurrenceRuleEncodePartialWithContext(value: Partial<Week
 }
 
 function weeklyRecurrenceRuleEncodeFields(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("quantityOfWeeks")) {
-        if (value.quantityOfWeeks !== undefined) {
-            result["quantityOfWeeks"] = value.quantityOfWeeks;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weekdays")) {
-        if (value.weekdays !== undefined) {
-            result["weekdays"] = value.weekdays.map((__item0) => weekdayEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("quantityOfWeeks")) {
+                if (value.quantityOfWeeks !== undefined) {
+                    result["quantityOfWeeks"] = value.quantityOfWeeks;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weekdays")) {
+                if (value.weekdays !== undefined) {
+                    result["weekdays"] = value.weekdays.map((__item0) => weekdayEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -149,11 +157,12 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("quantityOfWeeks")) && !("quantityOfWeeks" in obj)) {
-        errors.push({ field: "quantityOfWeeks", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weekdays")) && !("weekdays" in obj)) {
-        errors.push({ field: "weekdays", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["quantityOfWeeks", "quantityOfWeeks"], ["weekdays", "weekdays"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -164,38 +173,46 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("quantityOfWeeks")) ? "quantityOfWeeks" in obj : (__fields.keeps("quantityOfWeeks") && obj["quantityOfWeeks"] !== undefined)) {
-        const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("quantityOfWeeks")) ? "quantityOfWeeks" in obj : (__fields.keeps("quantityOfWeeks") && obj["quantityOfWeeks"] !== undefined)) {
+                const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;
 
-        if (!(typeof __raw_quantityOfWeeks === "number" && globalThis.Number.isFinite(__raw_quantityOfWeeks))) {
-            errors.push({ field: "quantityOfWeeks", message: __raw_quantityOfWeeks == null ? "WeeklyRecurrenceRule.quantityOfWeeks is required" : "expected number" });
-        } else {
-            instance.quantityOfWeeks = __raw_quantityOfWeeks;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weekdays")) ? "weekdays" in obj : (__fields.keeps("weekdays") && obj["weekdays"] !== undefined)) {
-        const __raw_weekdays = obj["weekdays"] as Array<Weekday>;
-        if (Array.isArray(__raw_weekdays)) {
-            ctx.pushScope("weekdays");
-            try {
-                instance.weekdays = __mf_decodeArray(__raw_weekdays, ctx, (__raw0) => weekdayDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "weekdays" : "weekdays." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_quantityOfWeeks === "number" && globalThis.Number.isFinite(__raw_quantityOfWeeks))) {
+                    errors.push({ field: "quantityOfWeeks", message: __raw_quantityOfWeeks == null ? "WeeklyRecurrenceRule.quantityOfWeeks is required" : "expected number" });
+                } else {
+                    instance.quantityOfWeeks = __raw_quantityOfWeeks;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weekdays")) ? "weekdays" in obj : (__fields.keeps("weekdays") && obj["weekdays"] !== undefined)) {
+                const __raw_weekdays = obj["weekdays"] as Array<Weekday>;
+                if (Array.isArray(__raw_weekdays)) {
+                    ctx.pushScope("weekdays");
+                    try {
+                        instance.weekdays = __mf_decodeArray(__raw_weekdays, ctx, (__raw0) => weekdayDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "weekdays" : "weekdays." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "weekdays", message: __raw_weekdays == null ? "WeeklyRecurrenceRule.weekdays is required" : "expected Array<Weekday>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "weekdays", message: __raw_weekdays == null ? "WeeklyRecurrenceRule.weekdays is required" : "expected Array<Weekday>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -220,7 +237,7 @@ export function weeklyRecurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "quantityOfWeeks") && __mf_holds(obj, "weekdays");
+    return __mf_holdsAll(obj, ["quantityOfWeeks", "weekdays"]);
 }
 
 export function weeklyRecurrenceRuleIs(obj: unknown): obj is WeeklyRecurrenceRule {
@@ -519,15 +536,15 @@ export declare const WeeklyRecurrenceRule: {
 
 ## Mapping
 
-original 0..108 -> expanded 980..1088
-original 157..258 -> expanded 1088..1189
-original 258..259 -> expanded 19454..19455
-generated 0..980 <- imports
-generated 1189..1337 <- Default
-generated 1337..3919 <- Encode
-generated 3919..11189 <- Decode
-generated 11189..17864 <- Gigaform
-generated 17864..19454 <- __convenience_const
+original 0..108 -> expanded 986..1094
+original 157..258 -> expanded 1094..1195
+original 258..259 -> expanded 20005..20006
+generated 0..986 <- imports
+generated 1195..1343 <- Default
+generated 1343..4119 <- Encode
+generated 4119..11740 <- Decode
+generated 11740..18415 <- Gigaform
+generated 18415..20005 <- __convenience_const
 
 ## Metadata
 

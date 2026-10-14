@@ -38,7 +38,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Renamed {
@@ -88,15 +88,23 @@ export function innerEncodePartialWithContext(value: Partial<Inner>, ctx: __mf_E
 }
 
 function innerEncodeFields(value: Inner, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -174,11 +182,12 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
-        errors.push({ field: "note", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["note", "note"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -189,23 +198,31 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Inner.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Inner.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string;
 
-        if (!(typeof __raw_note === "string")) {
-            errors.push({ field: "note", message: __raw_note == null ? "Inner.note is required" : "expected string" });
-        } else {
-            instance.note = __raw_note;
-        }
+                if (!(typeof __raw_note === "string")) {
+                    errors.push({ field: "note", message: __raw_note == null ? "Inner.note is required" : "expected string" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -230,7 +247,7 @@ export function innerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "note");
+    return __mf_holdsAll(obj, ["id", "note"]);
 }
 
 export function innerIs(obj: unknown): obj is Inner {
@@ -296,17 +313,25 @@ export function flatEncodePartialWithContext(value: Partial<Flat>, ctx: __mf_Enc
 }
 
 function flatEncodeFields(value: Flat, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inner")) {
-        if (value.inner !== undefined) {
-            const __flattened = innerEncodePartialWithContext(value.inner, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inner")) {
+                if (value.inner !== undefined) {
+                    const __flattened = innerEncodePartialWithContext(value.inner, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -384,8 +409,12 @@ export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -396,30 +425,38 @@ export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as number;
 
-        if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
-            errors.push({ field: "id", message: __raw_id == null ? "Flat.id is required" : "expected number" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("inner"))) {
-        if ((__fields === undefined || __fields.requires("inner")) || innerHasShape(obj)) {
-            try {
-                const __result = innerDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "inner", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
-                    }
+                if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Flat.id is required" : "expected number" });
                 } else {
-                    throw __e;
+                    instance.id = __raw_id;
                 }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("inner"))) {
+                if ((__fields === undefined || __fields.requires("inner")) || innerHasShape(obj)) {
+                    try {
+                        const __result = innerDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "inner", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -444,7 +481,7 @@ export function flatHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function flatIs(obj: unknown): obj is Flat {
@@ -562,21 +599,21 @@ Error [248..266]: @derive(Decode): fields 'userName' and 'user_name' are both re
 
 ## Mapping
 
-original 30..55 -> expanded 679..704
-original 88..129 -> expanded 704..745
-original 159..269 -> expanded 745..855
-original 299..353 -> expanded 855..909
-original 353..355 -> expanded 9842..9844
-original 385..423 -> expanded 9844..9882
-original 445..465 -> expanded 9882..9902
-original 465..466 -> expanded 18996..18997
-generated 0..679 <- imports
-generated 909..3142 <- Encode
-generated 3142..8914 <- Decode
-generated 8914..9842 <- __convenience_const
-generated 9902..12299 <- Encode
-generated 12299..18089 <- Decode
-generated 18089..18996 <- __convenience_const
+original 30..55 -> expanded 685..710
+original 88..129 -> expanded 710..751
+original 159..269 -> expanded 751..861
+original 299..353 -> expanded 861..915
+original 353..355 -> expanded 10282..10284
+original 385..423 -> expanded 10284..10322
+original 445..465 -> expanded 10322..10342
+original 465..466 -> expanded 20117..20118
+generated 0..685 <- imports
+generated 915..3342 <- Encode
+generated 3342..9354 <- Decode
+generated 9354..10282 <- __convenience_const
+generated 10342..12949 <- Encode
+generated 12949..19210 <- Decode
+generated 19210..20117 <- __convenience_const
 
 ## Metadata
 

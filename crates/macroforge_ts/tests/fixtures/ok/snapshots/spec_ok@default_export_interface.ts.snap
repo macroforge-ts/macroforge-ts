@@ -33,7 +33,12 @@ export function shapeClone(value: Shape): Shape {
 
 export function shapeEquals(a: Shape, b: Shape): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
 }
 
 export function shapeDefaultValue(): Shape {
@@ -75,12 +80,12 @@ export declare const Shape: {
 ## Mapping
 
 original 41..106 -> expanded 110..175
-original 106..107 -> expanded 866..867
+original 106..107 -> expanded 957..958
 generated 0..110 <- imports
 generated 175..308 <- Clone
-generated 308..533 <- PartialEq
-generated 533..629 <- Default
-generated 629..866 <- __convenience_const
+generated 308..624 <- PartialEq
+generated 624..720 <- Default
+generated 720..957 <- __convenience_const
 
 ## Metadata
 

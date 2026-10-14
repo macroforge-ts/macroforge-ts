@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Class members a derive has to tell from plain fields: visibility
@@ -71,10 +71,18 @@ export class ClassMembers {
 
     static equals(a: ClassMembers, b: ClassMembers): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.open === b.open && a.fixed === b.fixed && a.optional === b.optional && (a.definite === b.definite || a.definite !== a.definite && b.definite !== b.definite) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
-        	const __other0 = b.items[__index0];
-        	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.open === b.open,
+                    () => a.fixed === b.fixed,
+                    () => a.optional === b.optional,
+                    () => a.definite === b.definite || a.definite !== a.definite && b.definite !== b.definite,
+                    () => a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+                    	const __other0 = b.items[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
+                    }),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassMembers): number {
@@ -120,30 +128,44 @@ static encodePartialWithContext(value: Partial<ClassMembers>, ctx: __mf_EncodeCo
 }
 
 static #encodeFields(value: ClassMembers, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("open")) {
-        if (value.open !== undefined) {
-            result["open"] = value.open;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("fixed")) {
-        if (value.fixed !== undefined) {
-            result["fixed"] = value.fixed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optional")) {
-        if (value.optional !== undefined) {
-            result["optional"] = value.optional;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("definite")) {
-        if (value.definite !== undefined) {
-            result["definite"] = value.definite;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("items")) {
-        if (value.items !== undefined) {
-            result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("open")) {
+                if (value.open !== undefined) {
+                    result["open"] = value.open;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("fixed")) {
+                if (value.fixed !== undefined) {
+                    result["fixed"] = value.fixed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optional")) {
+                if (value.optional !== undefined) {
+                    result["optional"] = value.optional;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("definite")) {
+                if (value.definite !== undefined) {
+                    result["definite"] = value.definite;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("items")) {
+                if (value.items !== undefined) {
+                    result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -238,17 +260,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("open")) && !("open" in obj)) {
-        errors.push({ field: "open", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("fixed")) && !("fixed" in obj)) {
-        errors.push({ field: "fixed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("definite")) && !("definite" in obj)) {
-        errors.push({ field: "definite", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["open", "open"], ["fixed", "fixed"], ["definite", "definite"], ["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassMembers.prototype);
@@ -259,67 +276,81 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("open")) ? "open" in obj : (__fields.keeps("open") && obj["open"] !== undefined)) {
-        const __raw_open = obj["open"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("open")) ? "open" in obj : (__fields.keeps("open") && obj["open"] !== undefined)) {
+                const __raw_open = obj["open"] as string;
 
-        if (!(typeof __raw_open === "string")) {
-            errors.push({ field: "open", message: __raw_open == null ? "ClassMembers.open is required" : "expected string" });
-        } else {
-            instance.open = __raw_open;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("fixed")) ? "fixed" in obj : (__fields.keeps("fixed") && obj["fixed"] !== undefined)) {
-        const __raw_fixed = obj["fixed"] as string;
-
-        if (!(typeof __raw_fixed === "string")) {
-            errors.push({ field: "fixed", message: __raw_fixed == null ? "ClassMembers.fixed is required" : "expected string" });
-        } else {
-            instance.fixed = __raw_fixed;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optional"))) {
-        if (("optional" in obj && obj["optional"] !== undefined)) {
-            const __raw_optional = obj["optional"] as string;
-
-            if (!(typeof __raw_optional === "string")) {
-                errors.push({ field: "optional", message: "expected string" });
-            } else {
-                instance.optional = __raw_optional;
+                if (!(typeof __raw_open === "string")) {
+                    errors.push({ field: "open", message: __raw_open == null ? "ClassMembers.open is required" : "expected string" });
+                } else {
+                    instance.open = __raw_open;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("definite")) ? "definite" in obj : (__fields.keeps("definite") && obj["definite"] !== undefined)) {
-        const __raw_definite = obj["definite"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("fixed")) ? "fixed" in obj : (__fields.keeps("fixed") && obj["fixed"] !== undefined)) {
+                const __raw_fixed = obj["fixed"] as string;
 
-        if (!(typeof __raw_definite === "number" && globalThis.Number.isFinite(__raw_definite))) {
-            errors.push({ field: "definite", message: __raw_definite == null ? "ClassMembers.definite is required" : "expected number" });
-        } else {
-            instance.definite = __raw_definite;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
-        const __raw_items = obj["items"] as EdgeItem[];
-        if (Array.isArray(__raw_items)) {
-            ctx.pushScope("items");
-            try {
-                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "items" : "items." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_fixed === "string")) {
+                    errors.push({ field: "fixed", message: __raw_fixed == null ? "ClassMembers.fixed is required" : "expected string" });
+                } else {
+                    instance.fixed = __raw_fixed;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optional"))) {
+                if (("optional" in obj && obj["optional"] !== undefined)) {
+                    const __raw_optional = obj["optional"] as string;
+
+                    if (!(typeof __raw_optional === "string")) {
+                        errors.push({ field: "optional", message: "expected string" });
+                    } else {
+                        instance.optional = __raw_optional;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("definite")) ? "definite" in obj : (__fields.keeps("definite") && obj["definite"] !== undefined)) {
+                const __raw_definite = obj["definite"] as number;
+
+                if (!(typeof __raw_definite === "number" && globalThis.Number.isFinite(__raw_definite))) {
+                    errors.push({ field: "definite", message: __raw_definite == null ? "ClassMembers.definite is required" : "expected number" });
+                } else {
+                    instance.definite = __raw_definite;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+                const __raw_items = obj["items"] as EdgeItem[];
+                if (Array.isArray(__raw_items)) {
+                    ctx.pushScope("items");
+                    try {
+                        instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "items" : "items." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "items", message: __raw_items == null ? "ClassMembers.items is required" : "expected EdgeItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "items", message: __raw_items == null ? "ClassMembers.items is required" : "expected EdgeItem[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -340,7 +371,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "open") && __mf_holds(obj, "fixed") && __mf_holds(obj, "definite") && __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["open", "fixed", "definite", "items"]);
 }
 
 static is(obj: unknown): obj is ClassMembers {
@@ -449,7 +480,14 @@ export class ClassGuarded {
 
     static equals(a: ClassGuarded, b: ClassGuarded): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && (a.guarded === b.guarded || a.guarded !== a.guarded && b.guarded !== b.guarded) && a.hidden === b.hidden && a.sealed === b.sealed);
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.guarded === b.guarded || a.guarded !== a.guarded && b.guarded !== b.guarded,
+                    () => a.hidden === b.hidden,
+                    () => a.sealed === b.sealed,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassGuarded): number {
@@ -466,34 +504,32 @@ export class ClassGuarded {
     static partialCompare(a: ClassGuarded, b: ClassGuarded): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded || (a.guarded !== a.guarded && b.guarded !== b.guarded) ? 0 : null);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = (a.hidden === b.hidden ? 0 : a.hidden ? 1 : -1);
-        if (cmp2 === null) return null;
-        if (cmp2 !== 0) return cmp2;
-        const cmp3 = (a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0);
-        if (cmp3 === null) return null;
-        if (cmp3 !== 0) return cmp3;
-            return 0;
+        for (const __order of [
+            () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+            () => (a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded || (a.guarded !== a.guarded && b.guarded !== b.guarded) ? 0 : null),
+            () => (a.hidden === b.hidden ? 0 : a.hidden ? 1 : -1),
+            () => (a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
     static compare(a: ClassGuarded, b: ClassGuarded): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded ? 0 : a.guarded !== a.guarded ? b.guarded !== b.guarded ? 0 : 1 : -1;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = a.hidden === b.hidden ? 0 : a.hidden ? 1 : -1;
-        if (cmp2 !== 0) return cmp2;
-        const cmp3 = a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0;
-        if (cmp3 !== 0) return cmp3;
-            return 0;
+        for (const __order of [
+            () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+            () => a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : a.guarded === b.guarded ? 0 : a.guarded !== a.guarded ? b.guarded !== b.guarded ? 0 : 1 : -1,
+            () => a.hidden === b.hidden ? 0 : a.hidden ? 1 : -1,
+            () => a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0,
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
@@ -528,25 +564,37 @@ static encodePartialWithContext(value: Partial<ClassGuarded>, ctx: __mf_EncodeCo
 }
 
 static #encodeFields(value: ClassGuarded, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("guarded")) {
-        if (value.guarded !== undefined) {
-            result["guarded"] = value.guarded;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("hidden")) {
-        if (value.hidden !== undefined) {
-            result["hidden"] = value.hidden;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("sealed")) {
-        if (value.sealed !== undefined) {
-            result["sealed"] = value.sealed;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("guarded")) {
+                if (value.guarded !== undefined) {
+                    result["guarded"] = value.guarded;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("hidden")) {
+                if (value.hidden !== undefined) {
+                    result["hidden"] = value.hidden;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sealed")) {
+                if (value.sealed !== undefined) {
+                    result["sealed"] = value.sealed;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -638,17 +686,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("guarded")) && !("guarded" in obj)) {
-        errors.push({ field: "guarded", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("hidden")) && !("hidden" in obj)) {
-        errors.push({ field: "hidden", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("sealed")) && !("sealed" in obj)) {
-        errors.push({ field: "sealed", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["guarded", "guarded"], ["hidden", "hidden"], ["sealed", "sealed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassGuarded.prototype);
@@ -659,41 +702,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "ClassGuarded.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("guarded")) ? "guarded" in obj : (__fields.keeps("guarded") && obj["guarded"] !== undefined)) {
-        const __raw_guarded = obj["guarded"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "ClassGuarded.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("guarded")) ? "guarded" in obj : (__fields.keeps("guarded") && obj["guarded"] !== undefined)) {
+                const __raw_guarded = obj["guarded"] as number;
 
-        if (!(typeof __raw_guarded === "number" && globalThis.Number.isFinite(__raw_guarded))) {
-            errors.push({ field: "guarded", message: __raw_guarded == null ? "ClassGuarded.guarded is required" : "expected number" });
-        } else {
-            instance.guarded = __raw_guarded;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
-        const __raw_hidden = obj["hidden"] as boolean;
+                if (!(typeof __raw_guarded === "number" && globalThis.Number.isFinite(__raw_guarded))) {
+                    errors.push({ field: "guarded", message: __raw_guarded == null ? "ClassGuarded.guarded is required" : "expected number" });
+                } else {
+                    instance.guarded = __raw_guarded;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
+                const __raw_hidden = obj["hidden"] as boolean;
 
-        if (!(typeof __raw_hidden === "boolean")) {
-            errors.push({ field: "hidden", message: __raw_hidden == null ? "ClassGuarded.hidden is required" : "expected boolean" });
-        } else {
-            instance.hidden = __raw_hidden;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("sealed")) ? "sealed" in obj : (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
-        const __raw_sealed = obj["sealed"] as string;
+                if (!(typeof __raw_hidden === "boolean")) {
+                    errors.push({ field: "hidden", message: __raw_hidden == null ? "ClassGuarded.hidden is required" : "expected boolean" });
+                } else {
+                    instance.hidden = __raw_hidden;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sealed")) ? "sealed" in obj : (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
+                const __raw_sealed = obj["sealed"] as string;
 
-        if (!(typeof __raw_sealed === "string")) {
-            errors.push({ field: "sealed", message: __raw_sealed == null ? "ClassGuarded.sealed is required" : "expected string" });
-        } else {
-            instance.sealed = __raw_sealed;
-        }
+                if (!(typeof __raw_sealed === "string")) {
+                    errors.push({ field: "sealed", message: __raw_sealed == null ? "ClassGuarded.sealed is required" : "expected string" });
+                } else {
+                    instance.sealed = __raw_sealed;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -714,7 +769,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "guarded") && __mf_holds(obj, "hidden") && __mf_holds(obj, "sealed");
+    return __mf_holdsAll(obj, ["name", "guarded", "hidden", "sealed"]);
 }
 
 static is(obj: unknown): obj is ClassGuarded {
@@ -826,7 +881,12 @@ export class ClassConstructed {
 
     static equals(a: ClassConstructed, b: ClassConstructed): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.label === b.label && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.label === b.label,
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassConstructed): number {
@@ -841,24 +901,28 @@ export class ClassConstructed {
     static partialCompare(a: ClassConstructed, b: ClassConstructed): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight || (a.weight !== a.weight && b.weight !== b.weight) ? 0 : null);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0),
+            () => (a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight || (a.weight !== a.weight && b.weight !== b.weight) ? 0 : null),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
     static compare(a: ClassConstructed, b: ClassConstructed): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight ? 0 : a.weight !== a.weight ? b.weight !== b.weight ? 0 : 1 : -1;
-        if (cmp1 !== 0) return cmp1;
-            return 0;
+        for (const __order of [
+            () => a.label < b.label ? -1 : a.label > b.label ? 1 : 0,
+            () => a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight ? 0 : a.weight !== a.weight ? b.weight !== b.weight ? 0 : 1 : -1,
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
@@ -891,15 +955,23 @@ static encodePartialWithContext(value: Partial<ClassConstructed>, ctx: __mf_Enco
 }
 
 static #encodeFields(value: ClassConstructed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -983,11 +1055,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
-        errors.push({ field: "weight", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["label", "label"], ["weight", "weight"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassConstructed.prototype);
@@ -998,23 +1071,31 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
-        const __raw_label = obj["label"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+                const __raw_label = obj["label"] as string;
 
-        if (!(typeof __raw_label === "string")) {
-            errors.push({ field: "label", message: __raw_label == null ? "ClassConstructed.label is required" : "expected string" });
-        } else {
-            instance.label = __raw_label;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number;
+                if (!(typeof __raw_label === "string")) {
+                    errors.push({ field: "label", message: __raw_label == null ? "ClassConstructed.label is required" : "expected string" });
+                } else {
+                    instance.label = __raw_label;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
 
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
-            errors.push({ field: "weight", message: __raw_weight == null ? "ClassConstructed.weight is required" : "expected number" });
-        } else {
-            instance.weight = __raw_weight;
-        }
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "ClassConstructed.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1035,7 +1116,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "label") && __mf_holds(obj, "weight");
+    return __mf_holdsAll(obj, ["label", "weight"]);
 }
 
 static is(obj: unknown): obj is ClassConstructed {
@@ -1151,7 +1232,13 @@ export class ClassParameters {
 
     static equals(a: ClassParameters, b: ClassParameters): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && (a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank) && a.secret === b.secret);
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank,
+                    () => a.secret === b.secret,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassParameters): number {
@@ -1194,20 +1281,30 @@ static encodePartialWithContext(value: Partial<ClassParameters>, ctx: __mf_Encod
 }
 
 static #encodeFields(value: ClassParameters, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rank")) {
-        if (value.rank !== undefined) {
-            result["rank"] = value.rank;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("secret")) {
-        if (value.secret !== undefined) {
-            result["secret"] = value.secret;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rank")) {
+                if (value.rank !== undefined) {
+                    result["rank"] = value.rank;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("secret")) {
+                if (value.secret !== undefined) {
+                    result["secret"] = value.secret;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1291,14 +1388,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rank")) && !("rank" in obj)) {
-        errors.push({ field: "rank", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("secret")) && !("secret" in obj)) {
-        errors.push({ field: "secret", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["rank", "rank"], ["secret", "secret"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassParameters.prototype);
@@ -1309,32 +1404,42 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "ClassParameters.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
-        const __raw_rank = obj["rank"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "ClassParameters.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+                const __raw_rank = obj["rank"] as number;
 
-        if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank))) {
-            errors.push({ field: "rank", message: __raw_rank == null ? "ClassParameters.rank is required" : "expected number" });
-        } else {
-            instance.rank = __raw_rank;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
-        const __raw_secret = obj["secret"] as string;
+                if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank))) {
+                    errors.push({ field: "rank", message: __raw_rank == null ? "ClassParameters.rank is required" : "expected number" });
+                } else {
+                    instance.rank = __raw_rank;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+                const __raw_secret = obj["secret"] as string;
 
-        if (!(typeof __raw_secret === "string")) {
-            errors.push({ field: "secret", message: __raw_secret == null ? "ClassParameters.secret is required" : "expected string" });
-        } else {
-            instance.secret = __raw_secret;
-        }
+                if (!(typeof __raw_secret === "string")) {
+                    errors.push({ field: "secret", message: __raw_secret == null ? "ClassParameters.secret is required" : "expected string" });
+                } else {
+                    instance.secret = __raw_secret;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1355,7 +1460,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "rank") && __mf_holds(obj, "secret");
+    return __mf_holdsAll(obj, ["name", "rank", "secret"]);
 }
 
 static is(obj: unknown): obj is ClassParameters {
@@ -1449,7 +1554,9 @@ export class ClassBase {
 
     static equals(a: ClassBase, b: ClassBase): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id);
+        return __mf_equalWithin(a, b, () => {
+                return a.id === b.id;
+            });
     }
 
     static hashCode(value: ClassBase): number {
@@ -1580,8 +1687,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassBase.prototype);
@@ -1620,7 +1731,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 static is(obj: unknown): obj is ClassBase {
@@ -1718,7 +1829,12 @@ export class ClassDerived extends ClassBase {
 
     static override equals(a: ClassDerived, b: ClassDerived): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && (a.extra === b.extra || a.extra !== a.extra && b.extra !== b.extra));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.extra === b.extra || a.extra !== a.extra && b.extra !== b.extra,
+                ].every((same) => same());
+            });
     }
 
     static override hashCode(value: ClassDerived): number {
@@ -1759,15 +1875,23 @@ static override encodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf
 }
 
 static #encodeFields(value: ClassDerived, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("extra")) {
-        if (value.extra !== undefined) {
-            result["extra"] = value.extra;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("extra")) {
+                if (value.extra !== undefined) {
+                    result["extra"] = value.extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1856,11 +1980,12 @@ static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fie
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
-        errors.push({ field: "extra", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["extra", "extra"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassDerived.prototype);
@@ -1871,23 +1996,31 @@ static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fie
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ClassDerived.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
-        const __raw_extra = obj["extra"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ClassDerived.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+                const __raw_extra = obj["extra"] as number;
 
-        if (!(typeof __raw_extra === "number" && globalThis.Number.isFinite(__raw_extra))) {
-            errors.push({ field: "extra", message: __raw_extra == null ? "ClassDerived.extra is required" : "expected number" });
-        } else {
-            instance.extra = __raw_extra;
-        }
+                if (!(typeof __raw_extra === "number" && globalThis.Number.isFinite(__raw_extra))) {
+                    errors.push({ field: "extra", message: __raw_extra == null ? "ClassDerived.extra is required" : "expected number" });
+                } else {
+                    instance.extra = __raw_extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1908,7 +2041,7 @@ static override hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "extra");
+    return __mf_holdsAll(obj, ["id", "extra"]);
 }
 
 static override is(obj: unknown): obj is ClassDerived {
@@ -2040,7 +2173,9 @@ export abstract class ClassAbstract {
 
     static equals(a: ClassAbstract, b: ClassAbstract): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.kind === b.kind);
+        return __mf_equalWithin(a, b, () => {
+                return a.kind === b.kind;
+            });
     }
 
     static hashCode(value: ClassAbstract): number {
@@ -2112,13 +2247,20 @@ export class ClassHolder {
 
     static equals(a: ClassHolder, b: ClassHolder): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => classMembersEquals(a.card, b.card) && a.cards.length === b.cards.length && a.cards.every((__item0, __index0) => {
-        	const __other0 = b.cards[__index0];
-        	return __other0 === undefined ? __item0 === undefined : classMembersEquals(__item0, __other0);
-        }) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
-        	const __other0 = b.byName.get(__key0);
-        	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : classBaseEquals(__item0, __other0));
-        }) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : classBaseEquals(a.maybe, b.maybe)));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => classMembersEquals(a.card, b.card),
+                    () => a.cards.length === b.cards.length && a.cards.every((__item0, __index0) => {
+                    	const __other0 = b.cards[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : classMembersEquals(__item0, __other0);
+                    }),
+                    () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+                    	const __other0 = b.byName.get(__key0);
+                    	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : classBaseEquals(__item0, __other0));
+                    }),
+                    () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : classBaseEquals(a.maybe, b.maybe),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassHolder): number {
@@ -2163,25 +2305,37 @@ static encodePartialWithContext(value: Partial<ClassHolder>, ctx: __mf_EncodeCon
 }
 
 static #encodeFields(value: ClassHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("card")) {
-        if (value.card !== undefined) {
-            result["card"] = classMembersEncodeWithContext(value.card, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("cards")) {
-        if (value.cards !== undefined) {
-            result["cards"] = value.cards.map((__item0) => classMembersEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, classBaseEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : classBaseEncodeWithContext(value.maybe, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("card")) {
+                if (value.card !== undefined) {
+                    result["card"] = classMembersEncodeWithContext(value.card, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("cards")) {
+                if (value.cards !== undefined) {
+                    result["cards"] = value.cards.map((__item0) => classMembersEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, classBaseEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : classBaseEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2273,17 +2427,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("card")) && !("card" in obj)) {
-        errors.push({ field: "card", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("cards")) && !("cards" in obj)) {
-        errors.push({ field: "cards", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["card", "card"], ["cards", "cards"], ["byName", "byName"], ["maybe", "maybe"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassHolder.prototype);
@@ -2294,103 +2443,115 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("card")) ? "card" in obj : (__fields.keeps("card") && obj["card"] !== undefined)) {
-        const __raw_card = obj["card"] as ClassMembers;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("card")) ? "card" in obj : (__fields.keeps("card") && obj["card"] !== undefined)) {
+                const __raw_card = obj["card"] as ClassMembers;
 
-        ctx.pushScope("card");
-        try {
-            const __result = classMembersDecodeWithContext(__raw_card, ctx);
-            ctx.assignOrDefer(instance, "card", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "card" : "card." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("card");
+                try {
+                    const __result = classMembersDecodeWithContext(__raw_card, ctx);
+                    ctx.assignOrDefer(instance, "card", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "card" : "card." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "card", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "card", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cards")) ? "cards" in obj : (__fields.keeps("cards") && obj["cards"] !== undefined)) {
-        const __raw_cards = obj["cards"] as ClassMembers[];
-        if (Array.isArray(__raw_cards)) {
-            ctx.pushScope("cards");
-            try {
-                instance.cards = __mf_decodeArray(__raw_cards, ctx, (__raw0) => classMembersDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "cards" : "cards." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cards")) ? "cards" in obj : (__fields.keeps("cards") && obj["cards"] !== undefined)) {
+                const __raw_cards = obj["cards"] as ClassMembers[];
+                if (Array.isArray(__raw_cards)) {
+                    ctx.pushScope("cards");
+                    try {
+                        instance.cards = __mf_decodeArray(__raw_cards, ctx, (__raw0) => classMembersDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "cards" : "cards." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "cards", message: __raw_cards == null ? "ClassHolder.cards is required" : "expected ClassMembers[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "cards", message: __raw_cards == null ? "ClassHolder.cards is required" : "expected ClassMembers[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, ClassBase>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => classBaseDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, ClassBase>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => classBaseDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byName", message: __raw_byName == null ? "ClassHolder.byName is required" : "expected Map<string, ClassBase>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "ClassHolder.byName is required" : "expected Map<string, ClassBase>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as ClassBase | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as ClassBase | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = classBaseDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
                 } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = classBaseDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2411,7 +2572,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "card") && __mf_holds(obj, "cards") && __mf_holds(obj, "byName") && __mf_holds(obj, "maybe");
+    return __mf_holdsAll(obj, ["card", "cards", "byName", "maybe"]);
 }
 
 static is(obj: unknown): obj is ClassHolder {
@@ -2550,7 +2711,23 @@ export class ClassInferred {
 
     static equals(a: ClassInferred, b: ClassInferred): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => (a.count === b.count || a.count !== a.count && b.count !== b.count) && a.label === b.label && a.active === b.active && a.big === b.big && (a.offset === b.offset || a.offset !== a.offset && b.offset !== b.offset) && a.note === b.note && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && (a.ratio === b.ratio || a.ratio !== a.ratio && b.ratio !== b.ratio) && a.kind === b.kind && (a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank) && a.id === b.id && (a.secret === b.secret || a.secret !== a.secret && b.secret !== b.secret));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+                    () => a.label === b.label,
+                    () => a.active === b.active,
+                    () => a.big === b.big,
+                    () => a.offset === b.offset || a.offset !== a.offset && b.offset !== b.offset,
+                    () => a.note === b.note,
+                    () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+                    () => a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)),
+                    () => a.ratio === b.ratio || a.ratio !== a.ratio && b.ratio !== b.ratio,
+                    () => a.kind === b.kind,
+                    () => a.rank === b.rank || a.rank !== a.rank && b.rank !== b.rank,
+                    () => a.id === b.id,
+                    () => a.secret === b.secret || a.secret !== a.secret && b.secret !== b.secret,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassInferred): number {
@@ -2613,70 +2790,100 @@ static encodePartialWithContext(value: Partial<ClassInferred>, ctx: __mf_EncodeC
 }
 
 static #encodeFields(value: ClassInferred, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("active")) {
-        if (value.active !== undefined) {
-            result["active"] = value.active;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("big")) {
-        if (value.big !== undefined) {
-            result["big"] = ((v) => String(v))(value.big);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("offset")) {
-        if (value.offset !== undefined) {
-            result["offset"] = value.offset;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = Array.from(value.tags);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("ratio")) {
-        if (value.ratio !== undefined) {
-            result["ratio"] = value.ratio;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kind")) {
-        if (value.kind !== undefined) {
-            result["kind"] = value.kind;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rank")) {
-        if (value.rank !== undefined) {
-            result["rank"] = value.rank;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("secret")) {
-        if (value.secret !== undefined) {
-            result["secret"] = value.secret;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("active")) {
+                if (value.active !== undefined) {
+                    result["active"] = value.active;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("big")) {
+                if (value.big !== undefined) {
+                    result["big"] = ((v) => String(v))(value.big);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("offset")) {
+                if (value.offset !== undefined) {
+                    result["offset"] = value.offset;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = Array.from(value.tags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("ratio")) {
+                if (value.ratio !== undefined) {
+                    result["ratio"] = value.ratio;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rank")) {
+                if (value.rank !== undefined) {
+                    result["rank"] = value.rank;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("secret")) {
+                if (value.secret !== undefined) {
+                    result["secret"] = value.secret;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2760,44 +2967,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
-        errors.push({ field: "big", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("offset")) && !("offset" in obj)) {
-        errors.push({ field: "offset", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
-        errors.push({ field: "note", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("ratio")) && !("ratio" in obj)) {
-        errors.push({ field: "ratio", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rank")) && !("rank" in obj)) {
-        errors.push({ field: "rank", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("secret")) && !("secret" in obj)) {
-        errors.push({ field: "secret", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "count"], ["label", "label"], ["active", "active"], ["big", "big"], ["offset", "offset"], ["note", "note"], ["at", "at"], ["tags", "tags"], ["ratio", "ratio"], ["kind", "kind"], ["rank", "rank"], ["id", "id"], ["secret", "secret"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassInferred.prototype);
@@ -2808,144 +2983,174 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "count", message: __raw_count == null ? "ClassInferred.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
-        const __raw_label = obj["label"] as string;
-
-        if (!(typeof __raw_label === "string")) {
-            errors.push({ field: "label", message: __raw_label == null ? "ClassInferred.label is required" : "expected string" });
-        } else {
-            instance.label = __raw_label;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
-
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "ClassInferred.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
-        try {
-            instance.big = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(obj["big"]);
-        } catch (__error) {
-            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("offset")) ? "offset" in obj : (__fields.keeps("offset") && obj["offset"] !== undefined)) {
-        const __raw_offset = obj["offset"] as number;
-
-        if (!(typeof __raw_offset === "number" && globalThis.Number.isFinite(__raw_offset))) {
-            errors.push({ field: "offset", message: __raw_offset == null ? "ClassInferred.offset is required" : "expected number" });
-        } else {
-            instance.offset = __raw_offset;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string;
-
-        if (!(typeof __raw_note === "string")) {
-            errors.push({ field: "note", message: __raw_note == null ? "ClassInferred.note is required" : "expected string" });
-        } else {
-            instance.note = __raw_note;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "ClassInferred.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "ClassInferred.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as Array<string>;
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+                const __raw_label = obj["label"] as string;
+
+                if (!(typeof __raw_label === "string")) {
+                    errors.push({ field: "label", message: __raw_label == null ? "ClassInferred.label is required" : "expected string" });
+                } else {
+                    instance.label = __raw_label;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
+
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "ClassInferred.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+                try {
+                    instance.big = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(obj["big"]);
+                } catch (__error) {
+                    errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("offset")) ? "offset" in obj : (__fields.keeps("offset") && obj["offset"] !== undefined)) {
+                const __raw_offset = obj["offset"] as number;
+
+                if (!(typeof __raw_offset === "number" && globalThis.Number.isFinite(__raw_offset))) {
+                    errors.push({ field: "offset", message: __raw_offset == null ? "ClassInferred.offset is required" : "expected number" });
+                } else {
+                    instance.offset = __raw_offset;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string;
+
+                if (!(typeof __raw_note === "string")) {
+                    errors.push({ field: "note", message: __raw_note == null ? "ClassInferred.note is required" : "expected string" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "ClassInferred.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "ClassInferred.tags is required" : "expected Set<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "ClassInferred.tags is required" : "expected Set<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("ratio")) ? "ratio" in obj : (__fields.keeps("ratio") && obj["ratio"] !== undefined)) {
-        const __raw_ratio = obj["ratio"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("ratio")) ? "ratio" in obj : (__fields.keeps("ratio") && obj["ratio"] !== undefined)) {
+                const __raw_ratio = obj["ratio"] as number;
 
-        if (!(typeof __raw_ratio === "number" && globalThis.Number.isFinite(__raw_ratio))) {
-            errors.push({ field: "ratio", message: __raw_ratio == null ? "ClassInferred.ratio is required" : "expected number" });
-        } else {
-            instance.ratio = __raw_ratio;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as 'inferred';
+                if (!(typeof __raw_ratio === "number" && globalThis.Number.isFinite(__raw_ratio))) {
+                    errors.push({ field: "ratio", message: __raw_ratio == null ? "ClassInferred.ratio is required" : "expected number" });
+                } else {
+                    instance.ratio = __raw_ratio;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as 'inferred';
 
-        if (!(__raw_kind === "inferred")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "ClassInferred.kind is required" : "expected 'inferred'" });
-        } else {
-            instance.kind = __raw_kind;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
-        const __raw_rank = obj["rank"] as 3;
+                if (!(__raw_kind === "inferred")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "ClassInferred.kind is required" : "expected 'inferred'" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+                const __raw_rank = obj["rank"] as 3;
 
-        if (!(__raw_rank === 3)) {
-            errors.push({ field: "rank", message: __raw_rank == null ? "ClassInferred.rank is required" : "expected 3" });
-        } else {
-            instance.rank = __raw_rank;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+                if (!(__raw_rank === 3)) {
+                    errors.push({ field: "rank", message: __raw_rank == null ? "ClassInferred.rank is required" : "expected 3" });
+                } else {
+                    instance.rank = __raw_rank;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ClassInferred.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
-        const __raw_secret = obj["secret"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ClassInferred.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+                const __raw_secret = obj["secret"] as number;
 
-        if (!(typeof __raw_secret === "number" && globalThis.Number.isFinite(__raw_secret))) {
-            errors.push({ field: "secret", message: __raw_secret == null ? "ClassInferred.secret is required" : "expected number" });
-        } else {
-            instance.secret = __raw_secret;
-        }
+                if (!(typeof __raw_secret === "number" && globalThis.Number.isFinite(__raw_secret))) {
+                    errors.push({ field: "secret", message: __raw_secret == null ? "ClassInferred.secret is required" : "expected number" });
+                } else {
+                    instance.secret = __raw_secret;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2966,7 +3171,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "count") && __mf_holds(obj, "label") && __mf_holds(obj, "active") && __mf_holds(obj, "big") && __mf_holds(obj, "offset") && __mf_holds(obj, "note") && __mf_holds(obj, "at") && __mf_holds(obj, "tags") && __mf_holds(obj, "ratio") && __mf_holds(obj, "kind") && __mf_holds(obj, "rank") && __mf_holds(obj, "id") && __mf_holds(obj, "secret");
+    return __mf_holdsAll(obj, ["count", "label", "active", "big", "offset", "note", "at", "tags", "ratio", "kind", "rank", "id", "secret"]);
 }
 
 static is(obj: unknown): obj is ClassInferred {
@@ -3065,7 +3270,12 @@ export class ClassCallback {
 
     static equals(a: ClassCallback, b: ClassCallback): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && a.onChange === b.onChange);
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.onChange === b.onChange,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassCallback): number {
@@ -3130,7 +3340,12 @@ export function classEntityClone(value: ClassEntity): ClassEntity {
 
 export function classEntityEquals(a: ClassEntity, b: ClassEntity): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.kind === b.kind);
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.kind === b.kind,
+        ].every((same) => same());
+    });
 }
 
 export function classEntityHashCode(value: ClassEntity): number {
@@ -3177,15 +3392,23 @@ export function classEntityEncodePartialWithContext(value: Partial<ClassEntity>,
 }
 
 function classEntityEncodeFields(value: ClassEntity, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kind")) {
-        if (value.kind !== undefined) {
-            result["kind"] = value.kind;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -3263,11 +3486,12 @@ export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["kind", "kind"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -3278,23 +3502,31 @@ export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ClassEntity.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ClassEntity.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as string;
 
-        if (!(typeof __raw_kind === "string")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "ClassEntity.kind is required" : "expected string" });
-        } else {
-            instance.kind = __raw_kind;
-        }
+                if (!(typeof __raw_kind === "string")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "ClassEntity.kind is required" : "expected string" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -3319,7 +3551,7 @@ export function classEntityHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "kind");
+    return __mf_holdsAll(obj, ["id", "kind"]);
 }
 
 export function classEntityIs(obj: unknown): obj is ClassEntity {
@@ -3379,7 +3611,9 @@ export function classDatedClone(value: ClassDated): ClassDated {
 
 export function classDatedEquals(a: ClassDated, b: ClassDated): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime());
+    return __mf_equalWithin(a, b, () => {
+        return a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime();
+    });
 }
 
 export function classDatedHashCode(value: ClassDated): number {
@@ -3505,8 +3739,12 @@ export function classDatedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -3552,7 +3790,7 @@ export function classDatedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["at"]);
 }
 
 export function classDatedIs(obj: unknown): obj is ClassDated {
@@ -3621,7 +3859,14 @@ export function classAccountClone(value: ClassAccount): ClassAccount {
 
 export function classAccountEquals(a: ClassAccount, b: ClassAccount): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.kind === b.kind && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && (a.balance === b.balance || a.balance !== a.balance && b.balance !== b.balance));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.kind === b.kind,
+            () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+            () => a.balance === b.balance || a.balance !== a.balance && b.balance !== b.balance,
+        ].every((same) => same());
+    });
 }
 
 export function classAccountHashCode(value: ClassAccount): number {
@@ -3672,25 +3917,37 @@ export function classAccountEncodePartialWithContext(value: Partial<ClassAccount
 }
 
 function classAccountEncodeFields(value: ClassAccount, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kind")) {
-        if (value.kind !== undefined) {
-            result["kind"] = value.kind;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("balance")) {
-        if (value.balance !== undefined) {
-            result["balance"] = value.balance;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("balance")) {
+                if (value.balance !== undefined) {
+                    result["balance"] = value.balance;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -3768,17 +4025,12 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["kind", "kind"], ["at", "at"], ["balance", "balance"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -3789,44 +4041,56 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ClassAccount.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as 'account';
-
-        if (!(__raw_kind === "account")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "ClassAccount.kind is required" : "expected 'account'" });
-        } else {
-            instance.kind = __raw_kind;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "ClassAccount.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ClassAccount.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        const __raw_balance = obj["balance"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as 'account';
 
-        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
-            errors.push({ field: "balance", message: __raw_balance == null ? "ClassAccount.balance is required" : "expected number" });
-        } else {
-            instance.balance = __raw_balance;
-        }
+                if (!(__raw_kind === "account")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "ClassAccount.kind is required" : "expected 'account'" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "ClassAccount.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                const __raw_balance = obj["balance"] as number;
+
+                if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
+                    errors.push({ field: "balance", message: __raw_balance == null ? "ClassAccount.balance is required" : "expected number" });
+                } else {
+                    instance.balance = __raw_balance;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -3851,7 +4115,7 @@ export function classAccountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "kind") && __mf_holds(obj, "at") && __mf_holds(obj, "balance");
+    return __mf_holdsAll(obj, ["id", "kind", "at", "balance"]);
 }
 
 export function classAccountIs(obj: unknown): obj is ClassAccount {
@@ -3923,7 +4187,13 @@ export class ClassCircle extends ClassShapeBase {
 
     static equals(a: ClassCircle, b: ClassCircle): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.kind === b.kind && a.id === b.id && (a.radius === b.radius || a.radius !== a.radius && b.radius !== b.radius));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.kind === b.kind,
+                    () => a.id === b.id,
+                    () => a.radius === b.radius || a.radius !== a.radius && b.radius !== b.radius,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: ClassCircle): number {
@@ -3966,20 +4236,30 @@ static encodePartialWithContext(value: Partial<ClassCircle>, ctx: __mf_EncodeCon
 }
 
 static #encodeFields(value: ClassCircle, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("kind")) {
-        if (value.kind !== undefined) {
-            result["kind"] = value.kind;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("radius")) {
-        if (value.radius !== undefined) {
-            result["radius"] = value.radius;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("radius")) {
+                if (value.radius !== undefined) {
+                    result["radius"] = value.radius;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -4070,14 +4350,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
-        errors.push({ field: "radius", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["kind", "kind"], ["id", "id"], ["radius", "radius"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ClassCircle.prototype);
@@ -4088,32 +4366,42 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as string;
 
-        if (!(typeof __raw_kind === "string")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "ClassCircle.kind is required" : "expected string" });
-        } else {
-            instance.kind = __raw_kind;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+                if (!(typeof __raw_kind === "string")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "ClassCircle.kind is required" : "expected string" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "ClassCircle.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
-        const __raw_radius = obj["radius"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "ClassCircle.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
+                const __raw_radius = obj["radius"] as number;
 
-        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
-            errors.push({ field: "radius", message: __raw_radius == null ? "ClassCircle.radius is required" : "expected number" });
-        } else {
-            instance.radius = __raw_radius;
-        }
+                if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
+                    errors.push({ field: "radius", message: __raw_radius == null ? "ClassCircle.radius is required" : "expected number" });
+                } else {
+                    instance.radius = __raw_radius;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -4134,7 +4422,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "kind") && __mf_holds(obj, "id") && __mf_holds(obj, "radius");
+    return __mf_holdsAll(obj, ["kind", "id", "radius"]);
 }
 
 static is(obj: unknown): obj is ClassCircle {
@@ -5167,226 +5455,226 @@ export declare function classCircleIs(value: unknown): value is ClassCircle;
 
 ## Mapping
 
-original 0..936 -> expanded 1252..2188
-original 936..937 -> expanded 15778..15779
-original 937..1307 -> expanded 19560..19930
-original 1307..1308 -> expanded 33063..33064
-original 1308..1587 -> expanded 37110..37389
-original 1587..1588 -> expanded 47786..47787
-original 1588..1878 -> expanded 52033..52323
-original 1878..1879 -> expanded 62592..62593
-original 1879..1998 -> expanded 66500..66619
-original 1998..1999 -> expanded 74342..74343
-original 1999..2141 -> expanded 77998..78140
-original 2141..2142 -> expanded 87417..87418
-original 2142..2398 -> expanded 91199..91455
-original 2398..2399 -> expanded 91968..91969
-original 2399..2554 -> expanded 92214..92369
-original 2554..2555 -> expanded 93441..93442
-original 2555..2825 -> expanded 94018..94288
-original 2825..2826 -> expanded 109502..109503
-original 2826..3305 -> expanded 113242..113721
-original 3305..3306 -> expanded 136295..136296
-original 3306..3464 -> expanded 140119..140277
-original 3464..3465 -> expanded 141585..141586
-original 3465..3604 -> expanded 142162..142301
-original 3604..3722 -> expanded 153242..153360
-original 3722..3902 -> expanded 163490..163670
-original 3902..4230 -> expanded 177214..177542
-original 4230..4231 -> expanded 187775..187776
-original 4231..4232 -> expanded 191515..191516
-generated 0..1252 <- imports
-generated 2188..2724 <- Debug
-generated 2724..3074 <- Clone
-generated 3074..3618 <- PartialEq
-generated 3618..4511 <- Hash
-generated 4511..4832 <- Default
-generated 4832..7134 <- Encode
-generated 7134..7465 <- Encode
-generated 7465..15778 <- Decode
-generated 15779..15891 <- Debug
-generated 15891..16003 <- Clone
-generated 16003..16124 <- PartialEq
-generated 16124..16236 <- Hash
-generated 16236..16338 <- Default
-generated 16338..17718 <- Encode
-generated 17718..19560 <- Decode
-generated 19930..20372 <- Debug
-generated 20372..20614 <- Clone
-generated 20614..20915 <- PartialEq
-generated 20915..21579 <- Hash
-generated 21579..22477 <- PartialOrd
-generated 22477..23195 <- Ord
-generated 23195..23514 <- Default
-generated 23514..25590 <- Encode
-generated 25590..25921 <- Encode
-generated 25921..33063 <- Decode
-generated 33064..33176 <- Debug
-generated 33176..33288 <- Clone
-generated 33288..33409 <- PartialEq
-generated 33409..33521 <- Hash
-generated 33521..33664 <- PartialOrd
-generated 33664..33786 <- Ord
-generated 33786..33888 <- Default
-generated 33888..35268 <- Encode
-generated 35268..37110 <- Decode
-generated 37389..37729 <- Debug
-generated 37729..37917 <- Clone
-generated 37917..38172 <- PartialEq
-generated 38172..38650 <- Hash
-generated 38650..39247 <- PartialOrd
-generated 39247..39748 <- Ord
-generated 39748..39986 <- Default
-generated 39986..41768 <- Encode
-generated 41768..42107 <- Encode
-generated 42107..47786 <- Decode
-generated 47787..47911 <- Debug
-generated 47911..48039 <- Clone
-generated 48039..48176 <- PartialEq
-generated 48176..48300 <- Hash
-generated 48300..48459 <- PartialOrd
-generated 48459..48597 <- Ord
-generated 48597..48711 <- Default
-generated 48711..50131 <- Encode
-generated 50131..52033 <- Decode
-generated 52323..52710 <- Debug
-generated 52710..52921 <- Clone
-generated 52921..53185 <- PartialEq
-generated 53185..53780 <- Hash
-generated 53780..54056 <- Default
-generated 54056..55982 <- Encode
-generated 55982..56319 <- Encode
-generated 56319..62592 <- Decode
-generated 62593..62714 <- Debug
-generated 62714..62838 <- Clone
-generated 62838..62971 <- PartialEq
-generated 62971..63092 <- Hash
-generated 63092..63203 <- Default
-generated 63203..64613 <- Encode
-generated 64613..66500 <- Decode
-generated 66619..66884 <- Debug
-generated 66884..67004 <- Clone
-generated 67004..67162 <- PartialEq
-generated 67162..67450 <- Hash
-generated 67450..67629 <- Default
-generated 67629..69171 <- Encode
-generated 69171..69496 <- Encode
-generated 69496..74342 <- Decode
-generated 74343..74446 <- Debug
-generated 74446..74546 <- Clone
-generated 74546..74655 <- PartialEq
-generated 74655..74758 <- Hash
-generated 74758..74851 <- Default
-generated 74851..76201 <- Encode
-generated 76201..77998 <- Decode
-generated 78140..78473 <- Debug
-generated 78473..78654 <- Clone
-generated 78654..78898 <- PartialEq
-generated 78898..79375 <- Hash
-generated 79375..79606 <- Default
-generated 79606..81354 <- Encode
-generated 81354..81694 <- Encode
-generated 81694..87417 <- Decode
-generated 87418..87530 <- Debug
-generated 87530..87642 <- Clone
-generated 87642..87763 <- PartialEq
-generated 87763..87875 <- Hash
-generated 87875..87977 <- Default
-generated 87977..89357 <- Encode
-generated 89357..91199 <- Decode
-generated 91455..91792 <- Debug
-generated 91792..91968 <- Clone
-generated 91969..92090 <- Debug
-generated 92090..92214 <- Clone
-generated 92369..92646 <- Debug
-generated 92646..92778 <- Clone
-generated 92778..92948 <- PartialEq
-generated 92948..93242 <- Hash
-generated 93242..93441 <- Default
-generated 93442..93557 <- Debug
-generated 93557..93673 <- Clone
-generated 93673..93798 <- PartialEq
-generated 93798..93913 <- Hash
-generated 93913..94018 <- Default
-generated 94288..94848 <- Debug
-generated 94848..95385 <- Clone
-generated 95385..96181 <- PartialEq
-generated 96181..96899 <- Hash
-generated 96899..97276 <- Default
-generated 97276..99598 <- Encode
-generated 99598..99927 <- Encode
-generated 99927..109502 <- Decode
-generated 109503..109612 <- Debug
-generated 109612..109720 <- Clone
-generated 109720..109837 <- PartialEq
-generated 109837..109946 <- Hash
-generated 109946..110045 <- Default
-generated 110045..111415 <- Encode
-generated 111415..113242 <- Decode
-generated 113721..114632 <- Debug
-generated 114632..115142 <- Clone
-generated 115142..116047 <- PartialEq
-generated 116047..118042 <- Hash
-generated 118042..118656 <- Default
-generated 118656..122188 <- Encode
-generated 122188..122521 <- Encode
-generated 122521..136295 <- Decode
-generated 136296..136411 <- Debug
-generated 136411..136527 <- Clone
-generated 136527..136652 <- PartialEq
-generated 136652..136767 <- Hash
-generated 136767..136872 <- Default
-generated 136872..138262 <- Encode
-generated 138262..140119 <- Decode
-generated 140277..140613 <- Debug
-generated 140613..140797 <- Clone
-generated 140797..140996 <- PartialEq
-generated 140996..141328 <- Hash
-generated 141328..141585 <- Default
-generated 141586..141701 <- Debug
-generated 141701..141817 <- Clone
-generated 141817..141942 <- PartialEq
-generated 141942..142057 <- Hash
-generated 142057..142162 <- Default
-generated 142301..142609 <- Debug
-generated 142609..142774 <- Clone
-generated 142774..142961 <- PartialEq
-generated 142961..143362 <- Hash
-generated 143362..143476 <- Default
-generated 143476..145799 <- Encode
-generated 145799..151775 <- Decode
-generated 151775..153242 <- __convenience_const
-generated 153360..153618 <- Debug
-generated 153618..153779 <- Clone
-generated 153779..154036 <- PartialEq
-generated 154036..154254 <- Hash
-generated 154254..154356 <- Default
-generated 154356..156521 <- Encode
-generated 156521..162054 <- Decode
-generated 162054..163490 <- __convenience_const
-generated 163670..164077 <- Debug
-generated 164077..164306 <- Clone
-generated 164306..164692 <- PartialEq
-generated 164692..165329 <- Hash
-generated 165329..165496 <- Default
-generated 165496..168166 <- Encode
-generated 168166..175716 <- Decode
-generated 175716..177214 <- __convenience_const
-generated 177542..177926 <- Debug
-generated 177926..178125 <- Clone
-generated 178125..178385 <- PartialEq
-generated 178385..178978 <- Hash
-generated 178978..179242 <- Default
-generated 179242..181124 <- Encode
-generated 181124..181453 <- Encode
-generated 181453..187775 <- Decode
-generated 187776..187885 <- Debug
-generated 187885..187993 <- Clone
-generated 187993..188110 <- PartialEq
-generated 188110..188219 <- Hash
-generated 188219..188318 <- Default
-generated 188318..189688 <- Encode
-generated 189688..191515 <- Decode
+original 0..936 -> expanded 1258..2194
+original 936..937 -> expanded 16735..16736
+original 937..1307 -> expanded 20517..20887
+original 1307..1308 -> expanded 34408..34409
+original 1308..1587 -> expanded 38455..38734
+original 1587..1588 -> expanded 49733..49734
+original 1588..1878 -> expanded 53980..54270
+original 1878..1879 -> expanded 65117..65118
+original 1879..1998 -> expanded 69025..69144
+original 1998..1999 -> expanded 77072..77073
+original 1999..2141 -> expanded 80728..80870
+original 2141..2142 -> expanded 90713..90714
+original 2142..2398 -> expanded 94495..94751
+original 2398..2399 -> expanded 95264..95265
+original 2399..2554 -> expanded 95510..95665
+original 2554..2555 -> expanded 96777..96778
+original 2555..2825 -> expanded 97354..97624
+original 2825..2826 -> expanded 113997..113998
+original 2826..3305 -> expanded 117737..118216
+original 3305..3306 -> expanded 141698..141699
+original 3306..3464 -> expanded 145522..145680
+original 3464..3465 -> expanded 147123..147124
+original 3465..3604 -> expanded 147700..147839
+original 3604..3722 -> expanded 159309..159427
+original 3722..3902 -> expanded 169746..169926
+original 3902..4230 -> expanded 184032..184360
+original 4230..4231 -> expanded 195173..195174
+original 4231..4232 -> expanded 198913..198914
+generated 0..1258 <- imports
+generated 2194..2730 <- Debug
+generated 2730..3080 <- Clone
+generated 3080..3865 <- PartialEq
+generated 3865..4758 <- Hash
+generated 4758..5079 <- Default
+generated 5079..7776 <- Encode
+generated 7776..8107 <- Encode
+generated 8107..16735 <- Decode
+generated 16736..16848 <- Debug
+generated 16848..16960 <- Clone
+generated 16960..17081 <- PartialEq
+generated 17081..17193 <- Hash
+generated 17193..17295 <- Default
+generated 17295..18675 <- Encode
+generated 18675..20517 <- Decode
+generated 20887..21329 <- Debug
+generated 21329..21571 <- Clone
+generated 21571..22053 <- PartialEq
+generated 22053..22717 <- Hash
+generated 22717..23435 <- PartialOrd
+generated 23435..24133 <- Ord
+generated 24133..24452 <- Default
+generated 24452..26856 <- Encode
+generated 26856..27187 <- Encode
+generated 27187..34408 <- Decode
+generated 34409..34521 <- Debug
+generated 34521..34633 <- Clone
+generated 34633..34754 <- PartialEq
+generated 34754..34866 <- Hash
+generated 34866..35009 <- PartialOrd
+generated 35009..35131 <- Ord
+generated 35131..35233 <- Default
+generated 35233..36613 <- Encode
+generated 36613..38455 <- Decode
+generated 38734..39074 <- Debug
+generated 39074..39262 <- Clone
+generated 39262..39650 <- PartialEq
+generated 39650..40128 <- Hash
+generated 40128..40705 <- PartialOrd
+generated 40705..41266 <- Ord
+generated 41266..41504 <- Default
+generated 41504..43480 <- Encode
+generated 43480..43819 <- Encode
+generated 43819..49733 <- Decode
+generated 49734..49858 <- Debug
+generated 49858..49986 <- Clone
+generated 49986..50123 <- PartialEq
+generated 50123..50247 <- Hash
+generated 50247..50406 <- PartialOrd
+generated 50406..50544 <- Ord
+generated 50544..50658 <- Default
+generated 50658..52078 <- Encode
+generated 52078..53980 <- Decode
+generated 54270..54657 <- Debug
+generated 54657..54868 <- Clone
+generated 54868..55289 <- PartialEq
+generated 55289..55884 <- Hash
+generated 55884..56160 <- Default
+generated 56160..58347 <- Encode
+generated 58347..58684 <- Encode
+generated 58684..65117 <- Decode
+generated 65118..65239 <- Debug
+generated 65239..65363 <- Clone
+generated 65363..65496 <- PartialEq
+generated 65496..65617 <- Hash
+generated 65617..65728 <- Default
+generated 65728..67138 <- Encode
+generated 67138..69025 <- Decode
+generated 69144..69409 <- Debug
+generated 69409..69529 <- Clone
+generated 69529..69727 <- PartialEq
+generated 69727..70015 <- Hash
+generated 70015..70194 <- Default
+generated 70194..71736 <- Encode
+generated 71736..72061 <- Encode
+generated 72061..77072 <- Decode
+generated 77073..77176 <- Debug
+generated 77176..77276 <- Clone
+generated 77276..77385 <- PartialEq
+generated 77385..77488 <- Hash
+generated 77488..77581 <- Default
+generated 77581..78931 <- Encode
+generated 78931..80728 <- Decode
+generated 80870..81203 <- Debug
+generated 81203..81384 <- Clone
+generated 81384..81761 <- PartialEq
+generated 81761..82238 <- Hash
+generated 82238..82469 <- Default
+generated 82469..84411 <- Encode
+generated 84411..84751 <- Encode
+generated 84751..90713 <- Decode
+generated 90714..90826 <- Debug
+generated 90826..90938 <- Clone
+generated 90938..91059 <- PartialEq
+generated 91059..91171 <- Hash
+generated 91171..91273 <- Default
+generated 91273..92653 <- Encode
+generated 92653..94495 <- Decode
+generated 94751..95088 <- Debug
+generated 95088..95264 <- Clone
+generated 95265..95386 <- Debug
+generated 95386..95510 <- Clone
+generated 95665..95942 <- Debug
+generated 95942..96074 <- Clone
+generated 96074..96284 <- PartialEq
+generated 96284..96578 <- Hash
+generated 96578..96777 <- Default
+generated 96778..96893 <- Debug
+generated 96893..97009 <- Clone
+generated 97009..97134 <- PartialEq
+generated 97134..97249 <- Hash
+generated 97249..97354 <- Default
+generated 97624..98184 <- Debug
+generated 98184..98721 <- Clone
+generated 98721..99770 <- PartialEq
+generated 99770..100488 <- Hash
+generated 100488..100865 <- Default
+generated 100865..103515 <- Encode
+generated 103515..103844 <- Encode
+generated 103844..113997 <- Decode
+generated 113998..114107 <- Debug
+generated 114107..114215 <- Clone
+generated 114215..114332 <- PartialEq
+generated 114332..114441 <- Hash
+generated 114441..114540 <- Default
+generated 114540..115910 <- Encode
+generated 115910..117737 <- Decode
+generated 118216..119127 <- Debug
+generated 119127..119637 <- Clone
+generated 119637..120929 <- PartialEq
+generated 120929..122924 <- Hash
+generated 122924..123538 <- Default
+generated 123538..128001 <- Encode
+generated 128001..128334 <- Encode
+generated 128334..141698 <- Decode
+generated 141699..141814 <- Debug
+generated 141814..141930 <- Clone
+generated 141930..142055 <- PartialEq
+generated 142055..142170 <- Hash
+generated 142170..142275 <- Default
+generated 142275..143665 <- Encode
+generated 143665..145522 <- Decode
+generated 145680..146016 <- Debug
+generated 146016..146200 <- Clone
+generated 146200..146534 <- PartialEq
+generated 146534..146866 <- Hash
+generated 146866..147123 <- Default
+generated 147124..147239 <- Debug
+generated 147239..147355 <- Clone
+generated 147355..147480 <- PartialEq
+generated 147480..147595 <- Hash
+generated 147595..147700 <- Default
+generated 147839..148147 <- Debug
+generated 148147..148312 <- Clone
+generated 148312..148594 <- PartialEq
+generated 148594..148995 <- Hash
+generated 148995..149109 <- Default
+generated 149109..151626 <- Encode
+generated 151626..157842 <- Decode
+generated 157842..159309 <- __convenience_const
+generated 159427..159685 <- Debug
+generated 159685..159846 <- Clone
+generated 159846..160127 <- PartialEq
+generated 160127..160345 <- Hash
+generated 160345..160447 <- Default
+generated 160447..162612 <- Encode
+generated 162612..168310 <- Decode
+generated 168310..169746 <- __convenience_const
+generated 169926..170333 <- Debug
+generated 170333..170562 <- Clone
+generated 170562..171071 <- PartialEq
+generated 171071..171708 <- Hash
+generated 171708..171875 <- Default
+generated 171875..174873 <- Encode
+generated 174873..182534 <- Decode
+generated 182534..184032 <- __convenience_const
+generated 184360..184744 <- Debug
+generated 184744..184943 <- Clone
+generated 184943..185360 <- PartialEq
+generated 185360..185953 <- Hash
+generated 185953..186217 <- Default
+generated 186217..188360 <- Encode
+generated 188360..188689 <- Encode
+generated 188689..195173 <- Decode
+generated 195174..195283 <- Debug
+generated 195283..195391 <- Clone
+generated 195391..195508 <- PartialEq
+generated 195508..195617 <- Hash
+generated 195617..195716 <- Default
+generated 195716..197086 <- Encode
+generated 197086..198913 <- Decode
 
 ## Metadata
 

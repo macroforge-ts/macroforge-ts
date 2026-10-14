@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Order {
@@ -55,15 +55,23 @@ export function orderEncodePartialWithContext(value: Partial<Order>, ctx: __mf_E
 }
 
 function orderEncodeFields(value: Order, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("quantity")) {
-        if (value.quantity !== undefined) {
-            result["quantity"] = value.quantity;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("quantity")) {
+                if (value.quantity !== undefined) {
+                    result["quantity"] = value.quantity;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -141,11 +149,12 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("quantity")) && !("quantity" in obj)) {
-        errors.push({ field: "quantity", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["quantity", "quantity"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -156,23 +165,31 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
-        const __raw_quantity = obj["quantity"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
+                const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
-            errors.push({ field: "quantity", message: __raw_quantity == null ? "Order.quantity is required" : "expected number" });
-        } else {
-            instance.quantity = __raw_quantity;
-        }
+                if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
+                    errors.push({ field: "quantity", message: __raw_quantity == null ? "Order.quantity is required" : "expected number" });
+                } else {
+                    instance.quantity = __raw_quantity;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -197,7 +214,7 @@ export function orderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "quantity");
+    return __mf_holdsAll(obj, ["id", "quantity"]);
 }
 
 export function orderIs(obj: unknown): obj is Order {
@@ -290,13 +307,13 @@ export declare const Order: {
 
 ## Mapping
 
-original 39..104 -> expanded 679..744
-original 104..105 -> expanded 10001..10002
-generated 0..679 <- imports
-generated 744..849 <- Default
-generated 849..3098 <- Encode
-generated 3098..8980 <- Decode
-generated 8980..10001 <- __convenience_const
+original 39..104 -> expanded 685..750
+original 104..105 -> expanded 10437..10438
+generated 0..685 <- imports
+generated 750..855 <- Default
+generated 855..3298 <- Encode
+generated 3298..9416 <- Decode
+generated 9416..10437 <- __convenience_const
 
 ## Metadata
 

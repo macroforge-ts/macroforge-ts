@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -64,25 +64,37 @@ export function metadataEncodePartialWithContext(value: Partial<Metadata>, ctx: 
 }
 
 function metadataEncodeFields(value: Metadata, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("createdAt")) {
-        if (value.createdAt !== undefined) {
-            result["createdAt"] = value.createdAt;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastLogin")) {
-        if (value.lastLogin !== undefined) {
-            result["lastLogin"] = value.lastLogin;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isActive")) {
-        if (value.isActive !== undefined) {
-            result["isActive"] = value.isActive;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("roles")) {
-        if (value.roles !== undefined) {
-            result["roles"] = value.roles;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("createdAt")) {
+                if (value.createdAt !== undefined) {
+                    result["createdAt"] = value.createdAt;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastLogin")) {
+                if (value.lastLogin !== undefined) {
+                    result["lastLogin"] = value.lastLogin;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isActive")) {
+                if (value.isActive !== undefined) {
+                    result["isActive"] = value.isActive;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("roles")) {
+                if (value.roles !== undefined) {
+                    result["roles"] = value.roles;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -160,17 +172,12 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
-        errors.push({ field: "createdAt", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastLogin")) && !("lastLogin" in obj)) {
-        errors.push({ field: "lastLogin", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) && !("isActive" in obj)) {
-        errors.push({ field: "isActive", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("roles")) && !("roles" in obj)) {
-        errors.push({ field: "roles", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["createdAt", "createdAt"], ["lastLogin", "lastLogin"], ["isActive", "isActive"], ["roles", "roles"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -181,56 +188,68 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
-        const __raw_createdAt = obj["createdAt"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+                const __raw_createdAt = obj["createdAt"] as string;
 
-        if (!(typeof __raw_createdAt === "string")) {
-            errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Metadata.createdAt is required" : "expected string" });
-        } else {
-            instance.createdAt = __raw_createdAt;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastLogin")) ? "lastLogin" in obj : (__fields.keeps("lastLogin") && obj["lastLogin"] !== undefined)) {
-        const __raw_lastLogin = obj["lastLogin"] as string | null;
+                if (!(typeof __raw_createdAt === "string")) {
+                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Metadata.createdAt is required" : "expected string" });
+                } else {
+                    instance.createdAt = __raw_createdAt;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastLogin")) ? "lastLogin" in obj : (__fields.keeps("lastLogin") && obj["lastLogin"] !== undefined)) {
+                const __raw_lastLogin = obj["lastLogin"] as string | null;
 
-        if (!(typeof __raw_lastLogin === "string" || __raw_lastLogin === null)) {
-            errors.push({ field: "lastLogin", message: "expected string | null" });
-        } else {
-            instance.lastLogin = __raw_lastLogin;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
-        const __raw_isActive = obj["isActive"] as boolean;
+                if (!(typeof __raw_lastLogin === "string" || __raw_lastLogin === null)) {
+                    errors.push({ field: "lastLogin", message: "expected string | null" });
+                } else {
+                    instance.lastLogin = __raw_lastLogin;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+                const __raw_isActive = obj["isActive"] as boolean;
 
-        if (!(typeof __raw_isActive === "boolean")) {
-            errors.push({ field: "isActive", message: __raw_isActive == null ? "Metadata.isActive is required" : "expected boolean" });
-        } else {
-            instance.isActive = __raw_isActive;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("roles")) ? "roles" in obj : (__fields.keeps("roles") && obj["roles"] !== undefined)) {
-        const __raw_roles = obj["roles"] as Array<string>;
-        if (Array.isArray(__raw_roles)) {
-            ctx.pushScope("roles");
-            try {
-                instance.roles = __mf_decodeArray(__raw_roles, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "roles" : "roles." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_isActive === "boolean")) {
+                    errors.push({ field: "isActive", message: __raw_isActive == null ? "Metadata.isActive is required" : "expected boolean" });
+                } else {
+                    instance.isActive = __raw_isActive;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("roles")) ? "roles" in obj : (__fields.keeps("roles") && obj["roles"] !== undefined)) {
+                const __raw_roles = obj["roles"] as Array<string>;
+                if (Array.isArray(__raw_roles)) {
+                    ctx.pushScope("roles");
+                    try {
+                        instance.roles = __mf_decodeArray(__raw_roles, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "roles" : "roles." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "roles", message: __raw_roles == null ? "Metadata.roles is required" : "expected Array<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "roles", message: __raw_roles == null ? "Metadata.roles is required" : "expected Array<string>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -255,7 +274,7 @@ export function metadataHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "createdAt") && __mf_holds(obj, "lastLogin") && __mf_holds(obj, "isActive") && __mf_holds(obj, "roles");
+    return __mf_holdsAll(obj, ["createdAt", "lastLogin", "isActive", "roles"]);
 }
 
 export function metadataIs(obj: unknown): obj is Metadata {
@@ -596,15 +615,15 @@ export declare const Metadata: {
 
 ## Mapping
 
-original 0..58 -> expanded 928..986
-original 107..239 -> expanded 986..1118
-original 239..240 -> expanded 20710..20711
-generated 0..928 <- imports
-generated 1118..1284 <- Default
-generated 1284..3944 <- Encode
-generated 3944..11946 <- Decode
-generated 11946..19444 <- Gigaform
-generated 19444..20710 <- __convenience_const
+original 0..58 -> expanded 934..992
+original 107..239 -> expanded 992..1124
+original 239..240 -> expanded 21243..21244
+generated 0..934 <- imports
+generated 1124..1290 <- Default
+generated 1290..4278 <- Encode
+generated 4278..12479 <- Decode
+generated 12479..19977 <- Gigaform
+generated 19977..21243 <- __convenience_const
 
 ## Metadata
 

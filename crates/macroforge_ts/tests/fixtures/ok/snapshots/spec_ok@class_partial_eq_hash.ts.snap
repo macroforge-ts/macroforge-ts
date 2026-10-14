@@ -27,7 +27,9 @@ class User {
 
     static equals(a: User, b: User): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name);
+        return __mf_equalWithin(a, b, () => {
+                return a.name === b.name;
+            });
     }
 
     static hashCode(value: User): number {
@@ -66,13 +68,13 @@ export {};
 
 original 0..41 -> expanded 114..155
 original 72..104 -> expanded 155..187
-original 104..105 -> expanded 624..625
-original 105..106 -> expanded 802..803
+original 104..105 -> expanded 664..665
+original 105..106 -> expanded 842..843
 generated 0..114 <- imports
-generated 187..339 <- PartialEq
-generated 339..624 <- Hash
-generated 625..714 <- PartialEq
-generated 714..802 <- Hash
+generated 187..379 <- PartialEq
+generated 379..664 <- Hash
+generated 665..754 <- PartialEq
+generated 754..842 <- Hash
 
 ## Metadata
 

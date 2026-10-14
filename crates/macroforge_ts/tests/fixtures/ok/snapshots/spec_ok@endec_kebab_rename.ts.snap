@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 /** @endec({ renameAll: "kebab-case" }) */
@@ -55,15 +55,23 @@ export function profileEncodePartialWithContext(value: Partial<Profile>, ctx: __
 }
 
 function profileEncodeFields(value: Profile, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["first-name"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isActive")) {
-        if (value.isActive !== undefined) {
-            result["is-active"] = value.isActive;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["first-name"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isActive")) {
+                if (value.isActive !== undefined) {
+                    result["is-active"] = value.isActive;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -141,11 +149,12 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("firstName")) && !("first-name" in obj)) {
-        errors.push({ field: "first-name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) && !("is-active" in obj)) {
-        errors.push({ field: "is-active", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "first-name"], ["isActive", "is-active"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -156,23 +165,31 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
-        const __raw_firstName = obj["first-name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
+                const __raw_firstName = obj["first-name"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "first-name", message: __raw_firstName == null ? "Profile.first-name is required" : "expected string" });
-        } else {
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
-        const __raw_isActive = obj["is-active"] as boolean;
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "first-name", message: __raw_firstName == null ? "Profile.first-name is required" : "expected string" });
+                } else {
+                    instance.firstName = __raw_firstName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
+                const __raw_isActive = obj["is-active"] as boolean;
 
-        if (!(typeof __raw_isActive === "boolean")) {
-            errors.push({ field: "is-active", message: __raw_isActive == null ? "Profile.is-active is required" : "expected boolean" });
-        } else {
-            instance.isActive = __raw_isActive;
-        }
+                if (!(typeof __raw_isActive === "boolean")) {
+                    errors.push({ field: "is-active", message: __raw_isActive == null ? "Profile.is-active is required" : "expected boolean" });
+                } else {
+                    instance.isActive = __raw_isActive;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -197,7 +214,7 @@ export function profileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "first-name") && __mf_holds(obj, "is-active");
+    return __mf_holdsAll(obj, ["first-name", "is-active"]);
 }
 
 export function profileIs(obj: unknown): obj is Profile {
@@ -276,12 +293,12 @@ export {};
 
 ## Mapping
 
-original 30..141 -> expanded 679..790
-original 141..142 -> expanded 10104..10105
-generated 0..679 <- imports
-generated 790..3099 <- Encode
-generated 3099..9134 <- Decode
-generated 9134..10104 <- __convenience_const
+original 30..141 -> expanded 685..796
+original 141..142 -> expanded 10531..10532
+generated 0..685 <- imports
+generated 796..3299 <- Encode
+generated 3299..9561 <- Decode
+generated 9561..10531 <- __convenience_const
 
 ## Metadata
 

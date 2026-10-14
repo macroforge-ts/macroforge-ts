@@ -42,7 +42,13 @@ export class RuneCounter {
 
     static equals(a: RuneCounter, b: RuneCounter): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.label === b.label && (a.count === b.count || a.count !== a.count && b.count !== b.count) && (a.doubled === b.doubled || a.doubled !== a.doubled && b.doubled !== b.doubled));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.label === b.label,
+                    () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+                    () => a.doubled === b.doubled || a.doubled !== a.doubled && b.doubled !== b.doubled,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: RuneCounter): number {
@@ -76,20 +82,30 @@ static encodePartialWithContext(value: Partial<RuneCounter>, ctx: __mf_EncodeCon
 }
 
 static #encodeFields(value: RuneCounter, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("doubled")) {
-        if (value.doubled !== undefined) {
-            result["doubled"] = value.doubled;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("doubled")) {
+                if (value.doubled !== undefined) {
+                    result["doubled"] = value.doubled;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -167,18 +183,18 @@ export declare function runeCounterEncodePartialWithContext(value: Partial<RuneC
 
 original 0..153 -> expanded 611..764
 original 199..400 -> expanded 764..965
-original 400..401 -> expanded 4556..4557
-original 401..402 -> expanded 6262..6263
+original 400..401 -> expanded 4972..4973
+original 401..402 -> expanded 6678..6679
 generated 0..611 <- imports
 generated 965..1350 <- Debug
-generated 1350..1672 <- PartialEq
-generated 1672..2325 <- Hash
-generated 2325..4227 <- Encode
-generated 4227..4556 <- Encode
-generated 4557..4666 <- Debug
-generated 4666..4783 <- PartialEq
-generated 4783..4892 <- Hash
-generated 4892..6262 <- Encode
+generated 1350..1827 <- PartialEq
+generated 1827..2480 <- Hash
+generated 2480..4643 <- Encode
+generated 4643..4972 <- Encode
+generated 4973..5082 <- Debug
+generated 5082..5199 <- PartialEq
+generated 5199..5308 <- Hash
+generated 5308..6678 <- Encode
 
 ## Metadata
 

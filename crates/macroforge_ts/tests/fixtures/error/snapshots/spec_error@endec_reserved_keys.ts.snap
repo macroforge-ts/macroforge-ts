@@ -42,7 +42,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Marked {
@@ -83,28 +83,26 @@ export function taggingEncode(value: Tagging, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function taggingEncodeWithContext(value: Tagging, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "a" in value) {
-        const result: Record<string, unknown> = {};
-        result["a"] = value.a;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "b" in value) {
-        const result: Record<string, unknown> = {};
-        result["b"] = value.b;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Tagging): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "a" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            result["a"] = value.a;
+            return result;
+        },
+        (value: Tagging): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "b" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            result["b"] = value.b;
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -178,11 +176,12 @@ export function taggingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "a")) {
-        return __mf_decodeObject(value, ctx, { a: __mf_decodeString }) as Tagging;
-    }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "b")) {
-        return __mf_decodeObject(value, ctx, { b: __mf_decodeNumber }) as Tagging;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "a")) ? __mf_decodeObject(value, ctx, { a: __mf_decodeString }) : __mf_notTheMember,
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "b")) ? __mf_decodeObject(value, ctx, { b: __mf_decodeNumber }) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Tagging;
     }
 
     throw new __mf_DecodeError([{
@@ -191,8 +190,12 @@ export function taggingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }]);
 }
 export function taggingHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "a")) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "b")) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "a"),
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "b"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function taggingIs(value: unknown): value is Tagging {
@@ -259,19 +262,19 @@ Error [481..494]: @derive(Decode): field 'held' is read from the key `__proto__`
 
 ## Mapping
 
-original 30..109 -> expanded 606..685
-original 139..159 -> expanded 685..705
-original 193..220 -> expanded 705..732
-original 250..323 -> expanded 732..805
-original 357..381 -> expanded 805..829
-original 411..437 -> expanded 829..855
-original 475..497 -> expanded 855..877
-original 563..609 -> expanded 877..923
-original 609..610 -> expanded 6294..6295
-generated 0..606 <- imports
-generated 923..2843 <- Encode
-generated 2843..5792 <- Decode
-generated 5792..6294 <- __convenience_const
+original 30..109 -> expanded 748..827
+original 139..159 -> expanded 827..847
+original 193..220 -> expanded 847..874
+original 250..323 -> expanded 874..947
+original 357..381 -> expanded 947..971
+original 411..437 -> expanded 971..997
+original 475..497 -> expanded 997..1019
+original 563..609 -> expanded 1019..1065
+original 609..610 -> expanded 6833..6834
+generated 0..748 <- imports
+generated 1065..3053 <- Encode
+generated 3053..6331 <- Decode
+generated 6331..6833 <- __convenience_const
 
 ## Metadata
 

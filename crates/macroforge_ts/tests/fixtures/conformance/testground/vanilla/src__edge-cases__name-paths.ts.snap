@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "src/edge-cases/edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * A type held from another module by a path that is not a relative one, as
@@ -50,10 +50,16 @@ export function namePathsClone(value: NamePaths): NamePaths {
 
 export function namePathsEquals(a: NamePaths, b: NamePaths): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => edgeItemEquals(a.held, b.held) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
-	const __other0 = b.listed[__index0];
-	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : edgeItemEquals(a.maybe, b.maybe)));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => edgeItemEquals(a.held, b.held),
+            () => a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+            	const __other0 = b.listed[__index0];
+            	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
+            }),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : edgeItemEquals(a.maybe, b.maybe),
+        ].every((same) => same());
+    });
 }
 
 export function namePathsHashCode(value: NamePaths): number {
@@ -102,20 +108,30 @@ export function namePathsEncodePartialWithContext(value: Partial<NamePaths>, ctx
 }
 
 function namePathsEncodeFields(value: NamePaths, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("held")) {
-        if (value.held !== undefined) {
-            result["held"] = edgeItemEncodeWithContext(value.held, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("listed")) {
-        if (value.listed !== undefined) {
-            result["listed"] = value.listed.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("held")) {
+                if (value.held !== undefined) {
+                    result["held"] = edgeItemEncodeWithContext(value.held, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("listed")) {
+                if (value.listed !== undefined) {
+                    result["listed"] = value.listed.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -193,14 +209,12 @@ export function namePathsDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
-        errors.push({ field: "held", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj)) {
-        errors.push({ field: "listed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"], ["listed", "listed"], ["maybe", "maybe"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -211,79 +225,89 @@ export function namePathsDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
-        const __raw_held = obj["held"] as EdgeItem;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+                const __raw_held = obj["held"] as EdgeItem;
 
-        ctx.pushScope("held");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_held, ctx);
-            ctx.assignOrDefer(instance, "held", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "held" : "held." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("held");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_held, ctx);
+                    ctx.assignOrDefer(instance, "held", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "held" : "held." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
-        const __raw_listed = obj["listed"] as EdgeItem[];
-        if (Array.isArray(__raw_listed)) {
-            ctx.pushScope("listed");
-            try {
-                instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "listed" : "listed." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
+                const __raw_listed = obj["listed"] as EdgeItem[];
+                if (Array.isArray(__raw_listed)) {
+                    ctx.pushScope("listed");
+                    try {
+                        instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "listed" : "listed." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "listed", message: __raw_listed == null ? "NamePaths.listed is required" : "expected EdgeItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "listed", message: __raw_listed == null ? "NamePaths.listed is required" : "expected EdgeItem[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as EdgeItem | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as EdgeItem | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = edgeItemDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
                 } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = edgeItemDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -308,7 +332,7 @@ export function namePathsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "held") && __mf_holds(obj, "listed") && __mf_holds(obj, "maybe");
+    return __mf_holdsAll(obj, ["held", "listed", "maybe"]);
 }
 
 export function namePathsIs(obj: unknown): obj is NamePaths {
@@ -424,17 +448,17 @@ export declare const NamePaths: {
 
 ## Mapping
 
-original 0..392 -> expanded 1083..1475
-original 392..393 -> expanded 15737..15738
-generated 0..1083 <- imports
-generated 1475..1937 <- Debug
-generated 1937..2230 <- Clone
-generated 2230..2719 <- PartialEq
-generated 2719..3160 <- Hash
-generated 3160..3315 <- Default
-generated 3315..5936 <- Encode
-generated 5936..14332 <- Decode
-generated 14332..15737 <- __convenience_const
+original 0..392 -> expanded 1089..1481
+original 392..393 -> expanded 16676..16677
+generated 0..1089 <- imports
+generated 1481..1943 <- Debug
+generated 1943..2236 <- Clone
+generated 2236..2870 <- PartialEq
+generated 2870..3311 <- Hash
+generated 3311..3466 <- Default
+generated 3466..6348 <- Encode
+generated 6348..15271 <- Decode
+generated 15271..16676 <- __convenience_const
 
 ## Metadata
 

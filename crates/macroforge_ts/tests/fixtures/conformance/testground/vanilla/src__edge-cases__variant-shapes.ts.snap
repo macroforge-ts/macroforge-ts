@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/variant-shapes.ts
-sha256 4233122985cf0346189c5288b14e83798344f459011fab07e6c7db7d82b7edc2
+sha256 0c7e45692b83ef38a9ed63011a6c9656436b3e2014b2eed55722accca278971b
 
 ## Changed
 
@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralCompare as __mf_structuralCompare, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, spellsTemplate as __mf_spellsTemplate, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, spellsTemplate as __mf_spellsTemplate, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Unions whose members are objects, literals and template literal types, in
@@ -40,7 +40,9 @@ export function variantCircleClone(value: VariantCircle): VariantCircle {
 
 export function variantCircleEquals(a: VariantCircle, b: VariantCircle): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.radius === b.radius || a.radius !== a.radius && b.radius !== b.radius);
+    return __mf_equalWithin(a, b, () => {
+        return a.radius === b.radius || a.radius !== a.radius && b.radius !== b.radius;
+    });
 }
 
 export function variantCircleHashCode(value: VariantCircle): number {
@@ -54,10 +56,7 @@ export function variantCircleHashCode(value: VariantCircle): number {
 export function variantCirclePartialCompare(a: VariantCircle, b: VariantCircle): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.radius < b.radius ? -1 : a.radius > b.radius ? 1 : a.radius === b.radius || (a.radius !== a.radius && b.radius !== b.radius) ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-        return 0;
+    return (a.radius < b.radius ? -1 : a.radius > b.radius ? 1 : a.radius === b.radius || (a.radius !== a.radius && b.radius !== b.radius) ? 0 : null);
     });
 }
 
@@ -170,8 +169,12 @@ export function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
-        errors.push({ field: "radius", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["radius", "radius"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -214,7 +217,7 @@ export function variantCircleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "radius");
+    return __mf_holdsAll(obj, ["radius"]);
 }
 
 export function variantCircleIs(obj: unknown): obj is VariantCircle {
@@ -279,7 +282,12 @@ export function variantRectClone(value: VariantRect): VariantRect {
 
 export function variantRectEquals(a: VariantRect, b: VariantRect): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.size, b.size) && a.label === b.label);
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.size, b.size),
+            () => a.label === b.label,
+        ].every((same) => same());
+    });
 }
 
 export function variantRectHashCode(value: VariantRect): number {
@@ -294,13 +302,14 @@ export function variantRectHashCode(value: VariantRect): number {
 export function variantRectPartialCompare(a: VariantRect, b: VariantRect): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = __mf_structuralCompare(a.size, b.size);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.label == null || b.label == null ? __mf_structuralCompare(a.label, b.label) : (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => __mf_structuralCompare(a.size, b.size),
+        () => (a.label == null || b.label == null ? __mf_structuralCompare(a.label, b.label) : (a.label < b.label ? -1 : a.label > b.label ? 1 : 0)),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -332,15 +341,23 @@ export function variantRectEncodePartialWithContext(value: Partial<VariantRect>,
 }
 
 function variantRectEncodeFields(value: VariantRect, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("size")) {
-        if (value.size !== undefined) {
-            result["size"] = value.size;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("size")) {
+                if (value.size !== undefined) {
+                    result["size"] = value.size;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -418,8 +435,12 @@ export function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
-        errors.push({ field: "size", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["size", "size"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -430,40 +451,48 @@ export function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
-        const __raw_size = obj["size"] as [number, number];
-        if (Array.isArray(__raw_size)) {
-            ctx.pushScope("size");
-            try {
-                instance.size = (__mf_decodeTuple(__raw_size, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "size" : "size." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+                const __raw_size = obj["size"] as [number, number];
+                if (Array.isArray(__raw_size)) {
+                    ctx.pushScope("size");
+                    try {
+                        instance.size = (__mf_decodeTuple(__raw_size, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "size" : "size." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "size", message: __raw_size == null ? "VariantRect.size is required" : "expected [number, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "size", message: __raw_size == null ? "VariantRect.size is required" : "expected [number, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("label"))) {
-        if (("label" in obj && obj["label"] !== undefined)) {
-            const __raw_label = obj["label"] as `r-${string}`;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("label"))) {
+                if (("label" in obj && obj["label"] !== undefined)) {
+                    const __raw_label = obj["label"] as `r-${string}`;
 
-            if (!__mf_spellsTemplate(__raw_label, ["r-", ""], ["string"])) {
-                errors.push({ field: "label", message: "expected `r-${string}`" });
-            } else {
-                instance.label = __raw_label;
+                    if (!__mf_spellsTemplate(__raw_label, ["r-", ""], ["string"])) {
+                        errors.push({ field: "label", message: "expected `r-${string}`" });
+                    } else {
+                        instance.label = __raw_label;
+                    }
+                }
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -488,7 +517,7 @@ export function variantRectHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "size");
+    return __mf_holdsAll(obj, ["size"]);
 }
 
 export function variantRectIs(obj: unknown): obj is VariantRect {
@@ -562,24 +591,14 @@ export function variantInternalEncode(value: VariantInternal, keepMetadata?: boo
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function variantInternalEncodeWithContext(value: VariantInternal, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "VariantCircle") { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "VariantRect") { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantCircleHasShape(value)) { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantRectHasShape(value)) { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantInternal): member is VariantCircle => __mf_member(member, "__type") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantInternal): member is VariantRect => __mf_member(member, "__type") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantInternal): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantInternal): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -792,24 +811,14 @@ export function variantAdjacentEncode(value: VariantAdjacent, keepMetadata?: boo
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function variantAdjacentEncodeWithContext(value: VariantAdjacent, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "t");
-        if (!__matched && __refTag === "VariantCircle") { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "VariantRect") { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantCircleHasShape(value)) { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantRectHasShape(value)) { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantAdjacent): member is VariantCircle => __mf_member(member, "t") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantAdjacent): member is VariantRect => __mf_member(member, "t") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantAdjacent): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantAdjacent): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -972,24 +981,14 @@ export function variantExternalEncode(value: VariantExternal, keepMetadata?: boo
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function variantExternalEncodeWithContext(value: VariantExternal, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "VariantCircle") { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "VariantRect") { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantCircleHasShape(value)) { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantRectHasShape(value)) { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantExternal): member is VariantCircle => __mf_member(member, "__type") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantExternal): member is VariantRect => __mf_member(member, "__type") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantExternal): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantExternal): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -1166,24 +1165,14 @@ export function variantUntaggedEncode(value: VariantUntagged, keepMetadata?: boo
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function variantUntaggedEncodeWithContext(value: VariantUntagged, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "VariantCircle") { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "VariantRect") { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantCircleHasShape(value)) { __variant = variantCircleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && variantRectHasShape(value)) { __variant = variantRectEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantUntagged): member is VariantCircle => __mf_member(member, "__type") === "VariantCircle", (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantUntagged): member is VariantRect => __mf_member(member, "__type") === "VariantRect", (member) => variantRectEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantUntagged): member is VariantCircle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => variantCircleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantUntagged): member is VariantRect => typeof member === "object" && member !== null && !Array.isArray(member) && "size" in member, (member) => variantRectEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -1339,7 +1328,13 @@ export class VariantBase {
 
     static equals(a: VariantBase, b: VariantBase): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && (a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime()) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime(),
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: VariantBase): number {
@@ -1382,20 +1377,30 @@ static encodePartialWithContext(value: Partial<VariantBase>, ctx: __mf_EncodeCon
 }
 
 static #encodeFields(value: VariantBase, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("created")) {
-        if (value.created !== undefined) {
-            result["created"] = value.created.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("created")) {
+                if (value.created !== undefined) {
+                    result["created"] = value.created.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1486,14 +1491,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("created")) && !("created" in obj)) {
-        errors.push({ field: "created", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
-        errors.push({ field: "weight", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["created", "created"], ["weight", "weight"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(VariantBase.prototype);
@@ -1504,35 +1507,45 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "VariantBase.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
-        const __raw_created = obj["created"] as string | Date;
-
-        {
-            const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "created", message: __raw_created == null ? "VariantBase.created is required" : "expected Date" });
-            } else {
-                instance.created = __dateVal;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "VariantBase.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
+                const __raw_created = obj["created"] as string | Date;
 
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
-            errors.push({ field: "weight", message: __raw_weight == null ? "VariantBase.weight is required" : "expected number" });
-        } else {
-            instance.weight = __raw_weight;
-        }
+                {
+                    const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "created", message: __raw_created == null ? "VariantBase.created is required" : "expected Date" });
+                    } else {
+                        instance.created = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "VariantBase.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1553,7 +1566,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "created") && __mf_holds(obj, "weight");
+    return __mf_holdsAll(obj, ["id", "created", "weight"]);
 }
 
 static is(obj: unknown): obj is VariantBase {
@@ -1658,7 +1671,15 @@ export class VariantMid extends VariantBase {
 
     static override equals(a: VariantMid, b: VariantMid): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && (a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime()) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && a.note === b.note);
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime(),
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                    () => a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)),
+                    () => a.note === b.note,
+                ].every((same) => same());
+            });
     }
 
     static override hashCode(value: VariantMid): number {
@@ -1705,30 +1726,44 @@ static override encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_E
 }
 
 static #encodeFields(value: VariantMid, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("created")) {
-        if (value.created !== undefined) {
-            result["created"] = value.created.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = Array.from(value.tags);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("created")) {
+                if (value.created !== undefined) {
+                    result["created"] = value.created.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = Array.from(value.tags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1818,20 +1853,12 @@ static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fie
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("created")) && !("created" in obj)) {
-        errors.push({ field: "created", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
-        errors.push({ field: "weight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
-        errors.push({ field: "note", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["created", "created"], ["weight", "weight"], ["tags", "tags"], ["note", "note"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(VariantMid.prototype);
@@ -1842,68 +1869,82 @@ static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fie
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "VariantMid.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
-        const __raw_created = obj["created"] as string | Date;
-
-        {
-            const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "created", message: __raw_created == null ? "VariantMid.created is required" : "expected Date" });
-            } else {
-                instance.created = __dateVal;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "VariantMid.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
+                const __raw_created = obj["created"] as string | Date;
 
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
-            errors.push({ field: "weight", message: __raw_weight == null ? "VariantMid.weight is required" : "expected number" });
-        } else {
-            instance.weight = __raw_weight;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as Array<string>;
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+                {
+                    const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "created", message: __raw_created == null ? "VariantMid.created is required" : "expected Date" });
+                    } else {
+                        instance.created = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "VariantMid.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "VariantMid.tags is required" : "expected Set<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "VariantMid.tags is required" : "expected Set<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string | null;
 
-        if (!(typeof __raw_note === "string" || __raw_note === null)) {
-            errors.push({ field: "note", message: "expected string | null" });
-        } else {
-            instance.note = __raw_note;
-        }
+                if (!(typeof __raw_note === "string" || __raw_note === null)) {
+                    errors.push({ field: "note", message: "expected string | null" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1924,7 +1965,7 @@ static override hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "created") && __mf_holds(obj, "weight") && __mf_holds(obj, "tags") && __mf_holds(obj, "note");
+    return __mf_holdsAll(obj, ["id", "created", "weight", "tags", "note"]);
 }
 
 static override is(obj: unknown): obj is VariantMid {
@@ -2036,10 +2077,21 @@ export class VariantLeaf extends VariantMid {
 
     static override equals(a: VariantLeaf, b: VariantLeaf): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && (a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime()) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && a.note === b.note && variantInternalEquals(a.shape, b.shape) && a.kind === b.kind && a.children.length === b.children.length && a.children.every((__item0, __index0) => {
-        	const __other0 = b.children[__index0];
-        	return __other0 === undefined ? __item0 === undefined : variantLeafEquals(__item0, __other0);
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime(),
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                    () => a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)),
+                    () => a.note === b.note,
+                    () => variantInternalEquals(a.shape, b.shape),
+                    () => a.kind === b.kind,
+                    () => a.children.length === b.children.length && a.children.every((__item0, __index0) => {
+                    	const __other0 = b.children[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : variantLeafEquals(__item0, __other0);
+                    }),
+                ].every((same) => same());
+            });
     }
 
     static override hashCode(value: VariantLeaf): number {
@@ -2092,45 +2144,65 @@ static override encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_
 }
 
 static #encodeFields(value: VariantLeaf, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("created")) {
-        if (value.created !== undefined) {
-            result["created"] = value.created.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = Array.from(value.tags);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shape")) {
-        if (value.shape !== undefined) {
-            result["shape"] = variantInternalEncodeWithContext(value.shape, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kind")) {
-        if (value.kind !== undefined) {
-            result["kind"] = value.kind;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("children")) {
-        if (value.children !== undefined) {
-            result["children"] = value.children.map((__item0) => variantLeafEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("created")) {
+                if (value.created !== undefined) {
+                    result["created"] = value.created.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = Array.from(value.tags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shape")) {
+                if (value.shape !== undefined) {
+                    result["shape"] = variantInternalEncodeWithContext(value.shape, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("children")) {
+                if (value.children !== undefined) {
+                    result["children"] = value.children.map((__item0) => variantLeafEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2221,29 +2293,12 @@ static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fie
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("created")) && !("created" in obj)) {
-        errors.push({ field: "created", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
-        errors.push({ field: "weight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
-        errors.push({ field: "note", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shape")) && !("shape" in obj)) {
-        errors.push({ field: "shape", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
-        errors.push({ field: "kind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("children")) && !("children" in obj)) {
-        errors.push({ field: "children", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["created", "created"], ["weight", "weight"], ["tags", "tags"], ["note", "note"], ["shape", "shape"], ["kind", "kind"], ["children", "children"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(VariantLeaf.prototype);
@@ -2254,124 +2309,144 @@ static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fie
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "VariantLeaf.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
-        const __raw_created = obj["created"] as string | Date;
-
-        {
-            const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "created", message: __raw_created == null ? "VariantLeaf.created is required" : "expected Date" });
-            } else {
-                instance.created = __dateVal;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "VariantLeaf.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("created")) ? "created" in obj : (__fields.keeps("created") && obj["created"] !== undefined)) {
+                const __raw_created = obj["created"] as string | Date;
 
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
-            errors.push({ field: "weight", message: __raw_weight == null ? "VariantLeaf.weight is required" : "expected number" });
-        } else {
-            instance.weight = __raw_weight;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as Array<string>;
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+                {
+                    const __dateVal = (__raw_created instanceof Date ? __raw_created : typeof __raw_created === "string" ? new Date(__raw_created) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "created", message: __raw_created == null ? "VariantLeaf.created is required" : "expected Date" });
+                    } else {
+                        instance.created = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "VariantLeaf.weight is required" : "expected number" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "VariantLeaf.tags is required" : "expected Set<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "VariantLeaf.tags is required" : "expected Set<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string | null;
 
-        if (!(typeof __raw_note === "string" || __raw_note === null)) {
-            errors.push({ field: "note", message: "expected string | null" });
-        } else {
-            instance.note = __raw_note;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
-        const __raw_shape = obj["shape"] as VariantInternal;
-
-        ctx.pushScope("shape");
-        try {
-            const __result = variantInternalDecodeWithContext(__raw_shape, ctx);
-            ctx.assignOrDefer(instance, "shape", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "shape" : "shape." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_note === "string" || __raw_note === null)) {
+                    errors.push({ field: "note", message: "expected string | null" });
+                } else {
+                    instance.note = __raw_note;
                 }
-            } else {
-
-                errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
-        const __raw_kind = obj["kind"] as 'leaf';
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
+                const __raw_shape = obj["shape"] as VariantInternal;
 
-        if (!(__raw_kind === "leaf")) {
-            errors.push({ field: "kind", message: __raw_kind == null ? "VariantLeaf.kind is required" : "expected 'leaf'" });
-        } else {
-            instance.kind = __raw_kind;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
-        const __raw_children = obj["children"] as VariantLeaf[];
-        if (Array.isArray(__raw_children)) {
-            ctx.pushScope("children");
-            try {
-                instance.children = __mf_decodeArray(__raw_children, ctx, (__raw0) => variantLeafDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "children" : "children." + __err.field,
-                            message: __err.message
-                        });
+                ctx.pushScope("shape");
+                try {
+                    const __result = variantInternalDecodeWithContext(__raw_shape, ctx);
+                    ctx.assignOrDefer(instance, "shape", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "shape" : "shape." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+                const __raw_kind = obj["kind"] as 'leaf';
+
+                if (!(__raw_kind === "leaf")) {
+                    errors.push({ field: "kind", message: __raw_kind == null ? "VariantLeaf.kind is required" : "expected 'leaf'" });
+                } else {
+                    instance.kind = __raw_kind;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
+                const __raw_children = obj["children"] as VariantLeaf[];
+                if (Array.isArray(__raw_children)) {
+                    ctx.pushScope("children");
+                    try {
+                        instance.children = __mf_decodeArray(__raw_children, ctx, (__raw0) => variantLeafDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "children" : "children." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "children", message: __raw_children == null ? "VariantLeaf.children is required" : "expected VariantLeaf[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "children", message: __raw_children == null ? "VariantLeaf.children is required" : "expected VariantLeaf[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2392,7 +2467,7 @@ static override hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "created") && __mf_holds(obj, "weight") && __mf_holds(obj, "tags") && __mf_holds(obj, "note") && __mf_holds(obj, "shape") && __mf_holds(obj, "kind") && __mf_holds(obj, "children");
+    return __mf_holdsAll(obj, ["id", "created", "weight", "tags", "note", "shape", "kind", "children"]);
 }
 
 static override is(obj: unknown): obj is VariantLeaf {
@@ -2467,6 +2542,191 @@ export function variantLeafDecodePartialWithContext(value: unknown, ctx: __mf_De
 export function variantLeafIs(value: unknown): value is VariantLeaf {
     return VariantLeaf.is(value);
 }
+
+/** @derive(Encode) */
+export interface VariantCat {
+    kind: 'cat';
+    born: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantCatEncode(value: VariantCat, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantCatEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantCatEncodeWithContext(value: VariantCat, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantCat" });
+    variantCatEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantCatEncodePartialWithContext(value: Partial<VariantCat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantCat>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantCat" };
+        variantCatEncodeFields(value as VariantCat, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function variantCatEncodeFields(value: VariantCat, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("kind")) {
+                if (value.kind !== undefined) {
+                    result["kind"] = value.kind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("born")) {
+                if (value.born !== undefined) {
+                    result["born"] = value.born.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+export const VariantCat: {
+  readonly encode: typeof variantCatEncode;
+  readonly encodeWithContext: typeof variantCatEncodeWithContext;
+  readonly encodePartialWithContext: typeof variantCatEncodePartialWithContext;
+} = {
+  encode: variantCatEncode,
+  encodeWithContext: variantCatEncodeWithContext,
+  encodePartialWithContext: variantCatEncodePartialWithContext
+};
+
+/** @derive(Encode) */
+export interface VariantFish {
+    fins: number;
+    seen: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantFishEncode(value: VariantFish, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantFishEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantFishEncodeWithContext(value: VariantFish, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "VariantFish" });
+    variantFishEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function variantFishEncodePartialWithContext(value: Partial<VariantFish>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantFish>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "VariantFish" };
+        variantFishEncodeFields(value as VariantFish, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function variantFishEncodeFields(value: VariantFish, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("fins")) {
+                if (value.fins !== undefined) {
+                    result["fins"] = value.fins;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("seen")) {
+                if (value.seen !== undefined) {
+                    result["seen"] = value.seen.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+export const VariantFish: {
+  readonly encode: typeof variantFishEncode;
+  readonly encodeWithContext: typeof variantFishEncodeWithContext;
+  readonly encodePartialWithContext: typeof variantFishEncodePartialWithContext;
+} = {
+  encode: variantFishEncode,
+  encodeWithContext: variantFishEncodeWithContext,
+  encodePartialWithContext: variantFishEncodePartialWithContext
+};
+
+/** Members that derive only `Encode`, told by their tag or by their own fields. */
+/** @derive(Encode) */
+export type VariantPet = VariantCat | VariantFish | { kind: 'bird'; at: Date };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function variantPetEncode(value: VariantPet, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = variantPetEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function variantPetEncodeWithContext(value: VariantPet, ctx: __mf_EncodeContext): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: VariantPet): member is VariantCat => __mf_member(member, "__type") === "VariantCat", (member) => variantCatEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantPet): member is VariantFish => __mf_member(member, "__type") === "VariantFish", (member) => variantFishEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantPet): member is VariantCat => typeof member === "object" && member !== null && !Array.isArray(member) && "kind" in member && member["kind"] === 'cat' && "born" in member, (member) => variantCatEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: VariantPet): member is VariantFish => typeof member === "object" && member !== null && !Array.isArray(member) && "fins" in member && "seen" in member, (member) => variantFishEncodeWithContext(member, ctx)),
+        (value: VariantPet): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'bird' && "at" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "__type": __mf_member(value, "__type") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+export const VariantPet: {
+  readonly encode: typeof variantPetEncode;
+  readonly encodeWithContext: typeof variantPetEncodeWithContext;
+} = {
+  encode: variantPetEncode,
+  encodeWithContext: variantPetEncodeWithContext
+};
 
 ## DTS
 
@@ -2987,6 +3247,52 @@ export declare function variantLeafHasShape(value: unknown): boolean;
 export declare function variantLeafDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Partial<VariantLeaf> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function variantLeafIs(value: unknown): value is VariantLeaf;
+/** @derive(Encode) */
+export interface VariantCat {
+	kind: "cat";
+	born: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantCatEncode(value: VariantCat, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantCatEncodeWithContext(value: VariantCat, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantCatEncodePartialWithContext(value: Partial<VariantCat>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantCat>): Record<string, unknown>;
+export declare const VariantCat: {
+	readonly encode: typeof variantCatEncode;
+	readonly encodeWithContext: typeof variantCatEncodeWithContext;
+	readonly encodePartialWithContext: typeof variantCatEncodePartialWithContext;
+};
+/** @derive(Encode) */
+export interface VariantFish {
+	fins: number;
+	seen: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantFishEncode(value: VariantFish, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantFishEncodeWithContext(value: VariantFish, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function variantFishEncodePartialWithContext(value: Partial<VariantFish>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantFish>): Record<string, unknown>;
+export declare const VariantFish: {
+	readonly encode: typeof variantFishEncode;
+	readonly encodeWithContext: typeof variantFishEncodeWithContext;
+	readonly encodePartialWithContext: typeof variantFishEncodePartialWithContext;
+};
+/** Members that derive only `Encode`, told by their tag or by their own fields. */
+/** @derive(Encode) */
+export type VariantPet = VariantCat | VariantFish | {
+	kind: "bird";
+	at: Date;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function variantPetEncode(value: VariantPet, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function variantPetEncodeWithContext(value: VariantPet, ctx: __mf_EncodeContext): unknown;
+export declare const VariantPet: {
+	readonly encode: typeof variantPetEncode;
+	readonly encodeWithContext: typeof variantPetEncodeWithContext;
+};
 
 ## Diagnostics
 
@@ -2994,110 +3300,119 @@ export declare function variantLeafIs(value: unknown): value is VariantLeaf;
 
 ## Mapping
 
-original 0..316 -> expanded 1441..1757
-original 316..479 -> expanded 12463..12626
-original 479..650 -> expanded 24611..24782
-original 650..814 -> expanded 34273..34437
-original 814..978 -> expanded 41694..41858
-original 978..1152 -> expanded 49678..49852
-original 1152..1318 -> expanded 56698..56864
-original 1318..1319 -> expanded 67488..67489
-original 1319..1510 -> expanded 71228..71419
-original 1510..1511 -> expanded 85168..85169
-original 1511..1727 -> expanded 88866..89082
-original 1727..1728 -> expanded 107844..107845
-original 1728..1729 -> expanded 111584..111585
-generated 0..1441 <- imports
-generated 1757..2032 <- Debug
-generated 2032..2193 <- Clone
-generated 2193..2423 <- PartialEq
-generated 2423..2768 <- Hash
-generated 2768..3193 <- PartialOrd
-generated 3193..5405 <- Encode
-generated 5405..10926 <- Decode
-generated 10926..12463 <- __convenience_const
-generated 12626..12954 <- Debug
-generated 12954..13178 <- Clone
-generated 13178..13391 <- PartialEq
-generated 13391..13766 <- Hash
-generated 13766..14306 <- PartialOrd
-generated 14306..16641 <- Encode
-generated 16641..23136 <- Decode
-generated 23136..24611 <- __convenience_const
-generated 24782..24926 <- Debug
-generated 24926..25049 <- Clone
-generated 25049..25211 <- PartialEq
-generated 25211..25327 <- Hash
-generated 25327..25474 <- PartialOrd
-generated 25474..27613 <- Encode
-generated 27613..33206 <- Decode
-generated 33206..34273 <- __convenience_const
-generated 34437..34581 <- Debug
-generated 34581..34704 <- Clone
-generated 34704..34866 <- PartialEq
-generated 34866..34982 <- Hash
-generated 34982..37093 <- Encode
-generated 37093..40741 <- Decode
-generated 40741..41694 <- __convenience_const
-generated 41858..42002 <- Debug
-generated 42002..42125 <- Clone
-generated 42125..42287 <- PartialEq
-generated 42287..42403 <- Hash
-generated 42403..44511 <- Encode
-generated 44511..48725 <- Decode
-generated 48725..49678 <- __convenience_const
-generated 49852..49996 <- Debug
-generated 49996..50119 <- Clone
-generated 50119..50281 <- PartialEq
-generated 50281..50397 <- Hash
-generated 50397..52494 <- Encode
-generated 52494..55745 <- Decode
-generated 55745..56698 <- __convenience_const
-generated 56864..57245 <- Debug
-generated 57245..57470 <- Clone
-generated 57470..57852 <- PartialEq
-generated 57852..58386 <- Hash
-generated 58386..58657 <- Default
-generated 58657..60565 <- Encode
-generated 60565..60894 <- Encode
-generated 60894..67488 <- Decode
-generated 67489..67598 <- Debug
-generated 67598..67706 <- Clone
-generated 67706..67823 <- PartialEq
-generated 67823..67932 <- Hash
-generated 67932..68031 <- Default
-generated 68031..69401 <- Encode
-generated 69401..71228 <- Decode
-generated 71419..71923 <- Debug
-generated 71923..72218 <- Clone
-generated 72218..72784 <- PartialEq
-generated 72784..73672 <- Hash
-generated 73672..74051 <- Default
-generated 74051..76294 <- Encode
-generated 76294..76630 <- Encode
-generated 76630..85168 <- Decode
-generated 85169..85275 <- Debug
-generated 85275..85379 <- Clone
-generated 85379..85492 <- PartialEq
-generated 85492..85598 <- Hash
-generated 85598..85694 <- Default
-generated 85694..87054 <- Encode
-generated 87054..88866 <- Decode
-generated 89082..89808 <- Debug
-generated 89808..90262 <- Clone
-generated 90262..91144 <- PartialEq
-generated 91144..92369 <- Hash
-generated 92369..92890 <- Default
-generated 92890..95732 <- Encode
-generated 95732..96070 <- Encode
-generated 96070..107844 <- Decode
-generated 107845..107954 <- Debug
-generated 107954..108062 <- Clone
-generated 108062..108179 <- PartialEq
-generated 108179..108288 <- Hash
-generated 108288..108387 <- Default
-generated 108387..109757 <- Encode
-generated 109757..111584 <- Decode
+original 0..316 -> expanded 1552..1868
+original 316..479 -> expanded 12666..12829
+original 479..650 -> expanded 25628..25799
+original 650..814 -> expanded 35339..35503
+original 814..978 -> expanded 42804..42968
+original 978..1152 -> expanded 50837..51011
+original 1152..1318 -> expanded 57906..58072
+original 1318..1319 -> expanded 69295..69296
+original 1319..1510 -> expanded 73035..73226
+original 1510..1511 -> expanded 87732..87733
+original 1511..1727 -> expanded 91430..91646
+original 1727..1728 -> expanded 111473..111474
+original 1728..1817 -> expanded 115213..115302
+original 1817..1908 -> expanded 118194..118285
+original 1908..2096 -> expanded 121199..121387
+original 2096..2097 -> expanded 124438..124439
+generated 0..1552 <- imports
+generated 1868..2143 <- Debug
+generated 2143..2304 <- Clone
+generated 2304..2558 <- PartialEq
+generated 2558..2903 <- Hash
+generated 2903..3235 <- PartialOrd
+generated 3235..5447 <- Encode
+generated 5447..11129 <- Decode
+generated 11129..12666 <- __convenience_const
+generated 12829..13157 <- Debug
+generated 13157..13381 <- Clone
+generated 13381..13689 <- PartialEq
+generated 13689..14064 <- Hash
+generated 14064..14580 <- PartialOrd
+generated 14580..17109 <- Encode
+generated 17109..24153 <- Decode
+generated 24153..25628 <- __convenience_const
+generated 25799..25943 <- Debug
+generated 25943..26066 <- Clone
+generated 26066..26228 <- PartialEq
+generated 26228..26344 <- Hash
+generated 26344..26491 <- PartialOrd
+generated 26491..28679 <- Encode
+generated 28679..34272 <- Decode
+generated 34272..35339 <- __convenience_const
+generated 35503..35647 <- Debug
+generated 35647..35770 <- Clone
+generated 35770..35932 <- PartialEq
+generated 35932..36048 <- Hash
+generated 36048..38203 <- Encode
+generated 38203..41851 <- Decode
+generated 41851..42804 <- __convenience_const
+generated 42968..43112 <- Debug
+generated 43112..43235 <- Clone
+generated 43235..43397 <- PartialEq
+generated 43397..43513 <- Hash
+generated 43513..45670 <- Encode
+generated 45670..49884 <- Decode
+generated 49884..50837 <- __convenience_const
+generated 51011..51155 <- Debug
+generated 51155..51278 <- Clone
+generated 51278..51440 <- PartialEq
+generated 51440..51556 <- Hash
+generated 51556..53702 <- Encode
+generated 53702..56953 <- Decode
+generated 56953..57906 <- __convenience_const
+generated 58072..58453 <- Debug
+generated 58453..58678 <- Clone
+generated 58678..59215 <- PartialEq
+generated 59215..59749 <- Hash
+generated 59749..60020 <- Default
+generated 60020..62189 <- Encode
+generated 62189..62518 <- Encode
+generated 62518..69295 <- Decode
+generated 69296..69405 <- Debug
+generated 69405..69513 <- Clone
+generated 69513..69630 <- PartialEq
+generated 69630..69739 <- Hash
+generated 69739..69838 <- Default
+generated 69838..71208 <- Encode
+generated 71208..73035 <- Decode
+generated 73226..73730 <- Debug
+generated 73730..74025 <- Clone
+generated 74025..74794 <- PartialEq
+generated 74794..75682 <- Hash
+generated 75682..76061 <- Default
+generated 76061..78699 <- Encode
+generated 78699..79035 <- Encode
+generated 79035..87732 <- Decode
+generated 87733..87839 <- Debug
+generated 87839..87943 <- Clone
+generated 87943..88056 <- PartialEq
+generated 88056..88162 <- Hash
+generated 88162..88258 <- Default
+generated 88258..89618 <- Encode
+generated 89618..91430 <- Decode
+generated 91646..92372 <- Debug
+generated 92372..92826 <- Clone
+generated 92826..94019 <- PartialEq
+generated 94019..95244 <- Hash
+generated 95244..95765 <- Default
+generated 95765..99203 <- Encode
+generated 99203..99541 <- Encode
+generated 99541..111473 <- Decode
+generated 111474..111583 <- Debug
+generated 111583..111691 <- Clone
+generated 111691..111808 <- PartialEq
+generated 111808..111917 <- Hash
+generated 111917..112016 <- Default
+generated 112016..113386 <- Encode
+generated 113386..115213 <- Decode
+generated 115302..117826 <- Encode
+generated 117826..118194 <- __convenience_const
+generated 118285..120824 <- Encode
+generated 120824..121199 <- __convenience_const
+generated 121387..124214 <- Encode
+generated 124214..124438 <- __convenience_const
 
 ## Metadata
 
@@ -3106,23 +3421,30 @@ class VariantMid: {"body_span":{"end":1512,"start":1437},"decorators":[{"args_sr
 class VariantLeaf: {"body_span":{"end":1729,"start":1629},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1584,"start":1514}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":1665,"start":1635},"ts_type":"VariantInternal","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'leaf'","key":"Named","name":"kind","optional":false,"readonly":true,"span":{"end":1693,"start":1670},"ts_type":"'leaf'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"children","optional":false,"readonly":false,"span":{"end":1727,"start":1698},"ts_type":"VariantLeaf[]","untyped":false,"visibility":"Public"}],"heritage":["VariantMid"],"is_abstract":false,"is_declare":false,"methods":[],"name":"VariantLeaf","span":{"end":1729,"start":1592},"superclass":"VariantMid","type_params":[]}
 interface VariantCircle: {"body_span":{"end":317,"start":294},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode","name":"Derive","span":{"end":262,"start":189}}],"fields":[{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":315,"start":300},"ts_type":"number"}],"heritage":[],"methods":[],"name":"VariantCircle","span":{"end":317,"start":270},"type_params":[]}
 interface VariantRect: {"body_span":{"end":480,"start":422},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode","name":"Derive","span":{"end":392,"start":319}}],"fields":[{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":451,"start":428},"ts_type":"[number, number]"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":478,"start":456},"ts_type":"`r-${string}`"}],"heritage":[],"methods":[],"name":"VariantRect","span":{"end":480,"start":400},"type_params":[]}
+interface VariantCat: {"body_span":{"end":1818,"start":1782},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1753,"start":1731}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1800,"start":1788},"ts_type":"'cat'"},{"decorators":[],"key":"Named","name":"born","optional":false,"readonly":false,"span":{"end":1816,"start":1805},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"VariantCat","span":{"end":1818,"start":1761},"type_params":[]}
+interface VariantFish: {"body_span":{"end":1909,"start":1872},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1842,"start":1820}}],"fields":[{"decorators":[],"key":"Named","name":"fins","optional":false,"readonly":false,"span":{"end":1891,"start":1878},"ts_type":"number"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":1907,"start":1896},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"VariantFish","span":{"end":1909,"start":1850},"type_params":[]}
 type VariantInternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}},{"decorators":[],"kind":{"Literal":"'none'"}},{"decorators":[],"kind":{"TypeRef":"`id-${number}`"}},{"decorators":[],"kind":{"Literal":"7"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Encode, Decode","name":"Derive","span":{"end":555,"start":482}}],"name":"VariantInternal","span":{"end":651,"start":563},"type_params":[]}
 type VariantAdjacent: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}}]},"decorators":[{"args_src":"{ tag: \"t\", content: \"c\" }","name":"endec","span":{"end":756,"start":715}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":714,"start":653}}],"name":"VariantAdjacent","span":{"end":815,"start":764},"type_params":[]}
 type VariantExternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":920,"start":879}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":878,"start":817}}],"name":"VariantExternal","span":{"end":979,"start":928},"type_params":[]}
 type VariantUntagged: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCircle"}},{"decorators":[],"kind":{"TypeRef":"VariantRect"}},{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":1076,"start":1043}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1042,"start":981}}],"name":"VariantUntagged","span":{"end":1153,"start":1084},"type_params":[]}
+type VariantPet: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantCat"}},{"decorators":[],"kind":{"TypeRef":"VariantFish"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2085,"start":2072},"ts_type":"'bird'"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2094,"start":2086},"ts_type":"Date"}]}}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":2017,"start":1995}}],"name":"VariantPet","span":{"end":2097,"start":2025},"type_params":[]}
 
 ## Registry reads
 
+Name("'cat'")
 Name("'leaf'")
 Name("Date")
 Name("Set")
 Name("VariantAdjacent")
 Name("VariantBase")
+Name("VariantCat")
 Name("VariantCircle")
 Name("VariantExternal")
+Name("VariantFish")
 Name("VariantInternal")
 Name("VariantLeaf")
 Name("VariantMid")
+Name("VariantPet")
 Name("VariantRect")
 Name("VariantUntagged")
 Name("[number, number]")

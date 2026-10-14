@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Directives whose arguments hold what a scan for brackets, commas and
@@ -85,30 +85,44 @@ export function directiveTextsEncodePartialWithContext(value: Partial<DirectiveT
 }
 
 function directiveTextsEncodeFields(value: DirectiveTexts, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("renamed")) {
-        if (value.renamed !== undefined) {
-            result["skip"] = value.renamed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("open")) {
-        if (value.open !== undefined) {
-            result["open"] = value.open;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("listed")) {
-        if (value.listed !== undefined) {
-            result["listed"] = value.listed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("matched")) {
-        if (value.matched !== undefined) {
-            result["matched"] = value.matched;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("words")) {
-        if (value.words !== undefined) {
-            result["words"] = value.words;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("renamed")) {
+                if (value.renamed !== undefined) {
+                    result["skip"] = value.renamed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("open")) {
+                if (value.open !== undefined) {
+                    result["open"] = value.open;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("listed")) {
+                if (value.listed !== undefined) {
+                    result["listed"] = value.listed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("matched")) {
+                if (value.matched !== undefined) {
+                    result["matched"] = value.matched;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("words")) {
+                if (value.words !== undefined) {
+                    result["words"] = value.words;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -186,11 +200,12 @@ export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("renamed")) && !("skip" in obj)) {
-        errors.push({ field: "skip", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("matched")) && !("matched" in obj)) {
-        errors.push({ field: "matched", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["renamed", "skip"], ["matched", "matched"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -201,83 +216,97 @@ export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("renamed")) ? "skip" in obj : (__fields.keeps("renamed") && obj["skip"] !== undefined)) {
-        const __raw_renamed = obj["skip"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("renamed")) ? "skip" in obj : (__fields.keeps("renamed") && obj["skip"] !== undefined)) {
+                const __raw_renamed = obj["skip"] as string;
 
-        if (!(typeof __raw_renamed === "string")) {
-            errors.push({ field: "skip", message: __raw_renamed == null ? "DirectiveTexts.skip is required" : "expected string" });
-        } else {
-            instance.renamed = __raw_renamed;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("open"))) {
-        if (("open" in obj && obj["open"] !== undefined)) {
-            const __raw_open = obj["open"] as string;
-
-            if (!(typeof __raw_open === "string")) {
-                errors.push({ field: "open", message: "expected string" });
-            } else {
-                instance.open = __raw_open;
+                if (!(typeof __raw_renamed === "string")) {
+                    errors.push({ field: "skip", message: __raw_renamed == null ? "DirectiveTexts.skip is required" : "expected string" });
+                } else {
+                    instance.renamed = __raw_renamed;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("open")) && !("open" in obj && obj["open"] !== undefined)) {
-            instance.open = ("(") satisfies string;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("listed"))) {
-        if (("listed" in obj && obj["listed"] !== undefined)) {
-            const __raw_listed = obj["listed"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("open"))) {
+                if (("open" in obj && obj["open"] !== undefined)) {
+                    const __raw_open = obj["open"] as string;
 
-            if (!(typeof __raw_listed === "string")) {
-                errors.push({ field: "listed", message: "expected string" });
-            } else {
-                instance.listed = __raw_listed;
+                    if (!(typeof __raw_open === "string")) {
+                        errors.push({ field: "open", message: "expected string" });
+                    } else {
+                        instance.open = __raw_open;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("open")) && !("open" in obj && obj["open"] !== undefined)) {
+                    instance.open = ("(") satisfies string;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj && obj["listed"] !== undefined)) {
-            instance.listed = ("a, b]") satisfies string;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("matched")) ? "matched" in obj : (__fields.keeps("matched") && obj["matched"] !== undefined)) {
-        const __raw_matched = obj["matched"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("listed"))) {
+                if (("listed" in obj && obj["listed"] !== undefined)) {
+                    const __raw_listed = obj["listed"] as string;
 
-        if (!(typeof __raw_matched === "string")) {
-            errors.push({ field: "matched", message: __raw_matched == null ? "DirectiveTexts.matched is required" : "expected string" });
-        } else {
-            if (__raw_matched == null) { errors.push({ field: "matched", message: "DirectiveTexts.matched is required" }); } else {
-                if (!/^[(a-z, ]+$/.test(__raw_matched)) { errors.push({ field: "matched", message: "DirectiveTexts.matched must match pattern ^[(a-z, ]+$" }); }
+                    if (!(typeof __raw_listed === "string")) {
+                        errors.push({ field: "listed", message: "expected string" });
+                    } else {
+                        instance.listed = __raw_listed;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj && obj["listed"] !== undefined)) {
+                    instance.listed = ("a, b]") satisfies string;
+                }
             }
-            instance.matched = __raw_matched;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("words"))) {
-        if (("words" in obj && obj["words"] !== undefined)) {
-            const __raw_words = obj["words"] as string[];
-            if (Array.isArray(__raw_words)) {
-                ctx.pushScope("words");
-                try {
-                    instance.words = __mf_decodeArray(__raw_words, ctx, __mf_decodeString);
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "words" : "words." + __err.field,
-                                message: __err.message
-                            });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("matched")) ? "matched" in obj : (__fields.keeps("matched") && obj["matched"] !== undefined)) {
+                const __raw_matched = obj["matched"] as string;
+
+                if (!(typeof __raw_matched === "string")) {
+                    errors.push({ field: "matched", message: __raw_matched == null ? "DirectiveTexts.matched is required" : "expected string" });
+                } else {
+                    if (__raw_matched == null) { errors.push({ field: "matched", message: "DirectiveTexts.matched is required" }); } else {
+                        if (!/^[(a-z, ]+$/.test(__raw_matched)) { errors.push({ field: "matched", message: "DirectiveTexts.matched must match pattern ^[(a-z, ]+$" }); }
+                    }
+                    instance.matched = __raw_matched;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("words"))) {
+                if (("words" in obj && obj["words"] !== undefined)) {
+                    const __raw_words = obj["words"] as string[];
+                    if (Array.isArray(__raw_words)) {
+                        ctx.pushScope("words");
+                        try {
+                            instance.words = __mf_decodeArray(__raw_words, ctx, __mf_decodeString);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "words" : "words." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "words", message: "expected string[]" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "words", message: "expected string[]" });
+                if ((__fields === undefined || __fields.requires("words")) && !("words" in obj && obj["words"] !== undefined)) {
+                    instance.words = (["skip", "flatten"]) satisfies string[];
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("words")) && !("words" in obj && obj["words"] !== undefined)) {
-            instance.words = (["skip", "flatten"]) satisfies string[];
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -314,7 +343,7 @@ export function directiveTextsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "skip") && __mf_holds(obj, "matched");
+    return __mf_holdsAll(obj, ["skip", "matched"]);
 }
 
 export function directiveTextsIs(obj: unknown): obj is DirectiveTexts {
@@ -361,7 +390,9 @@ export function directiveStackedClone(value: DirectiveStacked): DirectiveStacked
 
 export function directiveStackedEquals(a: DirectiveStacked, b: DirectiveStacked): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.name === b.name);
+    return __mf_equalWithin(a, b, () => {
+        return a.name === b.name;
+    });
 }
 
 export function directiveStackedToString(value: DirectiveStacked): string {
@@ -405,7 +436,9 @@ export function directiveRepeatedClone(value: DirectiveRepeated): DirectiveRepea
 
 export function directiveRepeatedEquals(a: DirectiveRepeated, b: DirectiveRepeated): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.x === b.x || a.x !== a.x && b.x !== b.x);
+    return __mf_equalWithin(a, b, () => {
+        return a.x === b.x || a.x !== a.x && b.x !== b.x;
+    });
 }
 
 export const DirectiveRepeated: {
@@ -463,20 +496,30 @@ export function directiveSkippedEncodePartialWithContext(value: Partial<Directiv
 }
 
 function directiveSkippedEncodeFields(value: DirectiveSkipped, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -554,8 +597,12 @@ export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -566,29 +613,45 @@ export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "DirectiveSkipped.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("secret"))) {
-        instance.secret = ("") satisfies string;
-    }
-    if ((__fields === undefined || __fields.requires("count"))) {
-        instance.count = (0) satisfies number;
-    }
-    if ((__fields === undefined || __fields.requires("tags"))) {
-        instance.tags = ([]) satisfies string[];
-    }
-    if ((__fields === undefined || __fields.requires("note"))) {
-        instance.note = ("none") satisfies string;
-    }
-    if ((__fields === undefined || __fields.requires("maybe"))) {
-        instance.maybe = (null) satisfies string | null;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "DirectiveSkipped.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret"))) {
+                instance.secret = ("") satisfies string;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count"))) {
+                instance.count = (0) satisfies number;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags"))) {
+                instance.tags = ([]) satisfies string[];
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note"))) {
+                instance.note = ("none") satisfies string;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe"))) {
+                instance.maybe = (null) satisfies string | null;
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -613,7 +676,7 @@ export function directiveSkippedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 export function directiveSkippedIs(obj: unknown): obj is DirectiveSkipped {
@@ -673,15 +736,23 @@ static encodePartialWithContext(value: Partial<DirectiveSkippedClass>, ctx: __mf
 }
 
 static #encodeFields(value: DirectiveSkippedClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("derived")) {
-        if (value.derived !== undefined) {
-            result["derived"] = value.derived;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("derived")) {
+                if (value.derived !== undefined) {
+                    result["derived"] = value.derived;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -776,8 +847,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DirectiveSkippedClass.prototype);
@@ -788,20 +863,30 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "DirectiveSkippedClass.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cache"))) {
-        instance.cache = (new Map()) satisfies Map<string, number>;
-    }
-    if ((__fields === undefined || __fields.requires("derived"))) {
-        instance.derived = (0) satisfies number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "DirectiveSkippedClass.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cache"))) {
+                instance.cache = (new Map()) satisfies Map<string, number>;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("derived"))) {
+                instance.derived = (0) satisfies number;
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -822,7 +907,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 static is(obj: unknown): obj is DirectiveSkippedClass {
@@ -992,8 +1077,12 @@ export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("depth")) && !("depth" in obj)) {
-        errors.push({ field: "depth", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["depth", "depth"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1036,7 +1125,7 @@ export function directiveInnerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "depth");
+    return __mf_holdsAll(obj, ["depth"]);
 }
 
 export function directiveInnerIs(obj: unknown): obj is DirectiveInner {
@@ -1102,17 +1191,25 @@ export function directiveFlatEncodePartialWithContext(value: Partial<DirectiveFl
 }
 
 function directiveFlatEncodeFields(value: DirectiveFlat, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("title")) {
-        if (value.title !== undefined) {
-            result["title"] = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inner")) {
-        if (value.inner !== undefined && value.inner !== null) {
-            const __flattened = directiveInnerEncodePartialWithContext(value.inner, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inner")) {
+                if (value.inner !== undefined && value.inner !== null) {
+                    const __flattened = directiveInnerEncodePartialWithContext(value.inner, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1190,8 +1287,12 @@ export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1202,32 +1303,40 @@ export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "DirectiveFlat.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("inner"))) {
-        if (directiveInnerHasShape(obj)) {
-            try {
-                const __result = directiveInnerDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "inner", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
-                    }
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "DirectiveFlat.title is required" : "expected string" });
                 } else {
-                    throw __e;
+                    instance.title = __raw_title;
                 }
             }
-        } else if ((__fields === undefined || __fields.requires("inner"))) {
-            instance.inner = null;
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("inner"))) {
+                if (directiveInnerHasShape(obj)) {
+                    try {
+                        const __result = directiveInnerDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "inner", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                } else if ((__fields === undefined || __fields.requires("inner"))) {
+                    instance.inner = null;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1252,7 +1361,7 @@ export function directiveFlatHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "title");
+    return __mf_holdsAll(obj, ["title"]);
 }
 
 export function directiveFlatIs(obj: unknown): obj is DirectiveFlat {
@@ -1619,43 +1728,43 @@ export declare const DirectiveFlat: {
 
 ## Mapping
 
-original 0..678 -> expanded 937..1615
-original 678..790 -> expanded 16178..16290
-original 790..959 -> expanded 17222..17391
-original 959..1414 -> expanded 18352..18807
-original 1414..1665 -> expanded 28700..28951
-original 1665..1666 -> expanded 36721..36722
-original 1666..1753 -> expanded 40169..40256
-original 1753..1900 -> expanded 49140..49287
-original 1900..1901 -> expanded 59134..59135
-generated 0..937 <- imports
-generated 1615..2110 <- Debug
-generated 2110..2302 <- Default
-generated 2302..5182 <- Encode
-generated 5182..14862 <- Decode
-generated 14862..16178 <- __convenience_const
-generated 16290..16459 <- Clone
-generated 16459..16644 <- PartialEq
-generated 16644..16924 <- Debug
-generated 16924..17222 <- __convenience_const
-generated 17391..17668 <- Debug
-generated 17668..17835 <- Clone
-generated 17835..18047 <- PartialEq
-generated 18047..18352 <- __convenience_const
-generated 18807..21378 <- Encode
-generated 21378..27534 <- Decode
-generated 27534..28700 <- __convenience_const
-generated 28951..30778 <- Encode
-generated 30778..31127 <- Encode
-generated 31127..36721 <- Decode
-generated 36722..38192 <- Encode
-generated 38192..40169 <- Decode
-generated 40256..42479 <- Encode
-generated 42479..48016 <- Decode
-generated 48016..49140 <- __convenience_const
-generated 49287..51864 <- Encode
-generated 51864..58031 <- Decode
-generated 58031..59134 <- __convenience_const
+original 0..678 -> expanded 943..1621
+original 678..790 -> expanded 17359..17471
+original 790..959 -> expanded 18427..18596
+original 959..1414 -> expanded 19581..20036
+original 1414..1665 -> expanded 30759..31010
+original 1665..1666 -> expanded 39390..39391
+original 1666..1753 -> expanded 42838..42925
+original 1753..1900 -> expanded 51971..52118
+original 1900..1901 -> expanded 62659..62660
+generated 0..943 <- imports
+generated 1621..2116 <- Debug
+generated 2116..2308 <- Default
+generated 2308..5583 <- Encode
+generated 5583..16043 <- Decode
+generated 16043..17359 <- __convenience_const
+generated 17471..17640 <- Clone
+generated 17640..17849 <- PartialEq
+generated 17849..18129 <- Debug
+generated 18129..18427 <- __convenience_const
+generated 18596..18873 <- Debug
+generated 18873..19040 <- Clone
+generated 19040..19276 <- PartialEq
+generated 19276..19581 <- __convenience_const
+generated 20036..22868 <- Encode
+generated 22868..29593 <- Decode
+generated 29593..30759 <- __convenience_const
+generated 31010..33031 <- Encode
+generated 33031..33380 <- Encode
+generated 33380..39390 <- Decode
+generated 39391..40861 <- Encode
+generated 40861..42838 <- Decode
+generated 42925..45148 <- Encode
+generated 45148..50847 <- Decode
+generated 50847..51971 <- __convenience_const
+generated 52118..54905 <- Encode
+generated 54905..61556 <- Decode
+generated 61556..62659 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -140,8 +140,12 @@ export function firstNameDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -199,7 +203,7 @@ export function firstNameHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 export function firstNameIs(obj: unknown): obj is FirstName {
@@ -426,16 +430,16 @@ export declare const FirstName: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..141 -> expanded 896..930
-original 182..202 -> expanded 930..950
-original 202..203 -> expanded 13955..13956
-generated 0..838 <- imports
-generated 950..1044 <- Default
-generated 1044..3188 <- Encode
-generated 3188..9384 <- Decode
-generated 9384..12662 <- Gigaform
-generated 12662..13955 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..141 -> expanded 902..936
+original 182..202 -> expanded 936..956
+original 202..203 -> expanded 14124..14125
+generated 0..844 <- imports
+generated 956..1050 <- Default
+generated 1050..3194 <- Encode
+generated 3194..9553 <- Decode
+generated 9553..12831 <- Gigaform
+generated 12831..14124 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { directionHueDecodeWithContext, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -142,8 +142,12 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("mappings")) && !("mappings" in obj)) {
-        errors.push({ field: "mappings", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["mappings", "mappings"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -201,7 +205,7 @@ export function customHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "mappings");
+    return __mf_holdsAll(obj, ["mappings"]);
 }
 
 export function customIs(obj: unknown): obj is Custom {
@@ -463,15 +467,15 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 996..1115
-original 168..231 -> expanded 1115..1178
-original 231..232 -> expanded 15448..15449
-generated 0..996 <- imports
-generated 1178..1270 <- Default
-generated 1270..3446 <- Encode
-generated 3446..9402 <- Decode
-generated 9402..14236 <- Gigaform
-generated 14236..15448 <- __convenience_const
+original 0..119 -> expanded 1002..1121
+original 168..231 -> expanded 1121..1184
+original 231..232 -> expanded 15613..15614
+generated 0..1002 <- imports
+generated 1184..1276 <- Default
+generated 1276..3452 <- Encode
+generated 3452..9567 <- Decode
+generated 9567..14401 <- Gigaform
+generated 14401..15613 <- __convenience_const
 
 ## Metadata
 

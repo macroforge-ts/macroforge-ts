@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -93,55 +93,79 @@ export function taxRateEncodePartialWithContext(value: Partial<TaxRate>, ctx: __
 }
 
 function taxRateEncodeFields(value: TaxRate, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("taxAgency")) {
-        if (value.taxAgency !== undefined) {
-            result["taxAgency"] = value.taxAgency;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("zip")) {
-        if (value.zip !== undefined) {
-            result["zip"] = value.zip;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("city")) {
-        if (value.city !== undefined) {
-            result["city"] = value.city;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("county")) {
-        if (value.county !== undefined) {
-            result["county"] = value.county;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("state")) {
-        if (value.state !== undefined) {
-            result["state"] = value.state;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isActive")) {
-        if (value.isActive !== undefined) {
-            result["isActive"] = value.isActive;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("description")) {
-        if (value.description !== undefined) {
-            result["description"] = value.description;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("taxComponents")) {
-        if (value.taxComponents !== undefined) {
-            result["taxComponents"] = value.taxComponents;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("taxAgency")) {
+                if (value.taxAgency !== undefined) {
+                    result["taxAgency"] = value.taxAgency;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("zip")) {
+                if (value.zip !== undefined) {
+                    result["zip"] = value.zip;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("city")) {
+                if (value.city !== undefined) {
+                    result["city"] = value.city;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("county")) {
+                if (value.county !== undefined) {
+                    result["county"] = value.county;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("state")) {
+                if (value.state !== undefined) {
+                    result["state"] = value.state;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isActive")) {
+                if (value.isActive !== undefined) {
+                    result["isActive"] = value.isActive;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("description")) {
+                if (value.description !== undefined) {
+                    result["description"] = value.description;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("taxComponents")) {
+                if (value.taxComponents !== undefined) {
+                    result["taxComponents"] = value.taxComponents;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -219,35 +243,12 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("taxAgency")) && !("taxAgency" in obj)) {
-        errors.push({ field: "taxAgency", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("zip")) && !("zip" in obj)) {
-        errors.push({ field: "zip", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("city")) && !("city" in obj)) {
-        errors.push({ field: "city", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("county")) && !("county" in obj)) {
-        errors.push({ field: "county", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("state")) && !("state" in obj)) {
-        errors.push({ field: "state", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) && !("isActive" in obj)) {
-        errors.push({ field: "isActive", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
-        errors.push({ field: "description", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("taxComponents")) && !("taxComponents" in obj)) {
-        errors.push({ field: "taxComponents", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["name", "name"], ["taxAgency", "taxAgency"], ["zip", "zip"], ["city", "city"], ["county", "county"], ["state", "state"], ["isActive", "isActive"], ["description", "description"], ["taxComponents", "taxComponents"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -258,128 +259,152 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "TaxRate.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "TaxRate.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "TaxRate.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("taxAgency")) ? "taxAgency" in obj : (__fields.keeps("taxAgency") && obj["taxAgency"] !== undefined)) {
-        const __raw_taxAgency = obj["taxAgency"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_taxAgency === "string")) {
-            errors.push({ field: "taxAgency", message: __raw_taxAgency == null ? "TaxRate.taxAgency is required" : "expected string" });
-        } else {
-            if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
-                if (__raw_taxAgency.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "TaxRate.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
+                    }
+                    instance.name = __raw_name;
+                }
             }
-            instance.taxAgency = __raw_taxAgency;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("zip")) ? "zip" in obj : (__fields.keeps("zip") && obj["zip"] !== undefined)) {
-        const __raw_zip = obj["zip"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("taxAgency")) ? "taxAgency" in obj : (__fields.keeps("taxAgency") && obj["taxAgency"] !== undefined)) {
+                const __raw_taxAgency = obj["taxAgency"] as string;
 
-        if (!(typeof __raw_zip === "number" && globalThis.Number.isFinite(__raw_zip))) {
-            errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
-        } else {
-            instance.zip = __raw_zip;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("city")) ? "city" in obj : (__fields.keeps("city") && obj["city"] !== undefined)) {
-        const __raw_city = obj["city"] as string;
-
-        if (!(typeof __raw_city === "string")) {
-            errors.push({ field: "city", message: __raw_city == null ? "TaxRate.city is required" : "expected string" });
-        } else {
-            if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
-                if (__raw_city.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
+                if (!(typeof __raw_taxAgency === "string")) {
+                    errors.push({ field: "taxAgency", message: __raw_taxAgency == null ? "TaxRate.taxAgency is required" : "expected string" });
+                } else {
+                    if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
+                        if (__raw_taxAgency.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
+                    }
+                    instance.taxAgency = __raw_taxAgency;
+                }
             }
-            instance.city = __raw_city;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("county")) ? "county" in obj : (__fields.keeps("county") && obj["county"] !== undefined)) {
-        const __raw_county = obj["county"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("zip")) ? "zip" in obj : (__fields.keeps("zip") && obj["zip"] !== undefined)) {
+                const __raw_zip = obj["zip"] as number;
 
-        if (!(typeof __raw_county === "string")) {
-            errors.push({ field: "county", message: __raw_county == null ? "TaxRate.county is required" : "expected string" });
-        } else {
-            if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
-                if (__raw_county.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
+                if (!(typeof __raw_zip === "number" && globalThis.Number.isFinite(__raw_zip))) {
+                    errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
+                } else {
+                    instance.zip = __raw_zip;
+                }
             }
-            instance.county = __raw_county;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("state")) ? "state" in obj : (__fields.keeps("state") && obj["state"] !== undefined)) {
-        const __raw_state = obj["state"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("city")) ? "city" in obj : (__fields.keeps("city") && obj["city"] !== undefined)) {
+                const __raw_city = obj["city"] as string;
 
-        if (!(typeof __raw_state === "string")) {
-            errors.push({ field: "state", message: __raw_state == null ? "TaxRate.state is required" : "expected string" });
-        } else {
-            if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
-                if (__raw_state.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
+                if (!(typeof __raw_city === "string")) {
+                    errors.push({ field: "city", message: __raw_city == null ? "TaxRate.city is required" : "expected string" });
+                } else {
+                    if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
+                        if (__raw_city.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
+                    }
+                    instance.city = __raw_city;
+                }
             }
-            instance.state = __raw_state;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
-        const __raw_isActive = obj["isActive"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("county")) ? "county" in obj : (__fields.keeps("county") && obj["county"] !== undefined)) {
+                const __raw_county = obj["county"] as string;
 
-        if (!(typeof __raw_isActive === "boolean")) {
-            errors.push({ field: "isActive", message: __raw_isActive == null ? "TaxRate.isActive is required" : "expected boolean" });
-        } else {
-            instance.isActive = __raw_isActive;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
-        const __raw_description = obj["description"] as string;
-
-        if (!(typeof __raw_description === "string")) {
-            errors.push({ field: "description", message: __raw_description == null ? "TaxRate.description is required" : "expected string" });
-        } else {
-            if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
-                if (__raw_description.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
+                if (!(typeof __raw_county === "string")) {
+                    errors.push({ field: "county", message: __raw_county == null ? "TaxRate.county is required" : "expected string" });
+                } else {
+                    if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
+                        if (__raw_county.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
+                    }
+                    instance.county = __raw_county;
+                }
             }
-            instance.description = __raw_description;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("taxComponents")) ? "taxComponents" in obj : (__fields.keeps("taxComponents") && obj["taxComponents"] !== undefined)) {
-        const __raw_taxComponents = obj["taxComponents"] as { [key: string]: number };
-        if (typeof __raw_taxComponents === "object" && __raw_taxComponents !== null) {
-            ctx.pushScope("taxComponents");
-            try {
-                instance.taxComponents = ((__mf_decodeRecord(__raw_taxComponents, ctx, __mf_decodeNumber) as Record<string, number>) as { [key: string]: number });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "taxComponents" : "taxComponents." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("state")) ? "state" in obj : (__fields.keeps("state") && obj["state"] !== undefined)) {
+                const __raw_state = obj["state"] as string;
+
+                if (!(typeof __raw_state === "string")) {
+                    errors.push({ field: "state", message: __raw_state == null ? "TaxRate.state is required" : "expected string" });
+                } else {
+                    if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
+                        if (__raw_state.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
+                    }
+                    instance.state = __raw_state;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+                const __raw_isActive = obj["isActive"] as boolean;
+
+                if (!(typeof __raw_isActive === "boolean")) {
+                    errors.push({ field: "isActive", message: __raw_isActive == null ? "TaxRate.isActive is required" : "expected boolean" });
+                } else {
+                    instance.isActive = __raw_isActive;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
+                const __raw_description = obj["description"] as string;
+
+                if (!(typeof __raw_description === "string")) {
+                    errors.push({ field: "description", message: __raw_description == null ? "TaxRate.description is required" : "expected string" });
+                } else {
+                    if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
+                        if (__raw_description.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
+                    }
+                    instance.description = __raw_description;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("taxComponents")) ? "taxComponents" in obj : (__fields.keeps("taxComponents") && obj["taxComponents"] !== undefined)) {
+                const __raw_taxComponents = obj["taxComponents"] as { [key: string]: number };
+                if (typeof __raw_taxComponents === "object" && __raw_taxComponents !== null) {
+                    ctx.pushScope("taxComponents");
+                    try {
+                        instance.taxComponents = ((__mf_decodeRecord(__raw_taxComponents, ctx, __mf_decodeNumber) as Record<string, number>) as { [key: string]: number });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "taxComponents" : "taxComponents." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "taxComponents", message: __raw_taxComponents == null ? "TaxRate.taxComponents is required" : "expected { [key: string]: number }" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "taxComponents", message: __raw_taxComponents == null ? "TaxRate.taxComponents is required" : "expected { [key: string]: number }" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -476,7 +501,7 @@ export function taxRateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "taxAgency") && __mf_holds(obj, "zip") && __mf_holds(obj, "city") && __mf_holds(obj, "county") && __mf_holds(obj, "state") && __mf_holds(obj, "isActive") && __mf_holds(obj, "description") && __mf_holds(obj, "taxComponents");
+    return __mf_holdsAll(obj, ["id", "name", "taxAgency", "zip", "city", "county", "state", "isActive", "description", "taxComponents"]);
 }
 
 export function taxRateIs(obj: unknown): obj is TaxRate {
@@ -1011,32 +1036,32 @@ export declare const TaxRate: {
 
 ## Mapping
 
-original 0..58 -> expanded 908..966
-original 107..139 -> expanded 966..998
-original 167..188 -> expanded 998..1019
-original 229..234 -> expanded 1019..1024
-original 275..298 -> expanded 1024..1047
-original 345..350 -> expanded 1047..1052
-original 391..419 -> expanded 1052..1080
-original 469..491 -> expanded 1080..1102
-original 532..537 -> expanded 1102..1107
-original 578..601 -> expanded 1107..1130
-original 644..649 -> expanded 1130..1135
-original 690..715 -> expanded 1135..1160
-original 757..762 -> expanded 1160..1165
-original 803..827 -> expanded 1165..1189
-original 872..900 -> expanded 1189..1217
-original 952..957 -> expanded 1217..1222
-original 998..1028 -> expanded 1222..1252
-original 1056..1061 -> expanded 1252..1257
-original 1080..1128 -> expanded 1257..1305
-original 1128..1129 -> expanded 37652..37653
-generated 0..908 <- imports
-generated 1305..1586 <- Default
-generated 1586..5213 <- Encode
-generated 5213..22949 <- Decode
-generated 22949..36413 <- Gigaform
-generated 36413..37652 <- __convenience_const
+original 0..58 -> expanded 914..972
+original 107..139 -> expanded 972..1004
+original 167..188 -> expanded 1004..1025
+original 229..234 -> expanded 1025..1030
+original 275..298 -> expanded 1030..1053
+original 345..350 -> expanded 1053..1058
+original 391..419 -> expanded 1058..1086
+original 469..491 -> expanded 1086..1108
+original 532..537 -> expanded 1108..1113
+original 578..601 -> expanded 1113..1136
+original 644..649 -> expanded 1136..1141
+original 690..715 -> expanded 1141..1166
+original 757..762 -> expanded 1166..1171
+original 803..827 -> expanded 1171..1195
+original 872..900 -> expanded 1195..1223
+original 952..957 -> expanded 1223..1228
+original 998..1028 -> expanded 1228..1258
+original 1056..1061 -> expanded 1258..1263
+original 1080..1128 -> expanded 1263..1311
+original 1128..1129 -> expanded 38265..38266
+generated 0..914 <- imports
+generated 1311..1592 <- Default
+generated 1592..5949 <- Encode
+generated 5949..23562 <- Decode
+generated 23562..37026 <- Gigaform
+generated 37026..38265 <- __convenience_const
 
 ## Metadata
 

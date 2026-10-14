@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An externally-tagged variant whose payload is a link type: encodable in
 // its own right, but carried as a bare id string as often as an object. The
@@ -42,22 +42,18 @@ export function refEncode(value: Ref, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
-        const result: Record<string, unknown> = {};
-        result["id"] = value.id;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Ref): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            result["id"] = value.id;
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -134,8 +130,11 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
     if (typeof value === "string") {
         return value as Ref;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) {
-        return __mf_decodeObject(value, ctx, { id: __mf_decodeString }) as Ref;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) ? __mf_decodeObject(value, ctx, { id: __mf_decodeString }) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Ref;
     }
 
     throw new __mf_DecodeError([{
@@ -145,7 +144,11 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
 }
 export function refHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function refIs(value: unknown): value is Ref {
@@ -180,24 +183,16 @@ export function stageEncode(value: Stage, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched && value !== null && typeof value === "object") {
-        const __exName = Object.keys(value as object)[0];
-        if (!__matched && __exName === "Invoice") {
-            __variant = ({ "Invoice": refEncodeWithContext((value as any)["Invoice"], ctx) });
-            __matched = true;
-        }
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Stage): unknown => {
+            if (!(typeof value === "object" && value !== null && "Invoice" in value && Object.keys(value)[0] === "Invoice")) {
+                return __mf_notTheMember;
+            }
+            return { "Invoice": refEncodeWithContext(value["Invoice"], ctx) };
+        },
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -403,18 +398,18 @@ export declare const Stage: {
 
 ## Mapping
 
-original 0..278 -> expanded 573..851
-original 308..351 -> expanded 851..894
-original 351..353 -> expanded 5677..5679
-original 425..474 -> expanded 5679..5728
-original 474..475 -> expanded 11474..11475
-generated 0..573 <- imports
-generated 894..2538 <- Encode
-generated 2538..5220 <- Decode
-generated 5220..5677 <- __convenience_const
-generated 5728..7420 <- Encode
-generated 7420..10917 <- Decode
-generated 10917..11474 <- __convenience_const
+original 0..278 -> expanded 715..993
+original 308..351 -> expanded 993..1036
+original 351..353 -> expanded 6126..6128
+original 425..474 -> expanded 6128..6177
+original 474..475 -> expanded 11820..11821
+generated 0..715 <- imports
+generated 1036..2666 <- Encode
+generated 2666..5669 <- Decode
+generated 5669..6126 <- __convenience_const
+generated 6177..7766 <- Encode
+generated 7766..11263 <- Decode
+generated 11263..11820 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,15 +60,23 @@ export function viewedEncodePartialWithContext(value: Partial<Viewed>, ctx: __mf
 }
 
 function viewedEncodeFields(value: Viewed, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("durationSeconds")) {
-        if (value.durationSeconds !== undefined) {
-            result["durationSeconds"] = value.durationSeconds;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("source")) {
-        if (value.source !== undefined) {
-            result["source"] = value.source;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("durationSeconds")) {
+                if (value.durationSeconds !== undefined) {
+                    result["durationSeconds"] = value.durationSeconds;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("source")) {
+                if (value.source !== undefined) {
+                    result["source"] = value.source;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -146,11 +154,12 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("durationSeconds")) && !("durationSeconds" in obj)) {
-        errors.push({ field: "durationSeconds", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("source")) && !("source" in obj)) {
-        errors.push({ field: "source", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["durationSeconds", "durationSeconds"], ["source", "source"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -161,23 +170,31 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("durationSeconds")) ? "durationSeconds" in obj : (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
-        const __raw_durationSeconds = obj["durationSeconds"] as number | null;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("durationSeconds")) ? "durationSeconds" in obj : (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
+                const __raw_durationSeconds = obj["durationSeconds"] as number | null;
 
-        if (!(typeof __raw_durationSeconds === "number" && globalThis.Number.isFinite(__raw_durationSeconds) || __raw_durationSeconds === null)) {
-            errors.push({ field: "durationSeconds", message: "expected number | null" });
-        } else {
-            instance.durationSeconds = __raw_durationSeconds;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("source")) ? "source" in obj : (__fields.keeps("source") && obj["source"] !== undefined)) {
-        const __raw_source = obj["source"] as string | null;
+                if (!(typeof __raw_durationSeconds === "number" && globalThis.Number.isFinite(__raw_durationSeconds) || __raw_durationSeconds === null)) {
+                    errors.push({ field: "durationSeconds", message: "expected number | null" });
+                } else {
+                    instance.durationSeconds = __raw_durationSeconds;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("source")) ? "source" in obj : (__fields.keeps("source") && obj["source"] !== undefined)) {
+                const __raw_source = obj["source"] as string | null;
 
-        if (!(typeof __raw_source === "string" || __raw_source === null)) {
-            errors.push({ field: "source", message: "expected string | null" });
-        } else {
-            instance.source = __raw_source;
-        }
+                if (!(typeof __raw_source === "string" || __raw_source === null)) {
+                    errors.push({ field: "source", message: "expected string | null" });
+                } else {
+                    instance.source = __raw_source;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -202,7 +219,7 @@ export function viewedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "durationSeconds") && __mf_holds(obj, "source");
+    return __mf_holdsAll(obj, ["durationSeconds", "source"]);
 }
 
 export function viewedIs(obj: unknown): obj is Viewed {
@@ -466,15 +483,15 @@ export declare const Viewed: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..198 -> expanded 896..987
-original 198..199 -> expanded 15466..15467
-generated 0..838 <- imports
-generated 987..1110 <- Default
-generated 1110..3418 <- Encode
-generated 3418..9480 <- Decode
-generated 9480..14254 <- Gigaform
-generated 14254..15466 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..198 -> expanded 902..993
+original 198..199 -> expanded 15891..15892
+generated 0..844 <- imports
+generated 993..1116 <- Default
+generated 1116..3618 <- Encode
+generated 3618..9905 <- Decode
+generated 9905..14679 <- Gigaform
+generated 14679..15891 <- __convenience_const
 
 ## Metadata
 

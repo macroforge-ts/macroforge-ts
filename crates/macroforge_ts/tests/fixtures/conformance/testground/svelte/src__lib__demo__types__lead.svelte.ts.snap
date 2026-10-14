@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -183,165 +183,233 @@ export function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_Enc
 }
 
 function leadEncodeFields(value: Lead, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("number")) {
-        if (value.number !== undefined) {
-            result["number"] = value.number;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("accepted")) {
-        if (value.accepted !== undefined) {
-            result["accepted"] = value.accepted;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("probability")) {
-        if (value.probability !== undefined) {
-            result["probability"] = value.probability;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("priority")) {
-        if (value.priority !== undefined) {
-            result["priority"] = priorityEncodeWithContext(value.priority, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dueDate")) {
-        if (value.dueDate !== undefined) {
-            result["dueDate"] = value.dueDate;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("closeDate")) {
-        if (value.closeDate !== undefined) {
-            result["closeDate"] = value.closeDate;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("value")) {
-        if (value.value !== undefined) {
-            result["value"] = value.value;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("stage")) {
-        if (value.stage !== undefined) {
-            result["stage"] = leadStageEncodeWithContext(value.stage, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("status")) {
-        if (value.status !== undefined) {
-            result["status"] = value.status;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("description")) {
-        if (value.description !== undefined) {
-            result["description"] = value.description;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nextStep")) {
-        if (value.nextStep !== undefined) {
-            result["nextStep"] = nextStepEncodeWithContext(value.nextStep, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("favorite")) {
-        if (value.favorite !== undefined) {
-            result["favorite"] = value.favorite;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dateAdded")) {
-        if (value.dateAdded !== undefined) {
-            result["dateAdded"] = value.dateAdded;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("taxRate")) {
-        if (value.taxRate !== undefined) {
-            result["taxRate"] = value.taxRate === null ? null : (typeof value.taxRate === "string" ? value.taxRate : taxRateEncodeWithContext(value.taxRate, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("sector")) {
-        if (value.sector !== undefined) {
-            result["sector"] = sectorEncodeWithContext(value.sector, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("leadName")) {
-        if (value.leadName !== undefined) {
-            result["leadName"] = accountNameEncodeWithContext(value.leadName, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("phones")) {
-        if (value.phones !== undefined) {
-            result["phones"] = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-        if (value.email !== undefined) {
-            result["email"] = emailEncodeWithContext(value.email, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("leadSource")) {
-        if (value.leadSource !== undefined) {
-            result["leadSource"] = value.leadSource;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("site")) {
-        if (value.site !== undefined) {
-            result["site"] = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("memo")) {
-        if (value.memo !== undefined) {
-            result["memo"] = value.memo;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("needsReview")) {
-        if (value.needsReview !== undefined) {
-            result["needsReview"] = value.needsReview;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("hasAlert")) {
-        if (value.hasAlert !== undefined) {
-            result["hasAlert"] = value.hasAlert;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("salesRep")) {
-        if (value.salesRep !== undefined) {
-            result["salesRep"] = value.salesRep === null ? null : value.salesRep.map((__item0) => representsEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("color")) {
-        if (value.color !== undefined) {
-            result["color"] = value.color;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("accountType")) {
-        if (value.accountType !== undefined) {
-            result["accountType"] = value.accountType;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("subtype")) {
-        if (value.subtype !== undefined) {
-            result["subtype"] = value.subtype;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isTaxExempt")) {
-        if (value.isTaxExempt !== undefined) {
-            result["isTaxExempt"] = value.isTaxExempt;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("paymentTerms")) {
-        if (value.paymentTerms !== undefined) {
-            result["paymentTerms"] = value.paymentTerms;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("customFields")) {
-        if (value.customFields !== undefined) {
-            result["customFields"] = value.customFields;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("number")) {
+                if (value.number !== undefined) {
+                    result["number"] = value.number;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("accepted")) {
+                if (value.accepted !== undefined) {
+                    result["accepted"] = value.accepted;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("probability")) {
+                if (value.probability !== undefined) {
+                    result["probability"] = value.probability;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("priority")) {
+                if (value.priority !== undefined) {
+                    result["priority"] = priorityEncodeWithContext(value.priority, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dueDate")) {
+                if (value.dueDate !== undefined) {
+                    result["dueDate"] = value.dueDate;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("closeDate")) {
+                if (value.closeDate !== undefined) {
+                    result["closeDate"] = value.closeDate;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("value")) {
+                if (value.value !== undefined) {
+                    result["value"] = value.value;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("stage")) {
+                if (value.stage !== undefined) {
+                    result["stage"] = leadStageEncodeWithContext(value.stage, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("status")) {
+                if (value.status !== undefined) {
+                    result["status"] = value.status;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("description")) {
+                if (value.description !== undefined) {
+                    result["description"] = value.description;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nextStep")) {
+                if (value.nextStep !== undefined) {
+                    result["nextStep"] = nextStepEncodeWithContext(value.nextStep, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("favorite")) {
+                if (value.favorite !== undefined) {
+                    result["favorite"] = value.favorite;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dateAdded")) {
+                if (value.dateAdded !== undefined) {
+                    result["dateAdded"] = value.dateAdded;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("taxRate")) {
+                if (value.taxRate !== undefined) {
+                    result["taxRate"] = value.taxRate === null ? null : (typeof value.taxRate === "string" ? value.taxRate : taxRateEncodeWithContext(value.taxRate, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sector")) {
+                if (value.sector !== undefined) {
+                    result["sector"] = sectorEncodeWithContext(value.sector, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("leadName")) {
+                if (value.leadName !== undefined) {
+                    result["leadName"] = accountNameEncodeWithContext(value.leadName, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("phones")) {
+                if (value.phones !== undefined) {
+                    result["phones"] = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["email"] = emailEncodeWithContext(value.email, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("leadSource")) {
+                if (value.leadSource !== undefined) {
+                    result["leadSource"] = value.leadSource;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("site")) {
+                if (value.site !== undefined) {
+                    result["site"] = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("memo")) {
+                if (value.memo !== undefined) {
+                    result["memo"] = value.memo;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("needsReview")) {
+                if (value.needsReview !== undefined) {
+                    result["needsReview"] = value.needsReview;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("hasAlert")) {
+                if (value.hasAlert !== undefined) {
+                    result["hasAlert"] = value.hasAlert;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("salesRep")) {
+                if (value.salesRep !== undefined) {
+                    result["salesRep"] = value.salesRep === null ? null : value.salesRep.map((__item0) => representsEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("color")) {
+                if (value.color !== undefined) {
+                    result["color"] = value.color;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("accountType")) {
+                if (value.accountType !== undefined) {
+                    result["accountType"] = value.accountType;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("subtype")) {
+                if (value.subtype !== undefined) {
+                    result["subtype"] = value.subtype;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isTaxExempt")) {
+                if (value.isTaxExempt !== undefined) {
+                    result["isTaxExempt"] = value.isTaxExempt;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("paymentTerms")) {
+                if (value.paymentTerms !== undefined) {
+                    result["paymentTerms"] = value.paymentTerms;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("customFields")) {
+                if (value.customFields !== undefined) {
+                    result["customFields"] = value.customFields;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -419,101 +487,12 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("number")) && !("number" in obj)) {
-        errors.push({ field: "number", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("accepted")) && !("accepted" in obj)) {
-        errors.push({ field: "accepted", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("probability")) && !("probability" in obj)) {
-        errors.push({ field: "probability", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("priority")) && !("priority" in obj)) {
-        errors.push({ field: "priority", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dueDate")) && !("dueDate" in obj)) {
-        errors.push({ field: "dueDate", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("closeDate")) && !("closeDate" in obj)) {
-        errors.push({ field: "closeDate", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("stage")) && !("stage" in obj)) {
-        errors.push({ field: "stage", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("status")) && !("status" in obj)) {
-        errors.push({ field: "status", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
-        errors.push({ field: "description", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nextStep")) && !("nextStep" in obj)) {
-        errors.push({ field: "nextStep", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("favorite")) && !("favorite" in obj)) {
-        errors.push({ field: "favorite", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dateAdded")) && !("dateAdded" in obj)) {
-        errors.push({ field: "dateAdded", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("taxRate")) && !("taxRate" in obj)) {
-        errors.push({ field: "taxRate", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("sector")) && !("sector" in obj)) {
-        errors.push({ field: "sector", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("leadName")) && !("leadName" in obj)) {
-        errors.push({ field: "leadName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("phones")) && !("phones" in obj)) {
-        errors.push({ field: "phones", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("leadSource")) && !("leadSource" in obj)) {
-        errors.push({ field: "leadSource", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
-        errors.push({ field: "site", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("memo")) && !("memo" in obj)) {
-        errors.push({ field: "memo", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("needsReview")) && !("needsReview" in obj)) {
-        errors.push({ field: "needsReview", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("hasAlert")) && !("hasAlert" in obj)) {
-        errors.push({ field: "hasAlert", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("salesRep")) && !("salesRep" in obj)) {
-        errors.push({ field: "salesRep", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("color")) && !("color" in obj)) {
-        errors.push({ field: "color", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("accountType")) && !("accountType" in obj)) {
-        errors.push({ field: "accountType", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("subtype")) && !("subtype" in obj)) {
-        errors.push({ field: "subtype", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isTaxExempt")) && !("isTaxExempt" in obj)) {
-        errors.push({ field: "isTaxExempt", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("paymentTerms")) && !("paymentTerms" in obj)) {
-        errors.push({ field: "paymentTerms", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("customFields")) && !("customFields" in obj)) {
-        errors.push({ field: "customFields", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["number", "number"], ["accepted", "accepted"], ["probability", "probability"], ["priority", "priority"], ["dueDate", "dueDate"], ["closeDate", "closeDate"], ["value", "value"], ["stage", "stage"], ["status", "status"], ["description", "description"], ["nextStep", "nextStep"], ["favorite", "favorite"], ["dateAdded", "dateAdded"], ["taxRate", "taxRate"], ["sector", "sector"], ["leadName", "leadName"], ["phones", "phones"], ["email", "email"], ["leadSource", "leadSource"], ["site", "site"], ["memo", "memo"], ["needsReview", "needsReview"], ["hasAlert", "hasAlert"], ["salesRep", "salesRep"], ["color", "color"], ["accountType", "accountType"], ["subtype", "subtype"], ["isTaxExempt", "isTaxExempt"], ["paymentTerms", "paymentTerms"], ["tags", "tags"], ["customFields", "customFields"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -524,475 +503,543 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Lead.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
-        const __raw_number = obj["number"] as number | null;
-
-        if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number) || __raw_number === null)) {
-            errors.push({ field: "number", message: "expected number | null" });
-        } else {
-            instance.number = __raw_number;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("accepted")) ? "accepted" in obj : (__fields.keeps("accepted") && obj["accepted"] !== undefined)) {
-        const __raw_accepted = obj["accepted"] as boolean;
-
-        if (!(typeof __raw_accepted === "boolean")) {
-            errors.push({ field: "accepted", message: __raw_accepted == null ? "Lead.accepted is required" : "expected boolean" });
-        } else {
-            instance.accepted = __raw_accepted;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("probability")) ? "probability" in obj : (__fields.keeps("probability") && obj["probability"] !== undefined)) {
-        const __raw_probability = obj["probability"] as number;
-
-        if (!(typeof __raw_probability === "number" && globalThis.Number.isFinite(__raw_probability))) {
-            errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
-        } else {
-            instance.probability = __raw_probability;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("priority")) ? "priority" in obj : (__fields.keeps("priority") && obj["priority"] !== undefined)) {
-        const __raw_priority = obj["priority"] as Priority;
-
-        ctx.pushScope("priority");
-        try {
-            const __result = priorityDecodeWithContext(__raw_priority, ctx);
-            ctx.assignOrDefer(instance, "priority", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "priority" : "priority." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "priority", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dueDate")) ? "dueDate" in obj : (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
-        const __raw_dueDate = obj["dueDate"] as string | null;
-
-        if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
-            errors.push({ field: "dueDate", message: "expected string | null" });
-        } else {
-            instance.dueDate = __raw_dueDate;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("closeDate")) ? "closeDate" in obj : (__fields.keeps("closeDate") && obj["closeDate"] !== undefined)) {
-        const __raw_closeDate = obj["closeDate"] as string | null;
-
-        if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
-            errors.push({ field: "closeDate", message: "expected string | null" });
-        } else {
-            instance.closeDate = __raw_closeDate;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
-        const __raw_value = obj["value"] as number;
-
-        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
-            errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
-        } else {
-            instance.value = __raw_value;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("stage")) ? "stage" in obj : (__fields.keeps("stage") && obj["stage"] !== undefined)) {
-        const __raw_stage = obj["stage"] as LeadStage;
-
-        ctx.pushScope("stage");
-        try {
-            const __result = leadStageDecodeWithContext(__raw_stage, ctx);
-            ctx.assignOrDefer(instance, "stage", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "stage" : "stage." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "stage", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
-        const __raw_status = obj["status"] as string;
-
-        if (!(typeof __raw_status === "string")) {
-            errors.push({ field: "status", message: __raw_status == null ? "Lead.status is required" : "expected string" });
-        } else {
-            if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
-                if (__raw_status.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
-            }
-            instance.status = __raw_status;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
-        const __raw_description = obj["description"] as string | null;
-
-        if (!(typeof __raw_description === "string" || __raw_description === null)) {
-            errors.push({ field: "description", message: "expected string | null" });
-        } else {
-            instance.description = __raw_description;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nextStep")) ? "nextStep" in obj : (__fields.keeps("nextStep") && obj["nextStep"] !== undefined)) {
-        const __raw_nextStep = obj["nextStep"] as NextStep;
-
-        ctx.pushScope("nextStep");
-        try {
-            const __result = nextStepDecodeWithContext(__raw_nextStep, ctx);
-            ctx.assignOrDefer(instance, "nextStep", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "nextStep" : "nextStep." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "nextStep", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
-        const __raw_favorite = obj["favorite"] as boolean;
-
-        if (!(typeof __raw_favorite === "boolean")) {
-            errors.push({ field: "favorite", message: __raw_favorite == null ? "Lead.favorite is required" : "expected boolean" });
-        } else {
-            instance.favorite = __raw_favorite;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dateAdded")) ? "dateAdded" in obj : (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
-        const __raw_dateAdded = obj["dateAdded"] as string | null;
-
-        if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
-            errors.push({ field: "dateAdded", message: "expected string | null" });
-        } else {
-            instance.dateAdded = __raw_dateAdded;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("taxRate")) ? "taxRate" in obj : (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
-        const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
-
-        if (__raw_taxRate === null) {
-            instance.taxRate = null;
-        } else {
-            instance.taxRate = __raw_taxRate;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("sector")) ? "sector" in obj : (__fields.keeps("sector") && obj["sector"] !== undefined)) {
-        const __raw_sector = obj["sector"] as Sector;
-
-        ctx.pushScope("sector");
-        try {
-            const __result = sectorDecodeWithContext(__raw_sector, ctx);
-            ctx.assignOrDefer(instance, "sector", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "sector" : "sector." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "sector", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("leadName")) ? "leadName" in obj : (__fields.keeps("leadName") && obj["leadName"] !== undefined)) {
-        const __raw_leadName = obj["leadName"] as AccountName;
-
-        ctx.pushScope("leadName");
-        try {
-            const __result = accountNameDecodeWithContext(__raw_leadName, ctx);
-            ctx.assignOrDefer(instance, "leadName", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "leadName" : "leadName." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "leadName", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("phones")) ? "phones" in obj : (__fields.keeps("phones") && obj["phones"] !== undefined)) {
-        const __raw_phones = obj["phones"] as Array<PhoneNumber>;
-        if (Array.isArray(__raw_phones)) {
-            ctx.pushScope("phones");
-            try {
-                instance.phones = __mf_decodeArray(__raw_phones, ctx, (__raw0) => phoneNumberDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "phones" : "phones." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Lead.id is required" : "expected string" });
                 } else {
-                    throw __e;
+                    instance.id = __raw_id;
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "phones", message: __raw_phones == null ? "Lead.phones is required" : "expected Array<PhoneNumber>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as Email;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
+                const __raw_number = obj["number"] as number | null;
 
-        ctx.pushScope("email");
-        try {
-            const __result = emailDecodeWithContext(__raw_email, ctx);
-            ctx.assignOrDefer(instance, "email", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "email" : "email." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "email", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("leadSource")) ? "leadSource" in obj : (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
-        const __raw_leadSource = obj["leadSource"] as string | null;
-
-        if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
-            errors.push({ field: "leadSource", message: "expected string | null" });
-        } else {
-            instance.leadSource = __raw_leadSource;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
-        const __raw_site = obj["site"] as string | Site;
-
-        if (typeof __raw_site === "string") {
-            instance.site = __raw_site;
-        } else {
-            ctx.pushScope("site");
-            try {
-                const __result = siteDecodeWithContext(__raw_site, ctx);
-                ctx.assignOrDefer(instance, "site", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "site" : "site." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number) || __raw_number === null)) {
+                    errors.push({ field: "number", message: "expected number | null" });
                 } else {
-
-                    errors.push({ field: "site", message: __e instanceof Error ? __e.message : String(__e) });
+                    instance.number = __raw_number;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
-        const __raw_memo = obj["memo"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("accepted")) ? "accepted" in obj : (__fields.keeps("accepted") && obj["accepted"] !== undefined)) {
+                const __raw_accepted = obj["accepted"] as boolean;
 
-        if (!(typeof __raw_memo === "string")) {
-            errors.push({ field: "memo", message: __raw_memo == null ? "Lead.memo is required" : "expected string" });
-        } else {
-            if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
-                if (__raw_memo.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
+                if (!(typeof __raw_accepted === "boolean")) {
+                    errors.push({ field: "accepted", message: __raw_accepted == null ? "Lead.accepted is required" : "expected boolean" });
+                } else {
+                    instance.accepted = __raw_accepted;
+                }
             }
-            instance.memo = __raw_memo;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("needsReview")) ? "needsReview" in obj : (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
-        const __raw_needsReview = obj["needsReview"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("probability")) ? "probability" in obj : (__fields.keeps("probability") && obj["probability"] !== undefined)) {
+                const __raw_probability = obj["probability"] as number;
 
-        if (!(typeof __raw_needsReview === "boolean")) {
-            errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Lead.needsReview is required" : "expected boolean" });
-        } else {
-            instance.needsReview = __raw_needsReview;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("hasAlert")) ? "hasAlert" in obj : (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
-        const __raw_hasAlert = obj["hasAlert"] as boolean;
+                if (!(typeof __raw_probability === "number" && globalThis.Number.isFinite(__raw_probability))) {
+                    errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
+                } else {
+                    instance.probability = __raw_probability;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("priority")) ? "priority" in obj : (__fields.keeps("priority") && obj["priority"] !== undefined)) {
+                const __raw_priority = obj["priority"] as Priority;
 
-        if (!(typeof __raw_hasAlert === "boolean")) {
-            errors.push({ field: "hasAlert", message: __raw_hasAlert == null ? "Lead.hasAlert is required" : "expected boolean" });
-        } else {
-            instance.hasAlert = __raw_hasAlert;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
-        const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
-
-        if (__raw_salesRep === null) {
-            instance.salesRep = null;
-        } else {
-            if (Array.isArray(__raw_salesRep)) {
-                ctx.pushScope("salesRep");
+                ctx.pushScope("priority");
                 try {
-                    instance.salesRep = __mf_decodeArray(__raw_salesRep, ctx, (__raw0) => representsDecodeWithContext(__raw0, ctx));
+                    const __result = priorityDecodeWithContext(__raw_priority, ctx);
+                    ctx.assignOrDefer(instance, "priority", __result);
                 } catch (__e) {
                     if (__e instanceof __mf_DecodeError) {
                         for (const __err of __e.errors) {
                             errors.push({
-                                field: __err.field === "_root" ? "salesRep" : "salesRep." + __err.field,
+                                field: __err.field === "_root" ? "priority" : "priority." + __err.field,
                                 message: __err.message
                             });
                         }
                     } else {
-                        throw __e;
+
+                        errors.push({ field: "priority", message: __e instanceof Error ? __e.message : String(__e) });
                     }
                 } finally {
                     ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Lead.salesRep is required" : "expected Array<Represents>" });
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
-        const __raw_color = obj["color"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dueDate")) ? "dueDate" in obj : (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
+                const __raw_dueDate = obj["dueDate"] as string | null;
 
-        if (!(typeof __raw_color === "string" || __raw_color === null)) {
-            errors.push({ field: "color", message: "expected string | null" });
-        } else {
-            instance.color = __raw_color;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("accountType")) ? "accountType" in obj : (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
-        const __raw_accountType = obj["accountType"] as string;
-
-        if (!(typeof __raw_accountType === "string")) {
-            errors.push({ field: "accountType", message: __raw_accountType == null ? "Lead.accountType is required" : "expected string" });
-        } else {
-            if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
-                if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
+                if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
+                    errors.push({ field: "dueDate", message: "expected string | null" });
+                } else {
+                    instance.dueDate = __raw_dueDate;
+                }
             }
-            instance.accountType = __raw_accountType;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("subtype")) ? "subtype" in obj : (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
-        const __raw_subtype = obj["subtype"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("closeDate")) ? "closeDate" in obj : (__fields.keeps("closeDate") && obj["closeDate"] !== undefined)) {
+                const __raw_closeDate = obj["closeDate"] as string | null;
 
-        if (!(typeof __raw_subtype === "string")) {
-            errors.push({ field: "subtype", message: __raw_subtype == null ? "Lead.subtype is required" : "expected string" });
-        } else {
-            if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
-                if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
+                if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
+                    errors.push({ field: "closeDate", message: "expected string | null" });
+                } else {
+                    instance.closeDate = __raw_closeDate;
+                }
             }
-            instance.subtype = __raw_subtype;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isTaxExempt")) ? "isTaxExempt" in obj : (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
-        const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
+                const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_isTaxExempt === "boolean")) {
-            errors.push({ field: "isTaxExempt", message: __raw_isTaxExempt == null ? "Lead.isTaxExempt is required" : "expected boolean" });
-        } else {
-            instance.isTaxExempt = __raw_isTaxExempt;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("paymentTerms")) ? "paymentTerms" in obj : (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
-        const __raw_paymentTerms = obj["paymentTerms"] as string;
-
-        if (!(typeof __raw_paymentTerms === "string")) {
-            errors.push({ field: "paymentTerms", message: __raw_paymentTerms == null ? "Lead.paymentTerms is required" : "expected string" });
-        } else {
-            if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
-                if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
+                if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
+                    errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
+                } else {
+                    instance.value = __raw_value;
+                }
             }
-            instance.paymentTerms = __raw_paymentTerms;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as Array<string>;
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("stage")) ? "stage" in obj : (__fields.keeps("stage") && obj["stage"] !== undefined)) {
+                const __raw_stage = obj["stage"] as LeadStage;
+
+                ctx.pushScope("stage");
+                try {
+                    const __result = leadStageDecodeWithContext(__raw_stage, ctx);
+                    ctx.assignOrDefer(instance, "stage", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "stage" : "stage." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "stage", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
+                const __raw_status = obj["status"] as string;
+
+                if (!(typeof __raw_status === "string")) {
+                    errors.push({ field: "status", message: __raw_status == null ? "Lead.status is required" : "expected string" });
+                } else {
+                    if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
+                        if (__raw_status.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
+                    }
+                    instance.status = __raw_status;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
+                const __raw_description = obj["description"] as string | null;
+
+                if (!(typeof __raw_description === "string" || __raw_description === null)) {
+                    errors.push({ field: "description", message: "expected string | null" });
+                } else {
+                    instance.description = __raw_description;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nextStep")) ? "nextStep" in obj : (__fields.keeps("nextStep") && obj["nextStep"] !== undefined)) {
+                const __raw_nextStep = obj["nextStep"] as NextStep;
+
+                ctx.pushScope("nextStep");
+                try {
+                    const __result = nextStepDecodeWithContext(__raw_nextStep, ctx);
+                    ctx.assignOrDefer(instance, "nextStep", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "nextStep" : "nextStep." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "nextStep", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
+                const __raw_favorite = obj["favorite"] as boolean;
+
+                if (!(typeof __raw_favorite === "boolean")) {
+                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Lead.favorite is required" : "expected boolean" });
+                } else {
+                    instance.favorite = __raw_favorite;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dateAdded")) ? "dateAdded" in obj : (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
+                const __raw_dateAdded = obj["dateAdded"] as string | null;
+
+                if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
+                    errors.push({ field: "dateAdded", message: "expected string | null" });
+                } else {
+                    instance.dateAdded = __raw_dateAdded;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("taxRate")) ? "taxRate" in obj : (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
+                const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
+
+                if (__raw_taxRate === null) {
+                    instance.taxRate = null;
+                } else {
+                    instance.taxRate = __raw_taxRate;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sector")) ? "sector" in obj : (__fields.keeps("sector") && obj["sector"] !== undefined)) {
+                const __raw_sector = obj["sector"] as Sector;
+
+                ctx.pushScope("sector");
+                try {
+                    const __result = sectorDecodeWithContext(__raw_sector, ctx);
+                    ctx.assignOrDefer(instance, "sector", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "sector" : "sector." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "sector", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("leadName")) ? "leadName" in obj : (__fields.keeps("leadName") && obj["leadName"] !== undefined)) {
+                const __raw_leadName = obj["leadName"] as AccountName;
+
+                ctx.pushScope("leadName");
+                try {
+                    const __result = accountNameDecodeWithContext(__raw_leadName, ctx);
+                    ctx.assignOrDefer(instance, "leadName", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "leadName" : "leadName." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "leadName", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("phones")) ? "phones" in obj : (__fields.keeps("phones") && obj["phones"] !== undefined)) {
+                const __raw_phones = obj["phones"] as Array<PhoneNumber>;
+                if (Array.isArray(__raw_phones)) {
+                    ctx.pushScope("phones");
+                    try {
+                        instance.phones = __mf_decodeArray(__raw_phones, ctx, (__raw0) => phoneNumberDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "phones" : "phones." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "phones", message: __raw_phones == null ? "Lead.phones is required" : "expected Array<PhoneNumber>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "Lead.tags is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("customFields")) ? "customFields" in obj : (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
-        const __raw_customFields = obj["customFields"] as Array<[string, string]>;
-        if (Array.isArray(__raw_customFields)) {
-            ctx.pushScope("customFields");
-            try {
-                instance.customFields = __mf_decodeArray(__raw_customFields, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, __mf_decodeString], 2) as [string, string]));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "customFields" : "customFields." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as Email;
+
+                ctx.pushScope("email");
+                try {
+                    const __result = emailDecodeWithContext(__raw_email, ctx);
+                    ctx.assignOrDefer(instance, "email", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "email" : "email." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "email", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("leadSource")) ? "leadSource" in obj : (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
+                const __raw_leadSource = obj["leadSource"] as string | null;
+
+                if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
+                    errors.push({ field: "leadSource", message: "expected string | null" });
+                } else {
+                    instance.leadSource = __raw_leadSource;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
+                const __raw_site = obj["site"] as string | Site;
+
+                if (typeof __raw_site === "string") {
+                    instance.site = __raw_site;
+                } else {
+                    ctx.pushScope("site");
+                    try {
+                        const __result = siteDecodeWithContext(__raw_site, ctx);
+                        ctx.assignOrDefer(instance, "site", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "site" : "site." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "site", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
+                const __raw_memo = obj["memo"] as string;
+
+                if (!(typeof __raw_memo === "string")) {
+                    errors.push({ field: "memo", message: __raw_memo == null ? "Lead.memo is required" : "expected string" });
+                } else {
+                    if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
+                        if (__raw_memo.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
+                    }
+                    instance.memo = __raw_memo;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("needsReview")) ? "needsReview" in obj : (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
+                const __raw_needsReview = obj["needsReview"] as boolean;
+
+                if (!(typeof __raw_needsReview === "boolean")) {
+                    errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Lead.needsReview is required" : "expected boolean" });
+                } else {
+                    instance.needsReview = __raw_needsReview;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("hasAlert")) ? "hasAlert" in obj : (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
+                const __raw_hasAlert = obj["hasAlert"] as boolean;
+
+                if (!(typeof __raw_hasAlert === "boolean")) {
+                    errors.push({ field: "hasAlert", message: __raw_hasAlert == null ? "Lead.hasAlert is required" : "expected boolean" });
+                } else {
+                    instance.hasAlert = __raw_hasAlert;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
+                const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
+
+                if (__raw_salesRep === null) {
+                    instance.salesRep = null;
+                } else {
+                    if (Array.isArray(__raw_salesRep)) {
+                        ctx.pushScope("salesRep");
+                        try {
+                            instance.salesRep = __mf_decodeArray(__raw_salesRep, ctx, (__raw0) => representsDecodeWithContext(__raw0, ctx));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "salesRep" : "salesRep." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
+                        }
+                    } else {
+                        errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Lead.salesRep is required" : "expected Array<Represents>" });
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
+                const __raw_color = obj["color"] as string | null;
+
+                if (!(typeof __raw_color === "string" || __raw_color === null)) {
+                    errors.push({ field: "color", message: "expected string | null" });
+                } else {
+                    instance.color = __raw_color;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("accountType")) ? "accountType" in obj : (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
+                const __raw_accountType = obj["accountType"] as string;
+
+                if (!(typeof __raw_accountType === "string")) {
+                    errors.push({ field: "accountType", message: __raw_accountType == null ? "Lead.accountType is required" : "expected string" });
+                } else {
+                    if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
+                        if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
+                    }
+                    instance.accountType = __raw_accountType;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("subtype")) ? "subtype" in obj : (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
+                const __raw_subtype = obj["subtype"] as string;
+
+                if (!(typeof __raw_subtype === "string")) {
+                    errors.push({ field: "subtype", message: __raw_subtype == null ? "Lead.subtype is required" : "expected string" });
+                } else {
+                    if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
+                        if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
+                    }
+                    instance.subtype = __raw_subtype;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isTaxExempt")) ? "isTaxExempt" in obj : (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
+                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
+
+                if (!(typeof __raw_isTaxExempt === "boolean")) {
+                    errors.push({ field: "isTaxExempt", message: __raw_isTaxExempt == null ? "Lead.isTaxExempt is required" : "expected boolean" });
+                } else {
+                    instance.isTaxExempt = __raw_isTaxExempt;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("paymentTerms")) ? "paymentTerms" in obj : (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
+                const __raw_paymentTerms = obj["paymentTerms"] as string;
+
+                if (!(typeof __raw_paymentTerms === "string")) {
+                    errors.push({ field: "paymentTerms", message: __raw_paymentTerms == null ? "Lead.paymentTerms is required" : "expected string" });
+                } else {
+                    if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
+                        if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
+                    }
+                    instance.paymentTerms = __raw_paymentTerms;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "Lead.tags is required" : "expected Array<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "customFields", message: __raw_customFields == null ? "Lead.customFields is required" : "expected Array<[string, string]>" });
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("customFields")) ? "customFields" in obj : (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
+                const __raw_customFields = obj["customFields"] as Array<[string, string]>;
+                if (Array.isArray(__raw_customFields)) {
+                    ctx.pushScope("customFields");
+                    try {
+                        instance.customFields = __mf_decodeArray(__raw_customFields, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, __mf_decodeString], 2) as [string, string]));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "customFields" : "customFields." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "customFields", message: __raw_customFields == null ? "Lead.customFields is required" : "expected Array<[string, string]>" });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1077,7 +1124,7 @@ export function leadHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "number") && __mf_holds(obj, "accepted") && __mf_holds(obj, "probability") && __mf_holds(obj, "priority") && __mf_holds(obj, "dueDate") && __mf_holds(obj, "closeDate") && __mf_holds(obj, "value") && __mf_holds(obj, "stage") && __mf_holds(obj, "status") && __mf_holds(obj, "description") && __mf_holds(obj, "nextStep") && __mf_holds(obj, "favorite") && __mf_holds(obj, "dateAdded") && __mf_holds(obj, "taxRate") && __mf_holds(obj, "sector") && __mf_holds(obj, "leadName") && __mf_holds(obj, "phones") && __mf_holds(obj, "email") && __mf_holds(obj, "leadSource") && __mf_holds(obj, "site") && __mf_holds(obj, "memo") && __mf_holds(obj, "needsReview") && __mf_holds(obj, "hasAlert") && __mf_holds(obj, "salesRep") && __mf_holds(obj, "color") && __mf_holds(obj, "accountType") && __mf_holds(obj, "subtype") && __mf_holds(obj, "isTaxExempt") && __mf_holds(obj, "paymentTerms") && __mf_holds(obj, "tags") && __mf_holds(obj, "customFields");
+    return __mf_holdsAll(obj, ["id", "number", "accepted", "probability", "priority", "dueDate", "closeDate", "value", "stage", "status", "description", "nextStep", "favorite", "dateAdded", "taxRate", "sector", "leadName", "phones", "email", "leadSource", "site", "memo", "needsReview", "hasAlert", "salesRep", "color", "accountType", "subtype", "isTaxExempt", "paymentTerms", "tags", "customFields"]);
 }
 
 export function leadIs(obj: unknown): obj is Lead {
@@ -2584,57 +2631,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1881..2453
-original 621..650 -> expanded 2453..2482
-original 678..699 -> expanded 2482..2503
-original 727..759 -> expanded 2503..2535
-original 787..815 -> expanded 2535..2563
-original 883..913 -> expanded 2563..2593
-original 1106..1111 -> expanded 2593..2598
-original 1136..1165 -> expanded 2598..2627
-original 1214..1247 -> expanded 2627..2660
-original 1298..1333 -> expanded 2660..2695
-original 1397..1421 -> expanded 2695..2719
-original 1718..1723 -> expanded 2719..2724
-original 1746..1773 -> expanded 2724..2751
-original 1816..1821 -> expanded 2751..2756
-original 1862..1887 -> expanded 2756..2781
-original 1939..1976 -> expanded 2781..2818
-original 2004..2009 -> expanded 2818..2823
-original 2042..2071 -> expanded 2823..2852
-original 2118..2146 -> expanded 2852..2880
-original 2174..2209 -> expanded 2880..2915
-original 2309..2354 -> expanded 2915..2960
-original 2535..2540 -> expanded 2960..2965
-original 2570..2595 -> expanded 2965..2990
-original 2727..2759 -> expanded 2990..3022
-original 2812..2849 -> expanded 3022..3059
-original 2897..2920 -> expanded 3059..3082
-original 2991..3027 -> expanded 3082..3118
-original 3076..3081 -> expanded 3118..3123
-original 3100..3130 -> expanded 3123..3153
-original 3175..3180 -> expanded 3153..3158
-original 3221..3244 -> expanded 3158..3181
-original 3295..3326 -> expanded 3181..3212
-original 3374..3402 -> expanded 3212..3240
-original 3491..3536 -> expanded 3240..3285
-original 3564..3595 -> expanded 3285..3316
-original 3667..3672 -> expanded 3316..3321
-original 3713..3743 -> expanded 3321..3351
-original 3810..3815 -> expanded 3351..3356
-original 3856..3882 -> expanded 3356..3382
-original 3931..3962 -> expanded 3382..3413
-original 4035..4040 -> expanded 3413..3418
-original 4081..4112 -> expanded 3418..3449
-original 4153..4183 -> expanded 3449..3479
-original 4243..4288 -> expanded 3479..3524
-original 4288..4289 -> expanded 98935..98936
-generated 0..1881 <- imports
-generated 3524..4386 <- Default
-generated 4386..12315 <- Encode
-generated 12315..49756 <- Decode
-generated 49756..97777 <- Gigaform
-generated 97777..98935 <- __convenience_const
+original 0..572 -> expanded 1887..2459
+original 621..650 -> expanded 2459..2488
+original 678..699 -> expanded 2488..2509
+original 727..759 -> expanded 2509..2541
+original 787..815 -> expanded 2541..2569
+original 883..913 -> expanded 2569..2599
+original 1106..1111 -> expanded 2599..2604
+original 1136..1165 -> expanded 2604..2633
+original 1214..1247 -> expanded 2633..2666
+original 1298..1333 -> expanded 2666..2701
+original 1397..1421 -> expanded 2701..2725
+original 1718..1723 -> expanded 2725..2730
+original 1746..1773 -> expanded 2730..2757
+original 1816..1821 -> expanded 2757..2762
+original 1862..1887 -> expanded 2762..2787
+original 1939..1976 -> expanded 2787..2824
+original 2004..2009 -> expanded 2824..2829
+original 2042..2071 -> expanded 2829..2858
+original 2118..2146 -> expanded 2858..2886
+original 2174..2209 -> expanded 2886..2921
+original 2309..2354 -> expanded 2921..2966
+original 2535..2540 -> expanded 2966..2971
+original 2570..2595 -> expanded 2971..2996
+original 2727..2759 -> expanded 2996..3028
+original 2812..2849 -> expanded 3028..3065
+original 2897..2920 -> expanded 3065..3088
+original 2991..3027 -> expanded 3088..3124
+original 3076..3081 -> expanded 3124..3129
+original 3100..3130 -> expanded 3129..3159
+original 3175..3180 -> expanded 3159..3164
+original 3221..3244 -> expanded 3164..3187
+original 3295..3326 -> expanded 3187..3218
+original 3374..3402 -> expanded 3218..3246
+original 3491..3536 -> expanded 3246..3291
+original 3564..3595 -> expanded 3291..3322
+original 3667..3672 -> expanded 3322..3327
+original 3713..3743 -> expanded 3327..3357
+original 3810..3815 -> expanded 3357..3362
+original 3856..3882 -> expanded 3362..3388
+original 3931..3962 -> expanded 3388..3419
+original 4035..4040 -> expanded 3419..3424
+original 4081..4112 -> expanded 3424..3455
+original 4153..4183 -> expanded 3455..3485
+original 4243..4288 -> expanded 3485..3530
+original 4288..4289 -> expanded 100413..100414
+generated 0..1887 <- imports
+generated 3530..4392 <- Default
+generated 4392..14525 <- Encode
+generated 14525..51234 <- Decode
+generated 51234..99255 <- Gigaform
+generated 99255..100413 <- __convenience_const
 
 ## Metadata
 

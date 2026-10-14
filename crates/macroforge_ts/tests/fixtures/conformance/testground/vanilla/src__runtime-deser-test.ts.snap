@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** @derive(Decode) */
 export interface Inner {
@@ -95,14 +95,12 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
-        errors.push({ field: "createdAt", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["createdAt", "createdAt"], ["score", "score"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -113,35 +111,45 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Inner.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
-        const __raw_createdAt = obj["createdAt"] as string | Date;
-
-        {
-            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Inner.createdAt is required" : "expected Date" });
-            } else {
-                instance.createdAt = __dateVal;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Inner.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+                const __raw_createdAt = obj["createdAt"] as string | Date;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "Inner.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
+                {
+                    const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Inner.createdAt is required" : "expected Date" });
+                    } else {
+                        instance.createdAt = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
+
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "Inner.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -166,7 +174,7 @@ export function innerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "createdAt") && __mf_holds(obj, "score");
+    return __mf_holdsAll(obj, ["name", "createdAt", "score"]);
 }
 
 export function innerIs(obj: unknown): obj is Inner {
@@ -270,8 +278,12 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -329,7 +341,7 @@ export function containerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 export function containerIs(obj: unknown): obj is Container {
@@ -533,14 +545,14 @@ export {};
 
 ## Mapping
 
-original 0..107 -> expanded 466..573
-original 107..182 -> expanded 8005..8080
-original 182..2159 -> expanded 14740..16717
-generated 0..466 <- imports
-generated 573..7372 <- Decode
-generated 7372..8005 <- __convenience_const
-generated 8080..14047 <- Decode
-generated 14047..14740 <- __convenience_const
+original 0..107 -> expanded 472..579
+original 107..182 -> expanded 8191..8266
+original 182..2159 -> expanded 15088..17065
+generated 0..472 <- imports
+generated 579..7558 <- Decode
+generated 7558..8191 <- __convenience_const
+generated 8266..14395 <- Decode
+generated 14395..15088 <- __convenience_const
 
 ## Metadata
 

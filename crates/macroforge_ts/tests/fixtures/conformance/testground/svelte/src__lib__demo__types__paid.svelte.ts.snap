@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,20 +62,30 @@ export function paidEncodePartialWithContext(value: Partial<Paid>, ctx: __mf_Enc
 }
 
 function paidEncodeFields(value: Paid, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("amount")) {
-        if (value.amount !== undefined) {
-            result["amount"] = value.amount;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("currency")) {
-        if (value.currency !== undefined) {
-            result["currency"] = value.currency;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("paymentMethod")) {
-        if (value.paymentMethod !== undefined) {
-            result["paymentMethod"] = value.paymentMethod;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("amount")) {
+                if (value.amount !== undefined) {
+                    result["amount"] = value.amount;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("currency")) {
+                if (value.currency !== undefined) {
+                    result["currency"] = value.currency;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("paymentMethod")) {
+                if (value.paymentMethod !== undefined) {
+                    result["paymentMethod"] = value.paymentMethod;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -153,14 +163,12 @@ export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("amount")) && !("amount" in obj)) {
-        errors.push({ field: "amount", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("currency")) && !("currency" in obj)) {
-        errors.push({ field: "currency", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("paymentMethod")) && !("paymentMethod" in obj)) {
-        errors.push({ field: "paymentMethod", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["amount", "amount"], ["currency", "currency"], ["paymentMethod", "paymentMethod"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -171,32 +179,42 @@ export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("amount")) ? "amount" in obj : (__fields.keeps("amount") && obj["amount"] !== undefined)) {
-        const __raw_amount = obj["amount"] as number | null;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("amount")) ? "amount" in obj : (__fields.keeps("amount") && obj["amount"] !== undefined)) {
+                const __raw_amount = obj["amount"] as number | null;
 
-        if (!(typeof __raw_amount === "number" && globalThis.Number.isFinite(__raw_amount) || __raw_amount === null)) {
-            errors.push({ field: "amount", message: "expected number | null" });
-        } else {
-            instance.amount = __raw_amount;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("currency")) ? "currency" in obj : (__fields.keeps("currency") && obj["currency"] !== undefined)) {
-        const __raw_currency = obj["currency"] as string | null;
+                if (!(typeof __raw_amount === "number" && globalThis.Number.isFinite(__raw_amount) || __raw_amount === null)) {
+                    errors.push({ field: "amount", message: "expected number | null" });
+                } else {
+                    instance.amount = __raw_amount;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("currency")) ? "currency" in obj : (__fields.keeps("currency") && obj["currency"] !== undefined)) {
+                const __raw_currency = obj["currency"] as string | null;
 
-        if (!(typeof __raw_currency === "string" || __raw_currency === null)) {
-            errors.push({ field: "currency", message: "expected string | null" });
-        } else {
-            instance.currency = __raw_currency;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("paymentMethod")) ? "paymentMethod" in obj : (__fields.keeps("paymentMethod") && obj["paymentMethod"] !== undefined)) {
-        const __raw_paymentMethod = obj["paymentMethod"] as string | null;
+                if (!(typeof __raw_currency === "string" || __raw_currency === null)) {
+                    errors.push({ field: "currency", message: "expected string | null" });
+                } else {
+                    instance.currency = __raw_currency;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("paymentMethod")) ? "paymentMethod" in obj : (__fields.keeps("paymentMethod") && obj["paymentMethod"] !== undefined)) {
+                const __raw_paymentMethod = obj["paymentMethod"] as string | null;
 
-        if (!(typeof __raw_paymentMethod === "string" || __raw_paymentMethod === null)) {
-            errors.push({ field: "paymentMethod", message: "expected string | null" });
-        } else {
-            instance.paymentMethod = __raw_paymentMethod;
-        }
+                if (!(typeof __raw_paymentMethod === "string" || __raw_paymentMethod === null)) {
+                    errors.push({ field: "paymentMethod", message: "expected string | null" });
+                } else {
+                    instance.paymentMethod = __raw_paymentMethod;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -221,7 +239,7 @@ export function paidHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "amount") && __mf_holds(obj, "currency") && __mf_holds(obj, "paymentMethod");
+    return __mf_holdsAll(obj, ["amount", "currency", "paymentMethod"]);
 }
 
 export function paidIs(obj: unknown): obj is Paid {
@@ -518,15 +536,15 @@ export declare const Paid: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..223 -> expanded 896..1012
-original 223..224 -> expanded 17151..17152
-generated 0..838 <- imports
-generated 1012..1153 <- Default
-generated 1153..3596 <- Encode
-generated 3596..10227 <- Decode
-generated 10227..15993 <- Gigaform
-generated 15993..17151 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..223 -> expanded 902..1018
+original 223..224 -> expanded 17565..17566
+generated 0..844 <- imports
+generated 1018..1159 <- Default
+generated 1159..3863 <- Encode
+generated 3863..10641 <- Decode
+generated 10641..16407 <- Gigaform
+generated 16407..17565 <- __convenience_const
 
 ## Metadata
 

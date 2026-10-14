@@ -13,7 +13,7 @@ true
 ## Output
 
 import { dataPathDecodeWithContext, dataPathEncodeWithContext, dataPathDefaultValue } from "./data-path.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -63,15 +63,23 @@ export function columnConfigEncodePartialWithContext(value: Partial<ColumnConfig
 }
 
 function columnConfigEncodeFields(value: ColumnConfig, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("heading")) {
-        if (value.heading !== undefined) {
-            result["heading"] = value.heading;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dataPath")) {
-        if (value.dataPath !== undefined) {
-            result["dataPath"] = dataPathEncodeWithContext(value.dataPath, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("heading")) {
+                if (value.heading !== undefined) {
+                    result["heading"] = value.heading;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dataPath")) {
+                if (value.dataPath !== undefined) {
+                    result["dataPath"] = dataPathEncodeWithContext(value.dataPath, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -149,11 +157,12 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("heading")) && !("heading" in obj)) {
-        errors.push({ field: "heading", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dataPath")) && !("dataPath" in obj)) {
-        errors.push({ field: "dataPath", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["heading", "heading"], ["dataPath", "dataPath"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -164,40 +173,48 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("heading")) ? "heading" in obj : (__fields.keeps("heading") && obj["heading"] !== undefined)) {
-        const __raw_heading = obj["heading"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("heading")) ? "heading" in obj : (__fields.keeps("heading") && obj["heading"] !== undefined)) {
+                const __raw_heading = obj["heading"] as string;
 
-        if (!(typeof __raw_heading === "string")) {
-            errors.push({ field: "heading", message: __raw_heading == null ? "ColumnConfig.heading is required" : "expected string" });
-        } else {
-            if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
-                if (__raw_heading.length === 0) { errors.push({ field: "heading", message: "ColumnConfig.heading must not be empty" }); }
-            }
-            instance.heading = __raw_heading;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dataPath")) ? "dataPath" in obj : (__fields.keeps("dataPath") && obj["dataPath"] !== undefined)) {
-        const __raw_dataPath = obj["dataPath"] as DataPath;
-
-        ctx.pushScope("dataPath");
-        try {
-            const __result = dataPathDecodeWithContext(__raw_dataPath, ctx);
-            ctx.assignOrDefer(instance, "dataPath", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "dataPath" : "dataPath." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_heading === "string")) {
+                    errors.push({ field: "heading", message: __raw_heading == null ? "ColumnConfig.heading is required" : "expected string" });
+                } else {
+                    if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
+                        if (__raw_heading.length === 0) { errors.push({ field: "heading", message: "ColumnConfig.heading must not be empty" }); }
+                    }
+                    instance.heading = __raw_heading;
                 }
-            } else {
-
-                errors.push({ field: "dataPath", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dataPath")) ? "dataPath" in obj : (__fields.keeps("dataPath") && obj["dataPath"] !== undefined)) {
+                const __raw_dataPath = obj["dataPath"] as DataPath;
+
+                ctx.pushScope("dataPath");
+                try {
+                    const __result = dataPathDecodeWithContext(__raw_dataPath, ctx);
+                    ctx.assignOrDefer(instance, "dataPath", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "dataPath" : "dataPath." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "dataPath", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -234,7 +251,7 @@ export function columnConfigHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "heading") && __mf_holds(obj, "dataPath");
+    return __mf_holdsAll(obj, ["heading", "dataPath"]);
 }
 
 export function columnConfigIs(obj: unknown): obj is ColumnConfig {
@@ -515,16 +532,16 @@ export declare const ColumnConfig: {
 
 ## Mapping
 
-original 0..110 -> expanded 951..1061
-original 159..196 -> expanded 1061..1098
-original 237..284 -> expanded 1098..1145
-original 284..285 -> expanded 17926..17927
-generated 0..951 <- imports
-generated 1145..1290 <- Default
-generated 1290..3695 <- Encode
-generated 3695..11272 <- Decode
-generated 11272..16552 <- Gigaform
-generated 16552..17926 <- __convenience_const
+original 0..110 -> expanded 957..1067
+original 159..196 -> expanded 1067..1104
+original 237..284 -> expanded 1104..1151
+original 284..285 -> expanded 18485..18486
+generated 0..957 <- imports
+generated 1151..1296 <- Default
+generated 1296..3895 <- Encode
+generated 3895..11831 <- Decode
+generated 11831..17111 <- Gigaform
+generated 17111..18485 <- __convenience_const
 
 ## Metadata
 

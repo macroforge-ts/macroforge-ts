@@ -14,7 +14,7 @@ true
 
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 /**
  * A generic alias over a foreign type, declared apart from the types that use
@@ -40,17 +40,8 @@ export function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean, __en
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function stampedEncodeWithContext<T>(value: Stamped<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -343,23 +334,23 @@ export {};
 
 ## Mapping
 
-original 0..251 -> expanded 753..1004
-original 290..354 -> expanded 1004..1068
-original 354..356 -> expanded 6194..6196
-original 447..467 -> expanded 6196..6216
-original 483..484 -> expanded 6260..6261
-original 484..485 -> expanded 9592..9593
-generated 0..708 <- imports
-generated 708..753 <- $Newtype
-generated 1068..1175 <- Default
-generated 1175..2669 <- Encode
-generated 2669..5595 <- Decode
-generated 5595..6194 <- __convenience_const
-generated 6216..6260 <- $Newtype
-generated 6261..6338 <- Default
-generated 6338..7030 <- Encode
-generated 7030..9038 <- Decode
-generated 9038..9592 <- __convenience_const
+original 0..251 -> expanded 823..1074
+original 290..354 -> expanded 1074..1138
+original 354..356 -> expanded 6141..6143
+original 447..467 -> expanded 6143..6163
+original 483..484 -> expanded 6207..6208
+original 484..485 -> expanded 9539..9540
+generated 0..778 <- imports
+generated 778..823 <- $Newtype
+generated 1138..1245 <- Default
+generated 1245..2616 <- Encode
+generated 2616..5542 <- Decode
+generated 5542..6141 <- __convenience_const
+generated 6163..6207 <- $Newtype
+generated 6208..6285 <- Default
+generated 6285..6977 <- Encode
+generated 6977..8985 <- Decode
+generated 8985..9539 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -280,7 +280,12 @@ export function pointClone(value: Point): Point {
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+        () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+    ].every((same) => same());
+});
 }
 
 export function pointHashCode(value: Point): number {
@@ -320,15 +325,23 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
 }
 
 function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-        if (value.y !== undefined) {
-            result["y"] = value.y;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -406,11 +419,12 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
-        errors.push({ field: "x", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("y")) && !("y" in obj)) {
-        errors.push({ field: "y", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["y", "y"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -421,23 +435,31 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
-        const __raw_x = obj["x"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
-            errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
-        } else {
-            instance.x = __raw_x;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
-        const __raw_y = obj["y"] as number;
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
+                const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
-            errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
-        } else {
-            instance.y = __raw_y;
-        }
+                if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
+                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                } else {
+                    instance.y = __raw_y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -462,7 +484,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
+    return __mf_holdsAll(obj, ["x", "y"]);
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -534,7 +556,15 @@ export function userProfileClone(value: UserProfile): UserProfile {
 
 export function userProfileEquals(a: UserProfile, b: UserProfile): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.username === b.username && a.email === b.email && (a.age === b.age || a.age !== a.age && b.age !== b.age) && a.isVerified === b.isVerified);
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.id === b.id,
+        () => a.username === b.username,
+        () => a.email === b.email,
+        () => a.age === b.age || a.age !== a.age && b.age !== b.age,
+        () => a.isVerified === b.isVerified,
+    ].every((same) => same());
+});
 }
 
 export function userProfileHashCode(value: UserProfile): number {
@@ -577,30 +607,44 @@ export function userProfileEncodePartialWithContext(value: Partial<UserProfile>,
 }
 
 function userProfileEncodeFields(value: UserProfile, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("username")) {
-        if (value.username !== undefined) {
-            result["username"] = value.username;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-        if (value.email !== undefined) {
-            result["email"] = value.email;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("age")) {
-        if (value.age !== undefined) {
-            result["age"] = value.age;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isVerified")) {
-        if (value.isVerified !== undefined) {
-            result["isVerified"] = value.isVerified;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("username")) {
+                if (value.username !== undefined) {
+                    result["username"] = value.username;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["email"] = value.email;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("age")) {
+                if (value.age !== undefined) {
+                    result["age"] = value.age;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isVerified")) {
+                if (value.isVerified !== undefined) {
+                    result["isVerified"] = value.isVerified;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -678,20 +722,12 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
-        errors.push({ field: "username", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
-        errors.push({ field: "age", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isVerified")) && !("isVerified" in obj)) {
-        errors.push({ field: "isVerified", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["username", "username"], ["email", "email"], ["age", "age"], ["isVerified", "isVerified"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -702,50 +738,64 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "UserProfile.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
-        const __raw_username = obj["username"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "UserProfile.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
+                const __raw_username = obj["username"] as string;
 
-        if (!(typeof __raw_username === "string")) {
-            errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
-        } else {
-            instance.username = __raw_username;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as string;
+                if (!(typeof __raw_username === "string")) {
+                    errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+                } else {
+                    instance.username = __raw_username;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as string;
 
-        if (!(typeof __raw_email === "string")) {
-            errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
-        } else {
-            instance.email = __raw_email;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
-        const __raw_age = obj["age"] as number;
+                if (!(typeof __raw_email === "string")) {
+                    errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+                } else {
+                    instance.email = __raw_email;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
+                const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
-            errors.push({ field: "age", message: __raw_age == null ? "UserProfile.age is required" : "expected number" });
-        } else {
-            instance.age = __raw_age;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isVerified")) ? "isVerified" in obj : (__fields.keeps("isVerified") && obj["isVerified"] !== undefined)) {
-        const __raw_isVerified = obj["isVerified"] as boolean;
+                if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                    errors.push({ field: "age", message: __raw_age == null ? "UserProfile.age is required" : "expected number" });
+                } else {
+                    instance.age = __raw_age;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isVerified")) ? "isVerified" in obj : (__fields.keeps("isVerified") && obj["isVerified"] !== undefined)) {
+                const __raw_isVerified = obj["isVerified"] as boolean;
 
-        if (!(typeof __raw_isVerified === "boolean")) {
-            errors.push({ field: "isVerified", message: __raw_isVerified == null ? "UserProfile.isVerified is required" : "expected boolean" });
-        } else {
-            instance.isVerified = __raw_isVerified;
-        }
+                if (!(typeof __raw_isVerified === "boolean")) {
+                    errors.push({ field: "isVerified", message: __raw_isVerified == null ? "UserProfile.isVerified is required" : "expected boolean" });
+                } else {
+                    instance.isVerified = __raw_isVerified;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -770,7 +820,7 @@ export function userProfileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "username") && __mf_holds(obj, "email") && __mf_holds(obj, "age") && __mf_holds(obj, "isVerified");
+    return __mf_holdsAll(obj, ["id", "username", "email", "age", "isVerified"]);
 }
 
 export function userProfileIs(obj: unknown): obj is UserProfile {
@@ -836,7 +886,13 @@ export function coordinate3DClone(value: Coordinate3D): Coordinate3D {
 
 export function coordinate3DEquals(a: Coordinate3D, b: Coordinate3D): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y) && (a.z === b.z || a.z !== a.z && b.z !== b.z));
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+        () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        () => a.z === b.z || a.z !== a.z && b.z !== b.z,
+    ].every((same) => same());
+});
 }
 
 export function coordinate3DHashCode(value: Coordinate3D): number {
@@ -1206,56 +1262,56 @@ export declare function demoTypeFunctions();
 
 ## Mapping
 
-original 0..527 -> expanded 935..1462
-original 527..675 -> expanded 4316..4464
-original 675..766 -> expanded 7681..7772
-original 766..950 -> expanded 8602..8786
-original 950..1143 -> expanded 19099..19292
-original 1143..1267 -> expanded 33338..33462
-original 1267..1364 -> expanded 35277..35374
-original 1364..3696 -> expanded 35945..38277
-generated 0..935 <- imports
-generated 1462..1830 <- Debug
-generated 1830..1904 <- Clone
-generated 1904..1989 <- PartialEq
-generated 1989..2144 <- Hash
-generated 2144..2554 <- Encode
-generated 2554..3693 <- Decode
-generated 3693..4316 <- __convenience_const
-generated 4464..4917 <- Debug
-generated 4917..4997 <- Clone
-generated 4997..5088 <- PartialEq
-generated 5088..5290 <- Hash
-generated 5290..5712 <- Encode
-generated 5712..7020 <- Decode
-generated 7020..7681 <- __convenience_const
-generated 7772..8113 <- Debug
-generated 8113..8195 <- PartialEq
-generated 8195..8391 <- Hash
-generated 8391..8602 <- __convenience_const
-generated 8786..9068 <- Debug
-generated 9068..9201 <- Clone
-generated 9201..9426 <- PartialEq
-generated 9426..9901 <- Hash
-generated 9901..12118 <- Encode
-generated 12118..17904 <- Decode
-generated 17904..19099 <- __convenience_const
-generated 19292..19761 <- Debug
-generated 19761..20003 <- Clone
-generated 20003..20313 <- PartialEq
-generated 20313..21068 <- Hash
-generated 21068..23902 <- Encode
-generated 23902..31969 <- Decode
-generated 31969..33338 <- __convenience_const
-generated 33462..33806 <- Debug
-generated 33806..33980 <- Clone
-generated 33980..34273 <- PartialEq
-generated 34273..34923 <- Hash
-generated 34923..35277 <- __convenience_const
-generated 35374..35486 <- Debug
-generated 35486..35580 <- PartialEq
-generated 35580..35684 <- Hash
-generated 35684..35945 <- __convenience_const
+original 0..527 -> expanded 941..1468
+original 527..675 -> expanded 4322..4470
+original 675..766 -> expanded 7687..7778
+original 766..950 -> expanded 8608..8792
+original 950..1143 -> expanded 19614..19807
+original 1143..1267 -> expanded 34359..34483
+original 1267..1364 -> expanded 36379..36476
+original 1364..3696 -> expanded 37047..39379
+generated 0..941 <- imports
+generated 1468..1836 <- Debug
+generated 1836..1910 <- Clone
+generated 1910..1995 <- PartialEq
+generated 1995..2150 <- Hash
+generated 2150..2560 <- Encode
+generated 2560..3699 <- Decode
+generated 3699..4322 <- __convenience_const
+generated 4470..4923 <- Debug
+generated 4923..5003 <- Clone
+generated 5003..5094 <- PartialEq
+generated 5094..5296 <- Hash
+generated 5296..5718 <- Encode
+generated 5718..7026 <- Decode
+generated 7026..7687 <- __convenience_const
+generated 7778..8119 <- Debug
+generated 8119..8201 <- PartialEq
+generated 8201..8397 <- Hash
+generated 8397..8608 <- __convenience_const
+generated 8792..9074 <- Debug
+generated 9074..9207 <- Clone
+generated 9207..9503 <- PartialEq
+generated 9503..9978 <- Hash
+generated 9978..12389 <- Encode
+generated 12389..18419 <- Decode
+generated 18419..19614 <- __convenience_const
+generated 19807..20276 <- Debug
+generated 20276..20518 <- Clone
+generated 20518..20937 <- PartialEq
+generated 20937..21692 <- Hash
+generated 21692..24921 <- Encode
+generated 24921..32990 <- Decode
+generated 32990..34359 <- __convenience_const
+generated 34483..34827 <- Debug
+generated 34827..35001 <- Clone
+generated 35001..35375 <- PartialEq
+generated 35375..36025 <- Hash
+generated 36025..36379 <- __convenience_const
+generated 36476..36588 <- Debug
+generated 36588..36682 <- PartialEq
+generated 36682..36786 <- Hash
+generated 36786..37047 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export class Account {
@@ -54,15 +54,23 @@ static encodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext
 }
 
 static #encodeFields(value: Account, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("balance")) {
-        if (value.balance !== undefined) {
-            result["balance"] = value.balance;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("balance")) {
+                if (value.balance !== undefined) {
+                    result["balance"] = value.balance;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -152,11 +160,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["balance", "balance"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Account.prototype);
@@ -167,23 +176,31 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Account.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        const __raw_balance = obj["balance"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Account.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
-            errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
-        } else {
-            instance.balance = __raw_balance;
-        }
+                if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
+                    errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
+                } else {
+                    instance.balance = __raw_balance;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -204,7 +221,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "balance");
+    return __mf_holdsAll(obj, ["name", "balance"]);
 }
 
 static is(obj: unknown): obj is Account {
@@ -340,17 +357,17 @@ export declare function accountIs(value: unknown): value is Account;
 
 ## Mapping
 
-original 39..111 -> expanded 756..828
-original 111..112 -> expanded 8683..8684
-original 112..113 -> expanded 11868..11869
-generated 0..756 <- imports
-generated 828..1048 <- Default
-generated 1048..2749 <- Encode
-generated 2749..3070 <- Encode
-generated 3070..8683 <- Decode
-generated 8684..8771 <- Default
-generated 8771..10101 <- Encode
-generated 10101..11868 <- Decode
+original 39..111 -> expanded 762..834
+original 111..112 -> expanded 9118..9119
+original 112..113 -> expanded 12303..12304
+generated 0..762 <- imports
+generated 834..1054 <- Default
+generated 1054..2949 <- Encode
+generated 2949..3270 <- Encode
+generated 3270..9118 <- Decode
+generated 9119..9206 <- Default
+generated 9206..10536 <- Encode
+generated 10536..12303 <- Decode
 
 ## Metadata
 

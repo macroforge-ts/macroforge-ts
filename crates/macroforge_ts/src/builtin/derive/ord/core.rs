@@ -1,13 +1,13 @@
 use crate::builtin::derive::common::function_prefix;
 
-use crate::ast::{Expr, Ident};
+use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::structural_callee;
 use crate::builtin::derive::common::{
     ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
 };
 use crate::builtin::derive::common::{
-    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
+    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, first_order, generate_field_order,
     generate_value_order, rendered, structural_call, tuple_compare_statements,
 };
 use crate::macros::{ts_macro_derive, ts_template};
@@ -48,11 +48,9 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 .collect();
 
             let body = if !ord_fields.is_empty() {
-                let compare_steps: Vec<(Ident, Expr)> = ord_fields
+                let orders: Vec<Expr> = ord_fields
                     .iter()
-                    .enumerate()
-                    .map(|(i, f)| {
-                        let cmp_ident = ts_ident!(format!("cmp{}", i));
+                    .map(|f| {
                         let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                         let expr_src = generate_field_order(
                             Ordering::Total,
@@ -71,18 +69,14 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                 ),
                             )
                         })?;
-                        Ok((cmp_ident, expr))
+                        Ok(expr)
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
                 ts_template! {
                     if (a === b) return 0;
                     return @{structural_callee("comparedWithin")}(a, b, () => {
-                    {#for (cmp_ident, cmp_expr) in &compare_steps}
-                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                    {/for}
-                        return 0;
+                    {$typescript first_order(orders)}
                     });
                 }
             } else {
@@ -143,11 +137,9 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
             let fn_name_ident = interface_names.generic_function("Compare");
 
             if !ord_fields.is_empty() {
-                let compare_steps: Vec<(Ident, Expr)> = ord_fields
+                let orders: Vec<Expr> = ord_fields
                     .iter()
-                    .enumerate()
-                    .map(|(i, f)| {
-                        let cmp_ident = ts_ident!(format!("cmp{}", i));
+                    .map(|f| {
                         let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                         let expr_src = generate_field_order(
                             Ordering::Total,
@@ -166,7 +158,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                 ),
                             )
                         })?;
-                        Ok((cmp_ident, expr))
+                        Ok(expr)
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
@@ -174,11 +166,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     export function @{fn_name_ident}(a: @{interface_ident}, b: @{interface_ident}): number {
                         if (a === b) return 0;
                         return @{structural_callee("comparedWithin")}(a, b, () => {
-                        {#for (cmp_ident, cmp_expr) in &compare_steps}
-                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                        {/for}
-                            return 0;
+                        {$typescript first_order(orders)}
                         });
                     }
                 })
@@ -217,11 +205,9 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 let fn_name_ident = type_names.generic_function("Compare");
 
                 if !ord_fields.is_empty() {
-                    let compare_steps: Vec<(Ident, Expr)> = ord_fields
+                    let orders: Vec<Expr> = ord_fields
                         .iter()
-                        .enumerate()
-                        .map(|(i, f)| {
-                            let cmp_ident = ts_ident!(format!("cmp{}", i));
+                        .map(|f| {
                             let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                         let expr_src = generate_field_order(Ordering::Total, f, "a", "b", resolved, type_registry,
                         );
@@ -234,7 +220,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                     ),
                                 )
                             })?;
-                            Ok((cmp_ident, expr))
+                            Ok(expr)
                         })
                         .collect::<Result<_, MacroforgeError>>()?;
 
@@ -242,11 +228,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): number {
                             if (a === b) return 0;
                             return @{structural_callee("comparedWithin")}(a, b, () => {
-                            {#for (cmp_ident, cmp_expr) in &compare_steps}
-                                const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                                if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                            {/for}
-                                return 0;
+                            {$typescript first_order(orders)}
                             });
                         }
                     })

@@ -17,7 +17,7 @@ import { edgeItemDecodeWithContext as barrelItemDecodeWithContext, edgeItemEncod
 import { edgeItemDecodePartialWithContext as itemDecodePartialWithContext, edgeItemDecodeWithContext as itemDecodeWithContext, edgeItemEncodePartialWithContext as itemEncodePartialWithContext, edgeItemEncodeWithContext as itemEncodeWithContext, edgeItemDefaultValue as itemDefaultValue, edgeItemHashCode as itemHashCode, edgeItemEquals as itemEquals, edgeItemClone as itemClone, edgeItemToString as itemToString } from "./edge-types";
 import { point2DDecodeWithContext, point2DEncodeWithContext, point2DDefaultValue, point2DHashCode, point2DEquals, point2DClone, point2DToString } from "./name-shapes";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types held from another module under names that do not lead to their
@@ -73,13 +73,20 @@ export function nameImportsClone(value: NameImports): NameImports {
 
 export function nameImportsEquals(a: NameImports, b: NameImports): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => point2DEquals(a.origin, b.origin) && a.path.length === b.path.length && a.path.every((__item0, __index0) => {
-	const __other0 = b.path[__index0];
-	return __other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0);
-}) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
-	const __other0 = b.byName.get(__key0);
-	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0));
-}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : point2DEquals(a.maybe, b.maybe)));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => point2DEquals(a.origin, b.origin),
+            () => a.path.length === b.path.length && a.path.every((__item0, __index0) => {
+            	const __other0 = b.path[__index0];
+            	return __other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0);
+            }),
+            () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+            	const __other0 = b.byName.get(__key0);
+            	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0));
+            }),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : point2DEquals(a.maybe, b.maybe),
+        ].every((same) => same());
+    });
 }
 
 export function nameImportsHashCode(value: NameImports): number {
@@ -130,25 +137,37 @@ export function nameImportsEncodePartialWithContext(value: Partial<NameImports>,
 }
 
 function nameImportsEncodeFields(value: NameImports, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("origin")) {
-        if (value.origin !== undefined) {
-            result["origin"] = point2DEncodeWithContext(value.origin, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("path")) {
-        if (value.path !== undefined) {
-            result["path"] = value.path.map((__item0) => point2DEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, point2DEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : point2DEncodeWithContext(value.maybe, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("origin")) {
+                if (value.origin !== undefined) {
+                    result["origin"] = point2DEncodeWithContext(value.origin, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("path")) {
+                if (value.path !== undefined) {
+                    result["path"] = value.path.map((__item0) => point2DEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, point2DEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : point2DEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -226,17 +245,12 @@ export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("origin")) && !("origin" in obj)) {
-        errors.push({ field: "origin", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("path")) && !("path" in obj)) {
-        errors.push({ field: "path", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["origin", "origin"], ["path", "path"], ["byName", "byName"], ["maybe", "maybe"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -247,103 +261,115 @@ export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("origin")) ? "origin" in obj : (__fields.keeps("origin") && obj["origin"] !== undefined)) {
-        const __raw_origin = obj["origin"] as point2D;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("origin")) ? "origin" in obj : (__fields.keeps("origin") && obj["origin"] !== undefined)) {
+                const __raw_origin = obj["origin"] as point2D;
 
-        ctx.pushScope("origin");
-        try {
-            const __result = point2DDecodeWithContext(__raw_origin, ctx);
-            ctx.assignOrDefer(instance, "origin", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "origin" : "origin." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("origin");
+                try {
+                    const __result = point2DDecodeWithContext(__raw_origin, ctx);
+                    ctx.assignOrDefer(instance, "origin", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "origin" : "origin." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "origin", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "origin", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("path")) ? "path" in obj : (__fields.keeps("path") && obj["path"] !== undefined)) {
-        const __raw_path = obj["path"] as point2D[];
-        if (Array.isArray(__raw_path)) {
-            ctx.pushScope("path");
-            try {
-                instance.path = __mf_decodeArray(__raw_path, ctx, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "path" : "path." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("path")) ? "path" in obj : (__fields.keeps("path") && obj["path"] !== undefined)) {
+                const __raw_path = obj["path"] as point2D[];
+                if (Array.isArray(__raw_path)) {
+                    ctx.pushScope("path");
+                    try {
+                        instance.path = __mf_decodeArray(__raw_path, ctx, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "path" : "path." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "path", message: __raw_path == null ? "NameImports.path is required" : "expected point2D[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "path", message: __raw_path == null ? "NameImports.path is required" : "expected point2D[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, point2D>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, point2D>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byName", message: __raw_byName == null ? "NameImports.byName is required" : "expected Map<string, point2D>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "NameImports.byName is required" : "expected Map<string, point2D>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as point2D | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as point2D | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = point2DDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
                 } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = point2DDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -368,7 +394,7 @@ export function nameImportsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "origin") && __mf_holds(obj, "path") && __mf_holds(obj, "byName") && __mf_holds(obj, "maybe");
+    return __mf_holdsAll(obj, ["origin", "path", "byName", "maybe"]);
 }
 
 export function nameImportsIs(obj: unknown): obj is NameImports {
@@ -439,10 +465,17 @@ export function nameRenamedClone(value: NameRenamed): NameRenamed {
 
 export function nameRenamedEquals(a: NameRenamed, b: NameRenamed): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => itemEquals(a.held, b.held) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
-	const __other0 = b.listed[__index0];
-	return __other0 === undefined ? __item0 === undefined : itemEquals(__item0, __other0);
-}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : itemEquals(a.maybe, b.maybe)) && __mf_structuralEquals(a.some, b.some));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => itemEquals(a.held, b.held),
+            () => a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+            	const __other0 = b.listed[__index0];
+            	return __other0 === undefined ? __item0 === undefined : itemEquals(__item0, __other0);
+            }),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : itemEquals(a.maybe, b.maybe),
+            () => __mf_structuralEquals(a.some, b.some),
+        ].every((same) => same());
+    });
 }
 
 export function nameRenamedHashCode(value: NameRenamed): number {
@@ -493,25 +526,37 @@ export function nameRenamedEncodePartialWithContext(value: Partial<NameRenamed>,
 }
 
 function nameRenamedEncodeFields(value: NameRenamed, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("held")) {
-        if (value.held !== undefined) {
-            result["held"] = itemEncodeWithContext(value.held, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("listed")) {
-        if (value.listed !== undefined) {
-            result["listed"] = value.listed.map((__item0) => itemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : itemEncodeWithContext(value.maybe, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("some")) {
-        if (value.some !== undefined) {
-            result["some"] = itemEncodePartialWithContext(value.some, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("held")) {
+                if (value.held !== undefined) {
+                    result["held"] = itemEncodeWithContext(value.held, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("listed")) {
+                if (value.listed !== undefined) {
+                    result["listed"] = value.listed.map((__item0) => itemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : itemEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("some")) {
+                if (value.some !== undefined) {
+                    result["some"] = itemEncodePartialWithContext(value.some, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -589,17 +634,12 @@ export function nameRenamedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
-        errors.push({ field: "held", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj)) {
-        errors.push({ field: "listed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("some")) && !("some" in obj)) {
-        errors.push({ field: "some", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"], ["listed", "listed"], ["maybe", "maybe"], ["some", "some"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -610,102 +650,114 @@ export function nameRenamedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
-        const __raw_held = obj["held"] as Item;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+                const __raw_held = obj["held"] as Item;
 
-        ctx.pushScope("held");
-        try {
-            const __result = itemDecodeWithContext(__raw_held, ctx);
-            ctx.assignOrDefer(instance, "held", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "held" : "held." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("held");
+                try {
+                    const __result = itemDecodeWithContext(__raw_held, ctx);
+                    ctx.assignOrDefer(instance, "held", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "held" : "held." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
-        const __raw_listed = obj["listed"] as Item[];
-        if (Array.isArray(__raw_listed)) {
-            ctx.pushScope("listed");
-            try {
-                instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => itemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "listed" : "listed." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
+                const __raw_listed = obj["listed"] as Item[];
+                if (Array.isArray(__raw_listed)) {
+                    ctx.pushScope("listed");
+                    try {
+                        instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => itemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "listed" : "listed." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "listed", message: __raw_listed == null ? "NameRenamed.listed is required" : "expected Item[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "listed", message: __raw_listed == null ? "NameRenamed.listed is required" : "expected Item[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as Item | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as Item | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = itemDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
                 } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = itemDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
-        const __raw_some = obj["some"] as Partial<Item>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
+                const __raw_some = obj["some"] as Partial<Item>;
 
-        ctx.pushScope("some");
-        try {
-            const __result = itemDecodePartialWithContext(__raw_some, ctx);
-            ctx.assignOrDefer(instance, "some", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "some" : "some." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("some");
+                try {
+                    const __result = itemDecodePartialWithContext(__raw_some, ctx);
+                    ctx.assignOrDefer(instance, "some", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "some" : "some." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "some", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "some", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -730,7 +782,7 @@ export function nameRenamedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "held") && __mf_holds(obj, "listed") && __mf_holds(obj, "maybe") && __mf_holds(obj, "some");
+    return __mf_holdsAll(obj, ["held", "listed", "maybe", "some"]);
 }
 
 export function nameRenamedIs(obj: unknown): obj is NameRenamed {
@@ -801,10 +853,17 @@ export function nameExportedClone(value: NameExported): NameExported {
 
 export function nameExportedEquals(a: NameExported, b: NameExported): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => chosenEquals(a.chosen, b.chosen) && nameShownEquals(a.shown, b.shown) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
-	const __other0 = b.listed[__index0];
-	return __other0 === undefined ? __item0 === undefined : nameShownEquals(__item0, __other0);
-}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : chosenEquals(a.maybe, b.maybe)));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => chosenEquals(a.chosen, b.chosen),
+            () => nameShownEquals(a.shown, b.shown),
+            () => a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+            	const __other0 = b.listed[__index0];
+            	return __other0 === undefined ? __item0 === undefined : nameShownEquals(__item0, __other0);
+            }),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : chosenEquals(a.maybe, b.maybe),
+        ].every((same) => same());
+    });
 }
 
 export function nameExportedHashCode(value: NameExported): number {
@@ -855,25 +914,37 @@ export function nameExportedEncodePartialWithContext(value: Partial<NameExported
 }
 
 function nameExportedEncodeFields(value: NameExported, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("chosen")) {
-        if (value.chosen !== undefined) {
-            result["chosen"] = chosenEncodeWithContext(value.chosen, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shown")) {
-        if (value.shown !== undefined) {
-            result["shown"] = nameShownEncodeWithContext(value.shown, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("listed")) {
-        if (value.listed !== undefined) {
-            result["listed"] = value.listed.map((__item0) => nameShownEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : chosenEncodeWithContext(value.maybe, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("chosen")) {
+                if (value.chosen !== undefined) {
+                    result["chosen"] = chosenEncodeWithContext(value.chosen, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shown")) {
+                if (value.shown !== undefined) {
+                    result["shown"] = nameShownEncodeWithContext(value.shown, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("listed")) {
+                if (value.listed !== undefined) {
+                    result["listed"] = value.listed.map((__item0) => nameShownEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : chosenEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -951,17 +1022,12 @@ export function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("chosen")) && !("chosen" in obj)) {
-        errors.push({ field: "chosen", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shown")) && !("shown" in obj)) {
-        errors.push({ field: "shown", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj)) {
-        errors.push({ field: "listed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["chosen", "chosen"], ["shown", "shown"], ["listed", "listed"], ["maybe", "maybe"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -972,102 +1038,114 @@ export function nameExportedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("chosen")) ? "chosen" in obj : (__fields.keeps("chosen") && obj["chosen"] !== undefined)) {
-        const __raw_chosen = obj["chosen"] as Chosen;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("chosen")) ? "chosen" in obj : (__fields.keeps("chosen") && obj["chosen"] !== undefined)) {
+                const __raw_chosen = obj["chosen"] as Chosen;
 
-        ctx.pushScope("chosen");
-        try {
-            const __result = chosenDecodeWithContext(__raw_chosen, ctx);
-            ctx.assignOrDefer(instance, "chosen", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "chosen" : "chosen." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("chosen");
+                try {
+                    const __result = chosenDecodeWithContext(__raw_chosen, ctx);
+                    ctx.assignOrDefer(instance, "chosen", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "chosen" : "chosen." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "chosen", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "chosen", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shown")) ? "shown" in obj : (__fields.keeps("shown") && obj["shown"] !== undefined)) {
-        const __raw_shown = obj["shown"] as NameShown;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shown")) ? "shown" in obj : (__fields.keeps("shown") && obj["shown"] !== undefined)) {
+                const __raw_shown = obj["shown"] as NameShown;
 
-        ctx.pushScope("shown");
-        try {
-            const __result = nameShownDecodeWithContext(__raw_shown, ctx);
-            ctx.assignOrDefer(instance, "shown", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "shown" : "shown." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("shown");
+                try {
+                    const __result = nameShownDecodeWithContext(__raw_shown, ctx);
+                    ctx.assignOrDefer(instance, "shown", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "shown" : "shown." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "shown", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "shown", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
-        const __raw_listed = obj["listed"] as NameShown[];
-        if (Array.isArray(__raw_listed)) {
-            ctx.pushScope("listed");
-            try {
-                instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => nameShownDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "listed" : "listed." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
+                const __raw_listed = obj["listed"] as NameShown[];
+                if (Array.isArray(__raw_listed)) {
+                    ctx.pushScope("listed");
+                    try {
+                        instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => nameShownDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "listed" : "listed." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "listed", message: __raw_listed == null ? "NameExported.listed is required" : "expected NameShown[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "listed", message: __raw_listed == null ? "NameExported.listed is required" : "expected NameShown[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as Chosen | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as Chosen | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = chosenDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
                 } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = chosenDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1092,7 +1170,7 @@ export function nameExportedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "chosen") && __mf_holds(obj, "shown") && __mf_holds(obj, "listed") && __mf_holds(obj, "maybe");
+    return __mf_holdsAll(obj, ["chosen", "shown", "listed", "maybe"]);
 }
 
 export function nameExportedIs(obj: unknown): obj is NameExported {
@@ -1163,10 +1241,17 @@ export function nameBarrelledClone(value: NameBarrelled): NameBarrelled {
 
 export function nameBarrelledEquals(a: NameBarrelled, b: NameBarrelled): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => nameBarrelModelEquals(a.model, b.model) && nameBarrelShownEquals(a.shown, b.shown) && barrelItemEquals(a.item, b.item) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
-	const __other0 = b.items[__index0];
-	return __other0 === undefined ? __item0 === undefined : barrelItemEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => nameBarrelModelEquals(a.model, b.model),
+            () => nameBarrelShownEquals(a.shown, b.shown),
+            () => barrelItemEquals(a.item, b.item),
+            () => a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+            	const __other0 = b.items[__index0];
+            	return __other0 === undefined ? __item0 === undefined : barrelItemEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function nameBarrelledHashCode(value: NameBarrelled): number {
@@ -1217,25 +1302,37 @@ export function nameBarrelledEncodePartialWithContext(value: Partial<NameBarrell
 }
 
 function nameBarrelledEncodeFields(value: NameBarrelled, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("model")) {
-        if (value.model !== undefined) {
-            result["model"] = nameBarrelModelEncodeWithContext(value.model, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shown")) {
-        if (value.shown !== undefined) {
-            result["shown"] = nameBarrelShownEncodeWithContext(value.shown, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = barrelItemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("items")) {
-        if (value.items !== undefined) {
-            result["items"] = value.items.map((__item0) => barrelItemEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("model")) {
+                if (value.model !== undefined) {
+                    result["model"] = nameBarrelModelEncodeWithContext(value.model, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shown")) {
+                if (value.shown !== undefined) {
+                    result["shown"] = nameBarrelShownEncodeWithContext(value.shown, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = barrelItemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("items")) {
+                if (value.items !== undefined) {
+                    result["items"] = value.items.map((__item0) => barrelItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1313,17 +1410,12 @@ export function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("model")) && !("model" in obj)) {
-        errors.push({ field: "model", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shown")) && !("shown" in obj)) {
-        errors.push({ field: "shown", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["model", "model"], ["shown", "shown"], ["item", "item"], ["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1334,98 +1426,110 @@ export function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("model")) ? "model" in obj : (__fields.keeps("model") && obj["model"] !== undefined)) {
-        const __raw_model = obj["model"] as NameBarrelModel;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("model")) ? "model" in obj : (__fields.keeps("model") && obj["model"] !== undefined)) {
+                const __raw_model = obj["model"] as NameBarrelModel;
 
-        ctx.pushScope("model");
-        try {
-            const __result = nameBarrelModelDecodeWithContext(__raw_model, ctx);
-            ctx.assignOrDefer(instance, "model", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "model" : "model." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("model");
+                try {
+                    const __result = nameBarrelModelDecodeWithContext(__raw_model, ctx);
+                    ctx.assignOrDefer(instance, "model", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "model" : "model." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "model", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "model", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shown")) ? "shown" in obj : (__fields.keeps("shown") && obj["shown"] !== undefined)) {
-        const __raw_shown = obj["shown"] as NameBarrelShown;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shown")) ? "shown" in obj : (__fields.keeps("shown") && obj["shown"] !== undefined)) {
+                const __raw_shown = obj["shown"] as NameBarrelShown;
 
-        ctx.pushScope("shown");
-        try {
-            const __result = nameBarrelShownDecodeWithContext(__raw_shown, ctx);
-            ctx.assignOrDefer(instance, "shown", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "shown" : "shown." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("shown");
+                try {
+                    const __result = nameBarrelShownDecodeWithContext(__raw_shown, ctx);
+                    ctx.assignOrDefer(instance, "shown", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "shown" : "shown." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "shown", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "shown", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as BarrelItem;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as BarrelItem;
 
-        ctx.pushScope("item");
-        try {
-            const __result = barrelItemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("item");
+                try {
+                    const __result = barrelItemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
-        const __raw_items = obj["items"] as BarrelItem[];
-        if (Array.isArray(__raw_items)) {
-            ctx.pushScope("items");
-            try {
-                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => barrelItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "items" : "items." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+                const __raw_items = obj["items"] as BarrelItem[];
+                if (Array.isArray(__raw_items)) {
+                    ctx.pushScope("items");
+                    try {
+                        instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => barrelItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "items" : "items." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "items", message: __raw_items == null ? "NameBarrelled.items is required" : "expected BarrelItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "items", message: __raw_items == null ? "NameBarrelled.items is required" : "expected BarrelItem[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1450,7 +1554,7 @@ export function nameBarrelledHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "model") && __mf_holds(obj, "shown") && __mf_holds(obj, "item") && __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["model", "shown", "item", "items"]);
 }
 
 export function nameBarrelledIs(obj: unknown): obj is NameBarrelled {
@@ -1515,10 +1619,15 @@ export function nameHandedClone(value: NameHanded): NameHanded {
 
 export function nameHandedEquals(a: NameHanded, b: NameHanded): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => nameBarrelHandedEquals(a.handed, b.handed) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
-	const __other0 = b.listed[__index0];
-	return __other0 === undefined ? __item0 === undefined : nameBarrelHandedEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => nameBarrelHandedEquals(a.handed, b.handed),
+            () => a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+            	const __other0 = b.listed[__index0];
+            	return __other0 === undefined ? __item0 === undefined : nameBarrelHandedEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function nameHandedHashCode(value: NameHanded): number {
@@ -1565,15 +1674,23 @@ export function nameHandedEncodePartialWithContext(value: Partial<NameHanded>, c
 }
 
 function nameHandedEncodeFields(value: NameHanded, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("handed")) {
-        if (value.handed !== undefined) {
-            result["handed"] = nameBarrelHandedEncodeWithContext(value.handed, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("listed")) {
-        if (value.listed !== undefined) {
-            result["listed"] = value.listed.map((__item0) => nameBarrelHandedEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("handed")) {
+                if (value.handed !== undefined) {
+                    result["handed"] = nameBarrelHandedEncodeWithContext(value.handed, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("listed")) {
+                if (value.listed !== undefined) {
+                    result["listed"] = value.listed.map((__item0) => nameBarrelHandedEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1651,11 +1768,12 @@ export function nameHandedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("handed")) && !("handed" in obj)) {
-        errors.push({ field: "handed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("listed")) && !("listed" in obj)) {
-        errors.push({ field: "listed", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["handed", "handed"], ["listed", "listed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1666,52 +1784,60 @@ export function nameHandedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("handed")) ? "handed" in obj : (__fields.keeps("handed") && obj["handed"] !== undefined)) {
-        const __raw_handed = obj["handed"] as NameBarrelHanded;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("handed")) ? "handed" in obj : (__fields.keeps("handed") && obj["handed"] !== undefined)) {
+                const __raw_handed = obj["handed"] as NameBarrelHanded;
 
-        ctx.pushScope("handed");
-        try {
-            const __result = nameBarrelHandedDecodeWithContext(__raw_handed, ctx);
-            ctx.assignOrDefer(instance, "handed", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "handed" : "handed." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("handed");
+                try {
+                    const __result = nameBarrelHandedDecodeWithContext(__raw_handed, ctx);
+                    ctx.assignOrDefer(instance, "handed", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "handed" : "handed." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "handed", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "handed", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
-        const __raw_listed = obj["listed"] as NameBarrelHanded[];
-        if (Array.isArray(__raw_listed)) {
-            ctx.pushScope("listed");
-            try {
-                instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => nameBarrelHandedDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "listed" : "listed." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("listed")) ? "listed" in obj : (__fields.keeps("listed") && obj["listed"] !== undefined)) {
+                const __raw_listed = obj["listed"] as NameBarrelHanded[];
+                if (Array.isArray(__raw_listed)) {
+                    ctx.pushScope("listed");
+                    try {
+                        instance.listed = __mf_decodeArray(__raw_listed, ctx, (__raw0) => nameBarrelHandedDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "listed" : "listed." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "listed", message: __raw_listed == null ? "NameHanded.listed is required" : "expected NameBarrelHanded[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "listed", message: __raw_listed == null ? "NameHanded.listed is required" : "expected NameBarrelHanded[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1736,7 +1862,7 @@ export function nameHandedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "handed") && __mf_holds(obj, "listed");
+    return __mf_holdsAll(obj, ["handed", "listed"]);
 }
 
 export function nameHandedIs(obj: unknown): obj is NameHanded {
@@ -2107,53 +2233,53 @@ export declare const NameHanded: {
 
 ## Mapping
 
-original 0..921 -> expanded 3732..4653
-original 921..1111 -> expanded 21480..21670
-original 1111..1310 -> expanded 37557..37756
-original 1310..1520 -> expanded 53884..54094
-original 1520..1686 -> expanded 70026..70192
-original 1686..1687 -> expanded 82828..82829
-generated 0..3732 <- imports
-generated 4653..5183 <- Debug
-generated 5183..5657 <- Clone
-generated 5657..6395 <- PartialEq
-generated 6395..7080 <- Hash
-generated 7080..7265 <- Default
-generated 7265..10183 <- Encode
-generated 10183..20013 <- Decode
-generated 20013..21480 <- __convenience_const
-generated 21670..22187 <- Debug
-generated 22187..22517 <- Clone
-generated 22517..23041 <- PartialEq
-generated 23041..23538 <- Hash
-generated 23538..23713 <- Default
-generated 23713..26544 <- Encode
-generated 26544..36090 <- Decode
-generated 36090..37557 <- __convenience_const
-generated 37756..38288 <- Debug
-generated 38288..38631 <- Clone
-generated 38631..39167 <- PartialEq
-generated 39167..39676 <- Hash
-generated 39676..39877 <- Default
-generated 39877..42742 <- Encode
-generated 42742..52386 <- Decode
-generated 52386..53884 <- __convenience_const
-generated 54094..54597 <- Debug
-generated 54597..54922 <- Clone
-generated 54922..55412 <- PartialEq
-generated 55412..55914 <- Hash
-generated 55914..56149 <- Default
-generated 56149..59007 <- Encode
-generated 59007..68497 <- Decode
-generated 68497..70026 <- __convenience_const
-generated 70192..70572 <- Debug
-generated 70572..70817 <- Clone
-generated 70817..71232 <- PartialEq
-generated 71232..71605 <- Hash
-generated 71605..71751 <- Default
-generated 71751..74188 <- Encode
-generated 74188..81392 <- Decode
-generated 81392..82828 <- __convenience_const
+original 0..921 -> expanded 3738..4659
+original 921..1111 -> expanded 22588..22778
+original 1111..1310 -> expanded 39709..39908
+original 1310..1520 -> expanded 57077..57287
+original 1520..1686 -> expanded 74233..74399
+original 1686..1687 -> expanded 87826..87827
+generated 0..3738 <- imports
+generated 4659..5189 <- Debug
+generated 5189..5663 <- Clone
+generated 5663..6598 <- PartialEq
+generated 6598..7283 <- Hash
+generated 7283..7468 <- Default
+generated 7468..10714 <- Encode
+generated 10714..21121 <- Decode
+generated 21121..22588 <- __convenience_const
+generated 22778..23295 <- Debug
+generated 23295..23625 <- Clone
+generated 23625..24310 <- PartialEq
+generated 24310..24807 <- Hash
+generated 24807..24982 <- Default
+generated 24982..28141 <- Encode
+generated 28141..38242 <- Decode
+generated 38242..39709 <- __convenience_const
+generated 39908..40440 <- Debug
+generated 40440..40783 <- Clone
+generated 40783..41480 <- PartialEq
+generated 41480..41989 <- Hash
+generated 41989..42190 <- Default
+generated 42190..45383 <- Encode
+generated 45383..55579 <- Decode
+generated 55579..57077 <- __convenience_const
+generated 57287..57790 <- Debug
+generated 57790..58115 <- Clone
+generated 58115..58768 <- PartialEq
+generated 58768..59270 <- Hash
+generated 59270..59505 <- Default
+generated 59505..62691 <- Encode
+generated 62691..72704 <- Decode
+generated 72704..74233 <- __convenience_const
+generated 74399..74779 <- Debug
+generated 74779..75024 <- Clone
+generated 75024..75570 <- PartialEq
+generated 75570..75943 <- Hash
+generated 75943..76089 <- Default
+generated 76089..78720 <- Encode
+generated 78720..86390 <- Decode
+generated 86390..87826 <- __convenience_const
 
 ## Metadata
 

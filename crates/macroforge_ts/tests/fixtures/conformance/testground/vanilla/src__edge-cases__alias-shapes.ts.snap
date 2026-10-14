@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemDecodePartialWithContext, edgeItemEncodePartialWithContext, edgeItemHasShape, edgeCardDecodeWithContext, edgeCardHasShape, edgeCardEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeBoolean as __mf_decodeBoolean, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeBoolean as __mf_decodeBoolean, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, notTheMember as __mf_notTheMember, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodedMember as __mf_decodedMember, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked, holds as __mf_holds } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Type aliases of every body a derive has to dispatch on: objects, tuples,
@@ -51,7 +51,13 @@ export function aliasObjectClone(value: AliasObject): AliasObject {
 
 export function aliasObjectEquals(a: AliasObject, b: AliasObject): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.name === b.name && (a.count === b.count || a.count !== a.count && b.count !== b.count) && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()));
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.name === b.name,
+        () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+        () => a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+    ].every((same) => same());
+});
 }
 
 export function aliasObjectHashCode(value: AliasObject): number {
@@ -67,29 +73,30 @@ export function aliasObjectHashCode(value: AliasObject): number {
 export function aliasObjectPartialCompare(a: AliasObject, b: AliasObject): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count || (a.count !== a.count && b.count !== b.count) ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) ? 0 : null));
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+        () => (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count || (a.count !== a.count && b.count !== b.count) ? 0 : null),
+        () => (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() || (a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) ? 0 : null)),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function aliasObjectCompare(a: AliasObject, b: AliasObject): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : a.count !== a.count ? b.count !== b.count ? 0 : 1 : -1;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : a.at.getTime() !== a.at.getTime() ? b.at.getTime() !== b.at.getTime() ? 0 : 1 : -1;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+        () => a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : a.count !== a.count ? b.count !== b.count ? 0 : 1 : -1,
+        () => a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : a.at.getTime() !== a.at.getTime() ? b.at.getTime() !== b.at.getTime() ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -128,20 +135,30 @@ export function aliasObjectEncodePartialWithContext(value: Partial<AliasObject>,
 }
 
 function aliasObjectEncodeFields(value: AliasObject, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -219,11 +236,12 @@ export function aliasObjectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["count", "count"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -234,37 +252,47 @@ export function aliasObjectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "AliasObject.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
-
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "count", message: __raw_count == null ? "AliasObject.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("at"))) {
-        if (("at" in obj && obj["at"] !== undefined)) {
-            const __raw_at = obj["at"] as string | Date;
-
-            {
-                const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-                if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                    errors.push({ field: "at", message: "expected Date" });
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "AliasObject.name is required" : "expected string" });
                 } else {
-                    instance.at = __dateVal;
+                    instance.name = __raw_name;
                 }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
+
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "AliasObject.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("at"))) {
+                if (("at" in obj && obj["at"] !== undefined)) {
+                    const __raw_at = obj["at"] as string | Date;
+
+                    {
+                        const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                        if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                            errors.push({ field: "at", message: "expected Date" });
+                        } else {
+                            instance.at = __dateVal;
+                        }
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -289,7 +317,7 @@ export function aliasObjectHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "count");
+    return __mf_holdsAll(obj, ["name", "count"]);
 }
 
 export function aliasObjectIs(obj: unknown): obj is AliasObject {
@@ -351,7 +379,10 @@ export function aliasTupleClone(value: AliasTuple): AliasTuple {
 
 export function aliasTupleEquals(a: AliasTuple, b: AliasTuple): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a[0], b[0]) && (a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime())) && a[2] === b[2];
+    if (!(__mf_structuralEquals(a[0], b[0]))) return false;
+    if (!((a[1].getTime() === b[1].getTime() || (a[1].getTime() !== a[1].getTime() && b[1].getTime() !== b[1].getTime())))) return false;
+    if (!(a[2] === b[2])) return false;
+    return true;
 }
 
 export function aliasTupleHashCode(value: AliasTuple): number {
@@ -378,9 +409,19 @@ export function aliasTupleEncodeWithContext(value: AliasTuple, ctx: __mf_EncodeC
     };
     return ((value: { e0: EdgeItem; e1: Date; e2: string | null }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result["e0"] = edgeItemEncodeWithContext(value.e0, ctx);
-        result["e1"] = value.e1.toISOString();
-        result["e2"] = value.e2;
+        for (const __part of [
+            () => {
+                result["e0"] = edgeItemEncodeWithContext(value.e0, ctx);
+            },
+            () => {
+                result["e1"] = value.e1.toISOString();
+            },
+            () => {
+                result["e2"] = value.e2;
+            },
+        ]) {
+            __part();
+        }
         const __tuple: unknown[] = [];
         __tuple.push(result["e0"] ?? null);
         __tuple.push(result["e1"] ?? null);
@@ -485,49 +526,59 @@ export function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as EdgeItem;
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as EdgeItem;
 
-        ctx.pushScope("0");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_e0, ctx);
-            ctx.assignOrDefer(instance, "e0", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "0" : "0." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("0");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_e0, ctx);
+                    ctx.assignOrDefer(instance, "e0", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "0" : "0." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ("1" in obj) {
-        const __raw_e1 = obj["1"] as string | Date;
+        },
+        () => {
+            if ("1" in obj) {
+                const __raw_e1 = obj["1"] as string | Date;
 
-        {
-            const __dateVal = (__raw_e1 instanceof Date ? __raw_e1 : typeof __raw_e1 === "string" ? new Date(__raw_e1) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "1", message: __raw_e1 == null ? "AliasTuple.1 is required" : "expected Date" });
-            } else {
-                instance.e1 = __dateVal;
+                {
+                    const __dateVal = (__raw_e1 instanceof Date ? __raw_e1 : typeof __raw_e1 === "string" ? new Date(__raw_e1) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "1", message: __raw_e1 == null ? "AliasTuple.1 is required" : "expected Date" });
+                    } else {
+                        instance.e1 = __dateVal;
+                    }
+                }
             }
-        }
-    }
-    if ("2" in obj) {
-        const __raw_e2 = obj["2"] as string | null;
+        },
+        () => {
+            if ("2" in obj) {
+                const __raw_e2 = obj["2"] as string | null;
 
-        if (!(typeof __raw_e2 === "string" || __raw_e2 === null)) {
-            errors.push({ field: "2", message: "expected string | null" });
-        } else {
-            instance.e2 = __raw_e2;
-        }
+                if (!(typeof __raw_e2 === "string" || __raw_e2 === null)) {
+                    errors.push({ field: "2", message: "expected string | null" });
+                } else {
+                    instance.e2 = __raw_e2;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -912,11 +963,21 @@ export function aliasRowEncodeWithContext(value: AliasRow): unknown {
     }
     return ((value: { e0: string; e1?: number | undefined; rest: boolean[] }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result["e0"] = value.e0;
-        if (value.e1 !== undefined) {
-            result["e1"] = value.e1;
+        for (const __part of [
+            () => {
+                result["e0"] = value.e0;
+            },
+            () => {
+                if (value.e1 !== undefined) {
+                    result["e1"] = value.e1;
+                }
+            },
+            () => {
+                result["rest"] = value.rest;
+            },
+        ]) {
+            __part();
         }
-        result["rest"] = value.rest;
         const __tuple: unknown[] = [];
         __tuple.push(result["e0"] ?? null);
         if ("e1" in value) {
@@ -1020,47 +1081,57 @@ export function aliasRowDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as string;
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as string;
 
-        if (!(typeof __raw_e0 === "string")) {
-            errors.push({ field: "0", message: __raw_e0 == null ? "AliasRow.0 is required" : "expected string" });
-        } else {
-            instance.e0 = __raw_e0;
-        }
-    }
-    if (("1" in obj && obj["1"] !== undefined)) {
-        const __raw_e1 = obj["1"] as number;
+                if (!(typeof __raw_e0 === "string")) {
+                    errors.push({ field: "0", message: __raw_e0 == null ? "AliasRow.0 is required" : "expected string" });
+                } else {
+                    instance.e0 = __raw_e0;
+                }
+            }
+        },
+        () => {
+            if (("1" in obj && obj["1"] !== undefined)) {
+                const __raw_e1 = obj["1"] as number;
 
-        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
-            errors.push({ field: "1", message: "expected number" });
-        } else {
-            instance.e1 = __raw_e1;
-        }
-    }
-    if ("rest" in obj) {
-        const __raw_rest = obj["rest"] as boolean[];
-        if (Array.isArray(__raw_rest)) {
-            ctx.pushScope("rest");
-            try {
-                instance.rest = __mf_decodeArray(__raw_rest, ctx, __mf_decodeBoolean);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "rest" : "rest." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
+                    errors.push({ field: "1", message: "expected number" });
+                } else {
+                    instance.e1 = __raw_e1;
+                }
+            }
+        },
+        () => {
+            if ("rest" in obj) {
+                const __raw_rest = obj["rest"] as boolean[];
+                if (Array.isArray(__raw_rest)) {
+                    ctx.pushScope("rest");
+                    try {
+                        instance.rest = __mf_decodeArray(__raw_rest, ctx, __mf_decodeBoolean);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "rest", message: __raw_rest == null ? "AliasRow.rest is required" : "expected boolean[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "rest", message: __raw_rest == null ? "AliasRow.rest is required" : "expected boolean[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1725,7 +1796,13 @@ export function aliasIntersectionClone(value: AliasIntersection): AliasIntersect
 
 export function aliasIntersectionEquals(a: AliasIntersection, b: AliasIntersection): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score) && a.extra === b.extra);
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.id === b.id,
+        () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        () => a.extra === b.extra,
+    ].every((same) => same());
+});
 }
 
 export function aliasIntersectionHashCode(value: AliasIntersection): number {
@@ -1766,20 +1843,30 @@ export function aliasIntersectionEncodePartialWithContext(value: Partial<AliasIn
 }
 
 function aliasIntersectionEncodeFields(value: AliasIntersection, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-        if (value.score !== undefined) {
-            result["score"] = value.score;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("extra")) {
-        if (value.extra !== undefined) {
-            result["extra"] = value.extra;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("extra")) {
+                if (value.extra !== undefined) {
+                    result["extra"] = value.extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1857,14 +1944,12 @@ export function aliasIntersectionDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
-        errors.push({ field: "extra", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["score", "score"], ["extra", "extra"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1875,32 +1960,42 @@ export function aliasIntersectionDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "AliasIntersection.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "AliasIntersection.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "AliasIntersection.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
-        const __raw_extra = obj["extra"] as string;
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "AliasIntersection.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+                const __raw_extra = obj["extra"] as string;
 
-        if (!(typeof __raw_extra === "string")) {
-            errors.push({ field: "extra", message: __raw_extra == null ? "AliasIntersection.extra is required" : "expected string" });
-        } else {
-            instance.extra = __raw_extra;
-        }
+                if (!(typeof __raw_extra === "string")) {
+                    errors.push({ field: "extra", message: __raw_extra == null ? "AliasIntersection.extra is required" : "expected string" });
+                } else {
+                    instance.extra = __raw_extra;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1925,7 +2020,7 @@ export function aliasIntersectionHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "score") && __mf_holds(obj, "extra");
+    return __mf_holdsAll(obj, ["id", "score", "extra"]);
 }
 
 export function aliasIntersectionIs(obj: unknown): obj is AliasIntersection {
@@ -1985,7 +2080,12 @@ export function aliasIntersectionOfObjectsClone(value: AliasIntersectionOfObject
 
 export function aliasIntersectionOfObjectsEquals(a: AliasIntersectionOfObjects, b: AliasIntersectionOfObjects): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.left === b.left && (a.right === b.right || a.right !== a.right && b.right !== b.right));
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.left === b.left,
+        () => a.right === b.right || a.right !== a.right && b.right !== b.right,
+    ].every((same) => same());
+});
 }
 
 export function aliasIntersectionOfObjectsHashCode(value: AliasIntersectionOfObjects): number {
@@ -2025,15 +2125,23 @@ export function aliasIntersectionOfObjectsEncodePartialWithContext(value: Partia
 }
 
 function aliasIntersectionOfObjectsEncodeFields(value: AliasIntersectionOfObjects, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("left")) {
-        if (value.left !== undefined) {
-            result["left"] = value.left;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("right")) {
-        if (value.right !== undefined) {
-            result["right"] = value.right;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("left")) {
+                if (value.left !== undefined) {
+                    result["left"] = value.left;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("right")) {
+                if (value.right !== undefined) {
+                    result["right"] = value.right;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2111,11 +2219,12 @@ export function aliasIntersectionOfObjectsDecodeWithContext(value: unknown, ctx:
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("left")) && !("left" in obj)) {
-        errors.push({ field: "left", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("right")) && !("right" in obj)) {
-        errors.push({ field: "right", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["left", "left"], ["right", "right"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2126,23 +2235,31 @@ export function aliasIntersectionOfObjectsDecodeWithContext(value: unknown, ctx:
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("left")) ? "left" in obj : (__fields.keeps("left") && obj["left"] !== undefined)) {
-        const __raw_left = obj["left"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("left")) ? "left" in obj : (__fields.keeps("left") && obj["left"] !== undefined)) {
+                const __raw_left = obj["left"] as string;
 
-        if (!(typeof __raw_left === "string")) {
-            errors.push({ field: "left", message: __raw_left == null ? "AliasIntersectionOfObjects.left is required" : "expected string" });
-        } else {
-            instance.left = __raw_left;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("right")) ? "right" in obj : (__fields.keeps("right") && obj["right"] !== undefined)) {
-        const __raw_right = obj["right"] as number;
+                if (!(typeof __raw_left === "string")) {
+                    errors.push({ field: "left", message: __raw_left == null ? "AliasIntersectionOfObjects.left is required" : "expected string" });
+                } else {
+                    instance.left = __raw_left;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("right")) ? "right" in obj : (__fields.keeps("right") && obj["right"] !== undefined)) {
+                const __raw_right = obj["right"] as number;
 
-        if (!(typeof __raw_right === "number" && globalThis.Number.isFinite(__raw_right))) {
-            errors.push({ field: "right", message: __raw_right == null ? "AliasIntersectionOfObjects.right is required" : "expected number" });
-        } else {
-            instance.right = __raw_right;
-        }
+                if (!(typeof __raw_right === "number" && globalThis.Number.isFinite(__raw_right))) {
+                    errors.push({ field: "right", message: __raw_right == null ? "AliasIntersectionOfObjects.right is required" : "expected number" });
+                } else {
+                    instance.right = __raw_right;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2167,7 +2284,7 @@ export function aliasIntersectionOfObjectsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "left") && __mf_holds(obj, "right");
+    return __mf_holdsAll(obj, ["left", "right"]);
 }
 
 export function aliasIntersectionOfObjectsIs(obj: unknown): obj is AliasIntersectionOfObjects {
@@ -2246,17 +2363,8 @@ export function aliasLiteralsEncode(value: AliasLiterals, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasLiteralsEncodeWithContext(value: AliasLiterals, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -2374,17 +2482,8 @@ export function aliasMixedLiteralsEncode(value: AliasMixedLiterals, keepMetadata
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasMixedLiteralsEncodeWithContext(value: AliasMixedLiterals, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -2536,22 +2635,12 @@ export function aliasNullableEncode(value: AliasNullable, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasNullableEncodeWithContext(value: AliasNullable, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasNullable): member is EdgeItem => __mf_member(member, "__type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasNullable): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -2738,22 +2827,12 @@ export function aliasOptionalEncode(value: AliasOptional, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasOptionalEncodeWithContext(value: AliasOptional, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasOptional): member is EdgeItem => __mf_member(member, "__type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasOptional): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -3079,17 +3158,8 @@ export function aliasDateOrNullEncode(value: AliasDateOrNull, keepMetadata?: boo
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasDateOrNullEncodeWithContext(value: AliasDateOrNull, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -3243,24 +3313,14 @@ export function aliasMembersEncode(value: AliasMembers, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasMembersEncodeWithContext(value: AliasMembers, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeCardHasShape(value)) { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasMembers): member is EdgeItem => __mf_member(member, "__type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasMembers): member is EdgeCard => __mf_member(member, "__type") === "EdgeCard", (member) => edgeCardEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasMembers): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasMembers): member is EdgeCard => typeof member === "object" && member !== null && !Array.isArray(member) && "title" in member && "items" in member, (member) => edgeCardEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -3461,38 +3521,64 @@ export function aliasTaggedEncode(value: AliasTagged, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasTaggedEncodeWithContext(value: AliasTagged, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "circle") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["radius"] = value.radius;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "square") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["side"] = value.side;
-        result["at"] = value.at.toISOString();
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "group") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["members"] = value.members.map((__item0) => aliasTaggedEncodeWithContext(__item0, ctx));
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: AliasTagged): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "circle")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["radius"] = value.radius;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: AliasTagged): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "square")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["side"] = value.side;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: AliasTagged): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "group")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["members"] = value.members.map((__item0) => aliasTaggedEncodeWithContext(__item0, ctx));
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -3570,14 +3656,14 @@ export function aliasTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if (typeof value === "object" && value !== null) {
         const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
-            if (__typeName === "circle") {
-                return { "kind": "circle", ...__mf_decodeObject(value, ctx, { radius: __mf_decodeNumber }) } as AliasTagged;
-            }
-            if (__typeName === "square") {
-                return { "kind": "square", ...__mf_decodeObject(value, ctx, { side: __mf_decodeNumber, at: __mf_decodeDate }) } as AliasTagged;
-            }
-            if (__typeName === "group") {
-                return { "kind": "group", ...__mf_decodeObject(value, ctx, { members: (__raw0) => __mf_decodeArray(__raw0, ctx, (__raw1) => aliasTaggedDecodeWithContext(__raw1, ctx)) }) } as AliasTagged;
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "circle" ? { "kind": "circle", ...__mf_decodeObject(value, ctx, { radius: __mf_decodeNumber }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "square" ? { "kind": "square", ...__mf_decodeObject(value, ctx, { side: __mf_decodeNumber, at: __mf_decodeDate }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "group" ? { "kind": "group", ...__mf_decodeObject(value, ctx, { members: (__raw0) => __mf_decodeArray(__raw0, ctx, (__raw1) => aliasTaggedDecodeWithContext(__raw1, ctx)) }) } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as AliasTagged;
             }
         }
     }
@@ -3673,24 +3759,14 @@ export function aliasAdjacentEncode(value: AliasAdjacent, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasAdjacentEncodeWithContext(value: AliasAdjacent, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeCardHasShape(value)) { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasAdjacent): member is EdgeItem => __mf_member(member, "type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasAdjacent): member is EdgeCard => __mf_member(member, "type") === "EdgeCard", (member) => edgeCardEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasAdjacent): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasAdjacent): member is EdgeCard => typeof member === "object" && member !== null && !Array.isArray(member) && "title" in member && "items" in member, (member) => edgeCardEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -3853,24 +3929,14 @@ export function aliasExternalEncode(value: AliasExternal, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasExternalEncodeWithContext(value: AliasExternal, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeCardHasShape(value)) { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasExternal): member is EdgeItem => __mf_member(member, "__type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasExternal): member is EdgeCard => __mf_member(member, "__type") === "EdgeCard", (member) => edgeCardEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasExternal): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasExternal): member is EdgeCard => typeof member === "object" && member !== null && !Array.isArray(member) && "title" in member && "items" in member, (member) => edgeCardEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -4047,24 +4113,14 @@ export function aliasUntaggedEncode(value: AliasUntagged, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasUntaggedEncodeWithContext(value: AliasUntagged, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "EdgeCard") { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeCardHasShape(value)) { __variant = edgeCardEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasUntagged): member is EdgeItem => __mf_member(member, "__type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasUntagged): member is EdgeCard => __mf_member(member, "__type") === "EdgeCard", (member) => edgeCardEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasUntagged): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasUntagged): member is EdgeCard => typeof member === "object" && member !== null && !Array.isArray(member) && "title" in member && "items" in member, (member) => edgeCardEncodeWithContext(member, ctx)),
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -4219,24 +4275,14 @@ export function aliasDeepEncode(value: AliasDeep, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "EdgeItem") { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "AliasArray") { __variant = aliasArrayEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && edgeItemHasShape(value)) { __variant = edgeItemEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && aliasArrayHasShape(value)) { __variant = aliasArrayEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AliasDeep): member is EdgeItem => __mf_member(member, "__type") === "EdgeItem", (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasDeep): member is AliasArray => __mf_member(member, "__type") === "AliasArray", (member) => aliasArrayEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasDeep): member is EdgeItem => typeof member === "object" && member !== null && !Array.isArray(member) && "id" in member && "score" in member, (member) => edgeItemEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AliasDeep): member is AliasArray => aliasArrayHasShape(member), (member) => aliasArrayEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -4486,10 +4532,26 @@ export function aliasOperatorsClone(value: AliasOperators): AliasOperators {
 
 export function aliasOperatorsEquals(a: AliasOperators, b: AliasOperators): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.indexed, b.indexed) && __mf_structuralEquals(a.keys, b.keys) && a.template === b.template && a.literal === b.literal && a.truth === b.truth && (a.zero === b.zero || a.zero !== a.zero && b.zero !== b.zero) && __mf_structuralEquals(a.anything, b.anything) && __mf_structuralEquals(a.structure, b.structure) && __mf_structuralEquals(a.required, b.required) && __mf_structuralEquals(a.readonlyItem, b.readonlyItem) && __mf_structuralEquals(a.nonNull, b.nonNull) && __mf_structuralEquals(a.inline, b.inline) && a.inlineList.length === b.inlineList.length && a.inlineList.every((__item0, __index0) => {
-	const __other0 = b.inlineList[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.indexed, b.indexed),
+            () => __mf_structuralEquals(a.keys, b.keys),
+            () => a.template === b.template,
+            () => a.literal === b.literal,
+            () => a.truth === b.truth,
+            () => a.zero === b.zero || a.zero !== a.zero && b.zero !== b.zero,
+            () => __mf_structuralEquals(a.anything, b.anything),
+            () => __mf_structuralEquals(a.structure, b.structure),
+            () => __mf_structuralEquals(a.required, b.required),
+            () => __mf_structuralEquals(a.readonlyItem, b.readonlyItem),
+            () => __mf_structuralEquals(a.nonNull, b.nonNull),
+            () => __mf_structuralEquals(a.inline, b.inline),
+            () => a.inlineList.length === b.inlineList.length && a.inlineList.every((__item0, __index0) => {
+            	const __other0 = b.inlineList[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function aliasOperatorsHashCode(value: AliasOperators): number {
@@ -4540,70 +4602,100 @@ export function aliasOperatorsEncodePartialWithContext(value: Partial<AliasOpera
 }
 
 function aliasOperatorsEncodeFields(value: AliasOperators, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("indexed")) {
-        if (value.indexed !== undefined) {
-            result["indexed"] = value.indexed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("keys")) {
-        if (value.keys !== undefined) {
-            result["keys"] = value.keys;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("template")) {
-        if (value.template !== undefined) {
-            result["template"] = value.template;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("literal")) {
-        if (value.literal !== undefined) {
-            result["literal"] = value.literal;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("truth")) {
-        if (value.truth !== undefined) {
-            result["truth"] = value.truth;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("zero")) {
-        if (value.zero !== undefined) {
-            result["zero"] = value.zero;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("anything")) {
-        if (value.anything !== undefined) {
-            result["anything"] = value.anything;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("structure")) {
-        if (value.structure !== undefined) {
-            result["structure"] = value.structure;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("required")) {
-        if (value.required !== undefined) {
-            result["required"] = aliasObjectEncodeWithContext(value.required, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readonlyItem")) {
-        if (value.readonlyItem !== undefined) {
-            result["readonlyItem"] = edgeItemEncodeWithContext(value.readonlyItem, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nonNull")) {
-        if (value.nonNull !== undefined) {
-            result["nonNull"] = edgeItemEncodeWithContext(value.nonNull, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inline")) {
-        if (value.inline !== undefined) {
-            result["inline"] = ({ ...value.inline, nested: ({ ...value.inline.nested, at: value.inline.nested.at.toISOString(), item: edgeItemEncodeWithContext(value.inline.nested.item, ctx) }) });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inlineList")) {
-        if (value.inlineList !== undefined) {
-            result["inlineList"] = value.inlineList;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("indexed")) {
+                if (value.indexed !== undefined) {
+                    result["indexed"] = value.indexed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("keys")) {
+                if (value.keys !== undefined) {
+                    result["keys"] = value.keys;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("template")) {
+                if (value.template !== undefined) {
+                    result["template"] = value.template;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("literal")) {
+                if (value.literal !== undefined) {
+                    result["literal"] = value.literal;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("truth")) {
+                if (value.truth !== undefined) {
+                    result["truth"] = value.truth;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("zero")) {
+                if (value.zero !== undefined) {
+                    result["zero"] = value.zero;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("anything")) {
+                if (value.anything !== undefined) {
+                    result["anything"] = value.anything;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("structure")) {
+                if (value.structure !== undefined) {
+                    result["structure"] = value.structure;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("required")) {
+                if (value.required !== undefined) {
+                    result["required"] = aliasObjectEncodeWithContext(value.required, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readonlyItem")) {
+                if (value.readonlyItem !== undefined) {
+                    result["readonlyItem"] = edgeItemEncodeWithContext(value.readonlyItem, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nonNull")) {
+                if (value.nonNull !== undefined) {
+                    result["nonNull"] = edgeItemEncodeWithContext(value.nonNull, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inline")) {
+                if (value.inline !== undefined) {
+                    result["inline"] = ({ ...value.inline, nested: ({ ...value.inline.nested, at: value.inline.nested.at.toISOString(), item: edgeItemEncodeWithContext(value.inline.nested.item, ctx) }) });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inlineList")) {
+                if (value.inlineList !== undefined) {
+                    result["inlineList"] = value.inlineList;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -4681,44 +4773,12 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("indexed")) && !("indexed" in obj)) {
-        errors.push({ field: "indexed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("keys")) && !("keys" in obj)) {
-        errors.push({ field: "keys", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("template")) && !("template" in obj)) {
-        errors.push({ field: "template", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("literal")) && !("literal" in obj)) {
-        errors.push({ field: "literal", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("truth")) && !("truth" in obj)) {
-        errors.push({ field: "truth", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("zero")) && !("zero" in obj)) {
-        errors.push({ field: "zero", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("anything")) && !("anything" in obj)) {
-        errors.push({ field: "anything", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("structure")) && !("structure" in obj)) {
-        errors.push({ field: "structure", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
-        errors.push({ field: "required", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("readonlyItem")) && !("readonlyItem" in obj)) {
-        errors.push({ field: "readonlyItem", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nonNull")) && !("nonNull" in obj)) {
-        errors.push({ field: "nonNull", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("inline")) && !("inline" in obj)) {
-        errors.push({ field: "inline", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("inlineList")) && !("inlineList" in obj)) {
-        errors.push({ field: "inlineList", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["indexed", "indexed"], ["keys", "keys"], ["template", "template"], ["literal", "literal"], ["truth", "truth"], ["zero", "zero"], ["anything", "anything"], ["structure", "structure"], ["required", "required"], ["readonlyItem", "readonlyItem"], ["nonNull", "nonNull"], ["inline", "inline"], ["inlineList", "inlineList"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -4729,190 +4789,220 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("indexed")) ? "indexed" in obj : (__fields.keeps("indexed") && obj["indexed"] !== undefined)) {
-        const __raw_indexed = obj["indexed"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("indexed")) ? "indexed" in obj : (__fields.keeps("indexed") && obj["indexed"] !== undefined)) {
+                const __raw_indexed = obj["indexed"] as string;
 
-        if (!(typeof __raw_indexed === "string")) {
-            errors.push({ field: "indexed", message: __raw_indexed == null ? "AliasOperators.indexed is required" : "expected string" });
-        } else {
-            instance.indexed = __raw_indexed;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("keys")) ? "keys" in obj : (__fields.keeps("keys") && obj["keys"] !== undefined)) {
-        const __raw_keys = obj["keys"] as "id" | "score";
-
-        if (!(__raw_keys === "id" || __raw_keys === "score")) {
-            errors.push({ field: "keys", message: __raw_keys == null ? "AliasOperators.keys is required" : "expected \"id\" | \"score\"" });
-        } else {
-            instance.keys = __raw_keys;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("template")) ? "template" in obj : (__fields.keeps("template") && obj["template"] !== undefined)) {
-        const __raw_template = obj["template"] as `item-${number}`;
-
-        if (!__mf_spellsTemplate(__raw_template, ["item-", ""], ["number"])) {
-            errors.push({ field: "template", message: __raw_template == null ? "AliasOperators.template is required" : "expected `item-${number}`" });
-        } else {
-            instance.template = __raw_template;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("literal")) ? "literal" in obj : (__fields.keeps("literal") && obj["literal"] !== undefined)) {
-        const __raw_literal = obj["literal"] as 'fixed';
-
-        if (!(__raw_literal === "fixed")) {
-            errors.push({ field: "literal", message: __raw_literal == null ? "AliasOperators.literal is required" : "expected 'fixed'" });
-        } else {
-            instance.literal = __raw_literal;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("truth")) ? "truth" in obj : (__fields.keeps("truth") && obj["truth"] !== undefined)) {
-        const __raw_truth = obj["truth"] as true;
-
-        if (!(__raw_truth === true)) {
-            errors.push({ field: "truth", message: __raw_truth == null ? "AliasOperators.truth is required" : "expected true" });
-        } else {
-            instance.truth = __raw_truth;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("zero")) ? "zero" in obj : (__fields.keeps("zero") && obj["zero"] !== undefined)) {
-        const __raw_zero = obj["zero"] as 0;
-
-        if (!(__raw_zero === 0)) {
-            errors.push({ field: "zero", message: __raw_zero == null ? "AliasOperators.zero is required" : "expected 0" });
-        } else {
-            instance.zero = __raw_zero;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("anything")) ? "anything" in obj : (__fields.keeps("anything") && obj["anything"] !== undefined)) {
-        const __raw_anything = obj["anything"] as unknown;
-
-        instance.anything = __raw_anything;
-    }
-    if ((__fields === undefined || __fields.requires("structure")) ? "structure" in obj : (__fields.keeps("structure") && obj["structure"] !== undefined)) {
-        const __raw_structure = obj["structure"] as object;
-
-        if (!(typeof __raw_structure === "object" && __raw_structure !== null)) {
-            errors.push({ field: "structure", message: __raw_structure == null ? "AliasOperators.structure is required" : "expected object" });
-        } else {
-            instance.structure = __raw_structure;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
-        const __raw_required = obj["required"] as Required<AliasObject>;
-
-        ctx.pushScope("required");
-        try {
-            const __result = aliasObjectDecodeWithContext(__mf_requireKeys(__raw_required, ctx, [["at", "at"]]), ctx);
-            ctx.assignOrDefer(instance, "required", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "required" : "required." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_indexed === "string")) {
+                    errors.push({ field: "indexed", message: __raw_indexed == null ? "AliasOperators.indexed is required" : "expected string" });
+                } else {
+                    instance.indexed = __raw_indexed;
                 }
-            } else {
-
-                errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readonlyItem")) ? "readonlyItem" in obj : (__fields.keeps("readonlyItem") && obj["readonlyItem"] !== undefined)) {
-        const __raw_readonlyItem = obj["readonlyItem"] as Readonly<EdgeItem>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("keys")) ? "keys" in obj : (__fields.keeps("keys") && obj["keys"] !== undefined)) {
+                const __raw_keys = obj["keys"] as "id" | "score";
 
-        ctx.pushScope("readonlyItem");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_readonlyItem, ctx);
-            ctx.assignOrDefer(instance, "readonlyItem", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "readonlyItem" : "readonlyItem." + __err.field,
-                        message: __err.message
-                    });
+                if (!(__raw_keys === "id" || __raw_keys === "score")) {
+                    errors.push({ field: "keys", message: __raw_keys == null ? "AliasOperators.keys is required" : "expected \"id\" | \"score\"" });
+                } else {
+                    instance.keys = __raw_keys;
                 }
-            } else {
-
-                errors.push({ field: "readonlyItem", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nonNull")) ? "nonNull" in obj : (__fields.keeps("nonNull") && obj["nonNull"] !== undefined)) {
-        const __raw_nonNull = obj["nonNull"] as EdgeItem;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("template")) ? "template" in obj : (__fields.keeps("template") && obj["template"] !== undefined)) {
+                const __raw_template = obj["template"] as `item-${number}`;
 
-        ctx.pushScope("nonNull");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_nonNull, ctx);
-            ctx.assignOrDefer(instance, "nonNull", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "nonNull" : "nonNull." + __err.field,
-                        message: __err.message
-                    });
+                if (!__mf_spellsTemplate(__raw_template, ["item-", ""], ["number"])) {
+                    errors.push({ field: "template", message: __raw_template == null ? "AliasOperators.template is required" : "expected `item-${number}`" });
+                } else {
+                    instance.template = __raw_template;
                 }
-            } else {
-
-                errors.push({ field: "nonNull", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
-        const __raw_inline = obj["inline"] as { x: number; nested: { at: Date; item: EdgeItem } };
-        if (typeof __raw_inline === "object" && __raw_inline !== null) {
-            ctx.pushScope("inline");
-            try {
-                instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber, nested: (__raw0) => (__mf_decodeObject(__raw0, ctx, { at: __mf_decodeDate, item: (__raw1) => edgeItemDecodeWithContext(__raw1, ctx) }) as { at: Date; item: EdgeItem }) }) as { x: number; nested: { at: Date; item: EdgeItem } });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "inline" : "inline." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("literal")) ? "literal" in obj : (__fields.keeps("literal") && obj["literal"] !== undefined)) {
+                const __raw_literal = obj["literal"] as 'fixed';
+
+                if (!(__raw_literal === "fixed")) {
+                    errors.push({ field: "literal", message: __raw_literal == null ? "AliasOperators.literal is required" : "expected 'fixed'" });
+                } else {
+                    instance.literal = __raw_literal;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("truth")) ? "truth" in obj : (__fields.keeps("truth") && obj["truth"] !== undefined)) {
+                const __raw_truth = obj["truth"] as true;
+
+                if (!(__raw_truth === true)) {
+                    errors.push({ field: "truth", message: __raw_truth == null ? "AliasOperators.truth is required" : "expected true" });
+                } else {
+                    instance.truth = __raw_truth;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("zero")) ? "zero" in obj : (__fields.keeps("zero") && obj["zero"] !== undefined)) {
+                const __raw_zero = obj["zero"] as 0;
+
+                if (!(__raw_zero === 0)) {
+                    errors.push({ field: "zero", message: __raw_zero == null ? "AliasOperators.zero is required" : "expected 0" });
+                } else {
+                    instance.zero = __raw_zero;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("anything")) ? "anything" in obj : (__fields.keeps("anything") && obj["anything"] !== undefined)) {
+                const __raw_anything = obj["anything"] as unknown;
+
+                instance.anything = __raw_anything;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("structure")) ? "structure" in obj : (__fields.keeps("structure") && obj["structure"] !== undefined)) {
+                const __raw_structure = obj["structure"] as object;
+
+                if (!(typeof __raw_structure === "object" && __raw_structure !== null)) {
+                    errors.push({ field: "structure", message: __raw_structure == null ? "AliasOperators.structure is required" : "expected object" });
+                } else {
+                    instance.structure = __raw_structure;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
+                const __raw_required = obj["required"] as Required<AliasObject>;
+
+                ctx.pushScope("required");
+                try {
+                    const __result = aliasObjectDecodeWithContext(__mf_requireKeys(__raw_required, ctx, [["at", "at"]]), ctx);
+                    ctx.assignOrDefer(instance, "required", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "required" : "required." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readonlyItem")) ? "readonlyItem" in obj : (__fields.keeps("readonlyItem") && obj["readonlyItem"] !== undefined)) {
+                const __raw_readonlyItem = obj["readonlyItem"] as Readonly<EdgeItem>;
+
+                ctx.pushScope("readonlyItem");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_readonlyItem, ctx);
+                    ctx.assignOrDefer(instance, "readonlyItem", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "readonlyItem" : "readonlyItem." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "readonlyItem", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nonNull")) ? "nonNull" in obj : (__fields.keeps("nonNull") && obj["nonNull"] !== undefined)) {
+                const __raw_nonNull = obj["nonNull"] as EdgeItem;
+
+                ctx.pushScope("nonNull");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_nonNull, ctx);
+                    ctx.assignOrDefer(instance, "nonNull", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "nonNull" : "nonNull." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "nonNull", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+                const __raw_inline = obj["inline"] as { x: number; nested: { at: Date; item: EdgeItem } };
+                if (typeof __raw_inline === "object" && __raw_inline !== null) {
+                    ctx.pushScope("inline");
+                    try {
+                        instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber, nested: (__raw0) => (__mf_decodeObject(__raw0, ctx, { at: __mf_decodeDate, item: (__raw1) => edgeItemDecodeWithContext(__raw1, ctx) }) as { at: Date; item: EdgeItem }) }) as { x: number; nested: { at: Date; item: EdgeItem } });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "inline" : "inline." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "inline", message: __raw_inline == null ? "AliasOperators.inline is required" : "expected { x: number; nested: { at: Date; item: EdgeItem } }" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "inline", message: __raw_inline == null ? "AliasOperators.inline is required" : "expected { x: number; nested: { at: Date; item: EdgeItem } }" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("inlineList")) ? "inlineList" in obj : (__fields.keeps("inlineList") && obj["inlineList"] !== undefined)) {
-        const __raw_inlineList = obj["inlineList"] as { id: string }[];
-        if (Array.isArray(__raw_inlineList)) {
-            ctx.pushScope("inlineList");
-            try {
-                instance.inlineList = __mf_decodeArray(__raw_inlineList, ctx, (__raw0) => (__mf_decodeObject(__raw0, ctx, { id: __mf_decodeString }) as { id: string }));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "inlineList" : "inlineList." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("inlineList")) ? "inlineList" in obj : (__fields.keeps("inlineList") && obj["inlineList"] !== undefined)) {
+                const __raw_inlineList = obj["inlineList"] as { id: string }[];
+                if (Array.isArray(__raw_inlineList)) {
+                    ctx.pushScope("inlineList");
+                    try {
+                        instance.inlineList = __mf_decodeArray(__raw_inlineList, ctx, (__raw0) => (__mf_decodeObject(__raw0, ctx, { id: __mf_decodeString }) as { id: string }));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "inlineList" : "inlineList." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "inlineList", message: __raw_inlineList == null ? "AliasOperators.inlineList is required" : "expected { id: string }[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "inlineList", message: __raw_inlineList == null ? "AliasOperators.inlineList is required" : "expected { id: string }[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -4937,7 +5027,7 @@ export function aliasOperatorsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "indexed") && __mf_holds(obj, "keys") && __mf_holds(obj, "template") && __mf_holds(obj, "literal") && __mf_holds(obj, "truth") && __mf_holds(obj, "zero") && __mf_holds(obj, "anything") && __mf_holds(obj, "structure") && __mf_holds(obj, "required") && __mf_holds(obj, "readonlyItem") && __mf_holds(obj, "nonNull") && __mf_holds(obj, "inline") && __mf_holds(obj, "inlineList");
+    return __mf_holdsAll(obj, ["indexed", "keys", "template", "literal", "truth", "zero", "anything", "structure", "required", "readonlyItem", "nonNull", "inline", "inlineList"]);
 }
 
 export function aliasOperatorsIs(obj: unknown): obj is AliasOperators {
@@ -5023,16 +5113,28 @@ export function aliasHolderClone(value: AliasHolder): AliasHolder {
 
 export function aliasHolderEquals(a: AliasHolder, b: AliasHolder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => aliasObjectEquals(a.object, b.object) && aliasLiteralsEquals(a.size, b.size) && a.sizes.length === b.sizes.length && a.sizes.every((__item0, __index0) => {
-	const __other0 = b.sizes[__index0];
-	return __other0 === undefined ? __item0 === undefined : aliasLiteralsEquals(__item0, __other0);
-}) && (a.shape == null || b.shape == null ? a.shape === b.shape : aliasTaggedEquals(a.shape, b.shape)) && a.shapes.length === b.shapes.length && a.shapes.every((__item0, __index0) => {
-	const __other0 = b.shapes[__index0];
-	return __other0 === undefined ? __item0 === undefined : aliasTaggedEquals(__item0, __other0);
-}) && (a.tuple == null || b.tuple == null ? a.tuple === b.tuple : aliasTupleEquals(a.tuple, b.tuple)) && aliasArrayEquals(a.list, b.list) && aliasRecordEquals(a.table, b.table) && a.members.length === b.members.length && a.members.every((__item0, __index0) => {
-	const __other0 = b.members[__index0];
-	return __other0 === undefined ? __item0 === undefined : aliasMembersEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => aliasObjectEquals(a.object, b.object),
+            () => aliasLiteralsEquals(a.size, b.size),
+            () => a.sizes.length === b.sizes.length && a.sizes.every((__item0, __index0) => {
+            	const __other0 = b.sizes[__index0];
+            	return __other0 === undefined ? __item0 === undefined : aliasLiteralsEquals(__item0, __other0);
+            }),
+            () => a.shape == null || b.shape == null ? a.shape === b.shape : aliasTaggedEquals(a.shape, b.shape),
+            () => a.shapes.length === b.shapes.length && a.shapes.every((__item0, __index0) => {
+            	const __other0 = b.shapes[__index0];
+            	return __other0 === undefined ? __item0 === undefined : aliasTaggedEquals(__item0, __other0);
+            }),
+            () => a.tuple == null || b.tuple == null ? a.tuple === b.tuple : aliasTupleEquals(a.tuple, b.tuple),
+            () => aliasArrayEquals(a.list, b.list),
+            () => aliasRecordEquals(a.table, b.table),
+            () => a.members.length === b.members.length && a.members.every((__item0, __index0) => {
+            	const __other0 = b.members[__index0];
+            	return __other0 === undefined ? __item0 === undefined : aliasMembersEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function aliasHolderHashCode(value: AliasHolder): number {
@@ -5093,50 +5195,72 @@ export function aliasHolderEncodePartialWithContext(value: Partial<AliasHolder>,
 }
 
 function aliasHolderEncodeFields(value: AliasHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("object")) {
-        if (value.object !== undefined) {
-            result["object"] = aliasObjectEncodeWithContext(value.object, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("size")) {
-        if (value.size !== undefined) {
-            result["size"] = aliasLiteralsEncodeWithContext(value.size, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("sizes")) {
-        if (value.sizes !== undefined) {
-            result["sizes"] = value.sizes.map((__item0) => aliasLiteralsEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shape")) {
-        if (value.shape !== undefined) {
-            result["shape"] = value.shape === null ? null : aliasTaggedEncodeWithContext(value.shape, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shapes")) {
-        if (value.shapes !== undefined) {
-            result["shapes"] = value.shapes.map((__item0) => aliasTaggedEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tuple")) {
-        if (value.tuple !== undefined) {
-            result["tuple"] = value.tuple === null ? null : aliasTupleEncodeWithContext(value.tuple, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = aliasArrayEncodeWithContext(value.list, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("table")) {
-        if (value.table !== undefined) {
-            result["table"] = aliasRecordEncodeWithContext(value.table, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("members")) {
-        if (value.members !== undefined) {
-            result["members"] = value.members.map((__item0) => aliasMembersEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("object")) {
+                if (value.object !== undefined) {
+                    result["object"] = aliasObjectEncodeWithContext(value.object, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("size")) {
+                if (value.size !== undefined) {
+                    result["size"] = aliasLiteralsEncodeWithContext(value.size, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sizes")) {
+                if (value.sizes !== undefined) {
+                    result["sizes"] = value.sizes.map((__item0) => aliasLiteralsEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shape")) {
+                if (value.shape !== undefined) {
+                    result["shape"] = value.shape === null ? null : aliasTaggedEncodeWithContext(value.shape, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shapes")) {
+                if (value.shapes !== undefined) {
+                    result["shapes"] = value.shapes.map((__item0) => aliasTaggedEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tuple")) {
+                if (value.tuple !== undefined) {
+                    result["tuple"] = value.tuple === null ? null : aliasTupleEncodeWithContext(value.tuple, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = aliasArrayEncodeWithContext(value.list, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("table")) {
+                if (value.table !== undefined) {
+                    result["table"] = aliasRecordEncodeWithContext(value.table, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("members")) {
+                if (value.members !== undefined) {
+                    result["members"] = value.members.map((__item0) => aliasMembersEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -5214,32 +5338,12 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("object")) && !("object" in obj)) {
-        errors.push({ field: "object", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
-        errors.push({ field: "size", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("sizes")) && !("sizes" in obj)) {
-        errors.push({ field: "sizes", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shape")) && !("shape" in obj)) {
-        errors.push({ field: "shape", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shapes")) && !("shapes" in obj)) {
-        errors.push({ field: "shapes", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tuple")) && !("tuple" in obj)) {
-        errors.push({ field: "tuple", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("table")) && !("table" in obj)) {
-        errors.push({ field: "table", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("members")) && !("members" in obj)) {
-        errors.push({ field: "members", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["object", "object"], ["size", "size"], ["sizes", "sizes"], ["shape", "shape"], ["shapes", "shapes"], ["tuple", "tuple"], ["list", "list"], ["table", "table"], ["members", "members"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -5250,223 +5354,245 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("object")) ? "object" in obj : (__fields.keeps("object") && obj["object"] !== undefined)) {
-        const __raw_object = obj["object"] as AliasObject;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("object")) ? "object" in obj : (__fields.keeps("object") && obj["object"] !== undefined)) {
+                const __raw_object = obj["object"] as AliasObject;
 
-        ctx.pushScope("object");
-        try {
-            const __result = aliasObjectDecodeWithContext(__raw_object, ctx);
-            ctx.assignOrDefer(instance, "object", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "object" : "object." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("object");
+                try {
+                    const __result = aliasObjectDecodeWithContext(__raw_object, ctx);
+                    ctx.assignOrDefer(instance, "object", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "object" : "object." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "object", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "object", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
-        const __raw_size = obj["size"] as AliasLiterals;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+                const __raw_size = obj["size"] as AliasLiterals;
 
-        ctx.pushScope("size");
-        try {
-            const __result = aliasLiteralsDecodeWithContext(__raw_size, ctx);
-            ctx.assignOrDefer(instance, "size", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "size" : "size." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("size");
+                try {
+                    const __result = aliasLiteralsDecodeWithContext(__raw_size, ctx);
+                    ctx.assignOrDefer(instance, "size", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "size" : "size." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "size", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "size", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("sizes")) ? "sizes" in obj : (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
-        const __raw_sizes = obj["sizes"] as AliasLiterals[];
-        if (Array.isArray(__raw_sizes)) {
-            ctx.pushScope("sizes");
-            try {
-                instance.sizes = __mf_decodeArray(__raw_sizes, ctx, (__raw0) => aliasLiteralsDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "sizes" : "sizes." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sizes")) ? "sizes" in obj : (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
+                const __raw_sizes = obj["sizes"] as AliasLiterals[];
+                if (Array.isArray(__raw_sizes)) {
+                    ctx.pushScope("sizes");
+                    try {
+                        instance.sizes = __mf_decodeArray(__raw_sizes, ctx, (__raw0) => aliasLiteralsDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "sizes" : "sizes." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "sizes", message: __raw_sizes == null ? "AliasHolder.sizes is required" : "expected AliasLiterals[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "sizes", message: __raw_sizes == null ? "AliasHolder.sizes is required" : "expected AliasLiterals[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
-        const __raw_shape = obj["shape"] as AliasTagged | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
+                const __raw_shape = obj["shape"] as AliasTagged | null;
 
-        if (__raw_shape === null) {
-            instance.shape = null;
-        } else {
-            ctx.pushScope("shape");
-            try {
-                const __result = aliasTaggedDecodeWithContext(__raw_shape, ctx);
-                ctx.assignOrDefer(instance, "shape", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "shape" : "shape." + __err.field,
-                            message: __err.message
-                        });
+                if (__raw_shape === null) {
+                    instance.shape = null;
+                } else {
+                    ctx.pushScope("shape");
+                    try {
+                        const __result = aliasTaggedDecodeWithContext(__raw_shape, ctx);
+                        ctx.assignOrDefer(instance, "shape", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "shape" : "shape." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shapes")) ? "shapes" in obj : (__fields.keeps("shapes") && obj["shapes"] !== undefined)) {
+                const __raw_shapes = obj["shapes"] as AliasTagged[];
+                if (Array.isArray(__raw_shapes)) {
+                    ctx.pushScope("shapes");
+                    try {
+                        instance.shapes = __mf_decodeArray(__raw_shapes, ctx, (__raw0) => aliasTaggedDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "shapes" : "shapes." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "shapes", message: __raw_shapes == null ? "AliasHolder.shapes is required" : "expected AliasTagged[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shapes")) ? "shapes" in obj : (__fields.keeps("shapes") && obj["shapes"] !== undefined)) {
-        const __raw_shapes = obj["shapes"] as AliasTagged[];
-        if (Array.isArray(__raw_shapes)) {
-            ctx.pushScope("shapes");
-            try {
-                instance.shapes = __mf_decodeArray(__raw_shapes, ctx, (__raw0) => aliasTaggedDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "shapes" : "shapes." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tuple")) ? "tuple" in obj : (__fields.keeps("tuple") && obj["tuple"] !== undefined)) {
+                const __raw_tuple = obj["tuple"] as AliasTuple | null;
+
+                if (__raw_tuple === null) {
+                    instance.tuple = null;
+                } else {
+                    ctx.pushScope("tuple");
+                    try {
+                        const __result = aliasTupleDecodeWithContext(__raw_tuple, ctx);
+                        ctx.assignOrDefer(instance, "tuple", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tuple" : "tuple." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "tuple", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as AliasArray;
+
+                ctx.pushScope("list");
+                try {
+                    const __result = aliasArrayDecodeWithContext(__raw_list, ctx);
+                    ctx.assignOrDefer(instance, "list", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "list", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("table")) ? "table" in obj : (__fields.keeps("table") && obj["table"] !== undefined)) {
+                const __raw_table = obj["table"] as AliasRecord;
+
+                ctx.pushScope("table");
+                try {
+                    const __result = aliasRecordDecodeWithContext(__raw_table, ctx);
+                    ctx.assignOrDefer(instance, "table", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "table" : "table." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "table", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("members")) ? "members" in obj : (__fields.keeps("members") && obj["members"] !== undefined)) {
+                const __raw_members = obj["members"] as AliasMembers[];
+                if (Array.isArray(__raw_members)) {
+                    ctx.pushScope("members");
+                    try {
+                        instance.members = __mf_decodeArray(__raw_members, ctx, (__raw0) => aliasMembersDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "members" : "members." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "members", message: __raw_members == null ? "AliasHolder.members is required" : "expected AliasMembers[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "shapes", message: __raw_shapes == null ? "AliasHolder.shapes is required" : "expected AliasTagged[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tuple")) ? "tuple" in obj : (__fields.keeps("tuple") && obj["tuple"] !== undefined)) {
-        const __raw_tuple = obj["tuple"] as AliasTuple | null;
-
-        if (__raw_tuple === null) {
-            instance.tuple = null;
-        } else {
-            ctx.pushScope("tuple");
-            try {
-                const __result = aliasTupleDecodeWithContext(__raw_tuple, ctx);
-                ctx.assignOrDefer(instance, "tuple", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tuple" : "tuple." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-
-                    errors.push({ field: "tuple", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as AliasArray;
-
-        ctx.pushScope("list");
-        try {
-            const __result = aliasArrayDecodeWithContext(__raw_list, ctx);
-            ctx.assignOrDefer(instance, "list", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "list" : "list." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "list", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("table")) ? "table" in obj : (__fields.keeps("table") && obj["table"] !== undefined)) {
-        const __raw_table = obj["table"] as AliasRecord;
-
-        ctx.pushScope("table");
-        try {
-            const __result = aliasRecordDecodeWithContext(__raw_table, ctx);
-            ctx.assignOrDefer(instance, "table", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "table" : "table." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "table", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("members")) ? "members" in obj : (__fields.keeps("members") && obj["members"] !== undefined)) {
-        const __raw_members = obj["members"] as AliasMembers[];
-        if (Array.isArray(__raw_members)) {
-            ctx.pushScope("members");
-            try {
-                instance.members = __mf_decodeArray(__raw_members, ctx, (__raw0) => aliasMembersDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "members" : "members." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "members", message: __raw_members == null ? "AliasHolder.members is required" : "expected AliasMembers[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -5491,7 +5617,7 @@ export function aliasHolderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "object") && __mf_holds(obj, "size") && __mf_holds(obj, "sizes") && __mf_holds(obj, "shape") && __mf_holds(obj, "shapes") && __mf_holds(obj, "tuple") && __mf_holds(obj, "list") && __mf_holds(obj, "table") && __mf_holds(obj, "members");
+    return __mf_holdsAll(obj, ["object", "size", "sizes", "shape", "shapes", "tuple", "list", "table", "members"]);
 }
 
 export function aliasHolderIs(obj: unknown): obj is AliasHolder {
@@ -5563,34 +5689,52 @@ export function aliasOutcomeEncode(value: AliasOutcome, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasOutcomeEncodeWithContext(value: AliasOutcome, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) {
-        const result: Record<string, unknown> = {};
-        result["ok"] = value.ok;
-        result["at"] = value.at.toISOString();
-        result["tags"] = Array.from(value.tags);
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) {
-        const result: Record<string, unknown> = {};
-        result["ok"] = value.ok;
-        result["reason"] = value.reason;
-        if (value.retries !== undefined) {
-            result["retries"] = value.retries;
-        }
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: AliasOutcome): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["ok"] = value.ok;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+                () => {
+                    result["tags"] = Array.from(value.tags);
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: AliasOutcome): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["ok"] = value.ok;
+                },
+                () => {
+                    result["reason"] = value.reason;
+                },
+                () => {
+                    if (value.retries !== undefined) {
+                        result["retries"] = value.retries;
+                    }
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -5664,11 +5808,12 @@ export function aliasOutcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags")) {
-        return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), at: __mf_decodeDate, tags: (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString) }) as AliasOutcome;
-    }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason")) {
-        return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), reason: __mf_decodeString, retries: __mf_decodeNumber }, ["retries"]) as AliasOutcome;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags")) ? __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), at: __mf_decodeDate, tags: (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString) }) : __mf_notTheMember,
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason")) ? __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), reason: __mf_decodeString, retries: __mf_decodeNumber }, ["retries"]) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as AliasOutcome;
     }
 
     throw new __mf_DecodeError([{
@@ -5677,8 +5822,12 @@ export function aliasOutcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     }]);
 }
 export function aliasOutcomeHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags")) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason")) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === true && __mf_holds(value, "at") && __mf_holds(value, "tags"),
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "ok") && Reflect.get(value, "ok") === false && __mf_holds(value, "reason"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function aliasOutcomeIs(value: unknown): value is AliasOutcome {
@@ -5739,30 +5888,44 @@ export function aliasLooseEncode(value: AliasLoose, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function aliasLooseEncodeWithContext(value: AliasLoose, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["when"] = value.when.toISOString();
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "counts" in value) {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["counts"] = Object.fromEntries(value.counts.entries());
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: AliasLoose): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["when"] = value.when.toISOString();
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: AliasLoose): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "counts" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["counts"] = Object.fromEntries(value.counts.entries());
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
     const { __type: __typeName, __id: __idVal, ...fields } = __variant as Record<string, unknown>;
@@ -5835,11 +5998,12 @@ export function aliasLooseDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when")) {
-        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), when: __mf_decodeDate }) as AliasLoose;
-    }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "counts")) {
-        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), counts: (__raw0) => __mf_decodeMap(__raw0, ctx, (__key1) => __key1, __mf_decodeNumber) }) as AliasLoose;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when")) ? __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), when: __mf_decodeDate }) : __mf_notTheMember,
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "counts")) ? __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), counts: (__raw0) => __mf_decodeMap(__raw0, ctx, (__key1) => __key1, __mf_decodeNumber) }) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as AliasLoose;
     }
 
     throw new __mf_DecodeError([{
@@ -5848,8 +6012,12 @@ export function aliasLooseDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     }]);
 }
 export function aliasLooseHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when")) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "counts")) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "when"),
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "counts"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function aliasLooseIs(value: unknown): value is AliasLoose {
@@ -6002,7 +6170,15 @@ export function aliasCarriedClone(value: AliasCarried): AliasCarried {
 
 export function aliasCarriedEquals(a: AliasCarried, b: AliasCarried): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.tags, b.tags) && __mf_structuralEquals(a.size, b.size) && __mf_structuralEquals(a.when, b.when) && __mf_structuralEquals(a.lookup, b.lookup) && __mf_structuralEquals(a.anything, b.anything));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.tags, b.tags),
+            () => __mf_structuralEquals(a.size, b.size),
+            () => __mf_structuralEquals(a.when, b.when),
+            () => __mf_structuralEquals(a.lookup, b.lookup),
+            () => __mf_structuralEquals(a.anything, b.anything),
+        ].every((same) => same());
+    });
 }
 
 export function aliasCarriedHashCode(value: AliasCarried): number {
@@ -6045,30 +6221,44 @@ export function aliasCarriedEncodePartialWithContext(value: Partial<AliasCarried
 }
 
 function aliasCarriedEncodeFields(value: AliasCarried, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("size")) {
-        if (value.size !== undefined) {
-            result["size"] = value.size;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("when")) {
-        if (value.when !== undefined) {
-            result["when"] = value.when;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lookup")) {
-        if (value.lookup !== undefined) {
-            result["lookup"] = value.lookup;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("anything")) {
-        if (value.anything !== undefined) {
-            result["anything"] = value.anything;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("size")) {
+                if (value.size !== undefined) {
+                    result["size"] = value.size;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("when")) {
+                if (value.when !== undefined) {
+                    result["when"] = value.when;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lookup")) {
+                if (value.lookup !== undefined) {
+                    result["lookup"] = value.lookup;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("anything")) {
+                if (value.anything !== undefined) {
+                    result["anything"] = value.anything;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -6146,20 +6336,12 @@ export function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
-        errors.push({ field: "size", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("when")) && !("when" in obj)) {
-        errors.push({ field: "when", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lookup")) && !("lookup" in obj)) {
-        errors.push({ field: "lookup", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("anything")) && !("anything" in obj)) {
-        errors.push({ field: "anything", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["tags", "tags"], ["size", "size"], ["when", "when"], ["lookup", "lookup"], ["anything", "anything"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -6170,85 +6352,99 @@ export function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string | string[];
-        ctx.pushScope("tags");
-        try {
-            const __result = (__mf_decodeChecked(__raw_tags, (typeof __raw_tags === "string") || (Array.isArray(__raw_tags) && __raw_tags.every((__member0: unknown) => typeof __member0 === "string")), "string | string[]") as string | string[]);
-            ctx.assignOrDefer(instance, "tags", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                        message: __err.message
-                    });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string | string[];
+                ctx.pushScope("tags");
+                try {
+                    const __result = (__mf_decodeChecked(__raw_tags, (typeof __raw_tags === "string") || (Array.isArray(__raw_tags) && __raw_tags.every((__member0: unknown) => typeof __member0 === "string")), "string | string[]") as string | string[]);
+                    ctx.assignOrDefer(instance, "tags", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "tags", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "tags", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
-        const __raw_size = obj["size"] as number | 'auto' | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+                const __raw_size = obj["size"] as number | 'auto' | null;
 
-        if (!(typeof __raw_size === "number" && globalThis.Number.isFinite(__raw_size) || __raw_size === "auto" || __raw_size === null)) {
-            errors.push({ field: "size", message: "expected number | 'auto' | null" });
-        } else {
-            instance.size = __raw_size;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("when")) ? "when" in obj : (__fields.keeps("when") && obj["when"] !== undefined)) {
-        const __raw_when = obj["when"] as Date | string;
-        ctx.pushScope("when");
-        try {
-            const __result = (__mf_decodeChecked(__raw_when, (__raw_when instanceof Date) || (typeof __raw_when === "string"), "Date | string") as Date | string);
-            ctx.assignOrDefer(instance, "when", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "when" : "when." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_size === "number" && globalThis.Number.isFinite(__raw_size) || __raw_size === "auto" || __raw_size === null)) {
+                    errors.push({ field: "size", message: "expected number | 'auto' | null" });
+                } else {
+                    instance.size = __raw_size;
                 }
-            } else {
-
-                errors.push({ field: "when", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lookup")) ? "lookup" in obj : (__fields.keeps("lookup") && obj["lookup"] !== undefined)) {
-        const __raw_lookup = obj["lookup"] as Record<string, number> | number[];
-        ctx.pushScope("lookup");
-        try {
-            const __result = (__mf_decodeChecked(__raw_lookup, (typeof __raw_lookup === "object" && __raw_lookup !== null && !Array.isArray(__raw_lookup) && Object.values(__raw_lookup).every((__member0: unknown) => (typeof __member0 === "number" && globalThis.Number.isFinite(__member0)))) || (Array.isArray(__raw_lookup) && __raw_lookup.every((__member0: unknown) => (typeof __member0 === "number" && globalThis.Number.isFinite(__member0)))), "Record<string, number> | number[]") as Record<string, number> | number[]);
-            ctx.assignOrDefer(instance, "lookup", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "lookup" : "lookup." + __err.field,
-                        message: __err.message
-                    });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("when")) ? "when" in obj : (__fields.keeps("when") && obj["when"] !== undefined)) {
+                const __raw_when = obj["when"] as Date | string;
+                ctx.pushScope("when");
+                try {
+                    const __result = (__mf_decodeChecked(__raw_when, (__raw_when instanceof Date) || (typeof __raw_when === "string"), "Date | string") as Date | string);
+                    ctx.assignOrDefer(instance, "when", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "when" : "when." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "when", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "lookup", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("anything")) ? "anything" in obj : (__fields.keeps("anything") && obj["anything"] !== undefined)) {
-        const __raw_anything = obj["anything"] as unknown;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lookup")) ? "lookup" in obj : (__fields.keeps("lookup") && obj["lookup"] !== undefined)) {
+                const __raw_lookup = obj["lookup"] as Record<string, number> | number[];
+                ctx.pushScope("lookup");
+                try {
+                    const __result = (__mf_decodeChecked(__raw_lookup, (typeof __raw_lookup === "object" && __raw_lookup !== null && !Array.isArray(__raw_lookup) && Object.values(__raw_lookup).every((__member0: unknown) => (typeof __member0 === "number" && globalThis.Number.isFinite(__member0)))) || (Array.isArray(__raw_lookup) && __raw_lookup.every((__member0: unknown) => (typeof __member0 === "number" && globalThis.Number.isFinite(__member0)))), "Record<string, number> | number[]") as Record<string, number> | number[]);
+                    ctx.assignOrDefer(instance, "lookup", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "lookup" : "lookup." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        instance.anything = __raw_anything;
+                        errors.push({ field: "lookup", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("anything")) ? "anything" in obj : (__fields.keeps("anything") && obj["anything"] !== undefined)) {
+                const __raw_anything = obj["anything"] as unknown;
+
+                instance.anything = __raw_anything;
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -6273,7 +6469,7 @@ export function aliasCarriedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "tags") && __mf_holds(obj, "size") && __mf_holds(obj, "when") && __mf_holds(obj, "lookup") && __mf_holds(obj, "anything");
+    return __mf_holdsAll(obj, ["tags", "size", "when", "lookup", "anything"]);
 }
 
 export function aliasCarriedIs(obj: unknown): obj is AliasCarried {
@@ -6610,20 +6806,30 @@ export function aliasInlineEncodePartialWithContext(value: Partial<AliasInline>,
 }
 
 function aliasInlineEncodeFields(value: AliasInline, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -6701,11 +6907,12 @@ export function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
-        errors.push({ field: "x", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -6716,37 +6923,47 @@ export function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
-        const __raw_x = obj["x"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
-            errors.push({ field: "x", message: __raw_x == null ? "AliasInline.x is required" : "expected number" });
-        } else {
-            instance.x = __raw_x;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("label"))) {
-        if (("label" in obj && obj["label"] !== undefined)) {
-            const __raw_label = obj["label"] as string;
-
-            if (!(typeof __raw_label === "string")) {
-                errors.push({ field: "label", message: "expected string" });
-            } else {
-                instance.label = __raw_label;
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "AliasInline.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("label"))) {
+                if (("label" in obj && obj["label"] !== undefined)) {
+                    const __raw_label = obj["label"] as string;
 
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "AliasInline.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                    if (!(typeof __raw_label === "string")) {
+                        errors.push({ field: "label", message: "expected string" });
+                    } else {
+                        instance.label = __raw_label;
+                    }
+                }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "AliasInline.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -6771,7 +6988,7 @@ export function aliasInlineHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "x") && __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["x", "at"]);
 }
 
 export function aliasInlineIs(obj: unknown): obj is AliasInline {
@@ -8218,261 +8435,261 @@ export declare const AliasInline: {
 
 ## Mapping
 
-original 0..469 -> expanded 1879..2348
-original 469..590 -> expanded 16529..16650
-original 590..690 -> expanded 24857..24957
-original 690..816 -> expanded 30680..30806
-original 816..965 -> expanded 37300..37449
-original 965..1061 -> expanded 45374..45470
-original 1061..1176 -> expanded 51300..51415
-original 1176..1285 -> expanded 57163..57272
-original 1285..1386 -> expanded 63318..63419
-original 1386..1511 -> expanded 69042..69167
-original 1511..1653 -> expanded 81632..81774
-original 1653..1820 -> expanded 94078..94245
-original 1820..1971 -> expanded 99538..99689
-original 1971..2079 -> expanded 105763..105871
-original 2079..2192 -> expanded 113346..113459
-original 2192..2285 -> expanded 120944..121037
-original 2285..2391 -> expanded 126109..126215
-original 2391..2502 -> expanded 132018..132129
-original 2502..2761 -> expanded 140368..140627
-original 2761..2922 -> expanded 148796..148957
-original 2922..3076 -> expanded 156075..156229
-original 3076..3231 -> expanded 163843..163998
-original 3231..3383 -> expanded 170458..170610
-original 3383..3884 -> expanded 179701..180202
-original 3884..4278 -> expanded 206930..207324
-original 4278..4471 -> expanded 232606..232799
-original 4471..4665 -> expanded 240113..240307
-original 4665..4729 -> expanded 247263..247327
-original 4729..4984 -> expanded 250426..250681
-original 4984..5073 -> expanded 266710..266799
-original 5073..5162 -> expanded 271595..271684
-original 5162..5270 -> expanded 276506..276614
-original 5270..5271 -> expanded 286973..286974
-generated 0..1879 <- imports
-generated 2348..2705 <- Debug
-generated 2705..2969 <- Clone
-generated 2969..3370 <- PartialEq
-generated 3370..3905 <- Hash
-generated 3905..4807 <- PartialOrd
-generated 4807..5583 <- Ord
-generated 5583..5699 <- Default
-generated 5699..8197 <- Encode
-generated 8197..14878 <- Decode
-generated 14878..16529 <- __convenience_const
-generated 16650..16779 <- Debug
-generated 16779..16937 <- Clone
-generated 16937..17222 <- PartialEq
-generated 17222..17587 <- Hash
-generated 17587..18950 <- Encode
-generated 18950..24009 <- Decode
-generated 24009..24857 <- __convenience_const
-generated 24957..25086 <- Debug
-generated 25086..25220 <- Clone
-generated 25220..25530 <- PartialEq
-generated 25530..25704 <- Hash
-generated 25704..26692 <- Encode
-generated 26692..29832 <- Decode
-generated 29832..30680 <- __convenience_const
-generated 30806..30965 <- Debug
-generated 30965..31086 <- Clone
-generated 31086..31406 <- PartialEq
-generated 31406..31655 <- Hash
-generated 31655..31795 <- Default
-generated 31795..32875 <- Encode
-generated 32875..36126 <- Decode
-generated 36126..37300 <- __convenience_const
-generated 37449..37572 <- Debug
-generated 37572..37674 <- Clone
-generated 37674..37815 <- PartialEq
-generated 37815..37917 <- Hash
-generated 37917..38058 <- Default
-generated 38058..39685 <- Encode
-generated 39685..44476 <- Decode
-generated 44476..45374 <- __convenience_const
-generated 45470..45599 <- Debug
-generated 45599..45731 <- Clone
-generated 45731..46133 <- PartialEq
-generated 46133..46302 <- Hash
-generated 46302..47341 <- Encode
-generated 47341..50452 <- Decode
-generated 50452..51300 <- __convenience_const
-generated 51415..51547 <- Debug
-generated 51547..51658 <- Clone
-generated 51658..51808 <- PartialEq
-generated 51808..51916 <- Hash
-generated 51916..53005 <- Encode
-generated 53005..56294 <- Decode
-generated 56294..57163 <- __convenience_const
-generated 57272..57395 <- Debug
-generated 57395..57625 <- Clone
-generated 57625..57958 <- PartialEq
-generated 57958..58241 <- Hash
-generated 58241..59278 <- Encode
-generated 59278..62512 <- Decode
-generated 62512..63318 <- __convenience_const
-generated 63419..63542 <- Debug
-generated 63542..63687 <- Clone
-generated 63687..63950 <- PartialEq
-generated 63950..64127 <- Hash
-generated 64127..65116 <- Encode
-generated 65116..68236 <- Decode
-generated 68236..69042 <- __convenience_const
-generated 69167..69544 <- Debug
-generated 69544..69756 <- Clone
-generated 69756..70034 <- PartialEq
-generated 70034..70621 <- Hash
-generated 70621..73199 <- Encode
-generated 73199..80089 <- Decode
-generated 80089..81632 <- __convenience_const
-generated 81774..82133 <- Debug
-generated 82133..82364 <- Clone
-generated 82364..82650 <- PartialEq
-generated 82650..83137 <- Hash
-generated 83137..85697 <- Encode
-generated 85697..92274 <- Decode
-generated 92274..94078 <- __convenience_const
-generated 94245..94369 <- Debug
-generated 94369..94464 <- Clone
-generated 94464..94570 <- PartialEq
-generated 94570..94682 <- Hash
-generated 94682..94823 <- PartialOrd
-generated 94823..94950 <- Ord
-generated 94950..95034 <- Default
-generated 95034..96477 <- Encode
-generated 96477..98333 <- Decode
-generated 98333..99538 <- __convenience_const
-generated 99689..99828 <- Debug
-generated 99828..99938 <- Clone
-generated 99938..100059 <- PartialEq
-generated 100059..100181 <- Hash
-generated 100181..100274 <- Default
-generated 100274..101742 <- Encode
-generated 101742..104635 <- Decode
-generated 104635..105763 <- __convenience_const
-generated 105871..106009 <- Debug
-generated 106009..106126 <- Clone
-generated 106126..106282 <- PartialEq
-generated 106282..106394 <- Hash
-generated 106394..108229 <- Encode
-generated 108229..112435 <- Decode
-generated 112435..113346 <- __convenience_const
-generated 113459..113597 <- Debug
-generated 113597..113714 <- Clone
-generated 113714..113870 <- PartialEq
-generated 113870..113982 <- Hash
-generated 113982..115817 <- Encode
-generated 115817..120033 <- Decode
-generated 120033..120944 <- __convenience_const
-generated 121037..121149 <- Debug
-generated 121149..121252 <- Clone
-generated 121252..121462 <- PartialEq
-generated 121462..121559 <- Hash
-generated 121559..122563 <- Encode
-generated 122563..125282 <- Decode
-generated 125282..126109 <- __convenience_const
-generated 126215..126359 <- Debug
-generated 126359..126482 <- Clone
-generated 126482..126644 <- PartialEq
-generated 126644..126760 <- Hash
-generated 126760..128213 <- Encode
-generated 128213..131065 <- Decode
-generated 131065..132018 <- __convenience_const
-generated 132129..132264 <- Debug
-generated 132264..132378 <- Clone
-generated 132378..132531 <- PartialEq
-generated 132531..132641 <- Hash
-generated 132641..134733 <- Encode
-generated 134733..139478 <- Decode
-generated 139478..140368 <- __convenience_const
-generated 140627..140759 <- Debug
-generated 140759..140870 <- Clone
-generated 140870..141020 <- PartialEq
-generated 141020..141128 <- Hash
-generated 141128..143581 <- Encode
-generated 143581..147685 <- Decode
-generated 147685..148796 <- __convenience_const
-generated 148957..149095 <- Debug
-generated 149095..149212 <- Clone
-generated 149212..149368 <- PartialEq
-generated 149368..149480 <- Hash
-generated 149480..151559 <- Encode
-generated 151559..155164 <- Decode
-generated 155164..156075 <- __convenience_const
-generated 156229..156367 <- Debug
-generated 156367..156484 <- Clone
-generated 156484..156640 <- PartialEq
-generated 156640..156752 <- Hash
-generated 156752..158818 <- Encode
-generated 158818..162932 <- Decode
-generated 162932..163843 <- __convenience_const
-generated 163998..164136 <- Debug
-generated 164136..164253 <- Clone
-generated 164253..164409 <- PartialEq
-generated 164409..164521 <- Hash
-generated 164521..166576 <- Encode
-generated 166576..169547 <- Decode
-generated 169547..170458 <- __convenience_const
-generated 170610..170736 <- Debug
-generated 170736..170841 <- Clone
-generated 170841..170985 <- PartialEq
-generated 170985..171089 <- Hash
-generated 171089..173174 <- Encode
-generated 173174..178874 <- Decode
-generated 178874..179701 <- __convenience_const
-generated 180202..181252 <- Debug
-generated 181252..181952 <- Clone
-generated 181952..182878 <- PartialEq
-generated 182878..184201 <- Hash
-generated 184201..188727 <- Encode
-generated 188727..205474 <- Decode
-generated 205474..206930 <- __convenience_const
-generated 207324..208280 <- Debug
-generated 208280..208919 <- Clone
-generated 208919..210079 <- PartialEq
-generated 210079..211090 <- Hash
-generated 211090..211397 <- Default
-generated 211397..215326 <- Encode
-generated 215326..231139 <- Decode
-generated 231139..232606 <- __convenience_const
-generated 232799..232934 <- Debug
-generated 232934..233048 <- Clone
-generated 233048..233201 <- PartialEq
-generated 233201..233311 <- Hash
-generated 233311..235599 <- Encode
-generated 235599..239223 <- Decode
-generated 239223..240113 <- __convenience_const
-generated 240307..240436 <- Debug
-generated 240436..240544 <- Clone
-generated 240544..240691 <- PartialEq
-generated 240691..240797 <- Hash
-generated 240797..242914 <- Encode
-generated 242914..246415 <- Decode
-generated 246415..247263 <- __convenience_const
-generated 247327..248059 <- Encode
-generated 248059..249891 <- Decode
-generated 249891..250426 <- __convenience_const
-generated 250681..251219 <- Debug
-generated 251219..251571 <- Clone
-generated 251571..251940 <- PartialEq
-generated 251940..252433 <- Hash
-generated 252433..255274 <- Encode
-generated 255274..265312 <- Decode
-generated 265312..266710 <- __convenience_const
-generated 266799..266923 <- Default
-generated 266923..267925 <- Encode
-generated 267925..270936 <- Decode
-generated 270936..271595 <- __convenience_const
-generated 271684..271824 <- Default
-generated 271824..272809 <- Encode
-generated 272809..275817 <- Decode
-generated 275817..276506 <- __convenience_const
-generated 276614..276732 <- Default
-generated 276732..279218 <- Encode
-generated 279218..285814 <- Decode
-generated 285814..286973 <- __convenience_const
+original 0..469 -> expanded 2048..2517
+original 469..590 -> expanded 17326..17447
+original 590..690 -> expanded 26397..26497
+original 690..816 -> expanded 32220..32346
+original 816..965 -> expanded 38840..38989
+original 965..1061 -> expanded 47596..47692
+original 1061..1176 -> expanded 53522..53637
+original 1176..1285 -> expanded 59385..59494
+original 1285..1386 -> expanded 65540..65641
+original 1386..1511 -> expanded 71264..71389
+original 1511..1653 -> expanded 84362..84504
+original 1653..1820 -> expanded 97312..97479
+original 1820..1971 -> expanded 102649..102800
+original 1971..2079 -> expanded 108751..108859
+original 2079..2192 -> expanded 116257..116370
+original 2192..2285 -> expanded 123778..123871
+original 2285..2391 -> expanded 128943..129049
+original 2391..2502 -> expanded 134729..134840
+original 2502..2761 -> expanded 143147..143406
+original 2761..2922 -> expanded 152541..152702
+original 2922..3076 -> expanded 159890..160044
+original 3076..3231 -> expanded 167730..167885
+original 3231..3383 -> expanded 174417..174569
+original 3383..3884 -> expanded 183631..184132
+original 3884..4278 -> expanded 211991..212385
+original 4278..4471 -> expanded 239408..239601
+original 4471..4665 -> expanded 247847..248041
+original 4665..4729 -> expanded 255793..255857
+original 4729..4984 -> expanded 258956..259211
+original 4984..5073 -> expanded 276062..276151
+original 5073..5162 -> expanded 280947..281036
+original 5162..5270 -> expanded 285858..285966
+original 5270..5271 -> expanded 296960..296961
+generated 0..2048 <- imports
+generated 2517..2874 <- Debug
+generated 2874..3138 <- Clone
+generated 3138..3622 <- PartialEq
+generated 3622..4157 <- Hash
+generated 4157..4963 <- PartialOrd
+generated 4963..5751 <- Ord
+generated 5751..5867 <- Default
+generated 5867..8626 <- Encode
+generated 8626..15675 <- Decode
+generated 15675..17326 <- __convenience_const
+generated 17447..17576 <- Debug
+generated 17576..17734 <- Clone
+generated 17734..18096 <- PartialEq
+generated 18096..18461 <- Hash
+generated 18461..20029 <- Encode
+generated 20029..25549 <- Decode
+generated 25549..26397 <- __convenience_const
+generated 26497..26626 <- Debug
+generated 26626..26760 <- Clone
+generated 26760..27070 <- PartialEq
+generated 27070..27244 <- Hash
+generated 27244..28232 <- Encode
+generated 28232..31372 <- Decode
+generated 31372..32220 <- __convenience_const
+generated 32346..32505 <- Debug
+generated 32505..32626 <- Clone
+generated 32626..32946 <- PartialEq
+generated 32946..33195 <- Hash
+generated 33195..33335 <- Default
+generated 33335..34415 <- Encode
+generated 34415..37666 <- Decode
+generated 37666..38840 <- __convenience_const
+generated 38989..39112 <- Debug
+generated 39112..39214 <- Clone
+generated 39214..39355 <- PartialEq
+generated 39355..39457 <- Hash
+generated 39457..39598 <- Default
+generated 39598..41446 <- Encode
+generated 41446..46698 <- Decode
+generated 46698..47596 <- __convenience_const
+generated 47692..47821 <- Debug
+generated 47821..47953 <- Clone
+generated 47953..48355 <- PartialEq
+generated 48355..48524 <- Hash
+generated 48524..49563 <- Encode
+generated 49563..52674 <- Decode
+generated 52674..53522 <- __convenience_const
+generated 53637..53769 <- Debug
+generated 53769..53880 <- Clone
+generated 53880..54030 <- PartialEq
+generated 54030..54138 <- Hash
+generated 54138..55227 <- Encode
+generated 55227..58516 <- Decode
+generated 58516..59385 <- __convenience_const
+generated 59494..59617 <- Debug
+generated 59617..59847 <- Clone
+generated 59847..60180 <- PartialEq
+generated 60180..60463 <- Hash
+generated 60463..61500 <- Encode
+generated 61500..64734 <- Decode
+generated 64734..65540 <- __convenience_const
+generated 65641..65764 <- Debug
+generated 65764..65909 <- Clone
+generated 65909..66172 <- PartialEq
+generated 66172..66349 <- Hash
+generated 66349..67338 <- Encode
+generated 67338..70458 <- Decode
+generated 70458..71264 <- __convenience_const
+generated 71389..71766 <- Debug
+generated 71766..71978 <- Clone
+generated 71978..72341 <- PartialEq
+generated 72341..72928 <- Hash
+generated 72928..75767 <- Encode
+generated 75767..82819 <- Decode
+generated 82819..84362 <- __convenience_const
+generated 84504..84863 <- Debug
+generated 84863..85094 <- Clone
+generated 85094..85453 <- PartialEq
+generated 85453..85940 <- Hash
+generated 85940..88694 <- Encode
+generated 88694..95508 <- Decode
+generated 95508..97312 <- __convenience_const
+generated 97479..97603 <- Debug
+generated 97603..97698 <- Clone
+generated 97698..97804 <- PartialEq
+generated 97804..97916 <- Hash
+generated 97916..98057 <- PartialOrd
+generated 98057..98184 <- Ord
+generated 98184..98268 <- Default
+generated 98268..99588 <- Encode
+generated 99588..101444 <- Decode
+generated 101444..102649 <- __convenience_const
+generated 102800..102939 <- Debug
+generated 102939..103049 <- Clone
+generated 103049..103170 <- PartialEq
+generated 103170..103292 <- Hash
+generated 103292..103385 <- Default
+generated 103385..104730 <- Encode
+generated 104730..107623 <- Decode
+generated 107623..108751 <- __convenience_const
+generated 108859..108997 <- Debug
+generated 108997..109114 <- Clone
+generated 109114..109270 <- PartialEq
+generated 109270..109382 <- Hash
+generated 109382..111140 <- Encode
+generated 111140..115346 <- Decode
+generated 115346..116257 <- __convenience_const
+generated 116370..116508 <- Debug
+generated 116508..116625 <- Clone
+generated 116625..116781 <- PartialEq
+generated 116781..116893 <- Hash
+generated 116893..118651 <- Encode
+generated 118651..122867 <- Decode
+generated 122867..123778 <- __convenience_const
+generated 123871..123983 <- Debug
+generated 123983..124086 <- Clone
+generated 124086..124296 <- PartialEq
+generated 124296..124393 <- Hash
+generated 124393..125397 <- Encode
+generated 125397..128116 <- Decode
+generated 128116..128943 <- __convenience_const
+generated 129049..129193 <- Debug
+generated 129193..129316 <- Clone
+generated 129316..129478 <- PartialEq
+generated 129478..129594 <- Hash
+generated 129594..130924 <- Encode
+generated 130924..133776 <- Decode
+generated 133776..134729 <- __convenience_const
+generated 134840..134975 <- Debug
+generated 134975..135089 <- Clone
+generated 135089..135242 <- PartialEq
+generated 135242..135352 <- Hash
+generated 135352..137512 <- Encode
+generated 137512..142257 <- Decode
+generated 142257..143147 <- __convenience_const
+generated 143406..143538 <- Debug
+generated 143538..143649 <- Clone
+generated 143649..143799 <- PartialEq
+generated 143799..143907 <- Hash
+generated 143907..147167 <- Encode
+generated 147167..151430 <- Decode
+generated 151430..152541 <- __convenience_const
+generated 152702..152840 <- Debug
+generated 152840..152957 <- Clone
+generated 152957..153113 <- PartialEq
+generated 153113..153225 <- Hash
+generated 153225..155374 <- Encode
+generated 155374..158979 <- Decode
+generated 158979..159890 <- __convenience_const
+generated 160044..160182 <- Debug
+generated 160182..160299 <- Clone
+generated 160299..160455 <- PartialEq
+generated 160455..160567 <- Hash
+generated 160567..162705 <- Encode
+generated 162705..166819 <- Decode
+generated 166819..167730 <- __convenience_const
+generated 167885..168023 <- Debug
+generated 168023..168140 <- Clone
+generated 168140..168296 <- PartialEq
+generated 168296..168408 <- Hash
+generated 168408..170535 <- Encode
+generated 170535..173506 <- Decode
+generated 173506..174417 <- __convenience_const
+generated 174569..174695 <- Debug
+generated 174695..174800 <- Clone
+generated 174800..174944 <- PartialEq
+generated 174944..175048 <- Hash
+generated 175048..177104 <- Encode
+generated 177104..182804 <- Decode
+generated 182804..183631 <- __convenience_const
+generated 184132..185182 <- Debug
+generated 185182..185882 <- Clone
+generated 185882..187113 <- PartialEq
+generated 187113..188436 <- Hash
+generated 188436..193893 <- Encode
+generated 193893..210535 <- Decode
+generated 210535..211991 <- __convenience_const
+generated 212385..213341 <- Debug
+generated 213341..213980 <- Clone
+generated 213980..215451 <- PartialEq
+generated 215451..216462 <- Hash
+generated 216462..216769 <- Default
+generated 216769..221361 <- Encode
+generated 221361..237941 <- Decode
+generated 237941..239408 <- __convenience_const
+generated 239601..239736 <- Debug
+generated 239736..239850 <- Clone
+generated 239850..240003 <- PartialEq
+generated 240003..240113 <- Hash
+generated 240113..243009 <- Encode
+generated 243009..246957 <- Decode
+generated 246957..247847 <- __convenience_const
+generated 248041..248170 <- Debug
+generated 248170..248278 <- Clone
+generated 248278..248425 <- PartialEq
+generated 248425..248531 <- Hash
+generated 248531..251118 <- Encode
+generated 251118..254945 <- Decode
+generated 254945..255793 <- __convenience_const
+generated 255857..256589 <- Encode
+generated 256589..258421 <- Decode
+generated 258421..258956 <- __convenience_const
+generated 259211..259749 <- Debug
+generated 259749..260101 <- Clone
+generated 260101..260613 <- PartialEq
+generated 260613..261106 <- Hash
+generated 261106..264342 <- Encode
+generated 264342..274664 <- Decode
+generated 274664..276062 <- __convenience_const
+generated 276151..276275 <- Default
+generated 276275..277277 <- Encode
+generated 277277..280288 <- Decode
+generated 280288..280947 <- __convenience_const
+generated 281036..281176 <- Default
+generated 281176..282161 <- Encode
+generated 282161..285169 <- Decode
+generated 285169..285858 <- __convenience_const
+generated 285966..286084 <- Default
+generated 286084..288831 <- Encode
+generated 288831..295801 <- Decode
+generated 295801..296960 <- __convenience_const
 
 ## Metadata
 

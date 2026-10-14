@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -139,8 +139,12 @@ export function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("initialData")) && !("initialData" in obj)) {
-        errors.push({ field: "initialData", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["initialData", "initialData"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -183,7 +187,7 @@ export function createdHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "initialData");
+    return __mf_holdsAll(obj, ["initialData"]);
 }
 
 export function createdIs(obj: unknown): obj is Created {
@@ -410,15 +414,15 @@ export declare const Created: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..168 -> expanded 896..957
-original 168..169 -> expanded 13165..13166
-generated 0..838 <- imports
-generated 957..1056 <- Default
-generated 1056..3198 <- Encode
-generated 3198..8537 <- Decode
-generated 8537..11926 <- Gigaform
-generated 11926..13165 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..168 -> expanded 902..963
+original 168..169 -> expanded 13327..13328
+generated 0..844 <- imports
+generated 963..1062 <- Default
+generated 1062..3204 <- Encode
+generated 3204..8699 <- Decode
+generated 8699..12088 <- Gigaform
+generated 12088..13327 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, spellsTemplate as __mf_spellsTemplate, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, spellsTemplate as __mf_spellsTemplate, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -235,10 +235,20 @@ export function keyedRecordsClone(value: KeyedRecords): KeyedRecords {
 
 export function keyedRecordsEquals(a: KeyedRecords, b: KeyedRecords): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.byLevel, b.byLevel) && __mf_structuralEquals(a.byKind, b.byKind) && __mf_structuralEquals(a.some, b.some) && a.levels.size === b.levels.size && Array.from(a.levels).every(([__key0, __item0]) => {
-	const __other0 = b.levels.get(__key0);
-	return b.levels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}) && a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => keyedKindEquals(__item0, __other0))) && a.codes.size === b.codes.size && Array.from(a.codes).every((__item0) => b.codes.has(__item0) || Array.from(b.codes).some((__other0) => __item0 === __other0)) && __mf_structuralEquals(a.deep, b.deep));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.byLevel, b.byLevel),
+            () => __mf_structuralEquals(a.byKind, b.byKind),
+            () => __mf_structuralEquals(a.some, b.some),
+            () => a.levels.size === b.levels.size && Array.from(a.levels).every(([__key0, __item0]) => {
+            	const __other0 = b.levels.get(__key0);
+            	return b.levels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+            }),
+            () => a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => keyedKindEquals(__item0, __other0))),
+            () => a.codes.size === b.codes.size && Array.from(a.codes).every((__item0) => b.codes.has(__item0) || Array.from(b.codes).some((__other0) => __item0 === __other0)),
+            () => __mf_structuralEquals(a.deep, b.deep),
+        ].every((same) => same());
+    });
 }
 
 export function keyedRecordsHashCode(value: KeyedRecords): number {
@@ -300,40 +310,58 @@ export function keyedRecordsEncodePartialWithContext(value: Partial<KeyedRecords
 }
 
 function keyedRecordsEncodeFields(value: KeyedRecords, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("byLevel")) {
-        if (value.byLevel !== undefined) {
-            result["byLevel"] = value.byLevel;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byKind")) {
-        if (value.byKind !== undefined) {
-            result["byKind"] = value.byKind;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("some")) {
-        if (value.some !== undefined) {
-            result["some"] = value.some;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("levels")) {
-        if (value.levels !== undefined) {
-            result["levels"] = Object.fromEntries(value.levels.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kinds")) {
-        if (value.kinds !== undefined) {
-            result["kinds"] = Array.from(value.kinds, (__item0) => keyedKindEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("codes")) {
-        if (value.codes !== undefined) {
-            result["codes"] = Array.from(value.codes);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("deep")) {
-        if (value.deep !== undefined) {
-            result["deep"] = ({ ...value.deep, inner: (value.deep.inner === undefined ? undefined : ({ ...value.deep.inner, at: (value.deep.inner.at === undefined ? undefined : value.deep.inner.at.toISOString()) })) });
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("byLevel")) {
+                if (value.byLevel !== undefined) {
+                    result["byLevel"] = value.byLevel;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byKind")) {
+                if (value.byKind !== undefined) {
+                    result["byKind"] = value.byKind;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("some")) {
+                if (value.some !== undefined) {
+                    result["some"] = value.some;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("levels")) {
+                if (value.levels !== undefined) {
+                    result["levels"] = Object.fromEntries(value.levels.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kinds")) {
+                if (value.kinds !== undefined) {
+                    result["kinds"] = Array.from(value.kinds, (__item0) => keyedKindEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("codes")) {
+                if (value.codes !== undefined) {
+                    result["codes"] = Array.from(value.codes);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("deep")) {
+                if (value.deep !== undefined) {
+                    result["deep"] = ({ ...value.deep, inner: (value.deep.inner === undefined ? undefined : ({ ...value.deep.inner, at: (value.deep.inner.at === undefined ? undefined : value.deep.inner.at.toISOString()) })) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -411,23 +439,12 @@ export function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("byLevel")) && !("byLevel" in obj)) {
-        errors.push({ field: "byLevel", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byKind")) && !("byKind" in obj)) {
-        errors.push({ field: "byKind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("some")) && !("some" in obj)) {
-        errors.push({ field: "some", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("levels")) && !("levels" in obj)) {
-        errors.push({ field: "levels", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kinds")) && !("kinds" in obj)) {
-        errors.push({ field: "kinds", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("codes")) && !("codes" in obj)) {
-        errors.push({ field: "codes", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["byLevel", "byLevel"], ["byKind", "byKind"], ["some", "some"], ["levels", "levels"], ["kinds", "kinds"], ["codes", "codes"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -438,175 +455,193 @@ export function keyedRecordsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("byLevel")) ? "byLevel" in obj : (__fields.keeps("byLevel") && obj["byLevel"] !== undefined)) {
-        const __raw_byLevel = obj["byLevel"] as Record<KeyedLevel, string>;
-        if (typeof __raw_byLevel === "object" && __raw_byLevel !== null) {
-            ctx.pushScope("byLevel");
-            try {
-                instance.byLevel = (__mf_decodeRecord(__raw_byLevel, ctx, __mf_decodeString, (__key0) => keyedLevelDecodeWithContext(__mf_decodeNumberKey(__key0), ctx), [String(KeyedLevel.Low), String(KeyedLevel.High)]) as Record<KeyedLevel, string>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byLevel" : "byLevel." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("byLevel")) ? "byLevel" in obj : (__fields.keeps("byLevel") && obj["byLevel"] !== undefined)) {
+                const __raw_byLevel = obj["byLevel"] as Record<KeyedLevel, string>;
+                if (typeof __raw_byLevel === "object" && __raw_byLevel !== null) {
+                    ctx.pushScope("byLevel");
+                    try {
+                        instance.byLevel = (__mf_decodeRecord(__raw_byLevel, ctx, __mf_decodeString, (__key0) => keyedLevelDecodeWithContext(__mf_decodeNumberKey(__key0), ctx), [String(KeyedLevel.Low), String(KeyedLevel.High)]) as Record<KeyedLevel, string>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byLevel" : "byLevel." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byLevel", message: __raw_byLevel == null ? "KeyedRecords.byLevel is required" : "expected Record<KeyedLevel, string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byLevel", message: __raw_byLevel == null ? "KeyedRecords.byLevel is required" : "expected Record<KeyedLevel, string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
-        const __raw_byKind = obj["byKind"] as Record<KeyedKind, number>;
-        if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
-            ctx.pushScope("byKind");
-            try {
-                instance.byKind = (__mf_decodeRecord(__raw_byKind, ctx, __mf_decodeNumber, (__key0) => keyedKindDecodeWithContext(__key0, ctx), [String(KeyedKind.A), String(KeyedKind.B)]) as Record<KeyedKind, number>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+                const __raw_byKind = obj["byKind"] as Record<KeyedKind, number>;
+                if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
+                    ctx.pushScope("byKind");
+                    try {
+                        instance.byKind = (__mf_decodeRecord(__raw_byKind, ctx, __mf_decodeNumber, (__key0) => keyedKindDecodeWithContext(__key0, ctx), [String(KeyedKind.A), String(KeyedKind.B)]) as Record<KeyedKind, number>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byKind", message: __raw_byKind == null ? "KeyedRecords.byKind is required" : "expected Record<KeyedKind, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byKind", message: __raw_byKind == null ? "KeyedRecords.byKind is required" : "expected Record<KeyedKind, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
-        const __raw_some = obj["some"] as { 'x'?: number; 'y'?: number };
-        if (typeof __raw_some === "object" && __raw_some !== null) {
-            ctx.pushScope("some");
-            try {
-                instance.some = (__mf_decodeObject(__raw_some, ctx, { x: __mf_decodeNumber, y: __mf_decodeNumber }, ["x", "y"]) as { 'x'?: number; 'y'?: number });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "some" : "some." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
+                const __raw_some = obj["some"] as { 'x'?: number; 'y'?: number };
+                if (typeof __raw_some === "object" && __raw_some !== null) {
+                    ctx.pushScope("some");
+                    try {
+                        instance.some = (__mf_decodeObject(__raw_some, ctx, { x: __mf_decodeNumber, y: __mf_decodeNumber }, ["x", "y"]) as { 'x'?: number; 'y'?: number });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "some" : "some." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "some", message: __raw_some == null ? "KeyedRecords.some is required" : "expected { 'x'?: number; 'y'?: number }" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "some", message: __raw_some == null ? "KeyedRecords.some is required" : "expected { 'x'?: number; 'y'?: number }" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("levels")) ? "levels" in obj : (__fields.keeps("levels") && obj["levels"] !== undefined)) {
-        const __raw_levels = obj["levels"] as Record<string, string>;
-        if (typeof __raw_levels === "object" && __raw_levels !== null) {
-            ctx.pushScope("levels");
-            try {
-                instance.levels = __mf_decodeMap(__raw_levels, ctx, (__key0) => keyedLevelDecodeWithContext(__mf_decodeNumberKey(__key0), ctx), __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "levels" : "levels." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("levels")) ? "levels" in obj : (__fields.keeps("levels") && obj["levels"] !== undefined)) {
+                const __raw_levels = obj["levels"] as Record<string, string>;
+                if (typeof __raw_levels === "object" && __raw_levels !== null) {
+                    ctx.pushScope("levels");
+                    try {
+                        instance.levels = __mf_decodeMap(__raw_levels, ctx, (__key0) => keyedLevelDecodeWithContext(__mf_decodeNumberKey(__key0), ctx), __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "levels" : "levels." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "levels", message: __raw_levels == null ? "KeyedRecords.levels is required" : "expected Map<KeyedLevel, string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "levels", message: __raw_levels == null ? "KeyedRecords.levels is required" : "expected Map<KeyedLevel, string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kinds")) ? "kinds" in obj : (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
-        const __raw_kinds = obj["kinds"] as Array<KeyedKind>;
-        if (Array.isArray(__raw_kinds)) {
-            ctx.pushScope("kinds");
-            try {
-                instance.kinds = __mf_decodeSet(__raw_kinds, ctx, (__raw0) => keyedKindDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "kinds" : "kinds." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kinds")) ? "kinds" in obj : (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
+                const __raw_kinds = obj["kinds"] as Array<KeyedKind>;
+                if (Array.isArray(__raw_kinds)) {
+                    ctx.pushScope("kinds");
+                    try {
+                        instance.kinds = __mf_decodeSet(__raw_kinds, ctx, (__raw0) => keyedKindDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "kinds" : "kinds." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "kinds", message: __raw_kinds == null ? "KeyedRecords.kinds is required" : "expected Set<KeyedKind>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "kinds", message: __raw_kinds == null ? "KeyedRecords.kinds is required" : "expected Set<KeyedKind>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("codes")) ? "codes" in obj : (__fields.keeps("codes") && obj["codes"] !== undefined)) {
-        const __raw_codes = obj["codes"] as Array<`c-${number}`>;
-        if (Array.isArray(__raw_codes)) {
-            ctx.pushScope("codes");
-            try {
-                instance.codes = __mf_decodeSet(__raw_codes, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __mf_spellsTemplate(__raw0, ["c-", ""], ["number"]), "`c-${number}`") as `c-${number}`));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "codes" : "codes." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("codes")) ? "codes" in obj : (__fields.keeps("codes") && obj["codes"] !== undefined)) {
+                const __raw_codes = obj["codes"] as Array<`c-${number}`>;
+                if (Array.isArray(__raw_codes)) {
+                    ctx.pushScope("codes");
+                    try {
+                        instance.codes = __mf_decodeSet(__raw_codes, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __mf_spellsTemplate(__raw0, ["c-", ""], ["number"]), "`c-${number}`") as `c-${number}`));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "codes" : "codes." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "codes", message: __raw_codes == null ? "KeyedRecords.codes is required" : "expected Set<`c-${number}`>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "codes", message: __raw_codes == null ? "KeyedRecords.codes is required" : "expected Set<`c-${number}`>" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("deep"))) {
-        if (("deep" in obj && obj["deep"] !== undefined)) {
-            const __raw_deep = obj["deep"] as { inner?: { at?: Date; tags?: string[] } };
-            if (typeof __raw_deep === "object" && __raw_deep !== null) {
-                ctx.pushScope("deep");
-                try {
-                    instance.deep = (__mf_decodeObject(__raw_deep, ctx, { inner: (__raw0) => (__mf_decodeObject(__raw0, ctx, { at: __mf_decodeDate, tags: (__raw1) => __mf_decodeArray(__raw1, ctx, __mf_decodeString) }, ["at", "tags"]) as { at?: Date; tags?: string[] }) }, ["inner"]) as { inner?: { at?: Date; tags?: string[] } });
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "deep" : "deep." + __err.field,
-                                message: __err.message
-                            });
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("deep"))) {
+                if (("deep" in obj && obj["deep"] !== undefined)) {
+                    const __raw_deep = obj["deep"] as { inner?: { at?: Date; tags?: string[] } };
+                    if (typeof __raw_deep === "object" && __raw_deep !== null) {
+                        ctx.pushScope("deep");
+                        try {
+                            instance.deep = (__mf_decodeObject(__raw_deep, ctx, { inner: (__raw0) => (__mf_decodeObject(__raw0, ctx, { at: __mf_decodeDate, tags: (__raw1) => __mf_decodeArray(__raw1, ctx, __mf_decodeString) }, ["at", "tags"]) as { at?: Date; tags?: string[] }) }, ["inner"]) as { inner?: { at?: Date; tags?: string[] } });
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "deep" : "deep." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "deep", message: "expected { inner?: { at?: Date; tags?: string[] } }" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "deep", message: "expected { inner?: { at?: Date; tags?: string[] } }" });
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -631,7 +666,7 @@ export function keyedRecordsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "byLevel") && __mf_holds(obj, "byKind") && __mf_holds(obj, "some") && __mf_holds(obj, "levels") && __mf_holds(obj, "kinds") && __mf_holds(obj, "codes");
+    return __mf_holdsAll(obj, ["byLevel", "byKind", "some", "levels", "kinds", "codes"]);
 }
 
 export function keyedRecordsIs(obj: unknown): obj is KeyedRecords {
@@ -729,7 +764,19 @@ export class KeyedOptions {
 
     static equals(a: KeyedOptions, b: KeyedOptions): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => (a.count === b.count || a.count !== a.count && b.count !== b.count) && a.userLabel === b.userLabel && a.hidden === b.hidden && (a.derived === b.derived || a.derived !== a.derived && b.derived !== b.derived) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight) && a.secret === b.secret && (a.noise === b.noise || a.noise !== a.noise && b.noise !== b.noise) && (a.five === b.five || a.five !== a.five && b.five !== b.five) && keyedInnerEquals(a.inner, b.inner));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+                    () => a.userLabel === b.userLabel,
+                    () => a.hidden === b.hidden,
+                    () => a.derived === b.derived || a.derived !== a.derived && b.derived !== b.derived,
+                    () => a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight,
+                    () => a.secret === b.secret,
+                    () => a.noise === b.noise || a.noise !== a.noise && b.noise !== b.noise,
+                    () => a.five === b.five || a.five !== a.five && b.five !== b.five,
+                    () => keyedInnerEquals(a.inner, b.inner),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: KeyedOptions): number {
@@ -785,52 +832,74 @@ static encodePartialWithContext(value: Partial<KeyedOptions>, ctx: __mf_EncodeCo
 }
 
 static #encodeFields(value: KeyedOptions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["n"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("userLabel")) {
-        if (value.userLabel !== undefined) {
-            result["user_label"] = value.userLabel;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("derived")) {
-        if (value.derived !== undefined) {
-            result["derived"] = value.derived;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("secret")) {
-        if (value.secret !== undefined) {
-            result["secret"] = value.secret;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("noise")) {
-        if (value.noise !== undefined) {
-            result["noise"] = value.noise;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("ignored")) {
-        if (value.ignored !== undefined) {
-            result["ignored"] = value.ignored;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("five")) {
-        if (value.five !== undefined) {
-            result["five"] = value.five;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inner")) {
-        if (value.inner !== undefined) {
-            const __flattened = keyedInnerEncodePartialWithContext(value.inner, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["n"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("userLabel")) {
+                if (value.userLabel !== undefined) {
+                    result["user_label"] = value.userLabel;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("derived")) {
+                if (value.derived !== undefined) {
+                    result["derived"] = value.derived;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("secret")) {
+                if (value.secret !== undefined) {
+                    result["secret"] = value.secret;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("noise")) {
+                if (value.noise !== undefined) {
+                    result["noise"] = value.noise;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("ignored")) {
+                if (value.ignored !== undefined) {
+                    result["ignored"] = value.ignored;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("five")) {
+                if (value.five !== undefined) {
+                    result["five"] = value.five;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inner")) {
+                if (value.inner !== undefined) {
+                    const __flattened = keyedInnerEncodePartialWithContext(value.inner, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -931,26 +1000,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("n" in obj)) {
-        errors.push({ field: "n", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("hidden")) && !("hidden" in obj)) {
-        errors.push({ field: "hidden", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("weight")) && !("weight" in obj)) {
-        errors.push({ field: "weight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("secret")) && !("secret" in obj)) {
-        errors.push({ field: "secret", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("noise")) && !("noise" in obj)) {
-        errors.push({ field: "noise", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("ignored")) && !("ignored" in obj)) {
-        errors.push({ field: "ignored", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("five")) && !("five" in obj)) {
-        errors.push({ field: "five", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "n"], ["hidden", "hidden"], ["weight", "weight"], ["secret", "secret"], ["noise", "noise"], ["ignored", "ignored"], ["five", "five"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(KeyedOptions.prototype);
@@ -961,104 +1016,128 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) ? "n" in obj : (__fields.keeps("count") && obj["n"] !== undefined)) {
-        const __raw_count = obj["n"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "n" in obj : (__fields.keeps("count") && obj["n"] !== undefined)) {
+                const __raw_count = obj["n"] as number;
 
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "n", message: __raw_count == null ? "KeyedOptions.n is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("userLabel"))) {
-        if (("user_label" in obj && obj["user_label"] !== undefined)) {
-            const __raw_userLabel = obj["user_label"] as string;
-
-            if (!(typeof __raw_userLabel === "string")) {
-                errors.push({ field: "user_label", message: "expected string" });
-            } else {
-                instance.userLabel = __raw_userLabel;
-            }
-        }
-        if ((__fields === undefined || __fields.requires("userLabel")) && !("user_label" in obj && obj["user_label"] !== undefined)) {
-            instance.userLabel = ("") satisfies string;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
-        const __raw_hidden = obj["hidden"] as boolean;
-
-        if (!(typeof __raw_hidden === "boolean")) {
-            errors.push({ field: "hidden", message: __raw_hidden == null ? "KeyedOptions.hidden is required" : "expected boolean" });
-        } else {
-            instance.hidden = __raw_hidden;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("derived"))) {
-        instance.derived = (0) satisfies number;
-    }
-    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number;
-
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
-            errors.push({ field: "weight", message: __raw_weight == null ? "KeyedOptions.weight is required" : "expected number" });
-        } else {
-            if (__raw_weight == null) { errors.push({ field: "weight", message: "KeyedOptions.weight is required" }); } else {
-                if (__raw_weight <= 0) { errors.push({ field: "weight", message: "KeyedOptions.weight must be positive" }); }
-            }
-            instance.weight = __raw_weight;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
-        const __raw_secret = obj["secret"] as string;
-
-        if (!(typeof __raw_secret === "string")) {
-            errors.push({ field: "secret", message: __raw_secret == null ? "KeyedOptions.secret is required" : "expected string" });
-        } else {
-            instance.secret = __raw_secret;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("noise")) ? "noise" in obj : (__fields.keeps("noise") && obj["noise"] !== undefined)) {
-        const __raw_noise = obj["noise"] as number;
-
-        if (!(typeof __raw_noise === "number" && globalThis.Number.isFinite(__raw_noise))) {
-            errors.push({ field: "noise", message: __raw_noise == null ? "KeyedOptions.noise is required" : "expected number" });
-        } else {
-            instance.noise = __raw_noise;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("ignored")) ? "ignored" in obj : (__fields.keeps("ignored") && obj["ignored"] !== undefined)) {
-        const __raw_ignored = obj["ignored"] as number;
-
-        if (!(typeof __raw_ignored === "number" && globalThis.Number.isFinite(__raw_ignored))) {
-            errors.push({ field: "ignored", message: __raw_ignored == null ? "KeyedOptions.ignored is required" : "expected number" });
-        } else {
-            instance.ignored = __raw_ignored;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("five")) ? "five" in obj : (__fields.keeps("five") && obj["five"] !== undefined)) {
-        const __raw_five = obj["five"] as number;
-
-        if (!(typeof __raw_five === "number" && globalThis.Number.isFinite(__raw_five))) {
-            errors.push({ field: "five", message: __raw_five == null ? "KeyedOptions.five is required" : "expected number" });
-        } else {
-            instance.five = __raw_five;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("inner"))) {
-        if ((__fields === undefined || __fields.requires("inner")) || keyedInnerHasShape(obj)) {
-            try {
-                const __result = keyedInnerDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "inner", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
-                    }
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "n", message: __raw_count == null ? "KeyedOptions.n is required" : "expected number" });
                 } else {
-                    throw __e;
+                    instance.count = __raw_count;
                 }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("userLabel"))) {
+                if (("user_label" in obj && obj["user_label"] !== undefined)) {
+                    const __raw_userLabel = obj["user_label"] as string;
+
+                    if (!(typeof __raw_userLabel === "string")) {
+                        errors.push({ field: "user_label", message: "expected string" });
+                    } else {
+                        instance.userLabel = __raw_userLabel;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("userLabel")) && !("user_label" in obj && obj["user_label"] !== undefined)) {
+                    instance.userLabel = ("") satisfies string;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
+                const __raw_hidden = obj["hidden"] as boolean;
+
+                if (!(typeof __raw_hidden === "boolean")) {
+                    errors.push({ field: "hidden", message: __raw_hidden == null ? "KeyedOptions.hidden is required" : "expected boolean" });
+                } else {
+                    instance.hidden = __raw_hidden;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("derived"))) {
+                instance.derived = (0) satisfies number;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number;
+
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
+                    errors.push({ field: "weight", message: __raw_weight == null ? "KeyedOptions.weight is required" : "expected number" });
+                } else {
+                    if (__raw_weight == null) { errors.push({ field: "weight", message: "KeyedOptions.weight is required" }); } else {
+                        if (__raw_weight <= 0) { errors.push({ field: "weight", message: "KeyedOptions.weight must be positive" }); }
+                    }
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+                const __raw_secret = obj["secret"] as string;
+
+                if (!(typeof __raw_secret === "string")) {
+                    errors.push({ field: "secret", message: __raw_secret == null ? "KeyedOptions.secret is required" : "expected string" });
+                } else {
+                    instance.secret = __raw_secret;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("noise")) ? "noise" in obj : (__fields.keeps("noise") && obj["noise"] !== undefined)) {
+                const __raw_noise = obj["noise"] as number;
+
+                if (!(typeof __raw_noise === "number" && globalThis.Number.isFinite(__raw_noise))) {
+                    errors.push({ field: "noise", message: __raw_noise == null ? "KeyedOptions.noise is required" : "expected number" });
+                } else {
+                    instance.noise = __raw_noise;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("ignored")) ? "ignored" in obj : (__fields.keeps("ignored") && obj["ignored"] !== undefined)) {
+                const __raw_ignored = obj["ignored"] as number;
+
+                if (!(typeof __raw_ignored === "number" && globalThis.Number.isFinite(__raw_ignored))) {
+                    errors.push({ field: "ignored", message: __raw_ignored == null ? "KeyedOptions.ignored is required" : "expected number" });
+                } else {
+                    instance.ignored = __raw_ignored;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("five")) ? "five" in obj : (__fields.keeps("five") && obj["five"] !== undefined)) {
+                const __raw_five = obj["five"] as number;
+
+                if (!(typeof __raw_five === "number" && globalThis.Number.isFinite(__raw_five))) {
+                    errors.push({ field: "five", message: __raw_five == null ? "KeyedOptions.five is required" : "expected number" });
+                } else {
+                    instance.five = __raw_five;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("inner"))) {
+                if ((__fields === undefined || __fields.requires("inner")) || keyedInnerHasShape(obj)) {
+                    try {
+                        const __result = keyedInnerDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "inner", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1091,7 +1170,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "n") && __mf_holds(obj, "hidden") && __mf_holds(obj, "weight") && __mf_holds(obj, "secret") && __mf_holds(obj, "noise") && __mf_holds(obj, "ignored") && __mf_holds(obj, "five");
+    return __mf_holdsAll(obj, ["n", "hidden", "weight", "secret", "noise", "ignored", "five"]);
 }
 
 static is(obj: unknown): obj is KeyedOptions {
@@ -1186,7 +1265,9 @@ export function keyedInnerClone(value: KeyedInner): KeyedInner {
 
 export function keyedInnerEquals(a: KeyedInner, b: KeyedInner): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.deepValue === b.deepValue || a.deepValue !== a.deepValue && b.deepValue !== b.deepValue);
+    return __mf_equalWithin(a, b, () => {
+        return a.deepValue === b.deepValue || a.deepValue !== a.deepValue && b.deepValue !== b.deepValue;
+    });
 }
 
 export function keyedInnerHashCode(value: KeyedInner): number {
@@ -1312,8 +1393,12 @@ export function keyedInnerDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("deepValue")) && !("deepValue" in obj)) {
-        errors.push({ field: "deepValue", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["deepValue", "deepValue"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1356,7 +1441,7 @@ export function keyedInnerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "deepValue");
+    return __mf_holdsAll(obj, ["deepValue"]);
 }
 
 export function keyedInnerIs(obj: unknown): obj is KeyedInner {
@@ -1427,7 +1512,14 @@ export function keyedSelectionsClone(value: KeyedSelections): KeyedSelections {
 
 export function keyedSelectionsEquals(a: KeyedSelections, b: KeyedSelections): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.partial, b.partial) && __mf_structuralEquals(a.picked, b.picked) && __mf_structuralEquals(a.omitted, b.omitted) && __mf_structuralEquals(a.required, b.required));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.partial, b.partial),
+            () => __mf_structuralEquals(a.picked, b.picked),
+            () => __mf_structuralEquals(a.omitted, b.omitted),
+            () => __mf_structuralEquals(a.required, b.required),
+        ].every((same) => same());
+    });
 }
 
 export function keyedSelectionsHashCode(value: KeyedSelections): number {
@@ -1469,25 +1561,37 @@ export function keyedSelectionsEncodePartialWithContext(value: Partial<KeyedSele
 }
 
 function keyedSelectionsEncodeFields(value: KeyedSelections, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("partial")) {
-        if (value.partial !== undefined) {
-            result["partial"] = keyedRecordsEncodePartialWithContext(value.partial, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("picked")) {
-        if (value.picked !== undefined) {
-            result["picked"] = keyedRecordsEncodePartialWithContext(value.picked, ctx, { only: ["byKind", "codes"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("omitted")) {
-        if (value.omitted !== undefined) {
-            result["omitted"] = keyedRecordsEncodePartialWithContext(value.omitted, ctx, { except: ["byLevel", "levels", "deep"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("required")) {
-        if (value.required !== undefined) {
-            result["required"] = keyedRecordsEncodePartialWithContext(value.required, ctx, { only: ["deep"] });
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("partial")) {
+                if (value.partial !== undefined) {
+                    result["partial"] = keyedRecordsEncodePartialWithContext(value.partial, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("picked")) {
+                if (value.picked !== undefined) {
+                    result["picked"] = keyedRecordsEncodePartialWithContext(value.picked, ctx, { only: ["byKind", "codes"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("omitted")) {
+                if (value.omitted !== undefined) {
+                    result["omitted"] = keyedRecordsEncodePartialWithContext(value.omitted, ctx, { except: ["byLevel", "levels", "deep"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("required")) {
+                if (value.required !== undefined) {
+                    result["required"] = keyedRecordsEncodePartialWithContext(value.required, ctx, { only: ["deep"] });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1565,17 +1669,12 @@ export function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("partial")) && !("partial" in obj)) {
-        errors.push({ field: "partial", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("picked")) && !("picked" in obj)) {
-        errors.push({ field: "picked", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("omitted")) && !("omitted" in obj)) {
-        errors.push({ field: "omitted", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
-        errors.push({ field: "required", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["partial", "partial"], ["picked", "picked"], ["omitted", "omitted"], ["required", "required"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1586,97 +1685,109 @@ export function keyedSelectionsDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("partial")) ? "partial" in obj : (__fields.keeps("partial") && obj["partial"] !== undefined)) {
-        const __raw_partial = obj["partial"] as Partial<KeyedRecords>;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("partial")) ? "partial" in obj : (__fields.keeps("partial") && obj["partial"] !== undefined)) {
+                const __raw_partial = obj["partial"] as Partial<KeyedRecords>;
 
-        ctx.pushScope("partial");
-        try {
-            const __result = keyedRecordsDecodePartialWithContext(__raw_partial, ctx);
-            ctx.assignOrDefer(instance, "partial", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "partial" : "partial." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("partial");
+                try {
+                    const __result = keyedRecordsDecodePartialWithContext(__raw_partial, ctx);
+                    ctx.assignOrDefer(instance, "partial", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "partial" : "partial." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "partial", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "partial", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
-        const __raw_picked = obj["picked"] as Pick<KeyedRecords, 'byKind' | 'codes'>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
+                const __raw_picked = obj["picked"] as Pick<KeyedRecords, 'byKind' | 'codes'>;
 
-        ctx.pushScope("picked");
-        try {
-            const __result = keyedRecordsDecodePartialWithContext(__raw_picked, ctx, { only: ["byKind", "codes"] });
-            ctx.assignOrDefer(instance, "picked", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "picked" : "picked." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("picked");
+                try {
+                    const __result = keyedRecordsDecodePartialWithContext(__raw_picked, ctx, { only: ["byKind", "codes"] });
+                    ctx.assignOrDefer(instance, "picked", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "picked" : "picked." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("omitted")) ? "omitted" in obj : (__fields.keeps("omitted") && obj["omitted"] !== undefined)) {
-        const __raw_omitted = obj["omitted"] as Omit<KeyedRecords, 'byLevel' | 'levels' | 'deep'>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("omitted")) ? "omitted" in obj : (__fields.keeps("omitted") && obj["omitted"] !== undefined)) {
+                const __raw_omitted = obj["omitted"] as Omit<KeyedRecords, 'byLevel' | 'levels' | 'deep'>;
 
-        ctx.pushScope("omitted");
-        try {
-            const __result = keyedRecordsDecodePartialWithContext(__raw_omitted, ctx, { except: ["byLevel", "levels", "deep"] });
-            ctx.assignOrDefer(instance, "omitted", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "omitted" : "omitted." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("omitted");
+                try {
+                    const __result = keyedRecordsDecodePartialWithContext(__raw_omitted, ctx, { except: ["byLevel", "levels", "deep"] });
+                    ctx.assignOrDefer(instance, "omitted", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "omitted" : "omitted." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "omitted", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "omitted", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
-        const __raw_required = obj["required"] as Required<Pick<KeyedRecords, 'deep'>>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
+                const __raw_required = obj["required"] as Required<Pick<KeyedRecords, 'deep'>>;
 
-        ctx.pushScope("required");
-        try {
-            const __result = keyedRecordsDecodePartialWithContext(__mf_requireKeys(__raw_required, ctx, [["deep", "deep"]]), ctx, { only: ["deep"] });
-            ctx.assignOrDefer(instance, "required", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "required" : "required." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("required");
+                try {
+                    const __result = keyedRecordsDecodePartialWithContext(__mf_requireKeys(__raw_required, ctx, [["deep", "deep"]]), ctx, { only: ["deep"] });
+                    ctx.assignOrDefer(instance, "required", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "required" : "required." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1701,7 +1812,7 @@ export function keyedSelectionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "partial") && __mf_holds(obj, "picked") && __mf_holds(obj, "omitted") && __mf_holds(obj, "required");
+    return __mf_holdsAll(obj, ["partial", "picked", "omitted", "required"]);
 }
 
 export function keyedSelectionsIs(obj: unknown): obj is KeyedSelections {
@@ -2110,69 +2221,69 @@ export declare const KeyedSelections: {
 
 ## Mapping
 
-original 0..387 -> expanded 1503..1890
-original 387..530 -> expanded 4929..5072
-original 530..912 -> expanded 7979..8361
-original 912..1603 -> expanded 31342..32033
-original 1603..1604 -> expanded 51232..51233
-original 1604..1731 -> expanded 55014..55141
-original 1731..2035 -> expanded 65343..65647
-original 2035..2036 -> expanded 81552..81553
-generated 0..1503 <- imports
-generated 1890..2195 <- Debug
-generated 2195..2281 <- Clone
-generated 2281..2378 <- PartialEq
-generated 2378..2584 <- Hash
-generated 2584..2669 <- Default
-generated 2669..3103 <- Encode
-generated 3103..4145 <- Decode
-generated 4145..4929 <- __convenience_const
-generated 5072..5360 <- Debug
-generated 5360..5443 <- Clone
-generated 5443..5537 <- PartialEq
-generated 5537..5698 <- Hash
-generated 5698..5778 <- Default
-generated 5778..6206 <- Encode
-generated 6206..7216 <- Decode
-generated 7216..7979 <- __convenience_const
-generated 8361..9027 <- Debug
-generated 9027..9508 <- Clone
-generated 9508..10408 <- PartialEq
-generated 10408..11416 <- Hash
-generated 11416..11727 <- Default
-generated 11727..15181 <- Encode
-generated 15181..29844 <- Decode
-generated 29844..31342 <- __convenience_const
-generated 32033..32764 <- Debug
-generated 32764..33211 <- Clone
-generated 33211..33844 <- PartialEq
-generated 33844..35295 <- Hash
-generated 35295..35871 <- Default
-generated 35871..38953 <- Encode
-generated 38953..39284 <- Encode
-generated 39284..51232 <- Decode
-generated 51233..51345 <- Debug
-generated 51345..51457 <- Clone
-generated 51457..51578 <- PartialEq
-generated 51578..51690 <- Hash
-generated 51690..51792 <- Default
-generated 51792..53172 <- Encode
-generated 53172..55014 <- Decode
-generated 55141..55413 <- Debug
-generated 55413..55568 <- Clone
-generated 55568..55807 <- PartialEq
-generated 55807..56155 <- Hash
-generated 56155..56255 <- Default
-generated 56255..58434 <- Encode
-generated 58434..63907 <- Decode
-generated 63907..65343 <- __convenience_const
-generated 65647..66145 <- Debug
-generated 66145..66480 <- Clone
-generated 66480..66829 <- PartialEq
-generated 66829..67270 <- Hash
-generated 67270..70288 <- Encode
-generated 70288..80067 <- Decode
-generated 80067..81552 <- __convenience_const
+original 0..387 -> expanded 1509..1896
+original 387..530 -> expanded 4935..5078
+original 530..912 -> expanded 7985..8367
+original 912..1603 -> expanded 33016..33707
+original 1603..1604 -> expanded 54090..54091
+original 1604..1731 -> expanded 57872..57999
+original 1731..2035 -> expanded 68383..68687
+original 2035..2036 -> expanded 85537..85538
+generated 0..1509 <- imports
+generated 1896..2201 <- Debug
+generated 2201..2287 <- Clone
+generated 2287..2384 <- PartialEq
+generated 2384..2590 <- Hash
+generated 2590..2675 <- Default
+generated 2675..3109 <- Encode
+generated 3109..4151 <- Decode
+generated 4151..4935 <- __convenience_const
+generated 5078..5366 <- Debug
+generated 5366..5449 <- Clone
+generated 5449..5543 <- PartialEq
+generated 5543..5704 <- Hash
+generated 5704..5784 <- Default
+generated 5784..6212 <- Encode
+generated 6212..7222 <- Decode
+generated 7222..7985 <- __convenience_const
+generated 8367..9033 <- Debug
+generated 9033..9514 <- Clone
+generated 9514..10625 <- PartialEq
+generated 10625..11633 <- Hash
+generated 11633..11944 <- Default
+generated 11944..15927 <- Encode
+generated 15927..31518 <- Decode
+generated 31518..33016 <- __convenience_const
+generated 33707..34438 <- Debug
+generated 34438..34885 <- Clone
+generated 34885..35811 <- PartialEq
+generated 35811..37262 <- Hash
+generated 37262..37838 <- Default
+generated 37838..41599 <- Encode
+generated 41599..41930 <- Encode
+generated 41930..54090 <- Decode
+generated 54091..54203 <- Debug
+generated 54203..54315 <- Clone
+generated 54315..54436 <- PartialEq
+generated 54436..54548 <- Hash
+generated 54548..54650 <- Default
+generated 54650..56030 <- Encode
+generated 56030..57872 <- Decode
+generated 57999..58271 <- Debug
+generated 58271..58426 <- Clone
+generated 58426..58689 <- PartialEq
+generated 58689..59037 <- Hash
+generated 59037..59137 <- Default
+generated 59137..61316 <- Encode
+generated 61316..66947 <- Decode
+generated 66947..68383 <- __convenience_const
+generated 68687..69185 <- Debug
+generated 69185..69520 <- Clone
+generated 69520..69996 <- PartialEq
+generated 69996..70437 <- Hash
+generated 70437..73783 <- Encode
+generated 73783..84052 <- Decode
+generated 84052..85537 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * The types the edge-case modules build on. They live in a module of their
@@ -44,7 +44,12 @@ export function edgeItemClone(value: EdgeItem): EdgeItem {
 
 export function edgeItemEquals(a: EdgeItem, b: EdgeItem): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        ].every((same) => same());
+    });
 }
 
 export function edgeItemHashCode(value: EdgeItem): number {
@@ -59,24 +64,28 @@ export function edgeItemHashCode(value: EdgeItem): number {
 export function edgeItemPartialCompare(a: EdgeItem, b: EdgeItem): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+        () => (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score || (a.score !== a.score && b.score !== b.score) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function edgeItemCompare(a: EdgeItem, b: EdgeItem): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : a.score !== a.score ? b.score !== b.score ? 0 : 1 : -1;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+        () => a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : a.score !== a.score ? b.score !== b.score ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -115,15 +124,23 @@ export function edgeItemEncodePartialWithContext(value: Partial<EdgeItem>, ctx: 
 }
 
 function edgeItemEncodeFields(value: EdgeItem, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-        if (value.score !== undefined) {
-            result["score"] = value.score;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -201,11 +218,12 @@ export function edgeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["score", "score"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -216,23 +234,31 @@ export function edgeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "EdgeItem.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "EdgeItem.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "EdgeItem.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "EdgeItem.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -257,7 +283,7 @@ export function edgeItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "score");
+    return __mf_holdsAll(obj, ["id", "score"]);
 }
 
 export function edgeItemIs(obj: unknown): obj is EdgeItem {
@@ -325,10 +351,15 @@ export class EdgeCard {
 
     static equals(a: EdgeCard, b: EdgeCard): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.title === b.title && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
-        	const __other0 = b.items[__index0];
-        	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.title === b.title,
+                    () => a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+                    	const __other0 = b.items[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
+                    }),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: EdgeCard): number {
@@ -369,15 +400,23 @@ static encodePartialWithContext(value: Partial<EdgeCard>, ctx: __mf_EncodeContex
 }
 
 static #encodeFields(value: EdgeCard, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("title")) {
-        if (value.title !== undefined) {
-            result["title"] = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("items")) {
-        if (value.items !== undefined) {
-            result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("items")) {
+                if (value.items !== undefined) {
+                    result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -467,11 +506,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"], ["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(EdgeCard.prototype);
@@ -482,38 +522,46 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "EdgeCard.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
-        const __raw_items = obj["items"] as EdgeItem[];
-        if (Array.isArray(__raw_items)) {
-            ctx.pushScope("items");
-            try {
-                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "items" : "items." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "EdgeCard.title is required" : "expected string" });
+                } else {
+                    instance.title = __raw_title;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+                const __raw_items = obj["items"] as EdgeItem[];
+                if (Array.isArray(__raw_items)) {
+                    ctx.pushScope("items");
+                    try {
+                        instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "items" : "items." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "items", message: __raw_items == null ? "EdgeCard.items is required" : "expected EdgeItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "items", message: __raw_items == null ? "EdgeCard.items is required" : "expected EdgeItem[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -534,7 +582,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "title") && __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["title", "items"]);
 }
 
 static is(obj: unknown): obj is EdgeCard {
@@ -649,10 +697,19 @@ export function edgeProfileClone(value: EdgeProfile): EdgeProfile {
 
 export function edgeProfileEquals(a: EdgeProfile, b: EdgeProfile): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.displayName === b.displayName && a.email === b.email && (a.joinedAt.getTime() === b.joinedAt.getTime() || a.joinedAt.getTime() !== a.joinedAt.getTime() && b.joinedAt.getTime() !== b.joinedAt.getTime()) && a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
-	const __other0 = b.tags[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-}) && a.nickname === b.nickname && (a.level === b.level || a.level !== a.level && b.level !== b.level));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.displayName === b.displayName,
+            () => a.email === b.email,
+            () => a.joinedAt.getTime() === b.joinedAt.getTime() || a.joinedAt.getTime() !== a.joinedAt.getTime() && b.joinedAt.getTime() !== b.joinedAt.getTime(),
+            () => a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
+            	const __other0 = b.tags[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+            }),
+            () => a.nickname === b.nickname,
+            () => a.level === b.level || a.level !== a.level && b.level !== b.level,
+        ].every((same) => same());
+    });
 }
 
 export function edgeProfileHashCode(value: EdgeProfile): number {
@@ -696,35 +753,51 @@ export function edgeProfileEncodePartialWithContext(value: Partial<EdgeProfile>,
 }
 
 function edgeProfileEncodeFields(value: EdgeProfile, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("displayName")) {
-        if (value.displayName !== undefined) {
-            result["display_name"] = value.displayName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-        if (value.email !== undefined) {
-            result["mail"] = value.email;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("joinedAt")) {
-        if (value.joinedAt !== undefined) {
-            result["joined_at"] = value.joinedAt.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nickname")) {
-        if (value.nickname !== undefined) {
-            result["nickname"] = value.nickname;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("level")) {
-        if (value.level !== undefined) {
-            result["level"] = value.level;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("displayName")) {
+                if (value.displayName !== undefined) {
+                    result["display_name"] = value.displayName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["mail"] = value.email;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("joinedAt")) {
+                if (value.joinedAt !== undefined) {
+                    result["joined_at"] = value.joinedAt.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nickname")) {
+                if (value.nickname !== undefined) {
+                    result["nickname"] = value.nickname;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("level")) {
+                if (value.level !== undefined) {
+                    result["level"] = value.level;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -802,17 +875,12 @@ export function edgeProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("displayName")) && !("display_name" in obj)) {
-        errors.push({ field: "display_name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("mail" in obj)) {
-        errors.push({ field: "mail", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("joinedAt")) && !("joined_at" in obj)) {
-        errors.push({ field: "joined_at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["displayName", "display_name"], ["email", "mail"], ["joinedAt", "joined_at"], ["tags", "tags"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -823,87 +891,103 @@ export function edgeProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("displayName")) ? "display_name" in obj : (__fields.keeps("displayName") && obj["display_name"] !== undefined)) {
-        const __raw_displayName = obj["display_name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("displayName")) ? "display_name" in obj : (__fields.keeps("displayName") && obj["display_name"] !== undefined)) {
+                const __raw_displayName = obj["display_name"] as string;
 
-        if (!(typeof __raw_displayName === "string")) {
-            errors.push({ field: "display_name", message: __raw_displayName == null ? "EdgeProfile.display_name is required" : "expected string" });
-        } else {
-            instance.displayName = __raw_displayName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) ? "mail" in obj : (__fields.keeps("email") && obj["mail"] !== undefined)) {
-        const __raw_email = obj["mail"] as string;
-
-        if (!(typeof __raw_email === "string")) {
-            errors.push({ field: "mail", message: __raw_email == null ? "EdgeProfile.mail is required" : "expected string" });
-        } else {
-            if (__raw_email == null) { errors.push({ field: "mail", message: "EdgeProfile.mail is required" }); } else {
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "mail", message: "EdgeProfile.mail must be a valid email" }); }
+                if (!(typeof __raw_displayName === "string")) {
+                    errors.push({ field: "display_name", message: __raw_displayName == null ? "EdgeProfile.display_name is required" : "expected string" });
+                } else {
+                    instance.displayName = __raw_displayName;
+                }
             }
-            instance.email = __raw_email;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("joinedAt")) ? "joined_at" in obj : (__fields.keeps("joinedAt") && obj["joined_at"] !== undefined)) {
-        const __raw_joinedAt = obj["joined_at"] as string | Date;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "mail" in obj : (__fields.keeps("email") && obj["mail"] !== undefined)) {
+                const __raw_email = obj["mail"] as string;
 
-        {
-            const __dateVal = (__raw_joinedAt instanceof Date ? __raw_joinedAt : typeof __raw_joinedAt === "string" ? new Date(__raw_joinedAt) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "joined_at", message: __raw_joinedAt == null ? "EdgeProfile.joined_at is required" : "expected Date" });
-            } else {
-                instance.joinedAt = __dateVal;
+                if (!(typeof __raw_email === "string")) {
+                    errors.push({ field: "mail", message: __raw_email == null ? "EdgeProfile.mail is required" : "expected string" });
+                } else {
+                    if (__raw_email == null) { errors.push({ field: "mail", message: "EdgeProfile.mail is required" }); } else {
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "mail", message: "EdgeProfile.mail must be a valid email" }); }
+                    }
+                    instance.email = __raw_email;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string[];
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("joinedAt")) ? "joined_at" in obj : (__fields.keeps("joinedAt") && obj["joined_at"] !== undefined)) {
+                const __raw_joinedAt = obj["joined_at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_joinedAt instanceof Date ? __raw_joinedAt : typeof __raw_joinedAt === "string" ? new Date(__raw_joinedAt) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "joined_at", message: __raw_joinedAt == null ? "EdgeProfile.joined_at is required" : "expected Date" });
+                    } else {
+                        instance.joinedAt = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string[];
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "EdgeProfile.tags is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "EdgeProfile.tags is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("nickname"))) {
-        if (("nickname" in obj && obj["nickname"] !== undefined)) {
-            const __raw_nickname = obj["nickname"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("nickname"))) {
+                if (("nickname" in obj && obj["nickname"] !== undefined)) {
+                    const __raw_nickname = obj["nickname"] as string;
 
-            if (!(typeof __raw_nickname === "string")) {
-                errors.push({ field: "nickname", message: "expected string" });
-            } else {
-                instance.nickname = __raw_nickname;
+                    if (!(typeof __raw_nickname === "string")) {
+                        errors.push({ field: "nickname", message: "expected string" });
+                    } else {
+                        instance.nickname = __raw_nickname;
+                    }
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("level"))) {
-        if (("level" in obj && obj["level"] !== undefined)) {
-            const __raw_level = obj["level"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("level"))) {
+                if (("level" in obj && obj["level"] !== undefined)) {
+                    const __raw_level = obj["level"] as number;
 
-            if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
-                errors.push({ field: "level", message: "expected number" });
-            } else {
-                instance.level = __raw_level;
+                    if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
+                        errors.push({ field: "level", message: "expected number" });
+                    } else {
+                        instance.level = __raw_level;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("level")) && !("level" in obj && obj["level"] !== undefined)) {
+                    instance.level = (1) satisfies number;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("level")) && !("level" in obj && obj["level"] !== undefined)) {
-            instance.level = (1) satisfies number;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -940,7 +1024,7 @@ export function edgeProfileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "display_name") && __mf_holds(obj, "mail") && __mf_holds(obj, "joined_at") && __mf_holds(obj, "tags");
+    return __mf_holdsAll(obj, ["display_name", "mail", "joined_at", "tags"]);
 }
 
 export function edgeProfileIs(obj: unknown): obj is EdgeProfile {
@@ -1004,7 +1088,12 @@ export function edgeStrictClone(value: EdgeStrict): EdgeStrict {
 
 export function edgeStrictEquals(a: EdgeStrict, b: EdgeStrict): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.note === b.note);
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.note === b.note,
+        ].every((same) => same());
+    });
 }
 
 export function edgeStrictHashCode(value: EdgeStrict): number {
@@ -1044,15 +1133,23 @@ export function edgeStrictEncodePartialWithContext(value: Partial<EdgeStrict>, c
 }
 
 function edgeStrictEncodeFields(value: EdgeStrict, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1136,11 +1233,12 @@ export function edgeStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: key, message: "unknown field" });
         }
     }
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
-        errors.push({ field: "note", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["note", "note"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1151,23 +1249,31 @@ export function edgeStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "EdgeStrict.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "EdgeStrict.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string;
 
-        if (!(typeof __raw_note === "string")) {
-            errors.push({ field: "note", message: __raw_note == null ? "EdgeStrict.note is required" : "expected string" });
-        } else {
-            instance.note = __raw_note;
-        }
+                if (!(typeof __raw_note === "string")) {
+                    errors.push({ field: "note", message: __raw_note == null ? "EdgeStrict.note is required" : "expected string" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1192,7 +1298,7 @@ export function edgeStrictHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "note");
+    return __mf_holdsAll(obj, ["id", "note"]);
 }
 
 export function edgeStrictIs(obj: unknown): obj is EdgeStrict {
@@ -1256,7 +1362,12 @@ export function edgeLabeledClone(value: EdgeLabeled): EdgeLabeled {
 
 export function edgeLabeledEquals(a: EdgeLabeled, b: EdgeLabeled): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.label === b.label && edgeItemEquals(a.origin, b.origin));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.label === b.label,
+            () => edgeItemEquals(a.origin, b.origin),
+        ].every((same) => same());
+    });
 }
 
 export function edgeLabeledHashCode(value: EdgeLabeled): number {
@@ -1296,17 +1407,25 @@ export function edgeLabeledEncodePartialWithContext(value: Partial<EdgeLabeled>,
 }
 
 function edgeLabeledEncodeFields(value: EdgeLabeled, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("origin")) {
-        if (value.origin !== undefined) {
-            const __flattened = edgeItemEncodePartialWithContext(value.origin, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("origin")) {
+                if (value.origin !== undefined) {
+                    const __flattened = edgeItemEncodePartialWithContext(value.origin, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1384,8 +1503,12 @@ export function edgeLabeledDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["label", "label"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1396,30 +1519,38 @@ export function edgeLabeledDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
-        const __raw_label = obj["label"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+                const __raw_label = obj["label"] as string;
 
-        if (!(typeof __raw_label === "string")) {
-            errors.push({ field: "label", message: __raw_label == null ? "EdgeLabeled.label is required" : "expected string" });
-        } else {
-            instance.label = __raw_label;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("origin"))) {
-        if ((__fields === undefined || __fields.requires("origin")) || edgeItemHasShape(obj)) {
-            try {
-                const __result = edgeItemDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "origin", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
-                    }
+                if (!(typeof __raw_label === "string")) {
+                    errors.push({ field: "label", message: __raw_label == null ? "EdgeLabeled.label is required" : "expected string" });
                 } else {
-                    throw __e;
+                    instance.label = __raw_label;
                 }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("origin"))) {
+                if ((__fields === undefined || __fields.requires("origin")) || edgeItemHasShape(obj)) {
+                    try {
+                        const __result = edgeItemDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "origin", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1444,7 +1575,7 @@ export function edgeLabeledHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "label");
+    return __mf_holdsAll(obj, ["label"]);
 }
 
 export function edgeLabeledIs(obj: unknown): obj is EdgeLabeled {
@@ -1507,7 +1638,12 @@ export function edgeNodeClone(value: EdgeNode): EdgeNode {
 
 export function edgeNodeEquals(a: EdgeNode, b: EdgeNode): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.name === b.name && (a.next == null || b.next == null ? a.next === b.next : edgeNodeEquals(a.next, b.next)));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.name === b.name,
+            () => a.next == null || b.next == null ? a.next === b.next : edgeNodeEquals(a.next, b.next),
+        ].every((same) => same());
+    });
 }
 
 export function edgeNodeHashCode(value: EdgeNode): number {
@@ -1547,15 +1683,23 @@ export function edgeNodeEncodePartialWithContext(value: Partial<EdgeNode>, ctx: 
 }
 
 function edgeNodeEncodeFields(value: EdgeNode, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("next")) {
-        if (value.next !== undefined) {
-            result["next"] = value.next === null ? null : edgeNodeEncodeWithContext(value.next, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("next")) {
+                if (value.next !== undefined) {
+                    result["next"] = value.next === null ? null : edgeNodeEncodeWithContext(value.next, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1633,11 +1777,12 @@ export function edgeNodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("next")) && !("next" in obj)) {
-        errors.push({ field: "next", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["next", "next"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1648,41 +1793,49 @@ export function edgeNodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "EdgeNode.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("next")) ? "next" in obj : (__fields.keeps("next") && obj["next"] !== undefined)) {
-        const __raw_next = obj["next"] as EdgeNode | null;
-
-        if (__raw_next === null) {
-            instance.next = null;
-        } else {
-            ctx.pushScope("next");
-            try {
-                const __result = edgeNodeDecodeWithContext(__raw_next, ctx);
-                ctx.assignOrDefer(instance, "next", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "next" : "next." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "EdgeNode.name is required" : "expected string" });
                 } else {
-
-                    errors.push({ field: "next", message: __e instanceof Error ? __e.message : String(__e) });
+                    instance.name = __raw_name;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("next")) ? "next" in obj : (__fields.keeps("next") && obj["next"] !== undefined)) {
+                const __raw_next = obj["next"] as EdgeNode | null;
+
+                if (__raw_next === null) {
+                    instance.next = null;
+                } else {
+                    ctx.pushScope("next");
+                    try {
+                        const __result = edgeNodeDecodeWithContext(__raw_next, ctx);
+                        ctx.assignOrDefer(instance, "next", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "next" : "next." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "next", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1707,7 +1860,7 @@ export function edgeNodeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "next");
+    return __mf_holdsAll(obj, ["name", "next"]);
 }
 
 export function edgeNodeIs(obj: unknown): obj is EdgeNode {
@@ -2140,68 +2293,68 @@ export declare const EdgeNode: {
 
 ## Mapping
 
-original 0..314 -> expanded 1042..1356
-original 314..463 -> expanded 13326..13475
-original 463..464 -> expanded 23398..23399
-original 464..822 -> expanded 27012..27370
-original 822..994 -> expanded 44655..44827
-original 994..1158 -> expanded 55700..55864
-original 1158..1296 -> expanded 66867..67005
-original 1296..1297 -> expanded 78371..78372
-generated 0..1042 <- imports
-generated 1356..1657 <- Debug
-generated 1657..1812 <- Clone
-generated 1812..2040 <- PartialEq
-generated 2040..2489 <- Hash
-generated 2489..3017 <- PartialOrd
-generated 3017..3457 <- Ord
-generated 3457..3565 <- Default
-generated 3565..5847 <- Encode
-generated 5847..11780 <- Decode
-generated 11780..13326 <- __convenience_const
-generated 13475..13834 <- Debug
-generated 13834..14045 <- Clone
-generated 14045..14442 <- PartialEq
-generated 14442..14866 <- Hash
-generated 14866..15091 <- Default
-generated 15091..16854 <- Encode
-generated 16854..17177 <- Encode
-generated 17177..23398 <- Decode
-generated 23399..23499 <- Debug
-generated 23499..23595 <- Clone
-generated 23595..23700 <- PartialEq
-generated 23700..23800 <- Hash
-generated 23800..23890 <- Default
-generated 23890..25230 <- Encode
-generated 25230..27012 <- Decode
-generated 27370..27918 <- Debug
-generated 27918..28256 <- Clone
-generated 28256..28906 <- PartialEq
-generated 28906..29890 <- Hash
-generated 29890..32932 <- Encode
-generated 32932..43286 <- Decode
-generated 43286..44655 <- __convenience_const
-generated 44827..45132 <- Debug
-generated 45132..45293 <- Clone
-generated 45293..45477 <- PartialEq
-generated 45477..45876 <- Hash
-generated 45876..48184 <- Encode
-generated 48184..54360 <- Decode
-generated 54360..55700 <- __convenience_const
-generated 55864..56192 <- Debug
-generated 56192..56382 <- Clone
-generated 56382..56592 <- PartialEq
-generated 56592..56940 <- Hash
-generated 56940..59460 <- Encode
-generated 59460..65498 <- Decode
-generated 65498..66867 <- __convenience_const
-generated 67005..67362 <- Debug
-generated 67362..67568 <- Clone
-generated 67568..67820 <- PartialEq
-generated 67820..68184 <- Hash
-generated 68184..70530 <- Encode
-generated 70530..77089 <- Decode
-generated 77089..78371 <- __convenience_const
+original 0..314 -> expanded 1048..1362
+original 314..463 -> expanded 13882..14031
+original 463..464 -> expanded 24683..24684
+original 464..822 -> expanded 28297..28655
+original 822..994 -> expanded 47080..47252
+original 994..1158 -> expanded 58654..58818
+original 1158..1296 -> expanded 70594..70732
+original 1296..1297 -> expanded 82759..82760
+generated 0..1048 <- imports
+generated 1362..1663 <- Debug
+generated 1663..1818 <- Clone
+generated 1818..2139 <- PartialEq
+generated 2139..2588 <- Hash
+generated 2588..3092 <- PartialOrd
+generated 3092..3580 <- Ord
+generated 3580..3688 <- Default
+generated 3688..6164 <- Encode
+generated 6164..12336 <- Decode
+generated 12336..13882 <- __convenience_const
+generated 14031..14390 <- Debug
+generated 14390..14601 <- Clone
+generated 14601..15169 <- PartialEq
+generated 15169..15593 <- Hash
+generated 15593..15818 <- Default
+generated 15818..17775 <- Encode
+generated 17775..18098 <- Encode
+generated 18098..24683 <- Decode
+generated 24684..24784 <- Debug
+generated 24784..24880 <- Clone
+generated 24880..24985 <- PartialEq
+generated 24985..25085 <- Hash
+generated 25085..25175 <- Default
+generated 25175..26515 <- Encode
+generated 26515..28297 <- Decode
+generated 28655..29203 <- Debug
+generated 29203..29541 <- Clone
+generated 29541..30382 <- PartialEq
+generated 30382..31366 <- Hash
+generated 31366..34870 <- Encode
+generated 34870..45711 <- Decode
+generated 45711..47080 <- __convenience_const
+generated 47252..47557 <- Debug
+generated 47557..47718 <- Clone
+generated 47718..47997 <- PartialEq
+generated 47997..48396 <- Hash
+generated 48396..50898 <- Encode
+generated 50898..57314 <- Decode
+generated 57314..58654 <- __convenience_const
+generated 58818..59146 <- Debug
+generated 59146..59336 <- Clone
+generated 59336..59641 <- PartialEq
+generated 59641..59989 <- Hash
+generated 59989..62719 <- Encode
+generated 62719..69225 <- Decode
+generated 69225..70594 <- __convenience_const
+generated 70732..71089 <- Debug
+generated 71089..71295 <- Clone
+generated 71295..71640 <- PartialEq
+generated 71640..72004 <- Hash
+generated 72004..74544 <- Encode
+generated 74544..81477 <- Decode
+generated 81477..82759 <- __convenience_const
 
 ## Metadata
 

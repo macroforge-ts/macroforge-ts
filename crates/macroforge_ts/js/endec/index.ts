@@ -726,6 +726,11 @@ export function holds(raw: object, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(raw, key);
 }
 
+/** Whether `raw` holds each of `keys` itself, as {@link holds} asks of one. */
+export function holdsAll(raw: object, keys: ReadonlyArray<string>): boolean {
+  return keys.every((key) => holds(raw, key));
+}
+
 /**
  * What `raw` gives for `key`, and `undefined` for a value that is no object.
  * A member it inherits counts: the tag of a class may be a getter of it.
@@ -1031,6 +1036,21 @@ export function memberCoder<Union, Member extends Union>(
   encode: (value: Member) => unknown,
 ): (value: Union) => unknown {
   return (value) => (is(value) ? encode(value) : notTheMember);
+}
+
+/**
+ * What the first of `decoders` whose member `raw` is decodes it to, or
+ * {@link notTheMember} when it is of none of them.
+ */
+export function decodedMember<Raw>(
+  raw: Raw,
+  decoders: ReadonlyArray<(raw: Raw) => unknown>,
+): unknown {
+  for (const decoder of decoders) {
+    const decoded = decoder(raw);
+    if (decoded !== notTheMember) return decoded;
+  }
+  return notTheMember;
 }
 
 /**

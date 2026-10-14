@@ -13,7 +13,7 @@ true
 ## Output
 
 import { serviceDefaultsDecodeWithContext, serviceDefaultsEncodeWithContext, serviceDefaultsDefaultValue } from "./service-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -93,60 +93,86 @@ export function serviceEncodePartialWithContext(value: Partial<Service>, ctx: __
 }
 
 function serviceEncodeFields(value: Service, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("quickCode")) {
-        if (value.quickCode !== undefined) {
-            result["quickCode"] = value.quickCode;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("group")) {
-        if (value.group !== undefined) {
-            result["group"] = value.group;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("subgroup")) {
-        if (value.subgroup !== undefined) {
-            result["subgroup"] = value.subgroup;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("unit")) {
-        if (value.unit !== undefined) {
-            result["unit"] = value.unit;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("active")) {
-        if (value.active !== undefined) {
-            result["active"] = value.active;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("commission")) {
-        if (value.commission !== undefined) {
-            result["commission"] = value.commission;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("favorite")) {
-        if (value.favorite !== undefined) {
-            result["favorite"] = value.favorite;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("averageTime")) {
-        if (value.averageTime !== undefined) {
-            result["averageTime"] = value.averageTime;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("defaults")) {
-        if (value.defaults !== undefined) {
-            result["defaults"] = serviceDefaultsEncodeWithContext(value.defaults, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("quickCode")) {
+                if (value.quickCode !== undefined) {
+                    result["quickCode"] = value.quickCode;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("group")) {
+                if (value.group !== undefined) {
+                    result["group"] = value.group;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("subgroup")) {
+                if (value.subgroup !== undefined) {
+                    result["subgroup"] = value.subgroup;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("unit")) {
+                if (value.unit !== undefined) {
+                    result["unit"] = value.unit;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("active")) {
+                if (value.active !== undefined) {
+                    result["active"] = value.active;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("commission")) {
+                if (value.commission !== undefined) {
+                    result["commission"] = value.commission;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("favorite")) {
+                if (value.favorite !== undefined) {
+                    result["favorite"] = value.favorite;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("averageTime")) {
+                if (value.averageTime !== undefined) {
+                    result["averageTime"] = value.averageTime;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("defaults")) {
+                if (value.defaults !== undefined) {
+                    result["defaults"] = serviceDefaultsEncodeWithContext(value.defaults, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -224,38 +250,12 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("quickCode")) && !("quickCode" in obj)) {
-        errors.push({ field: "quickCode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("group")) && !("group" in obj)) {
-        errors.push({ field: "group", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("subgroup")) && !("subgroup" in obj)) {
-        errors.push({ field: "subgroup", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("unit")) && !("unit" in obj)) {
-        errors.push({ field: "unit", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("commission")) && !("commission" in obj)) {
-        errors.push({ field: "commission", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("favorite")) && !("favorite" in obj)) {
-        errors.push({ field: "favorite", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("averageTime")) && !("averageTime" in obj)) {
-        errors.push({ field: "averageTime", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("defaults")) && !("defaults" in obj)) {
-        errors.push({ field: "defaults", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["name", "name"], ["quickCode", "quickCode"], ["group", "group"], ["subgroup", "subgroup"], ["unit", "unit"], ["active", "active"], ["commission", "commission"], ["favorite", "favorite"], ["averageTime", "averageTime"], ["defaults", "defaults"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -266,124 +266,150 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Service.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Service.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "Service.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "Service.name must not be empty" }); }
-            }
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("quickCode")) ? "quickCode" in obj : (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
-        const __raw_quickCode = obj["quickCode"] as string;
-
-        if (!(typeof __raw_quickCode === "string")) {
-            errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Service.quickCode is required" : "expected string" });
-        } else {
-            if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Service.quickCode is required" }); } else {
-                if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Service.quickCode must not be empty" }); }
-            }
-            instance.quickCode = __raw_quickCode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("group")) ? "group" in obj : (__fields.keeps("group") && obj["group"] !== undefined)) {
-        const __raw_group = obj["group"] as string | null;
-
-        if (!(typeof __raw_group === "string" || __raw_group === null)) {
-            errors.push({ field: "group", message: "expected string | null" });
-        } else {
-            instance.group = __raw_group;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("subgroup")) ? "subgroup" in obj : (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
-        const __raw_subgroup = obj["subgroup"] as string | null;
-
-        if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
-            errors.push({ field: "subgroup", message: "expected string | null" });
-        } else {
-            instance.subgroup = __raw_subgroup;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("unit")) ? "unit" in obj : (__fields.keeps("unit") && obj["unit"] !== undefined)) {
-        const __raw_unit = obj["unit"] as string | null;
-
-        if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
-            errors.push({ field: "unit", message: "expected string | null" });
-        } else {
-            instance.unit = __raw_unit;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
-
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "Service.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("commission")) ? "commission" in obj : (__fields.keeps("commission") && obj["commission"] !== undefined)) {
-        const __raw_commission = obj["commission"] as boolean;
-
-        if (!(typeof __raw_commission === "boolean")) {
-            errors.push({ field: "commission", message: __raw_commission == null ? "Service.commission is required" : "expected boolean" });
-        } else {
-            instance.commission = __raw_commission;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
-        const __raw_favorite = obj["favorite"] as boolean;
-
-        if (!(typeof __raw_favorite === "boolean")) {
-            errors.push({ field: "favorite", message: __raw_favorite == null ? "Service.favorite is required" : "expected boolean" });
-        } else {
-            instance.favorite = __raw_favorite;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("averageTime")) ? "averageTime" in obj : (__fields.keeps("averageTime") && obj["averageTime"] !== undefined)) {
-        const __raw_averageTime = obj["averageTime"] as string | null;
-
-        if (!(typeof __raw_averageTime === "string" || __raw_averageTime === null)) {
-            errors.push({ field: "averageTime", message: "expected string | null" });
-        } else {
-            instance.averageTime = __raw_averageTime;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("defaults")) ? "defaults" in obj : (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
-        const __raw_defaults = obj["defaults"] as ServiceDefaults;
-
-        ctx.pushScope("defaults");
-        try {
-            const __result = serviceDefaultsDecodeWithContext(__raw_defaults, ctx);
-            ctx.assignOrDefer(instance, "defaults", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Service.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
                 }
-            } else {
-
-                errors.push({ field: "defaults", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Service.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "Service.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "Service.name must not be empty" }); }
+                    }
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("quickCode")) ? "quickCode" in obj : (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
+                const __raw_quickCode = obj["quickCode"] as string;
+
+                if (!(typeof __raw_quickCode === "string")) {
+                    errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Service.quickCode is required" : "expected string" });
+                } else {
+                    if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Service.quickCode is required" }); } else {
+                        if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Service.quickCode must not be empty" }); }
+                    }
+                    instance.quickCode = __raw_quickCode;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("group")) ? "group" in obj : (__fields.keeps("group") && obj["group"] !== undefined)) {
+                const __raw_group = obj["group"] as string | null;
+
+                if (!(typeof __raw_group === "string" || __raw_group === null)) {
+                    errors.push({ field: "group", message: "expected string | null" });
+                } else {
+                    instance.group = __raw_group;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("subgroup")) ? "subgroup" in obj : (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
+                const __raw_subgroup = obj["subgroup"] as string | null;
+
+                if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
+                    errors.push({ field: "subgroup", message: "expected string | null" });
+                } else {
+                    instance.subgroup = __raw_subgroup;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("unit")) ? "unit" in obj : (__fields.keeps("unit") && obj["unit"] !== undefined)) {
+                const __raw_unit = obj["unit"] as string | null;
+
+                if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
+                    errors.push({ field: "unit", message: "expected string | null" });
+                } else {
+                    instance.unit = __raw_unit;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
+
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "Service.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("commission")) ? "commission" in obj : (__fields.keeps("commission") && obj["commission"] !== undefined)) {
+                const __raw_commission = obj["commission"] as boolean;
+
+                if (!(typeof __raw_commission === "boolean")) {
+                    errors.push({ field: "commission", message: __raw_commission == null ? "Service.commission is required" : "expected boolean" });
+                } else {
+                    instance.commission = __raw_commission;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
+                const __raw_favorite = obj["favorite"] as boolean;
+
+                if (!(typeof __raw_favorite === "boolean")) {
+                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Service.favorite is required" : "expected boolean" });
+                } else {
+                    instance.favorite = __raw_favorite;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("averageTime")) ? "averageTime" in obj : (__fields.keeps("averageTime") && obj["averageTime"] !== undefined)) {
+                const __raw_averageTime = obj["averageTime"] as string | null;
+
+                if (!(typeof __raw_averageTime === "string" || __raw_averageTime === null)) {
+                    errors.push({ field: "averageTime", message: "expected string | null" });
+                } else {
+                    instance.averageTime = __raw_averageTime;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("defaults")) ? "defaults" in obj : (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
+                const __raw_defaults = obj["defaults"] as ServiceDefaults;
+
+                ctx.pushScope("defaults");
+                try {
+                    const __result = serviceDefaultsDecodeWithContext(__raw_defaults, ctx);
+                    ctx.assignOrDefer(instance, "defaults", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "defaults", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -432,7 +458,7 @@ export function serviceHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "quickCode") && __mf_holds(obj, "group") && __mf_holds(obj, "subgroup") && __mf_holds(obj, "unit") && __mf_holds(obj, "active") && __mf_holds(obj, "commission") && __mf_holds(obj, "favorite") && __mf_holds(obj, "averageTime") && __mf_holds(obj, "defaults");
+    return __mf_holdsAll(obj, ["id", "name", "quickCode", "group", "subgroup", "unit", "active", "commission", "favorite", "averageTime", "defaults"]);
 }
 
 export function serviceIs(obj: unknown): obj is Service {
@@ -1019,27 +1045,27 @@ export declare const Service: {
 
 ## Mapping
 
-original 0..125 -> expanded 979..1104
-original 174..206 -> expanded 1104..1136
-original 234..255 -> expanded 1136..1157
-original 296..301 -> expanded 1157..1162
-original 342..365 -> expanded 1162..1185
-original 412..417 -> expanded 1185..1190
-original 458..486 -> expanded 1190..1218
-original 551..582 -> expanded 1218..1249
-original 650..684 -> expanded 1249..1283
-original 750..780 -> expanded 1283..1313
-original 825..851 -> expanded 1313..1339
-original 900..930 -> expanded 1339..1369
-original 977..1005 -> expanded 1369..1397
-original 1054..1119 -> expanded 1397..1462
-original 1119..1120 -> expanded 36666..36667
-generated 0..979 <- imports
-generated 1462..1807 <- Default
-generated 1807..5653 <- Encode
-generated 5653..19951 <- Decode
-generated 19951..35427 <- Gigaform
-generated 35427..36666 <- __convenience_const
+original 0..125 -> expanded 985..1110
+original 174..206 -> expanded 1110..1142
+original 234..255 -> expanded 1142..1163
+original 296..301 -> expanded 1163..1168
+original 342..365 -> expanded 1168..1191
+original 412..417 -> expanded 1191..1196
+original 458..486 -> expanded 1196..1224
+original 551..582 -> expanded 1224..1255
+original 650..684 -> expanded 1255..1289
+original 750..780 -> expanded 1289..1319
+original 825..851 -> expanded 1319..1345
+original 900..930 -> expanded 1345..1375
+original 977..1005 -> expanded 1375..1403
+original 1054..1119 -> expanded 1403..1468
+original 1119..1120 -> expanded 37144..37145
+generated 0..985 <- imports
+generated 1468..1813 <- Default
+generated 1813..6456 <- Encode
+generated 6456..20429 <- Decode
+generated 20429..35905 <- Gigaform
+generated 35905..37144 <- __convenience_const
 
 ## Metadata
 

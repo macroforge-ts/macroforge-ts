@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,15 +62,23 @@ export function appointmentNotificationsEncodePartialWithContext(value: Partial<
 }
 
 function appointmentNotificationsEncodeFields(value: AppointmentNotifications, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("personalScheduleChangeNotifications")) {
-        if (value.personalScheduleChangeNotifications !== undefined) {
-            result["personalScheduleChangeNotifications"] = value.personalScheduleChangeNotifications;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("allScheduleChangeNotifications")) {
-        if (value.allScheduleChangeNotifications !== undefined) {
-            result["allScheduleChangeNotifications"] = value.allScheduleChangeNotifications;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("personalScheduleChangeNotifications")) {
+                if (value.personalScheduleChangeNotifications !== undefined) {
+                    result["personalScheduleChangeNotifications"] = value.personalScheduleChangeNotifications;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("allScheduleChangeNotifications")) {
+                if (value.allScheduleChangeNotifications !== undefined) {
+                    result["allScheduleChangeNotifications"] = value.allScheduleChangeNotifications;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -148,11 +156,12 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("personalScheduleChangeNotifications")) && !("personalScheduleChangeNotifications" in obj)) {
-        errors.push({ field: "personalScheduleChangeNotifications", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("allScheduleChangeNotifications")) && !("allScheduleChangeNotifications" in obj)) {
-        errors.push({ field: "allScheduleChangeNotifications", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["personalScheduleChangeNotifications", "personalScheduleChangeNotifications"], ["allScheduleChangeNotifications", "allScheduleChangeNotifications"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -163,29 +172,37 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("personalScheduleChangeNotifications")) ? "personalScheduleChangeNotifications" in obj : (__fields.keeps("personalScheduleChangeNotifications") && obj["personalScheduleChangeNotifications"] !== undefined)) {
-        const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("personalScheduleChangeNotifications")) ? "personalScheduleChangeNotifications" in obj : (__fields.keeps("personalScheduleChangeNotifications") && obj["personalScheduleChangeNotifications"] !== undefined)) {
+                const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
 
-        if (!(typeof __raw_personalScheduleChangeNotifications === "string")) {
-            errors.push({ field: "personalScheduleChangeNotifications", message: __raw_personalScheduleChangeNotifications == null ? "AppointmentNotifications.personalScheduleChangeNotifications is required" : "expected string" });
-        } else {
-            if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
-                if (__raw_personalScheduleChangeNotifications.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
+                if (!(typeof __raw_personalScheduleChangeNotifications === "string")) {
+                    errors.push({ field: "personalScheduleChangeNotifications", message: __raw_personalScheduleChangeNotifications == null ? "AppointmentNotifications.personalScheduleChangeNotifications is required" : "expected string" });
+                } else {
+                    if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
+                        if (__raw_personalScheduleChangeNotifications.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
+                    }
+                    instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
+                }
             }
-            instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("allScheduleChangeNotifications")) ? "allScheduleChangeNotifications" in obj : (__fields.keeps("allScheduleChangeNotifications") && obj["allScheduleChangeNotifications"] !== undefined)) {
-        const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("allScheduleChangeNotifications")) ? "allScheduleChangeNotifications" in obj : (__fields.keeps("allScheduleChangeNotifications") && obj["allScheduleChangeNotifications"] !== undefined)) {
+                const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
 
-        if (!(typeof __raw_allScheduleChangeNotifications === "string")) {
-            errors.push({ field: "allScheduleChangeNotifications", message: __raw_allScheduleChangeNotifications == null ? "AppointmentNotifications.allScheduleChangeNotifications is required" : "expected string" });
-        } else {
-            if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
-                if (__raw_allScheduleChangeNotifications.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
+                if (!(typeof __raw_allScheduleChangeNotifications === "string")) {
+                    errors.push({ field: "allScheduleChangeNotifications", message: __raw_allScheduleChangeNotifications == null ? "AppointmentNotifications.allScheduleChangeNotifications is required" : "expected string" });
+                } else {
+                    if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
+                        if (__raw_allScheduleChangeNotifications.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
+                    }
+                    instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
+                }
             }
-            instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -234,7 +251,7 @@ export function appointmentNotificationsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "personalScheduleChangeNotifications") && __mf_holds(obj, "allScheduleChangeNotifications");
+    return __mf_holdsAll(obj, ["personalScheduleChangeNotifications", "allScheduleChangeNotifications"]);
 }
 
 export function appointmentNotificationsIs(obj: unknown): obj is AppointmentNotifications {
@@ -494,17 +511,17 @@ export declare const AppointmentNotifications: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..156 -> expanded 896..945
-original 197..251 -> expanded 945..999
-original 292..338 -> expanded 999..1045
-original 338..339 -> expanded 21943..21944
-generated 0..838 <- imports
-generated 1045..1244 <- Default
-generated 1244..3998 <- Encode
-generated 3998..14333 <- Decode
-generated 14333..20245 <- Gigaform
-generated 20245..21943 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..156 -> expanded 902..951
+original 197..251 -> expanded 951..1005
+original 292..338 -> expanded 1005..1051
+original 338..339 -> expanded 22372..22373
+generated 0..844 <- imports
+generated 1051..1250 <- Default
+generated 1250..4198 <- Encode
+generated 4198..14762 <- Decode
+generated 14762..20674 <- Gigaform
+generated 20674..22372 <- __convenience_const
 
 ## Metadata
 

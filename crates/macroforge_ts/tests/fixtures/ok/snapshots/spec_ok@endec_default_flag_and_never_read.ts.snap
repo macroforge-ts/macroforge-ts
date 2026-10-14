@@ -61,20 +61,30 @@ export function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: 
 }
 
 function settingsEncodeFields(value: Settings, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("retries")) {
-        if (value.retries !== undefined) {
-            result["retries"] = value.retries;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("origin")) {
-        if (value.origin !== undefined) {
-            result["origin"] = value.origin;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("enabled")) {
-        if (value.enabled !== undefined) {
-            result["enabled"] = value.enabled;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("retries")) {
+                if (value.retries !== undefined) {
+                    result["retries"] = value.retries;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("origin")) {
+                if (value.origin !== undefined) {
+                    result["origin"] = value.origin;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("enabled")) {
+                if (value.enabled !== undefined) {
+                    result["enabled"] = value.enabled;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -153,6 +163,8 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
 
+    
+
     const instance: any = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
@@ -161,36 +173,46 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.keeps("retries"))) {
-        if (("retries" in obj && obj["retries"] !== undefined)) {
-            const __raw_retries = obj["retries"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.keeps("retries"))) {
+                if (("retries" in obj && obj["retries"] !== undefined)) {
+                    const __raw_retries = obj["retries"] as number;
 
-            if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
-                errors.push({ field: "retries", message: "expected number" });
-            } else {
-                instance.retries = __raw_retries;
+                    if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
+                        errors.push({ field: "retries", message: "expected number" });
+                    } else {
+                        instance.retries = __raw_retries;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj && obj["retries"] !== undefined)) {
+                    instance.retries = (0) satisfies number;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj && obj["retries"] !== undefined)) {
-            instance.retries = (0) satisfies number;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("origin"))) {
-        instance.origin = ("computed") satisfies string;
-    }
-    if ((__fields === undefined || __fields.keeps("enabled"))) {
-        if (("enabled" in obj && obj["enabled"] !== undefined)) {
-            const __raw_enabled = obj["enabled"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("origin"))) {
+                instance.origin = ("computed") satisfies string;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("enabled"))) {
+                if (("enabled" in obj && obj["enabled"] !== undefined)) {
+                    const __raw_enabled = obj["enabled"] as boolean;
 
-            if (!(typeof __raw_enabled === "boolean")) {
-                errors.push({ field: "enabled", message: "expected boolean" });
-            } else {
-                instance.enabled = __raw_enabled;
+                    if (!(typeof __raw_enabled === "boolean")) {
+                        errors.push({ field: "enabled", message: "expected boolean" });
+                    } else {
+                        instance.enabled = __raw_enabled;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("enabled")) && !("enabled" in obj && obj["enabled"] !== undefined)) {
+                    instance.enabled = (true) satisfies boolean;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("enabled")) && !("enabled" in obj && obj["enabled"] !== undefined)) {
-            instance.enabled = (true) satisfies boolean;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -298,11 +320,11 @@ original 30..56 -> expanded 658..684
 original 88..114 -> expanded 684..710
 original 176..201 -> expanded 710..735
 original 235..259 -> expanded 735..759
-original 259..260 -> expanded 10305..10306
+original 259..260 -> expanded 10945..10946
 generated 0..658 <- imports
-generated 759..3234 <- Encode
-generated 3234..9314 <- Decode
-generated 9314..10305 <- __convenience_const
+generated 759..3495 <- Encode
+generated 3495..9954 <- Decode
+generated 9954..10945 <- __convenience_const
 
 ## Metadata
 

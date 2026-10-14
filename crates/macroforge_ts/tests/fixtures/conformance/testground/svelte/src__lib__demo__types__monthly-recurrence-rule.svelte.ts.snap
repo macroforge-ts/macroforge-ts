@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -63,20 +63,30 @@ export function monthlyRecurrenceRuleEncodePartialWithContext(value: Partial<Mon
 }
 
 function monthlyRecurrenceRuleEncodeFields(value: MonthlyRecurrenceRule, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("quantityOfMonths")) {
-        if (value.quantityOfMonths !== undefined) {
-            result["quantityOfMonths"] = value.quantityOfMonths;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("day")) {
-        if (value.day !== undefined) {
-            result["day"] = value.day;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("quantityOfMonths")) {
+                if (value.quantityOfMonths !== undefined) {
+                    result["quantityOfMonths"] = value.quantityOfMonths;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("day")) {
+                if (value.day !== undefined) {
+                    result["day"] = value.day;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -154,14 +164,12 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("quantityOfMonths")) && !("quantityOfMonths" in obj)) {
-        errors.push({ field: "quantityOfMonths", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("day")) && !("day" in obj)) {
-        errors.push({ field: "day", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["quantityOfMonths", "quantityOfMonths"], ["day", "day"], ["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -172,35 +180,45 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("quantityOfMonths")) ? "quantityOfMonths" in obj : (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
-        const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("quantityOfMonths")) ? "quantityOfMonths" in obj : (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
+                const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
 
-        if (!(typeof __raw_quantityOfMonths === "number" && globalThis.Number.isFinite(__raw_quantityOfMonths))) {
-            errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
-        } else {
-            instance.quantityOfMonths = __raw_quantityOfMonths;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("day")) ? "day" in obj : (__fields.keeps("day") && obj["day"] !== undefined)) {
-        const __raw_day = obj["day"] as number;
-
-        if (!(typeof __raw_day === "number" && globalThis.Number.isFinite(__raw_day))) {
-            errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
-        } else {
-            instance.day = __raw_day;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "MonthlyRecurrenceRule.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name must not be empty" }); }
+                if (!(typeof __raw_quantityOfMonths === "number" && globalThis.Number.isFinite(__raw_quantityOfMonths))) {
+                    errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
+                } else {
+                    instance.quantityOfMonths = __raw_quantityOfMonths;
+                }
             }
-            instance.name = __raw_name;
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("day")) ? "day" in obj : (__fields.keeps("day") && obj["day"] !== undefined)) {
+                const __raw_day = obj["day"] as number;
+
+                if (!(typeof __raw_day === "number" && globalThis.Number.isFinite(__raw_day))) {
+                    errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
+                } else {
+                    instance.day = __raw_day;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
+
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "MonthlyRecurrenceRule.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name must not be empty" }); }
+                    }
+                    instance.name = __raw_name;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -237,7 +255,7 @@ export function monthlyRecurrenceRuleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "quantityOfMonths") && __mf_holds(obj, "day") && __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["quantityOfMonths", "day", "name"]);
 }
 
 export function monthlyRecurrenceRuleIs(obj: unknown): obj is MonthlyRecurrenceRule {
@@ -538,16 +556,16 @@ export declare const MonthlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..200 -> expanded 896..989
-original 241..261 -> expanded 989..1009
-original 261..262 -> expanded 19973..19974
-generated 0..838 <- imports
-generated 1009..1172 <- Default
-generated 1172..3854 <- Encode
-generated 3854..12043 <- Decode
-generated 12043..18356 <- Gigaform
-generated 18356..19973 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..200 -> expanded 902..995
+original 241..261 -> expanded 995..1015
+original 261..262 -> expanded 20415..20416
+generated 0..844 <- imports
+generated 1015..1178 <- Default
+generated 1178..4121 <- Encode
+generated 4121..12485 <- Decode
+generated 12485..18798 <- Gigaform
+generated 18798..20415 <- __convenience_const
 
 ## Metadata
 

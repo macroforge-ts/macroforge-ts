@@ -16,7 +16,7 @@ import { cardinalDecodeWithContext, cardinalHasShape, cardinalEncodeWithContext,
 import { customDecodeWithContext, customHasShape, customEncodeWithContext, customDefaultValue } from "./custom.svelte";
 import { gradientDecodeWithContext, gradientHasShape, gradientEncodeWithContext, gradientDefaultValue } from "./gradient.svelte";
 import { ordinalDecodeWithContext, ordinalHasShape, ordinalEncodeWithContext, ordinalDefaultValue } from "./ordinal.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,28 +48,18 @@ export function colorsConfigEncode(value: ColorsConfig, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "Cardinal") { __variant = cardinalEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Ordinal") { __variant = ordinalEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Custom") { __variant = customEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Gradient") { __variant = gradientEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && cardinalHasShape(value)) { __variant = cardinalEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && ordinalHasShape(value)) { __variant = ordinalEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && customHasShape(value)) { __variant = customEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && gradientHasShape(value)) { __variant = gradientEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: ColorsConfig): member is Cardinal => __mf_member(member, "__type") === "Cardinal", (member) => cardinalEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Ordinal => __mf_member(member, "__type") === "Ordinal", (member) => ordinalEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Custom => __mf_member(member, "__type") === "Custom", (member) => customEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Gradient => __mf_member(member, "__type") === "Gradient", (member) => gradientEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Cardinal => typeof member === "object" && member !== null && !Array.isArray(member) && "north" in member && "east" in member && "south" in member && "west" in member, (member) => cardinalEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Ordinal => typeof member === "object" && member !== null && !Array.isArray(member) && "north" in member && "northeast" in member && "east" in member && "southeast" in member && "south" in member && "southwest" in member && "west" in member && "northwest" in member, (member) => ordinalEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Custom => typeof member === "object" && member !== null && !Array.isArray(member) && "mappings" in member, (member) => customEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: ColorsConfig): member is Gradient => typeof member === "object" && member !== null && !Array.isArray(member) && "startHue" in member, (member) => gradientEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -544,15 +534,15 @@ export declare const ColorsConfig: {
 
 ## Mapping
 
-original 0..257 -> expanded 1144..1401
-original 306..407 -> expanded 1401..1502
-original 407..408 -> expanded 16916..16917
-generated 0..1144 <- imports
-generated 1502..1599 <- Default
-generated 1599..4203 <- Encode
-generated 4203..10204 <- Decode
-generated 10204..16050 <- Gigaform
-generated 16050..16916 <- __convenience_const
+original 0..257 -> expanded 1214..1471
+original 306..407 -> expanded 1471..1572
+original 407..408 -> expanded 17492..17493
+generated 0..1214 <- imports
+generated 1572..1669 <- Default
+generated 1669..4779 <- Encode
+generated 4779..10780 <- Decode
+generated 10780..16626 <- Gigaform
+generated 16626..17492 <- __convenience_const
 
 ## Metadata
 

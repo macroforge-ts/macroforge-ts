@@ -44,7 +44,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Merged {
@@ -61,7 +61,9 @@ export function mergedToString(value: Merged): string {
 
 export function mergedEquals(a: Merged, b: Merged): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.first === b.first);
+    return __mf_equalWithin(a, b, () => {
+        return a.first === b.first;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -173,8 +175,12 @@ export function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
-        errors.push({ field: "first", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["first", "first"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -217,7 +223,7 @@ export function mergedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "first");
+    return __mf_holdsAll(obj, ["first"]);
 }
 
 export function mergedIs(obj: unknown): obj is Merged {
@@ -422,29 +428,29 @@ Error [272..286]: 'Level' is declared 2 times in this module, which TypeScript m
 
 ## Mapping
 
-original 48..95 -> expanded 828..875
-original 95..146 -> expanded 9709..9760
-original 174..218 -> expanded 9760..9804
-original 218..219 -> expanded 10177..10178
-original 219..267 -> expanded 10346..10394
-original 288..318 -> expanded 10394..10424
-original 318..356 -> expanded 10716..10754
-original 377..423 -> expanded 10754..10800
-original 423..424 -> expanded 11154..11155
-generated 0..828 <- imports
-generated 875..1127 <- Debug
-generated 1127..1284 <- PartialEq
-generated 1284..3387 <- Encode
-generated 3387..8617 <- Decode
-generated 8617..9709 <- __convenience_const
-generated 9804..10063 <- Debug
-generated 10063..10177 <- Clone
-generated 10178..10266 <- Debug
-generated 10266..10346 <- Clone
-generated 10424..10625 <- Debug
-generated 10625..10716 <- __convenience_const
-generated 10800..11050 <- Debug
-generated 11050..11154 <- __convenience_const
+original 48..95 -> expanded 834..881
+original 95..146 -> expanded 9901..9952
+original 174..218 -> expanded 9952..9996
+original 218..219 -> expanded 10369..10370
+original 219..267 -> expanded 10538..10586
+original 288..318 -> expanded 10586..10616
+original 318..356 -> expanded 10908..10946
+original 377..423 -> expanded 10946..10992
+original 423..424 -> expanded 11346..11347
+generated 0..834 <- imports
+generated 881..1133 <- Debug
+generated 1133..1314 <- PartialEq
+generated 1314..3417 <- Encode
+generated 3417..8809 <- Decode
+generated 8809..9901 <- __convenience_const
+generated 9996..10255 <- Debug
+generated 10255..10369 <- Clone
+generated 10370..10458 <- Debug
+generated 10458..10538 <- Clone
+generated 10616..10817 <- Debug
+generated 10817..10908 <- __convenience_const
+generated 10992..11242 <- Debug
+generated 11242..11346 <- __convenience_const
 
 ## Metadata
 

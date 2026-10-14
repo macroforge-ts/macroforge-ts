@@ -13,7 +13,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export type RecordLink<T> = /** @default */ string | T;
 
@@ -30,17 +30,8 @@ export function recordLinkEncode<T>(value: RecordLink<T>, keepMetadata?: boolean
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -186,13 +177,13 @@ export declare const RecordLink: {
 
 ## Mapping
 
-original 39..95 -> expanded 532..588
-original 95..96 -> expanded 5355..5356
-generated 0..532 <- imports
-generated 588..667 <- Default
-generated 667..2176 <- Encode
-generated 2176..4711 <- Decode
-generated 4711..5355 <- __convenience_const
+original 39..95 -> expanded 602..658
+original 95..96 -> expanded 5302..5303
+generated 0..602 <- imports
+generated 658..737 <- Default
+generated 737..2123 <- Encode
+generated 2123..4658 <- Decode
+generated 4658..5302 <- __convenience_const
 
 ## Metadata
 

@@ -96,7 +96,9 @@ export function pairClone(value: Pair): Pair {
 
 export function pairEquals(a: Pair, b: Pair): boolean {
     if (a === b) return true;
-    return a[0] === b[0] && (a[1] === b[1] || (a[1] !== a[1] && b[1] !== b[1]));
+    if (!(a[0] === b[0])) return false;
+    if (!((a[1] === b[1] || (a[1] !== a[1] && b[1] !== b[1])))) return false;
+    return true;
 }
 
 export function pairPartialCompare(a: Pair, b: Pair): number | null {
@@ -230,10 +232,10 @@ original 84..86 -> expanded 851..853
 original 139..176 -> expanded 853..890
 original 176..178 -> expanded 1553..1555
 original 231..268 -> expanded 1555..1592
-original 268..270 -> expanded 3195..3197
-original 323..345 -> expanded 3197..3219
-original 361..362 -> expanded 3263..3264
-original 362..363 -> expanded 4051..4052
+original 268..270 -> expanded 3249..3251
+original 323..345 -> expanded 3251..3273
+original 361..362 -> expanded 3317..3318
+original 362..363 -> expanded 4105..4106
 generated 0..91 <- imports
 generated 91..136 <- $Newtype
 generated 167..238 <- Clone
@@ -247,16 +249,16 @@ generated 1037..1151 <- PartialOrd
 generated 1151..1251 <- Ord
 generated 1251..1553 <- __convenience_const
 generated 1592..1675 <- Clone
-generated 1675..1845 <- PartialEq
-generated 1845..2374 <- PartialOrd
-generated 2374..2893 <- Ord
-generated 2893..3195 <- __convenience_const
-generated 3219..3263 <- $Newtype
-generated 3264..3338 <- Clone
-generated 3338..3423 <- PartialEq
-generated 3423..3582 <- PartialOrd
-generated 3582..3731 <- Ord
-generated 3731..4051 <- __convenience_const
+generated 1675..1899 <- PartialEq
+generated 1899..2428 <- PartialOrd
+generated 2428..2947 <- Ord
+generated 2947..3249 <- __convenience_const
+generated 3273..3317 <- $Newtype
+generated 3318..3392 <- Clone
+generated 3392..3477 <- PartialEq
+generated 3477..3636 <- PartialOrd
+generated 3636..3785 <- Ord
+generated 3785..4105 <- __convenience_const
 
 ## Metadata
 

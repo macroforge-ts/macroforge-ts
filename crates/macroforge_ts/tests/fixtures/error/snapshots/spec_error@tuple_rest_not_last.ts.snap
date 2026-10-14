@@ -29,7 +29,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeBoolean as __mf_decodeBoolean, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple, decodeBoolean as __mf_decodeBoolean, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A tuple whose rest element is not its last is an error, not a shorter tuple. */
 /** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
@@ -66,7 +66,12 @@ export function fineClone(value: Fine): Fine {
 
 export function fineEquals(a: Fine, b: Fine): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.tail, b.tail) && __mf_structuralEquals(a.nested, b.nested));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.tail, b.tail),
+            () => __mf_structuralEquals(a.nested, b.nested),
+        ].every((same) => same());
+    });
 }
 
 export function fineDefaultValue(): Fine {
@@ -104,15 +109,23 @@ export function fineEncodePartialWithContext(value: Partial<Fine>, ctx: __mf_Enc
 }
 
 function fineEncodeFields(value: Fine, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("tail")) {
-        if (value.tail !== undefined) {
-            result["tail"] = value.tail;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = value.nested;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("tail")) {
+                if (value.tail !== undefined) {
+                    result["tail"] = value.tail;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = value.nested;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -190,11 +203,12 @@ export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("tail")) && !("tail" in obj)) {
-        errors.push({ field: "tail", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
-        errors.push({ field: "nested", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["tail", "tail"], ["nested", "nested"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -205,53 +219,61 @@ export function fineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("tail")) ? "tail" in obj : (__fields.keeps("tail") && obj["tail"] !== undefined)) {
-        const __raw_tail = obj["tail"] as [string, ...number[]];
-        if (Array.isArray(__raw_tail)) {
-            ctx.pushScope("tail");
-            try {
-                instance.tail = (__mf_decodeTuple(__raw_tail, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tail" : "tail." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("tail")) ? "tail" in obj : (__fields.keeps("tail") && obj["tail"] !== undefined)) {
+                const __raw_tail = obj["tail"] as [string, ...number[]];
+                if (Array.isArray(__raw_tail)) {
+                    ctx.pushScope("tail");
+                    try {
+                        instance.tail = (__mf_decodeTuple(__raw_tail, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tail" : "tail." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tail", message: __raw_tail == null ? "Fine.tail is required" : "expected [string, ...number[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tail", message: __raw_tail == null ? "Fine.tail is required" : "expected [string, ...number[]]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
-        const __raw_nested = obj["nested"] as [[string, ...number[]], boolean];
-        if (Array.isArray(__raw_nested)) {
-            ctx.pushScope("nested");
-            try {
-                instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]), __mf_decodeBoolean], 2) as [[string, ...number[]], boolean]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as [[string, ...number[]], boolean];
+                if (Array.isArray(__raw_nested)) {
+                    ctx.pushScope("nested");
+                    try {
+                        instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]), __mf_decodeBoolean], 2) as [[string, ...number[]], boolean]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nested", message: __raw_nested == null ? "Fine.nested is required" : "expected [[string, ...number[]], boolean]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nested", message: __raw_nested == null ? "Fine.nested is required" : "expected [[string, ...number[]], boolean]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -276,7 +298,7 @@ export function fineHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "tail") && __mf_holds(obj, "nested");
+    return __mf_holdsAll(obj, ["tail", "nested"]);
 }
 
 export function fineIs(obj: unknown): obj is Fine {
@@ -395,17 +417,17 @@ Error [279..303]: type 'Leading' holds the tuple `[...first: string[], last: num
 
 ## Mapping
 
-original 0..408 -> expanded 1093..1501
-original 472..577 -> expanded 1501..1606
-original 577..578 -> expanded 13169..13170
-generated 0..1093 <- imports
-generated 1606..1929 <- Debug
-generated 1929..2118 <- Clone
-generated 2118..2332 <- PartialEq
-generated 2332..2449 <- Default
-generated 2449..4683 <- Encode
-generated 4683..11987 <- Decode
-generated 11987..13169 <- __convenience_const
+original 0..408 -> expanded 1099..1507
+original 472..577 -> expanded 1507..1612
+original 577..578 -> expanded 13956..13957
+generated 0..1099 <- imports
+generated 1612..1935 <- Debug
+generated 1935..2124 <- Clone
+generated 2124..2433 <- PartialEq
+generated 2433..2550 <- Default
+generated 2550..4978 <- Encode
+generated 4978..12774 <- Decode
+generated 12774..13956 <- __convenience_const
 
 ## Metadata
 

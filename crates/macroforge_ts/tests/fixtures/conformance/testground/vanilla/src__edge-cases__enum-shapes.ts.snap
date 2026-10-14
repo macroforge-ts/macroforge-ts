@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -1093,16 +1093,32 @@ export function enumHolderClone(value: EnumHolder): EnumHolder {
 
 export function enumHolderEquals(a: EnumHolder, b: EnumHolder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => enumCountedEquals(a.counted, b.counted) && enumMixedEquals(a.mixed, b.mixed) && enumFlagsEquals(a.flags, b.flags) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : enumCountedEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : enumTextEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : enumSignedEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
-	const __other0 = b.list[__index0];
-	return __other0 === undefined ? __item0 === undefined : enumMixedEquals(__item0, __other0);
-}) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => enumCountedEquals(__item0, __other0))) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
-	const __other0 = b.byName.get(__key0);
-	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : enumTextEquals(__item0, __other0));
-}) && a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
-	const __other0 = b.byKind.get(__key0);
-	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
-}) && __mf_structuralEquals(a.labels, b.labels) && __mf_structuralEquals(a.pair, b.pair) && enumConstantEquals(a.constant, b.constant));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => enumCountedEquals(a.counted, b.counted),
+            () => enumMixedEquals(a.mixed, b.mixed),
+            () => enumFlagsEquals(a.flags, b.flags),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : enumCountedEquals(a.maybe, b.maybe),
+            () => a.later == null || b.later == null ? a.later === b.later : enumTextEquals(a.later, b.later),
+            () => a.optional == null || b.optional == null ? a.optional === b.optional : enumSignedEquals(a.optional, b.optional),
+            () => a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+            	const __other0 = b.list[__index0];
+            	return __other0 === undefined ? __item0 === undefined : enumMixedEquals(__item0, __other0);
+            }),
+            () => a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => enumCountedEquals(__item0, __other0))),
+            () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+            	const __other0 = b.byName.get(__key0);
+            	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : enumTextEquals(__item0, __other0));
+            }),
+            () => a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
+            	const __other0 = b.byKind.get(__key0);
+            	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+            }),
+            () => __mf_structuralEquals(a.labels, b.labels),
+            () => __mf_structuralEquals(a.pair, b.pair),
+            () => enumConstantEquals(a.constant, b.constant),
+        ].every((same) => same());
+    });
 }
 
 export function enumHolderHashCode(value: EnumHolder): number {
@@ -1170,70 +1186,100 @@ export function enumHolderEncodePartialWithContext(value: Partial<EnumHolder>, c
 }
 
 function enumHolderEncodeFields(value: EnumHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("counted")) {
-        if (value.counted !== undefined) {
-            result["counted"] = enumCountedEncodeWithContext(value.counted, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("mixed")) {
-        if (value.mixed !== undefined) {
-            result["mixed"] = enumMixedEncodeWithContext(value.mixed, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("flags")) {
-        if (value.flags !== undefined) {
-            result["flags"] = enumFlagsEncodeWithContext(value.flags, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : enumCountedEncodeWithContext(value.maybe, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("later")) {
-        if (value.later !== undefined) {
-            result["later"] = enumTextEncodeWithContext(value.later, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optional")) {
-        if (value.optional !== undefined) {
-            result["optional"] = enumSignedEncodeWithContext(value.optional, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = value.list.map((__item0) => enumMixedEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("set")) {
-        if (value.set !== undefined) {
-            result["set"] = Array.from(value.set, (__item0) => enumCountedEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, enumTextEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byKind")) {
-        if (value.byKind !== undefined) {
-            result["byKind"] = Object.fromEntries(value.byKind.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("labels")) {
-        if (value.labels !== undefined) {
-            result["labels"] = Object.fromEntries((Object.entries(value.labels) as [string, EnumSigned][]).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = [enumCountedEncodeWithContext(value.pair[0], ctx), enumTextEncodeWithContext(value.pair[1], ctx)];
-        }
-    }
-    if (__fields === undefined || __fields.keeps("constant")) {
-        if (value.constant !== undefined) {
-            result["constant"] = enumConstantEncodeWithContext(value.constant, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("counted")) {
+                if (value.counted !== undefined) {
+                    result["counted"] = enumCountedEncodeWithContext(value.counted, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("mixed")) {
+                if (value.mixed !== undefined) {
+                    result["mixed"] = enumMixedEncodeWithContext(value.mixed, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("flags")) {
+                if (value.flags !== undefined) {
+                    result["flags"] = enumFlagsEncodeWithContext(value.flags, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : enumCountedEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("later")) {
+                if (value.later !== undefined) {
+                    result["later"] = enumTextEncodeWithContext(value.later, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optional")) {
+                if (value.optional !== undefined) {
+                    result["optional"] = enumSignedEncodeWithContext(value.optional, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list.map((__item0) => enumMixedEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set, (__item0) => enumCountedEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, enumTextEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byKind")) {
+                if (value.byKind !== undefined) {
+                    result["byKind"] = Object.fromEntries(value.byKind.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("labels")) {
+                if (value.labels !== undefined) {
+                    result["labels"] = Object.fromEntries((Object.entries(value.labels) as [string, EnumSigned][]).map(([__key0, __item0]) => [__key0, enumSignedEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = [enumCountedEncodeWithContext(value.pair[0], ctx), enumTextEncodeWithContext(value.pair[1], ctx)];
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("constant")) {
+                if (value.constant !== undefined) {
+                    result["constant"] = enumConstantEncodeWithContext(value.constant, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1311,38 +1357,12 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("counted")) && !("counted" in obj)) {
-        errors.push({ field: "counted", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("mixed")) && !("mixed" in obj)) {
-        errors.push({ field: "mixed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("flags")) && !("flags" in obj)) {
-        errors.push({ field: "flags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
-        errors.push({ field: "set", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byKind")) && !("byKind" in obj)) {
-        errors.push({ field: "byKind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("labels")) && !("labels" in obj)) {
-        errors.push({ field: "labels", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("constant")) && !("constant" in obj)) {
-        errors.push({ field: "constant", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["counted", "counted"], ["mixed", "mixed"], ["flags", "flags"], ["maybe", "maybe"], ["list", "list"], ["set", "set"], ["byName", "byName"], ["byKind", "byKind"], ["labels", "labels"], ["pair", "pair"], ["constant", "constant"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1353,320 +1373,350 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("counted")) ? "counted" in obj : (__fields.keeps("counted") && obj["counted"] !== undefined)) {
-        const __raw_counted = obj["counted"] as EnumCounted;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("counted")) ? "counted" in obj : (__fields.keeps("counted") && obj["counted"] !== undefined)) {
+                const __raw_counted = obj["counted"] as EnumCounted;
 
-        ctx.pushScope("counted");
-        try {
-            const __result = enumCountedDecodeWithContext(__raw_counted, ctx);
-            ctx.assignOrDefer(instance, "counted", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "counted" : "counted." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
+                ctx.pushScope("counted");
+                try {
+                    const __result = enumCountedDecodeWithContext(__raw_counted, ctx);
+                    ctx.assignOrDefer(instance, "counted", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "counted" : "counted." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-                errors.push({ field: "counted", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
-        const __raw_mixed = obj["mixed"] as EnumMixed;
-
-        ctx.pushScope("mixed");
-        try {
-            const __result = enumMixedDecodeWithContext(__raw_mixed, ctx);
-            ctx.assignOrDefer(instance, "mixed", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "mixed", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("flags")) ? "flags" in obj : (__fields.keeps("flags") && obj["flags"] !== undefined)) {
-        const __raw_flags = obj["flags"] as EnumFlags;
-
-        ctx.pushScope("flags");
-        try {
-            const __result = enumFlagsDecodeWithContext(__raw_flags, ctx);
-            ctx.assignOrDefer(instance, "flags", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "flags" : "flags." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "flags", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as EnumCounted | null;
-
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = enumCountedDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
+                        errors.push({ field: "counted", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+                const __raw_mixed = obj["mixed"] as EnumMixed;
+
+                ctx.pushScope("mixed");
+                try {
+                    const __result = enumMixedDecodeWithContext(__raw_mixed, ctx);
+                    ctx.assignOrDefer(instance, "mixed", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "mixed", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("flags")) ? "flags" in obj : (__fields.keeps("flags") && obj["flags"] !== undefined)) {
+                const __raw_flags = obj["flags"] as EnumFlags;
+
+                ctx.pushScope("flags");
+                try {
+                    const __result = enumFlagsDecodeWithContext(__raw_flags, ctx);
+                    ctx.assignOrDefer(instance, "flags", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "flags" : "flags." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "flags", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as EnumCounted | null;
+
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = enumCountedDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("later")) || (__fields.keeps("later") && obj["later"] !== undefined)) {
+                const __raw_later = obj["later"] as EnumText | undefined;
+                if (__raw_later === undefined) {
+                    instance.later = undefined;
                 } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("later")) || (__fields.keeps("later") && obj["later"] !== undefined)) {
-        const __raw_later = obj["later"] as EnumText | undefined;
-        if (__raw_later === undefined) {
-            instance.later = undefined;
-        } else {
+                    ctx.pushScope("later");
+                    try {
+                        const __result = enumTextDecodeWithContext(__raw_later, ctx);
+                        ctx.assignOrDefer(instance, "later", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "later" : "later." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-            ctx.pushScope("later");
-            try {
-                const __result = enumTextDecodeWithContext(__raw_later, ctx);
-                ctx.assignOrDefer(instance, "later", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "later" : "later." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optional"))) {
+                if (("optional" in obj && obj["optional"] !== undefined)) {
+                    const __raw_optional = obj["optional"] as EnumSigned;
 
-                    errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optional"))) {
-        if (("optional" in obj && obj["optional"] !== undefined)) {
-            const __raw_optional = obj["optional"] as EnumSigned;
+                    ctx.pushScope("optional");
+                    try {
+                        const __result = enumSignedDecodeWithContext(__raw_optional, ctx);
+                        ctx.assignOrDefer(instance, "optional", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "optional" : "optional." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-            ctx.pushScope("optional");
-            try {
-                const __result = enumSignedDecodeWithContext(__raw_optional, ctx);
-                ctx.assignOrDefer(instance, "optional", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "optional" : "optional." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as EnumMixed[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => enumMixedDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
+                    errors.push({ field: "list", message: __raw_list == null ? "EnumHolder.list is required" : "expected EnumMixed[]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<EnumCounted>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => enumCountedDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "set", message: __raw_set == null ? "EnumHolder.set is required" : "expected Set<EnumCounted>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, EnumText>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => enumTextDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "byName", message: __raw_byName == null ? "EnumHolder.byName is required" : "expected Map<string, EnumText>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+                const __raw_byKind = obj["byKind"] as Record<string, number>;
+                if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
+                    ctx.pushScope("byKind");
+                    try {
+                        instance.byKind = __mf_decodeMap(__raw_byKind, ctx, (__key0) => enumTextDecodeWithContext(__key0, ctx), __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "byKind", message: __raw_byKind == null ? "EnumHolder.byKind is required" : "expected Map<EnumText, number>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("labels")) ? "labels" in obj : (__fields.keeps("labels") && obj["labels"] !== undefined)) {
+                const __raw_labels = obj["labels"] as Record<string, EnumSigned>;
+                if (typeof __raw_labels === "object" && __raw_labels !== null) {
+                    ctx.pushScope("labels");
+                    try {
+                        instance.labels = (__mf_decodeRecord(__raw_labels, ctx, (__raw0) => enumSignedDecodeWithContext(__raw0, ctx)) as Record<string, EnumSigned>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "labels" : "labels." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "labels", message: __raw_labels == null ? "EnumHolder.labels is required" : "expected Record<string, EnumSigned>" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [EnumCounted, EnumText];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => enumCountedDecodeWithContext(__raw0, ctx), (__raw0) => enumTextDecodeWithContext(__raw0, ctx)], 2) as [EnumCounted, EnumText]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "EnumHolder.pair is required" : "expected [EnumCounted, EnumText]" });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("constant")) ? "constant" in obj : (__fields.keeps("constant") && obj["constant"] !== undefined)) {
+                const __raw_constant = obj["constant"] as EnumConstant;
 
-                    errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as EnumMixed[];
-        if (Array.isArray(__raw_list)) {
-            ctx.pushScope("list");
-            try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => enumMixedDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "list" : "list." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "list", message: __raw_list == null ? "EnumHolder.list is required" : "expected EnumMixed[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
-        const __raw_set = obj["set"] as Array<EnumCounted>;
-        if (Array.isArray(__raw_set)) {
-            ctx.pushScope("set");
-            try {
-                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => enumCountedDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "set" : "set." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "set", message: __raw_set == null ? "EnumHolder.set is required" : "expected Set<EnumCounted>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, EnumText>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => enumTextDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "EnumHolder.byName is required" : "expected Map<string, EnumText>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
-        const __raw_byKind = obj["byKind"] as Record<string, number>;
-        if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
-            ctx.pushScope("byKind");
-            try {
-                instance.byKind = __mf_decodeMap(__raw_byKind, ctx, (__key0) => enumTextDecodeWithContext(__key0, ctx), __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "byKind", message: __raw_byKind == null ? "EnumHolder.byKind is required" : "expected Map<EnumText, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("labels")) ? "labels" in obj : (__fields.keeps("labels") && obj["labels"] !== undefined)) {
-        const __raw_labels = obj["labels"] as Record<string, EnumSigned>;
-        if (typeof __raw_labels === "object" && __raw_labels !== null) {
-            ctx.pushScope("labels");
-            try {
-                instance.labels = (__mf_decodeRecord(__raw_labels, ctx, (__raw0) => enumSignedDecodeWithContext(__raw0, ctx)) as Record<string, EnumSigned>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "labels" : "labels." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "labels", message: __raw_labels == null ? "EnumHolder.labels is required" : "expected Record<string, EnumSigned>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [EnumCounted, EnumText];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => enumCountedDecodeWithContext(__raw0, ctx), (__raw0) => enumTextDecodeWithContext(__raw0, ctx)], 2) as [EnumCounted, EnumText]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "EnumHolder.pair is required" : "expected [EnumCounted, EnumText]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("constant")) ? "constant" in obj : (__fields.keeps("constant") && obj["constant"] !== undefined)) {
-        const __raw_constant = obj["constant"] as EnumConstant;
+                ctx.pushScope("constant");
+                try {
+                    const __result = enumConstantDecodeWithContext(__raw_constant, ctx);
+                    ctx.assignOrDefer(instance, "constant", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "constant" : "constant." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-        ctx.pushScope("constant");
-        try {
-            const __result = enumConstantDecodeWithContext(__raw_constant, ctx);
-            ctx.assignOrDefer(instance, "constant", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "constant" : "constant." + __err.field,
-                        message: __err.message
-                    });
+                        errors.push({ field: "constant", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "constant", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1691,7 +1741,7 @@ export function enumHolderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "counted") && __mf_holds(obj, "mixed") && __mf_holds(obj, "flags") && __mf_holds(obj, "maybe") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "byName") && __mf_holds(obj, "byKind") && __mf_holds(obj, "labels") && __mf_holds(obj, "pair") && __mf_holds(obj, "constant");
+    return __mf_holdsAll(obj, ["counted", "mixed", "flags", "maybe", "list", "set", "byName", "byKind", "labels", "pair", "constant"]);
 }
 
 export function enumHolderIs(obj: unknown): obj is EnumHolder {
@@ -1759,35 +1809,42 @@ export function enumOrderedClone(value: EnumOrdered): EnumOrdered {
 
 export function enumOrderedEquals(a: EnumOrdered, b: EnumOrdered): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => enumCountedEquals(a.counted, b.counted) && enumMixedEquals(a.mixed, b.mixed) && enumTextEquals(a.text, b.text));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => enumCountedEquals(a.counted, b.counted),
+            () => enumMixedEquals(a.mixed, b.mixed),
+            () => enumTextEquals(a.text, b.text),
+        ].every((same) => same());
+    });
 }
 
 export function enumOrderedPartialCompare(a: EnumOrdered, b: EnumOrdered): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = enumCountedPartialCompare(a.counted, b.counted);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = enumMixedPartialCompare(a.mixed, b.mixed);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = enumTextPartialCompare(a.text, b.text);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => enumCountedPartialCompare(a.counted, b.counted),
+        () => enumMixedPartialCompare(a.mixed, b.mixed),
+        () => enumTextPartialCompare(a.text, b.text),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function enumOrderedCompare(a: EnumOrdered, b: EnumOrdered): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = enumCountedCompare(a.counted, b.counted);
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = enumMixedCompare(a.mixed, b.mixed);
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = enumTextCompare(a.text, b.text);
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => enumCountedCompare(a.counted, b.counted),
+        () => enumMixedCompare(a.mixed, b.mixed),
+        () => enumTextCompare(a.text, b.text),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -2228,122 +2285,122 @@ export declare const EnumOrdered: {
 
 ## Mapping
 
-original 0..434 -> expanded 1293..1727
-original 434..635 -> expanded 5667..5868
-original 635..850 -> expanded 9952..10167
-original 850..1056 -> expanded 14153..14359
-original 1056..1236 -> expanded 18738..18918
-original 1236..1392 -> expanded 22898..23054
-original 1392..1631 -> expanded 26267..26506
-original 1631..1814 -> expanded 30408..30591
-original 1814..1980 -> expanded 33307..33473
-original 1980..2468 -> expanded 37085..37573
-original 2468..2631 -> expanded 70652..70815
-original 2631..2632 -> expanded 73192..73193
-generated 0..1293 <- imports
-generated 1727..2130 <- Debug
-generated 2130..2219 <- Clone
-generated 2219..2319 <- PartialEq
-generated 2319..2527 <- Hash
-generated 2527..2742 <- PartialOrd
-generated 2742..2943 <- Ord
-generated 2943..3033 <- Default
-generated 3033..3473 <- Encode
-generated 3473..4697 <- Decode
-generated 4697..5667 <- __convenience_const
-generated 5868..6339 <- Debug
-generated 6339..6425 <- Clone
-generated 6425..6522 <- PartialEq
-generated 6522..6728 <- Hash
-generated 6728..6940 <- PartialOrd
-generated 6940..7138 <- Ord
-generated 7138..7225 <- Default
-generated 7225..7659 <- Encode
-generated 7659..9007 <- Decode
-generated 9007..9952 <- __convenience_const
-generated 10167..10621 <- Debug
-generated 10621..10704 <- Clone
-generated 10704..10798 <- PartialEq
-generated 10798..11002 <- Hash
-generated 11002..11211 <- PartialOrd
-generated 11211..11406 <- Ord
-generated 11406..11489 <- Default
-generated 11489..11917 <- Encode
-generated 11917..13233 <- Decode
-generated 13233..14153 <- __convenience_const
-generated 14359..14815 <- Debug
-generated 14815..14898 <- Clone
-generated 14898..14992 <- PartialEq
-generated 14992..15310 <- Hash
-generated 15310..15656 <- PartialOrd
-generated 15656..15988 <- Ord
-generated 15988..16071 <- Default
-generated 16071..16499 <- Encode
-generated 16499..17818 <- Decode
-generated 17818..18738 <- __convenience_const
-generated 18918..19316 <- Debug
-generated 19316..19408 <- Clone
-generated 19408..19511 <- PartialEq
-generated 19511..19721 <- Hash
-generated 19721..19939 <- PartialOrd
-generated 19939..20143 <- Ord
-generated 20143..20234 <- Default
-generated 20234..20680 <- Encode
-generated 20680..21903 <- Decode
-generated 21903..22898 <- __convenience_const
-generated 23054..23272 <- Debug
-generated 23272..23352 <- Clone
-generated 23352..23443 <- PartialEq
-generated 23443..23602 <- Hash
-generated 23602..23808 <- PartialOrd
-generated 23808..24000 <- Ord
-generated 24000..24080 <- Default
-generated 24080..24502 <- Encode
-generated 24502..25372 <- Decode
-generated 25372..26267 <- __convenience_const
-generated 26506..26965 <- Debug
-generated 26965..27045 <- Clone
-generated 27045..27136 <- PartialEq
-generated 27136..27295 <- Hash
-generated 27295..27501 <- PartialOrd
-generated 27501..27693 <- Ord
-generated 27693..27774 <- Default
-generated 27774..28196 <- Encode
-generated 28196..29513 <- Decode
-generated 29513..30408 <- __convenience_const
-generated 30591..30910 <- Debug
-generated 30910..31002 <- Clone
-generated 31002..31105 <- PartialEq
-generated 31105..31272 <- Hash
-generated 31272..31490 <- PartialOrd
-generated 31490..31694 <- Ord
-generated 31694..31785 <- Default
-generated 31785..32231 <- Encode
-generated 32231..33307 <- Decode
-generated 33473..33775 <- Debug
-generated 33775..33864 <- Clone
-generated 33864..33964 <- PartialEq
-generated 33964..34129 <- Hash
-generated 34129..34344 <- PartialOrd
-generated 34344..34545 <- Ord
-generated 34545..34631 <- Default
-generated 34631..35071 <- Encode
-generated 35071..36115 <- Decode
-generated 36115..37085 <- __convenience_const
-generated 37573..38775 <- Debug
-generated 38775..39766 <- Clone
-generated 39766..41387 <- PartialEq
-generated 41387..43023 <- Hash
-generated 43023..43503 <- Default
-generated 43503..48388 <- Encode
-generated 48388..69216 <- Decode
-generated 69216..70652 <- __convenience_const
-generated 70815..71216 <- Debug
-generated 71216..71461 <- Clone
-generated 71461..71724 <- PartialEq
-generated 71724..72306 <- PartialOrd
-generated 72306..72745 <- Ord
-generated 72745..73192 <- __convenience_const
+original 0..434 -> expanded 1299..1733
+original 434..635 -> expanded 5673..5874
+original 635..850 -> expanded 9958..10173
+original 850..1056 -> expanded 14159..14365
+original 1056..1236 -> expanded 18744..18924
+original 1236..1392 -> expanded 22904..23060
+original 1392..1631 -> expanded 26273..26512
+original 1631..1814 -> expanded 30414..30597
+original 1814..1980 -> expanded 33313..33479
+original 1980..2468 -> expanded 37091..37579
+original 2468..2631 -> expanded 73259..73422
+original 2631..2632 -> expanded 75826..75827
+generated 0..1299 <- imports
+generated 1733..2136 <- Debug
+generated 2136..2225 <- Clone
+generated 2225..2325 <- PartialEq
+generated 2325..2533 <- Hash
+generated 2533..2748 <- PartialOrd
+generated 2748..2949 <- Ord
+generated 2949..3039 <- Default
+generated 3039..3479 <- Encode
+generated 3479..4703 <- Decode
+generated 4703..5673 <- __convenience_const
+generated 5874..6345 <- Debug
+generated 6345..6431 <- Clone
+generated 6431..6528 <- PartialEq
+generated 6528..6734 <- Hash
+generated 6734..6946 <- PartialOrd
+generated 6946..7144 <- Ord
+generated 7144..7231 <- Default
+generated 7231..7665 <- Encode
+generated 7665..9013 <- Decode
+generated 9013..9958 <- __convenience_const
+generated 10173..10627 <- Debug
+generated 10627..10710 <- Clone
+generated 10710..10804 <- PartialEq
+generated 10804..11008 <- Hash
+generated 11008..11217 <- PartialOrd
+generated 11217..11412 <- Ord
+generated 11412..11495 <- Default
+generated 11495..11923 <- Encode
+generated 11923..13239 <- Decode
+generated 13239..14159 <- __convenience_const
+generated 14365..14821 <- Debug
+generated 14821..14904 <- Clone
+generated 14904..14998 <- PartialEq
+generated 14998..15316 <- Hash
+generated 15316..15662 <- PartialOrd
+generated 15662..15994 <- Ord
+generated 15994..16077 <- Default
+generated 16077..16505 <- Encode
+generated 16505..17824 <- Decode
+generated 17824..18744 <- __convenience_const
+generated 18924..19322 <- Debug
+generated 19322..19414 <- Clone
+generated 19414..19517 <- PartialEq
+generated 19517..19727 <- Hash
+generated 19727..19945 <- PartialOrd
+generated 19945..20149 <- Ord
+generated 20149..20240 <- Default
+generated 20240..20686 <- Encode
+generated 20686..21909 <- Decode
+generated 21909..22904 <- __convenience_const
+generated 23060..23278 <- Debug
+generated 23278..23358 <- Clone
+generated 23358..23449 <- PartialEq
+generated 23449..23608 <- Hash
+generated 23608..23814 <- PartialOrd
+generated 23814..24006 <- Ord
+generated 24006..24086 <- Default
+generated 24086..24508 <- Encode
+generated 24508..25378 <- Decode
+generated 25378..26273 <- __convenience_const
+generated 26512..26971 <- Debug
+generated 26971..27051 <- Clone
+generated 27051..27142 <- PartialEq
+generated 27142..27301 <- Hash
+generated 27301..27507 <- PartialOrd
+generated 27507..27699 <- Ord
+generated 27699..27780 <- Default
+generated 27780..28202 <- Encode
+generated 28202..29519 <- Decode
+generated 29519..30414 <- __convenience_const
+generated 30597..30916 <- Debug
+generated 30916..31008 <- Clone
+generated 31008..31111 <- PartialEq
+generated 31111..31278 <- Hash
+generated 31278..31496 <- PartialOrd
+generated 31496..31700 <- Ord
+generated 31700..31791 <- Default
+generated 31791..32237 <- Encode
+generated 32237..33313 <- Decode
+generated 33479..33781 <- Debug
+generated 33781..33870 <- Clone
+generated 33870..33970 <- PartialEq
+generated 33970..34135 <- Hash
+generated 34135..34350 <- PartialOrd
+generated 34350..34551 <- Ord
+generated 34551..34637 <- Default
+generated 34637..35077 <- Encode
+generated 35077..36121 <- Decode
+generated 36121..37091 <- __convenience_const
+generated 37579..38781 <- Debug
+generated 38781..39772 <- Clone
+generated 39772..41766 <- PartialEq
+generated 41766..43402 <- Hash
+generated 43402..43882 <- Default
+generated 43882..49698 <- Encode
+generated 49698..71823 <- Decode
+generated 71823..73259 <- __convenience_const
+generated 73422..73823 <- Debug
+generated 73823..74068 <- Clone
+generated 74068..74442 <- PartialEq
+generated 74442..74928 <- PartialOrd
+generated 74928..75379 <- Ord
+generated 75379..75826 <- __convenience_const
 
 ## Metadata
 

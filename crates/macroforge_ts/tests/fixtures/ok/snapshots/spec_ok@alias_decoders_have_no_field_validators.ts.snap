@@ -186,23 +186,31 @@ export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as number;
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as number;
 
-        if (!(typeof __raw_e0 === "number" && globalThis.Number.isFinite(__raw_e0))) {
-            errors.push({ field: "0", message: __raw_e0 == null ? "Span.0 is required" : "expected number" });
-        } else {
-            instance.e0 = __raw_e0;
-        }
-    }
-    if ("1" in obj) {
-        const __raw_e1 = obj["1"] as number;
+                if (!(typeof __raw_e0 === "number" && globalThis.Number.isFinite(__raw_e0))) {
+                    errors.push({ field: "0", message: __raw_e0 == null ? "Span.0 is required" : "expected number" });
+                } else {
+                    instance.e0 = __raw_e0;
+                }
+            }
+        },
+        () => {
+            if ("1" in obj) {
+                const __raw_e1 = obj["1"] as number;
 
-        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
-            errors.push({ field: "1", message: __raw_e1 == null ? "Span.1 is required" : "expected number" });
-        } else {
-            instance.e1 = __raw_e1;
-        }
+                if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
+                    errors.push({ field: "1", message: __raw_e1 == null ? "Span.1 is required" : "expected number" });
+                } else {
+                    instance.e1 = __raw_e1;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -270,12 +278,12 @@ export {};
 original 49..71 -> expanded 225..247
 original 71..73 -> expanded 2700..2702
 original 95..125 -> expanded 2702..2732
-original 125..126 -> expanded 6836..6837
+original 125..126 -> expanded 7078..7079
 generated 0..225 <- imports
 generated 247..2383 <- Decode
 generated 2383..2700 <- __convenience_const
-generated 2732..6537 <- Decode
-generated 6537..6836 <- __convenience_const
+generated 2732..6779 <- Decode
+generated 6779..7078 <- __convenience_const
 
 ## Metadata
 

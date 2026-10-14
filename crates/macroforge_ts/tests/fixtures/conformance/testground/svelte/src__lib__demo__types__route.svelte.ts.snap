@@ -13,7 +13,7 @@ true
 ## Output
 
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -84,60 +84,86 @@ export function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_E
 }
 
 function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("techs")) {
-        if (value.techs !== undefined) {
-            result["techs"] = value.techs === null ? null : value.techs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("active")) {
-        if (value.active !== undefined) {
-            result["active"] = value.active;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("phone")) {
-        if (value.phone !== undefined) {
-            result["phone"] = value.phone;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("position")) {
-        if (value.position !== undefined) {
-            result["position"] = value.position;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("serviceRoute")) {
-        if (value.serviceRoute !== undefined) {
-            result["serviceRoute"] = value.serviceRoute;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("defaultDurationHours")) {
-        if (value.defaultDurationHours !== undefined) {
-            result["defaultDurationHours"] = value.defaultDurationHours;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("icon")) {
-        if (value.icon !== undefined) {
-            result["icon"] = value.icon;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("color")) {
-        if (value.color !== undefined) {
-            result["color"] = value.color;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("techs")) {
+                if (value.techs !== undefined) {
+                    result["techs"] = value.techs === null ? null : value.techs.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("active")) {
+                if (value.active !== undefined) {
+                    result["active"] = value.active;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("phone")) {
+                if (value.phone !== undefined) {
+                    result["phone"] = value.phone;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("position")) {
+                if (value.position !== undefined) {
+                    result["position"] = value.position;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("serviceRoute")) {
+                if (value.serviceRoute !== undefined) {
+                    result["serviceRoute"] = value.serviceRoute;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("defaultDurationHours")) {
+                if (value.defaultDurationHours !== undefined) {
+                    result["defaultDurationHours"] = value.defaultDurationHours;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("icon")) {
+                if (value.icon !== undefined) {
+                    result["icon"] = value.icon;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("color")) {
+                if (value.color !== undefined) {
+                    result["color"] = value.color;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -215,38 +241,12 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("techs")) && !("techs" in obj)) {
-        errors.push({ field: "techs", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
-        errors.push({ field: "active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("phone")) && !("phone" in obj)) {
-        errors.push({ field: "phone", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("position")) && !("position" in obj)) {
-        errors.push({ field: "position", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("serviceRoute")) && !("serviceRoute" in obj)) {
-        errors.push({ field: "serviceRoute", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("defaultDurationHours")) && !("defaultDurationHours" in obj)) {
-        errors.push({ field: "defaultDurationHours", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("icon")) && !("icon" in obj)) {
-        errors.push({ field: "icon", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("color")) && !("color" in obj)) {
-        errors.push({ field: "color", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["techs", "techs"], ["active", "active"], ["name", "name"], ["phone", "phone"], ["position", "position"], ["serviceRoute", "serviceRoute"], ["defaultDurationHours", "defaultDurationHours"], ["tags", "tags"], ["icon", "icon"], ["color", "color"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -257,148 +257,174 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Route.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("techs")) ? "techs" in obj : (__fields.keeps("techs") && obj["techs"] !== undefined)) {
-        const __raw_techs = obj["techs"] as Array<string | Employee> | null;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Route.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("techs")) ? "techs" in obj : (__fields.keeps("techs") && obj["techs"] !== undefined)) {
+                const __raw_techs = obj["techs"] as Array<string | Employee> | null;
 
-        if (__raw_techs === null) {
-            instance.techs = null;
-        } else {
-            if (Array.isArray(__raw_techs)) {
-                ctx.pushScope("techs");
-                try {
-                    instance.techs = __mf_decodeArray(__raw_techs, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : employeeDecodeWithContext(__raw0, ctx)));
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "techs" : "techs." + __err.field,
-                                message: __err.message
-                            });
+                if (__raw_techs === null) {
+                    instance.techs = null;
+                } else {
+                    if (Array.isArray(__raw_techs)) {
+                        ctx.pushScope("techs");
+                        try {
+                            instance.techs = __mf_decodeArray(__raw_techs, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : employeeDecodeWithContext(__raw0, ctx)));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "techs" : "techs." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "techs", message: __raw_techs == null ? "Route.techs is required" : "expected Array<string | Employee>" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "techs", message: __raw_techs == null ? "Route.techs is required" : "expected Array<string | Employee>" });
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
-        const __raw_active = obj["active"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
+                const __raw_active = obj["active"] as boolean;
 
-        if (!(typeof __raw_active === "boolean")) {
-            errors.push({ field: "active", message: __raw_active == null ? "Route.active is required" : "expected boolean" });
-        } else {
-            instance.active = __raw_active;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
-
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Route.name is required" : "expected string" });
-        } else {
-            if (__raw_name == null) { errors.push({ field: "name", message: "Route.name is required" }); } else {
-                if (__raw_name.length === 0) { errors.push({ field: "name", message: "Route.name must not be empty" }); }
+                if (!(typeof __raw_active === "boolean")) {
+                    errors.push({ field: "active", message: __raw_active == null ? "Route.active is required" : "expected boolean" });
+                } else {
+                    instance.active = __raw_active;
+                }
             }
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("phone")) ? "phone" in obj : (__fields.keeps("phone") && obj["phone"] !== undefined)) {
-        const __raw_phone = obj["phone"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_phone === "string")) {
-            errors.push({ field: "phone", message: __raw_phone == null ? "Route.phone is required" : "expected string" });
-        } else {
-            if (__raw_phone == null) { errors.push({ field: "phone", message: "Route.phone is required" }); } else {
-                if (__raw_phone.length === 0) { errors.push({ field: "phone", message: "Route.phone must not be empty" }); }
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Route.name is required" : "expected string" });
+                } else {
+                    if (__raw_name == null) { errors.push({ field: "name", message: "Route.name is required" }); } else {
+                        if (__raw_name.length === 0) { errors.push({ field: "name", message: "Route.name must not be empty" }); }
+                    }
+                    instance.name = __raw_name;
+                }
             }
-            instance.phone = __raw_phone;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("position")) ? "position" in obj : (__fields.keeps("position") && obj["position"] !== undefined)) {
-        const __raw_position = obj["position"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("phone")) ? "phone" in obj : (__fields.keeps("phone") && obj["phone"] !== undefined)) {
+                const __raw_phone = obj["phone"] as string;
 
-        if (!(typeof __raw_position === "string")) {
-            errors.push({ field: "position", message: __raw_position == null ? "Route.position is required" : "expected string" });
-        } else {
-            if (__raw_position == null) { errors.push({ field: "position", message: "Route.position is required" }); } else {
-                if (__raw_position.length === 0) { errors.push({ field: "position", message: "Route.position must not be empty" }); }
+                if (!(typeof __raw_phone === "string")) {
+                    errors.push({ field: "phone", message: __raw_phone == null ? "Route.phone is required" : "expected string" });
+                } else {
+                    if (__raw_phone == null) { errors.push({ field: "phone", message: "Route.phone is required" }); } else {
+                        if (__raw_phone.length === 0) { errors.push({ field: "phone", message: "Route.phone must not be empty" }); }
+                    }
+                    instance.phone = __raw_phone;
+                }
             }
-            instance.position = __raw_position;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("serviceRoute")) ? "serviceRoute" in obj : (__fields.keeps("serviceRoute") && obj["serviceRoute"] !== undefined)) {
-        const __raw_serviceRoute = obj["serviceRoute"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("position")) ? "position" in obj : (__fields.keeps("position") && obj["position"] !== undefined)) {
+                const __raw_position = obj["position"] as string;
 
-        if (!(typeof __raw_serviceRoute === "boolean")) {
-            errors.push({ field: "serviceRoute", message: __raw_serviceRoute == null ? "Route.serviceRoute is required" : "expected boolean" });
-        } else {
-            instance.serviceRoute = __raw_serviceRoute;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("defaultDurationHours")) ? "defaultDurationHours" in obj : (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
-        const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
+                if (!(typeof __raw_position === "string")) {
+                    errors.push({ field: "position", message: __raw_position == null ? "Route.position is required" : "expected string" });
+                } else {
+                    if (__raw_position == null) { errors.push({ field: "position", message: "Route.position is required" }); } else {
+                        if (__raw_position.length === 0) { errors.push({ field: "position", message: "Route.position must not be empty" }); }
+                    }
+                    instance.position = __raw_position;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("serviceRoute")) ? "serviceRoute" in obj : (__fields.keeps("serviceRoute") && obj["serviceRoute"] !== undefined)) {
+                const __raw_serviceRoute = obj["serviceRoute"] as boolean;
 
-        if (!(typeof __raw_defaultDurationHours === "number" && globalThis.Number.isFinite(__raw_defaultDurationHours))) {
-            errors.push({ field: "defaultDurationHours", message: __raw_defaultDurationHours == null ? "Route.defaultDurationHours is required" : "expected number" });
-        } else {
-            instance.defaultDurationHours = __raw_defaultDurationHours;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as Array<string>;
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_serviceRoute === "boolean")) {
+                    errors.push({ field: "serviceRoute", message: __raw_serviceRoute == null ? "Route.serviceRoute is required" : "expected boolean" });
+                } else {
+                    instance.serviceRoute = __raw_serviceRoute;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("defaultDurationHours")) ? "defaultDurationHours" in obj : (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
+                const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
+
+                if (!(typeof __raw_defaultDurationHours === "number" && globalThis.Number.isFinite(__raw_defaultDurationHours))) {
+                    errors.push({ field: "defaultDurationHours", message: __raw_defaultDurationHours == null ? "Route.defaultDurationHours is required" : "expected number" });
+                } else {
+                    instance.defaultDurationHours = __raw_defaultDurationHours;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "Route.tags is required" : "expected Array<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "Route.tags is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("icon")) ? "icon" in obj : (__fields.keeps("icon") && obj["icon"] !== undefined)) {
-        const __raw_icon = obj["icon"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("icon")) ? "icon" in obj : (__fields.keeps("icon") && obj["icon"] !== undefined)) {
+                const __raw_icon = obj["icon"] as string | null;
 
-        if (!(typeof __raw_icon === "string" || __raw_icon === null)) {
-            errors.push({ field: "icon", message: "expected string | null" });
-        } else {
-            instance.icon = __raw_icon;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
-        const __raw_color = obj["color"] as string | null;
+                if (!(typeof __raw_icon === "string" || __raw_icon === null)) {
+                    errors.push({ field: "icon", message: "expected string | null" });
+                } else {
+                    instance.icon = __raw_icon;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
+                const __raw_color = obj["color"] as string | null;
 
-        if (!(typeof __raw_color === "string" || __raw_color === null)) {
-            errors.push({ field: "color", message: "expected string | null" });
-        } else {
-            instance.color = __raw_color;
-        }
+                if (!(typeof __raw_color === "string" || __raw_color === null)) {
+                    errors.push({ field: "color", message: "expected string | null" });
+                } else {
+                    instance.color = __raw_color;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -459,7 +485,7 @@ export function routeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "techs") && __mf_holds(obj, "active") && __mf_holds(obj, "name") && __mf_holds(obj, "phone") && __mf_holds(obj, "position") && __mf_holds(obj, "serviceRoute") && __mf_holds(obj, "defaultDurationHours") && __mf_holds(obj, "tags") && __mf_holds(obj, "icon") && __mf_holds(obj, "color");
+    return __mf_holdsAll(obj, ["id", "techs", "active", "name", "phone", "position", "serviceRoute", "defaultDurationHours", "tags", "icon", "color"]);
 }
 
 export function routeIs(obj: unknown): obj is Route {
@@ -1039,18 +1065,18 @@ export declare const Route: {
 
 ## Mapping
 
-original 0..110 -> expanded 1018..1128
-original 159..270 -> expanded 1128..1239
-original 311..334 -> expanded 1239..1262
-original 375..399 -> expanded 1262..1286
-original 440..601 -> expanded 1286..1447
-original 601..602 -> expanded 38538..38539
-generated 0..1018 <- imports
-generated 1447..1755 <- Default
-generated 1755..5662 <- Encode
-generated 5662..21869 <- Decode
-generated 21869..37353 <- Gigaform
-generated 37353..38538 <- __convenience_const
+original 0..110 -> expanded 1024..1134
+original 159..270 -> expanded 1134..1245
+original 311..334 -> expanded 1245..1268
+original 375..399 -> expanded 1268..1292
+original 440..601 -> expanded 1292..1453
+original 601..602 -> expanded 39224..39225
+generated 0..1024 <- imports
+generated 1453..1761 <- Default
+generated 1761..6465 <- Encode
+generated 6465..22555 <- Decode
+generated 22555..38039 <- Gigaform
+generated 38039..39224 <- __convenience_const
 
 ## Metadata
 

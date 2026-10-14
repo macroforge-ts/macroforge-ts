@@ -15,7 +15,7 @@ true
 import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -73,25 +73,37 @@ export function overviewSettingsEncodePartialWithContext(value: Partial<Overview
 }
 
 function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("rowHeight")) {
-        if (value.rowHeight !== undefined) {
-            result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("cardOrRow")) {
-        if (value.cardOrRow !== undefined) {
-            result["cardOrRow"] = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("perPage")) {
-        if (value.perPage !== undefined) {
-            result["perPage"] = value.perPage;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("columnConfigs")) {
-        if (value.columnConfigs !== undefined) {
-            result["columnConfigs"] = value.columnConfigs.map((__item0) => columnConfigEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("rowHeight")) {
+                if (value.rowHeight !== undefined) {
+                    result["rowHeight"] = rowHeightEncodeWithContext(value.rowHeight, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("cardOrRow")) {
+                if (value.cardOrRow !== undefined) {
+                    result["cardOrRow"] = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("perPage")) {
+                if (value.perPage !== undefined) {
+                    result["perPage"] = value.perPage;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("columnConfigs")) {
+                if (value.columnConfigs !== undefined) {
+                    result["columnConfigs"] = value.columnConfigs.map((__item0) => columnConfigEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -169,17 +181,12 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("rowHeight")) && !("rowHeight" in obj)) {
-        errors.push({ field: "rowHeight", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("cardOrRow")) && !("cardOrRow" in obj)) {
-        errors.push({ field: "cardOrRow", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("perPage")) && !("perPage" in obj)) {
-        errors.push({ field: "perPage", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("columnConfigs")) && !("columnConfigs" in obj)) {
-        errors.push({ field: "columnConfigs", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["rowHeight", "rowHeight"], ["cardOrRow", "cardOrRow"], ["perPage", "perPage"], ["columnConfigs", "columnConfigs"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -190,84 +197,96 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
-        const __raw_rowHeight = obj["rowHeight"] as RowHeight;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
+                const __raw_rowHeight = obj["rowHeight"] as RowHeight;
 
-        ctx.pushScope("rowHeight");
-        try {
-            const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
-            ctx.assignOrDefer(instance, "rowHeight", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("rowHeight");
+                try {
+                    const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
+                    ctx.assignOrDefer(instance, "rowHeight", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cardOrRow")) ? "cardOrRow" in obj : (__fields.keeps("cardOrRow") && obj["cardOrRow"] !== undefined)) {
-        const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cardOrRow")) ? "cardOrRow" in obj : (__fields.keeps("cardOrRow") && obj["cardOrRow"] !== undefined)) {
+                const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
 
-        ctx.pushScope("cardOrRow");
-        try {
-            const __result = overviewDisplayDecodeWithContext(__raw_cardOrRow, ctx);
-            ctx.assignOrDefer(instance, "cardOrRow", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("cardOrRow");
+                try {
+                    const __result = overviewDisplayDecodeWithContext(__raw_cardOrRow, ctx);
+                    ctx.assignOrDefer(instance, "cardOrRow", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "cardOrRow", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "cardOrRow", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("perPage")) ? "perPage" in obj : (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
-        const __raw_perPage = obj["perPage"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("perPage")) ? "perPage" in obj : (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
+                const __raw_perPage = obj["perPage"] as number;
 
-        if (!(typeof __raw_perPage === "number" && globalThis.Number.isFinite(__raw_perPage))) {
-            errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
-        } else {
-            instance.perPage = __raw_perPage;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("columnConfigs")) ? "columnConfigs" in obj : (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
-        const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
-        if (Array.isArray(__raw_columnConfigs)) {
-            ctx.pushScope("columnConfigs");
-            try {
-                instance.columnConfigs = __mf_decodeArray(__raw_columnConfigs, ctx, (__raw0) => columnConfigDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "columnConfigs" : "columnConfigs." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_perPage === "number" && globalThis.Number.isFinite(__raw_perPage))) {
+                    errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
+                } else {
+                    instance.perPage = __raw_perPage;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("columnConfigs")) ? "columnConfigs" in obj : (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
+                const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
+                if (Array.isArray(__raw_columnConfigs)) {
+                    ctx.pushScope("columnConfigs");
+                    try {
+                        instance.columnConfigs = __mf_decodeArray(__raw_columnConfigs, ctx, (__raw0) => columnConfigDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "columnConfigs" : "columnConfigs." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "columnConfigs", message: __raw_columnConfigs == null ? "OverviewSettings.columnConfigs is required" : "expected Array<ColumnConfig>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "columnConfigs", message: __raw_columnConfigs == null ? "OverviewSettings.columnConfigs is required" : "expected Array<ColumnConfig>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -292,7 +311,7 @@ export function overviewSettingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "rowHeight") && __mf_holds(obj, "cardOrRow") && __mf_holds(obj, "perPage") && __mf_holds(obj, "columnConfigs");
+    return __mf_holdsAll(obj, ["rowHeight", "cardOrRow", "perPage", "columnConfigs"]);
 }
 
 export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
@@ -699,17 +718,17 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 1202..1441
-original 288..329 -> expanded 1441..1482
-original 354..385 -> expanded 1482..1513
-original 409..504 -> expanded 1513..1608
-original 504..505 -> expanded 26075..26076
-generated 0..1202 <- imports
-generated 1608..1802 <- Default
-generated 1802..4743 <- Encode
-generated 4743..14235 <- Decode
-generated 14235..24593 <- Gigaform
-generated 24593..26075 <- __convenience_const
+original 0..239 -> expanded 1208..1447
+original 288..329 -> expanded 1447..1488
+original 354..385 -> expanded 1488..1519
+original 409..504 -> expanded 1519..1614
+original 504..505 -> expanded 26809..26810
+generated 0..1208 <- imports
+generated 1614..1808 <- Default
+generated 1808..5077 <- Encode
+generated 5077..14969 <- Decode
+generated 14969..25327 <- Gigaform
+generated 25327..26809 <- __convenience_const
 
 ## Metadata
 

@@ -15,7 +15,7 @@ true
 import { productDecodeWithContext, productEncodeWithContext } from "./product.svelte";
 import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkEncodeWithContext, recordLinkDefaultValue } from "./record-link.svelte";
 import { serviceDecodeWithContext, serviceEncodeWithContext } from "./service.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,24 +42,14 @@ export function itemEncode(value: Item, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
-        if (!__matched && recordLinkHasShape(value)) { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
-        if (!__matched && recordLinkHasShape(value)) { __variant = ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Item): member is RecordLink<Product> => __mf_member(member, "__type") === "RecordLink", (member) => ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(member, ctx)),
+        __mf_memberCoder((member: Item): member is RecordLink<Service> => __mf_member(member, "__type") === "RecordLink", (member) => ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(member, ctx)),
+        __mf_memberCoder((member: Item): member is RecordLink<Product> => recordLinkHasShape(member), (member) => ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(member, ctx)),
+        __mf_memberCoder((member: Item): member is RecordLink<Service> => recordLinkHasShape(member), (member) => ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -451,15 +441,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 954..1167
-original 262..340 -> expanded 1167..1245
-original 340..341 -> expanded 14665..14666
-generated 0..954 <- imports
-generated 1245..1306 <- Default
-generated 1306..3922 <- Encode
-generated 3922..9423 <- Decode
-generated 9423..13951 <- Gigaform
-generated 13951..14665 <- __convenience_const
+original 0..213 -> expanded 1024..1237
+original 262..340 -> expanded 1237..1315
+original 340..341 -> expanded 14640..14641
+generated 0..1024 <- imports
+generated 1315..1376 <- Default
+generated 1376..3897 <- Encode
+generated 3897..9398 <- Decode
+generated 9398..13926 <- Gigaform
+generated 13926..14640 <- __convenience_const
 
 ## Metadata
 

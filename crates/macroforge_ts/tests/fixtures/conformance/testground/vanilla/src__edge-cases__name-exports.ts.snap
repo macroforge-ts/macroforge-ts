@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types a module exports under a name other than the one they are declared
@@ -43,7 +43,12 @@ export default class NameModel {
 
     static equals(a: NameModel, b: NameModel): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.title === b.title && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.title === b.title,
+                    () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: NameModel): number {
@@ -84,15 +89,23 @@ static encodePartialWithContext(value: Partial<NameModel>, ctx: __mf_EncodeConte
 }
 
 static #encodeFields(value: NameModel, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("title")) {
-        if (value.title !== undefined) {
-            result["title"] = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -182,11 +195,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"], ["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(NameModel.prototype);
@@ -197,26 +211,34 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "NameModel.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "NameModel.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "NameModel.title is required" : "expected string" });
+                } else {
+                    instance.title = __raw_title;
+                }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "NameModel.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -237,7 +259,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "title") && __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["title", "at"]);
 }
 
 static is(obj: unknown): obj is NameModel {
@@ -341,7 +363,12 @@ export function nameLateClone(value: NameLate): NameLate {
 
 export function nameLateEquals(a: NameLate, b: NameLate): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.note === b.note && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.note === b.note,
+            () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+        ].every((same) => same());
+    });
 }
 
 export function nameLateHashCode(value: NameLate): number {
@@ -389,20 +416,30 @@ export function nameLateEncodePartialWithContext(value: Partial<NameLate>, ctx: 
 }
 
 function nameLateEncodeFields(value: NameLate, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("note")) {
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("stamp")) {
-        if (value.stamp !== undefined) {
-            result["stamp"] = value.stamp;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("note")) {
+                if (value.note !== undefined) {
+                    result["note"] = value.note;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("stamp")) {
+                if (value.stamp !== undefined) {
+                    result["stamp"] = value.stamp;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -480,14 +517,12 @@ export function nameLateDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("note")) && !("note" in obj)) {
-        errors.push({ field: "note", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("stamp")) && !("stamp" in obj)) {
-        errors.push({ field: "stamp", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["note", "note"], ["at", "at"], ["stamp", "stamp"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -498,35 +533,45 @@ export function nameLateDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string;
 
-        if (!(typeof __raw_note === "string")) {
-            errors.push({ field: "note", message: __raw_note == null ? "NameLate.note is required" : "expected string" });
-        } else {
-            instance.note = __raw_note;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "NameLate.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                if (!(typeof __raw_note === "string")) {
+                    errors.push({ field: "note", message: __raw_note == null ? "NameLate.note is required" : "expected string" });
+                } else {
+                    instance.note = __raw_note;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("stamp")) ? "stamp" in obj : (__fields.keeps("stamp") && obj["stamp"] !== undefined)) {
-        const __raw_stamp = obj["stamp"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
 
-        if (!(typeof __raw_stamp === "number" && globalThis.Number.isFinite(__raw_stamp))) {
-            errors.push({ field: "stamp", message: __raw_stamp == null ? "NameLate.stamp is required" : "expected number" });
-        } else {
-            instance.stamp = __raw_stamp;
-        }
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "NameLate.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("stamp")) ? "stamp" in obj : (__fields.keeps("stamp") && obj["stamp"] !== undefined)) {
+                const __raw_stamp = obj["stamp"] as number;
+
+                if (!(typeof __raw_stamp === "number" && globalThis.Number.isFinite(__raw_stamp))) {
+                    errors.push({ field: "stamp", message: __raw_stamp == null ? "NameLate.stamp is required" : "expected number" });
+                } else {
+                    instance.stamp = __raw_stamp;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -551,7 +596,7 @@ export function nameLateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "note") && __mf_holds(obj, "at") && __mf_holds(obj, "stamp");
+    return __mf_holdsAll(obj, ["note", "at", "stamp"]);
 }
 
 export function nameLateIs(obj: unknown): obj is NameLate {
@@ -746,34 +791,34 @@ export type { NameLate as NameShown };
 
 ## Mapping
 
-original 0..309 -> expanded 894..1203
-original 309..310 -> expanded 10351..10352
-original 310..516 -> expanded 14007..14213
-original 516..557 -> expanded 26094..26135
-generated 0..894 <- imports
-generated 1203..1521 <- Debug
-generated 1521..1707 <- Clone
-generated 1707..1984 <- PartialEq
-generated 1984..2334 <- Hash
-generated 2334..2558 <- Default
-generated 2558..4275 <- Encode
-generated 4275..4600 <- Encode
-generated 4600..10351 <- Decode
-generated 10352..10455 <- Debug
-generated 10455..10555 <- Clone
-generated 10555..10664 <- PartialEq
-generated 10664..10767 <- Hash
-generated 10767..10860 <- Default
-generated 10860..12210 <- Encode
-generated 12210..14007 <- Decode
-generated 14213..14561 <- Debug
-generated 14561..14755 <- Clone
-generated 14755..15029 <- PartialEq
-generated 15029..15362 <- Hash
-generated 15362..15496 <- Default
-generated 15496..17949 <- Encode
-generated 17949..24727 <- Decode
-generated 24727..26094 <- __convenience_const
+original 0..309 -> expanded 900..1209
+original 309..310 -> expanded 10947..10948
+original 310..516 -> expanded 14603..14809
+original 516..557 -> expanded 27231..27272
+generated 0..900 <- imports
+generated 1209..1527 <- Debug
+generated 1527..1713 <- Clone
+generated 1713..2123 <- PartialEq
+generated 2123..2473 <- Hash
+generated 2473..2697 <- Default
+generated 2697..4608 <- Encode
+generated 4608..4933 <- Encode
+generated 4933..10947 <- Decode
+generated 10948..11051 <- Debug
+generated 11051..11151 <- Clone
+generated 11151..11260 <- PartialEq
+generated 11260..11363 <- Hash
+generated 11363..11456 <- Default
+generated 11456..12806 <- Encode
+generated 12806..14603 <- Decode
+generated 14809..15157 <- Debug
+generated 15157..15351 <- Clone
+generated 15351..15718 <- PartialEq
+generated 15718..16051 <- Hash
+generated 16051..16185 <- Default
+generated 16185..18899 <- Encode
+generated 18899..25864 <- Decode
+generated 25864..27231 <- __convenience_const
 
 ## Metadata
 

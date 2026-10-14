@@ -71,7 +71,15 @@ class Config {
 
     static equals(a: Config, b: Config): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && a.name === b.name && a.description === b.description && (a.createdAt.getTime() === b.createdAt.getTime() || a.createdAt.getTime() !== a.createdAt.getTime() && b.createdAt.getTime() !== b.createdAt.getTime()) && (a.updatedAt == null || b.updatedAt == null ? a.updatedAt === b.updatedAt : a.updatedAt.getTime() === b.updatedAt.getTime() || a.updatedAt.getTime() !== a.updatedAt.getTime() && b.updatedAt.getTime() !== b.updatedAt.getTime()));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.name === b.name,
+                    () => a.description === b.description,
+                    () => a.createdAt.getTime() === b.createdAt.getTime() || a.createdAt.getTime() !== a.createdAt.getTime() && b.createdAt.getTime() !== b.createdAt.getTime(),
+                    () => a.updatedAt == null || b.updatedAt == null ? a.updatedAt === b.updatedAt : a.updatedAt.getTime() === b.updatedAt.getTime() || a.updatedAt.getTime() !== a.updatedAt.getTime() && b.updatedAt.getTime() !== b.updatedAt.getTime(),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: Config): number {
@@ -126,15 +134,15 @@ export {};
 
 original 0..41 -> expanded 153..194
 original 79..533 -> expanded 194..648
-original 533..534 -> expanded 2470..2471
-original 534..535 -> expanded 2756..2757
+original 533..534 -> expanded 2673..2674
+original 534..535 -> expanded 2959..2960
 generated 0..153 <- imports
 generated 648..1145 <- Debug
-generated 1145..1738 <- PartialEq
-generated 1738..2470 <- Hash
-generated 2471..2565 <- Debug
-generated 2565..2662 <- PartialEq
-generated 2662..2756 <- Hash
+generated 1145..1941 <- PartialEq
+generated 1941..2673 <- Hash
+generated 2674..2768 <- Debug
+generated 2768..2865 <- PartialEq
+generated 2865..2959 <- Hash
 
 ## Metadata
 

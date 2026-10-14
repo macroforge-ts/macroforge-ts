@@ -15,7 +15,7 @@ true
 import { applicationsDecodeWithContext, applicationsEncodeWithContext } from "./applications.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { tableDecodeWithContext, tableEncodeWithContext } from "./table.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -69,20 +69,30 @@ export function appPermissionsEncodePartialWithContext(value: Partial<AppPermiss
 }
 
 function appPermissionsEncodeFields(value: AppPermissions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("applications")) {
-        if (value.applications !== undefined) {
-            result["applications"] = value.applications.map((__item0) => applicationsEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pages")) {
-        if (value.pages !== undefined) {
-            result["pages"] = value.pages.map((__item0) => pageEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("data")) {
-        if (value.data !== undefined) {
-            result["data"] = value.data.map((__item0) => tableEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("applications")) {
+                if (value.applications !== undefined) {
+                    result["applications"] = value.applications.map((__item0) => applicationsEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pages")) {
+                if (value.pages !== undefined) {
+                    result["pages"] = value.pages.map((__item0) => pageEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("data")) {
+                if (value.data !== undefined) {
+                    result["data"] = value.data.map((__item0) => tableEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -160,14 +170,12 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("applications")) && !("applications" in obj)) {
-        errors.push({ field: "applications", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pages")) && !("pages" in obj)) {
-        errors.push({ field: "pages", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("data")) && !("data" in obj)) {
-        errors.push({ field: "data", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["applications", "applications"], ["pages", "pages"], ["data", "data"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -178,77 +186,87 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("applications")) ? "applications" in obj : (__fields.keeps("applications") && obj["applications"] !== undefined)) {
-        const __raw_applications = obj["applications"] as Array<Applications>;
-        if (Array.isArray(__raw_applications)) {
-            ctx.pushScope("applications");
-            try {
-                instance.applications = __mf_decodeArray(__raw_applications, ctx, (__raw0) => applicationsDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "applications" : "applications." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("applications")) ? "applications" in obj : (__fields.keeps("applications") && obj["applications"] !== undefined)) {
+                const __raw_applications = obj["applications"] as Array<Applications>;
+                if (Array.isArray(__raw_applications)) {
+                    ctx.pushScope("applications");
+                    try {
+                        instance.applications = __mf_decodeArray(__raw_applications, ctx, (__raw0) => applicationsDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "applications" : "applications." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "applications", message: __raw_applications == null ? "AppPermissions.applications is required" : "expected Array<Applications>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "applications", message: __raw_applications == null ? "AppPermissions.applications is required" : "expected Array<Applications>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pages")) ? "pages" in obj : (__fields.keeps("pages") && obj["pages"] !== undefined)) {
-        const __raw_pages = obj["pages"] as Array<Page>;
-        if (Array.isArray(__raw_pages)) {
-            ctx.pushScope("pages");
-            try {
-                instance.pages = __mf_decodeArray(__raw_pages, ctx, (__raw0) => pageDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pages" : "pages." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pages")) ? "pages" in obj : (__fields.keeps("pages") && obj["pages"] !== undefined)) {
+                const __raw_pages = obj["pages"] as Array<Page>;
+                if (Array.isArray(__raw_pages)) {
+                    ctx.pushScope("pages");
+                    try {
+                        instance.pages = __mf_decodeArray(__raw_pages, ctx, (__raw0) => pageDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pages" : "pages." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pages", message: __raw_pages == null ? "AppPermissions.pages is required" : "expected Array<Page>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pages", message: __raw_pages == null ? "AppPermissions.pages is required" : "expected Array<Page>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("data")) ? "data" in obj : (__fields.keeps("data") && obj["data"] !== undefined)) {
-        const __raw_data = obj["data"] as Array<Table>;
-        if (Array.isArray(__raw_data)) {
-            ctx.pushScope("data");
-            try {
-                instance.data = __mf_decodeArray(__raw_data, ctx, (__raw0) => tableDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "data" : "data." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("data")) ? "data" in obj : (__fields.keeps("data") && obj["data"] !== undefined)) {
+                const __raw_data = obj["data"] as Array<Table>;
+                if (Array.isArray(__raw_data)) {
+                    ctx.pushScope("data");
+                    try {
+                        instance.data = __mf_decodeArray(__raw_data, ctx, (__raw0) => tableDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "data" : "data." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "data", message: __raw_data == null ? "AppPermissions.data is required" : "expected Array<Table>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "data", message: __raw_data == null ? "AppPermissions.data is required" : "expected Array<Table>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -273,7 +291,7 @@ export function appPermissionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "applications") && __mf_holds(obj, "pages") && __mf_holds(obj, "data");
+    return __mf_holdsAll(obj, ["applications", "pages", "data"]);
 }
 
 export function appPermissionsIs(obj: unknown): obj is AppPermissions {
@@ -671,15 +689,15 @@ export declare const AppPermissions: {
 
 ## Mapping
 
-original 0..206 -> expanded 1154..1360
-original 255..378 -> expanded 1360..1483
-original 378..379 -> expanded 24882..24883
-generated 0..1154 <- imports
-generated 1483..1632 <- Default
-generated 1632..4371 <- Encode
-generated 4371..13237 <- Decode
-generated 13237..23454 <- Gigaform
-generated 23454..24882 <- __convenience_const
+original 0..206 -> expanded 1160..1366
+original 255..378 -> expanded 1366..1489
+original 378..379 -> expanded 25686..25687
+generated 0..1160 <- imports
+generated 1489..1638 <- Default
+generated 1638..4638 <- Encode
+generated 4638..14041 <- Decode
+generated 14041..24258 <- Gigaform
+generated 24258..25686 <- __convenience_const
 
 ## Metadata
 

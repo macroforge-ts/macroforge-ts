@@ -32,7 +32,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -147,8 +147,12 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
-        errors.push({ field: "held", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -204,7 +208,7 @@ export function boxHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "held");
+    return __mf_holdsAll(obj, ["held"]);
 }
 
 export function boxIs<T>(obj: unknown): obj is Box<T> {
@@ -349,8 +353,12 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("radius")) && !("radius" in obj)) {
-        errors.push({ field: "radius", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["radius", "radius"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -393,7 +401,7 @@ export function circleHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "radius");
+    return __mf_holdsAll(obj, ["radius"]);
 }
 
 export function circleIs(obj: unknown): obj is Circle {
@@ -436,24 +444,14 @@ export function shapeEncode(value: Shape, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "Box") { __variant = ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "Circle") { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && boxHasShape(value)) { __variant = ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(value as any, ctx); __matched = true; }
-        if (!__matched && circleHasShape(value)) { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Shape): member is Box<Date> => __mf_member(member, "__type") === "Box", (member) => ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => __mf_member(member, "__type") === "Circle", (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Box<Date> => boxHasShape(member), (member) => ((__member: Box<Date>, ctx: __mf_EncodeContext) => boxEncodeWithContext<Date>(__member, ctx, (__arg0) => __arg0.toISOString()))(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => circleHasShape(member), (member) => circleEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -625,22 +623,12 @@ export function outcomeEncode<T>(value: Outcome<T>, keepMetadata?: boolean, __en
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "Box") { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
-        if (!__matched && boxHasShape(value)) { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Outcome<T>): member is Box<T> => __mf_member(member, "__type") === "Box", (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
+        __mf_memberCoder((member: Outcome<T>): member is Box<T> => boxHasShape(member), (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -804,22 +792,12 @@ export function taggedEncode<T>(value: Tagged<T>, keepMetadata?: boolean, __enco
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __tag = __mf_member(value, "kind");
-        if (!__matched && __tag === "box") { __variant = ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(value as any, ctx); __matched = true; }
-        if (!__matched && __tag === "circle") { __variant = circleEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Tagged<T>): member is { "kind": "box" } & Box<T> => __mf_member(member, "kind") === "box", (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
+        __mf_memberCoder((member: Tagged<T>): member is { "kind": "circle" } & Circle => __mf_member(member, "kind") === "circle", (member) => circleEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -897,13 +875,13 @@ export function taggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeConte
     if (typeof value === "object" && value !== null) {
         const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
-            if (__typeName === "box") {
-                const __inner = ((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx);
-                return { ...__inner, "kind": "box" } as Tagged<T>;
-            }
-            if (__typeName === "circle") {
-                const __inner = circleDecodeWithContext(value, ctx);
-                return { ...__inner, "kind": "circle" } as Tagged<T>;
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "box" ? { ...((__member: unknown, ctx: __mf_DecodeContext) => boxDecodeWithContext<T>(__member, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))))(value, ctx), "kind": "box" } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "circle" ? { ...circleDecodeWithContext(value, ctx), "kind": "circle" } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as Tagged<T>;
             }
         }
     }
@@ -1109,32 +1087,32 @@ export {};
 
 ## Mapping
 
-original 30..64 -> expanded 855..889
-original 64..66 -> expanded 9949..9951
-original 96..137 -> expanded 9951..9992
-original 137..139 -> expanded 18338..18340
-original 169..202 -> expanded 18340..18373
-original 202..204 -> expanded 25912..25914
-original 234..269 -> expanded 25914..25949
-original 269..271 -> expanded 33361..33363
-original 332..409 -> expanded 33363..33440
-original 409..410 -> expanded 39811..39812
-generated 0..855 <- imports
-generated 889..3187 <- Encode
-generated 3187..9063 <- Decode
-generated 9063..9949 <- __convenience_const
-generated 9992..12099 <- Encode
-generated 12099..17389 <- Decode
-generated 17389..18338 <- __convenience_const
-generated 18373..20616 <- Encode
-generated 20616..25436 <- Decode
-generated 25436..25912 <- __convenience_const
-generated 25949..28095 <- Encode
-generated 28095..32859 <- Decode
-generated 32859..33361 <- __convenience_const
-generated 33440..35432 <- Encode
-generated 35432..39190 <- Decode
-generated 39190..39811 <- __convenience_const
+original 30..64 -> expanded 1003..1037
+original 64..66 -> expanded 10260..10262
+original 96..137 -> expanded 10262..10303
+original 137..139 -> expanded 18810..18812
+original 169..202 -> expanded 18812..18845
+original 202..204 -> expanded 26247..26249
+original 234..269 -> expanded 26249..26284
+original 269..271 -> expanded 33523..33525
+original 332..409 -> expanded 33525..33602
+original 409..410 -> expanded 39956..39957
+generated 0..1003 <- imports
+generated 1037..3335 <- Encode
+generated 3335..9374 <- Decode
+generated 9374..10260 <- __convenience_const
+generated 10303..12410 <- Encode
+generated 12410..17861 <- Decode
+generated 17861..18810 <- __convenience_const
+generated 18845..20951 <- Encode
+generated 20951..25771 <- Decode
+generated 25771..26247 <- __convenience_const
+generated 26284..28257 <- Encode
+generated 28257..33021 <- Decode
+generated 33021..33523 <- __convenience_const
+generated 33602..35489 <- Encode
+generated 35489..39335 <- Decode
+generated 39335..39956 <- __convenience_const
 
 ## Metadata
 

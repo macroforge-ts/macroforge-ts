@@ -4,7 +4,7 @@ use crate::builtin::derive::common::{
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
-use crate::ts_syn::ts_ident;
+use crate::ts_syn::{TsStream, ts_ident};
 
 use super::types::EqField;
 
@@ -81,30 +81,26 @@ pub(crate) fn generate_value_equality(
 }
 
 /// Statements returning whether the fixed-length tuples `a` and `b` are equal,
-/// element by element.
+/// a statement an element: one expression over them all nests as deep as the
+/// tuple is long.
 pub(crate) fn tuple_equality_statements(elements: &[String], registry: &TypeRegistry) -> String {
-    let comparisons: Vec<String> = elements
-        .iter()
-        .enumerate()
-        .map(|(index, source)| {
-            generate_value_equality(
-                tuple_element(source).ts_type,
-                &rendered(ts_template! { a[@{index}] }),
-                &rendered(ts_template! { b[@{index}] }),
-                None,
-                registry,
-            )
-        })
-        .collect();
     // Two tuples of no elements have nothing to differ in.
-    if comparisons.is_empty() {
+    if elements.is_empty() {
         return rendered(ts_template! { return true; });
     }
-    let all = comparisons.join(" && ");
-    rendered(ts_template! {
-        if (a === b) return true;
-        return @{all};
-    })
+    let mut steps = vec![ts_template! { if (a === b) return true; }];
+    for (index, source) in elements.iter().enumerate() {
+        let comparison = generate_value_equality(
+            tuple_element(source).ts_type,
+            &rendered(ts_template! { a[@{index}] }),
+            &rendered(ts_template! { b[@{index}] }),
+            None,
+            registry,
+        );
+        steps.push(ts_template! { if (!(@{comparison})) return false; });
+    }
+    steps.push(ts_template! { return true; });
+    rendered(TsStream::merge_all(steps))
 }
 
 fn value_equality(

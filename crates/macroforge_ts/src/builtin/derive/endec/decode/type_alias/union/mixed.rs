@@ -6,6 +6,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
+use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
@@ -264,22 +265,24 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                 if (typeof value === "object" && value !== null) {
                                     const __typeName = @{crate::builtin::derive::endec::coder::endec_call("member")}(value, "@{tag_field}");
                                     if (typeof __typeName === "string") {
+                                        // Each member is told and decoded in a function of its own, so
+                                        // the checker reads each on its own however many there are.
+                                        const __tagged = @{endec_helper("decodedMember")}(value, [
                                         {#for ov in object_variants}
-                                            if (__typeName === "@{ov.tag_value}") {
-                                                return { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } as @{full_type_ident};
-                                            }
+                                            (value: object): unknown => __typeName === "@{ov.tag_value}" ? { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } : @{endec_helper("notTheMember")},
                                         {/for}
                                         {#for iv in intersection_variants}
-                                            if (__typeName === "@{iv.tag_value}") {
-                                                {#if iv.is_encodable}
-                                                    {$let iv_deser_fn: Expr = iv.decoder.clone()}
-                                                    const __inner = @{iv_deser_fn}(value, ctx);
-                                                    return { ...__inner, "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {:else}
-                                                    return { ...value, "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {/if}
-                                            }
+                                            {#if iv.is_encodable}
+                                                {$let iv_deser_fn: Expr = iv.decoder.clone()}
+                                                (value: object): unknown => __typeName === "@{iv.tag_value}" ? { ...@{iv_deser_fn}(value, ctx), "@{tag_field}": "@{iv.tag_value}" } : @{endec_helper("notTheMember")},
+                                            {:else}
+                                                (value: object): unknown => __typeName === "@{iv.tag_value}" ? { ...value, "@{tag_field}": "@{iv.tag_value}" } : @{endec_helper("notTheMember")},
+                                            {/if}
                                         {/for}
+                                        ]);
+                                        if (__tagged !== @{endec_helper("notTheMember")}) {
+                                            return __tagged as @{full_type_ident};
+                                        }
                                     }
                                 }
                             {/if}
@@ -312,11 +315,16 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                 }
                             {/if}
 
-                            {#for uv in untagged_object_variants}
-                                if (@{uv.shape_condition}) {
-                                    return @{uv.decoded} as @{full_type_ident};
+                            {#if !untagged_object_variants.is_empty()}
+                                const __shaped = @{endec_helper("decodedMember")}(value, [
+                                {#for uv in untagged_object_variants}
+                                    (value: unknown): unknown => (@{uv.shape_condition}) ? @{uv.decoded} : @{endec_helper("notTheMember")},
+                                {/for}
+                                ]);
+                                if (__shaped !== @{endec_helper("notTheMember")}) {
+                                    return __shaped as @{full_type_ident};
                                 }
-                            {/for}
+                            {/if}
 
                             throw new @{decode_error_expr}([{
                                 field: "_root",

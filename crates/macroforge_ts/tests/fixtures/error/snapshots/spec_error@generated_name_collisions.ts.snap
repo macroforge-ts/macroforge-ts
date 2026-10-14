@@ -41,7 +41,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface HTTPResponse {
@@ -169,8 +169,12 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("status")) && !("status" in obj)) {
-        errors.push({ field: "status", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["status", "status"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -213,7 +217,7 @@ export function httpResponseHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "status");
+    return __mf_holdsAll(obj, ["status"]);
 }
 
 export function httpResponseIs(obj: unknown): obj is HTTPResponse {
@@ -374,8 +378,12 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("code")) && !("code" in obj)) {
-        errors.push({ field: "code", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["code", "code"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -418,7 +426,7 @@ export function httpResponseHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "code");
+    return __mf_holdsAll(obj, ["code"]);
 }
 
 export function httpResponseIs(obj: unknown): obj is HttpResponse {
@@ -684,33 +692,33 @@ Error [352..366]: `@derive(Clone)` on 'Account' generates `accountClone`, a name
 
 ## Mapping
 
-original 44..91 -> expanded 795..842
-original 91..93 -> expanded 10187..10189
-original 137..182 -> expanded 10189..10234
-original 182..184 -> expanded 19529..19531
-original 206..241 -> expanded 19531..19566
-original 241..243 -> expanded 21946..21948
-original 265..307 -> expanded 21948..21990
-original 307..347 -> expanded 24506..24546
-original 368..406 -> expanded 24546..24584
-original 406..441 -> expanded 24801..24836
-generated 0..795 <- imports
-generated 842..1114 <- Debug
-generated 1114..1271 <- Clone
-generated 1271..3468 <- Encode
-generated 3468..8956 <- Decode
-generated 8956..10187 <- __convenience_const
-generated 10234..10502 <- Debug
-generated 10502..10655 <- Clone
-generated 10655..12844 <- Encode
-generated 12844..18298 <- Decode
-generated 18298..19529 <- __convenience_const
-generated 19566..21627 <- Encode
-generated 21627..21946 <- __convenience_const
-generated 21990..24145 <- Encode
-generated 24145..24506 <- __convenience_const
-generated 24584..24713 <- Clone
-generated 24713..24801 <- __convenience_const
+original 44..91 -> expanded 801..848
+original 91..93 -> expanded 10354..10356
+original 137..182 -> expanded 10356..10401
+original 182..184 -> expanded 19859..19861
+original 206..241 -> expanded 19861..19896
+original 241..243 -> expanded 22276..22278
+original 265..307 -> expanded 22278..22320
+original 307..347 -> expanded 24836..24876
+original 368..406 -> expanded 24876..24914
+original 406..441 -> expanded 25131..25166
+generated 0..801 <- imports
+generated 848..1120 <- Debug
+generated 1120..1277 <- Clone
+generated 1277..3474 <- Encode
+generated 3474..9123 <- Decode
+generated 9123..10354 <- __convenience_const
+generated 10401..10669 <- Debug
+generated 10669..10822 <- Clone
+generated 10822..13011 <- Encode
+generated 13011..18628 <- Decode
+generated 18628..19859 <- __convenience_const
+generated 19896..21957 <- Encode
+generated 21957..22276 <- __convenience_const
+generated 22320..24475 <- Encode
+generated 24475..24836 <- __convenience_const
+generated 24914..25043 <- Clone
+generated 25043..25131 <- __convenience_const
 
 ## Metadata
 

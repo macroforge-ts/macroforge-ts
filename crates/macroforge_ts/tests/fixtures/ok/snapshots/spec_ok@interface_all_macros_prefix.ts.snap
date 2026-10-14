@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Point {
@@ -44,7 +44,12 @@ export function pointClone(value: Point): Point {
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
 }
 
 export function pointHashCode(value: Point): number {
@@ -59,24 +64,28 @@ export function pointHashCode(value: Point): number {
 export function pointPartialCompare(a: Point, b: Point): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x || (a.x !== a.x && b.x !== b.x) ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y || (a.y !== a.y && b.y !== b.y) ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x || (a.x !== a.x && b.x !== b.x) ? 0 : null),
+        () => (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y || (a.y !== a.y && b.y !== b.y) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function pointCompare(a: Point, b: Point): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : a.x !== a.x ? b.x !== b.x ? 0 : 1 : -1;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : a.y !== a.y ? b.y !== b.y ? 0 : 1 : -1;
-    if (cmp1 !== 0) return cmp1;
-        return 0;
+    for (const __order of [
+        () => a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : a.x !== a.x ? b.x !== b.x ? 0 : 1 : -1,
+        () => a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : a.y !== a.y ? b.y !== b.y ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -115,15 +124,23 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
 }
 
 function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-        if (value.y !== undefined) {
-            result["y"] = value.y;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -201,11 +218,12 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
-        errors.push({ field: "x", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("y")) && !("y" in obj)) {
-        errors.push({ field: "y", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["y", "y"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -216,23 +234,31 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
-        const __raw_x = obj["x"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
-            errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
-        } else {
-            instance.x = __raw_x;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
-        const __raw_y = obj["y"] as number;
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
+                const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
-            errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
-        } else {
-            instance.y = __raw_y;
-        }
+                if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
+                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                } else {
+                    instance.y = __raw_y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -257,7 +283,7 @@ export function pointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
+    return __mf_holdsAll(obj, ["x", "y"]);
 }
 
 export function pointIs(obj: unknown): obj is Point {
@@ -374,19 +400,19 @@ export declare const Point: {
 
 ## Mapping
 
-original 91..148 -> expanded 902..959
-original 148..149 -> expanded 12584..12585
-generated 0..902 <- imports
-generated 959..1241 <- Debug
-generated 1241..1374 <- Clone
-generated 1374..1599 <- PartialEq
-generated 1599..2074 <- Hash
-generated 2074..2602 <- PartialOrd
-generated 2602..3044 <- Ord
-generated 3044..3140 <- Default
-generated 3140..5357 <- Encode
-generated 5357..11143 <- Decode
-generated 11143..12584 <- __convenience_const
+original 91..148 -> expanded 908..965
+original 148..149 -> expanded 13143..13144
+generated 0..908 <- imports
+generated 965..1247 <- Debug
+generated 1247..1380 <- Clone
+generated 1380..1696 <- PartialEq
+generated 1696..2171 <- Hash
+generated 2171..2675 <- PartialOrd
+generated 2675..3165 <- Ord
+generated 3165..3261 <- Default
+generated 3261..5672 <- Encode
+generated 5672..11702 <- Decode
+generated 11702..13143 <- __convenience_const
 
 ## Metadata
 

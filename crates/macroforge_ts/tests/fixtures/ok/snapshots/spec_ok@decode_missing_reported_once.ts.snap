@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Account {
@@ -107,17 +107,12 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("opened")) && !("opened" in obj)) {
-        errors.push({ field: "opened", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["balance", "balance"], ["opened", "opened"], ["tags", "tags"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -128,79 +123,95 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Account.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        const __raw_balance = obj["balance"] as number;
-
-        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
-            errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
-        } else {
-            instance.balance = __raw_balance;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("opened")) ? "opened" in obj : (__fields.keeps("opened") && obj["opened"] !== undefined)) {
-        const __raw_opened = obj["opened"] as string | Date;
-
-        {
-            const __dateVal = (__raw_opened instanceof Date ? __raw_opened : typeof __raw_opened === "string" ? new Date(__raw_opened) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "opened", message: __raw_opened == null ? "Account.opened is required" : "expected Date" });
-            } else {
-                instance.opened = __dateVal;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Account.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string[];
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                const __raw_balance = obj["balance"] as number;
+
+                if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
+                    errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
+                } else {
+                    instance.balance = __raw_balance;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("opened")) ? "opened" in obj : (__fields.keeps("opened") && obj["opened"] !== undefined)) {
+                const __raw_opened = obj["opened"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_opened instanceof Date ? __raw_opened : typeof __raw_opened === "string" ? new Date(__raw_opened) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "opened", message: __raw_opened == null ? "Account.opened is required" : "expected Date" });
+                    } else {
+                        instance.opened = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string[];
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "Account.tags is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "Account.tags is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("nickname"))) {
-        if (("nickname" in obj && obj["nickname"] !== undefined)) {
-            const __raw_nickname = obj["nickname"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("nickname"))) {
+                if (("nickname" in obj && obj["nickname"] !== undefined)) {
+                    const __raw_nickname = obj["nickname"] as string;
 
-            if (!(typeof __raw_nickname === "string")) {
-                errors.push({ field: "nickname", message: "expected string" });
-            } else {
-                instance.nickname = __raw_nickname;
+                    if (!(typeof __raw_nickname === "string")) {
+                        errors.push({ field: "nickname", message: "expected string" });
+                    } else {
+                        instance.nickname = __raw_nickname;
+                    }
+                }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("note")) || (__fields.keeps("note") && obj["note"] !== undefined)) {
-        const __raw_note = obj["note"] as string | undefined;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("note")) || (__fields.keeps("note") && obj["note"] !== undefined)) {
+                const __raw_note = obj["note"] as string | undefined;
 
-        if (!(typeof __raw_note === "string" || __raw_note === undefined)) {
-            errors.push({ field: "note", message: "expected string | undefined" });
-        } else {
-            instance.note = __raw_note;
-        }
+                if (!(typeof __raw_note === "string" || __raw_note === undefined)) {
+                    errors.push({ field: "note", message: "expected string | undefined" });
+                } else {
+                    instance.note = __raw_note;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -225,7 +236,7 @@ export function accountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "balance") && __mf_holds(obj, "opened") && __mf_holds(obj, "tags");
+    return __mf_holdsAll(obj, ["id", "balance", "opened", "tags"]);
 }
 
 export function accountIs(obj: unknown): obj is Account {
@@ -295,11 +306,11 @@ export {};
 
 ## Mapping
 
-original 22..172 -> expanded 501..651
-original 172..173 -> expanded 10212..10213
-generated 0..501 <- imports
-generated 651..9556 <- Decode
-generated 9556..10212 <- __convenience_const
+original 22..172 -> expanded 507..657
+original 172..173 -> expanded 10651..10652
+generated 0..507 <- imports
+generated 657..9995 <- Decode
+generated 9995..10651 <- __convenience_const
 
 ## Metadata
 

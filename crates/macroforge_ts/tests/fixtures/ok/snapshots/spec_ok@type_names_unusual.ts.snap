@@ -33,7 +33,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A type's functions are named after it whatever its name opens with. */
 
@@ -55,7 +55,9 @@ export function _hiddenClone(value: _Hidden): _Hidden {
 
 export function _hiddenEquals(a: _Hidden, b: _Hidden): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id);
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id;
+    });
 }
 
 export function _hiddenDefaultValue(): _Hidden {
@@ -173,8 +175,12 @@ export function _hiddenDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -217,7 +223,7 @@ export function _hiddenHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function _hiddenIs(obj: unknown): obj is _Hidden {
@@ -275,7 +281,9 @@ export function _1Clone(value: _1): _1 {
 
 export function _1Equals(a: _1, b: _1): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id);
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id;
+    });
 }
 
 export function _1DefaultValue(): _1 {
@@ -393,8 +401,12 @@ export function _1DecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __f
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -437,7 +449,7 @@ export function _1HasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function _1Is(obj: unknown): obj is _1 {
@@ -500,17 +512,8 @@ export function httpStatusEncode(value: HTTPStatus, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function httpStatusEncodeWithContext(value: HTTPStatus, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -612,7 +615,13 @@ export function holderClone(value: Holder): Holder {
 
 export function holderEquals(a: Holder, b: Holder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.hidden, b.hidden) && __mf_structuralEquals(a.first, b.first) && __mf_structuralEquals(a.status, b.status));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.hidden, b.hidden),
+            () => __mf_structuralEquals(a.first, b.first),
+            () => __mf_structuralEquals(a.status, b.status),
+        ].every((same) => same());
+    });
 }
 
 export function holderDefaultValue(): Holder {
@@ -651,20 +660,30 @@ export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf
 }
 
 function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("hidden")) {
-        if (value.hidden !== undefined) {
-            result["hidden"] = _hiddenEncodeWithContext(value.hidden, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("first")) {
-        if (value.first !== undefined) {
-            result["first"] = _1EncodeWithContext(value.first, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("status")) {
-        if (value.status !== undefined) {
-            result["status"] = value.status === null ? null : httpStatusEncodeWithContext(value.status, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("hidden")) {
+                if (value.hidden !== undefined) {
+                    result["hidden"] = _hiddenEncodeWithContext(value.hidden, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("first")) {
+                if (value.first !== undefined) {
+                    result["first"] = _1EncodeWithContext(value.first, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("status")) {
+                if (value.status !== undefined) {
+                    result["status"] = value.status === null ? null : httpStatusEncodeWithContext(value.status, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -742,14 +761,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("hidden")) && !("hidden" in obj)) {
-        errors.push({ field: "hidden", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
-        errors.push({ field: "first", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("status")) && !("status" in obj)) {
-        errors.push({ field: "status", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["hidden", "hidden"], ["first", "first"], ["status", "status"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -760,78 +777,88 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
-        const __raw_hidden = obj["hidden"] as _Hidden;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
+                const __raw_hidden = obj["hidden"] as _Hidden;
 
-        ctx.pushScope("hidden");
-        try {
-            const __result = _hiddenDecodeWithContext(__raw_hidden, ctx);
-            ctx.assignOrDefer(instance, "hidden", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "hidden" : "hidden." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
+                ctx.pushScope("hidden");
+                try {
+                    const __result = _hiddenDecodeWithContext(__raw_hidden, ctx);
+                    ctx.assignOrDefer(instance, "hidden", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "hidden" : "hidden." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-                errors.push({ field: "hidden", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
-        const __raw_first = obj["first"] as _1;
-
-        ctx.pushScope("first");
-        try {
-            const __result = _1DecodeWithContext(__raw_first, ctx);
-            ctx.assignOrDefer(instance, "first", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "first" : "first." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
-        const __raw_status = obj["status"] as HTTPStatus | null;
-
-        if (__raw_status === null) {
-            instance.status = null;
-        } else {
-            ctx.pushScope("status");
-            try {
-                const __result = httpStatusDecodeWithContext(__raw_status, ctx);
-                ctx.assignOrDefer(instance, "status", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "status" : "status." + __err.field,
-                            message: __err.message
-                        });
+                        errors.push({ field: "hidden", message: __e instanceof Error ? __e.message : String(__e) });
                     }
-                } else {
-
-                    errors.push({ field: "status", message: __e instanceof Error ? __e.message : String(__e) });
+                } finally {
+                    ctx.popScope();
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
+                const __raw_first = obj["first"] as _1;
+
+                ctx.pushScope("first");
+                try {
+                    const __result = _1DecodeWithContext(__raw_first, ctx);
+                    ctx.assignOrDefer(instance, "first", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "first" : "first." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
+                const __raw_status = obj["status"] as HTTPStatus | null;
+
+                if (__raw_status === null) {
+                    instance.status = null;
+                } else {
+                    ctx.pushScope("status");
+                    try {
+                        const __result = httpStatusDecodeWithContext(__raw_status, ctx);
+                        ctx.assignOrDefer(instance, "status", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "status" : "status." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "status", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -856,7 +883,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "hidden") && __mf_holds(obj, "first") && __mf_holds(obj, "status");
+    return __mf_holdsAll(obj, ["hidden", "first", "status"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -1109,43 +1136,43 @@ Error [297..354]: @derive(Default) on union type 'HTTPStatus' requires @default 
 
 ## Mapping
 
-original 0..75 -> expanded 1048..1123
-original 139..184 -> expanded 1123..1168
-original 184..186 -> expanded 10378..10380
-original 250..290 -> expanded 10380..10420
-original 290..292 -> expanded 19185..19187
-original 356..396 -> expanded 19187..19227
-original 396..398 -> expanded 23429..23431
-original 462..557 -> expanded 23431..23526
-original 557..558 -> expanded 36542..36543
-generated 0..1048 <- imports
-generated 1168..1417 <- Debug
-generated 1417..1546 <- Clone
-generated 1546..1700 <- PartialEq
-generated 1700..1788 <- Default
-generated 1788..3894 <- Encode
-generated 3894..9109 <- Decode
-generated 9109..10378 <- __convenience_const
-generated 10420..10654 <- Debug
-generated 10654..10763 <- Clone
-generated 10763..10902 <- PartialEq
-generated 10902..10980 <- Default
-generated 10980..13011 <- Encode
-generated 13011..18061 <- Decode
-generated 18061..19185 <- __convenience_const
-generated 19227..19342 <- Debug
-generated 19342..19428 <- Clone
-generated 19428..19525 <- PartialEq
-generated 19525..20953 <- Encode
-generated 20953..22661 <- Decode
-generated 22661..23429 <- __convenience_const
-generated 23526..23922 <- Debug
-generated 23922..24166 <- Clone
-generated 24166..24433 <- PartialEq
-generated 24433..24597 <- Default
-generated 24597..27151 <- Encode
-generated 27151..35302 <- Decode
-generated 35302..36542 <- __convenience_const
+original 0..75 -> expanded 1124..1199
+original 139..184 -> expanded 1199..1244
+original 184..186 -> expanded 10643..10645
+original 250..290 -> expanded 10645..10685
+original 290..292 -> expanded 19639..19641
+original 356..396 -> expanded 19641..19681
+original 396..398 -> expanded 23760..23762
+original 462..557 -> expanded 23762..23857
+original 557..558 -> expanded 37746..37747
+generated 0..1124 <- imports
+generated 1244..1493 <- Debug
+generated 1493..1622 <- Clone
+generated 1622..1800 <- PartialEq
+generated 1800..1888 <- Default
+generated 1888..3994 <- Encode
+generated 3994..9374 <- Decode
+generated 9374..10643 <- __convenience_const
+generated 10685..10919 <- Debug
+generated 10919..11028 <- Clone
+generated 11028..11191 <- PartialEq
+generated 11191..11269 <- Default
+generated 11269..13300 <- Encode
+generated 13300..18515 <- Decode
+generated 18515..19639 <- __convenience_const
+generated 19681..19796 <- Debug
+generated 19796..19882 <- Clone
+generated 19882..19979 <- PartialEq
+generated 19979..21284 <- Encode
+generated 21284..22992 <- Decode
+generated 22992..23760 <- __convenience_const
+generated 23857..24253 <- Debug
+generated 24253..24497 <- Clone
+generated 24497..24875 <- PartialEq
+generated 24875..25039 <- Default
+generated 25039..27854 <- Encode
+generated 27854..36506 <- Decode
+generated 36506..37746 <- __convenience_const
 
 ## Metadata
 

@@ -7,7 +7,7 @@ use crate::builtin::derive::common::{
     ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
 };
 use crate::builtin::derive::common::{
-    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
+    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, first_order, generate_field_order,
     generate_value_order, rendered, structural_helper, tuple_compare_statements,
 };
 use crate::builtin::return_types::partial_ord_return_type;
@@ -60,7 +60,6 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     if (a === b) return 0;
                     return @{structural_callee("comparedWithin")}(a, b, () => {
                     {$typescript compare_body}
-                        return 0;
                     });
                 }
             } else {
@@ -147,7 +146,6 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         if (a === b) return 0;
                         return @{structural_callee("comparedWithin")}(a, b, () => {
                         {$typescript compare_body}
-                            return 0;
                         });
                     }
                 }
@@ -202,7 +200,6 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             if (a === b) return 0;
                             return @{structural_callee("comparedWithin")}(a, b, () => {
                             {$typescript compare_body}
-                                return 0;
                             });
                         }
                     }
@@ -276,20 +273,26 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 }
 
 /// Statements returning the first field comparison of `a` and `b` that is not
-/// `0`, or `null` as soon as one is.
+/// `0`, `null` among them, or `0`.
 fn partial_compare_steps(
     ord_fields: &[OrdField],
     resolved_fields: Option<&HashMap<String, ResolvedTypeRef>>,
     registry: &TypeRegistry,
 ) -> TsStream {
-    TsStream::merge_all(ord_fields.iter().enumerate().map(|(index, field)| {
-        let cmp = ts_ident!("cmp{}", index);
-        let resolved = resolved_fields.and_then(|fields| fields.get(&field.name));
-        let order = generate_field_order(Ordering::Partial, field, "a", "b", resolved, registry);
-        ts_template! {
-            const @{&cmp} = @{order};
-            if (@{&cmp} === null) return null;
-            if (@{&cmp} !== 0) return @{&cmp};
-        }
-    }))
+    first_order(
+        ord_fields
+            .iter()
+            .map(|field| {
+                let resolved = resolved_fields.and_then(|fields| fields.get(&field.name));
+                Expr::Source(generate_field_order(
+                    Ordering::Partial,
+                    field,
+                    "a",
+                    "b",
+                    resolved,
+                    registry,
+                ))
+            })
+            .collect(),
+    )
 }

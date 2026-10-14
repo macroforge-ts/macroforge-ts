@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,20 +65,30 @@ export function emailPartsEncodePartialWithContext(value: Partial<EmailParts>, c
 }
 
 function emailPartsEncodeFields(value: EmailParts, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("local")) {
-        if (value.local !== undefined) {
-            result["local"] = value.local;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("domainName")) {
-        if (value.domainName !== undefined) {
-            result["domainName"] = value.domainName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("topLevelDomain")) {
-        if (value.topLevelDomain !== undefined) {
-            result["topLevelDomain"] = value.topLevelDomain;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("local")) {
+                if (value.local !== undefined) {
+                    result["local"] = value.local;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("domainName")) {
+                if (value.domainName !== undefined) {
+                    result["domainName"] = value.domainName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("topLevelDomain")) {
+                if (value.topLevelDomain !== undefined) {
+                    result["topLevelDomain"] = value.topLevelDomain;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -156,14 +166,12 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("local")) && !("local" in obj)) {
-        errors.push({ field: "local", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("domainName")) && !("domainName" in obj)) {
-        errors.push({ field: "domainName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("topLevelDomain")) && !("topLevelDomain" in obj)) {
-        errors.push({ field: "topLevelDomain", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["local", "local"], ["domainName", "domainName"], ["topLevelDomain", "topLevelDomain"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -174,41 +182,51 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("local")) ? "local" in obj : (__fields.keeps("local") && obj["local"] !== undefined)) {
-        const __raw_local = obj["local"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("local")) ? "local" in obj : (__fields.keeps("local") && obj["local"] !== undefined)) {
+                const __raw_local = obj["local"] as string;
 
-        if (!(typeof __raw_local === "string")) {
-            errors.push({ field: "local", message: __raw_local == null ? "EmailParts.local is required" : "expected string" });
-        } else {
-            if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
-                if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+                if (!(typeof __raw_local === "string")) {
+                    errors.push({ field: "local", message: __raw_local == null ? "EmailParts.local is required" : "expected string" });
+                } else {
+                    if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+                        if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+                    }
+                    instance.local = __raw_local;
+                }
             }
-            instance.local = __raw_local;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("domainName")) ? "domainName" in obj : (__fields.keeps("domainName") && obj["domainName"] !== undefined)) {
-        const __raw_domainName = obj["domainName"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("domainName")) ? "domainName" in obj : (__fields.keeps("domainName") && obj["domainName"] !== undefined)) {
+                const __raw_domainName = obj["domainName"] as string;
 
-        if (!(typeof __raw_domainName === "string")) {
-            errors.push({ field: "domainName", message: __raw_domainName == null ? "EmailParts.domainName is required" : "expected string" });
-        } else {
-            if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
-                if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+                if (!(typeof __raw_domainName === "string")) {
+                    errors.push({ field: "domainName", message: __raw_domainName == null ? "EmailParts.domainName is required" : "expected string" });
+                } else {
+                    if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+                        if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+                    }
+                    instance.domainName = __raw_domainName;
+                }
             }
-            instance.domainName = __raw_domainName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("topLevelDomain")) ? "topLevelDomain" in obj : (__fields.keeps("topLevelDomain") && obj["topLevelDomain"] !== undefined)) {
-        const __raw_topLevelDomain = obj["topLevelDomain"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("topLevelDomain")) ? "topLevelDomain" in obj : (__fields.keeps("topLevelDomain") && obj["topLevelDomain"] !== undefined)) {
+                const __raw_topLevelDomain = obj["topLevelDomain"] as string;
 
-        if (!(typeof __raw_topLevelDomain === "string")) {
-            errors.push({ field: "topLevelDomain", message: __raw_topLevelDomain == null ? "EmailParts.topLevelDomain is required" : "expected string" });
-        } else {
-            if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
-                if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+                if (!(typeof __raw_topLevelDomain === "string")) {
+                    errors.push({ field: "topLevelDomain", message: __raw_topLevelDomain == null ? "EmailParts.topLevelDomain is required" : "expected string" });
+                } else {
+                    if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+                        if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+                    }
+                    instance.topLevelDomain = __raw_topLevelDomain;
+                }
             }
-            instance.topLevelDomain = __raw_topLevelDomain;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -269,7 +287,7 @@ export function emailPartsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "local") && __mf_holds(obj, "domainName") && __mf_holds(obj, "topLevelDomain");
+    return __mf_holdsAll(obj, ["local", "domainName", "topLevelDomain"]);
 }
 
 export function emailPartsIs(obj: unknown): obj is EmailParts {
@@ -562,18 +580,18 @@ export declare const EmailParts: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..142 -> expanded 896..931
-original 183..207 -> expanded 931..955
-original 248..277 -> expanded 955..984
-original 318..348 -> expanded 984..1014
-original 348..349 -> expanded 20687..20688
-generated 0..838 <- imports
-generated 1014..1163 <- Default
-generated 1163..3704 <- Encode
-generated 3704..13611 <- Decode
-generated 13611..19367 <- Gigaform
-generated 19367..20687 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..142 -> expanded 902..937
+original 183..207 -> expanded 937..961
+original 248..277 -> expanded 961..990
+original 318..348 -> expanded 990..1020
+original 348..349 -> expanded 21171..21172
+generated 0..844 <- imports
+generated 1020..1169 <- Default
+generated 1169..3971 <- Encode
+generated 3971..14095 <- Decode
+generated 14095..19851 <- Gigaform
+generated 19851..21171 <- __convenience_const
 
 ## Metadata
 

@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Config {
@@ -45,15 +45,23 @@ static encodePartialWithContext(value: Partial<Config>, ctx: __mf_EncodeContext,
 }
 
 static #encodeFields(value: Config, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("host")) {
-        if (value.host !== undefined) {
-            result["host"] = value.host;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("port")) {
-        if (value.port !== undefined) {
-            result["port"] = value.port;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("host")) {
+                if (value.host !== undefined) {
+                    result["host"] = value.host;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("port")) {
+                if (value.port !== undefined) {
+                    result["port"] = value.port;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -143,11 +151,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("host")) && !("host" in obj)) {
-        errors.push({ field: "host", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("port")) && !("port" in obj)) {
-        errors.push({ field: "port", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["host", "host"], ["port", "port"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Config.prototype);
@@ -158,23 +167,31 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("host")) ? "host" in obj : (__fields.keeps("host") && obj["host"] !== undefined)) {
-        const __raw_host = obj["host"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("host")) ? "host" in obj : (__fields.keeps("host") && obj["host"] !== undefined)) {
+                const __raw_host = obj["host"] as string;
 
-        if (!(typeof __raw_host === "string")) {
-            errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
-        } else {
-            instance.host = __raw_host;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("port")) ? "port" in obj : (__fields.keeps("port") && obj["port"] !== undefined)) {
-        const __raw_port = obj["port"] as number;
+                if (!(typeof __raw_host === "string")) {
+                    errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
+                } else {
+                    instance.host = __raw_host;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("port")) ? "port" in obj : (__fields.keeps("port") && obj["port"] !== undefined)) {
+                const __raw_port = obj["port"] as number;
 
-        if (!(typeof __raw_port === "number" && globalThis.Number.isFinite(__raw_port))) {
-            errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
-        } else {
-            instance.port = __raw_port;
-        }
+                if (!(typeof __raw_port === "number" && globalThis.Number.isFinite(__raw_port))) {
+                    errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
+                } else {
+                    instance.port = __raw_port;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -195,7 +212,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "host") && __mf_holds(obj, "port");
+    return __mf_holdsAll(obj, ["host", "port"]);
 }
 
 static is(obj: unknown): obj is Config {
@@ -326,15 +343,15 @@ export {};
 
 ## Mapping
 
-original 30..82 -> expanded 679..731
-original 82..83 -> expanded 8262..8263
-original 83..84 -> expanded 11335..11336
-generated 0..679 <- imports
-generated 731..2411 <- Encode
-generated 2411..2730 <- Encode
-generated 2730..8262 <- Decode
-generated 8263..9583 <- Encode
-generated 9583..11335 <- Decode
+original 30..82 -> expanded 685..737
+original 82..83 -> expanded 8700..8701
+original 83..84 -> expanded 11773..11774
+generated 0..685 <- imports
+generated 737..2611 <- Encode
+generated 2611..2930 <- Encode
+generated 2930..8700 <- Decode
+generated 8701..10021 <- Encode
+generated 10021..11773 <- Decode
 
 ## Metadata
 

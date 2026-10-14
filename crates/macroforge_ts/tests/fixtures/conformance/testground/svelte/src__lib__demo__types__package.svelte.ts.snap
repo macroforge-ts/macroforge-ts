@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -62,15 +62,23 @@ export function packageEncodePartialWithContext(value: Partial<Package>, ctx: __
 }
 
 function packageEncodeFields(value: Package, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("date")) {
-        if (value.date !== undefined) {
-            result["date"] = value.date;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("date")) {
+                if (value.date !== undefined) {
+                    result["date"] = value.date;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -148,11 +156,12 @@ export function packageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -163,23 +172,31 @@ export function packageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Package.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
-        const __raw_date = obj["date"] as string;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Package.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
+                const __raw_date = obj["date"] as string;
 
-        if (!(typeof __raw_date === "string")) {
-            errors.push({ field: "date", message: __raw_date == null ? "Package.date is required" : "expected string" });
-        } else {
-            instance.date = __raw_date;
-        }
+                if (!(typeof __raw_date === "string")) {
+                    errors.push({ field: "date", message: __raw_date == null ? "Package.date is required" : "expected string" });
+                } else {
+                    instance.date = __raw_date;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -204,7 +221,7 @@ export function packageHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["id", "date"]);
 }
 
 export function packageIs(obj: unknown): obj is Package {
@@ -464,17 +481,17 @@ export declare const Package: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..139 -> expanded 896..928
-original 167..188 -> expanded 928..949
-original 233..253 -> expanded 949..969
-original 253..254 -> expanded 14648..14649
-generated 0..838 <- imports
-generated 969..1075 <- Default
-generated 1075..3338 <- Encode
-generated 3338..9178 <- Decode
-generated 9178..13409 <- Gigaform
-generated 13409..14648 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..139 -> expanded 902..934
+original 167..188 -> expanded 934..955
+original 233..253 -> expanded 955..975
+original 253..254 -> expanded 15088..15089
+generated 0..844 <- imports
+generated 975..1081 <- Default
+generated 1081..3538 <- Encode
+generated 3538..9618 <- Decode
+generated 9618..13849 <- Gigaform
+generated 13849..15088 <- __convenience_const
 
 ## Metadata
 

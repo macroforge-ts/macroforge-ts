@@ -94,7 +94,20 @@ export function valuesClone(value: Values): Values {
 
 export function valuesEquals(a: Values, b: Values): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.numbered === b.numbered && a.unnamed === b.unnamed && a.worded === b.worded && a.counted === b.counted && a.emptied === b.emptied && a.quoted === b.quoted && a.lone === b.lone && a.kept === b.kept && a.twice === b.twice && a.both === b.both);
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.numbered === b.numbered,
+            () => a.unnamed === b.unnamed,
+            () => a.worded === b.worded,
+            () => a.counted === b.counted,
+            () => a.emptied === b.emptied,
+            () => a.quoted === b.quoted,
+            () => a.lone === b.lone,
+            () => a.kept === b.kept,
+            () => a.twice === b.twice,
+            () => a.both === b.both,
+        ].every((same) => same());
+    });
 }
 
 export function valuesHashCode(value: Values): number {
@@ -116,64 +129,44 @@ export function valuesHashCode(value: Values): number {
 export function valuesPartialCompare(a: Values, b: Values): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.numbered < b.numbered ? -1 : a.numbered > b.numbered ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.unnamed < b.unnamed ? -1 : a.unnamed > b.unnamed ? 1 : 0);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (a.worded < b.worded ? -1 : a.worded > b.worded ? 1 : 0);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-    const cmp3 = (a.counted < b.counted ? -1 : a.counted > b.counted ? 1 : 0);
-    if (cmp3 === null) return null;
-    if (cmp3 !== 0) return cmp3;
-    const cmp4 = (a.emptied < b.emptied ? -1 : a.emptied > b.emptied ? 1 : 0);
-    if (cmp4 === null) return null;
-    if (cmp4 !== 0) return cmp4;
-    const cmp5 = (a.quoted < b.quoted ? -1 : a.quoted > b.quoted ? 1 : 0);
-    if (cmp5 === null) return null;
-    if (cmp5 !== 0) return cmp5;
-    const cmp6 = (a.lone < b.lone ? -1 : a.lone > b.lone ? 1 : 0);
-    if (cmp6 === null) return null;
-    if (cmp6 !== 0) return cmp6;
-    const cmp7 = (a.kept < b.kept ? -1 : a.kept > b.kept ? 1 : 0);
-    if (cmp7 === null) return null;
-    if (cmp7 !== 0) return cmp7;
-    const cmp8 = (a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : 0);
-    if (cmp8 === null) return null;
-    if (cmp8 !== 0) return cmp8;
-    const cmp9 = (a.both < b.both ? -1 : a.both > b.both ? 1 : 0);
-    if (cmp9 === null) return null;
-    if (cmp9 !== 0) return cmp9;
-        return 0;
+    for (const __order of [
+        () => (a.numbered < b.numbered ? -1 : a.numbered > b.numbered ? 1 : 0),
+        () => (a.unnamed < b.unnamed ? -1 : a.unnamed > b.unnamed ? 1 : 0),
+        () => (a.worded < b.worded ? -1 : a.worded > b.worded ? 1 : 0),
+        () => (a.counted < b.counted ? -1 : a.counted > b.counted ? 1 : 0),
+        () => (a.emptied < b.emptied ? -1 : a.emptied > b.emptied ? 1 : 0),
+        () => (a.quoted < b.quoted ? -1 : a.quoted > b.quoted ? 1 : 0),
+        () => (a.lone < b.lone ? -1 : a.lone > b.lone ? 1 : 0),
+        () => (a.kept < b.kept ? -1 : a.kept > b.kept ? 1 : 0),
+        () => (a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : 0),
+        () => (a.both < b.both ? -1 : a.both > b.both ? 1 : 0),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function valuesCompare(a: Values, b: Values): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.numbered < b.numbered ? -1 : a.numbered > b.numbered ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.unnamed < b.unnamed ? -1 : a.unnamed > b.unnamed ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = a.worded < b.worded ? -1 : a.worded > b.worded ? 1 : 0;
-    if (cmp2 !== 0) return cmp2;
-    const cmp3 = a.counted < b.counted ? -1 : a.counted > b.counted ? 1 : 0;
-    if (cmp3 !== 0) return cmp3;
-    const cmp4 = a.emptied < b.emptied ? -1 : a.emptied > b.emptied ? 1 : 0;
-    if (cmp4 !== 0) return cmp4;
-    const cmp5 = a.quoted < b.quoted ? -1 : a.quoted > b.quoted ? 1 : 0;
-    if (cmp5 !== 0) return cmp5;
-    const cmp6 = a.lone < b.lone ? -1 : a.lone > b.lone ? 1 : 0;
-    if (cmp6 !== 0) return cmp6;
-    const cmp7 = a.kept < b.kept ? -1 : a.kept > b.kept ? 1 : 0;
-    if (cmp7 !== 0) return cmp7;
-    const cmp8 = a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : 0;
-    if (cmp8 !== 0) return cmp8;
-    const cmp9 = a.both < b.both ? -1 : a.both > b.both ? 1 : 0;
-    if (cmp9 !== 0) return cmp9;
-        return 0;
+    for (const __order of [
+        () => a.numbered < b.numbered ? -1 : a.numbered > b.numbered ? 1 : 0,
+        () => a.unnamed < b.unnamed ? -1 : a.unnamed > b.unnamed ? 1 : 0,
+        () => a.worded < b.worded ? -1 : a.worded > b.worded ? 1 : 0,
+        () => a.counted < b.counted ? -1 : a.counted > b.counted ? 1 : 0,
+        () => a.emptied < b.emptied ? -1 : a.emptied > b.emptied ? 1 : 0,
+        () => a.quoted < b.quoted ? -1 : a.quoted > b.quoted ? 1 : 0,
+        () => a.lone < b.lone ? -1 : a.lone > b.lone ? 1 : 0,
+        () => a.kept < b.kept ? -1 : a.kept > b.kept ? 1 : 0,
+        () => a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : 0,
+        () => a.both < b.both ? -1 : a.both > b.both ? 1 : 0,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -247,15 +240,15 @@ original 449..472 -> expanded 409..432
 original 518..541 -> expanded 432..455
 original 595..619 -> expanded 455..479
 original 660..680 -> expanded 479..499
-original 680..681 -> expanded 6446..6447
+original 680..681 -> expanded 5829..5830
 generated 0..223 <- imports
 generated 499..1197 <- Debug
 generated 1197..1534 <- Clone
-generated 1534..1914 <- PartialEq
-generated 1914..3158 <- Hash
-generated 3158..4767 <- PartialOrd
-generated 4767..5982 <- Ord
-generated 5982..6446 <- __convenience_const
+generated 1534..2137 <- PartialEq
+generated 2137..3381 <- Hash
+generated 3381..4390 <- PartialOrd
+generated 4390..5365 <- Ord
+generated 5365..5829 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -65,20 +65,30 @@ export function numberEncodePartialWithContext(value: Partial<Number>, ctx: __mf
 }
 
 function numberEncodeFields(value: Number, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("countryCode")) {
-        if (value.countryCode !== undefined) {
-            result["countryCode"] = value.countryCode;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("areaCode")) {
-        if (value.areaCode !== undefined) {
-            result["areaCode"] = value.areaCode;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("localNumber")) {
-        if (value.localNumber !== undefined) {
-            result["localNumber"] = value.localNumber;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("countryCode")) {
+                if (value.countryCode !== undefined) {
+                    result["countryCode"] = value.countryCode;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("areaCode")) {
+                if (value.areaCode !== undefined) {
+                    result["areaCode"] = value.areaCode;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("localNumber")) {
+                if (value.localNumber !== undefined) {
+                    result["localNumber"] = value.localNumber;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -156,14 +166,12 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("countryCode")) && !("countryCode" in obj)) {
-        errors.push({ field: "countryCode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("areaCode")) && !("areaCode" in obj)) {
-        errors.push({ field: "areaCode", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("localNumber")) && !("localNumber" in obj)) {
-        errors.push({ field: "localNumber", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["countryCode", "countryCode"], ["areaCode", "areaCode"], ["localNumber", "localNumber"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -174,41 +182,51 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("countryCode")) ? "countryCode" in obj : (__fields.keeps("countryCode") && obj["countryCode"] !== undefined)) {
-        const __raw_countryCode = obj["countryCode"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("countryCode")) ? "countryCode" in obj : (__fields.keeps("countryCode") && obj["countryCode"] !== undefined)) {
+                const __raw_countryCode = obj["countryCode"] as string;
 
-        if (!(typeof __raw_countryCode === "string")) {
-            errors.push({ field: "countryCode", message: __raw_countryCode == null ? "Number.countryCode is required" : "expected string" });
-        } else {
-            if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
-                if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+                if (!(typeof __raw_countryCode === "string")) {
+                    errors.push({ field: "countryCode", message: __raw_countryCode == null ? "Number.countryCode is required" : "expected string" });
+                } else {
+                    if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+                        if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+                    }
+                    instance.countryCode = __raw_countryCode;
+                }
             }
-            instance.countryCode = __raw_countryCode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("areaCode")) ? "areaCode" in obj : (__fields.keeps("areaCode") && obj["areaCode"] !== undefined)) {
-        const __raw_areaCode = obj["areaCode"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("areaCode")) ? "areaCode" in obj : (__fields.keeps("areaCode") && obj["areaCode"] !== undefined)) {
+                const __raw_areaCode = obj["areaCode"] as string;
 
-        if (!(typeof __raw_areaCode === "string")) {
-            errors.push({ field: "areaCode", message: __raw_areaCode == null ? "Number.areaCode is required" : "expected string" });
-        } else {
-            if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
-                if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+                if (!(typeof __raw_areaCode === "string")) {
+                    errors.push({ field: "areaCode", message: __raw_areaCode == null ? "Number.areaCode is required" : "expected string" });
+                } else {
+                    if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+                        if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+                    }
+                    instance.areaCode = __raw_areaCode;
+                }
             }
-            instance.areaCode = __raw_areaCode;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("localNumber")) ? "localNumber" in obj : (__fields.keeps("localNumber") && obj["localNumber"] !== undefined)) {
-        const __raw_localNumber = obj["localNumber"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("localNumber")) ? "localNumber" in obj : (__fields.keeps("localNumber") && obj["localNumber"] !== undefined)) {
+                const __raw_localNumber = obj["localNumber"] as string;
 
-        if (!(typeof __raw_localNumber === "string")) {
-            errors.push({ field: "localNumber", message: __raw_localNumber == null ? "Number.localNumber is required" : "expected string" });
-        } else {
-            if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
-                if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+                if (!(typeof __raw_localNumber === "string")) {
+                    errors.push({ field: "localNumber", message: __raw_localNumber == null ? "Number.localNumber is required" : "expected string" });
+                } else {
+                    if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+                        if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+                    }
+                    instance.localNumber = __raw_localNumber;
+                }
             }
-            instance.localNumber = __raw_localNumber;
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -269,7 +287,7 @@ export function numberHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "countryCode") && __mf_holds(obj, "areaCode") && __mf_holds(obj, "localNumber");
+    return __mf_holdsAll(obj, ["countryCode", "areaCode", "localNumber"]);
 }
 
 export function numberIs(obj: unknown): obj is Number {
@@ -562,18 +580,18 @@ export declare const Number: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..138 -> expanded 896..927
-original 179..209 -> expanded 927..957
-original 250..277 -> expanded 957..984
-original 318..345 -> expanded 984..1011
-original 345..346 -> expanded 20256..20257
-generated 0..838 <- imports
-generated 1011..1153 <- Default
-generated 1153..3638 <- Encode
-generated 3638..13375 <- Decode
-generated 13375..19044 <- Gigaform
-generated 19044..20256 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..138 -> expanded 902..933
+original 179..209 -> expanded 933..963
+original 250..277 -> expanded 963..990
+original 318..345 -> expanded 990..1017
+original 345..346 -> expanded 20739..20740
+generated 0..844 <- imports
+generated 1017..1159 <- Default
+generated 1159..3905 <- Encode
+generated 3905..13858 <- Decode
+generated 13858..19527 <- Gigaform
+generated 19527..20739 <- __convenience_const
 
 ## Metadata
 

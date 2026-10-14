@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -60,15 +60,23 @@ export function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: 
 }
 
 function dataPathEncodeFields(value: DataPath, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("path")) {
-        if (value.path !== undefined) {
-            result["path"] = value.path;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("formatter")) {
-        if (value.formatter !== undefined) {
-            result["formatter"] = value.formatter;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("path")) {
+                if (value.path !== undefined) {
+                    result["path"] = value.path;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("formatter")) {
+                if (value.formatter !== undefined) {
+                    result["formatter"] = value.formatter;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -146,11 +154,12 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("path")) && !("path" in obj)) {
-        errors.push({ field: "path", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("formatter")) && !("formatter" in obj)) {
-        errors.push({ field: "formatter", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["path", "path"], ["formatter", "formatter"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -161,38 +170,46 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("path")) ? "path" in obj : (__fields.keeps("path") && obj["path"] !== undefined)) {
-        const __raw_path = obj["path"] as Array<string>;
-        if (Array.isArray(__raw_path)) {
-            ctx.pushScope("path");
-            try {
-                instance.path = __mf_decodeArray(__raw_path, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "path" : "path." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("path")) ? "path" in obj : (__fields.keeps("path") && obj["path"] !== undefined)) {
+                const __raw_path = obj["path"] as Array<string>;
+                if (Array.isArray(__raw_path)) {
+                    ctx.pushScope("path");
+                    try {
+                        instance.path = __mf_decodeArray(__raw_path, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "path" : "path." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "path", message: __raw_path == null ? "DataPath.path is required" : "expected Array<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "path", message: __raw_path == null ? "DataPath.path is required" : "expected Array<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("formatter")) ? "formatter" in obj : (__fields.keeps("formatter") && obj["formatter"] !== undefined)) {
-        const __raw_formatter = obj["formatter"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("formatter")) ? "formatter" in obj : (__fields.keeps("formatter") && obj["formatter"] !== undefined)) {
+                const __raw_formatter = obj["formatter"] as string | null;
 
-        if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
-            errors.push({ field: "formatter", message: "expected string | null" });
-        } else {
-            instance.formatter = __raw_formatter;
-        }
+                if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
+                    errors.push({ field: "formatter", message: "expected string | null" });
+                } else {
+                    instance.formatter = __raw_formatter;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -217,7 +234,7 @@ export function dataPathHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "path") && __mf_holds(obj, "formatter");
+    return __mf_holdsAll(obj, ["path", "formatter"]);
 }
 
 export function dataPathIs(obj: unknown): obj is DataPath {
@@ -489,15 +506,15 @@ export declare const DataPath: {
 
 ## Mapping
 
-original 0..58 -> expanded 928..986
-original 107..192 -> expanded 986..1071
-original 192..193 -> expanded 16415..16416
-generated 0..928 <- imports
-generated 1071..1188 <- Default
-generated 1188..3494 <- Encode
-generated 3494..10078 <- Decode
-generated 10078..15149 <- Gigaform
-generated 15149..16415 <- __convenience_const
+original 0..58 -> expanded 934..992
+original 107..192 -> expanded 992..1077
+original 192..193 -> expanded 16976..16977
+generated 0..934 <- imports
+generated 1077..1194 <- Default
+generated 1194..3694 <- Encode
+generated 3694..10639 <- Decode
+generated 10639..15710 <- Gigaform
+generated 15710..16976 <- __convenience_const
 
 ## Metadata
 

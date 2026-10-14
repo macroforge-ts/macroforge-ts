@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Array validator test classes for comprehensive decoder validation testing.
@@ -104,8 +104,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(MaxItemsValidator.prototype);
@@ -174,7 +178,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 static is(obj: unknown): obj is MaxItemsValidator {
@@ -300,8 +304,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(MinItemsValidator.prototype);
@@ -370,7 +378,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 static is(obj: unknown): obj is MinItemsValidator {
@@ -496,8 +504,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(ItemsCountValidator.prototype);
@@ -566,7 +578,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["items"]);
 }
 
 static is(obj: unknown): obj is ItemsCountValidator {
@@ -774,20 +786,20 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 
 ## Mapping
 
-original 0..240 -> expanded 501..741
-original 240..241 -> expanded 7448..7449
-original 241..396 -> expanded 9366..9521
-original 396..397 -> expanded 16231..16232
-original 397..558 -> expanded 18149..18310
-original 558..559 -> expanded 25075..25076
-original 559..560 -> expanded 27023..27024
-generated 0..501 <- imports
-generated 741..7448 <- Decode
-generated 7449..9366 <- Decode
-generated 9521..16231 <- Decode
-generated 16232..18149 <- Decode
-generated 18310..25075 <- Decode
-generated 25076..27023 <- Decode
+original 0..240 -> expanded 507..747
+original 240..241 -> expanded 7616..7617
+original 241..396 -> expanded 9534..9689
+original 396..397 -> expanded 16561..16562
+original 397..558 -> expanded 18479..18640
+original 558..559 -> expanded 25567..25568
+original 559..560 -> expanded 27515..27516
+generated 0..507 <- imports
+generated 747..7616 <- Decode
+generated 7617..9534 <- Decode
+generated 9689..16561 <- Decode
+generated 16562..18479 <- Decode
+generated 18640..25567 <- Decode
+generated 25568..27515 <- Decode
 
 ## Metadata
 

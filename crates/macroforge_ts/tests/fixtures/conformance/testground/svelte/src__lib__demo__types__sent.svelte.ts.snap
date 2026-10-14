@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,15 +60,23 @@ export function sentEncodePartialWithContext(value: Partial<Sent>, ctx: __mf_Enc
 }
 
 function sentEncodeFields(value: Sent, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("recipient")) {
-        if (value.recipient !== undefined) {
-            result["recipient"] = value.recipient;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("method")) {
-        if (value.method !== undefined) {
-            result["method"] = value.method;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("recipient")) {
+                if (value.recipient !== undefined) {
+                    result["recipient"] = value.recipient;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("method")) {
+                if (value.method !== undefined) {
+                    result["method"] = value.method;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -146,11 +154,12 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("recipient")) && !("recipient" in obj)) {
-        errors.push({ field: "recipient", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("method")) && !("method" in obj)) {
-        errors.push({ field: "method", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["recipient", "recipient"], ["method", "method"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -161,23 +170,31 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("recipient")) ? "recipient" in obj : (__fields.keeps("recipient") && obj["recipient"] !== undefined)) {
-        const __raw_recipient = obj["recipient"] as string | null;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("recipient")) ? "recipient" in obj : (__fields.keeps("recipient") && obj["recipient"] !== undefined)) {
+                const __raw_recipient = obj["recipient"] as string | null;
 
-        if (!(typeof __raw_recipient === "string" || __raw_recipient === null)) {
-            errors.push({ field: "recipient", message: "expected string | null" });
-        } else {
-            instance.recipient = __raw_recipient;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("method")) ? "method" in obj : (__fields.keeps("method") && obj["method"] !== undefined)) {
-        const __raw_method = obj["method"] as string | null;
+                if (!(typeof __raw_recipient === "string" || __raw_recipient === null)) {
+                    errors.push({ field: "recipient", message: "expected string | null" });
+                } else {
+                    instance.recipient = __raw_recipient;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("method")) ? "method" in obj : (__fields.keeps("method") && obj["method"] !== undefined)) {
+                const __raw_method = obj["method"] as string | null;
 
-        if (!(typeof __raw_method === "string" || __raw_method === null)) {
-            errors.push({ field: "method", message: "expected string | null" });
-        } else {
-            instance.method = __raw_method;
-        }
+                if (!(typeof __raw_method === "string" || __raw_method === null)) {
+                    errors.push({ field: "method", message: "expected string | null" });
+                } else {
+                    instance.method = __raw_method;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -202,7 +219,7 @@ export function sentHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "recipient") && __mf_holds(obj, "method");
+    return __mf_holdsAll(obj, ["recipient", "method"]);
 }
 
 export function sentIs(obj: unknown): obj is Sent {
@@ -462,15 +479,15 @@ export declare const Sent: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..190 -> expanded 896..979
-original 190..191 -> expanded 14729..14730
-generated 0..838 <- imports
-generated 979..1092 <- Default
-generated 1092..3346 <- Encode
-generated 3346..9201 <- Decode
-generated 9201..13571 <- Gigaform
-generated 13571..14729 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..190 -> expanded 902..985
+original 190..191 -> expanded 15160..15161
+generated 0..844 <- imports
+generated 985..1098 <- Default
+generated 1098..3546 <- Encode
+generated 3546..9632 <- Decode
+generated 9632..14002 <- Gigaform
+generated 14002..15160 <- __convenience_const
 
 ## Metadata
 

@@ -14,7 +14,7 @@ true
 
 import { companyNameDecodeWithContext, companyNameHasShape, companyNameEncodeWithContext, companyNameDefaultValue } from "./company-name.svelte";
 import { personNameDecodeWithContext, personNameHasShape, personNameEncodeWithContext, personNameDefaultValue } from "./person-name.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -40,24 +40,14 @@ export function accountNameEncode(value: AccountName, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "CompanyName") { __variant = companyNameEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "PersonName") { __variant = personNameEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && companyNameHasShape(value)) { __variant = companyNameEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && personNameHasShape(value)) { __variant = personNameEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: AccountName): member is CompanyName => __mf_member(member, "__type") === "CompanyName", (member) => companyNameEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AccountName): member is PersonName => __mf_member(member, "__type") === "PersonName", (member) => personNameEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AccountName): member is CompanyName => typeof member === "object" && member !== null && !Array.isArray(member) && "companyName" in member, (member) => companyNameEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: AccountName): member is PersonName => typeof member === "object" && member !== null && !Array.isArray(member) && "firstName" in member && "lastName" in member, (member) => personNameEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -448,15 +438,15 @@ export declare const AccountName: {
 
 ## Mapping
 
-original 0..173 -> expanded 926..1099
-original 355..423 -> expanded 1099..1167
-original 423..424 -> expanded 13556..13557
-generated 0..926 <- imports
-generated 1167..1265 <- Default
-generated 1265..3372 <- Encode
-generated 3372..8156 <- Decode
-generated 8156..12709 <- Gigaform
-generated 12709..13556 <- __convenience_const
+original 0..173 -> expanded 996..1169
+original 355..423 -> expanded 1169..1237
+original 423..424 -> expanded 13690..13691
+generated 0..996 <- imports
+generated 1237..1335 <- Default
+generated 1335..3506 <- Encode
+generated 3506..8290 <- Decode
+generated 8290..12843 <- Gigaform
+generated 12843..13690 <- __convenience_const
 
 ## Metadata
 

@@ -19,7 +19,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -100,8 +100,12 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -144,7 +148,7 @@ export function itemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function itemIs(obj: unknown): obj is Item {
@@ -212,12 +216,12 @@ Error [83..114]: @derive(Decode): member `Item[]` of union 'OneOrMany' has no de
 
 ## Mapping
 
-original 22..57 -> expanded 433..468
-original 57..59 -> expanded 6195..6197
-original 81..114 -> expanded 6197..6230
-generated 0..433 <- imports
-generated 468..5584 <- Decode
-generated 5584..6195 <- __convenience_const
+original 22..57 -> expanded 439..474
+original 57..59 -> expanded 6366..6368
+original 81..114 -> expanded 6368..6401
+generated 0..439 <- imports
+generated 474..5755 <- Decode
+generated 5755..6366 <- __convenience_const
 
 ## Metadata
 

@@ -53,15 +53,23 @@ export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_E
 }
 
 function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-        if (value.y !== undefined) {
-            result["y"] = value.y;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -96,10 +104,10 @@ export {};
 ## Mapping
 
 original 22..72 -> expanded 458..508
-original 72..73 -> expanded 3051..3052
+original 72..73 -> expanded 3245..3246
 generated 0..458 <- imports
-generated 508..2725 <- Encode
-generated 2725..3051 <- __convenience_const
+generated 508..2919 <- Encode
+generated 2919..3245 <- __convenience_const
 
 ## Metadata
 

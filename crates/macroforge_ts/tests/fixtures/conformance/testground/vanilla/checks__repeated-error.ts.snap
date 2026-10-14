@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * A derive whose generated code does not type-check in several places for one
@@ -105,14 +105,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
-        errors.push({ field: "first", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("second")) && !("second" in obj)) {
-        errors.push({ field: "second", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("third")) && !("third" in obj)) {
-        errors.push({ field: "third", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["first", "first"], ["second", "second"], ["third", "third"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -123,74 +121,84 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
-        const __raw_first = obj["first"] as Plain;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
+                const __raw_first = obj["first"] as Plain;
 
-        ctx.pushScope("first");
-        try {
-            const __result = plainDecodeWithContext(__raw_first, ctx);
-            ctx.assignOrDefer(instance, "first", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "first" : "first." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("first");
+                try {
+                    const __result = plainDecodeWithContext(__raw_first, ctx);
+                    ctx.assignOrDefer(instance, "first", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "first" : "first." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("second")) ? "second" in obj : (__fields.keeps("second") && obj["second"] !== undefined)) {
-        const __raw_second = obj["second"] as Plain;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("second")) ? "second" in obj : (__fields.keeps("second") && obj["second"] !== undefined)) {
+                const __raw_second = obj["second"] as Plain;
 
-        ctx.pushScope("second");
-        try {
-            const __result = plainDecodeWithContext(__raw_second, ctx);
-            ctx.assignOrDefer(instance, "second", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "second" : "second." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("second");
+                try {
+                    const __result = plainDecodeWithContext(__raw_second, ctx);
+                    ctx.assignOrDefer(instance, "second", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "second" : "second." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "second", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "second", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("third")) ? "third" in obj : (__fields.keeps("third") && obj["third"] !== undefined)) {
-        const __raw_third = obj["third"] as Plain;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("third")) ? "third" in obj : (__fields.keeps("third") && obj["third"] !== undefined)) {
+                const __raw_third = obj["third"] as Plain;
 
-        ctx.pushScope("third");
-        try {
-            const __result = plainDecodeWithContext(__raw_third, ctx);
-            ctx.assignOrDefer(instance, "third", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "third" : "third." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("third");
+                try {
+                    const __result = plainDecodeWithContext(__raw_third, ctx);
+                    ctx.assignOrDefer(instance, "third", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "third" : "third." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "third", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "third", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -215,7 +223,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "first") && __mf_holds(obj, "second") && __mf_holds(obj, "third");
+    return __mf_holdsAll(obj, ["first", "second", "third"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -299,11 +307,11 @@ export declare const Holder: {
 
 ## Mapping
 
-original 0..396 -> expanded 433..829
-original 396..397 -> expanded 9425..9426
-generated 0..433 <- imports
-generated 829..8777 <- Decode
-generated 8777..9425 <- __convenience_const
+original 0..396 -> expanded 439..835
+original 396..397 -> expanded 9901..9902
+generated 0..439 <- imports
+generated 835..9253 <- Decode
+generated 9253..9901 <- __convenience_const
 
 ## Metadata
 

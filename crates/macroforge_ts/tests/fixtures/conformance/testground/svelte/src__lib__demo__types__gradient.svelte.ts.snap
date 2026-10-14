@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -139,8 +139,12 @@ export function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("startHue")) && !("startHue" in obj)) {
-        errors.push({ field: "startHue", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["startHue", "startHue"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -183,7 +187,7 @@ export function gradientHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "startHue");
+    return __mf_holdsAll(obj, ["startHue"]);
 }
 
 export function gradientIs(obj: unknown): obj is Gradient {
@@ -414,15 +418,15 @@ export declare const Gradient: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..159 -> expanded 896..948
-original 159..160 -> expanded 13365..13366
-generated 0..838 <- imports
-generated 948..1043 <- Default
-generated 1043..3188 <- Encode
-generated 3188..8578 <- Decode
-generated 8578..12099 <- Gigaform
-generated 12099..13365 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..159 -> expanded 902..954
+original 159..160 -> expanded 13530..13531
+generated 0..844 <- imports
+generated 954..1049 <- Default
+generated 1049..3194 <- Encode
+generated 3194..8743 <- Decode
+generated 8743..12264 <- Gigaform
+generated 12264..13530 <- __convenience_const
 
 ## Metadata
 

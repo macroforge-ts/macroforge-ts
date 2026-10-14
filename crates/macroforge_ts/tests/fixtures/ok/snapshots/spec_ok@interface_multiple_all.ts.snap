@@ -36,7 +36,9 @@ export function statusClone(value: Status): Status {
 
 export function statusEquals(a: Status, b: Status): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.active === b.active);
+    return __mf_equalWithin(a, b, () => {
+        return a.active === b.active;
+    });
 }
 
 export function statusHashCode(value: Status): number {
@@ -77,13 +79,13 @@ export {};
 ## Mapping
 
 original 45..87 -> expanded 184..226
-original 87..88 -> expanded 1279..1280
+original 87..88 -> expanded 1303..1304
 generated 0..184 <- imports
 generated 226..480 <- Debug
 generated 480..613 <- Clone
-generated 613..772 <- PartialEq
-generated 772..986 <- Hash
-generated 986..1279 <- __convenience_const
+generated 613..796 <- PartialEq
+generated 796..1010 <- Hash
+generated 1010..1303 <- __convenience_const
 
 ## Metadata
 

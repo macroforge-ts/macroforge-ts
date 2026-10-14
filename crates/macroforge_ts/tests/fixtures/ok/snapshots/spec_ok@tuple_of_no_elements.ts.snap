@@ -23,7 +23,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A tuple is held to its length, when it has no element and when none of them is checked. */
 
@@ -53,7 +53,13 @@ export function holderClone(value: Holder): Holder {
 
 export function holderEquals(a: Holder, b: Holder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.none, b.none) && __mf_structuralEquals(a.nested, b.nested) && __mf_structuralEquals(a.pair, b.pair));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.none, b.none),
+            () => __mf_structuralEquals(a.nested, b.nested),
+            () => __mf_structuralEquals(a.pair, b.pair),
+        ].every((same) => same());
+    });
 }
 
 export function holderHashCode(value: Holder): number {
@@ -102,20 +108,30 @@ export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf
 }
 
 function holderEncodeFields(value: Holder, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("none")) {
-        if (value.none !== undefined) {
-            result["none"] = value.none;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = value.nested;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("none")) {
+                if (value.none !== undefined) {
+                    result["none"] = value.none;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = value.nested;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -193,14 +209,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("none")) && !("none" in obj)) {
-        errors.push({ field: "none", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
-        errors.push({ field: "nested", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["none", "none"], ["nested", "nested"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -211,77 +225,87 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("none")) ? "none" in obj : (__fields.keeps("none") && obj["none"] !== undefined)) {
-        const __raw_none = obj["none"] as [];
-        if (Array.isArray(__raw_none)) {
-            ctx.pushScope("none");
-            try {
-                instance.none = (__mf_decodeTuple(__raw_none, ctx, [], 0) as []);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "none" : "none." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("none")) ? "none" in obj : (__fields.keeps("none") && obj["none"] !== undefined)) {
+                const __raw_none = obj["none"] as [];
+                if (Array.isArray(__raw_none)) {
+                    ctx.pushScope("none");
+                    try {
+                        instance.none = (__mf_decodeTuple(__raw_none, ctx, [], 0) as []);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "none" : "none." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "none", message: __raw_none == null ? "Holder.none is required" : "expected []" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "none", message: __raw_none == null ? "Holder.none is required" : "expected []" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
-        const __raw_nested = obj["nested"] as [[]];
-        if (Array.isArray(__raw_nested)) {
-            ctx.pushScope("nested");
-            try {
-                instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [], 0) as [])], 1) as [[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as [[]];
+                if (Array.isArray(__raw_nested)) {
+                    ctx.pushScope("nested");
+                    try {
+                        instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [], 0) as [])], 1) as [[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nested", message: __raw_nested == null ? "Holder.nested is required" : "expected [[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nested", message: __raw_nested == null ? "Holder.nested is required" : "expected [[]]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [unknown, unknown];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => __raw0 as unknown, (__raw0) => __raw0 as unknown], 2) as [unknown, unknown]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [unknown, unknown];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => __raw0 as unknown, (__raw0) => __raw0 as unknown], 2) as [unknown, unknown]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "Holder.pair is required" : "expected [unknown, unknown]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "Holder.pair is required" : "expected [unknown, unknown]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -306,7 +330,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "none") && __mf_holds(obj, "nested") && __mf_holds(obj, "pair");
+    return __mf_holdsAll(obj, ["none", "nested", "pair"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -596,28 +620,28 @@ export declare const Nothing: {
 
 ## Mapping
 
-original 0..95 -> expanded 1060..1155
-original 165..255 -> expanded 1155..1245
-original 255..257 -> expanded 14807..14809
-original 327..353 -> expanded 14809..14835
-original 353..354 -> expanded 19597..19598
-generated 0..1060 <- imports
-generated 1245..1635 <- Debug
-generated 1635..1873 <- Clone
-generated 1873..2134 <- PartialEq
-generated 2134..2483 <- Hash
-generated 2483..2631 <- Default
-generated 2631..5052 <- Encode
-generated 5052..13495 <- Decode
-generated 13495..14807 <- __convenience_const
-generated 14835..14955 <- Debug
-generated 14955..15030 <- Clone
-generated 15030..15117 <- PartialEq
-generated 15117..15214 <- Hash
-generated 15214..15300 <- Default
-generated 15300..16099 <- Encode
-generated 16099..18722 <- Decode
-generated 18722..19597 <- __convenience_const
+original 0..95 -> expanded 1066..1161
+original 165..255 -> expanded 1161..1251
+original 255..257 -> expanded 15729..15731
+original 327..353 -> expanded 15731..15757
+original 353..354 -> expanded 20519..20520
+generated 0..1066 <- imports
+generated 1251..1641 <- Debug
+generated 1641..1879 <- Clone
+generated 1879..2251 <- PartialEq
+generated 2251..2600 <- Hash
+generated 2600..2748 <- Default
+generated 2748..5430 <- Encode
+generated 5430..14417 <- Decode
+generated 14417..15729 <- __convenience_const
+generated 15757..15877 <- Debug
+generated 15877..15952 <- Clone
+generated 15952..16039 <- PartialEq
+generated 16039..16136 <- Hash
+generated 16136..16222 <- Default
+generated 16222..17021 <- Encode
+generated 17021..19644 <- Decode
+generated 19644..20519 <- __convenience_const
 
 ## Metadata
 

@@ -41,7 +41,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A type is coded through its functions whatever letter its name starts with. */
 
@@ -63,7 +63,9 @@ export function lowerClone(value: lower): lower {
 
 export function lowerEquals(a: lower, b: lower): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id);
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id;
+    });
 }
 
 export function lowerHashCode(value: lower): number {
@@ -189,8 +191,12 @@ export function lowerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -233,7 +239,7 @@ export function lowerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function lowerIs(obj: unknown): obj is lower {
@@ -298,7 +304,12 @@ export function point2DClone(value: point2D): point2D {
 
 export function point2DEquals(a: point2D, b: point2D): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.x === b.x || a.x !== a.x && b.x !== b.x) && (a.y === b.y || a.y !== a.y && b.y !== b.y));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+            () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+        ].every((same) => same());
+    });
 }
 
 export function point2DHashCode(value: point2D): number {
@@ -345,15 +356,23 @@ export function point2DEncodePartialWithContext(value: Partial<point2D>, ctx: __
 }
 
 function point2DEncodeFields(value: point2D, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("y")) {
-        if (value.y !== undefined) {
-            result["y"] = value.y;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("y")) {
+                if (value.y !== undefined) {
+                    result["y"] = value.y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -431,11 +450,12 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
-        errors.push({ field: "x", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("y")) && !("y" in obj)) {
-        errors.push({ field: "y", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["y", "y"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -446,23 +466,31 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
-        const __raw_x = obj["x"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
-            errors.push({ field: "x", message: __raw_x == null ? "point2D.x is required" : "expected number" });
-        } else {
-            instance.x = __raw_x;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
-        const __raw_y = obj["y"] as number;
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "point2D.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
+                const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
-            errors.push({ field: "y", message: __raw_y == null ? "point2D.y is required" : "expected number" });
-        } else {
-            instance.y = __raw_y;
-        }
+                if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
+                    errors.push({ field: "y", message: __raw_y == null ? "point2D.y is required" : "expected number" });
+                } else {
+                    instance.y = __raw_y;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -487,7 +515,7 @@ export function point2DHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "x") && __mf_holds(obj, "y");
+    return __mf_holdsAll(obj, ["x", "y"]);
 }
 
 export function point2DIs(obj: unknown): obj is point2D {
@@ -547,7 +575,9 @@ export function myTypeClone(value: my_type): my_type {
 
 export function myTypeEquals(a: my_type, b: my_type): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime());
+    return __mf_equalWithin(a, b, () => {
+        return a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime();
+    });
 }
 
 export function myTypeHashCode(value: my_type): number {
@@ -673,8 +703,12 @@ export function myTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -720,7 +754,7 @@ export function myTypeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["at"]);
 }
 
 export function myTypeIs(obj: unknown): obj is my_type {
@@ -807,13 +841,24 @@ export function holderClone(value: Holder): Holder {
 
 export function holderEquals(a: Holder, b: Holder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && a.all.length === b.all.length && a.all.every((__item0, __index0) => {
-	const __other0 = b.all[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.maybe, b.maybe) && __mf_structuralEquals(a.left, b.left) && a.byKey.size === b.byKey.size && Array.from(a.byKey).every(([__key0, __item0]) => {
-	const __other0 = b.byKey.get(__key0);
-	return b.byKey.has(__key0) && (__other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0));
-}) && __mf_structuralEquals(a.byName, b.byName) && __mf_structuralEquals(a.some, b.some) && __mf_structuralEquals(a.pair, b.pair));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.held, b.held),
+            () => a.all.length === b.all.length && a.all.every((__item0, __index0) => {
+            	const __other0 = b.all[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+            () => __mf_structuralEquals(a.maybe, b.maybe),
+            () => __mf_structuralEquals(a.left, b.left),
+            () => a.byKey.size === b.byKey.size && Array.from(a.byKey).every(([__key0, __item0]) => {
+            	const __other0 = b.byKey.get(__key0);
+            	return b.byKey.has(__key0) && (__other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0));
+            }),
+            () => __mf_structuralEquals(a.byName, b.byName),
+            () => __mf_structuralEquals(a.some, b.some),
+            () => __mf_structuralEquals(a.pair, b.pair),
+        ].every((same) => same());
+    });
 }
 
 export function holderHashCode(value: Holder): number {
@@ -871,45 +916,65 @@ export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf
 }
 
 function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("held")) {
-        if (value.held !== undefined) {
-            result["held"] = lowerEncodeWithContext(value.held, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("all")) {
-        if (value.all !== undefined) {
-            result["all"] = value.all.map((__item0) => lowerEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : myTypeEncodeWithContext(value.maybe, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("left")) {
-        if (value.left !== undefined) {
-            result["left"] = point2DEncodeWithContext(value.left, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byKey")) {
-        if (value.byKey !== undefined) {
-            result["byKey"] = Object.fromEntries(Array.from(value.byKey, ([__key0, __item0]) => [__key0, point2DEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries((Object.entries(value.byName) as [string, my_type][]).map(([__key0, __item0]) => [__key0, myTypeEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("some")) {
-        if (value.some !== undefined) {
-            result["some"] = lowerEncodePartialWithContext(value.some, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = [lowerEncodeWithContext(value.pair[0], ctx), point2DEncodeWithContext(value.pair[1], ctx)];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("held")) {
+                if (value.held !== undefined) {
+                    result["held"] = lowerEncodeWithContext(value.held, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("all")) {
+                if (value.all !== undefined) {
+                    result["all"] = value.all.map((__item0) => lowerEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : myTypeEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("left")) {
+                if (value.left !== undefined) {
+                    result["left"] = point2DEncodeWithContext(value.left, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byKey")) {
+                if (value.byKey !== undefined) {
+                    result["byKey"] = Object.fromEntries(Array.from(value.byKey, ([__key0, __item0]) => [__key0, point2DEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries((Object.entries(value.byName) as [string, my_type][]).map(([__key0, __item0]) => [__key0, myTypeEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("some")) {
+                if (value.some !== undefined) {
+                    result["some"] = lowerEncodePartialWithContext(value.some, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = [lowerEncodeWithContext(value.pair[0], ctx), point2DEncodeWithContext(value.pair[1], ctx)];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -987,26 +1052,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
-        errors.push({ field: "held", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("all")) && !("all" in obj)) {
-        errors.push({ field: "all", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byKey")) && !("byKey" in obj)) {
-        errors.push({ field: "byKey", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("some")) && !("some" in obj)) {
-        errors.push({ field: "some", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["held", "held"], ["all", "all"], ["maybe", "maybe"], ["byKey", "byKey"], ["byName", "byName"], ["some", "some"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1017,199 +1068,219 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
-        const __raw_held = obj["held"] as lower;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+                const __raw_held = obj["held"] as lower;
 
-        ctx.pushScope("held");
-        try {
-            const __result = lowerDecodeWithContext(__raw_held, ctx);
-            ctx.assignOrDefer(instance, "held", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "held" : "held." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("held");
+                try {
+                    const __result = lowerDecodeWithContext(__raw_held, ctx);
+                    ctx.assignOrDefer(instance, "held", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "held" : "held." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("all")) ? "all" in obj : (__fields.keeps("all") && obj["all"] !== undefined)) {
-        const __raw_all = obj["all"] as lower[];
-        if (Array.isArray(__raw_all)) {
-            ctx.pushScope("all");
-            try {
-                instance.all = __mf_decodeArray(__raw_all, ctx, (__raw0) => lowerDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "all" : "all." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("all")) ? "all" in obj : (__fields.keeps("all") && obj["all"] !== undefined)) {
+                const __raw_all = obj["all"] as lower[];
+                if (Array.isArray(__raw_all)) {
+                    ctx.pushScope("all");
+                    try {
+                        instance.all = __mf_decodeArray(__raw_all, ctx, (__raw0) => lowerDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "all" : "all." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "all", message: __raw_all == null ? "Holder.all is required" : "expected lower[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "all", message: __raw_all == null ? "Holder.all is required" : "expected lower[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as my_type | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as my_type | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = myTypeDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = myTypeDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("left"))) {
+                if (("left" in obj && obj["left"] !== undefined)) {
+                    const __raw_left = obj["left"] as point2D;
+
+                    ctx.pushScope("left");
+                    try {
+                        const __result = point2DDecodeWithContext(__raw_left, ctx);
+                        ctx.assignOrDefer(instance, "left", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "left" : "left." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "left", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byKey")) ? "byKey" in obj : (__fields.keeps("byKey") && obj["byKey"] !== undefined)) {
+                const __raw_byKey = obj["byKey"] as Record<string, point2D>;
+                if (typeof __raw_byKey === "object" && __raw_byKey !== null) {
+                    ctx.pushScope("byKey");
+                    try {
+                        instance.byKey = __mf_decodeMap(__raw_byKey, ctx, (__key0) => __key0, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byKey" : "byKey." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "byKey", message: __raw_byKey == null ? "Holder.byKey is required" : "expected Map<string, point2D>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("left"))) {
-        if (("left" in obj && obj["left"] !== undefined)) {
-            const __raw_left = obj["left"] as point2D;
-
-            ctx.pushScope("left");
-            try {
-                const __result = point2DDecodeWithContext(__raw_left, ctx);
-                ctx.assignOrDefer(instance, "left", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "left" : "left." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, my_type>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = (__mf_decodeRecord(__raw_byName, ctx, (__raw0) => myTypeDecodeWithContext(__raw0, ctx)) as Record<string, my_type>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "left", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "byName", message: __raw_byName == null ? "Holder.byName is required" : "expected Record<string, my_type>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byKey")) ? "byKey" in obj : (__fields.keeps("byKey") && obj["byKey"] !== undefined)) {
-        const __raw_byKey = obj["byKey"] as Record<string, point2D>;
-        if (typeof __raw_byKey === "object" && __raw_byKey !== null) {
-            ctx.pushScope("byKey");
-            try {
-                instance.byKey = __mf_decodeMap(__raw_byKey, ctx, (__key0) => __key0, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byKey" : "byKey." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
+                const __raw_some = obj["some"] as Partial<lower>;
+
+                ctx.pushScope("some");
+                try {
+                    const __result = lowerDecodePartialWithContext(__raw_some, ctx);
+                    ctx.assignOrDefer(instance, "some", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "some" : "some." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "some", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [lower, point2D];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => lowerDecodeWithContext(__raw0, ctx), (__raw0) => point2DDecodeWithContext(__raw0, ctx)], 2) as [lower, point2D]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "Holder.pair is required" : "expected [lower, point2D]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byKey", message: __raw_byKey == null ? "Holder.byKey is required" : "expected Map<string, point2D>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, my_type>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = (__mf_decodeRecord(__raw_byName, ctx, (__raw0) => myTypeDecodeWithContext(__raw0, ctx)) as Record<string, my_type>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "Holder.byName is required" : "expected Record<string, my_type>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("some")) ? "some" in obj : (__fields.keeps("some") && obj["some"] !== undefined)) {
-        const __raw_some = obj["some"] as Partial<lower>;
-
-        ctx.pushScope("some");
-        try {
-            const __result = lowerDecodePartialWithContext(__raw_some, ctx);
-            ctx.assignOrDefer(instance, "some", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "some" : "some." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "some", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [lower, point2D];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => lowerDecodeWithContext(__raw0, ctx), (__raw0) => point2DDecodeWithContext(__raw0, ctx)], 2) as [lower, point2D]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "Holder.pair is required" : "expected [lower, point2D]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1234,7 +1305,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "held") && __mf_holds(obj, "all") && __mf_holds(obj, "maybe") && __mf_holds(obj, "byKey") && __mf_holds(obj, "byName") && __mf_holds(obj, "some") && __mf_holds(obj, "pair");
+    return __mf_holdsAll(obj, ["held", "all", "maybe", "byKey", "byName", "some", "pair"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -1525,48 +1596,48 @@ export declare const Holder: {
 
 ## Mapping
 
-original 0..83 -> expanded 1157..1240
-original 153..196 -> expanded 1240..1283
-original 196..198 -> expanded 10655..10657
-original 268..327 -> expanded 10657..10716
-original 327..329 -> expanded 21399..21401
-original 399..442 -> expanded 21401..21444
-original 442..444 -> expanded 31238..31240
-original 514..748 -> expanded 31240..31474
-original 748..749 -> expanded 54320..54321
-generated 0..1157 <- imports
-generated 1283..1526 <- Debug
-generated 1526..1647 <- Clone
-generated 1647..1795 <- PartialEq
-generated 1795..2065 <- Hash
-generated 2065..2149 <- Default
-generated 2149..4225 <- Encode
-generated 4225..9374 <- Decode
-generated 9374..10655 <- __convenience_const
-generated 10716..11004 <- Debug
-generated 11004..11145 <- Clone
-generated 11145..11376 <- PartialEq
-generated 11376..11855 <- Hash
-generated 11855..11955 <- Default
-generated 11955..14202 <- Encode
-generated 14202..20056 <- Decode
-generated 20056..21399 <- __convenience_const
-generated 21444..21692 <- Debug
-generated 21692..21840 <- Clone
-generated 21840..22087 <- PartialEq
-generated 22087..22298 <- Hash
-generated 22298..22393 <- Default
-generated 22393..24506 <- Encode
-generated 24506..29925 <- Decode
-generated 29925..31238 <- __convenience_const
-generated 31474..32171 <- Debug
-generated 32171..32810 <- Clone
-generated 32810..33659 <- PartialEq
-generated 33659..34578 <- Hash
-generated 34578..34849 <- Default
-generated 34849..38591 <- Encode
-generated 38591..53008 <- Decode
-generated 53008..54320 <- __convenience_const
+original 0..83 -> expanded 1163..1246
+original 153..196 -> expanded 1246..1289
+original 196..198 -> expanded 10850..10852
+original 268..327 -> expanded 10852..10911
+original 327..329 -> expanded 22123..22125
+original 399..442 -> expanded 22125..22168
+original 442..444 -> expanded 32151..32153
+original 514..748 -> expanded 32153..32387
+original 748..749 -> expanded 57014..57015
+generated 0..1163 <- imports
+generated 1289..1532 <- Debug
+generated 1532..1653 <- Clone
+generated 1653..1825 <- PartialEq
+generated 1825..2095 <- Hash
+generated 2095..2179 <- Default
+generated 2179..4255 <- Encode
+generated 4255..9569 <- Decode
+generated 9569..10850 <- __convenience_const
+generated 10911..11199 <- Debug
+generated 11199..11340 <- Clone
+generated 11340..11662 <- PartialEq
+generated 11662..12141 <- Hash
+generated 12141..12241 <- Default
+generated 12241..14682 <- Encode
+generated 14682..20780 <- Decode
+generated 20780..22123 <- __convenience_const
+generated 22168..22416 <- Debug
+generated 22416..22564 <- Clone
+generated 22564..22835 <- PartialEq
+generated 22835..23046 <- Hash
+generated 23046..23141 <- Default
+generated 23141..25254 <- Encode
+generated 25254..30838 <- Decode
+generated 30838..32151 <- __convenience_const
+generated 32387..33084 <- Debug
+generated 33084..33723 <- Clone
+generated 33723..34835 <- PartialEq
+generated 34835..35754 <- Hash
+generated 35754..36025 <- Default
+generated 36025..40363 <- Encode
+generated 40363..55702 <- Decode
+generated 55702..57014 <- __convenience_const
 
 ## Metadata
 

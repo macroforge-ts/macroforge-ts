@@ -41,7 +41,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Inner {
@@ -157,8 +157,12 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -201,7 +205,7 @@ export function innerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function innerIs(obj: unknown): obj is Inner {
@@ -244,30 +248,44 @@ export function shapeEncode(value: Shape, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "x" in value) {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["x"] = value.x;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "y" in value) {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["y"] = value.y;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Shape): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "x" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["x"] = value.x;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: Shape): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "y" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["y"] = value.y;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -341,11 +359,12 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     }
 
     
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "x")) {
-        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), x: __mf_decodeNumber }) as Shape;
-    }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "y")) {
-        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), y: __mf_decodeNumber }) as Shape;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "x")) ? __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), x: __mf_decodeNumber }) : __mf_notTheMember,
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "y")) ? __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), y: __mf_decodeNumber }) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Shape;
     }
 
     throw new __mf_DecodeError([{
@@ -354,8 +373,12 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     }]);
 }
 export function shapeHasShape(value: unknown): boolean {
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "x")) return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "y")) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "x"),
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "y"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function shapeIs(value: unknown): value is Shape {
@@ -515,27 +538,27 @@ Error [533..541]: @derive(Decode): field 'held': `flatten` holds a value's field
 
 ## Mapping
 
-original 30..73 -> expanded 883..926
-original 73..75 -> expanded 9086..9088
-original 105..178 -> expanded 9088..9161
-original 178..180 -> expanded 15053..15055
-original 210..247 -> expanded 15055..15092
-original 269..292 -> expanded 15092..15115
-original 314..338 -> expanded 15115..15139
-original 360..395 -> expanded 15139..15174
-original 417..451 -> expanded 15174..15208
-original 473..505 -> expanded 15208..15240
-original 527..545 -> expanded 15240..15258
-original 567..590 -> expanded 15258..15281
-original 612..642 -> expanded 15281..15311
-original 664..701 -> expanded 15311..15348
-generated 0..883 <- imports
-generated 926..3002 <- Encode
-generated 3002..8151 <- Decode
-generated 8151..9086 <- __convenience_const
-generated 9161..11227 <- Encode
-generated 11227..14570 <- Decode
-generated 14570..15053 <- __convenience_const
+original 30..73 -> expanded 1052..1095
+original 73..75 -> expanded 9420..9422
+original 105..178 -> expanded 9422..9495
+original 178..180 -> expanded 16178..16180
+original 210..247 -> expanded 16180..16217
+original 269..292 -> expanded 16217..16240
+original 314..338 -> expanded 16240..16264
+original 360..395 -> expanded 16264..16299
+original 417..451 -> expanded 16299..16333
+original 473..505 -> expanded 16333..16365
+original 527..545 -> expanded 16365..16383
+original 567..590 -> expanded 16383..16406
+original 612..642 -> expanded 16406..16436
+original 664..701 -> expanded 16436..16473
+generated 0..1052 <- imports
+generated 1095..3171 <- Encode
+generated 3171..8485 <- Decode
+generated 8485..9420 <- __convenience_const
+generated 9495..12021 <- Encode
+generated 12021..15695 <- Decode
+generated 15695..16178 <- __convenience_const
 
 ## Metadata
 

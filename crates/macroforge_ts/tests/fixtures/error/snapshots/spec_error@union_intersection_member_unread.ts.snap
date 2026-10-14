@@ -49,7 +49,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, member as __mf_member, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A union member that is an intersection no coder reads is an error, not a member left out. */
 
@@ -166,8 +166,12 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -210,7 +214,7 @@ export function accountHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function accountIs(obj: unknown): obj is Account {
@@ -355,8 +359,12 @@ export function ownerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -399,7 +407,7 @@ export function ownerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 export function ownerIs(obj: unknown): obj is Owner {
@@ -462,22 +470,12 @@ export function readEncode(value: Read, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function readEncodeWithContext(value: Read, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __tag = __mf_member(value, "kind");
-        if (!__matched && __tag === "account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __tag === "owner") { __variant = ownerEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Read): member is { "kind": "account" } & Account => __mf_member(member, "kind") === "account", (member) => accountEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Read): member is { "kind": "owner" } & Owner => __mf_member(member, "kind") === "owner", (member) => ownerEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -555,13 +553,13 @@ export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     if (typeof value === "object" && value !== null) {
         const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
-            if (__typeName === "account") {
-                const __inner = accountDecodeWithContext(value, ctx);
-                return { ...__inner, "kind": "account" } as Read;
-            }
-            if (__typeName === "owner") {
-                const __inner = ownerDecodeWithContext(value, ctx);
-                return { ...__inner, "kind": "owner" } as Read;
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "account" ? { ...accountDecodeWithContext(value, ctx), "kind": "account" } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "owner" ? { ...ownerDecodeWithContext(value, ctx), "kind": "owner" } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as Read;
             }
         }
     }
@@ -795,29 +793,29 @@ Error [984..1089]: @derive(Decode) on 'NoFields': a member of the union is an in
 
 ## Mapping
 
-original 0..97 -> expanded 741..838
-original 127..172 -> expanded 838..883
-original 172..174 -> expanded 9181..9183
-original 204..249 -> expanded 9183..9228
-original 249..328 -> expanded 17428..17507
-original 358..446 -> expanded 17507..17595
-original 468..532 -> expanded 17595..17659
-original 554..628 -> expanded 17659..17733
-original 681..785 -> expanded 17733..17837
-original 838..922 -> expanded 17837..17921
-original 975..1154 -> expanded 17921..18100
-original 1215..1297 -> expanded 18100..18182
-original 1297..1298 -> expanded 24045..24046
-generated 0..741 <- imports
-generated 883..2989 <- Encode
-generated 2989..8204 <- Decode
-generated 8204..9181 <- __convenience_const
-generated 9228..11312 <- Encode
-generated 11312..16493 <- Decode
-generated 16493..17428 <- __convenience_const
-generated 18182..19949 <- Encode
-generated 19949..23439 <- Decode
-generated 23439..24045 <- __convenience_const
+original 0..97 -> expanded 889..986
+original 127..172 -> expanded 986..1031
+original 172..174 -> expanded 9494..9496
+original 204..249 -> expanded 9496..9541
+original 249..328 -> expanded 17904..17983
+original 358..446 -> expanded 17983..18071
+original 468..532 -> expanded 18071..18135
+original 554..628 -> expanded 18135..18209
+original 681..785 -> expanded 18209..18313
+original 838..922 -> expanded 18313..18397
+original 975..1154 -> expanded 18397..18576
+original 1215..1297 -> expanded 18576..18658
+original 1297..1298 -> expanded 24502..24503
+generated 0..889 <- imports
+generated 1031..3137 <- Encode
+generated 3137..8517 <- Decode
+generated 8517..9494 <- __convenience_const
+generated 9541..11625 <- Encode
+generated 11625..16969 <- Decode
+generated 16969..17904 <- __convenience_const
+generated 18658..20313 <- Encode
+generated 20313..23896 <- Decode
+generated 23896..24502 <- __convenience_const
 
 ## Metadata
 

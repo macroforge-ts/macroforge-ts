@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,17 +35,8 @@ export function intervalUnitEncode(value: IntervalUnit, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function intervalUnitEncodeWithContext(value: IntervalUnit, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : value;
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -405,15 +396,15 @@ export declare const IntervalUnit: {
 
 ## Mapping
 
-original 0..58 -> expanded 641..699
-original 107..185 -> expanded 699..777
-original 185..186 -> expanded 10640..10641
-generated 0..641 <- imports
-generated 777..857 <- Default
-generated 857..2295 <- Encode
-generated 2295..4197 <- Decode
-generated 4197..9774 <- Gigaform
-generated 9774..10640 <- __convenience_const
+original 0..58 -> expanded 711..769
+original 107..185 -> expanded 769..847
+original 185..186 -> expanded 10587..10588
+generated 0..711 <- imports
+generated 847..927 <- Default
+generated 927..2242 <- Encode
+generated 2242..4144 <- Decode
+generated 4144..9721 <- Gigaform
+generated 9721..10587 <- __convenience_const
 
 ## Metadata
 

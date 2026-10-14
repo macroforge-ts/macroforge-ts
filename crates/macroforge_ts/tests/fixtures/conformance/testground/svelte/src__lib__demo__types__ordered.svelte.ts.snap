@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { orderDecodeWithContext, orderEncodeWithContext } from "./order.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -71,25 +71,37 @@ export function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __
 }
 
 function orderedEncodeFields(value: Ordered, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("in")) {
-        if (value.in !== undefined) {
-            result["in"] = (typeof value.in === "string" ? value.in : accountEncodeWithContext(value.in, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("out")) {
-        if (value.out !== undefined) {
-            result["out"] = (typeof value.out === "string" ? value.out : orderEncodeWithContext(value.out, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("date")) {
-        if (value.date !== undefined) {
-            result["date"] = value.date;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("in")) {
+                if (value.in !== undefined) {
+                    result["in"] = (typeof value.in === "string" ? value.in : accountEncodeWithContext(value.in, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("out")) {
+                if (value.out !== undefined) {
+                    result["out"] = (typeof value.out === "string" ? value.out : orderEncodeWithContext(value.out, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("date")) {
+                if (value.date !== undefined) {
+                    result["date"] = value.date;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -167,17 +179,12 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("in")) && !("in" in obj)) {
-        errors.push({ field: "in", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("out")) && !("out" in obj)) {
-        errors.push({ field: "out", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("date")) && !("date" in obj)) {
-        errors.push({ field: "date", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["in", "in"], ["out", "out"], ["date", "date"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -188,77 +195,89 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Ordered.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("in")) ? "in" in obj : (__fields.keeps("in") && obj["in"] !== undefined)) {
-        const __raw_in = obj["in"] as string | Account;
-
-        if (typeof __raw_in === "string") {
-            instance.in = __raw_in;
-        } else {
-            ctx.pushScope("in");
-            try {
-                const __result = accountDecodeWithContext(__raw_in, ctx);
-                ctx.assignOrDefer(instance, "in", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "in" : "in." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Ordered.id is required" : "expected string" });
                 } else {
-
-                    errors.push({ field: "in", message: __e instanceof Error ? __e.message : String(__e) });
+                    instance.id = __raw_id;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("out")) ? "out" in obj : (__fields.keeps("out") && obj["out"] !== undefined)) {
-        const __raw_out = obj["out"] as string | Order;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("in")) ? "in" in obj : (__fields.keeps("in") && obj["in"] !== undefined)) {
+                const __raw_in = obj["in"] as string | Account;
 
-        if (typeof __raw_out === "string") {
-            instance.out = __raw_out;
-        } else {
-            ctx.pushScope("out");
-            try {
-                const __result = orderDecodeWithContext(__raw_out, ctx);
-                ctx.assignOrDefer(instance, "out", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "out" : "out." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (typeof __raw_in === "string") {
+                    instance.in = __raw_in;
                 } else {
+                    ctx.pushScope("in");
+                    try {
+                        const __result = accountDecodeWithContext(__raw_in, ctx);
+                        ctx.assignOrDefer(instance, "in", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "in" : "in." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "out", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "in", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
-        const __raw_date = obj["date"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("out")) ? "out" in obj : (__fields.keeps("out") && obj["out"] !== undefined)) {
+                const __raw_out = obj["out"] as string | Order;
 
-        if (!(typeof __raw_date === "string")) {
-            errors.push({ field: "date", message: __raw_date == null ? "Ordered.date is required" : "expected string" });
-        } else {
-            instance.date = __raw_date;
-        }
+                if (typeof __raw_out === "string") {
+                    instance.out = __raw_out;
+                } else {
+                    ctx.pushScope("out");
+                    try {
+                        const __result = orderDecodeWithContext(__raw_out, ctx);
+                        ctx.assignOrDefer(instance, "out", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "out" : "out." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "out", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
+                const __raw_date = obj["date"] as string;
+
+                if (!(typeof __raw_date === "string")) {
+                    errors.push({ field: "date", message: __raw_date == null ? "Ordered.date is required" : "expected string" });
+                } else {
+                    instance.date = __raw_date;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -283,7 +302,7 @@ export function orderedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "in") && __mf_holds(obj, "out") && __mf_holds(obj, "date");
+    return __mf_holdsAll(obj, ["id", "in", "out", "date"]);
 }
 
 export function orderedIs(obj: unknown): obj is Ordered {
@@ -611,17 +630,17 @@ export declare const Ordered: {
 
 ## Mapping
 
-original 0..153 -> expanded 1006..1159
-original 202..250 -> expanded 1159..1207
-original 269..300 -> expanded 1207..1238
-original 319..364 -> expanded 1238..1283
-original 364..365 -> expanded 20040..20041
-generated 0..1006 <- imports
-generated 1283..1422 <- Default
-generated 1422..4136 <- Encode
-generated 4136..12507 <- Decode
-generated 12507..18801 <- Gigaform
-generated 18801..20040 <- __convenience_const
+original 0..153 -> expanded 1012..1165
+original 202..250 -> expanded 1165..1213
+original 269..300 -> expanded 1213..1244
+original 319..364 -> expanded 1244..1289
+original 364..365 -> expanded 20737..20738
+generated 0..1012 <- imports
+generated 1289..1428 <- Default
+generated 1428..4470 <- Encode
+generated 4470..13204 <- Decode
+generated 13204..19498 <- Gigaform
+generated 19498..20737 <- __convenience_const
 
 ## Metadata
 

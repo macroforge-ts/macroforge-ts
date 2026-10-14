@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHasShape, edgeProfileDecodePartialWithContext, edgeProfileHasShape, edgeProfileEncodePartialWithContext, edgeItemDecode } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Every option a derive's decorator takes, each on a field of its own and in
@@ -60,7 +60,14 @@ export function optionTraitsClone(value: OptionTraits): OptionTraits {
 
 export function optionTraitsEquals(a: OptionTraits, b: OptionTraits): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && a.label === b.label && a.secret === b.secret && a.unordered === b.unordered);
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.label === b.label,
+            () => a.secret === b.secret,
+            () => a.unordered === b.unordered,
+        ].every((same) => same());
+    });
 }
 
 export function optionTraitsHashCode(value: OptionTraits): number {
@@ -77,29 +84,30 @@ export function optionTraitsHashCode(value: OptionTraits): number {
 export function optionTraitsPartialCompare(a: OptionTraits, b: OptionTraits): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (a.secret < b.secret ? -1 : a.secret > b.secret ? 1 : 0);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+        () => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0),
+        () => (a.secret < b.secret ? -1 : a.secret > b.secret ? 1 : 0),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function optionTraitsCompare(a: OptionTraits, b: OptionTraits): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = a.secret < b.secret ? -1 : a.secret > b.secret ? 1 : 0;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+        () => a.label < b.label ? -1 : a.label > b.label ? 1 : 0,
+        () => a.secret < b.secret ? -1 : a.secret > b.secret ? 1 : 0,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -251,55 +259,79 @@ export function optionFieldsEncodePartialWithContext(value: Partial<OptionFields
 }
 
 function optionFieldsEncodeFields(value: OptionFields, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["user_name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readOnly")) {
-        if (value.readOnly !== undefined) {
-            result["readOnly"] = value.readOnly;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("status")) {
-        if (value.status !== undefined) {
-            result["status"] = value.status;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("balance")) {
-        if (value.balance !== undefined) {
-            result["balance"] = String(value.balance);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optionalBalance")) {
-        if (value.optionalBalance !== undefined) {
-            result["optionalBalance"] = String(value.optionalBalance);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shout")) {
-        if (value.shout !== undefined) {
-            result["shout"] = upperCase(value.shout);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optionalShout")) {
-        if (value.optionalShout !== undefined) {
-            result["optionalShout"] = upperCase(value.optionalShout);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["user_name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readOnly")) {
+                if (value.readOnly !== undefined) {
+                    result["readOnly"] = value.readOnly;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("status")) {
+                if (value.status !== undefined) {
+                    result["status"] = value.status;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = edgeItemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("balance")) {
+                if (value.balance !== undefined) {
+                    result["balance"] = String(value.balance);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optionalBalance")) {
+                if (value.optionalBalance !== undefined) {
+                    result["optionalBalance"] = String(value.optionalBalance);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("shout")) {
+                if (value.shout !== undefined) {
+                    result["shout"] = upperCase(value.shout);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optionalShout")) {
+                if (value.optionalShout !== undefined) {
+                    result["optionalShout"] = upperCase(value.optionalShout);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -377,17 +409,12 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("user_name" in obj)) {
-        errors.push({ field: "user_name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("writeOnly")) && !("writeOnly" in obj)) {
-        errors.push({ field: "writeOnly", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
-        errors.push({ field: "balance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shout")) && !("shout" in obj)) {
-        errors.push({ field: "shout", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "user_name"], ["writeOnly", "writeOnly"], ["balance", "balance"], ["shout", "shout"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -398,157 +425,183 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "user_name" in obj : (__fields.keeps("name") && obj["user_name"] !== undefined)) {
-        const __raw_name = obj["user_name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "user_name" in obj : (__fields.keeps("name") && obj["user_name"] !== undefined)) {
+                const __raw_name = obj["user_name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "user_name", message: __raw_name == null ? "OptionFields.user_name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("writeOnly")) ? "writeOnly" in obj : (__fields.keeps("writeOnly") && obj["writeOnly"] !== undefined)) {
-        const __raw_writeOnly = obj["writeOnly"] as string;
-
-        if (!(typeof __raw_writeOnly === "string")) {
-            errors.push({ field: "writeOnly", message: __raw_writeOnly == null ? "OptionFields.writeOnly is required" : "expected string" });
-        } else {
-            instance.writeOnly = __raw_writeOnly;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readOnly"))) {
-        instance.readOnly = ("computed") satisfies string;
-    }
-    if ((__fields === undefined || __fields.keeps("count"))) {
-        if (("count" in obj && obj["count"] !== undefined)) {
-            const __raw_count = obj["count"] as number;
-
-            if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-                errors.push({ field: "count", message: "expected number" });
-            } else {
-                instance.count = __raw_count;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "user_name", message: __raw_name == null ? "OptionFields.user_name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("count")) && !("count" in obj && obj["count"] !== undefined)) {
-            instance.count = (0) satisfies number;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("status"))) {
-        if (("status" in obj && obj["status"] !== undefined)) {
-            const __raw_status = obj["status"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("writeOnly")) ? "writeOnly" in obj : (__fields.keeps("writeOnly") && obj["writeOnly"] !== undefined)) {
+                const __raw_writeOnly = obj["writeOnly"] as string;
 
-            if (!(typeof __raw_status === "string")) {
-                errors.push({ field: "status", message: "expected string" });
-            } else {
-                instance.status = __raw_status;
+                if (!(typeof __raw_writeOnly === "string")) {
+                    errors.push({ field: "writeOnly", message: __raw_writeOnly == null ? "OptionFields.writeOnly is required" : "expected string" });
+                } else {
+                    instance.writeOnly = __raw_writeOnly;
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("status")) && !("status" in obj && obj["status"] !== undefined)) {
-            instance.status = ("pending") satisfies string;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("tags"))) {
-        if (("tags" in obj && obj["tags"] !== undefined)) {
-            const __raw_tags = obj["tags"] as string[];
-            if (Array.isArray(__raw_tags)) {
-                ctx.pushScope("tags");
-                try {
-                    instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                                message: __err.message
-                            });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readOnly"))) {
+                instance.readOnly = ("computed") satisfies string;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("count"))) {
+                if (("count" in obj && obj["count"] !== undefined)) {
+                    const __raw_count = obj["count"] as number;
+
+                    if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                        errors.push({ field: "count", message: "expected number" });
+                    } else {
+                        instance.count = __raw_count;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("count")) && !("count" in obj && obj["count"] !== undefined)) {
+                    instance.count = (0) satisfies number;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("status"))) {
+                if (("status" in obj && obj["status"] !== undefined)) {
+                    const __raw_status = obj["status"] as string;
+
+                    if (!(typeof __raw_status === "string")) {
+                        errors.push({ field: "status", message: "expected string" });
+                    } else {
+                        instance.status = __raw_status;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("status")) && !("status" in obj && obj["status"] !== undefined)) {
+                    instance.status = ("pending") satisfies string;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("tags"))) {
+                if (("tags" in obj && obj["tags"] !== undefined)) {
+                    const __raw_tags = obj["tags"] as string[];
+                    if (Array.isArray(__raw_tags)) {
+                        ctx.pushScope("tags");
+                        try {
+                            instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "tags", message: "expected string[]" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "tags", message: "expected string[]" });
+                if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj && obj["tags"] !== undefined)) {
+                    instance.tags = ([]) satisfies string[];
+                }
             }
-        }
-        if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj && obj["tags"] !== undefined)) {
-            instance.tags = ([]) satisfies string[];
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("item"))) {
-        if (("item" in obj && obj["item"] !== undefined)) {
-            const __raw_item = obj["item"] as EdgeItem;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("item"))) {
+                if (("item" in obj && obj["item"] !== undefined)) {
+                    const __raw_item = obj["item"] as EdgeItem;
 
-            ctx.pushScope("item");
-            try {
-                const __result = edgeItemDecodeWithContext(__raw_item, ctx);
-                ctx.assignOrDefer(instance, "item", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "item" : "item." + __err.field,
-                            message: __err.message
-                        });
+                    ctx.pushScope("item");
+                    try {
+                        const __result = edgeItemDecodeWithContext(__raw_item, ctx);
+                        ctx.assignOrDefer(instance, "item", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
-            }
-        }
-        if ((__fields === undefined || __fields.requires("item")) && !("item" in obj && obj["item"] !== undefined)) {
-            instance.item = (edgeItemDefaultValue()) satisfies EdgeItem;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
-        const __raw_balance = obj["balance"] as number;
-
-        {
-
-            const __rawNum: unknown = __raw_balance;
-            const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
-            if (!globalThis.Number.isFinite(__numVal)) {
-                errors.push({ field: "balance", message: "expected a numeric string, got " + JSON.stringify(__raw_balance) });
-            } else {
-                instance.balance = __numVal;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optionalBalance"))) {
-        if (("optionalBalance" in obj && obj["optionalBalance"] !== undefined)) {
-            const __raw_optionalBalance = obj["optionalBalance"] as number;
-
-            {
-
-                const __rawNum: unknown = __raw_optionalBalance;
-                const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
-                if (!globalThis.Number.isFinite(__numVal)) {
-                    errors.push({ field: "optionalBalance", message: "expected a numeric string, got " + JSON.stringify(__raw_optionalBalance) });
-                } else {
-                    instance.optionalBalance = __numVal;
+                if ((__fields === undefined || __fields.requires("item")) && !("item" in obj && obj["item"] !== undefined)) {
+                    instance.item = (edgeItemDefaultValue()) satisfies EdgeItem;
                 }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shout")) ? "shout" in obj : (__fields.keeps("shout") && obj["shout"] !== undefined)) {
-        try {
-            instance.shout = lowerCase(obj["shout"]);
-        } catch (__error) {
-            errors.push({ field: "shout", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optionalShout"))) {
-        if (("optionalShout" in obj && obj["optionalShout"] !== undefined)) {
-            try {
-                instance.optionalShout = lowerCase(obj["optionalShout"]);
-            } catch (__error) {
-                errors.push({ field: "optionalShout", message: __error instanceof Error ? __error.message : String(__error) });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+                const __raw_balance = obj["balance"] as number;
+
+                {
+
+                    const __rawNum: unknown = __raw_balance;
+                    const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
+                    if (!globalThis.Number.isFinite(__numVal)) {
+                        errors.push({ field: "balance", message: "expected a numeric string, got " + JSON.stringify(__raw_balance) });
+                    } else {
+                        instance.balance = __numVal;
+                    }
+                }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optionalBalance"))) {
+                if (("optionalBalance" in obj && obj["optionalBalance"] !== undefined)) {
+                    const __raw_optionalBalance = obj["optionalBalance"] as number;
+
+                    {
+
+                        const __rawNum: unknown = __raw_optionalBalance;
+                        const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
+                        if (!globalThis.Number.isFinite(__numVal)) {
+                            errors.push({ field: "optionalBalance", message: "expected a numeric string, got " + JSON.stringify(__raw_optionalBalance) });
+                        } else {
+                            instance.optionalBalance = __numVal;
+                        }
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("shout")) ? "shout" in obj : (__fields.keeps("shout") && obj["shout"] !== undefined)) {
+                try {
+                    instance.shout = lowerCase(obj["shout"]);
+                } catch (__error) {
+                    errors.push({ field: "shout", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optionalShout"))) {
+                if (("optionalShout" in obj && obj["optionalShout"] !== undefined)) {
+                    try {
+                        instance.optionalShout = lowerCase(obj["optionalShout"]);
+                    } catch (__error) {
+                        errors.push({ field: "optionalShout", message: __error instanceof Error ? __error.message : String(__error) });
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -573,7 +626,7 @@ export function optionFieldsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "user_name") && __mf_holds(obj, "writeOnly") && __mf_holds(obj, "balance") && __mf_holds(obj, "shout");
+    return __mf_holdsAll(obj, ["user_name", "writeOnly", "balance", "shout"]);
 }
 
 export function optionFieldsIs(obj: unknown): obj is OptionFields {
@@ -641,20 +694,30 @@ export function optionScreamingEncodePartialWithContext(value: Partial<OptionScr
 }
 
 function optionScreamingEncodeFields(value: OptionScreaming, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["FIRST_NAME"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastName")) {
-        if (value.lastName !== undefined) {
-            result["kept"] = value.lastName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("homeAddress2")) {
-        if (value.homeAddress2 !== undefined) {
-            result["HOME_ADDRESS_2"] = value.homeAddress2;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["FIRST_NAME"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastName")) {
+                if (value.lastName !== undefined) {
+                    result["kept"] = value.lastName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("homeAddress2")) {
+                if (value.homeAddress2 !== undefined) {
+                    result["HOME_ADDRESS_2"] = value.homeAddress2;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -732,14 +795,12 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("firstName")) && !("FIRST_NAME" in obj)) {
-        errors.push({ field: "FIRST_NAME", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) && !("kept" in obj)) {
-        errors.push({ field: "kept", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("homeAddress2")) && !("HOME_ADDRESS_2" in obj)) {
-        errors.push({ field: "HOME_ADDRESS_2", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "FIRST_NAME"], ["lastName", "kept"], ["homeAddress2", "HOME_ADDRESS_2"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -750,32 +811,42 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) ? "FIRST_NAME" in obj : (__fields.keeps("firstName") && obj["FIRST_NAME"] !== undefined)) {
-        const __raw_firstName = obj["FIRST_NAME"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "FIRST_NAME" in obj : (__fields.keeps("firstName") && obj["FIRST_NAME"] !== undefined)) {
+                const __raw_firstName = obj["FIRST_NAME"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "FIRST_NAME", message: __raw_firstName == null ? "OptionScreaming.FIRST_NAME is required" : "expected string" });
-        } else {
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) ? "kept" in obj : (__fields.keeps("lastName") && obj["kept"] !== undefined)) {
-        const __raw_lastName = obj["kept"] as string;
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "FIRST_NAME", message: __raw_firstName == null ? "OptionScreaming.FIRST_NAME is required" : "expected string" });
+                } else {
+                    instance.firstName = __raw_firstName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastName")) ? "kept" in obj : (__fields.keeps("lastName") && obj["kept"] !== undefined)) {
+                const __raw_lastName = obj["kept"] as string;
 
-        if (!(typeof __raw_lastName === "string")) {
-            errors.push({ field: "kept", message: __raw_lastName == null ? "OptionScreaming.kept is required" : "expected string" });
-        } else {
-            instance.lastName = __raw_lastName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("homeAddress2")) ? "HOME_ADDRESS_2" in obj : (__fields.keeps("homeAddress2") && obj["HOME_ADDRESS_2"] !== undefined)) {
-        const __raw_homeAddress2 = obj["HOME_ADDRESS_2"] as string;
+                if (!(typeof __raw_lastName === "string")) {
+                    errors.push({ field: "kept", message: __raw_lastName == null ? "OptionScreaming.kept is required" : "expected string" });
+                } else {
+                    instance.lastName = __raw_lastName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("homeAddress2")) ? "HOME_ADDRESS_2" in obj : (__fields.keeps("homeAddress2") && obj["HOME_ADDRESS_2"] !== undefined)) {
+                const __raw_homeAddress2 = obj["HOME_ADDRESS_2"] as string;
 
-        if (!(typeof __raw_homeAddress2 === "string")) {
-            errors.push({ field: "HOME_ADDRESS_2", message: __raw_homeAddress2 == null ? "OptionScreaming.HOME_ADDRESS_2 is required" : "expected string" });
-        } else {
-            instance.homeAddress2 = __raw_homeAddress2;
-        }
+                if (!(typeof __raw_homeAddress2 === "string")) {
+                    errors.push({ field: "HOME_ADDRESS_2", message: __raw_homeAddress2 == null ? "OptionScreaming.HOME_ADDRESS_2 is required" : "expected string" });
+                } else {
+                    instance.homeAddress2 = __raw_homeAddress2;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -800,7 +871,7 @@ export function optionScreamingHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "FIRST_NAME") && __mf_holds(obj, "kept") && __mf_holds(obj, "HOME_ADDRESS_2");
+    return __mf_holdsAll(obj, ["FIRST_NAME", "kept", "HOME_ADDRESS_2"]);
 }
 
 export function optionScreamingIs(obj: unknown): obj is OptionScreaming {
@@ -867,20 +938,30 @@ export function optionKebabEncodePartialWithContext(value: Partial<OptionKebab>,
 }
 
 function optionKebabEncodeFields(value: OptionKebab, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["first-name"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isActive")) {
-        if (value.isActive !== undefined) {
-            result["is-active"] = value.isActive;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("items")) {
-        if (value.items !== undefined) {
-            result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["first-name"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isActive")) {
+                if (value.isActive !== undefined) {
+                    result["is-active"] = value.isActive;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("items")) {
+                if (value.items !== undefined) {
+                    result["items"] = value.items.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -958,14 +1039,12 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("firstName")) && !("first-name" in obj)) {
-        errors.push({ field: "first-name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) && !("is-active" in obj)) {
-        errors.push({ field: "is-active", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "first-name"], ["isActive", "is-active"], ["items", "items"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -976,47 +1055,57 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
-        const __raw_firstName = obj["first-name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
+                const __raw_firstName = obj["first-name"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "first-name", message: __raw_firstName == null ? "OptionKebab.first-name is required" : "expected string" });
-        } else {
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
-        const __raw_isActive = obj["is-active"] as boolean;
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "first-name", message: __raw_firstName == null ? "OptionKebab.first-name is required" : "expected string" });
+                } else {
+                    instance.firstName = __raw_firstName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
+                const __raw_isActive = obj["is-active"] as boolean;
 
-        if (!(typeof __raw_isActive === "boolean")) {
-            errors.push({ field: "is-active", message: __raw_isActive == null ? "OptionKebab.is-active is required" : "expected boolean" });
-        } else {
-            instance.isActive = __raw_isActive;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
-        const __raw_items = obj["items"] as EdgeItem[];
-        if (Array.isArray(__raw_items)) {
-            ctx.pushScope("items");
-            try {
-                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "items" : "items." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_isActive === "boolean")) {
+                    errors.push({ field: "is-active", message: __raw_isActive == null ? "OptionKebab.is-active is required" : "expected boolean" });
+                } else {
+                    instance.isActive = __raw_isActive;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+                const __raw_items = obj["items"] as EdgeItem[];
+                if (Array.isArray(__raw_items)) {
+                    ctx.pushScope("items");
+                    try {
+                        instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "items" : "items." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "items", message: __raw_items == null ? "OptionKebab.items is required" : "expected EdgeItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "items", message: __raw_items == null ? "OptionKebab.items is required" : "expected EdgeItem[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1041,7 +1130,7 @@ export function optionKebabHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "first-name") && __mf_holds(obj, "is-active") && __mf_holds(obj, "items");
+    return __mf_holdsAll(obj, ["first-name", "is-active", "items"]);
 }
 
 export function optionKebabIs(obj: unknown): obj is OptionKebab {
@@ -1099,15 +1188,23 @@ static encodePartialWithContext(value: Partial<OptionPascal>, ctx: __mf_EncodeCo
 }
 
 static #encodeFields(value: OptionPascal, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["FirstName"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("homeTown")) {
-        if (value.homeTown !== undefined) {
-            result["HomeTown"] = value.homeTown;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["FirstName"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("homeTown")) {
+                if (value.homeTown !== undefined) {
+                    result["HomeTown"] = value.homeTown;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1197,11 +1294,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("firstName")) && !("FirstName" in obj)) {
-        errors.push({ field: "FirstName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("homeTown")) && !("HomeTown" in obj)) {
-        errors.push({ field: "HomeTown", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "FirstName"], ["homeTown", "HomeTown"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(OptionPascal.prototype);
@@ -1212,23 +1310,31 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) ? "FirstName" in obj : (__fields.keeps("firstName") && obj["FirstName"] !== undefined)) {
-        const __raw_firstName = obj["FirstName"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "FirstName" in obj : (__fields.keeps("firstName") && obj["FirstName"] !== undefined)) {
+                const __raw_firstName = obj["FirstName"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "FirstName", message: __raw_firstName == null ? "OptionPascal.FirstName is required" : "expected string" });
-        } else {
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("homeTown")) ? "HomeTown" in obj : (__fields.keeps("homeTown") && obj["HomeTown"] !== undefined)) {
-        const __raw_homeTown = obj["HomeTown"] as string | null;
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "FirstName", message: __raw_firstName == null ? "OptionPascal.FirstName is required" : "expected string" });
+                } else {
+                    instance.firstName = __raw_firstName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("homeTown")) ? "HomeTown" in obj : (__fields.keeps("homeTown") && obj["HomeTown"] !== undefined)) {
+                const __raw_homeTown = obj["HomeTown"] as string | null;
 
-        if (!(typeof __raw_homeTown === "string" || __raw_homeTown === null)) {
-            errors.push({ field: "HomeTown", message: "expected string | null" });
-        } else {
-            instance.homeTown = __raw_homeTown;
-        }
+                if (!(typeof __raw_homeTown === "string" || __raw_homeTown === null)) {
+                    errors.push({ field: "HomeTown", message: "expected string | null" });
+                } else {
+                    instance.homeTown = __raw_homeTown;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1249,7 +1355,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "FirstName") && __mf_holds(obj, "HomeTown");
+    return __mf_holdsAll(obj, ["FirstName", "HomeTown"]);
 }
 
 static is(obj: unknown): obj is OptionPascal {
@@ -1340,15 +1446,23 @@ export function optionCamelEncodePartialWithContext(value: Partial<OptionCamel>,
 }
 
 function optionCamelEncodeFields(value: OptionCamel, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("first_name")) {
-        if (value.first_name !== undefined) {
-            result["firstName"] = value.first_name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("home_town")) {
-        if (value.home_town !== undefined) {
-            result["homeTown"] = value.home_town;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("first_name")) {
+                if (value.first_name !== undefined) {
+                    result["firstName"] = value.first_name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("home_town")) {
+                if (value.home_town !== undefined) {
+                    result["homeTown"] = value.home_town;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1426,11 +1540,12 @@ export function optionCamelDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("first_name")) && !("firstName" in obj)) {
-        errors.push({ field: "firstName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("home_town")) && !("homeTown" in obj)) {
-        errors.push({ field: "homeTown", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["first_name", "firstName"], ["home_town", "homeTown"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1441,23 +1556,31 @@ export function optionCamelDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("first_name")) ? "firstName" in obj : (__fields.keeps("first_name") && obj["firstName"] !== undefined)) {
-        const __raw_first_name = obj["firstName"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("first_name")) ? "firstName" in obj : (__fields.keeps("first_name") && obj["firstName"] !== undefined)) {
+                const __raw_first_name = obj["firstName"] as string;
 
-        if (!(typeof __raw_first_name === "string")) {
-            errors.push({ field: "firstName", message: __raw_first_name == null ? "OptionCamel.firstName is required" : "expected string" });
-        } else {
-            instance.first_name = __raw_first_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("home_town")) ? "homeTown" in obj : (__fields.keeps("home_town") && obj["homeTown"] !== undefined)) {
-        const __raw_home_town = obj["homeTown"] as string;
+                if (!(typeof __raw_first_name === "string")) {
+                    errors.push({ field: "firstName", message: __raw_first_name == null ? "OptionCamel.firstName is required" : "expected string" });
+                } else {
+                    instance.first_name = __raw_first_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("home_town")) ? "homeTown" in obj : (__fields.keeps("home_town") && obj["homeTown"] !== undefined)) {
+                const __raw_home_town = obj["homeTown"] as string;
 
-        if (!(typeof __raw_home_town === "string")) {
-            errors.push({ field: "homeTown", message: __raw_home_town == null ? "OptionCamel.homeTown is required" : "expected string" });
-        } else {
-            instance.home_town = __raw_home_town;
-        }
+                if (!(typeof __raw_home_town === "string")) {
+                    errors.push({ field: "homeTown", message: __raw_home_town == null ? "OptionCamel.homeTown is required" : "expected string" });
+                } else {
+                    instance.home_town = __raw_home_town;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1482,7 +1605,7 @@ export function optionCamelHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "firstName") && __mf_holds(obj, "homeTown");
+    return __mf_holdsAll(obj, ["firstName", "homeTown"]);
 }
 
 export function optionCamelIs(obj: unknown): obj is OptionCamel {
@@ -1550,24 +1673,34 @@ export function optionFlattenedEncodePartialWithContext(value: Partial<OptionFla
 }
 
 function optionFlattenedEncodeFields(value: OptionFlattened, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("title")) {
-        if (value.title !== undefined) {
-            result["title"] = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            const __flattened = edgeItemEncodePartialWithContext(value.item, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("profile")) {
-        if (value.profile !== undefined) {
-            const __flattened = edgeProfileEncodePartialWithContext(value.profile, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    const __flattened = edgeItemEncodePartialWithContext(value.item, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("profile")) {
+                if (value.profile !== undefined) {
+                    const __flattened = edgeProfileEncodePartialWithContext(value.profile, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1645,8 +1778,12 @@ export function optionFlattenedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1657,46 +1794,56 @@ export function optionFlattenedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "OptionFlattened.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("item"))) {
-        if ((__fields === undefined || __fields.requires("item")) || edgeItemHasShape(obj)) {
-            try {
-                const __result = edgeItemDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "item", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
-                    }
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "OptionFlattened.title is required" : "expected string" });
                 } else {
-                    throw __e;
+                    instance.title = __raw_title;
                 }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("profile"))) {
-        if ((__fields === undefined || __fields.requires("profile")) || edgeProfileHasShape(obj)) {
-            try {
-                const __result = edgeProfileDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "profile", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("item"))) {
+                if ((__fields === undefined || __fields.requires("item")) || edgeItemHasShape(obj)) {
+                    try {
+                        const __result = edgeItemDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "item", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
                     }
-                } else {
-                    throw __e;
                 }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("profile"))) {
+                if ((__fields === undefined || __fields.requires("profile")) || edgeProfileHasShape(obj)) {
+                    try {
+                        const __result = edgeProfileDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "profile", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1721,7 +1868,7 @@ export function optionFlattenedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "title");
+    return __mf_holdsAll(obj, ["title"]);
 }
 
 export function optionFlattenedIs(obj: unknown): obj is OptionFlattened {
@@ -1789,22 +1936,32 @@ export function optionFlattenedOptionalEncodePartialWithContext(value: Partial<O
 }
 
 function optionFlattenedOptionalEncodeFields(value: OptionFlattenedOptional, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("title")) {
-        if (value.title !== undefined) {
-            result["title"] = value.title;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            const __flattened = edgeItemEncodePartialWithContext(value.item, ctx);
-            const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
-            Object.assign(result, rest);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("extra")) {
-        if (value.extra !== undefined) {
-            Object.assign(result, value.extra);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("title")) {
+                if (value.title !== undefined) {
+                    result["title"] = value.title;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    const __flattened = edgeItemEncodePartialWithContext(value.item, ctx);
+                    const { ["__type"]: _, __id: __, ...rest } = __flattened as Record<string, unknown>;
+                    Object.assign(result, rest);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("extra")) {
+                if (value.extra !== undefined) {
+                    Object.assign(result, value.extra);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1882,8 +2039,12 @@ export function optionFlattenedOptionalDecodeWithContext(value: unknown, ctx: __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
-        errors.push({ field: "title", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["title", "title"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1894,59 +2055,69 @@ export function optionFlattenedOptionalDecodeWithContext(value: unknown, ctx: __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
-        const __raw_title = obj["title"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
+                const __raw_title = obj["title"] as string;
 
-        if (!(typeof __raw_title === "string")) {
-            errors.push({ field: "title", message: __raw_title == null ? "OptionFlattenedOptional.title is required" : "expected string" });
-        } else {
-            instance.title = __raw_title;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("item"))) {
-        if (edgeItemHasShape(obj)) {
-            try {
-                const __result = edgeItemDecodePartialWithContext(obj, ctx, { except: [] });
-                ctx.assignOrDefer(instance, "item", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push(__err);
-                    }
+                if (!(typeof __raw_title === "string")) {
+                    errors.push({ field: "title", message: __raw_title == null ? "OptionFlattenedOptional.title is required" : "expected string" });
                 } else {
-                    throw __e;
+                    instance.title = __raw_title;
                 }
             }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("extra"))) {
-        {
-            const __siblingKeys = new Set<string>(["__type", "__id", "__ref", "title", "id", "score"]);
-            const __raw_extra = Object.fromEntries(
-                Object.entries(obj).filter(([__key]) => !__siblingKeys.has(__key))
-            ) as Record<string, number>;
-            if (typeof __raw_extra === "object" && __raw_extra !== null) {
-                ctx.pushScope("extra");
-                try {
-                    instance.extra = (__mf_decodeRecord(__raw_extra, ctx, __mf_decodeNumber) as Record<string, number>);
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "extra" : "extra." + __err.field,
-                                message: __err.message
-                            });
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("item"))) {
+                if (edgeItemHasShape(obj)) {
+                    try {
+                        const __result = edgeItemDecodePartialWithContext(obj, ctx, { except: [] });
+                        ctx.assignOrDefer(instance, "item", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push(__err);
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("extra"))) {
+                {
+                    const __siblingKeys = new Set<string>(["__type", "__id", "__ref", "title", "id", "score"]);
+                    const __raw_extra = Object.fromEntries(
+                        Object.entries(obj).filter(([__key]) => !__siblingKeys.has(__key))
+                    ) as Record<string, number>;
+                    if (typeof __raw_extra === "object" && __raw_extra !== null) {
+                        ctx.pushScope("extra");
+                        try {
+                            instance.extra = (__mf_decodeRecord(__raw_extra, ctx, __mf_decodeNumber) as Record<string, number>);
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "extra" : "extra." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "extra", message: __raw_extra == null ? "OptionFlattenedOptional.extra is required" : "expected Record<string, number>" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "extra", message: __raw_extra == null ? "OptionFlattenedOptional.extra is required" : "expected Record<string, number>" });
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1971,7 +2142,7 @@ export function optionFlattenedOptionalHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "title");
+    return __mf_holdsAll(obj, ["title"]);
 }
 
 export function optionFlattenedOptionalIs(obj: unknown): obj is OptionFlattenedOptional {
@@ -2038,20 +2209,30 @@ export function optionStrictEncodePartialWithContext(value: Partial<OptionStrict
 }
 
 function optionStrictEncodeFields(value: OptionStrict, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["first_name"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = edgeItemEncodeWithContext(value.nested, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["first_name"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = edgeItemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = edgeItemEncodeWithContext(value.nested, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2135,11 +2316,12 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: key, message: "unknown field" });
         }
     }
-    if ((__fields === undefined || __fields.requires("firstName")) && !("first_name" in obj)) {
-        errors.push({ field: "first_name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["firstName", "first_name"], ["item", "item"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2150,62 +2332,72 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) ? "first_name" in obj : (__fields.keeps("firstName") && obj["first_name"] !== undefined)) {
-        const __raw_firstName = obj["first_name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "first_name" in obj : (__fields.keeps("firstName") && obj["first_name"] !== undefined)) {
+                const __raw_firstName = obj["first_name"] as string;
 
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "first_name", message: __raw_firstName == null ? "OptionStrict.first_name is required" : "expected string" });
-        } else {
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as EdgeItem;
-
-        ctx.pushScope("item");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("nested"))) {
-        if (("nested" in obj && obj["nested"] !== undefined)) {
-            const __raw_nested = obj["nested"] as EdgeItem;
-
-            ctx.pushScope("nested");
-            try {
-                const __result = edgeItemDecodeWithContext(__raw_nested, ctx);
-                ctx.assignOrDefer(instance, "nested", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "first_name", message: __raw_firstName == null ? "OptionStrict.first_name is required" : "expected string" });
                 } else {
-
-                    errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
+                    instance.firstName = __raw_firstName;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as EdgeItem;
+
+                ctx.pushScope("item");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("nested"))) {
+                if (("nested" in obj && obj["nested"] !== undefined)) {
+                    const __raw_nested = obj["nested"] as EdgeItem;
+
+                    ctx.pushScope("nested");
+                    try {
+                        const __result = edgeItemDecodeWithContext(__raw_nested, ctx);
+                        ctx.assignOrDefer(instance, "nested", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2230,7 +2422,7 @@ export function optionStrictHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "first_name") && __mf_holds(obj, "item");
+    return __mf_holdsAll(obj, ["first_name", "item"]);
 }
 
 export function optionStrictIs(obj: unknown): obj is OptionStrict {
@@ -2296,15 +2488,23 @@ export function optionTaggedEncodePartialWithContext(value: Partial<OptionTagged
 }
 
 function optionTaggedEncodeFields(value: OptionTagged, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("child")) {
-        if (value.child !== undefined) {
-            result["child"] = value.child === null ? null : optionTaggedEncodeWithContext(value.child, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("child")) {
+                if (value.child !== undefined) {
+                    result["child"] = value.child === null ? null : optionTaggedEncodeWithContext(value.child, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2382,11 +2582,12 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("child")) && !("child" in obj)) {
-        errors.push({ field: "child", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["child", "child"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2397,41 +2598,49 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "OptionTagged.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("child")) ? "child" in obj : (__fields.keeps("child") && obj["child"] !== undefined)) {
-        const __raw_child = obj["child"] as OptionTagged | null;
-
-        if (__raw_child === null) {
-            instance.child = null;
-        } else {
-            ctx.pushScope("child");
-            try {
-                const __result = optionTaggedDecodeWithContext(__raw_child, ctx);
-                ctx.assignOrDefer(instance, "child", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "child" : "child." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "OptionTagged.name is required" : "expected string" });
                 } else {
-
-                    errors.push({ field: "child", message: __e instanceof Error ? __e.message : String(__e) });
+                    instance.name = __raw_name;
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("child")) ? "child" in obj : (__fields.keeps("child") && obj["child"] !== undefined)) {
+                const __raw_child = obj["child"] as OptionTagged | null;
+
+                if (__raw_child === null) {
+                    instance.child = null;
+                } else {
+                    ctx.pushScope("child");
+                    try {
+                        const __result = optionTaggedDecodeWithContext(__raw_child, ctx);
+                        ctx.assignOrDefer(instance, "child", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "child" : "child." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "child", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2456,7 +2665,7 @@ export function optionTaggedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "child");
+    return __mf_holdsAll(obj, ["name", "child"]);
 }
 
 export function optionTaggedIs(obj: unknown): obj is OptionTagged {
@@ -2535,45 +2744,65 @@ export function optionValidatedEncodePartialWithContext(value: Partial<OptionVal
 }
 
 function optionValidatedEncodeFields(value: OptionValidated, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("email")) {
-        if (value.email !== undefined) {
-            result["email"] = value.email;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optionalName")) {
-        if (value.optionalName !== undefined) {
-            result["optionalName"] = value.optionalName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nullableCount")) {
-        if (value.nullableCount !== undefined) {
-            result["nullableCount"] = value.nullableCount;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("laterCount")) {
-        if (value.laterCount !== undefined) {
-            result["laterCount"] = value.laterCount;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybeAt")) {
-        if (value.maybeAt !== undefined) {
-            result["maybeAt"] = value.maybeAt === null ? null : value.maybeAt.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("retries")) {
-        if (value.retries !== undefined) {
-            result["retries"] = value.retries;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["email"] = value.email;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optionalName")) {
+                if (value.optionalName !== undefined) {
+                    result["optionalName"] = value.optionalName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nullableCount")) {
+                if (value.nullableCount !== undefined) {
+                    result["nullableCount"] = value.nullableCount;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("laterCount")) {
+                if (value.laterCount !== undefined) {
+                    result["laterCount"] = value.laterCount;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = value.tags;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybeAt")) {
+                if (value.maybeAt !== undefined) {
+                    result["maybeAt"] = value.maybeAt === null ? null : value.maybeAt.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("retries")) {
+                if (value.retries !== undefined) {
+                    result["retries"] = value.retries;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2651,20 +2880,12 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nullableCount")) && !("nullableCount" in obj)) {
-        errors.push({ field: "nullableCount", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybeAt")) && !("maybeAt" in obj)) {
-        errors.push({ field: "maybeAt", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["email", "email"], ["nullableCount", "nullableCount"], ["tags", "tags"], ["at", "at"], ["maybeAt", "maybeAt"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2675,128 +2896,148 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as string;
 
-        if (!(typeof __raw_email === "string")) {
-            errors.push({ field: "email", message: __raw_email == null ? "OptionValidated.email is required" : "expected string" });
-        } else {
-            if (__raw_email == null) { errors.push({ field: "email", message: "OptionValidated.email is required" }); } else {
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "OptionValidated.email must be a valid email" }); }
-            }
-            instance.email = __raw_email;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optionalName"))) {
-        if (("optionalName" in obj && obj["optionalName"] !== undefined)) {
-            const __raw_optionalName = obj["optionalName"] as string;
-
-            if (!(typeof __raw_optionalName === "string")) {
-                errors.push({ field: "optionalName", message: "expected string" });
-            } else {
-                if (__raw_optionalName != null) {
-                    if (__raw_optionalName.length === 0) { errors.push({ field: "optionalName", message: "OptionValidated.optionalName must not be empty" }); }
+                if (!(typeof __raw_email === "string")) {
+                    errors.push({ field: "email", message: __raw_email == null ? "OptionValidated.email is required" : "expected string" });
+                } else {
+                    if (__raw_email == null) { errors.push({ field: "email", message: "OptionValidated.email is required" }); } else {
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "OptionValidated.email must be a valid email" }); }
+                    }
+                    instance.email = __raw_email;
                 }
-                instance.optionalName = __raw_optionalName;
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nullableCount")) ? "nullableCount" in obj : (__fields.keeps("nullableCount") && obj["nullableCount"] !== undefined)) {
-        const __raw_nullableCount = obj["nullableCount"] as number | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optionalName"))) {
+                if (("optionalName" in obj && obj["optionalName"] !== undefined)) {
+                    const __raw_optionalName = obj["optionalName"] as string;
 
-        if (!(typeof __raw_nullableCount === "number" && globalThis.Number.isFinite(__raw_nullableCount) || __raw_nullableCount === null)) {
-            errors.push({ field: "nullableCount", message: "expected number | null" });
-        } else {if (__raw_nullableCount != null) {
-            if (__raw_nullableCount <= 0) { errors.push({ field: "nullableCount", message: "OptionValidated.nullableCount must be positive" }); }
-        }
-            instance.nullableCount = __raw_nullableCount;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("laterCount")) || (__fields.keeps("laterCount") && obj["laterCount"] !== undefined)) {
-        const __raw_laterCount = obj["laterCount"] as number | undefined;
+                    if (!(typeof __raw_optionalName === "string")) {
+                        errors.push({ field: "optionalName", message: "expected string" });
+                    } else {
+                        if (__raw_optionalName != null) {
+                            if (__raw_optionalName.length === 0) { errors.push({ field: "optionalName", message: "OptionValidated.optionalName must not be empty" }); }
+                        }
+                        instance.optionalName = __raw_optionalName;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nullableCount")) ? "nullableCount" in obj : (__fields.keeps("nullableCount") && obj["nullableCount"] !== undefined)) {
+                const __raw_nullableCount = obj["nullableCount"] as number | null;
 
-        if (!(typeof __raw_laterCount === "number" && globalThis.Number.isFinite(__raw_laterCount) || __raw_laterCount === undefined)) {
-            errors.push({ field: "laterCount", message: "expected number | undefined" });
-        } else {
-            if (__raw_laterCount != null) {
-                if (!Number.isInteger(__raw_laterCount)) { errors.push({ field: "laterCount", message: "OptionValidated.laterCount must be an integer" }); }
+                if (!(typeof __raw_nullableCount === "number" && globalThis.Number.isFinite(__raw_nullableCount) || __raw_nullableCount === null)) {
+                    errors.push({ field: "nullableCount", message: "expected number | null" });
+                } else {if (__raw_nullableCount != null) {
+                    if (__raw_nullableCount <= 0) { errors.push({ field: "nullableCount", message: "OptionValidated.nullableCount must be positive" }); }
+                }
+                    instance.nullableCount = __raw_nullableCount;
+                }
             }
-            instance.laterCount = __raw_laterCount;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string[];
-        if (Array.isArray(__raw_tags)) {
-            if (__raw_tags == null) { errors.push({ field: "tags", message: "OptionValidated.tags is required" }); } else {
-                if (__raw_tags.length < 1) { errors.push({ field: "tags", message: "OptionValidated.tags must have at least 1 items" }); }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("laterCount")) || (__fields.keeps("laterCount") && obj["laterCount"] !== undefined)) {
+                const __raw_laterCount = obj["laterCount"] as number | undefined;
+
+                if (!(typeof __raw_laterCount === "number" && globalThis.Number.isFinite(__raw_laterCount) || __raw_laterCount === undefined)) {
+                    errors.push({ field: "laterCount", message: "expected number | undefined" });
+                } else {
+                    if (__raw_laterCount != null) {
+                        if (!Number.isInteger(__raw_laterCount)) { errors.push({ field: "laterCount", message: "OptionValidated.laterCount must be an integer" }); }
+                    }
+                    instance.laterCount = __raw_laterCount;
+                }
             }
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as string[];
+                if (Array.isArray(__raw_tags)) {
+                    if (__raw_tags == null) { errors.push({ field: "tags", message: "OptionValidated.tags is required" }); } else {
+                        if (__raw_tags.length < 1) { errors.push({ field: "tags", message: "OptionValidated.tags must have at least 1 items" }); }
+                    }
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "OptionValidated.tags is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "OptionValidated.tags is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
 
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined) {
-                errors.push({ field: "at", message: __raw_at == null ? "OptionValidated.at is required" : "expected Date" });
-            } else {if (__dateVal == null) { errors.push({ field: "at", message: "OptionValidated.at is required" }); } else {
-                if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "at", message: "OptionValidated.at must be a valid date" }); }
-            }
-                instance.at = __dateVal;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybeAt")) ? "maybeAt" in obj : (__fields.keeps("maybeAt") && obj["maybeAt"] !== undefined)) {
-        const __raw_maybeAt = obj["maybeAt"] as string | Date | null;
-
-        if (__raw_maybeAt === null) {
-            instance.maybeAt = null;
-        } else {
-            const __dateVal = (__raw_maybeAt instanceof Date ? __raw_maybeAt : typeof __raw_maybeAt === "string" ? new Date(__raw_maybeAt) : undefined);
-            if (__dateVal === undefined) {
-                errors.push({ field: "maybeAt", message: "expected Date | null" });
-            } else {if (__dateVal != null) {
-                if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "maybeAt", message: "OptionValidated.maybeAt must be a valid date" }); }
-            }
-                instance.maybeAt = __dateVal;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("retries"))) {
-        if (("retries" in obj && obj["retries"] !== undefined)) {
-            const __raw_retries = obj["retries"] as number;
-
-            if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
-                errors.push({ field: "retries", message: "expected number" });
-            } else {
-                if (__raw_retries != null) {
-                    if (__raw_retries <= 0) { errors.push({ field: "retries", message: "OptionValidated.retries must be positive" }); }
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined) {
+                        errors.push({ field: "at", message: __raw_at == null ? "OptionValidated.at is required" : "expected Date" });
+                    } else {if (__dateVal == null) { errors.push({ field: "at", message: "OptionValidated.at is required" }); } else {
+                        if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "at", message: "OptionValidated.at must be a valid date" }); }
+                    }
+                        instance.at = __dateVal;
+                    }
                 }
-                instance.retries = __raw_retries;
             }
-        }
-        if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj && obj["retries"] !== undefined)) {
-            instance.retries = (3) satisfies number;
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybeAt")) ? "maybeAt" in obj : (__fields.keeps("maybeAt") && obj["maybeAt"] !== undefined)) {
+                const __raw_maybeAt = obj["maybeAt"] as string | Date | null;
+
+                if (__raw_maybeAt === null) {
+                    instance.maybeAt = null;
+                } else {
+                    const __dateVal = (__raw_maybeAt instanceof Date ? __raw_maybeAt : typeof __raw_maybeAt === "string" ? new Date(__raw_maybeAt) : undefined);
+                    if (__dateVal === undefined) {
+                        errors.push({ field: "maybeAt", message: "expected Date | null" });
+                    } else {if (__dateVal != null) {
+                        if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "maybeAt", message: "OptionValidated.maybeAt must be a valid date" }); }
+                    }
+                        instance.maybeAt = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("retries"))) {
+                if (("retries" in obj && obj["retries"] !== undefined)) {
+                    const __raw_retries = obj["retries"] as number;
+
+                    if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
+                        errors.push({ field: "retries", message: "expected number" });
+                    } else {
+                        if (__raw_retries != null) {
+                            if (__raw_retries <= 0) { errors.push({ field: "retries", message: "OptionValidated.retries must be positive" }); }
+                        }
+                        instance.retries = __raw_retries;
+                    }
+                }
+                if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj && obj["retries"] !== undefined)) {
+                    instance.retries = (3) satisfies number;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2917,7 +3158,7 @@ export function optionValidatedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "email") && __mf_holds(obj, "nullableCount") && __mf_holds(obj, "tags") && __mf_holds(obj, "at") && __mf_holds(obj, "maybeAt");
+    return __mf_holdsAll(obj, ["email", "nullableCount", "tags", "at", "maybeAt"]);
 }
 
 export function optionValidatedIs(obj: unknown): obj is OptionValidated {
@@ -3003,120 +3244,170 @@ export function optionKindsEncodePartialWithContext(value: Partial<OptionKinds>,
 }
 
 function optionKindsEncodeFields(value: OptionKinds, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("text")) {
-        if (value.text !== undefined) {
-            result["text"] = value.text;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("flag")) {
-        if (value.flag !== undefined) {
-            result["flag"] = value.flag;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("big")) {
-        if (value.big !== undefined) {
-            result["big"] = ((v) => String(v))(value.big);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("size")) {
-        if (value.size !== undefined) {
-            result["size"] = value.size;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = value.list;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("set")) {
-        if (value.set !== undefined) {
-            result["set"] = Array.from(value.set);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("map")) {
-        if (value.map !== undefined) {
-            result["map"] = Object.fromEntries(value.map.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("record")) {
-        if (value.record !== undefined) {
-            result["record"] = value.record;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inline")) {
-        if (value.inline !== undefined) {
-            result["inline"] = value.inline;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybeText")) {
-        if (value.maybeText !== undefined) {
-            result["maybeText"] = value.maybeText;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("laterText")) {
-        if (value.laterText !== undefined) {
-            result["laterText"] = value.laterText;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("partial")) {
-        if (value.partial !== undefined) {
-            result["partial"] = edgeItemEncodePartialWithContext(value.partial, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("link")) {
-        if (value.link !== undefined) {
-            result["link"] = ((v) => v.toString())(value.link);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("query")) {
-        if (value.query !== undefined) {
-            result["query"] = ((v) => v.toString())(value.query);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pattern")) {
-        if (value.pattern !== undefined) {
-            result["pattern"] = ((v) => ({ source: v.source, flags: v.flags }))(value.pattern);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("failure")) {
-        if (value.failure !== undefined) {
-            result["failure"] = ((v) => ({ name: v.name, message: v.message, stack: v.stack }))(value.failure);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("bytes")) {
-        if (value.bytes !== undefined) {
-            result["bytes"] = ((v) => Array.from(v))(value.bytes);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("bigs")) {
-        if (value.bigs !== undefined) {
-            result["bigs"] = ((v) => Array.from(v, (n) => String(n)))(value.bigs);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("buffer")) {
-        if (value.buffer !== undefined) {
-            result["buffer"] = ((v) => Array.from(new Uint8Array(v)))(value.buffer);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("text")) {
+                if (value.text !== undefined) {
+                    result["text"] = value.text;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("flag")) {
+                if (value.flag !== undefined) {
+                    result["flag"] = value.flag;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("big")) {
+                if (value.big !== undefined) {
+                    result["big"] = ((v) => String(v))(value.big);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = edgeItemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("size")) {
+                if (value.size !== undefined) {
+                    result["size"] = value.size;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("map")) {
+                if (value.map !== undefined) {
+                    result["map"] = Object.fromEntries(value.map.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("record")) {
+                if (value.record !== undefined) {
+                    result["record"] = value.record;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inline")) {
+                if (value.inline !== undefined) {
+                    result["inline"] = value.inline;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybeText")) {
+                if (value.maybeText !== undefined) {
+                    result["maybeText"] = value.maybeText;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("laterText")) {
+                if (value.laterText !== undefined) {
+                    result["laterText"] = value.laterText;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("partial")) {
+                if (value.partial !== undefined) {
+                    result["partial"] = edgeItemEncodePartialWithContext(value.partial, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("link")) {
+                if (value.link !== undefined) {
+                    result["link"] = ((v) => v.toString())(value.link);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("query")) {
+                if (value.query !== undefined) {
+                    result["query"] = ((v) => v.toString())(value.query);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pattern")) {
+                if (value.pattern !== undefined) {
+                    result["pattern"] = ((v) => ({ source: v.source, flags: v.flags }))(value.pattern);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("failure")) {
+                if (value.failure !== undefined) {
+                    result["failure"] = ((v) => ({ name: v.name, message: v.message, stack: v.stack }))(value.failure);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("bytes")) {
+                if (value.bytes !== undefined) {
+                    result["bytes"] = ((v) => Array.from(v))(value.bytes);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("bigs")) {
+                if (value.bigs !== undefined) {
+                    result["bigs"] = ((v) => Array.from(v, (n) => String(n)))(value.bigs);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("buffer")) {
+                if (value.buffer !== undefined) {
+                    result["buffer"] = ((v) => Array.from(new Uint8Array(v)))(value.buffer);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -3194,71 +3485,12 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
-        errors.push({ field: "text", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("flag")) && !("flag" in obj)) {
-        errors.push({ field: "flag", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
-        errors.push({ field: "big", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
-        errors.push({ field: "size", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
-        errors.push({ field: "set", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("map")) && !("map" in obj)) {
-        errors.push({ field: "map", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
-        errors.push({ field: "record", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("inline")) && !("inline" in obj)) {
-        errors.push({ field: "inline", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybeText")) && !("maybeText" in obj)) {
-        errors.push({ field: "maybeText", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("partial")) && !("partial" in obj)) {
-        errors.push({ field: "partial", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("link")) && !("link" in obj)) {
-        errors.push({ field: "link", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("query")) && !("query" in obj)) {
-        errors.push({ field: "query", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pattern")) && !("pattern" in obj)) {
-        errors.push({ field: "pattern", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("failure")) && !("failure" in obj)) {
-        errors.push({ field: "failure", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("bytes")) && !("bytes" in obj)) {
-        errors.push({ field: "bytes", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("bigs")) && !("bigs" in obj)) {
-        errors.push({ field: "bigs", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("buffer")) && !("buffer" in obj)) {
-        errors.push({ field: "buffer", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["text", "text"], ["count", "count"], ["flag", "flag"], ["big", "big"], ["at", "at"], ["item", "item"], ["size", "size"], ["list", "list"], ["set", "set"], ["map", "map"], ["record", "record"], ["pair", "pair"], ["inline", "inline"], ["maybeText", "maybeText"], ["partial", "partial"], ["link", "link"], ["query", "query"], ["pattern", "pattern"], ["failure", "failure"], ["bytes", "bytes"], ["bigs", "bigs"], ["buffer", "buffer"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -3269,353 +3501,403 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
-        const __raw_text = obj["text"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+                const __raw_text = obj["text"] as string;
 
-        if (!(typeof __raw_text === "string")) {
-            errors.push({ field: "text", message: __raw_text == null ? "OptionKinds.text is required" : "expected string" });
-        } else {
-            instance.text = __raw_text;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
-
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "count", message: __raw_count == null ? "OptionKinds.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
-        const __raw_flag = obj["flag"] as boolean;
-
-        if (!(typeof __raw_flag === "boolean")) {
-            errors.push({ field: "flag", message: __raw_flag == null ? "OptionKinds.flag is required" : "expected boolean" });
-        } else {
-            instance.flag = __raw_flag;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
-        try {
-            instance.big = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(obj["big"]);
-        } catch (__error) {
-            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "OptionKinds.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as EdgeItem;
-
-        ctx.pushScope("item");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_text === "string")) {
+                    errors.push({ field: "text", message: __raw_text == null ? "OptionKinds.text is required" : "expected string" });
+                } else {
+                    instance.text = __raw_text;
                 }
-            } else {
-
-                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
-        const __raw_size = obj["size"] as 'small' | 'large';
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
 
-        if (!(__raw_size === "small" || __raw_size === "large")) {
-            errors.push({ field: "size", message: __raw_size == null ? "OptionKinds.size is required" : "expected 'small' | 'large'" });
-        } else {
-            instance.size = __raw_size;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as string[];
-        if (Array.isArray(__raw_list)) {
-            ctx.pushScope("list");
-            try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "list" : "list." + __err.field,
-                            message: __err.message
-                        });
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "OptionKinds.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+                const __raw_flag = obj["flag"] as boolean;
+
+                if (!(typeof __raw_flag === "boolean")) {
+                    errors.push({ field: "flag", message: __raw_flag == null ? "OptionKinds.flag is required" : "expected boolean" });
+                } else {
+                    instance.flag = __raw_flag;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+                try {
+                    instance.big = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(obj["big"]);
+                } catch (__error) {
+                    errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "OptionKinds.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as EdgeItem;
+
+                ctx.pushScope("item");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+                const __raw_size = obj["size"] as 'small' | 'large';
+
+                if (!(__raw_size === "small" || __raw_size === "large")) {
+                    errors.push({ field: "size", message: __raw_size == null ? "OptionKinds.size is required" : "expected 'small' | 'large'" });
+                } else {
+                    instance.size = __raw_size;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as string[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "list", message: __raw_list == null ? "OptionKinds.list is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "list", message: __raw_list == null ? "OptionKinds.list is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
-        const __raw_set = obj["set"] as Array<number>;
-        if (Array.isArray(__raw_set)) {
-            ctx.pushScope("set");
-            try {
-                instance.set = __mf_decodeSet(__raw_set, ctx, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "set" : "set." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<number>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "set", message: __raw_set == null ? "OptionKinds.set is required" : "expected Set<number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "set", message: __raw_set == null ? "OptionKinds.set is required" : "expected Set<number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
-        const __raw_map = obj["map"] as Record<string, number>;
-        if (typeof __raw_map === "object" && __raw_map !== null) {
-            ctx.pushScope("map");
-            try {
-                instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "map" : "map." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
+                const __raw_map = obj["map"] as Record<string, number>;
+                if (typeof __raw_map === "object" && __raw_map !== null) {
+                    ctx.pushScope("map");
+                    try {
+                        instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "map" : "map." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "map", message: __raw_map == null ? "OptionKinds.map is required" : "expected Map<string, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "map", message: __raw_map == null ? "OptionKinds.map is required" : "expected Map<string, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
-        const __raw_record = obj["record"] as Record<string, boolean>;
-        if (typeof __raw_record === "object" && __raw_record !== null) {
-            ctx.pushScope("record");
-            try {
-                instance.record = (__mf_decodeRecord(__raw_record, ctx, __mf_decodeBoolean) as Record<string, boolean>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "record" : "record." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+                const __raw_record = obj["record"] as Record<string, boolean>;
+                if (typeof __raw_record === "object" && __raw_record !== null) {
+                    ctx.pushScope("record");
+                    try {
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, __mf_decodeBoolean) as Record<string, boolean>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "record" : "record." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "record", message: __raw_record == null ? "OptionKinds.record is required" : "expected Record<string, boolean>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "record", message: __raw_record == null ? "OptionKinds.record is required" : "expected Record<string, boolean>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [string, number];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [string, number];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "OptionKinds.pair is required" : "expected [string, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "OptionKinds.pair is required" : "expected [string, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
-        const __raw_inline = obj["inline"] as { x: number };
-        if (typeof __raw_inline === "object" && __raw_inline !== null) {
-            ctx.pushScope("inline");
-            try {
-                instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber }) as { x: number });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "inline" : "inline." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+                const __raw_inline = obj["inline"] as { x: number };
+                if (typeof __raw_inline === "object" && __raw_inline !== null) {
+                    ctx.pushScope("inline");
+                    try {
+                        instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber }) as { x: number });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "inline" : "inline." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "inline", message: __raw_inline == null ? "OptionKinds.inline is required" : "expected { x: number }" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "inline", message: __raw_inline == null ? "OptionKinds.inline is required" : "expected { x: number }" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybeText")) ? "maybeText" in obj : (__fields.keeps("maybeText") && obj["maybeText"] !== undefined)) {
-        const __raw_maybeText = obj["maybeText"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybeText")) ? "maybeText" in obj : (__fields.keeps("maybeText") && obj["maybeText"] !== undefined)) {
+                const __raw_maybeText = obj["maybeText"] as string | null;
 
-        if (!(typeof __raw_maybeText === "string" || __raw_maybeText === null)) {
-            errors.push({ field: "maybeText", message: "expected string | null" });
-        } else {
-            instance.maybeText = __raw_maybeText;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("laterText"))) {
-        if (("laterText" in obj && obj["laterText"] !== undefined)) {
-            const __raw_laterText = obj["laterText"] as string;
-
-            if (!(typeof __raw_laterText === "string")) {
-                errors.push({ field: "laterText", message: "expected string" });
-            } else {
-                instance.laterText = __raw_laterText;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("partial")) ? "partial" in obj : (__fields.keeps("partial") && obj["partial"] !== undefined)) {
-        const __raw_partial = obj["partial"] as Partial<EdgeItem>;
-
-        ctx.pushScope("partial");
-        try {
-            const __result = edgeItemDecodePartialWithContext(__raw_partial, ctx);
-            ctx.assignOrDefer(instance, "partial", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "partial" : "partial." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_maybeText === "string" || __raw_maybeText === null)) {
+                    errors.push({ field: "maybeText", message: "expected string | null" });
+                } else {
+                    instance.maybeText = __raw_maybeText;
                 }
-            } else {
-
-                errors.push({ field: "partial", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("link")) ? "link" in obj : (__fields.keeps("link") && obj["link"] !== undefined)) {
-        try {
-            instance.link = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
-        	return new URL(raw);
-        })(obj["link"]);
-        } catch (__error) {
-            errors.push({ field: "link", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("query")) ? "query" in obj : (__fields.keeps("query") && obj["query"] !== undefined)) {
-        try {
-            instance.query = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw !== "string") throw new TypeError("expected the text of a query string");
-        	return new URLSearchParams(raw);
-        })(obj["query"]);
-        } catch (__error) {
-            errors.push({ field: "query", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pattern")) ? "pattern" in obj : (__fields.keeps("pattern") && obj["pattern"] !== undefined)) {
-        try {
-            instance.pattern = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw !== "object" || raw === null || !("source" in raw) || typeof raw.source !== "string") throw new TypeError("expected the source and flags of a RegExp");
-        	const flags = "flags" in raw && typeof raw.flags === "string" ? raw.flags : "";
-        	return new RegExp(raw.source, flags);
-        })(obj["pattern"]);
-        } catch (__error) {
-            errors.push({ field: "pattern", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("failure")) ? "failure" in obj : (__fields.keeps("failure") && obj["failure"] !== undefined)) {
-        try {
-            instance.failure = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw !== "object" || raw === null || !("message" in raw) || typeof raw.message !== "string") throw new TypeError("expected the name and message of an Error");
-        	const error = new Error(raw.message);
-        	if ("name" in raw && typeof raw.name === "string") error.name = raw.name;
-        	return error;
-        })(obj["failure"]);
-        } catch (__error) {
-            errors.push({ field: "failure", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("bytes")) ? "bytes" in obj : (__fields.keeps("bytes") && obj["bytes"] !== undefined)) {
-        try {
-            instance.bytes = ((v) => {
-        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
-        	return new Uint8Array(v);
-        })(obj["bytes"]);
-        } catch (__error) {
-            errors.push({ field: "bytes", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("bigs")) ? "bigs" in obj : (__fields.keeps("bigs") && obj["bigs"] !== undefined)) {
-        try {
-            instance.bigs = ((v) => {
-        	if (!Array.isArray(v) || !v.every((s: unknown): s is string => typeof s === "string" && /^-?\d+$/.test(s))) throw new TypeError("expected an array of whole numbers as text");
-        	return new BigInt64Array(v.map((s) => BigInt(s)));
-        })(obj["bigs"]);
-        } catch (__error) {
-            errors.push({ field: "bigs", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("buffer")) ? "buffer" in obj : (__fields.keeps("buffer") && obj["buffer"] !== undefined)) {
-        try {
-            instance.buffer = ((v) => {
-        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
-        	return new Uint8Array(v).buffer;
-        })(obj["buffer"]);
-        } catch (__error) {
-            errors.push({ field: "buffer", message: __error instanceof Error ? __error.message : String(__error) });
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("laterText"))) {
+                if (("laterText" in obj && obj["laterText"] !== undefined)) {
+                    const __raw_laterText = obj["laterText"] as string;
+
+                    if (!(typeof __raw_laterText === "string")) {
+                        errors.push({ field: "laterText", message: "expected string" });
+                    } else {
+                        instance.laterText = __raw_laterText;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("partial")) ? "partial" in obj : (__fields.keeps("partial") && obj["partial"] !== undefined)) {
+                const __raw_partial = obj["partial"] as Partial<EdgeItem>;
+
+                ctx.pushScope("partial");
+                try {
+                    const __result = edgeItemDecodePartialWithContext(__raw_partial, ctx);
+                    ctx.assignOrDefer(instance, "partial", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "partial" : "partial." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "partial", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("link")) ? "link" in obj : (__fields.keeps("link") && obj["link"] !== undefined)) {
+                try {
+                    instance.link = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+                	return new URL(raw);
+                })(obj["link"]);
+                } catch (__error) {
+                    errors.push({ field: "link", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("query")) ? "query" in obj : (__fields.keeps("query") && obj["query"] !== undefined)) {
+                try {
+                    instance.query = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "string") throw new TypeError("expected the text of a query string");
+                	return new URLSearchParams(raw);
+                })(obj["query"]);
+                } catch (__error) {
+                    errors.push({ field: "query", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pattern")) ? "pattern" in obj : (__fields.keeps("pattern") && obj["pattern"] !== undefined)) {
+                try {
+                    instance.pattern = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "object" || raw === null || !("source" in raw) || typeof raw.source !== "string") throw new TypeError("expected the source and flags of a RegExp");
+                	const flags = "flags" in raw && typeof raw.flags === "string" ? raw.flags : "";
+                	return new RegExp(raw.source, flags);
+                })(obj["pattern"]);
+                } catch (__error) {
+                    errors.push({ field: "pattern", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("failure")) ? "failure" in obj : (__fields.keeps("failure") && obj["failure"] !== undefined)) {
+                try {
+                    instance.failure = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw !== "object" || raw === null || !("message" in raw) || typeof raw.message !== "string") throw new TypeError("expected the name and message of an Error");
+                	const error = new Error(raw.message);
+                	if ("name" in raw && typeof raw.name === "string") error.name = raw.name;
+                	return error;
+                })(obj["failure"]);
+                } catch (__error) {
+                    errors.push({ field: "failure", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("bytes")) ? "bytes" in obj : (__fields.keeps("bytes") && obj["bytes"] !== undefined)) {
+                try {
+                    instance.bytes = ((v) => {
+                	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
+                	return new Uint8Array(v);
+                })(obj["bytes"]);
+                } catch (__error) {
+                    errors.push({ field: "bytes", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("bigs")) ? "bigs" in obj : (__fields.keeps("bigs") && obj["bigs"] !== undefined)) {
+                try {
+                    instance.bigs = ((v) => {
+                	if (!Array.isArray(v) || !v.every((s: unknown): s is string => typeof s === "string" && /^-?\d+$/.test(s))) throw new TypeError("expected an array of whole numbers as text");
+                	return new BigInt64Array(v.map((s) => BigInt(s)));
+                })(obj["bigs"]);
+                } catch (__error) {
+                    errors.push({ field: "bigs", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("buffer")) ? "buffer" in obj : (__fields.keeps("buffer") && obj["buffer"] !== undefined)) {
+                try {
+                    instance.buffer = ((v) => {
+                	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
+                	return new Uint8Array(v).buffer;
+                })(obj["buffer"]);
+                } catch (__error) {
+                    errors.push({ field: "buffer", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -3640,7 +3922,7 @@ export function optionKindsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "text") && __mf_holds(obj, "count") && __mf_holds(obj, "flag") && __mf_holds(obj, "big") && __mf_holds(obj, "at") && __mf_holds(obj, "item") && __mf_holds(obj, "size") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "map") && __mf_holds(obj, "record") && __mf_holds(obj, "pair") && __mf_holds(obj, "inline") && __mf_holds(obj, "maybeText") && __mf_holds(obj, "partial") && __mf_holds(obj, "link") && __mf_holds(obj, "query") && __mf_holds(obj, "pattern") && __mf_holds(obj, "failure") && __mf_holds(obj, "bytes") && __mf_holds(obj, "bigs") && __mf_holds(obj, "buffer");
+    return __mf_holdsAll(obj, ["text", "count", "flag", "big", "at", "item", "size", "list", "set", "map", "record", "pair", "inline", "maybeText", "partial", "link", "query", "pattern", "failure", "bytes", "bigs", "buffer"]);
 }
 
 export function optionKindsIs(obj: unknown): obj is OptionKinds {
@@ -3767,70 +4049,100 @@ static encodePartialWithContext(value: Partial<OptionKindsClass>, ctx: __mf_Enco
 }
 
 static #encodeFields(value: OptionKindsClass, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("text")) {
-        if (value.text !== undefined) {
-            result["text"] = value.text;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("big")) {
-        if (value.big !== undefined) {
-            result["big"] = ((v) => String(v))(value.big);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = edgeItemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = value.list;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("map")) {
-        if (value.map !== undefined) {
-            result["map"] = Object.fromEntries(value.map.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inline")) {
-        if (value.inline !== undefined) {
-            result["inline"] = value.inline;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("picked")) {
-        if (value.picked !== undefined) {
-            result["picked"] = edgeItemEncodePartialWithContext(value.picked, ctx, { only: ["id"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("required")) {
-        if (value.required !== undefined) {
-            result["required"] = edgeItemEncodeWithContext(value.required, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("later")) {
-        if (value.later !== undefined) {
-            result["later"] = value.later;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("text")) {
+                if (value.text !== undefined) {
+                    result["text"] = value.text;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("big")) {
+                if (value.big !== undefined) {
+                    result["big"] = ((v) => String(v))(value.big);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = edgeItemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("map")) {
+                if (value.map !== undefined) {
+                    result["map"] = Object.fromEntries(value.map.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inline")) {
+                if (value.inline !== undefined) {
+                    result["inline"] = value.inline;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("picked")) {
+                if (value.picked !== undefined) {
+                    result["picked"] = edgeItemEncodePartialWithContext(value.picked, ctx, { only: ["id"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("required")) {
+                if (value.required !== undefined) {
+                    result["required"] = edgeItemEncodeWithContext(value.required, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("later")) {
+                if (value.later !== undefined) {
+                    result["later"] = value.later;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -3933,41 +4245,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
-        errors.push({ field: "text", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
-        errors.push({ field: "big", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("map")) && !("map" in obj)) {
-        errors.push({ field: "map", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("inline")) && !("inline" in obj)) {
-        errors.push({ field: "inline", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("picked")) && !("picked" in obj)) {
-        errors.push({ field: "picked", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
-        errors.push({ field: "required", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["text", "text"], ["count", "count"], ["at", "at"], ["big", "big"], ["item", "item"], ["list", "list"], ["map", "map"], ["pair", "pair"], ["inline", "inline"], ["picked", "picked"], ["required", "required"], ["maybe", "maybe"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(OptionKindsClass.prototype);
@@ -3978,233 +4261,263 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
-        const __raw_text = obj["text"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+                const __raw_text = obj["text"] as string;
 
-        if (!(typeof __raw_text === "string")) {
-            errors.push({ field: "text", message: __raw_text == null ? "OptionKindsClass.text is required" : "expected string" });
-        } else {
-            instance.text = __raw_text;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
-
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "count", message: __raw_count == null ? "OptionKindsClass.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "OptionKindsClass.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
-        try {
-            instance.big = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(obj["big"]);
-        } catch (__error) {
-            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as EdgeItem;
-
-        ctx.pushScope("item");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_text === "string")) {
+                    errors.push({ field: "text", message: __raw_text == null ? "OptionKindsClass.text is required" : "expected string" });
+                } else {
+                    instance.text = __raw_text;
                 }
-            } else {
-
-                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as string[];
-        if (Array.isArray(__raw_list)) {
-            ctx.pushScope("list");
-            try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "list" : "list." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
+
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "OptionKindsClass.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "OptionKindsClass.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+                try {
+                    instance.big = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(obj["big"]);
+                } catch (__error) {
+                    errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as EdgeItem;
+
+                ctx.pushScope("item");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as string[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "list", message: __raw_list == null ? "OptionKindsClass.list is required" : "expected string[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "list", message: __raw_list == null ? "OptionKindsClass.list is required" : "expected string[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
-        const __raw_map = obj["map"] as Record<string, number>;
-        if (typeof __raw_map === "object" && __raw_map !== null) {
-            ctx.pushScope("map");
-            try {
-                instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "map" : "map." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
+                const __raw_map = obj["map"] as Record<string, number>;
+                if (typeof __raw_map === "object" && __raw_map !== null) {
+                    ctx.pushScope("map");
+                    try {
+                        instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "map" : "map." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "map", message: __raw_map == null ? "OptionKindsClass.map is required" : "expected Map<string, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "map", message: __raw_map == null ? "OptionKindsClass.map is required" : "expected Map<string, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [string, number];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [string, number];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "OptionKindsClass.pair is required" : "expected [string, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "OptionKindsClass.pair is required" : "expected [string, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
-        const __raw_inline = obj["inline"] as { x: number };
-        if (typeof __raw_inline === "object" && __raw_inline !== null) {
-            ctx.pushScope("inline");
-            try {
-                instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber }) as { x: number });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "inline" : "inline." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+                const __raw_inline = obj["inline"] as { x: number };
+                if (typeof __raw_inline === "object" && __raw_inline !== null) {
+                    ctx.pushScope("inline");
+                    try {
+                        instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber }) as { x: number });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "inline" : "inline." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "inline", message: __raw_inline == null ? "OptionKindsClass.inline is required" : "expected { x: number }" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "inline", message: __raw_inline == null ? "OptionKindsClass.inline is required" : "expected { x: number }" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
-        const __raw_picked = obj["picked"] as Pick<EdgeItem, 'id'>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
+                const __raw_picked = obj["picked"] as Pick<EdgeItem, 'id'>;
 
-        ctx.pushScope("picked");
-        try {
-            const __result = edgeItemDecodePartialWithContext(__raw_picked, ctx, { only: ["id"] });
-            ctx.assignOrDefer(instance, "picked", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "picked" : "picked." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("picked");
+                try {
+                    const __result = edgeItemDecodePartialWithContext(__raw_picked, ctx, { only: ["id"] });
+                    ctx.assignOrDefer(instance, "picked", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "picked" : "picked." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
-        const __raw_required = obj["required"] as Required<EdgeItem>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
+                const __raw_required = obj["required"] as Required<EdgeItem>;
 
-        ctx.pushScope("required");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_required, ctx);
-            ctx.assignOrDefer(instance, "required", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "required" : "required." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("required");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_required, ctx);
+                    ctx.assignOrDefer(instance, "required", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "required" : "required." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as string | null;
 
-        if (!(typeof __raw_maybe === "string" || __raw_maybe === null)) {
-            errors.push({ field: "maybe", message: "expected string | null" });
-        } else {
-            instance.maybe = __raw_maybe;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("later"))) {
-        if (("later" in obj && obj["later"] !== undefined)) {
-            const __raw_later = obj["later"] as string;
-
-            if (!(typeof __raw_later === "string")) {
-                errors.push({ field: "later", message: "expected string" });
-            } else {
-                instance.later = __raw_later;
+                if (!(typeof __raw_maybe === "string" || __raw_maybe === null)) {
+                    errors.push({ field: "maybe", message: "expected string | null" });
+                } else {
+                    instance.maybe = __raw_maybe;
+                }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("later"))) {
+                if (("later" in obj && obj["later"] !== undefined)) {
+                    const __raw_later = obj["later"] as string;
+
+                    if (!(typeof __raw_later === "string")) {
+                        errors.push({ field: "later", message: "expected string" });
+                    } else {
+                        instance.later = __raw_later;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -4225,7 +4538,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "text") && __mf_holds(obj, "count") && __mf_holds(obj, "at") && __mf_holds(obj, "big") && __mf_holds(obj, "item") && __mf_holds(obj, "list") && __mf_holds(obj, "map") && __mf_holds(obj, "pair") && __mf_holds(obj, "inline") && __mf_holds(obj, "picked") && __mf_holds(obj, "required") && __mf_holds(obj, "maybe");
+    return __mf_holdsAll(obj, ["text", "count", "at", "big", "item", "list", "map", "pair", "inline", "picked", "required", "maybe"]);
 }
 
 static is(obj: unknown): obj is OptionKindsClass {
@@ -5124,82 +5437,82 @@ export declare function optionKindsClassIs(value: unknown): value is OptionKinds
 
 ## Mapping
 
-original 0..680 -> expanded 1577..2257
-original 680..1188 -> expanded 5449..5957
-original 1188..1439 -> expanded 6445..6696
-original 1439..1440 -> expanded 7020..7021
-original 1440..2512 -> expanded 7144..8216
-original 2512..2743 -> expanded 25846..26077
-original 2743..2920 -> expanded 36878..37055
-original 2920..3088 -> expanded 48166..48334
-original 3088..3089 -> expanded 56207..56208
-original 3089..3243 -> expanded 59430..59584
-original 3243..3431 -> expanded 69186..69374
-original 3431..3637 -> expanded 80258..80464
-original 3637..3837 -> expanded 92402..92602
-original 3837..3984 -> expanded 104139..104286
-original 3984..4627 -> expanded 114494..115137
-original 4627..5235 -> expanded 137468..138076
-original 5235..5710 -> expanded 171249..171724
-original 5710..6103 -> expanded 172306..172699
-original 6103..6104 -> expanded 195218..195219
-original 6104..6105 -> expanded 198655..198656
-generated 0..1577 <- imports
-generated 2257..2678 <- Debug
-generated 2678..2924 <- Clone
-generated 2924..3172 <- PartialEq
-generated 3172..3821 <- Hash
-generated 3821..4428 <- PartialOrd
-generated 4428..4907 <- Ord
-generated 4907..5449 <- __convenience_const
-generated 5957..6301 <- Default
-generated 6301..6445 <- __convenience_const
-generated 6696..7020 <- Default
-generated 7021..7144 <- Default
-generated 8216..12016 <- Encode
-generated 12016..24764 <- Decode
-generated 24764..25846 <- __convenience_const
-generated 26077..28692 <- Encode
-generated 28692..35733 <- Decode
-generated 35733..36878 <- __convenience_const
-generated 37055..39642 <- Encode
-generated 39642..47105 <- Decode
-generated 47105..48166 <- __convenience_const
-generated 48334..50104 <- Encode
-generated 50104..50435 <- Encode
-generated 50435..56207 <- Decode
-generated 56208..57588 <- Encode
-generated 57588..59430 <- Decode
-generated 59584..61957 <- Encode
-generated 61957..68125 <- Decode
-generated 68125..69186 <- __convenience_const
-generated 69374..72297 <- Encode
-generated 72297..79113 <- Decode
-generated 79113..80258 <- __convenience_const
-generated 80464..83324 <- Encode
-generated 83324..91089 <- Decode
-generated 91089..92402 <- __convenience_const
-generated 92602..95197 <- Encode
-generated 95197..103057 <- Decode
-generated 103057..104139 <- __convenience_const
-generated 104286..106695 <- Encode
-generated 106695..113412 <- Decode
-generated 113412..114494 <- __convenience_const
-generated 115137..118642 <- Encode
-generated 118642..136323 <- Decode
-generated 136323..137468 <- __convenience_const
-generated 138076..144208 <- Encode
-generated 144208..170188 <- Decode
-generated 170188..171249 <- __convenience_const
-generated 171724..172150 <- Default
-generated 172150..172306 <- __convenience_const
-generated 172699..173448 <- Default
-generated 173448..177157 <- Encode
-generated 177157..177496 <- Encode
-generated 177496..195218 <- Decode
-generated 195219..195333 <- Default
-generated 195333..196753 <- Encode
-generated 196753..198655 <- Decode
+original 0..680 -> expanded 1583..2263
+original 680..1188 -> expanded 5498..6006
+original 1188..1439 -> expanded 6494..6745
+original 1439..1440 -> expanded 7069..7070
+original 1440..2512 -> expanded 7193..8265
+original 2512..2743 -> expanded 27766..27997
+original 2743..2920 -> expanded 39205..39382
+original 2920..3088 -> expanded 51032..51200
+original 3088..3089 -> expanded 59496..59497
+original 3089..3243 -> expanded 62719..62873
+original 3243..3431 -> expanded 72898..73086
+original 3431..3637 -> expanded 84886..85092
+original 3637..3837 -> expanded 98034..98234
+original 3837..3984 -> expanded 110579..110726
+original 3984..4627 -> expanded 121501..122144
+original 4627..5235 -> expanded 145759..146367
+original 5235..5710 -> expanded 181156..181631
+original 5710..6103 -> expanded 182213..182606
+original 6103..6104 -> expanded 206523..206524
+original 6104..6105 -> expanded 209960..209961
+generated 0..1583 <- imports
+generated 2263..2684 <- Debug
+generated 2684..2930 <- Clone
+generated 2930..3305 <- PartialEq
+generated 3305..3954 <- Hash
+generated 3954..4465 <- PartialOrd
+generated 4465..4956 <- Ord
+generated 4956..5498 <- __convenience_const
+generated 6006..6350 <- Default
+generated 6350..6494 <- __convenience_const
+generated 6745..7069 <- Default
+generated 7070..7193 <- Default
+generated 8265..12795 <- Encode
+generated 12795..26684 <- Decode
+generated 26684..27766 <- __convenience_const
+generated 27997..30873 <- Encode
+generated 30873..38060 <- Decode
+generated 38060..39205 <- __convenience_const
+generated 39382..42230 <- Encode
+generated 42230..49971 <- Decode
+generated 49971..51032 <- __convenience_const
+generated 51200..53164 <- Encode
+generated 53164..53495 <- Encode
+generated 53495..59496 <- Decode
+generated 59497..60877 <- Encode
+generated 60877..62719 <- Decode
+generated 62873..65440 <- Encode
+generated 65440..71837 <- Decode
+generated 71837..72898 <- __convenience_const
+generated 73086..76302 <- Encode
+generated 76302..83741 <- Decode
+generated 83741..84886 <- __convenience_const
+generated 85092..88229 <- Encode
+generated 88229..96721 <- Decode
+generated 96721..98034 <- __convenience_const
+generated 98234..101090 <- Encode
+generated 101090..109497 <- Decode
+generated 109497..110579 <- __convenience_const
+generated 110726..113329 <- Encode
+generated 113329..120419 <- Decode
+generated 120419..121501 <- __convenience_const
+generated 122144..126245 <- Encode
+generated 126245..144614 <- Decode
+generated 144614..145759 <- __convenience_const
+generated 146367..154100 <- Encode
+generated 154100..180095 <- Decode
+generated 180095..181156 <- __convenience_const
+generated 181631..182057 <- Default
+generated 182057..182213 <- __convenience_const
+generated 182606..183355 <- Default
+generated 183355..187995 <- Encode
+generated 187995..188334 <- Encode
+generated 188334..206523 <- Decode
+generated 206524..206638 <- Default
+generated 206638..208058 <- Encode
+generated 208058..209960 <- Decode
 
 ## Metadata
 

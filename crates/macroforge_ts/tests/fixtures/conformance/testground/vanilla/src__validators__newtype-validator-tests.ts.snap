@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -484,25 +484,37 @@ export function runEncodePartialWithContext(value: Partial<Run>, ctx: __mf_Encod
 }
 
 function runEncodeFields(value: Run, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("runner")) {
-        if (value.runner !== undefined) {
-            result["runner"] = usernameEncodeWithContext(value.runner, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("distance")) {
-        if (value.distance !== undefined) {
-            result["distance"] = metersEncodeWithContext(value.distance, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("splits")) {
-        if (value.splits !== undefined) {
-            result["splits"] = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("best")) {
-        if (value.best !== undefined) {
-            result["best"] = metersEncodeWithContext(value.best, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("runner")) {
+                if (value.runner !== undefined) {
+                    result["runner"] = usernameEncodeWithContext(value.runner, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("distance")) {
+                if (value.distance !== undefined) {
+                    result["distance"] = metersEncodeWithContext(value.distance, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("splits")) {
+                if (value.splits !== undefined) {
+                    result["splits"] = value.splits.map((__item0) => metersEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("best")) {
+                if (value.best !== undefined) {
+                    result["best"] = metersEncodeWithContext(value.best, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -580,14 +592,12 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("runner")) && !("runner" in obj)) {
-        errors.push({ field: "runner", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("distance")) && !("distance" in obj)) {
-        errors.push({ field: "distance", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("splits")) && !("splits" in obj)) {
-        errors.push({ field: "splits", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["runner", "runner"], ["distance", "distance"], ["splits", "splits"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -598,100 +608,112 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("runner")) ? "runner" in obj : (__fields.keeps("runner") && obj["runner"] !== undefined)) {
-        const __raw_runner = obj["runner"] as Username;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("runner")) ? "runner" in obj : (__fields.keeps("runner") && obj["runner"] !== undefined)) {
+                const __raw_runner = obj["runner"] as Username;
 
-        ctx.pushScope("runner");
-        try {
-            const __result = usernameDecodeWithContext(__raw_runner, ctx);
-            ctx.assignOrDefer(instance, "runner", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "runner" : "runner." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("runner");
+                try {
+                    const __result = usernameDecodeWithContext(__raw_runner, ctx);
+                    ctx.assignOrDefer(instance, "runner", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "runner" : "runner." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "runner", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "runner", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
-        const __raw_distance = obj["distance"] as Meters;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
+                const __raw_distance = obj["distance"] as Meters;
 
-        ctx.pushScope("distance");
-        try {
-            const __result = metersDecodeWithContext(__raw_distance, ctx);
-            ctx.assignOrDefer(instance, "distance", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "distance" : "distance." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("distance");
+                try {
+                    const __result = metersDecodeWithContext(__raw_distance, ctx);
+                    ctx.assignOrDefer(instance, "distance", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "distance" : "distance." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
-        const __raw_splits = obj["splits"] as Meters[];
-        if (Array.isArray(__raw_splits)) {
-            ctx.pushScope("splits");
-            try {
-                instance.splits = __mf_decodeArray(__raw_splits, ctx, (__raw0) => metersDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "splits" : "splits." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
+                const __raw_splits = obj["splits"] as Meters[];
+                if (Array.isArray(__raw_splits)) {
+                    ctx.pushScope("splits");
+                    try {
+                        instance.splits = __mf_decodeArray(__raw_splits, ctx, (__raw0) => metersDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "splits" : "splits." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("best"))) {
-        if (("best" in obj && obj["best"] !== undefined)) {
-            const __raw_best = obj["best"] as Meters;
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("best"))) {
+                if (("best" in obj && obj["best"] !== undefined)) {
+                    const __raw_best = obj["best"] as Meters;
 
-            ctx.pushScope("best");
-            try {
-                const __result = metersDecodeWithContext(__raw_best, ctx);
-                ctx.assignOrDefer(instance, "best", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "best" : "best." + __err.field,
-                            message: __err.message
-                        });
+                    ctx.pushScope("best");
+                    try {
+                        const __result = metersDecodeWithContext(__raw_best, ctx);
+                        ctx.assignOrDefer(instance, "best", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -716,7 +738,7 @@ export function runHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "runner") && __mf_holds(obj, "distance") && __mf_holds(obj, "splits");
+    return __mf_holdsAll(obj, ["runner", "distance", "splits"]);
 }
 
 export function runIs(obj: unknown): obj is Run {
@@ -956,44 +978,44 @@ export {};
 
 ## Mapping
 
-original 0..308 -> expanded 880..1188
-original 324..325 -> expanded 1232..1233
-original 325..420 -> expanded 5996..6091
-original 436..437 -> expanded 6135..6136
-original 437..496 -> expanded 9559..9618
-original 496..582 -> expanded 12672..12758
-original 598..599 -> expanded 12802..12803
-original 599..741 -> expanded 16620..16762
-original 741..742 -> expanded 29428..29429
-generated 0..745 <- imports
-generated 745..790 <- $Newtype
-generated 790..835 <- $Newtype
-generated 835..880 <- $Newtype
-generated 1188..1232 <- $Newtype
-generated 1233..1941 <- Encode
-generated 1941..4142 <- Decode
-generated 4142..4216 <- Default
-generated 4216..4319 <- Debug
-generated 4319..4393 <- Clone
-generated 4393..4478 <- PartialEq
-generated 4478..4672 <- Hash
-generated 4672..4831 <- PartialOrd
-generated 4831..4980 <- Ord
-generated 4980..5996 <- __convenience_const
-generated 6091..6135 <- $Newtype
-generated 6136..6860 <- Encode
-generated 6860..9037 <- Decode
-generated 9037..9559 <- __convenience_const
-generated 9618..10310 <- Encode
-generated 10310..12202 <- Decode
-generated 12202..12672 <- __convenience_const
-generated 12758..12802 <- $Newtype
-generated 12803..13543 <- Encode
-generated 13543..16137 <- Decode
-generated 16137..16620 <- __convenience_const
-generated 16762..19466 <- Encode
-generated 19466..28535 <- Decode
-generated 28535..29428 <- __convenience_const
+original 0..308 -> expanded 886..1194
+original 324..325 -> expanded 1238..1239
+original 325..420 -> expanded 6002..6097
+original 436..437 -> expanded 6141..6142
+original 437..496 -> expanded 9565..9624
+original 496..582 -> expanded 12678..12764
+original 598..599 -> expanded 12808..12809
+original 599..741 -> expanded 16626..16768
+original 741..742 -> expanded 30463..30464
+generated 0..751 <- imports
+generated 751..796 <- $Newtype
+generated 796..841 <- $Newtype
+generated 841..886 <- $Newtype
+generated 1194..1238 <- $Newtype
+generated 1239..1947 <- Encode
+generated 1947..4148 <- Decode
+generated 4148..4222 <- Default
+generated 4222..4325 <- Debug
+generated 4325..4399 <- Clone
+generated 4399..4484 <- PartialEq
+generated 4484..4678 <- Hash
+generated 4678..4837 <- PartialOrd
+generated 4837..4986 <- Ord
+generated 4986..6002 <- __convenience_const
+generated 6097..6141 <- $Newtype
+generated 6142..6866 <- Encode
+generated 6866..9043 <- Decode
+generated 9043..9565 <- __convenience_const
+generated 9624..10316 <- Encode
+generated 10316..12208 <- Decode
+generated 12208..12678 <- __convenience_const
+generated 12764..12808 <- $Newtype
+generated 12809..13549 <- Encode
+generated 13549..16143 <- Decode
+generated 16143..16626 <- __convenience_const
+generated 16768..19800 <- Encode
+generated 19800..29570 <- Decode
+generated 29570..30463 <- __convenience_const
 
 ## Metadata
 

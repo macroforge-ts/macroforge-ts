@@ -25,7 +25,7 @@ true
 ## Output
 
 import { structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** @derive(Clone, PartialEq, Encode, Decode) */
 export interface TooDeep {
@@ -46,7 +46,9 @@ export function atTheLimitClone(value: AtTheLimit): AtTheLimit {
 
 export function atTheLimitEquals(a: AtTheLimit, b: AtTheLimit): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.value, b.value));
+    return __mf_equalWithin(a, b, () => {
+        return __mf_structuralEquals(a.value, b.value);
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -158,8 +160,12 @@ export function atTheLimitDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -217,7 +223,7 @@ export function atTheLimitHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 export function atTheLimitIs(obj: unknown): obj is AtTheLimit {
@@ -354,15 +360,15 @@ Error [137..178]: type 'TooNested' nests 17 levels deep, and a built-in derive r
 
 ## Mapping
 
-original 0..333 -> expanded 943..1276
-original 381..592 -> expanded 1276..1487
-original 592..593 -> expanded 13888..13889
-generated 0..943 <- imports
-generated 1487..1656 <- Clone
-generated 1656..1845 <- PartialEq
-generated 1845..4008 <- Encode
-generated 4008..12708 <- Decode
-generated 12708..13888 <- __convenience_const
+original 0..333 -> expanded 949..1282
+original 381..592 -> expanded 1282..1493
+original 592..593 -> expanded 14080..14081
+generated 0..949 <- imports
+generated 1493..1662 <- Clone
+generated 1662..1875 <- PartialEq
+generated 1875..4038 <- Encode
+generated 4038..12900 <- Decode
+generated 12900..14080 <- __convenience_const
 
 ## Metadata
 

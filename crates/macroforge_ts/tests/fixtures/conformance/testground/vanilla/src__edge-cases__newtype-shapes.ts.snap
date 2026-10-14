@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, parsedText as __mf_parsedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, parsedText as __mf_parsedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 declare const __mf_newtype_1: unique symbol;
@@ -1033,13 +1033,30 @@ export function newHolderClone(value: NewHolder): NewHolder {
 
 export function newHolderEquals(a: NewHolder, b: NewHolder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => newTextEquals(a.text, b.text) && newCountEquals(a.count, b.count) && newFlagEquals(a.flag, b.flag) && newSlugEquals(a.slug, b.slug) && newNestedEquals(a.nested, b.nested) && newPlainEquals(a.plain, b.plain) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : newSlugEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : newCountEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : newTextEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
-	const __other0 = b.list[__index0];
-	return __other0 === undefined ? __item0 === undefined : newSlugEquals(__item0, __other0);
-}) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => newTextEquals(__item0, __other0))) && a.bySlug.size === b.bySlug.size && Array.from(a.bySlug).every(([__key0, __item0]) => {
-	const __other0 = b.bySlug.get(__key0);
-	return b.bySlug.has(__key0) && (__other0 === undefined ? __item0 === undefined : newCountEquals(__item0, __other0));
-}) && __mf_structuralEquals(a.record, b.record) && __mf_structuralEquals(a.pair, b.pair));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => newTextEquals(a.text, b.text),
+            () => newCountEquals(a.count, b.count),
+            () => newFlagEquals(a.flag, b.flag),
+            () => newSlugEquals(a.slug, b.slug),
+            () => newNestedEquals(a.nested, b.nested),
+            () => newPlainEquals(a.plain, b.plain),
+            () => a.maybe == null || b.maybe == null ? a.maybe === b.maybe : newSlugEquals(a.maybe, b.maybe),
+            () => a.later == null || b.later == null ? a.later === b.later : newCountEquals(a.later, b.later),
+            () => a.optional == null || b.optional == null ? a.optional === b.optional : newTextEquals(a.optional, b.optional),
+            () => a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+            	const __other0 = b.list[__index0];
+            	return __other0 === undefined ? __item0 === undefined : newSlugEquals(__item0, __other0);
+            }),
+            () => a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => newTextEquals(__item0, __other0))),
+            () => a.bySlug.size === b.bySlug.size && Array.from(a.bySlug).every(([__key0, __item0]) => {
+            	const __other0 = b.bySlug.get(__key0);
+            	return b.bySlug.has(__key0) && (__other0 === undefined ? __item0 === undefined : newCountEquals(__item0, __other0));
+            }),
+            () => __mf_structuralEquals(a.record, b.record),
+            () => __mf_structuralEquals(a.pair, b.pair),
+        ].every((same) => same());
+    });
 }
 
 export function newHolderHashCode(value: NewHolder): number {
@@ -1109,75 +1126,107 @@ export function newHolderEncodePartialWithContext(value: Partial<NewHolder>, ctx
 }
 
 function newHolderEncodeFields(value: NewHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("text")) {
-        if (value.text !== undefined) {
-            result["text"] = newTextEncodeWithContext(value.text, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = newCountEncodeWithContext(value.count, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("flag")) {
-        if (value.flag !== undefined) {
-            result["flag"] = newFlagEncodeWithContext(value.flag, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("slug")) {
-        if (value.slug !== undefined) {
-            result["slug"] = newSlugEncodeWithContext(value.slug, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = newNestedEncodeWithContext(value.nested, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("plain")) {
-        if (value.plain !== undefined) {
-            result["plain"] = newPlainEncodeWithContext(value.plain, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : newSlugEncodeWithContext(value.maybe, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("later")) {
-        if (value.later !== undefined) {
-            result["later"] = newCountEncodeWithContext(value.later, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optional")) {
-        if (value.optional !== undefined) {
-            result["optional"] = newTextEncodeWithContext(value.optional, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = value.list.map((__item0) => newSlugEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("set")) {
-        if (value.set !== undefined) {
-            result["set"] = Array.from(value.set, (__item0) => newTextEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("bySlug")) {
-        if (value.bySlug !== undefined) {
-            result["bySlug"] = Object.fromEntries(Array.from(value.bySlug, ([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("record")) {
-        if (value.record !== undefined) {
-            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, NewCount][]).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = [newTextEncodeWithContext(value.pair[0], ctx), newCountEncodeWithContext(value.pair[1], ctx)];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("text")) {
+                if (value.text !== undefined) {
+                    result["text"] = newTextEncodeWithContext(value.text, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = newCountEncodeWithContext(value.count, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("flag")) {
+                if (value.flag !== undefined) {
+                    result["flag"] = newFlagEncodeWithContext(value.flag, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("slug")) {
+                if (value.slug !== undefined) {
+                    result["slug"] = newSlugEncodeWithContext(value.slug, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = newNestedEncodeWithContext(value.nested, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("plain")) {
+                if (value.plain !== undefined) {
+                    result["plain"] = newPlainEncodeWithContext(value.plain, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : newSlugEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("later")) {
+                if (value.later !== undefined) {
+                    result["later"] = newCountEncodeWithContext(value.later, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optional")) {
+                if (value.optional !== undefined) {
+                    result["optional"] = newTextEncodeWithContext(value.optional, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list.map((__item0) => newSlugEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set, (__item0) => newTextEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("bySlug")) {
+                if (value.bySlug !== undefined) {
+                    result["bySlug"] = Object.fromEntries(Array.from(value.bySlug, ([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("record")) {
+                if (value.record !== undefined) {
+                    result["record"] = Object.fromEntries((Object.entries(value.record) as [string, NewCount][]).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = [newTextEncodeWithContext(value.pair[0], ctx), newCountEncodeWithContext(value.pair[1], ctx)];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1255,41 +1304,12 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
-        errors.push({ field: "text", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("flag")) && !("flag" in obj)) {
-        errors.push({ field: "flag", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("slug")) && !("slug" in obj)) {
-        errors.push({ field: "slug", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
-        errors.push({ field: "nested", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("plain")) && !("plain" in obj)) {
-        errors.push({ field: "plain", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
-        errors.push({ field: "set", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("bySlug")) && !("bySlug" in obj)) {
-        errors.push({ field: "bySlug", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
-        errors.push({ field: "record", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["text", "text"], ["count", "count"], ["flag", "flag"], ["slug", "slug"], ["nested", "nested"], ["plain", "plain"], ["maybe", "maybe"], ["list", "list"], ["set", "set"], ["bySlug", "bySlug"], ["record", "record"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1300,342 +1320,374 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
-        const __raw_text = obj["text"] as NewText;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+                const __raw_text = obj["text"] as NewText;
 
-        ctx.pushScope("text");
-        try {
-            const __result = newTextDecodeWithContext(__raw_text, ctx);
-            ctx.assignOrDefer(instance, "text", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "text" : "text." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
+                ctx.pushScope("text");
+                try {
+                    const __result = newTextDecodeWithContext(__raw_text, ctx);
+                    ctx.assignOrDefer(instance, "text", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "text" : "text." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-                errors.push({ field: "text", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as NewCount;
-
-        ctx.pushScope("count");
-        try {
-            const __result = newCountDecodeWithContext(__raw_count, ctx);
-            ctx.assignOrDefer(instance, "count", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "count" : "count." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "count", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
-        const __raw_flag = obj["flag"] as NewFlag;
-
-        ctx.pushScope("flag");
-        try {
-            const __result = newFlagDecodeWithContext(__raw_flag, ctx);
-            ctx.assignOrDefer(instance, "flag", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "flag" : "flag." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "flag", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
-        const __raw_slug = obj["slug"] as NewSlug;
-
-        ctx.pushScope("slug");
-        try {
-            const __result = newSlugDecodeWithContext(__raw_slug, ctx);
-            ctx.assignOrDefer(instance, "slug", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "slug" : "slug." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
-        const __raw_nested = obj["nested"] as NewNested;
-
-        ctx.pushScope("nested");
-        try {
-            const __result = newNestedDecodeWithContext(__raw_nested, ctx);
-            ctx.assignOrDefer(instance, "nested", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
-        const __raw_plain = obj["plain"] as NewPlain;
-
-        ctx.pushScope("plain");
-        try {
-            const __result = newPlainDecodeWithContext(__raw_plain, ctx);
-            ctx.assignOrDefer(instance, "plain", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "plain" : "plain." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "plain", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as NewSlug | null;
-
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = newSlugDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
+                        errors.push({ field: "text", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as NewCount;
+
+                ctx.pushScope("count");
+                try {
+                    const __result = newCountDecodeWithContext(__raw_count, ctx);
+                    ctx.assignOrDefer(instance, "count", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "count" : "count." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "count", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+                const __raw_flag = obj["flag"] as NewFlag;
+
+                ctx.pushScope("flag");
+                try {
+                    const __result = newFlagDecodeWithContext(__raw_flag, ctx);
+                    ctx.assignOrDefer(instance, "flag", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "flag" : "flag." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "flag", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
+                const __raw_slug = obj["slug"] as NewSlug;
+
+                ctx.pushScope("slug");
+                try {
+                    const __result = newSlugDecodeWithContext(__raw_slug, ctx);
+                    ctx.assignOrDefer(instance, "slug", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "slug" : "slug." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as NewNested;
+
+                ctx.pushScope("nested");
+                try {
+                    const __result = newNestedDecodeWithContext(__raw_nested, ctx);
+                    ctx.assignOrDefer(instance, "nested", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+                const __raw_plain = obj["plain"] as NewPlain;
+
+                ctx.pushScope("plain");
+                try {
+                    const __result = newPlainDecodeWithContext(__raw_plain, ctx);
+                    ctx.assignOrDefer(instance, "plain", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "plain" : "plain." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "plain", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as NewSlug | null;
+
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = newSlugDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("later")) || (__fields.keeps("later") && obj["later"] !== undefined)) {
+                const __raw_later = obj["later"] as NewCount | undefined;
+                if (__raw_later === undefined) {
+                    instance.later = undefined;
                 } else {
 
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("later")) || (__fields.keeps("later") && obj["later"] !== undefined)) {
-        const __raw_later = obj["later"] as NewCount | undefined;
-        if (__raw_later === undefined) {
-            instance.later = undefined;
-        } else {
+                    ctx.pushScope("later");
+                    try {
+                        const __result = newCountDecodeWithContext(__raw_later, ctx);
+                        ctx.assignOrDefer(instance, "later", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "later" : "later." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-            ctx.pushScope("later");
-            try {
-                const __result = newCountDecodeWithContext(__raw_later, ctx);
-                ctx.assignOrDefer(instance, "later", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "later" : "later." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optional"))) {
+                if (("optional" in obj && obj["optional"] !== undefined)) {
+                    const __raw_optional = obj["optional"] as NewText;
 
-                    errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optional"))) {
-        if (("optional" in obj && obj["optional"] !== undefined)) {
-            const __raw_optional = obj["optional"] as NewText;
+                    ctx.pushScope("optional");
+                    try {
+                        const __result = newTextDecodeWithContext(__raw_optional, ctx);
+                        ctx.assignOrDefer(instance, "optional", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "optional" : "optional." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-            ctx.pushScope("optional");
-            try {
-                const __result = newTextDecodeWithContext(__raw_optional, ctx);
-                ctx.assignOrDefer(instance, "optional", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "optional" : "optional." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as NewSlug[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => newSlugDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "list", message: __raw_list == null ? "NewHolder.list is required" : "expected NewSlug[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as NewSlug[];
-        if (Array.isArray(__raw_list)) {
-            ctx.pushScope("list");
-            try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => newSlugDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "list" : "list." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<NewText>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => newTextDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "set", message: __raw_set == null ? "NewHolder.set is required" : "expected Set<NewText>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "list", message: __raw_list == null ? "NewHolder.list is required" : "expected NewSlug[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
-        const __raw_set = obj["set"] as Array<NewText>;
-        if (Array.isArray(__raw_set)) {
-            ctx.pushScope("set");
-            try {
-                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => newTextDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "set" : "set." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("bySlug")) ? "bySlug" in obj : (__fields.keeps("bySlug") && obj["bySlug"] !== undefined)) {
+                const __raw_bySlug = obj["bySlug"] as Record<string, NewCount>;
+                if (typeof __raw_bySlug === "object" && __raw_bySlug !== null) {
+                    ctx.pushScope("bySlug");
+                    try {
+                        instance.bySlug = __mf_decodeMap(__raw_bySlug, ctx, (__key0) => newSlugDecodeWithContext(__key0, ctx), (__raw0) => newCountDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "bySlug" : "bySlug." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "bySlug", message: __raw_bySlug == null ? "NewHolder.bySlug is required" : "expected Map<NewSlug, NewCount>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "set", message: __raw_set == null ? "NewHolder.set is required" : "expected Set<NewText>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("bySlug")) ? "bySlug" in obj : (__fields.keeps("bySlug") && obj["bySlug"] !== undefined)) {
-        const __raw_bySlug = obj["bySlug"] as Record<string, NewCount>;
-        if (typeof __raw_bySlug === "object" && __raw_bySlug !== null) {
-            ctx.pushScope("bySlug");
-            try {
-                instance.bySlug = __mf_decodeMap(__raw_bySlug, ctx, (__key0) => newSlugDecodeWithContext(__key0, ctx), (__raw0) => newCountDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "bySlug" : "bySlug." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+                const __raw_record = obj["record"] as Record<string, NewCount>;
+                if (typeof __raw_record === "object" && __raw_record !== null) {
+                    ctx.pushScope("record");
+                    try {
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => newCountDecodeWithContext(__raw0, ctx)) as Record<string, NewCount>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "record" : "record." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "record", message: __raw_record == null ? "NewHolder.record is required" : "expected Record<string, NewCount>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "bySlug", message: __raw_bySlug == null ? "NewHolder.bySlug is required" : "expected Map<NewSlug, NewCount>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
-        const __raw_record = obj["record"] as Record<string, NewCount>;
-        if (typeof __raw_record === "object" && __raw_record !== null) {
-            ctx.pushScope("record");
-            try {
-                instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => newCountDecodeWithContext(__raw0, ctx)) as Record<string, NewCount>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "record" : "record." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [NewText, NewCount];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => newTextDecodeWithContext(__raw0, ctx), (__raw0) => newCountDecodeWithContext(__raw0, ctx)], 2) as [NewText, NewCount]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "NewHolder.pair is required" : "expected [NewText, NewCount]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "record", message: __raw_record == null ? "NewHolder.record is required" : "expected Record<string, NewCount>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [NewText, NewCount];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => newTextDecodeWithContext(__raw0, ctx), (__raw0) => newCountDecodeWithContext(__raw0, ctx)], 2) as [NewText, NewCount]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "NewHolder.pair is required" : "expected [NewText, NewCount]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1660,7 +1712,7 @@ export function newHolderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "text") && __mf_holds(obj, "count") && __mf_holds(obj, "flag") && __mf_holds(obj, "slug") && __mf_holds(obj, "nested") && __mf_holds(obj, "plain") && __mf_holds(obj, "maybe") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "bySlug") && __mf_holds(obj, "record") && __mf_holds(obj, "pair");
+    return __mf_holdsAll(obj, ["text", "count", "flag", "slug", "nested", "plain", "maybe", "list", "set", "bySlug", "record", "pair"]);
 }
 
 export function newHolderIs(obj: unknown): obj is NewHolder {
@@ -1731,40 +1783,45 @@ export function newOrderedClone(value: NewOrdered): NewOrdered {
 
 export function newOrderedEquals(a: NewOrdered, b: NewOrdered): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => newSlugEquals(a.slug, b.slug) && newCountEquals(a.count, b.count) && newTotalEquals(a.total, b.total) && newFlagEquals(a.flag, b.flag));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => newSlugEquals(a.slug, b.slug),
+            () => newCountEquals(a.count, b.count),
+            () => newTotalEquals(a.total, b.total),
+            () => newFlagEquals(a.flag, b.flag),
+        ].every((same) => same());
+    });
 }
 
 export function newOrderedPartialCompare(a: NewOrdered, b: NewOrdered): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = newSlugPartialCompare(a.slug, b.slug);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = newCountPartialCompare(a.count, b.count);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = newTotalPartialCompare(a.total, b.total);
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-    const cmp3 = newFlagPartialCompare(a.flag, b.flag);
-    if (cmp3 === null) return null;
-    if (cmp3 !== 0) return cmp3;
-        return 0;
+    for (const __order of [
+        () => newSlugPartialCompare(a.slug, b.slug),
+        () => newCountPartialCompare(a.count, b.count),
+        () => newTotalPartialCompare(a.total, b.total),
+        () => newFlagPartialCompare(a.flag, b.flag),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function newOrderedCompare(a: NewOrdered, b: NewOrdered): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = newSlugCompare(a.slug, b.slug);
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = newCountCompare(a.count, b.count);
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = newTotalCompare(a.total, b.total);
-    if (cmp2 !== 0) return cmp2;
-    const cmp3 = newFlagCompare(a.flag, b.flag);
-    if (cmp3 !== 0) return cmp3;
-        return 0;
+    for (const __order of [
+        () => newSlugCompare(a.slug, b.slug),
+        () => newCountCompare(a.count, b.count),
+        () => newTotalCompare(a.total, b.total),
+        () => newFlagCompare(a.flag, b.flag),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -1806,10 +1863,15 @@ export function newLedgerClone(value: NewLedger): NewLedger {
 
 export function newLedgerEquals(a: NewLedger, b: NewLedger): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => newTotalEquals(a.total, b.total) && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
-	const __other0 = b.totals[__index0];
-	return __other0 === undefined ? __item0 === undefined : newTotalEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => newTotalEquals(a.total, b.total),
+            () => a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
+            	const __other0 = b.totals[__index0];
+            	return __other0 === undefined ? __item0 === undefined : newTotalEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function newLedgerHashCode(value: NewLedger): number {
@@ -1849,15 +1911,23 @@ export function newLedgerEncodePartialWithContext(value: Partial<NewLedger>, ctx
 }
 
 function newLedgerEncodeFields(value: NewLedger, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("total")) {
-        if (value.total !== undefined) {
-            result["total"] = newTotalEncodeWithContext(value.total, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("totals")) {
-        if (value.totals !== undefined) {
-            result["totals"] = value.totals.map((__item0) => newTotalEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("total")) {
+                if (value.total !== undefined) {
+                    result["total"] = newTotalEncodeWithContext(value.total, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("totals")) {
+                if (value.totals !== undefined) {
+                    result["totals"] = value.totals.map((__item0) => newTotalEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1935,11 +2005,12 @@ export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("total")) && !("total" in obj)) {
-        errors.push({ field: "total", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("totals")) && !("totals" in obj)) {
-        errors.push({ field: "totals", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["total", "total"], ["totals", "totals"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1950,52 +2021,60 @@ export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
-        const __raw_total = obj["total"] as NewTotal;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
+                const __raw_total = obj["total"] as NewTotal;
 
-        ctx.pushScope("total");
-        try {
-            const __result = newTotalDecodeWithContext(__raw_total, ctx);
-            ctx.assignOrDefer(instance, "total", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "total" : "total." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("total");
+                try {
+                    const __result = newTotalDecodeWithContext(__raw_total, ctx);
+                    ctx.assignOrDefer(instance, "total", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "total" : "total." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "total", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "total", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("totals")) ? "totals" in obj : (__fields.keeps("totals") && obj["totals"] !== undefined)) {
-        const __raw_totals = obj["totals"] as NewTotal[];
-        if (Array.isArray(__raw_totals)) {
-            ctx.pushScope("totals");
-            try {
-                instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => newTotalDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "totals" : "totals." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("totals")) ? "totals" in obj : (__fields.keeps("totals") && obj["totals"] !== undefined)) {
+                const __raw_totals = obj["totals"] as NewTotal[];
+                if (Array.isArray(__raw_totals)) {
+                    ctx.pushScope("totals");
+                    try {
+                        instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => newTotalDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "totals" : "totals." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "totals", message: __raw_totals == null ? "NewLedger.totals is required" : "expected NewTotal[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "totals", message: __raw_totals == null ? "NewLedger.totals is required" : "expected NewTotal[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2020,7 +2099,7 @@ export function newLedgerHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "total") && __mf_holds(obj, "totals");
+    return __mf_holdsAll(obj, ["total", "totals"]);
 }
 
 export function newLedgerIs(obj: unknown): obj is NewLedger {
@@ -2417,15 +2496,23 @@ export function newPointEncodePartialWithContext(value: Partial<NewPoint>, ctx: 
 }
 
 function newPointEncodeFields(value: NewPoint, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("x")) {
-        if (value.x !== undefined) {
-            result["x"] = value.x;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("x")) {
+                if (value.x !== undefined) {
+                    result["x"] = value.x;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2503,11 +2590,12 @@ export function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
-        errors.push({ field: "x", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["x", "x"], ["at", "at"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2518,26 +2606,34 @@ export function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
-        const __raw_x = obj["x"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+                const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
-            errors.push({ field: "x", message: __raw_x == null ? "NewPoint.x is required" : "expected number" });
-        } else {
-            instance.x = __raw_x;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
-
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "NewPoint.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
+                if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+                    errors.push({ field: "x", message: __raw_x == null ? "NewPoint.x is required" : "expected number" });
+                } else {
+                    instance.x = __raw_x;
+                }
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "NewPoint.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2562,7 +2658,7 @@ export function newPointHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "x") && __mf_holds(obj, "at");
+    return __mf_holdsAll(obj, ["x", "at"]);
 }
 
 export function newPointIs(obj: unknown): obj is NewPoint {
@@ -2639,8 +2735,16 @@ export function newPairEncodeWithContext(value: NewPair): unknown {
     };
     return ((value: { e0: number; e1: Date }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result["e0"] = value.e0;
-        result["e1"] = value.e1.toISOString();
+        for (const __part of [
+            () => {
+                result["e0"] = value.e0;
+            },
+            () => {
+                result["e1"] = value.e1.toISOString();
+            },
+        ]) {
+            __part();
+        }
         const __tuple: unknown[] = [];
         __tuple.push(result["e0"] ?? null);
         __tuple.push(result["e1"] ?? null);
@@ -2735,26 +2839,34 @@ export function newPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     });
     ctx.trackForFreeze(tuple);
 
-    if ("0" in obj) {
-        const __raw_e0 = obj["0"] as number;
+    for (const __part of [
+        () => {
+            if ("0" in obj) {
+                const __raw_e0 = obj["0"] as number;
 
-        if (!(typeof __raw_e0 === "number" && globalThis.Number.isFinite(__raw_e0))) {
-            errors.push({ field: "0", message: __raw_e0 == null ? "NewPair.0 is required" : "expected number" });
-        } else {
-            instance.e0 = __raw_e0;
-        }
-    }
-    if ("1" in obj) {
-        const __raw_e1 = obj["1"] as string | Date;
-
-        {
-            const __dateVal = (__raw_e1 instanceof Date ? __raw_e1 : typeof __raw_e1 === "string" ? new Date(__raw_e1) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "1", message: __raw_e1 == null ? "NewPair.1 is required" : "expected Date" });
-            } else {
-                instance.e1 = __dateVal;
+                if (!(typeof __raw_e0 === "number" && globalThis.Number.isFinite(__raw_e0))) {
+                    errors.push({ field: "0", message: __raw_e0 == null ? "NewPair.0 is required" : "expected number" });
+                } else {
+                    instance.e0 = __raw_e0;
+                }
             }
-        }
+        },
+        () => {
+            if ("1" in obj) {
+                const __raw_e1 = obj["1"] as string | Date;
+
+                {
+                    const __dateVal = (__raw_e1 instanceof Date ? __raw_e1 : typeof __raw_e1 === "string" ? new Date(__raw_e1) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "1", message: __raw_e1 == null ? "NewPair.1 is required" : "expected Date" });
+                    } else {
+                        instance.e1 = __dateVal;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -3466,175 +3578,175 @@ export {};
 
 ## Mapping
 
-original 0..426 -> expanded 1790..2216
-original 442..443 -> expanded 2260..2261
-original 443..560 -> expanded 6564..6681
-original 576..577 -> expanded 6725..6726
-original 577..694 -> expanded 11330..11447
-original 710..711 -> expanded 11491..11492
-original 711..827 -> expanded 16485..16601
-original 844..845 -> expanded 16646..16647
-original 845..1020 -> expanded 20880..21055
-original 1036..1037 -> expanded 21099..21100
-original 1037..1155 -> expanded 25761..25879
-original 1181..1182 -> expanded 25961..25962
-original 1182..1306 -> expanded 30631..30755
-original 1306..1764 -> expanded 35123..35581
-original 1764..1938 -> expanded 68938..69112
-original 1938..2077 -> expanded 71746..71885
-original 2077..2173 -> expanded 84043..84139
-original 2187..2188 -> expanded 84181..84182
-original 2188..2283 -> expanded 89366..89461
-original 2301..2302 -> expanded 89507..89508
-original 2302..2441 -> expanded 94976..95115
-original 2474..2475 -> expanded 95177..95178
-original 2475..2561 -> expanded 105492..105578
-original 2585..2586 -> expanded 105631..105632
-original 2586..2587 -> expanded 112145..112146
-generated 0..1293 <- imports
-generated 1293..1338 <- $Newtype
-generated 1338..1383 <- $Newtype
-generated 1383..1428 <- $Newtype
-generated 1428..1473 <- $Newtype
-generated 1473..1518 <- $Newtype
-generated 1518..1563 <- $Newtype
-generated 1563..1608 <- $Newtype
-generated 1608..1653 <- $Newtype
-generated 1653..1698 <- $Newtype
-generated 1698..1744 <- $Newtype
-generated 1744..1790 <- $Newtype
-generated 2216..2260 <- $Newtype
-generated 2261..2367 <- Debug
-generated 2367..2444 <- Clone
-generated 2444..2532 <- PartialEq
-generated 2532..2687 <- Hash
-generated 2687..2808 <- PartialOrd
-generated 2808..2915 <- Ord
-generated 2915..2993 <- Default
-generated 2993..3709 <- Encode
-generated 3709..5521 <- Decode
-generated 5521..6564 <- __convenience_const
-generated 6681..6725 <- $Newtype
-generated 6726..6835 <- Debug
-generated 6835..6915 <- Clone
-generated 6915..7006 <- PartialEq
-generated 7006..7204 <- Hash
-generated 7204..7369 <- PartialOrd
-generated 7369..7524 <- Ord
-generated 7524..7604 <- Default
-generated 7604..8328 <- Encode
-generated 8328..10260 <- Decode
-generated 10260..11330 <- __convenience_const
-generated 11447..11491 <- $Newtype
-generated 11492..11601 <- Debug
-generated 11601..11681 <- Clone
-generated 11681..11772 <- PartialEq
-generated 11772..11932 <- Hash
-generated 11932..12056 <- PartialOrd
-generated 12056..12166 <- Ord
-generated 12166..12247 <- Default
-generated 12247..13011 <- Encode
-generated 13011..15415 <- Decode
-generated 15415..16485 <- __convenience_const
-generated 16601..16646 <- $Newtype
-generated 16647..16753 <- Debug
-generated 16753..16830 <- Clone
-generated 16830..16918 <- PartialEq
-generated 16918..17011 <- Hash
-generated 17011..17130 <- PartialOrd
-generated 17130..17235 <- Ord
-generated 17235..17316 <- Default
-generated 17316..18032 <- Encode
-generated 18032..19837 <- Decode
-generated 19837..20880 <- __convenience_const
-generated 21055..21099 <- $Newtype
-generated 21100..21206 <- Debug
-generated 21206..21283 <- Clone
-generated 21283..21371 <- PartialEq
-generated 21371..21526 <- Hash
-generated 21526..21647 <- PartialOrd
-generated 21647..21754 <- Ord
-generated 21754..21836 <- Default
-generated 21836..22552 <- Encode
-generated 22552..24718 <- Decode
-generated 24718..25761 <- __convenience_const
-generated 25879..25961 <- $Newtype
-generated 25962..26074 <- Debug
-generated 26074..26157 <- Clone
-generated 26157..26251 <- PartialEq
-generated 26251..26451 <- Hash
-generated 26451..26619 <- PartialOrd
-generated 26619..26777 <- Ord
-generated 26777..26860 <- Default
-generated 26860..27592 <- Encode
-generated 27592..29534 <- Decode
-generated 29534..30631 <- __convenience_const
-generated 30755..30864 <- Debug
-generated 30864..30944 <- Clone
-generated 30944..31035 <- PartialEq
-generated 31035..31192 <- Hash
-generated 31192..31316 <- PartialOrd
-generated 31316..31426 <- Ord
-generated 31426..31507 <- Default
-generated 31507..32231 <- Encode
-generated 32231..34053 <- Decode
-generated 34053..35123 <- __convenience_const
-generated 35581..36799 <- Debug
-generated 36799..37788 <- Clone
-generated 37788..39154 <- PartialEq
-generated 39154..40532 <- Hash
-generated 40532..41039 <- Default
-generated 41039..46040 <- Encode
-generated 46040..67533 <- Decode
-generated 67533..68938 <- __convenience_const
-generated 69112..69557 <- Debug
-generated 69557..69822 <- Clone
-generated 69822..70106 <- PartialEq
-generated 70106..70801 <- PartialOrd
-generated 70801..71310 <- Ord
-generated 71310..71746 <- __convenience_const
-generated 71885..72244 <- Debug
-generated 72244..72467 <- Clone
-generated 72467..72861 <- PartialEq
-generated 72861..73215 <- Hash
-generated 73215..75617 <- Encode
-generated 75617..82732 <- Decode
-generated 82732..84043 <- __convenience_const
-generated 84139..84181 <- $Newtype
-generated 84182..84305 <- Debug
-generated 84305..84407 <- Clone
-generated 84407..84548 <- PartialEq
-generated 84548..84650 <- Hash
-generated 84650..84749 <- Default
-generated 84749..85746 <- Encode
-generated 85746..88468 <- Decode
-generated 88468..89366 <- __convenience_const
-generated 89461..89507 <- $Newtype
-generated 89508..89628 <- Debug
-generated 89628..89727 <- Clone
-generated 89727..89865 <- PartialEq
-generated 89865..89965 <- Hash
-generated 89965..90057 <- Default
-generated 90057..91037 <- Encode
-generated 91037..94101 <- Decode
-generated 94101..94976 <- __convenience_const
-generated 95115..95177 <- $Newtype
-generated 95178..95301 <- Debug
-generated 95301..95403 <- Clone
-generated 95403..95544 <- PartialEq
-generated 95544..95646 <- Hash
-generated 95646..95754 <- Default
-generated 95754..98034 <- Encode
-generated 98034..104118 <- Decode
-generated 104118..105492 <- __convenience_const
-generated 105578..105631 <- $Newtype
-generated 105632..105752 <- Debug
-generated 105752..105851 <- Clone
-generated 105851..105989 <- PartialEq
-generated 105989..106089 <- Hash
-generated 106089..107331 <- Encode
-generated 107331..111360 <- Decode
-generated 111360..112145 <- __convenience_const
+original 0..426 -> expanded 1796..2222
+original 442..443 -> expanded 2266..2267
+original 443..560 -> expanded 6570..6687
+original 576..577 -> expanded 6731..6732
+original 577..694 -> expanded 11336..11453
+original 710..711 -> expanded 11497..11498
+original 711..827 -> expanded 16491..16607
+original 844..845 -> expanded 16652..16653
+original 845..1020 -> expanded 20886..21061
+original 1036..1037 -> expanded 21105..21106
+original 1037..1155 -> expanded 25767..25885
+original 1181..1182 -> expanded 25967..25968
+original 1182..1306 -> expanded 30637..30761
+original 1306..1764 -> expanded 35129..35587
+original 1764..1938 -> expanded 71603..71777
+original 1938..2077 -> expanded 74346..74485
+original 2077..2173 -> expanded 87435..87531
+original 2187..2188 -> expanded 87573..87574
+original 2188..2283 -> expanded 92758..92853
+original 2301..2302 -> expanded 92899..92900
+original 2302..2441 -> expanded 98368..98507
+original 2474..2475 -> expanded 98569..98570
+original 2475..2561 -> expanded 109345..109431
+original 2585..2586 -> expanded 109484..109485
+original 2586..2587 -> expanded 116426..116427
+generated 0..1299 <- imports
+generated 1299..1344 <- $Newtype
+generated 1344..1389 <- $Newtype
+generated 1389..1434 <- $Newtype
+generated 1434..1479 <- $Newtype
+generated 1479..1524 <- $Newtype
+generated 1524..1569 <- $Newtype
+generated 1569..1614 <- $Newtype
+generated 1614..1659 <- $Newtype
+generated 1659..1704 <- $Newtype
+generated 1704..1750 <- $Newtype
+generated 1750..1796 <- $Newtype
+generated 2222..2266 <- $Newtype
+generated 2267..2373 <- Debug
+generated 2373..2450 <- Clone
+generated 2450..2538 <- PartialEq
+generated 2538..2693 <- Hash
+generated 2693..2814 <- PartialOrd
+generated 2814..2921 <- Ord
+generated 2921..2999 <- Default
+generated 2999..3715 <- Encode
+generated 3715..5527 <- Decode
+generated 5527..6570 <- __convenience_const
+generated 6687..6731 <- $Newtype
+generated 6732..6841 <- Debug
+generated 6841..6921 <- Clone
+generated 6921..7012 <- PartialEq
+generated 7012..7210 <- Hash
+generated 7210..7375 <- PartialOrd
+generated 7375..7530 <- Ord
+generated 7530..7610 <- Default
+generated 7610..8334 <- Encode
+generated 8334..10266 <- Decode
+generated 10266..11336 <- __convenience_const
+generated 11453..11497 <- $Newtype
+generated 11498..11607 <- Debug
+generated 11607..11687 <- Clone
+generated 11687..11778 <- PartialEq
+generated 11778..11938 <- Hash
+generated 11938..12062 <- PartialOrd
+generated 12062..12172 <- Ord
+generated 12172..12253 <- Default
+generated 12253..13017 <- Encode
+generated 13017..15421 <- Decode
+generated 15421..16491 <- __convenience_const
+generated 16607..16652 <- $Newtype
+generated 16653..16759 <- Debug
+generated 16759..16836 <- Clone
+generated 16836..16924 <- PartialEq
+generated 16924..17017 <- Hash
+generated 17017..17136 <- PartialOrd
+generated 17136..17241 <- Ord
+generated 17241..17322 <- Default
+generated 17322..18038 <- Encode
+generated 18038..19843 <- Decode
+generated 19843..20886 <- __convenience_const
+generated 21061..21105 <- $Newtype
+generated 21106..21212 <- Debug
+generated 21212..21289 <- Clone
+generated 21289..21377 <- PartialEq
+generated 21377..21532 <- Hash
+generated 21532..21653 <- PartialOrd
+generated 21653..21760 <- Ord
+generated 21760..21842 <- Default
+generated 21842..22558 <- Encode
+generated 22558..24724 <- Decode
+generated 24724..25767 <- __convenience_const
+generated 25885..25967 <- $Newtype
+generated 25968..26080 <- Debug
+generated 26080..26163 <- Clone
+generated 26163..26257 <- PartialEq
+generated 26257..26457 <- Hash
+generated 26457..26625 <- PartialOrd
+generated 26625..26783 <- Ord
+generated 26783..26866 <- Default
+generated 26866..27598 <- Encode
+generated 27598..29540 <- Decode
+generated 29540..30637 <- __convenience_const
+generated 30761..30870 <- Debug
+generated 30870..30950 <- Clone
+generated 30950..31041 <- PartialEq
+generated 31041..31198 <- Hash
+generated 31198..31322 <- PartialOrd
+generated 31322..31432 <- Ord
+generated 31432..31513 <- Default
+generated 31513..32237 <- Encode
+generated 32237..34059 <- Decode
+generated 34059..35129 <- __convenience_const
+generated 35587..36805 <- Debug
+generated 36805..37794 <- Clone
+generated 37794..39513 <- PartialEq
+generated 39513..40891 <- Hash
+generated 40891..41398 <- Default
+generated 41398..47397 <- Encode
+generated 47397..70198 <- Decode
+generated 70198..71603 <- __convenience_const
+generated 71777..72222 <- Debug
+generated 72222..72487 <- Clone
+generated 72487..72898 <- PartialEq
+generated 72898..73425 <- PartialOrd
+generated 73425..73910 <- Ord
+generated 73910..74346 <- __convenience_const
+generated 74485..74844 <- Debug
+generated 74844..75067 <- Clone
+generated 75067..75592 <- PartialEq
+generated 75592..75946 <- Hash
+generated 75946..78542 <- Encode
+generated 78542..86124 <- Decode
+generated 86124..87435 <- __convenience_const
+generated 87531..87573 <- $Newtype
+generated 87574..87697 <- Debug
+generated 87697..87799 <- Clone
+generated 87799..87940 <- PartialEq
+generated 87940..88042 <- Hash
+generated 88042..88141 <- Default
+generated 88141..89138 <- Encode
+generated 89138..91860 <- Decode
+generated 91860..92758 <- __convenience_const
+generated 92853..92899 <- $Newtype
+generated 92900..93020 <- Debug
+generated 93020..93119 <- Clone
+generated 93119..93257 <- PartialEq
+generated 93257..93357 <- Hash
+generated 93357..93449 <- Default
+generated 93449..94429 <- Encode
+generated 94429..97493 <- Decode
+generated 97493..98368 <- __convenience_const
+generated 98507..98569 <- $Newtype
+generated 98570..98693 <- Debug
+generated 98693..98795 <- Clone
+generated 98795..98936 <- PartialEq
+generated 98936..99038 <- Hash
+generated 99038..99146 <- Default
+generated 99146..101620 <- Encode
+generated 101620..107971 <- Decode
+generated 107971..109345 <- __convenience_const
+generated 109431..109484 <- $Newtype
+generated 109485..109605 <- Debug
+generated 109605..109704 <- Clone
+generated 109704..109842 <- PartialEq
+generated 109842..109942 <- Hash
+generated 109942..111346 <- Encode
+generated 111346..115641 <- Decode
+generated 115641..116426 <- __convenience_const
 
 ## Metadata
 

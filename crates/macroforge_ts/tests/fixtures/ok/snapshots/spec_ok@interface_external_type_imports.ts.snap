@@ -19,7 +19,7 @@ true
 ## Output
 
 import { metadataDecodeWithContext, metadataEncodeWithContext, metadataDefaultValue } from "./metadata.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Metadata } from './metadata.svelte';
 
@@ -143,8 +143,12 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("metadata")) && !("metadata" in obj)) {
-        errors.push({ field: "metadata", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["metadata", "metadata"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -201,7 +205,7 @@ export function userHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "metadata");
+    return __mf_holdsAll(obj, ["metadata"]);
 }
 
 export function userIs(obj: unknown): obj is User {
@@ -294,14 +298,14 @@ export declare const User: {
 
 ## Mapping
 
-original 0..47 -> expanded 791..838
-original 86..136 -> expanded 838..888
-original 136..137 -> expanded 9804..9805
-generated 0..791 <- imports
-generated 888..996 <- Default
-generated 996..3112 <- Encode
-generated 3112..8806 <- Decode
-generated 8806..9804 <- __convenience_const
+original 0..47 -> expanded 797..844
+original 86..136 -> expanded 844..894
+original 136..137 -> expanded 9969..9970
+generated 0..797 <- imports
+generated 894..1002 <- Default
+generated 1002..3118 <- Encode
+generated 3118..8971 <- Decode
+generated 8971..9969 <- __convenience_const
 
 ## Metadata
 

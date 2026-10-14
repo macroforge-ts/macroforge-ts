@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * One class per validator in the endec validators documentation, each holding
@@ -105,8 +105,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocEmail.prototype);
@@ -160,7 +164,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocEmail {
@@ -285,8 +289,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocUrl.prototype);
@@ -340,7 +348,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocUrl {
@@ -465,8 +473,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocUuid.prototype);
@@ -520,7 +532,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocUuid {
@@ -645,8 +657,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocPattern.prototype);
@@ -700,7 +716,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocPattern {
@@ -825,8 +841,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocPatternWithSlash.prototype);
@@ -880,7 +900,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocPatternWithSlash {
@@ -1005,8 +1025,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMinLength.prototype);
@@ -1060,7 +1084,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMinLength {
@@ -1185,8 +1209,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMaxLength.prototype);
@@ -1240,7 +1268,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMaxLength {
@@ -1365,8 +1393,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLength.prototype);
@@ -1420,7 +1452,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLength {
@@ -1545,8 +1577,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLengthRange.prototype);
@@ -1600,7 +1636,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLengthRange {
@@ -1725,8 +1761,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonEmpty.prototype);
@@ -1780,7 +1820,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonEmpty {
@@ -1905,8 +1945,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocTrimmed.prototype);
@@ -1960,7 +2004,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocTrimmed {
@@ -2085,8 +2129,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLowercase.prototype);
@@ -2140,7 +2188,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLowercase {
@@ -2265,8 +2313,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocUppercase.prototype);
@@ -2320,7 +2372,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocUppercase {
@@ -2445,8 +2497,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocCapitalized.prototype);
@@ -2500,7 +2556,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocCapitalized {
@@ -2625,8 +2681,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocUncapitalized.prototype);
@@ -2680,7 +2740,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocUncapitalized {
@@ -2805,8 +2865,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocStartsWith.prototype);
@@ -2860,7 +2924,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocStartsWith {
@@ -2985,8 +3049,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocStartsWithQuote.prototype);
@@ -3040,7 +3108,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocStartsWithQuote {
@@ -3165,8 +3233,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocEndsWith.prototype);
@@ -3220,7 +3292,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocEndsWith {
@@ -3345,8 +3417,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocIncludes.prototype);
@@ -3400,7 +3476,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocIncludes {
@@ -3525,8 +3601,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocGreaterThan.prototype);
@@ -3580,7 +3660,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocGreaterThan {
@@ -3705,8 +3785,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocGreaterThanOrEqualTo.prototype);
@@ -3760,7 +3844,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocGreaterThanOrEqualTo {
@@ -3885,8 +3969,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLessThan.prototype);
@@ -3940,7 +4028,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLessThan {
@@ -4065,8 +4153,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLessThanOrEqualTo.prototype);
@@ -4120,7 +4212,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLessThanOrEqualTo {
@@ -4245,8 +4337,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocBetween.prototype);
@@ -4300,7 +4396,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocBetween {
@@ -4425,8 +4521,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocInt.prototype);
@@ -4480,7 +4580,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocInt {
@@ -4605,8 +4705,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonNegativeInt.prototype);
@@ -4660,7 +4764,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonNegativeInt {
@@ -4785,8 +4889,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocUint8.prototype);
@@ -4840,7 +4948,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocUint8 {
@@ -4965,8 +5073,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMultipleOfDecimal.prototype);
@@ -5020,7 +5132,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMultipleOfDecimal {
@@ -5145,8 +5257,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMultipleOfInteger.prototype);
@@ -5200,7 +5316,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMultipleOfInteger {
@@ -5325,8 +5441,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocPositive.prototype);
@@ -5380,7 +5500,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocPositive {
@@ -5505,8 +5625,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonNegative.prototype);
@@ -5560,7 +5684,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonNegative {
@@ -5685,8 +5809,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNegative.prototype);
@@ -5740,7 +5868,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNegative {
@@ -5865,8 +5993,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonPositive.prototype);
@@ -5920,7 +6052,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonPositive {
@@ -6045,8 +6177,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocFinite.prototype);
@@ -6100,7 +6236,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocFinite {
@@ -6225,8 +6361,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonNaN.prototype);
@@ -6280,7 +6420,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonNaN {
@@ -6405,8 +6545,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocPositiveBigInt.prototype);
@@ -6465,7 +6609,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocPositiveBigInt {
@@ -6590,8 +6734,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonNegativeBigInt.prototype);
@@ -6650,7 +6798,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonNegativeBigInt {
@@ -6775,8 +6923,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNegativeBigInt.prototype);
@@ -6835,7 +6987,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNegativeBigInt {
@@ -6960,8 +7112,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNonPositiveBigInt.prototype);
@@ -7020,7 +7176,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNonPositiveBigInt {
@@ -7145,8 +7301,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocGreaterThanBigInt.prototype);
@@ -7205,7 +7365,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocGreaterThanBigInt {
@@ -7330,8 +7490,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocGreaterThanOrEqualToBigInt.prototype);
@@ -7390,7 +7554,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocGreaterThanOrEqualToBigInt {
@@ -7515,8 +7679,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLessThanBigInt.prototype);
@@ -7575,7 +7743,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLessThanBigInt {
@@ -7700,8 +7868,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLessThanOrEqualToBigInt.prototype);
@@ -7760,7 +7932,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLessThanOrEqualToBigInt {
@@ -7885,8 +8057,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocBetweenBigInt.prototype);
@@ -7945,7 +8121,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocBetweenBigInt {
@@ -8070,8 +8246,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocValidDate.prototype);
@@ -8127,7 +8307,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocValidDate {
@@ -8252,8 +8432,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocGreaterThanDate.prototype);
@@ -8309,7 +8493,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocGreaterThanDate {
@@ -8434,8 +8618,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocGreaterThanOrEqualToDate.prototype);
@@ -8491,7 +8679,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocGreaterThanOrEqualToDate {
@@ -8616,8 +8804,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLessThanDate.prototype);
@@ -8673,7 +8865,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLessThanDate {
@@ -8798,8 +8990,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocLessThanOrEqualToDate.prototype);
@@ -8855,7 +9051,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocLessThanOrEqualToDate {
@@ -8980,8 +9176,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocBetweenDate.prototype);
@@ -9037,7 +9237,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocBetweenDate {
@@ -9162,8 +9362,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMinItems.prototype);
@@ -9232,7 +9436,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMinItems {
@@ -9357,8 +9561,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMaxItems.prototype);
@@ -9427,7 +9635,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMaxItems {
@@ -9552,8 +9760,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocItemsCount.prototype);
@@ -9622,7 +9834,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocItemsCount {
@@ -9747,8 +9959,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNullableMaxLength.prototype);
@@ -9801,7 +10017,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNullableMaxLength {
@@ -9926,8 +10142,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocNullableDate.prototype);
@@ -9985,7 +10205,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocNullableDate {
@@ -10110,8 +10330,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(DocMessageEscaping.prototype);
@@ -10165,7 +10389,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 static is(obj: unknown): obj is DocMessageEscaping {
@@ -13131,232 +13355,232 @@ export declare function docMessageEscapingIs(value: unknown): value is DocMessag
 
 ## Mapping
 
-original 0..320 -> expanded 536..856
-original 320..321 -> expanded 6751..6752
-original 321..428 -> expanded 8534..8641
-original 428..429 -> expanded 14415..14416
-original 429..538 -> expanded 16168..16277
-original 538..539 -> expanded 22254..22255
-original 539..668 -> expanded 24022..24151
-original 668..669 -> expanded 30074..30075
-original 669..802 -> expanded 31887..32020
-original 802..803 -> expanded 38150..38151
-original 803..925 -> expanded 40098..40220
-original 925..926 -> expanded 46174..46175
-original 926..1048 -> expanded 48017..48139
-original 1048..1049 -> expanded 54090..54091
-original 1049..1165 -> expanded 55933..56049
-original 1165..1166 -> expanded 61928..61929
-original 1166..1290 -> expanded 63726..63850
-original 1290..1291 -> expanded 69937..69938
-original 1291..1408 -> expanded 71810..71927
-original 1408..1409 -> expanded 77819..77820
-original 1409..1524 -> expanded 79647..79762
-original 1524..1525 -> expanded 85640..85641
-original 1525..1644 -> expanded 87453..87572
-original 1644..1645 -> expanded 93529..93530
-original 1645..1764 -> expanded 95372..95491
-original 1764..1765 -> expanded 101448..101449
-original 1765..1888 -> expanded 103291..103414
-original 1888..1889 -> expanded 109513..109514
-original 1889..2016 -> expanded 111386..111513
-original 2016..2017 -> expanded 117670..117671
-original 2017..2145 -> expanded 119573..119701
-original 2145..2146 -> expanded 125675..125676
-original 2146..2281 -> expanded 127533..127668
-original 2281..2282 -> expanded 133778..133779
-original 2282..2406 -> expanded 135711..135835
-original 2406..2407 -> expanded 141745..141746
-original 2407..2531 -> expanded 143573..143697
-original 2531..2532 -> expanded 149604..149605
-original 2532..2658 -> expanded 151432..151558
-original 2658..2659 -> expanded 157562..157563
-original 2659..2803 -> expanded 159435..159579
-original 2803..2804 -> expanded 165850..165851
-original 2804..2924 -> expanded 167858..167978
-original 2924..2925 -> expanded 173895..173896
-original 2925..3063 -> expanded 175723..175861
-original 3063..3064 -> expanded 182045..182046
-original 3064..3186 -> expanded 184008..184130
-original 3186..3187 -> expanded 190081..190082
-original 3187..3294 -> expanded 191894..192001
-original 3294..3295 -> expanded 197827..197828
-original 3295..3424 -> expanded 199580..199709
-original 3424..3425 -> expanded 205902..205903
-original 3425..3536 -> expanded 207820..207931
-original 3536..3537 -> expanded 213896..213897
-original 3537..3670 -> expanded 215679..215812
-original 3670..3671 -> expanded 222041..222042
-original 3671..3802 -> expanded 224004..224135
-original 3802..3803 -> expanded 230352..230353
-original 3803..3920 -> expanded 232315..232432
-original 3920..3921 -> expanded 238340..238341
-original 3921..4044 -> expanded 240168..240291
-original 4044..4045 -> expanded 246286..246287
-original 4045..4162 -> expanded 248159..248276
-original 4162..4163 -> expanded 254184..254185
-original 4163..4286 -> expanded 256012..256135
-original 4286..4287 -> expanded 262130..262131
-original 4287..4400 -> expanded 264003..264116
-original 4400..4401 -> expanded 269962..269963
-original 4401..4514 -> expanded 271760..271873
-original 4514..4515 -> expanded 277795..277796
-original 4515..4644 -> expanded 279593..279722
-original 4644..4645 -> expanded 286046..286047
-original 4645..4780 -> expanded 287964..288099
-original 4780..4781 -> expanded 294507..294508
-original 4781..4910 -> expanded 296470..296599
-original 4910..4911 -> expanded 302923..302924
-original 4911..5046 -> expanded 304841..304976
-original 5046..5047 -> expanded 311384..311385
-original 5047..5185 -> expanded 313347..313485
-original 5185..5186 -> expanded 319902..319903
-original 5186..5342 -> expanded 321865..322021
-original 5342..5343 -> expanded 328696..328697
-original 5343..5475 -> expanded 330794..330926
-original 5475..5476 -> expanded 337259..337260
-original 5476..5626 -> expanded 339177..339327
-original 5626..5627 -> expanded 345918..345919
-original 5627..5761 -> expanded 347971..348105
-original 5761..5762 -> expanded 354479..354480
-original 5762..5879 -> expanded 356382..356499
-original 5879..5880 -> expanded 362622..362623
-original 5880..6023 -> expanded 364465..364608
-original 6023..6024 -> expanded 371004..371005
-original 6024..6185 -> expanded 372937..373098
-original 6185..6186 -> expanded 379743..379744
-original 6186..6323 -> expanded 381811..381948
-original 6323..6324 -> expanded 388269..388270
-original 6324..6479 -> expanded 390157..390312
-original 6479..6480 -> expanded 396882..396883
-original 6480..6629 -> expanded 398905..399054
-original 6629..6630 -> expanded 405560..405561
-original 6630..6752 -> expanded 407433..407555
-original 6752..6753 -> expanded 414084..414085
-original 6753..6875 -> expanded 415912..416034
-original 6875..6876 -> expanded 422560..422561
-original 6876..7002 -> expanded 424388..424514
-original 7002..7003 -> expanded 431098..431099
-original 7003..7140 -> expanded 432956..433093
-original 7140..7141 -> expanded 438946..438947
-original 7141..7290 -> expanded 440909..441058
-original 7290..7291 -> expanded 447165..447166
-original 7291..7463 -> expanded 449053..449225
-original 7463..7464 -> expanded 455236..455237
-original 7464..7465 -> expanded 457169..457170
-generated 0..536 <- imports
-generated 856..6751 <- Decode
-generated 6752..8534 <- Decode
-generated 8641..14415 <- Decode
-generated 14416..16168 <- Decode
-generated 16277..22254 <- Decode
-generated 22255..24022 <- Decode
-generated 24151..30074 <- Decode
-generated 30075..31887 <- Decode
-generated 32020..38150 <- Decode
-generated 38151..40098 <- Decode
-generated 40220..46174 <- Decode
-generated 46175..48017 <- Decode
-generated 48139..54090 <- Decode
-generated 54091..55933 <- Decode
-generated 56049..61928 <- Decode
-generated 61929..63726 <- Decode
-generated 63850..69937 <- Decode
-generated 69938..71810 <- Decode
-generated 71927..77819 <- Decode
-generated 77820..79647 <- Decode
-generated 79762..85640 <- Decode
-generated 85641..87453 <- Decode
-generated 87572..93529 <- Decode
-generated 93530..95372 <- Decode
-generated 95491..101448 <- Decode
-generated 101449..103291 <- Decode
-generated 103414..109513 <- Decode
-generated 109514..111386 <- Decode
-generated 111513..117670 <- Decode
-generated 117671..119573 <- Decode
-generated 119701..125675 <- Decode
-generated 125676..127533 <- Decode
-generated 127668..133778 <- Decode
-generated 133779..135711 <- Decode
-generated 135835..141745 <- Decode
-generated 141746..143573 <- Decode
-generated 143697..149604 <- Decode
-generated 149605..151432 <- Decode
-generated 151558..157562 <- Decode
-generated 157563..159435 <- Decode
-generated 159579..165850 <- Decode
-generated 165851..167858 <- Decode
-generated 167978..173895 <- Decode
-generated 173896..175723 <- Decode
-generated 175861..182045 <- Decode
-generated 182046..184008 <- Decode
-generated 184130..190081 <- Decode
-generated 190082..191894 <- Decode
-generated 192001..197827 <- Decode
-generated 197828..199580 <- Decode
-generated 199709..205902 <- Decode
-generated 205903..207820 <- Decode
-generated 207931..213896 <- Decode
-generated 213897..215679 <- Decode
-generated 215812..222041 <- Decode
-generated 222042..224004 <- Decode
-generated 224135..230352 <- Decode
-generated 230353..232315 <- Decode
-generated 232432..238340 <- Decode
-generated 238341..240168 <- Decode
-generated 240291..246286 <- Decode
-generated 246287..248159 <- Decode
-generated 248276..254184 <- Decode
-generated 254185..256012 <- Decode
-generated 256135..262130 <- Decode
-generated 262131..264003 <- Decode
-generated 264116..269962 <- Decode
-generated 269963..271760 <- Decode
-generated 271873..277795 <- Decode
-generated 277796..279593 <- Decode
-generated 279722..286046 <- Decode
-generated 286047..287964 <- Decode
-generated 288099..294507 <- Decode
-generated 294508..296470 <- Decode
-generated 296599..302923 <- Decode
-generated 302924..304841 <- Decode
-generated 304976..311384 <- Decode
-generated 311385..313347 <- Decode
-generated 313485..319902 <- Decode
-generated 319903..321865 <- Decode
-generated 322021..328696 <- Decode
-generated 328697..330794 <- Decode
-generated 330926..337259 <- Decode
-generated 337260..339177 <- Decode
-generated 339327..345918 <- Decode
-generated 345919..347971 <- Decode
-generated 348105..354479 <- Decode
-generated 354480..356382 <- Decode
-generated 356499..362622 <- Decode
-generated 362623..364465 <- Decode
-generated 364608..371004 <- Decode
-generated 371005..372937 <- Decode
-generated 373098..379743 <- Decode
-generated 379744..381811 <- Decode
-generated 381948..388269 <- Decode
-generated 388270..390157 <- Decode
-generated 390312..396882 <- Decode
-generated 396883..398905 <- Decode
-generated 399054..405560 <- Decode
-generated 405561..407433 <- Decode
-generated 407555..414084 <- Decode
-generated 414085..415912 <- Decode
-generated 416034..422560 <- Decode
-generated 422561..424388 <- Decode
-generated 424514..431098 <- Decode
-generated 431099..432956 <- Decode
-generated 433093..438946 <- Decode
-generated 438947..440909 <- Decode
-generated 441058..447165 <- Decode
-generated 447166..449053 <- Decode
-generated 449225..455236 <- Decode
-generated 455237..457169 <- Decode
+original 0..320 -> expanded 542..862
+original 320..321 -> expanded 6919..6920
+original 321..428 -> expanded 8702..8809
+original 428..429 -> expanded 14745..14746
+original 429..538 -> expanded 16498..16607
+original 538..539 -> expanded 22746..22747
+original 539..668 -> expanded 24514..24643
+original 668..669 -> expanded 30728..30729
+original 669..802 -> expanded 32541..32674
+original 802..803 -> expanded 38966..38967
+original 803..925 -> expanded 40914..41036
+original 925..926 -> expanded 47152..47153
+original 926..1048 -> expanded 48995..49117
+original 1048..1049 -> expanded 55230..55231
+original 1049..1165 -> expanded 57073..57189
+original 1165..1166 -> expanded 63230..63231
+original 1166..1290 -> expanded 65028..65152
+original 1290..1291 -> expanded 71401..71402
+original 1291..1408 -> expanded 73274..73391
+original 1408..1409 -> expanded 79445..79446
+original 1409..1524 -> expanded 81273..81388
+original 1524..1525 -> expanded 87428..87429
+original 1525..1644 -> expanded 89241..89360
+original 1644..1645 -> expanded 95479..95480
+original 1645..1764 -> expanded 97322..97441
+original 1764..1765 -> expanded 103560..103561
+original 1765..1888 -> expanded 105403..105526
+original 1888..1889 -> expanded 111787..111788
+original 1889..2016 -> expanded 113660..113787
+original 2016..2017 -> expanded 120106..120107
+original 2017..2145 -> expanded 122009..122137
+original 2145..2146 -> expanded 128273..128274
+original 2146..2281 -> expanded 130131..130266
+original 2281..2282 -> expanded 136538..136539
+original 2282..2406 -> expanded 138471..138595
+original 2406..2407 -> expanded 144667..144668
+original 2407..2531 -> expanded 146495..146619
+original 2531..2532 -> expanded 152688..152689
+original 2532..2658 -> expanded 154516..154642
+original 2658..2659 -> expanded 160808..160809
+original 2659..2803 -> expanded 162681..162825
+original 2803..2804 -> expanded 169258..169259
+original 2804..2924 -> expanded 171266..171386
+original 2924..2925 -> expanded 177465..177466
+original 2925..3063 -> expanded 179293..179431
+original 3063..3064 -> expanded 185777..185778
+original 3064..3186 -> expanded 187740..187862
+original 3186..3187 -> expanded 193975..193976
+original 3187..3294 -> expanded 195788..195895
+original 3294..3295 -> expanded 201883..201884
+original 3295..3424 -> expanded 203636..203765
+original 3424..3425 -> expanded 210120..210121
+original 3425..3536 -> expanded 212038..212149
+original 3536..3537 -> expanded 218276..218277
+original 3537..3670 -> expanded 220059..220192
+original 3670..3671 -> expanded 226583..226584
+original 3671..3802 -> expanded 228546..228677
+original 3802..3803 -> expanded 235056..235057
+original 3803..3920 -> expanded 237019..237136
+original 3920..3921 -> expanded 243206..243207
+original 3921..4044 -> expanded 245034..245157
+original 4044..4045 -> expanded 251314..251315
+original 4045..4162 -> expanded 253187..253304
+original 4162..4163 -> expanded 259374..259375
+original 4163..4286 -> expanded 261202..261325
+original 4286..4287 -> expanded 267482..267483
+original 4287..4400 -> expanded 269355..269468
+original 4400..4401 -> expanded 275476..275477
+original 4401..4514 -> expanded 277274..277387
+original 4514..4515 -> expanded 283471..283472
+original 4515..4644 -> expanded 285269..285398
+original 4644..4645 -> expanded 291884..291885
+original 4645..4780 -> expanded 293802..293937
+original 4780..4781 -> expanded 300507..300508
+original 4781..4910 -> expanded 302470..302599
+original 4910..4911 -> expanded 309085..309086
+original 4911..5046 -> expanded 311003..311138
+original 5046..5047 -> expanded 317708..317709
+original 5047..5185 -> expanded 319671..319809
+original 5185..5186 -> expanded 326388..326389
+original 5186..5342 -> expanded 328351..328507
+original 5342..5343 -> expanded 335344..335345
+original 5343..5475 -> expanded 337442..337574
+original 5475..5476 -> expanded 344069..344070
+original 5476..5626 -> expanded 345987..346137
+original 5626..5627 -> expanded 352890..352891
+original 5627..5761 -> expanded 354943..355077
+original 5761..5762 -> expanded 361613..361614
+original 5762..5879 -> expanded 363516..363633
+original 5879..5880 -> expanded 369918..369919
+original 5880..6023 -> expanded 371761..371904
+original 6023..6024 -> expanded 378462..378463
+original 6024..6185 -> expanded 380395..380556
+original 6185..6186 -> expanded 387363..387364
+original 6186..6323 -> expanded 389431..389568
+original 6323..6324 -> expanded 396051..396052
+original 6324..6479 -> expanded 397939..398094
+original 6479..6480 -> expanded 404826..404827
+original 6480..6629 -> expanded 406849..406998
+original 6629..6630 -> expanded 413666..413667
+original 6630..6752 -> expanded 415539..415661
+original 6752..6753 -> expanded 422352..422353
+original 6753..6875 -> expanded 424180..424302
+original 6875..6876 -> expanded 430990..430991
+original 6876..7002 -> expanded 432818..432944
+original 7002..7003 -> expanded 439690..439691
+original 7003..7140 -> expanded 441548..441685
+original 7140..7141 -> expanded 447700..447701
+original 7141..7290 -> expanded 449663..449812
+original 7290..7291 -> expanded 456081..456082
+original 7291..7463 -> expanded 457969..458141
+original 7463..7464 -> expanded 464314..464315
+original 7464..7465 -> expanded 466247..466248
+generated 0..542 <- imports
+generated 862..6919 <- Decode
+generated 6920..8702 <- Decode
+generated 8809..14745 <- Decode
+generated 14746..16498 <- Decode
+generated 16607..22746 <- Decode
+generated 22747..24514 <- Decode
+generated 24643..30728 <- Decode
+generated 30729..32541 <- Decode
+generated 32674..38966 <- Decode
+generated 38967..40914 <- Decode
+generated 41036..47152 <- Decode
+generated 47153..48995 <- Decode
+generated 49117..55230 <- Decode
+generated 55231..57073 <- Decode
+generated 57189..63230 <- Decode
+generated 63231..65028 <- Decode
+generated 65152..71401 <- Decode
+generated 71402..73274 <- Decode
+generated 73391..79445 <- Decode
+generated 79446..81273 <- Decode
+generated 81388..87428 <- Decode
+generated 87429..89241 <- Decode
+generated 89360..95479 <- Decode
+generated 95480..97322 <- Decode
+generated 97441..103560 <- Decode
+generated 103561..105403 <- Decode
+generated 105526..111787 <- Decode
+generated 111788..113660 <- Decode
+generated 113787..120106 <- Decode
+generated 120107..122009 <- Decode
+generated 122137..128273 <- Decode
+generated 128274..130131 <- Decode
+generated 130266..136538 <- Decode
+generated 136539..138471 <- Decode
+generated 138595..144667 <- Decode
+generated 144668..146495 <- Decode
+generated 146619..152688 <- Decode
+generated 152689..154516 <- Decode
+generated 154642..160808 <- Decode
+generated 160809..162681 <- Decode
+generated 162825..169258 <- Decode
+generated 169259..171266 <- Decode
+generated 171386..177465 <- Decode
+generated 177466..179293 <- Decode
+generated 179431..185777 <- Decode
+generated 185778..187740 <- Decode
+generated 187862..193975 <- Decode
+generated 193976..195788 <- Decode
+generated 195895..201883 <- Decode
+generated 201884..203636 <- Decode
+generated 203765..210120 <- Decode
+generated 210121..212038 <- Decode
+generated 212149..218276 <- Decode
+generated 218277..220059 <- Decode
+generated 220192..226583 <- Decode
+generated 226584..228546 <- Decode
+generated 228677..235056 <- Decode
+generated 235057..237019 <- Decode
+generated 237136..243206 <- Decode
+generated 243207..245034 <- Decode
+generated 245157..251314 <- Decode
+generated 251315..253187 <- Decode
+generated 253304..259374 <- Decode
+generated 259375..261202 <- Decode
+generated 261325..267482 <- Decode
+generated 267483..269355 <- Decode
+generated 269468..275476 <- Decode
+generated 275477..277274 <- Decode
+generated 277387..283471 <- Decode
+generated 283472..285269 <- Decode
+generated 285398..291884 <- Decode
+generated 291885..293802 <- Decode
+generated 293937..300507 <- Decode
+generated 300508..302470 <- Decode
+generated 302599..309085 <- Decode
+generated 309086..311003 <- Decode
+generated 311138..317708 <- Decode
+generated 317709..319671 <- Decode
+generated 319809..326388 <- Decode
+generated 326389..328351 <- Decode
+generated 328507..335344 <- Decode
+generated 335345..337442 <- Decode
+generated 337574..344069 <- Decode
+generated 344070..345987 <- Decode
+generated 346137..352890 <- Decode
+generated 352891..354943 <- Decode
+generated 355077..361613 <- Decode
+generated 361614..363516 <- Decode
+generated 363633..369918 <- Decode
+generated 369919..371761 <- Decode
+generated 371904..378462 <- Decode
+generated 378463..380395 <- Decode
+generated 380556..387363 <- Decode
+generated 387364..389431 <- Decode
+generated 389568..396051 <- Decode
+generated 396052..397939 <- Decode
+generated 398094..404826 <- Decode
+generated 404827..406849 <- Decode
+generated 406998..413666 <- Decode
+generated 413667..415539 <- Decode
+generated 415661..422352 <- Decode
+generated 422353..424180 <- Decode
+generated 424302..430990 <- Decode
+generated 430991..432818 <- Decode
+generated 432944..439690 <- Decode
+generated 439691..441548 <- Decode
+generated 441685..447700 <- Decode
+generated 447701..449663 <- Decode
+generated 449812..456081 <- Decode
+generated 456082..457969 <- Decode
+generated 458141..464314 <- Decode
+generated 464315..466247 <- Decode
 
 ## Metadata
 

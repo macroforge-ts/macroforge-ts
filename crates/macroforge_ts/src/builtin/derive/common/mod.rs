@@ -80,7 +80,7 @@ pub use type_utils::{
     tuple_compare_statements, tuple_element, undefaultable, undefined_as_null, ungrouped,
 };
 pub use value_type::{
-    Builtin, ClassifiedType, ValueType, classify_value_type, derived_function, field_value_type,
-    fixed_tuple, is_primitive_union, rendered, structural_call, structural_callee,
-    structural_helper,
+    Builtin, ClassifiedType, ValueType, classify_value_type, derived_function, each_on_its_own,
+    field_value_type, first_order, fixed_tuple, is_primitive_union, rendered, structural_call,
+    structural_callee, structural_helper,
 };

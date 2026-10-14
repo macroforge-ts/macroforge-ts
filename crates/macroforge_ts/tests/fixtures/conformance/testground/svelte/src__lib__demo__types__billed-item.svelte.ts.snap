@@ -13,7 +13,7 @@ true
 ## Output
 
 import { itemDecodeWithContext, itemEncodeWithContext } from "./item.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -72,25 +72,37 @@ export function billedItemEncodePartialWithContext(value: Partial<BilledItem>, c
 }
 
 function billedItemEncodeFields(value: BilledItem, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = itemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("quantity")) {
-        if (value.quantity !== undefined) {
-            result["quantity"] = value.quantity;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("taxed")) {
-        if (value.taxed !== undefined) {
-            result["taxed"] = value.taxed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("upsale")) {
-        if (value.upsale !== undefined) {
-            result["upsale"] = value.upsale;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = itemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("quantity")) {
+                if (value.quantity !== undefined) {
+                    result["quantity"] = value.quantity;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("taxed")) {
+                if (value.taxed !== undefined) {
+                    result["taxed"] = value.taxed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("upsale")) {
+                if (value.upsale !== undefined) {
+                    result["upsale"] = value.upsale;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -168,17 +180,12 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("quantity")) && !("quantity" in obj)) {
-        errors.push({ field: "quantity", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("taxed")) && !("taxed" in obj)) {
-        errors.push({ field: "taxed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("upsale")) && !("upsale" in obj)) {
-        errors.push({ field: "upsale", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["item", "item"], ["quantity", "quantity"], ["taxed", "taxed"], ["upsale", "upsale"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -189,55 +196,67 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as Item;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as Item;
 
-        ctx.pushScope("item");
-        try {
-            const __result = itemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("item");
+                try {
+                    const __result = itemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
-        const __raw_quantity = obj["quantity"] as number;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
+                const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
-            errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
-        } else {
-            instance.quantity = __raw_quantity;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("taxed")) ? "taxed" in obj : (__fields.keeps("taxed") && obj["taxed"] !== undefined)) {
-        const __raw_taxed = obj["taxed"] as boolean;
+                if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
+                    errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
+                } else {
+                    instance.quantity = __raw_quantity;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("taxed")) ? "taxed" in obj : (__fields.keeps("taxed") && obj["taxed"] !== undefined)) {
+                const __raw_taxed = obj["taxed"] as boolean;
 
-        if (!(typeof __raw_taxed === "boolean")) {
-            errors.push({ field: "taxed", message: __raw_taxed == null ? "BilledItem.taxed is required" : "expected boolean" });
-        } else {
-            instance.taxed = __raw_taxed;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
-        const __raw_upsale = obj["upsale"] as boolean;
+                if (!(typeof __raw_taxed === "boolean")) {
+                    errors.push({ field: "taxed", message: __raw_taxed == null ? "BilledItem.taxed is required" : "expected boolean" });
+                } else {
+                    instance.taxed = __raw_taxed;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
+                const __raw_upsale = obj["upsale"] as boolean;
 
-        if (!(typeof __raw_upsale === "boolean")) {
-            errors.push({ field: "upsale", message: __raw_upsale == null ? "BilledItem.upsale is required" : "expected boolean" });
-        } else {
-            instance.upsale = __raw_upsale;
-        }
+                if (!(typeof __raw_upsale === "boolean")) {
+                    errors.push({ field: "upsale", message: __raw_upsale == null ? "BilledItem.upsale is required" : "expected boolean" });
+                } else {
+                    instance.upsale = __raw_upsale;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -262,7 +281,7 @@ export function billedItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "item") && __mf_holds(obj, "quantity") && __mf_holds(obj, "taxed") && __mf_holds(obj, "upsale");
+    return __mf_holdsAll(obj, ["item", "quantity", "taxed", "upsale"]);
 }
 
 export function billedItemIs(obj: unknown): obj is BilledItem {
@@ -619,20 +638,20 @@ export declare const BilledItem: {
 
 ## Mapping
 
-original 0..102 -> expanded 916..1018
-original 151..186 -> expanded 1018..1053
-original 297..302 -> expanded 1053..1058
-original 321..342 -> expanded 1058..1079
-original 406..433 -> expanded 1079..1106
-original 477..502 -> expanded 1106..1131
-original 547..570 -> expanded 1131..1154
-original 570..571 -> expanded 20873..20874
-generated 0..916 <- imports
-generated 1154..1316 <- Default
-generated 1316..4001 <- Encode
-generated 4001..11863 <- Decode
-generated 11863..19553 <- Gigaform
-generated 19553..20873 <- __convenience_const
+original 0..102 -> expanded 922..1024
+original 151..186 -> expanded 1024..1059
+original 297..302 -> expanded 1059..1064
+original 321..342 -> expanded 1064..1085
+original 406..433 -> expanded 1085..1112
+original 477..502 -> expanded 1112..1137
+original 547..570 -> expanded 1137..1160
+original 570..571 -> expanded 21390..21391
+generated 0..922 <- imports
+generated 1160..1322 <- Default
+generated 1322..4335 <- Encode
+generated 4335..12380 <- Decode
+generated 12380..20070 <- Gigaform
+generated 20070..21390 <- __convenience_const
 
 ## Metadata
 

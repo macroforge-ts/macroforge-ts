@@ -15,7 +15,7 @@ true
 import { operatorOwnerDecodeWithContext, operatorOwnerEncodeWithContext, operatorOwnerDefaultValue } from "./operator-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import type { OperatorOwner } from "./operator-types";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Fields typed by an operator over a type from another module: `keyof` it,
@@ -58,7 +58,15 @@ export function operatorHolderClone(value: OperatorHolder): OperatorHolder {
 
 export function operatorHolderEquals(a: OperatorHolder, b: OperatorHolder): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.owner, b.owner) && __mf_structuralEquals(a.owners, b.owners) && __mf_structuralEquals(a.label, b.label) && __mf_structuralEquals(a.weight, b.weight) && __mf_structuralEquals(a.key, b.key));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.owner, b.owner),
+            () => __mf_structuralEquals(a.owners, b.owners),
+            () => __mf_structuralEquals(a.label, b.label),
+            () => __mf_structuralEquals(a.weight, b.weight),
+            () => __mf_structuralEquals(a.key, b.key),
+        ].every((same) => same());
+    });
 }
 
 export function operatorHolderHashCode(value: OperatorHolder): number {
@@ -111,30 +119,44 @@ export function operatorHolderEncodePartialWithContext(value: Partial<OperatorHo
 }
 
 function operatorHolderEncodeFields(value: OperatorHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("owner")) {
-        if (value.owner !== undefined) {
-            result["owner"] = operatorOwnerEncodeWithContext(value.owner, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("owners")) {
-        if (value.owners !== undefined) {
-            result["owners"] = value.owners.map((__item0) => operatorOwnerEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("label")) {
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("weight")) {
-        if (value.weight !== undefined) {
-            result["weight"] = value.weight;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("key")) {
-        if (value.key !== undefined) {
-            result["key"] = value.key;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("owner")) {
+                if (value.owner !== undefined) {
+                    result["owner"] = operatorOwnerEncodeWithContext(value.owner, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("owners")) {
+                if (value.owners !== undefined) {
+                    result["owners"] = value.owners.map((__item0) => operatorOwnerEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("label")) {
+                if (value.label !== undefined) {
+                    result["label"] = value.label;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("weight")) {
+                if (value.weight !== undefined) {
+                    result["weight"] = value.weight;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("key")) {
+                if (value.key !== undefined) {
+                    result["key"] = value.key;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -212,17 +234,12 @@ export function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("owner")) && !("owner" in obj)) {
-        errors.push({ field: "owner", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("owners")) && !("owners" in obj)) {
-        errors.push({ field: "owners", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("label")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("key")) && !("key" in obj)) {
-        errors.push({ field: "key", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["owner", "owner"], ["owners", "owners"], ["label", "label"], ["key", "key"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -233,79 +250,93 @@ export function operatorHolderDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("owner")) ? "owner" in obj : (__fields.keeps("owner") && obj["owner"] !== undefined)) {
-        const __raw_owner = obj["owner"] as OperatorOwner;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("owner")) ? "owner" in obj : (__fields.keeps("owner") && obj["owner"] !== undefined)) {
+                const __raw_owner = obj["owner"] as OperatorOwner;
 
-        ctx.pushScope("owner");
-        try {
-            const __result = operatorOwnerDecodeWithContext(__raw_owner, ctx);
-            ctx.assignOrDefer(instance, "owner", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "owner" : "owner." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("owner");
+                try {
+                    const __result = operatorOwnerDecodeWithContext(__raw_owner, ctx);
+                    ctx.assignOrDefer(instance, "owner", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "owner" : "owner." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "owner", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "owner", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("owners")) ? "owners" in obj : (__fields.keeps("owners") && obj["owners"] !== undefined)) {
-        const __raw_owners = obj["owners"] as OperatorOwner[];
-        if (Array.isArray(__raw_owners)) {
-            ctx.pushScope("owners");
-            try {
-                instance.owners = __mf_decodeArray(__raw_owners, ctx, (__raw0) => operatorOwnerDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "owners" : "owners." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("owners")) ? "owners" in obj : (__fields.keeps("owners") && obj["owners"] !== undefined)) {
+                const __raw_owners = obj["owners"] as OperatorOwner[];
+                if (Array.isArray(__raw_owners)) {
+                    ctx.pushScope("owners");
+                    try {
+                        instance.owners = __mf_decodeArray(__raw_owners, ctx, (__raw0) => operatorOwnerDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "owners" : "owners." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "owners", message: __raw_owners == null ? "OperatorHolder.owners is required" : "expected OperatorOwner[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "owners", message: __raw_owners == null ? "OperatorHolder.owners is required" : "expected OperatorOwner[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
-        const __raw_label = obj["label"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
+                const __raw_label = obj["label"] as string;
 
-        if (!(typeof __raw_label === "string")) {
-            errors.push({ field: "label", message: __raw_label == null ? "OperatorHolder.label is required" : "expected string" });
-        } else {
-            instance.label = __raw_label;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("weight")) || (__fields.keeps("weight") && obj["weight"] !== undefined)) {
-        const __raw_weight = obj["weight"] as number | undefined;
+                if (!(typeof __raw_label === "string")) {
+                    errors.push({ field: "label", message: __raw_label == null ? "OperatorHolder.label is required" : "expected string" });
+                } else {
+                    instance.label = __raw_label;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("weight")) || (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+                const __raw_weight = obj["weight"] as number | undefined;
 
-        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight) || __raw_weight === undefined)) {
-            errors.push({ field: "weight", message: "expected number | undefined" });
-        } else {
-            instance.weight = __raw_weight;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
-        const __raw_key = obj["key"] as "owner" | "owners" | "label" | "weight";
+                if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight) || __raw_weight === undefined)) {
+                    errors.push({ field: "weight", message: "expected number | undefined" });
+                } else {
+                    instance.weight = __raw_weight;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
+                const __raw_key = obj["key"] as "owner" | "owners" | "label" | "weight";
 
-        if (!(__raw_key === "owner" || __raw_key === "owners" || __raw_key === "label" || __raw_key === "weight")) {
-            errors.push({ field: "key", message: __raw_key == null ? "OperatorHolder.key is required" : "expected \"owner\" | \"owners\" | \"label\" | \"weight\"" });
-        } else {
-            instance.key = __raw_key;
-        }
+                if (!(__raw_key === "owner" || __raw_key === "owners" || __raw_key === "label" || __raw_key === "weight")) {
+                    errors.push({ field: "key", message: __raw_key == null ? "OperatorHolder.key is required" : "expected \"owner\" | \"owners\" | \"label\" | \"weight\"" });
+                } else {
+                    instance.key = __raw_key;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -330,7 +361,7 @@ export function operatorHolderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "owner") && __mf_holds(obj, "owners") && __mf_holds(obj, "label") && __mf_holds(obj, "key");
+    return __mf_holdsAll(obj, ["owner", "owners", "label", "key"]);
 }
 
 export function operatorHolderIs(obj: unknown): obj is OperatorHolder {
@@ -449,17 +480,17 @@ export declare const OperatorHolder: {
 
 ## Mapping
 
-original 0..502 -> expanded 1241..1743
-original 502..503 -> expanded 17451..17452
-generated 0..1241 <- imports
-generated 1743..2285 <- Debug
-generated 2285..2643 <- Clone
-generated 2643..3016 <- PartialEq
-generated 3016..3512 <- Hash
-generated 3512..3730 <- Default
-generated 3730..6696 <- Encode
-generated 6696..15891 <- Decode
-generated 15891..17451 <- __convenience_const
+original 0..502 -> expanded 1247..1749
+original 502..503 -> expanded 18401..18402
+generated 0..1247 <- imports
+generated 1749..2291 <- Debug
+generated 2291..2649 <- Clone
+generated 2649..3165 <- PartialEq
+generated 3165..3661 <- Hash
+generated 3661..3879 <- Default
+generated 3879..7240 <- Encode
+generated 7240..16841 <- Decode
+generated 16841..18401 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { Derive } from '@macro/derive';
 
@@ -106,8 +106,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("val")) && !("val" in obj)) {
-        errors.push({ field: "val", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["val", "val"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Data.prototype);
@@ -146,7 +150,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "val");
+    return __mf_holdsAll(obj, ["val"]);
 }
 
 static is(obj: unknown): obj is Data {
@@ -246,13 +250,13 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 433..474
-original 63..94 -> expanded 474..505
-original 94..95 -> expanded 5311..5312
-original 95..96 -> expanded 7034..7035
-generated 0..433 <- imports
-generated 505..5311 <- Decode
-generated 5312..7034 <- Decode
+original 0..41 -> expanded 439..480
+original 63..94 -> expanded 480..511
+original 94..95 -> expanded 5481..5482
+original 95..96 -> expanded 7204..7205
+generated 0..439 <- imports
+generated 511..5481 <- Decode
+generated 5482..7204 <- Decode
 
 ## Metadata
 

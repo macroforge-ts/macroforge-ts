@@ -20,7 +20,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Guarded {
@@ -51,7 +51,14 @@ class Guarded {
 
     static equals(a: Guarded, b: Guarded): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && (a.level === b.level || a.level !== a.level && b.level !== b.level) && a.secret === b.secret && a.sealed === b.sealed);
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.level === b.level || a.level !== a.level && b.level !== b.level,
+                    () => a.secret === b.secret,
+                    () => a.sealed === b.sealed,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: Guarded): number {
@@ -68,34 +75,32 @@ class Guarded {
     static partialCompare(a: Guarded, b: Guarded): number | null {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = (a.level < b.level ? -1 : a.level > b.level ? 1 : a.level === b.level || (a.level !== a.level && b.level !== b.level) ? 0 : null);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = (a.secret === b.secret ? 0 : a.secret ? 1 : -1);
-        if (cmp2 === null) return null;
-        if (cmp2 !== 0) return cmp2;
-        const cmp3 = (a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0);
-        if (cmp3 === null) return null;
-        if (cmp3 !== 0) return cmp3;
-            return 0;
+        for (const __order of [
+            () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+            () => (a.level < b.level ? -1 : a.level > b.level ? 1 : a.level === b.level || (a.level !== a.level && b.level !== b.level) ? 0 : null),
+            () => (a.secret === b.secret ? 0 : a.secret ? 1 : -1),
+            () => (a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0),
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
     static compare(a: Guarded, b: Guarded): number {
         if (a === b) return 0;
         return __mf_comparedWithin(a, b, () => {
-        const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.level < b.level ? -1 : a.level > b.level ? 1 : a.level === b.level ? 0 : a.level !== a.level ? b.level !== b.level ? 0 : 1 : -1;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = a.secret === b.secret ? 0 : a.secret ? 1 : -1;
-        if (cmp2 !== 0) return cmp2;
-        const cmp3 = a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0;
-        if (cmp3 !== 0) return cmp3;
-            return 0;
+        for (const __order of [
+            () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+            () => a.level < b.level ? -1 : a.level > b.level ? 1 : a.level === b.level ? 0 : a.level !== a.level ? b.level !== b.level ? 0 : 1 : -1,
+            () => a.secret === b.secret ? 0 : a.secret ? 1 : -1,
+            () => a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0,
+        ]) {
+            const __result = __order();
+            if (__result !== 0) return __result;
+        }
+        return 0;
         });
     }
 
@@ -130,25 +135,37 @@ static encodePartialWithContext(value: Partial<Guarded>, ctx: __mf_EncodeContext
 }
 
 static #encodeFields(value: Guarded, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("level")) {
-        if (value.level !== undefined) {
-            result["level"] = value.level;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("secret")) {
-        if (value.secret !== undefined) {
-            result["secret"] = value.secret;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("sealed")) {
-        if (value.sealed !== undefined) {
-            result["sealed"] = value.sealed;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("level")) {
+                if (value.level !== undefined) {
+                    result["level"] = value.level;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("secret")) {
+                if (value.secret !== undefined) {
+                    result["secret"] = value.secret;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sealed")) {
+                if (value.sealed !== undefined) {
+                    result["sealed"] = value.sealed;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -240,17 +257,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("level")) && !("level" in obj)) {
-        errors.push({ field: "level", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("secret")) && !("secret" in obj)) {
-        errors.push({ field: "secret", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("sealed")) && !("sealed" in obj)) {
-        errors.push({ field: "sealed", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["level", "level"], ["secret", "secret"], ["sealed", "sealed"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Guarded.prototype);
@@ -261,41 +273,53 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "Guarded.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("level")) ? "level" in obj : (__fields.keeps("level") && obj["level"] !== undefined)) {
-        const __raw_level = obj["level"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "Guarded.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("level")) ? "level" in obj : (__fields.keeps("level") && obj["level"] !== undefined)) {
+                const __raw_level = obj["level"] as number;
 
-        if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
-            errors.push({ field: "level", message: __raw_level == null ? "Guarded.level is required" : "expected number" });
-        } else {
-            instance.level = __raw_level;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
-        const __raw_secret = obj["secret"] as boolean;
+                if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
+                    errors.push({ field: "level", message: __raw_level == null ? "Guarded.level is required" : "expected number" });
+                } else {
+                    instance.level = __raw_level;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+                const __raw_secret = obj["secret"] as boolean;
 
-        if (!(typeof __raw_secret === "boolean")) {
-            errors.push({ field: "secret", message: __raw_secret == null ? "Guarded.secret is required" : "expected boolean" });
-        } else {
-            instance.secret = __raw_secret;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("sealed")) ? "sealed" in obj : (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
-        const __raw_sealed = obj["sealed"] as string;
+                if (!(typeof __raw_secret === "boolean")) {
+                    errors.push({ field: "secret", message: __raw_secret == null ? "Guarded.secret is required" : "expected boolean" });
+                } else {
+                    instance.secret = __raw_secret;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sealed")) ? "sealed" in obj : (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
+                const __raw_sealed = obj["sealed"] as string;
 
-        if (!(typeof __raw_sealed === "string")) {
-            errors.push({ field: "sealed", message: __raw_sealed == null ? "Guarded.sealed is required" : "expected string" });
-        } else {
-            instance.sealed = __raw_sealed;
-        }
+                if (!(typeof __raw_sealed === "string")) {
+                    errors.push({ field: "sealed", message: __raw_sealed == null ? "Guarded.sealed is required" : "expected string" });
+                } else {
+                    instance.sealed = __raw_sealed;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -316,7 +340,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "level") && __mf_holds(obj, "secret") && __mf_holds(obj, "sealed");
+    return __mf_holdsAll(obj, ["name", "level", "secret", "sealed"]);
 }
 
 static is(obj: unknown): obj is Guarded {
@@ -493,29 +517,29 @@ export {};
 
 ## Mapping
 
-original 91..248 -> expanded 933..1090
-original 248..249 -> expanded 13870..13871
-original 249..250 -> expanded 17667..17668
-generated 0..933 <- imports
-generated 1090..1518 <- Debug
-generated 1518..1746 <- Clone
-generated 1746..2025 <- PartialEq
-generated 2025..2678 <- Hash
-generated 2678..3546 <- PartialOrd
-generated 3546..4234 <- Ord
-generated 4234..4539 <- Default
-generated 4539..6562 <- Encode
-generated 6562..6883 <- Encode
-generated 6883..13870 <- Decode
-generated 13871..13968 <- Debug
-generated 13968..14060 <- Clone
-generated 14060..14161 <- PartialEq
-generated 14161..14258 <- Hash
-generated 14258..14381 <- PartialOrd
-generated 14381..14483 <- Ord
-generated 14483..14570 <- Default
-generated 14570..15900 <- Encode
-generated 15900..17667 <- Decode
+original 91..248 -> expanded 939..1096
+original 248..249 -> expanded 14266..14267
+original 249..250 -> expanded 18063..18064
+generated 0..939 <- imports
+generated 1096..1524 <- Debug
+generated 1524..1752 <- Clone
+generated 1752..2212 <- PartialEq
+generated 2212..2865 <- Hash
+generated 2865..3553 <- PartialOrd
+generated 3553..4221 <- Ord
+generated 4221..4526 <- Default
+generated 4526..6877 <- Encode
+generated 6877..7198 <- Encode
+generated 7198..14266 <- Decode
+generated 14267..14364 <- Debug
+generated 14364..14456 <- Clone
+generated 14456..14557 <- PartialEq
+generated 14557..14654 <- Hash
+generated 14654..14777 <- PartialOrd
+generated 14777..14879 <- Ord
+generated 14879..14966 <- Default
+generated 14966..16296 <- Encode
+generated 16296..18063 <- Decode
 
 ## Metadata
 

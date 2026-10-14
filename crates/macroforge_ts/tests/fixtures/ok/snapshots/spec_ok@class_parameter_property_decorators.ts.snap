@@ -24,7 +24,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A parameter property takes the decorators written above it, like a field. */
 
@@ -68,20 +68,30 @@ static encodePartialWithContext(value: Partial<Tagged>, ctx: __mf_EncodeContext,
 }
 
 static #encodeFields(value: Tagged, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["label"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("plain")) {
-        if (value.plain !== undefined) {
-            result["plain"] = value.plain;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["label"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("plain")) {
+                if (value.plain !== undefined) {
+                    result["plain"] = value.plain;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -165,14 +175,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("label" in obj)) {
-        errors.push({ field: "label", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("plain")) && !("plain" in obj)) {
-        errors.push({ field: "plain", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["count", "count"], ["name", "label"], ["plain", "plain"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(Tagged.prototype);
@@ -183,35 +191,47 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "count", message: __raw_count == null ? "Tagged.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "label" in obj : (__fields.keeps("name") && obj["label"] !== undefined)) {
-        const __raw_name = obj["label"] as string;
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "Tagged.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "label" in obj : (__fields.keeps("name") && obj["label"] !== undefined)) {
+                const __raw_name = obj["label"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "label", message: __raw_name == null ? "Tagged.label is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cache"))) {
-        instance.cache = (0) satisfies number;
-    }
-    if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
-        const __raw_plain = obj["plain"] as boolean;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "label", message: __raw_name == null ? "Tagged.label is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cache"))) {
+                instance.cache = (0) satisfies number;
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+                const __raw_plain = obj["plain"] as boolean;
 
-        if (!(typeof __raw_plain === "boolean")) {
-            errors.push({ field: "plain", message: __raw_plain == null ? "Tagged.plain is required" : "expected boolean" });
-        } else {
-            instance.plain = __raw_plain;
-        }
+                if (!(typeof __raw_plain === "boolean")) {
+                    errors.push({ field: "plain", message: __raw_plain == null ? "Tagged.plain is required" : "expected boolean" });
+                } else {
+                    instance.plain = __raw_plain;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -232,7 +252,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "count") && __mf_holds(obj, "label") && __mf_holds(obj, "plain");
+    return __mf_holdsAll(obj, ["count", "label", "plain"]);
 }
 
 static is(obj: unknown): obj is Tagged {
@@ -369,21 +389,21 @@ export {};
 
 ## Mapping
 
-original 0..81 -> expanded 756..837
-original 120..161 -> expanded 837..878
-original 179..214 -> expanded 878..913
-original 248..298 -> expanded 913..963
-original 327..405 -> expanded 963..1041
-original 405..406 -> expanded 9712..9713
-original 406..407 -> expanded 12869..12870
-generated 0..756 <- imports
-generated 1041..1341 <- Default
-generated 1341..3187 <- Encode
-generated 3187..3506 <- Encode
-generated 3506..9712 <- Decode
-generated 9713..9797 <- Default
-generated 9797..11117 <- Encode
-generated 11117..12869 <- Decode
+original 0..81 -> expanded 762..843
+original 120..161 -> expanded 843..884
+original 179..214 -> expanded 884..919
+original 248..298 -> expanded 919..969
+original 327..405 -> expanded 969..1047
+original 405..406 -> expanded 10189..10190
+original 406..407 -> expanded 13346..13347
+generated 0..762 <- imports
+generated 1047..1347 <- Default
+generated 1347..3454 <- Encode
+generated 3454..3773 <- Encode
+generated 3773..10189 <- Decode
+generated 10190..10274 <- Default
+generated 10274..11594 <- Encode
+generated 11594..13346 <- Decode
 
 ## Metadata
 

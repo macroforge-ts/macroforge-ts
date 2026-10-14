@@ -16,7 +16,7 @@ import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPe
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
 import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
 import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -101,85 +101,121 @@ export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_Enc
 }
 
 function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-        if (value.email !== undefined) {
-            result["email"] = __foreign__optionOptionEncode(value.email);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("firstName")) {
-        if (value.firstName !== undefined) {
-            result["firstName"] = value.firstName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastName")) {
-        if (value.lastName !== undefined) {
-            result["lastName"] = value.lastName;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("password")) {
-        if (value.password !== undefined) {
-            result["password"] = __foreign__optionOptionEncode(value.password);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("metadata")) {
-        if (value.metadata !== undefined) {
-            result["metadata"] = __foreign__optionOptionEncode(value.metadata);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("settings")) {
-        if (value.settings !== undefined) {
-            result["settings"] = settingsEncodeWithContext(value.settings, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("role")) {
-        if (value.role !== undefined) {
-            result["role"] = userRoleEncodeWithContext(value.role, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("emailVerified")) {
-        if (value.emailVerified !== undefined) {
-            result["emailVerified"] = value.emailVerified;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("verificationToken")) {
-        if (value.verificationToken !== undefined) {
-            result["verificationToken"] = __foreign__optionOptionEncode(value.verificationToken);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("verificationExpires")) {
-        if (value.verificationExpires !== undefined) {
-            result["verificationExpires"] = __foreign__optionOptionEncode(value.verificationExpires);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("passwordResetToken")) {
-        if (value.passwordResetToken !== undefined) {
-            result["passwordResetToken"] = __foreign__optionOptionEncode(value.passwordResetToken);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("passwordResetExpires")) {
-        if (value.passwordResetExpires !== undefined) {
-            result["passwordResetExpires"] = __foreign__optionOptionEncode(value.passwordResetExpires);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("permissions")) {
-        if (value.permissions !== undefined) {
-            result["permissions"] = appPermissionsEncodeWithContext(value.permissions, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("createdAt")) {
-        if (value.createdAt !== undefined) {
-            result["createdAt"] = __foreign__dateTimeDateTimeEncode(value.createdAt);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lastLoginAt")) {
-        if (value.lastLoginAt !== undefined) {
-            result["lastLoginAt"] = __foreign__optionOptionEncode(value.lastLoginAt);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["email"] = __foreign__optionOptionEncode(value.email);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("firstName")) {
+                if (value.firstName !== undefined) {
+                    result["firstName"] = value.firstName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastName")) {
+                if (value.lastName !== undefined) {
+                    result["lastName"] = value.lastName;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("password")) {
+                if (value.password !== undefined) {
+                    result["password"] = __foreign__optionOptionEncode(value.password);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("metadata")) {
+                if (value.metadata !== undefined) {
+                    result["metadata"] = __foreign__optionOptionEncode(value.metadata);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("settings")) {
+                if (value.settings !== undefined) {
+                    result["settings"] = settingsEncodeWithContext(value.settings, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("role")) {
+                if (value.role !== undefined) {
+                    result["role"] = userRoleEncodeWithContext(value.role, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("emailVerified")) {
+                if (value.emailVerified !== undefined) {
+                    result["emailVerified"] = value.emailVerified;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("verificationToken")) {
+                if (value.verificationToken !== undefined) {
+                    result["verificationToken"] = __foreign__optionOptionEncode(value.verificationToken);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("verificationExpires")) {
+                if (value.verificationExpires !== undefined) {
+                    result["verificationExpires"] = __foreign__optionOptionEncode(value.verificationExpires);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("passwordResetToken")) {
+                if (value.passwordResetToken !== undefined) {
+                    result["passwordResetToken"] = __foreign__optionOptionEncode(value.passwordResetToken);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("passwordResetExpires")) {
+                if (value.passwordResetExpires !== undefined) {
+                    result["passwordResetExpires"] = __foreign__optionOptionEncode(value.passwordResetExpires);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("permissions")) {
+                if (value.permissions !== undefined) {
+                    result["permissions"] = appPermissionsEncodeWithContext(value.permissions, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("createdAt")) {
+                if (value.createdAt !== undefined) {
+                    result["createdAt"] = __foreign__dateTimeDateTimeEncode(value.createdAt);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lastLoginAt")) {
+                if (value.lastLoginAt !== undefined) {
+                    result["lastLoginAt"] = __foreign__optionOptionEncode(value.lastLoginAt);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -257,53 +293,12 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("firstName")) && !("firstName" in obj)) {
-        errors.push({ field: "firstName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) && !("lastName" in obj)) {
-        errors.push({ field: "lastName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("password")) && !("password" in obj)) {
-        errors.push({ field: "password", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("metadata")) && !("metadata" in obj)) {
-        errors.push({ field: "metadata", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("settings")) && !("settings" in obj)) {
-        errors.push({ field: "settings", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("role")) && !("role" in obj)) {
-        errors.push({ field: "role", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("emailVerified")) && !("emailVerified" in obj)) {
-        errors.push({ field: "emailVerified", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("verificationToken")) && !("verificationToken" in obj)) {
-        errors.push({ field: "verificationToken", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("verificationExpires")) && !("verificationExpires" in obj)) {
-        errors.push({ field: "verificationExpires", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("passwordResetToken")) && !("passwordResetToken" in obj)) {
-        errors.push({ field: "passwordResetToken", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("passwordResetExpires")) && !("passwordResetExpires" in obj)) {
-        errors.push({ field: "passwordResetExpires", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("permissions")) && !("permissions" in obj)) {
-        errors.push({ field: "permissions", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
-        errors.push({ field: "createdAt", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lastLoginAt")) && !("lastLoginAt" in obj)) {
-        errors.push({ field: "lastLoginAt", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["email", "email"], ["firstName", "firstName"], ["lastName", "lastName"], ["password", "password"], ["metadata", "metadata"], ["settings", "settings"], ["role", "role"], ["emailVerified", "emailVerified"], ["verificationToken", "verificationToken"], ["verificationExpires", "verificationExpires"], ["passwordResetToken", "passwordResetToken"], ["passwordResetExpires", "passwordResetExpires"], ["permissions", "permissions"], ["createdAt", "createdAt"], ["lastLoginAt", "lastLoginAt"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -314,179 +309,215 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "User.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
-        try {
-            instance.email = __foreign__optionOptionDecode(obj["email"]);
-        } catch (__error) {
-            errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
-        const __raw_firstName = obj["firstName"] as string;
-
-        if (!(typeof __raw_firstName === "string")) {
-            errors.push({ field: "firstName", message: __raw_firstName == null ? "User.firstName is required" : "expected string" });
-        } else {
-            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
-                if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
-            }
-            instance.firstName = __raw_firstName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
-        const __raw_lastName = obj["lastName"] as string;
-
-        if (!(typeof __raw_lastName === "string")) {
-            errors.push({ field: "lastName", message: __raw_lastName == null ? "User.lastName is required" : "expected string" });
-        } else {
-            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
-                if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
-            }
-            instance.lastName = __raw_lastName;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("password")) ? "password" in obj : (__fields.keeps("password") && obj["password"] !== undefined)) {
-        try {
-            instance.password = __foreign__optionOptionDecode(obj["password"]);
-        } catch (__error) {
-            errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
-        try {
-            instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
-        } catch (__error) {
-            errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("settings")) ? "settings" in obj : (__fields.keeps("settings") && obj["settings"] !== undefined)) {
-        const __raw_settings = obj["settings"] as Settings;
-
-        ctx.pushScope("settings");
-        try {
-            const __result = settingsDecodeWithContext(__raw_settings, ctx);
-            ctx.assignOrDefer(instance, "settings", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "settings" : "settings." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "User.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
                 }
-            } else {
-
-                errors.push({ field: "settings", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("role")) ? "role" in obj : (__fields.keeps("role") && obj["role"] !== undefined)) {
-        const __raw_role = obj["role"] as UserRole;
-
-        ctx.pushScope("role");
-        try {
-            const __result = userRoleDecodeWithContext(__raw_role, ctx);
-            ctx.assignOrDefer(instance, "role", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "role" : "role." + __err.field,
-                        message: __err.message
-                    });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                try {
+                    instance.email = __foreign__optionOptionDecode(obj["email"]);
+                } catch (__error) {
+                    errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
                 }
-            } else {
-
-                errors.push({ field: "role", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("emailVerified")) ? "emailVerified" in obj : (__fields.keeps("emailVerified") && obj["emailVerified"] !== undefined)) {
-        const __raw_emailVerified = obj["emailVerified"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
+                const __raw_firstName = obj["firstName"] as string;
 
-        if (!(typeof __raw_emailVerified === "boolean")) {
-            errors.push({ field: "emailVerified", message: __raw_emailVerified == null ? "User.emailVerified is required" : "expected boolean" });
-        } else {
-            instance.emailVerified = __raw_emailVerified;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("verificationToken")) ? "verificationToken" in obj : (__fields.keeps("verificationToken") && obj["verificationToken"] !== undefined)) {
-        try {
-            instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
-        } catch (__error) {
-            errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("verificationExpires")) ? "verificationExpires" in obj : (__fields.keeps("verificationExpires") && obj["verificationExpires"] !== undefined)) {
-        try {
-            instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
-        } catch (__error) {
-            errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("passwordResetToken")) ? "passwordResetToken" in obj : (__fields.keeps("passwordResetToken") && obj["passwordResetToken"] !== undefined)) {
-        try {
-            instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
-        } catch (__error) {
-            errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("passwordResetExpires")) ? "passwordResetExpires" in obj : (__fields.keeps("passwordResetExpires") && obj["passwordResetExpires"] !== undefined)) {
-        try {
-            instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
-        } catch (__error) {
-            errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("permissions")) ? "permissions" in obj : (__fields.keeps("permissions") && obj["permissions"] !== undefined)) {
-        const __raw_permissions = obj["permissions"] as AppPermissions;
-
-        ctx.pushScope("permissions");
-        try {
-            const __result = appPermissionsDecodeWithContext(__raw_permissions, ctx);
-            ctx.assignOrDefer(instance, "permissions", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "permissions" : "permissions." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_firstName === "string")) {
+                    errors.push({ field: "firstName", message: __raw_firstName == null ? "User.firstName is required" : "expected string" });
+                } else {
+                    if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
+                        if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
+                    }
+                    instance.firstName = __raw_firstName;
                 }
-            } else {
-
-                errors.push({ field: "permissions", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
-        try {
-            instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
-        } catch (__error) {
-            errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lastLoginAt")) ? "lastLoginAt" in obj : (__fields.keeps("lastLoginAt") && obj["lastLoginAt"] !== undefined)) {
-        try {
-            instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
-        } catch (__error) {
-            errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
+                const __raw_lastName = obj["lastName"] as string;
+
+                if (!(typeof __raw_lastName === "string")) {
+                    errors.push({ field: "lastName", message: __raw_lastName == null ? "User.lastName is required" : "expected string" });
+                } else {
+                    if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
+                        if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
+                    }
+                    instance.lastName = __raw_lastName;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("password")) ? "password" in obj : (__fields.keeps("password") && obj["password"] !== undefined)) {
+                try {
+                    instance.password = __foreign__optionOptionDecode(obj["password"]);
+                } catch (__error) {
+                    errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+                try {
+                    instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
+                } catch (__error) {
+                    errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("settings")) ? "settings" in obj : (__fields.keeps("settings") && obj["settings"] !== undefined)) {
+                const __raw_settings = obj["settings"] as Settings;
+
+                ctx.pushScope("settings");
+                try {
+                    const __result = settingsDecodeWithContext(__raw_settings, ctx);
+                    ctx.assignOrDefer(instance, "settings", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "settings" : "settings." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "settings", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("role")) ? "role" in obj : (__fields.keeps("role") && obj["role"] !== undefined)) {
+                const __raw_role = obj["role"] as UserRole;
+
+                ctx.pushScope("role");
+                try {
+                    const __result = userRoleDecodeWithContext(__raw_role, ctx);
+                    ctx.assignOrDefer(instance, "role", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "role" : "role." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "role", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("emailVerified")) ? "emailVerified" in obj : (__fields.keeps("emailVerified") && obj["emailVerified"] !== undefined)) {
+                const __raw_emailVerified = obj["emailVerified"] as boolean;
+
+                if (!(typeof __raw_emailVerified === "boolean")) {
+                    errors.push({ field: "emailVerified", message: __raw_emailVerified == null ? "User.emailVerified is required" : "expected boolean" });
+                } else {
+                    instance.emailVerified = __raw_emailVerified;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("verificationToken")) ? "verificationToken" in obj : (__fields.keeps("verificationToken") && obj["verificationToken"] !== undefined)) {
+                try {
+                    instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
+                } catch (__error) {
+                    errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("verificationExpires")) ? "verificationExpires" in obj : (__fields.keeps("verificationExpires") && obj["verificationExpires"] !== undefined)) {
+                try {
+                    instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
+                } catch (__error) {
+                    errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("passwordResetToken")) ? "passwordResetToken" in obj : (__fields.keeps("passwordResetToken") && obj["passwordResetToken"] !== undefined)) {
+                try {
+                    instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
+                } catch (__error) {
+                    errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("passwordResetExpires")) ? "passwordResetExpires" in obj : (__fields.keeps("passwordResetExpires") && obj["passwordResetExpires"] !== undefined)) {
+                try {
+                    instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
+                } catch (__error) {
+                    errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("permissions")) ? "permissions" in obj : (__fields.keeps("permissions") && obj["permissions"] !== undefined)) {
+                const __raw_permissions = obj["permissions"] as AppPermissions;
+
+                ctx.pushScope("permissions");
+                try {
+                    const __result = appPermissionsDecodeWithContext(__raw_permissions, ctx);
+                    ctx.assignOrDefer(instance, "permissions", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "permissions" : "permissions." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "permissions", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+                try {
+                    instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
+                } catch (__error) {
+                    errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lastLoginAt")) ? "lastLoginAt" in obj : (__fields.keeps("lastLoginAt") && obj["lastLoginAt"] !== undefined)) {
+                try {
+                    instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
+                } catch (__error) {
+                    errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -535,7 +566,7 @@ export function userHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "email") && __mf_holds(obj, "firstName") && __mf_holds(obj, "lastName") && __mf_holds(obj, "password") && __mf_holds(obj, "metadata") && __mf_holds(obj, "settings") && __mf_holds(obj, "role") && __mf_holds(obj, "emailVerified") && __mf_holds(obj, "verificationToken") && __mf_holds(obj, "verificationExpires") && __mf_holds(obj, "passwordResetToken") && __mf_holds(obj, "passwordResetExpires") && __mf_holds(obj, "permissions") && __mf_holds(obj, "createdAt") && __mf_holds(obj, "lastLoginAt");
+    return __mf_holdsAll(obj, ["id", "email", "firstName", "lastName", "password", "metadata", "settings", "role", "emailVerified", "verificationToken", "verificationExpires", "passwordResetToken", "passwordResetExpires", "permissions", "createdAt", "lastLoginAt"]);
 }
 
 export function userIs(obj: unknown): obj is User {
@@ -1505,18 +1536,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..325 -> expanded 1407..1732
-original 374..453 -> expanded 1732..1811
-original 494..522 -> expanded 1811..1839
-original 563..690 -> expanded 1839..1966
-original 722..1102 -> expanded 1966..2346
-original 1102..1103 -> expanded 58602..58603
-generated 0..1407 <- imports
-generated 2346..3142 <- Default
-generated 3142..8374 <- Encode
-generated 8374..27104 <- Decode
-generated 27104..57444 <- Gigaform
-generated 57444..58602 <- __convenience_const
+original 0..325 -> expanded 1413..1738
+original 374..453 -> expanded 1738..1817
+original 494..522 -> expanded 1817..1845
+original 563..690 -> expanded 1845..1972
+original 722..1102 -> expanded 1972..2352
+original 1102..1103 -> expanded 59096..59097
+generated 0..1413 <- imports
+generated 2352..3148 <- Default
+generated 3148..9512 <- Encode
+generated 9512..27598 <- Decode
+generated 27598..57938 <- Gigaform
+generated 57938..59096 <- __convenience_const
 
 ## Metadata
 

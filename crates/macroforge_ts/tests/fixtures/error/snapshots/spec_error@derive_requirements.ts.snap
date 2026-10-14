@@ -40,10 +40,7 @@ export interface OnlyPartialOrd {
 export function onlyPartialOrdPartialCompare(a: OnlyPartialOrd, b: OnlyPartialOrd): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-        return 0;
+    return (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
     });
 }
 
@@ -60,25 +57,22 @@ export interface OrdWithoutEq {
 
 export function ordWithoutEqEquals(a: OrdWithoutEq, b: OrdWithoutEq): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id || a.id !== a.id && b.id !== b.id);
+    return __mf_equalWithin(a, b, () => {
+        return a.id === b.id || a.id !== a.id && b.id !== b.id;
+    });
 }
 
 export function ordWithoutEqPartialCompare(a: OrdWithoutEq, b: OrdWithoutEq): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-        return 0;
+    return (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id || (a.id !== a.id && b.id !== b.id) ? 0 : null);
     });
 }
 
 export function ordWithoutEqCompare(a: OrdWithoutEq, b: OrdWithoutEq): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : a.id !== a.id ? b.id !== b.id ? 0 : 1 : -1;
-    if (cmp0 !== 0) return cmp0;
-        return 0;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : a.id !== a.id ? b.id !== b.id ? 0 : 1 : -1;
     });
 }
 
@@ -129,16 +123,16 @@ Error [180..183]: `Ord` requires `Eq`, which `OrdWithoutEq` does not derive
 
 original 18..64 -> expanded 118..164
 original 90..142 -> expanded 164..216
-original 142..144 -> expanded 756..758
-original 186..236 -> expanded 758..808
-original 236..237 -> expanded 2027..2028
+original 142..144 -> expanded 663..665
+original 186..236 -> expanded 665..715
+original 236..237 -> expanded 1808..1809
 generated 0..118 <- imports
-generated 216..604 <- PartialOrd
-generated 604..756 <- __convenience_const
-generated 808..1011 <- PartialEq
-generated 1011..1393 <- PartialOrd
-generated 1393..1725 <- Ord
-generated 1725..2027 <- __convenience_const
+generated 216..511 <- PartialOrd
+generated 511..663 <- __convenience_const
+generated 715..942 <- PartialEq
+generated 942..1231 <- PartialOrd
+generated 1231..1506 <- Ord
+generated 1506..1808 <- __convenience_const
 
 ## Metadata
 

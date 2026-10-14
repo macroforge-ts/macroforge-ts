@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, textOrValue as __mf_textOrValue, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
@@ -36,25 +36,29 @@ export function linkEncode(value: Link, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
-        const result: Record<string, unknown> = {};
-        result["id"] = value.id;
-        if (value.label !== undefined) {
-            result["label"] = value.label;
-        }
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Link): unknown => {
+            if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value)) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["id"] = value.id;
+                },
+                () => {
+                    if (value.label !== undefined) {
+                        result["label"] = value.label;
+                    }
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -131,8 +135,11 @@ export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     if (typeof value === "string") {
         return value as Link;
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) {
-        return __mf_decodeObject(value, ctx, { id: __mf_decodeString, label: __mf_decodeString }, ["label"]) as Link;
+    const __shaped = __mf_decodedMember(value, [
+    (value: unknown): unknown => (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) ? __mf_decodeObject(value, ctx, { id: __mf_decodeString, label: __mf_decodeString }, ["label"]) : __mf_notTheMember,
+    ]);
+    if (__shaped !== __mf_notTheMember) {
+        return __shaped as Link;
     }
 
     throw new __mf_DecodeError([{
@@ -142,7 +149,11 @@ export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 }
 export function linkHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
-                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id")) return true;
+
+                const __shapes: ReadonlyArray<(value: unknown) => boolean> = [
+                (value) => typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "id"),
+                ];
+                if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
 export function linkIs(value: unknown): value is Link {
@@ -205,13 +216,13 @@ export declare const Link: {
 
 ## Mapping
 
-original 0..185 -> expanded 573..758
-original 215..275 -> expanded 758..818
-original 275..276 -> expanded 5766..5767
-generated 0..573 <- imports
-generated 818..2561 <- Encode
-generated 2561..5296 <- Decode
-generated 5296..5766 <- __convenience_const
+original 0..185 -> expanded 715..900
+original 215..275 -> expanded 900..960
+original 275..276 -> expanded 6438..6439
+generated 0..715 <- imports
+generated 960..2912 <- Encode
+generated 2912..5968 <- Decode
+generated 5968..6438 <- __convenience_const
 
 ## Metadata
 

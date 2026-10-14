@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface UserProfile {
@@ -111,11 +111,12 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
-        errors.push({ field: "username", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["email", "email"], ["username", "username"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -126,44 +127,54 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as string;
 
-        if (!(typeof __raw_email === "string")) {
-            errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
-        } else {
-            if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
-            }
-            instance.email = __raw_email;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
-        const __raw_username = obj["username"] as string;
-
-        if (!(typeof __raw_username === "string")) {
-            errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
-        } else {
-            if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
-                if (__raw_username.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
-                if (__raw_username.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
-            }
-            instance.username = __raw_username;
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("age"))) {
-        if (("age" in obj && obj["age"] !== undefined)) {
-            const __raw_age = obj["age"] as number;
-
-            if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
-                errors.push({ field: "age", message: "expected number" });
-            } else {
-                if (__raw_age != null) {
-                    if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+                if (!(typeof __raw_email === "string")) {
+                    errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+                } else {
+                    if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+                    }
+                    instance.email = __raw_email;
                 }
-                instance.age = __raw_age;
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
+                const __raw_username = obj["username"] as string;
+
+                if (!(typeof __raw_username === "string")) {
+                    errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+                } else {
+                    if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+                        if (__raw_username.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+                        if (__raw_username.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+                    }
+                    instance.username = __raw_username;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("age"))) {
+                if (("age" in obj && obj["age"] !== undefined)) {
+                    const __raw_age = obj["age"] as number;
+
+                    if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
+                        errors.push({ field: "age", message: "expected number" });
+                    } else {
+                        if (__raw_age != null) {
+                            if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+                        }
+                        instance.age = __raw_age;
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -226,7 +237,7 @@ export function userProfileHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "email") && __mf_holds(obj, "username");
+    return __mf_holdsAll(obj, ["email", "username"]);
 }
 
 export function userProfileIs(obj: unknown): obj is UserProfile {
@@ -293,14 +304,14 @@ export {};
 
 ## Mapping
 
-original 22..51 -> expanded 433..462
-original 71..96 -> expanded 462..487
-original 138..166 -> expanded 487..515
-original 189..209 -> expanded 515..535
-original 209..210 -> expanded 10882..10883
-generated 0..433 <- imports
-generated 535..10166 <- Decode
-generated 10166..10882 <- __convenience_const
+original 22..51 -> expanded 439..468
+original 71..96 -> expanded 468..493
+original 138..166 -> expanded 493..521
+original 189..209 -> expanded 521..541
+original 209..210 -> expanded 11308..11309
+generated 0..439 <- imports
+generated 541..10592 <- Decode
+generated 10592..11308 <- __convenience_const
 
 ## Metadata
 

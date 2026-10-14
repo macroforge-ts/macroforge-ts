@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Settings = {
@@ -99,11 +99,12 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
-        errors.push({ field: "theme", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("language")) && !("language" in obj)) {
-        errors.push({ field: "language", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["theme", "theme"], ["language", "language"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -114,23 +115,31 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
-        const __raw_theme = obj["theme"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
+                const __raw_theme = obj["theme"] as string;
 
-        if (!(typeof __raw_theme === "string")) {
-            errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
-        } else {
-            instance.theme = __raw_theme;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("language")) ? "language" in obj : (__fields.keeps("language") && obj["language"] !== undefined)) {
-        const __raw_language = obj["language"] as string;
+                if (!(typeof __raw_theme === "string")) {
+                    errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+                } else {
+                    instance.theme = __raw_theme;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("language")) ? "language" in obj : (__fields.keeps("language") && obj["language"] !== undefined)) {
+                const __raw_language = obj["language"] as string;
 
-        if (!(typeof __raw_language === "string")) {
-            errors.push({ field: "language", message: __raw_language == null ? "Settings.language is required" : "expected string" });
-        } else {
-            instance.language = __raw_language;
-        }
+                if (!(typeof __raw_language === "string")) {
+                    errors.push({ field: "language", message: __raw_language == null ? "Settings.language is required" : "expected string" });
+                } else {
+                    instance.language = __raw_language;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -155,7 +164,7 @@ export function settingsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "theme") && __mf_holds(obj, "language");
+    return __mf_holdsAll(obj, ["theme", "language"]);
 }
 
 export function settingsIs(obj: unknown): obj is Settings {
@@ -221,11 +230,11 @@ export {};
 
 ## Mapping
 
-original 22..84 -> expanded 433..495
-original 84..85 -> expanded 7152..7153
-generated 0..433 <- imports
-generated 495..6481 <- Decode
-generated 6481..7152 <- __convenience_const
+original 22..84 -> expanded 439..501
+original 84..85 -> expanded 7391..7392
+generated 0..439 <- imports
+generated 501..6720 <- Decode
+generated 6720..7391 <- __convenience_const
 
 ## Metadata
 

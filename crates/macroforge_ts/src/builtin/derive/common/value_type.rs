@@ -204,6 +204,58 @@ pub fn rendered(stream: TsStream) -> String {
     stream.source().to_owned()
 }
 
+/// `parts` each in a function of its own, called in turn. The checker reads
+/// the flow of one body back from each use to its start, so a body holding a
+/// part a field outgrows what it reads with a few hundred fields; a function
+/// called where it is written is read as part of the body around it.
+pub fn each_on_its_own(parts: impl IntoIterator<Item = TsStream>) -> TsStream {
+    let parts: Vec<TsStream> = parts
+        .into_iter()
+        .filter(|part| !part.source().trim().is_empty())
+        .collect();
+    if parts.len() < 2 {
+        return TsStream::merge_all(parts);
+    }
+    let functions = TsStream::merge_all(parts.into_iter().map(|part| {
+        crate::macros::ts_template! {
+            () => {
+                {$typescript part}
+            },
+        }
+    }));
+    crate::macros::ts_template! {
+        for (const __part of [
+            {$typescript functions}
+        ]) {
+            __part();
+        }
+    }
+}
+
+/// Statements returning the first of `orders` that is not `0`, or `0`, each
+/// worked out in a function of its own as [`each_on_its_own`] runs its parts:
+/// a body comparing each field in turn outgrows what the checker reads.
+pub fn first_order(orders: Vec<crate::ast::Expr>) -> TsStream {
+    match orders.as_slice() {
+        [] => crate::macros::ts_template! { return 0; },
+        [order] => crate::macros::ts_template! { return @{order.clone()}; },
+        _ => {
+            let functions = TsStream::merge_all(orders.into_iter().map(|order| {
+                crate::macros::ts_template! { () => @{order}, }
+            }));
+            crate::macros::ts_template! {
+                for (const __order of [
+                    {$typescript functions}
+                ]) {
+                    const __result = __order();
+                    if (__result !== 0) return __result;
+                }
+                return 0;
+            }
+        }
+    }
+}
+
 /// A call of the `@macroforge/core/structural` helper `name` on `args`,
 /// requesting its import for the file being expanded.
 pub fn structural_call(name: &str, args: &str) -> String {

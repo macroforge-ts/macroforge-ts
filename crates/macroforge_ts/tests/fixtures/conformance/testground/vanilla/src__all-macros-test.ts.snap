@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
@@ -61,7 +61,16 @@ export class AllMacrosTestClass {
 
     static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => (a.id === b.id || a.id !== a.id && b.id !== b.id) && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && (a.score === b.score || a.score !== a.score && b.score !== b.score));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id || a.id !== a.id && b.id !== b.id,
+                    () => a.name === b.name,
+                    () => a.email === b.email,
+                    () => a.secretToken === b.secretToken,
+                    () => a.isActive === b.isActive,
+                    () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: AllMacrosTestClass): number {
@@ -98,35 +107,51 @@ static encodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_En
 }
 
 static #encodeFields(value: AllMacrosTestClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-        if (value.email !== undefined) {
-            result["email"] = value.email;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("secretToken")) {
-        if (value.secretToken !== undefined) {
-            result["secretToken"] = value.secretToken;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isActive")) {
-        if (value.isActive !== undefined) {
-            result["isActive"] = value.isActive;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-        if (value.score !== undefined) {
-            result["score"] = value.score;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("email")) {
+                if (value.email !== undefined) {
+                    result["email"] = value.email;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("secretToken")) {
+                if (value.secretToken !== undefined) {
+                    result["secretToken"] = value.secretToken;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("isActive")) {
+                if (value.isActive !== undefined) {
+                    result["isActive"] = value.isActive;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -220,23 +245,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
-        errors.push({ field: "email", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("secretToken")) && !("secretToken" in obj)) {
-        errors.push({ field: "secretToken", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) && !("isActive" in obj)) {
-        errors.push({ field: "isActive", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["name", "name"], ["email", "email"], ["secretToken", "secretToken"], ["isActive", "isActive"], ["score", "score"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(AllMacrosTestClass.prototype);
@@ -247,59 +261,75 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as number;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as number;
 
-        if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
-            errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+                if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
+                    errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
-        const __raw_email = obj["email"] as string;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
+                const __raw_email = obj["email"] as string;
 
-        if (!(typeof __raw_email === "string")) {
-            errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
-        } else {
-            instance.email = __raw_email;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("secretToken")) ? "secretToken" in obj : (__fields.keeps("secretToken") && obj["secretToken"] !== undefined)) {
-        const __raw_secretToken = obj["secretToken"] as string;
+                if (!(typeof __raw_email === "string")) {
+                    errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
+                } else {
+                    instance.email = __raw_email;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("secretToken")) ? "secretToken" in obj : (__fields.keeps("secretToken") && obj["secretToken"] !== undefined)) {
+                const __raw_secretToken = obj["secretToken"] as string;
 
-        if (!(typeof __raw_secretToken === "string")) {
-            errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
-        } else {
-            instance.secretToken = __raw_secretToken;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
-        const __raw_isActive = obj["isActive"] as boolean;
+                if (!(typeof __raw_secretToken === "string")) {
+                    errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
+                } else {
+                    instance.secretToken = __raw_secretToken;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+                const __raw_isActive = obj["isActive"] as boolean;
 
-        if (!(typeof __raw_isActive === "boolean")) {
-            errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
-        } else {
-            instance.isActive = __raw_isActive;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_isActive === "boolean")) {
+                    errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
+                } else {
+                    instance.isActive = __raw_isActive;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -320,7 +350,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "name") && __mf_holds(obj, "email") && __mf_holds(obj, "secretToken") && __mf_holds(obj, "isActive") && __mf_holds(obj, "score");
+    return __mf_holdsAll(obj, ["id", "name", "email", "secretToken", "isActive", "score"]);
 }
 
 static is(obj: unknown): obj is AllMacrosTestClass {
@@ -500,23 +530,23 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 863..1312
-original 449..450 -> expanded 15042..15043
-original 450..695 -> expanded 18956..19201
-generated 0..863 <- imports
-generated 1312..1819 <- Debug
-generated 1819..2135 <- Clone
-generated 2135..2526 <- PartialEq
-generated 2526..3489 <- Hash
-generated 3489..5949 <- Encode
-generated 5949..6292 <- Encode
-generated 6292..15042 <- Decode
-generated 15043..15173 <- Debug
-generated 15173..15309 <- Clone
-generated 15309..15454 <- PartialEq
-generated 15454..15584 <- Hash
-generated 15584..17024 <- Encode
-generated 17024..18956 <- Decode
+original 0..449 -> expanded 869..1318
+original 449..450 -> expanded 15660..15661
+original 450..695 -> expanded 19574..19819
+generated 0..869 <- imports
+generated 1318..1825 <- Debug
+generated 1825..2141 <- Clone
+generated 2141..2759 <- PartialEq
+generated 2759..3722 <- Hash
+generated 3722..6644 <- Encode
+generated 6644..6987 <- Encode
+generated 6987..15660 <- Decode
+generated 15661..15791 <- Debug
+generated 15791..15927 <- Clone
+generated 15927..16072 <- PartialEq
+generated 16072..16202 <- Hash
+generated 16202..17642 <- Encode
+generated 17642..19574 <- Decode
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,30 +73,44 @@ export function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>,
 }
 
 function phoneNumberEncodeFields(value: PhoneNumber, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("main")) {
-        if (value.main !== undefined) {
-            result["main"] = value.main;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("phoneType")) {
-        if (value.phoneType !== undefined) {
-            result["phoneType"] = value.phoneType;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("number")) {
-        if (value.number !== undefined) {
-            result["number"] = value.number;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("canText")) {
-        if (value.canText !== undefined) {
-            result["canText"] = value.canText;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("canCall")) {
-        if (value.canCall !== undefined) {
-            result["canCall"] = value.canCall;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("main")) {
+                if (value.main !== undefined) {
+                    result["main"] = value.main;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("phoneType")) {
+                if (value.phoneType !== undefined) {
+                    result["phoneType"] = value.phoneType;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("number")) {
+                if (value.number !== undefined) {
+                    result["number"] = value.number;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("canText")) {
+                if (value.canText !== undefined) {
+                    result["canText"] = value.canText;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("canCall")) {
+                if (value.canCall !== undefined) {
+                    result["canCall"] = value.canCall;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -174,20 +188,12 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("main")) && !("main" in obj)) {
-        errors.push({ field: "main", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("phoneType")) && !("phoneType" in obj)) {
-        errors.push({ field: "phoneType", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("number")) && !("number" in obj)) {
-        errors.push({ field: "number", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("canText")) && !("canText" in obj)) {
-        errors.push({ field: "canText", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("canCall")) && !("canCall" in obj)) {
-        errors.push({ field: "canCall", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["main", "main"], ["phoneType", "phoneType"], ["number", "number"], ["canText", "canText"], ["canCall", "canCall"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -198,56 +204,70 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("main")) ? "main" in obj : (__fields.keeps("main") && obj["main"] !== undefined)) {
-        const __raw_main = obj["main"] as boolean;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("main")) ? "main" in obj : (__fields.keeps("main") && obj["main"] !== undefined)) {
+                const __raw_main = obj["main"] as boolean;
 
-        if (!(typeof __raw_main === "boolean")) {
-            errors.push({ field: "main", message: __raw_main == null ? "PhoneNumber.main is required" : "expected boolean" });
-        } else {
-            instance.main = __raw_main;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("phoneType")) ? "phoneType" in obj : (__fields.keeps("phoneType") && obj["phoneType"] !== undefined)) {
-        const __raw_phoneType = obj["phoneType"] as string;
-
-        if (!(typeof __raw_phoneType === "string")) {
-            errors.push({ field: "phoneType", message: __raw_phoneType == null ? "PhoneNumber.phoneType is required" : "expected string" });
-        } else {
-            if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
-                if (__raw_phoneType.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+                if (!(typeof __raw_main === "boolean")) {
+                    errors.push({ field: "main", message: __raw_main == null ? "PhoneNumber.main is required" : "expected boolean" });
+                } else {
+                    instance.main = __raw_main;
+                }
             }
-            instance.phoneType = __raw_phoneType;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
-        const __raw_number = obj["number"] as string;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("phoneType")) ? "phoneType" in obj : (__fields.keeps("phoneType") && obj["phoneType"] !== undefined)) {
+                const __raw_phoneType = obj["phoneType"] as string;
 
-        if (!(typeof __raw_number === "string")) {
-            errors.push({ field: "number", message: __raw_number == null ? "PhoneNumber.number is required" : "expected string" });
-        } else {
-            if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
-                if (__raw_number.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+                if (!(typeof __raw_phoneType === "string")) {
+                    errors.push({ field: "phoneType", message: __raw_phoneType == null ? "PhoneNumber.phoneType is required" : "expected string" });
+                } else {
+                    if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+                        if (__raw_phoneType.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+                    }
+                    instance.phoneType = __raw_phoneType;
+                }
             }
-            instance.number = __raw_number;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("canText")) ? "canText" in obj : (__fields.keeps("canText") && obj["canText"] !== undefined)) {
-        const __raw_canText = obj["canText"] as boolean;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
+                const __raw_number = obj["number"] as string;
 
-        if (!(typeof __raw_canText === "boolean")) {
-            errors.push({ field: "canText", message: __raw_canText == null ? "PhoneNumber.canText is required" : "expected boolean" });
-        } else {
-            instance.canText = __raw_canText;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("canCall")) ? "canCall" in obj : (__fields.keeps("canCall") && obj["canCall"] !== undefined)) {
-        const __raw_canCall = obj["canCall"] as boolean;
+                if (!(typeof __raw_number === "string")) {
+                    errors.push({ field: "number", message: __raw_number == null ? "PhoneNumber.number is required" : "expected string" });
+                } else {
+                    if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+                        if (__raw_number.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+                    }
+                    instance.number = __raw_number;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("canText")) ? "canText" in obj : (__fields.keeps("canText") && obj["canText"] !== undefined)) {
+                const __raw_canText = obj["canText"] as boolean;
 
-        if (!(typeof __raw_canCall === "boolean")) {
-            errors.push({ field: "canCall", message: __raw_canCall == null ? "PhoneNumber.canCall is required" : "expected boolean" });
-        } else {
-            instance.canCall = __raw_canCall;
-        }
+                if (!(typeof __raw_canText === "boolean")) {
+                    errors.push({ field: "canText", message: __raw_canText == null ? "PhoneNumber.canText is required" : "expected boolean" });
+                } else {
+                    instance.canText = __raw_canText;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("canCall")) ? "canCall" in obj : (__fields.keeps("canCall") && obj["canCall"] !== undefined)) {
+                const __raw_canCall = obj["canCall"] as boolean;
+
+                if (!(typeof __raw_canCall === "boolean")) {
+                    errors.push({ field: "canCall", message: __raw_canCall == null ? "PhoneNumber.canCall is required" : "expected boolean" });
+                } else {
+                    instance.canCall = __raw_canCall;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -296,7 +316,7 @@ export function phoneNumberHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "main") && __mf_holds(obj, "phoneType") && __mf_holds(obj, "number") && __mf_holds(obj, "canText") && __mf_holds(obj, "canCall");
+    return __mf_holdsAll(obj, ["main", "phoneType", "number", "canText", "canCall"]);
 }
 
 export function phoneNumberIs(obj: unknown): obj is PhoneNumber {
@@ -664,22 +684,22 @@ export declare const PhoneNumber: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..143 -> expanded 896..932
-original 186..210 -> expanded 932..956
-original 280..285 -> expanded 956..961
-original 326..354 -> expanded 961..989
-original 397..402 -> expanded 989..994
-original 443..468 -> expanded 994..1019
-original 515..542 -> expanded 1019..1046
-original 589..613 -> expanded 1046..1070
-original 613..614 -> expanded 23639..23640
-generated 0..838 <- imports
-generated 1070..1262 <- Default
-generated 1262..4116 <- Encode
-generated 4116..14171 <- Decode
-generated 14171..22292 <- Gigaform
-generated 22292..23639 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..143 -> expanded 902..938
+original 186..210 -> expanded 938..962
+original 280..285 -> expanded 962..967
+original 326..354 -> expanded 967..995
+original 397..402 -> expanded 995..1000
+original 443..468 -> expanded 1000..1025
+original 515..542 -> expanded 1025..1052
+original 589..613 -> expanded 1052..1076
+original 613..614 -> expanded 24085..24086
+generated 0..844 <- imports
+generated 1076..1268 <- Default
+generated 1268..4517 <- Encode
+generated 4517..14617 <- Decode
+generated 14617..22738 <- Gigaform
+generated 22738..24085 <- __convenience_const
 
 ## Metadata
 

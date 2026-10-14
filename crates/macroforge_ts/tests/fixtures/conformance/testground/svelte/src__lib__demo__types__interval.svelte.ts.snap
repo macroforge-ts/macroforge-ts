@@ -16,7 +16,7 @@ import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dail
 import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,28 +48,18 @@ export function intervalEncode(value: Interval, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && value !== null && typeof value === "object") {
-        const __refTag = __mf_member(value, "__type");
-        if (!__matched && __refTag === "DailyRecurrenceRule") { __variant = dailyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "WeeklyRecurrenceRule") { __variant = weeklyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "MonthlyRecurrenceRule") { __variant = monthlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "YearlyRecurrenceRule") { __variant = yearlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && dailyRecurrenceRuleHasShape(value)) { __variant = dailyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && weeklyRecurrenceRuleHasShape(value)) { __variant = weeklyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && monthlyRecurrenceRuleHasShape(value)) { __variant = monthlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && yearlyRecurrenceRuleHasShape(value)) { __variant = yearlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
-    }
-    
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: Interval): member is DailyRecurrenceRule => __mf_member(member, "__type") === "DailyRecurrenceRule", (member) => dailyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is WeeklyRecurrenceRule => __mf_member(member, "__type") === "WeeklyRecurrenceRule", (member) => weeklyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is MonthlyRecurrenceRule => __mf_member(member, "__type") === "MonthlyRecurrenceRule", (member) => monthlyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is YearlyRecurrenceRule => __mf_member(member, "__type") === "YearlyRecurrenceRule", (member) => yearlyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is DailyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfDays" in member, (member) => dailyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is WeeklyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfWeeks" in member && "weekdays" in member, (member) => weeklyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is MonthlyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfMonths" in member && "day" in member && "name" in member, (member) => monthlyRecurrenceRuleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Interval): member is YearlyRecurrenceRule => typeof member === "object" && member !== null && !Array.isArray(member) && "quantityOfYears" in member, (member) => yearlyRecurrenceRuleEncodeWithContext(member, ctx)),
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -544,15 +534,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1407..1774
-original 416..564 -> expanded 1774..1922
-original 564..565 -> expanded 18725..18726
-generated 0..1407 <- imports
-generated 1922..2022 <- Default
-generated 2022..4810 <- Encode
-generated 4810..11315 <- Decode
-generated 11315..17935 <- Gigaform
-generated 17935..18725 <- __convenience_const
+original 0..367 -> expanded 1477..1844
+original 416..564 -> expanded 1844..1992
+original 564..565 -> expanded 19195..19196
+generated 0..1477 <- imports
+generated 1992..2092 <- Default
+generated 2092..5280 <- Encode
+generated 5280..11785 <- Decode
+generated 11785..18405 <- Gigaform
+generated 18405..19195 <- __convenience_const
 
 ## Metadata
 

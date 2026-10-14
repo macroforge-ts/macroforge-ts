@@ -83,7 +83,14 @@ class Product {
 
     static equals(a: Product, b: Product): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.id === b.id && a.name === b.name && (a.price === b.price || a.price !== a.price && b.price !== b.price) && a.secret === b.secret);
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.id === b.id,
+                    () => a.name === b.name,
+                    () => a.price === b.price || a.price !== a.price && b.price !== b.price,
+                    () => a.secret === b.secret,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: Product): number {
@@ -143,17 +150,17 @@ export {};
 
 original 0..41 -> expanded 184..225
 original 86..580 -> expanded 225..719
-original 580..581 -> expanded 2341..2342
-original 581..582 -> expanded 2729..2730
+original 580..581 -> expanded 2522..2523
+original 581..582 -> expanded 2910..2911
 generated 0..184 <- imports
 generated 719..1139 <- Debug
 generated 1139..1359 <- Clone
-generated 1359..1630 <- PartialEq
-generated 1630..2341 <- Hash
-generated 2342..2439 <- Debug
-generated 2439..2531 <- Clone
-generated 2531..2632 <- PartialEq
-generated 2632..2729 <- Hash
+generated 1359..1811 <- PartialEq
+generated 1811..2522 <- Hash
+generated 2523..2620 <- Debug
+generated 2620..2712 <- Clone
+generated 2712..2813 <- PartialEq
+generated 2813..2910 <- Hash
 
 ## Metadata
 

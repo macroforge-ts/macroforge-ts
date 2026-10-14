@@ -27,7 +27,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -143,8 +143,12 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -187,7 +191,7 @@ export function itemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id");
+    return __mf_holdsAll(obj, ["id"]);
 }
 
 export function itemIs(obj: unknown): obj is Item {
@@ -257,40 +261,58 @@ export function nestedEncodePartialWithContext(value: Partial<Nested>, ctx: __mf
 }
 
 function nestedEncodeFields(value: Nested, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("grid")) {
-        if (value.grid !== undefined) {
-            result["grid"] = value.grid.map((__item0) => __item0.map((__item1) => __item1.toISOString()));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("setsByName")) {
-        if (value.setsByName !== undefined) {
-            result["setsByName"] = Object.fromEntries(Array.from(value.setsByName, ([__key0, __item0]) => [__key0, Array.from(__item0, (__item1) => itemEncodeWithContext(__item1, ctx))]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byNumber")) {
-        if (value.byNumber !== undefined) {
-            result["byNumber"] = Object.fromEntries(Array.from(value.byNumber, ([__key0, __item0]) => [__key0, (__item0 === null ? null : itemEncodeWithContext(__item0, ctx))]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pairs")) {
-        if (value.pairs !== undefined) {
-            result["pairs"] = value.pairs.map((__item0) => [__item0[0], itemEncodeWithContext(__item0[1], ctx)]);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("patches")) {
-        if (value.patches !== undefined) {
-            result["patches"] = value.patches.map((__item0) => itemEncodePartialWithContext(__item0, ctx, { only: ["id"] }));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("inline")) {
-        if (value.inline !== undefined) {
-            result["inline"] = ({ ...value.inline, at: value.inline.at.toISOString(), item: (value.inline.item === undefined ? undefined : itemEncodeWithContext(value.inline.item, ctx)) });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("sizes")) {
-        if (value.sizes !== undefined) {
-            result["sizes"] = value.sizes;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("grid")) {
+                if (value.grid !== undefined) {
+                    result["grid"] = value.grid.map((__item0) => __item0.map((__item1) => __item1.toISOString()));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("setsByName")) {
+                if (value.setsByName !== undefined) {
+                    result["setsByName"] = Object.fromEntries(Array.from(value.setsByName, ([__key0, __item0]) => [__key0, Array.from(__item0, (__item1) => itemEncodeWithContext(__item1, ctx))]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byNumber")) {
+                if (value.byNumber !== undefined) {
+                    result["byNumber"] = Object.fromEntries(Array.from(value.byNumber, ([__key0, __item0]) => [__key0, (__item0 === null ? null : itemEncodeWithContext(__item0, ctx))]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pairs")) {
+                if (value.pairs !== undefined) {
+                    result["pairs"] = value.pairs.map((__item0) => [__item0[0], itemEncodeWithContext(__item0[1], ctx)]);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patches")) {
+                if (value.patches !== undefined) {
+                    result["patches"] = value.patches.map((__item0) => itemEncodePartialWithContext(__item0, ctx, { only: ["id"] }));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("inline")) {
+                if (value.inline !== undefined) {
+                    result["inline"] = ({ ...value.inline, at: value.inline.at.toISOString(), item: (value.inline.item === undefined ? undefined : itemEncodeWithContext(value.inline.item, ctx)) });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("sizes")) {
+                if (value.sizes !== undefined) {
+                    result["sizes"] = value.sizes;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -368,26 +390,12 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("grid")) && !("grid" in obj)) {
-        errors.push({ field: "grid", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("setsByName")) && !("setsByName" in obj)) {
-        errors.push({ field: "setsByName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byNumber")) && !("byNumber" in obj)) {
-        errors.push({ field: "byNumber", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pairs")) && !("pairs" in obj)) {
-        errors.push({ field: "pairs", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("patches")) && !("patches" in obj)) {
-        errors.push({ field: "patches", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("inline")) && !("inline" in obj)) {
-        errors.push({ field: "inline", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("sizes")) && !("sizes" in obj)) {
-        errors.push({ field: "sizes", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["grid", "grid"], ["setsByName", "setsByName"], ["byNumber", "byNumber"], ["pairs", "pairs"], ["patches", "patches"], ["inline", "inline"], ["sizes", "sizes"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -398,173 +406,191 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("grid")) ? "grid" in obj : (__fields.keeps("grid") && obj["grid"] !== undefined)) {
-        const __raw_grid = obj["grid"] as Array<Array<string | Date>>;
-        if (Array.isArray(__raw_grid)) {
-            ctx.pushScope("grid");
-            try {
-                instance.grid = __mf_decodeArray(__raw_grid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeDate));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "grid" : "grid." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("grid")) ? "grid" in obj : (__fields.keeps("grid") && obj["grid"] !== undefined)) {
+                const __raw_grid = obj["grid"] as Array<Array<string | Date>>;
+                if (Array.isArray(__raw_grid)) {
+                    ctx.pushScope("grid");
+                    try {
+                        instance.grid = __mf_decodeArray(__raw_grid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeDate));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "grid" : "grid." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "grid", message: __raw_grid == null ? "Nested.grid is required" : "expected Date[][]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "grid", message: __raw_grid == null ? "Nested.grid is required" : "expected Date[][]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("setsByName")) ? "setsByName" in obj : (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
-        const __raw_setsByName = obj["setsByName"] as Record<string, Array<Item>>;
-        if (typeof __raw_setsByName === "object" && __raw_setsByName !== null) {
-            ctx.pushScope("setsByName");
-            try {
-                instance.setsByName = __mf_decodeMap(__raw_setsByName, ctx, (__key0) => __key0, (__raw0) => __mf_decodeSet(__raw0, ctx, (__raw1) => itemDecodeWithContext(__raw1, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "setsByName" : "setsByName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("setsByName")) ? "setsByName" in obj : (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
+                const __raw_setsByName = obj["setsByName"] as Record<string, Array<Item>>;
+                if (typeof __raw_setsByName === "object" && __raw_setsByName !== null) {
+                    ctx.pushScope("setsByName");
+                    try {
+                        instance.setsByName = __mf_decodeMap(__raw_setsByName, ctx, (__key0) => __key0, (__raw0) => __mf_decodeSet(__raw0, ctx, (__raw1) => itemDecodeWithContext(__raw1, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "setsByName" : "setsByName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "setsByName", message: __raw_setsByName == null ? "Nested.setsByName is required" : "expected Map<string, Set<Item>>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "setsByName", message: __raw_setsByName == null ? "Nested.setsByName is required" : "expected Map<string, Set<Item>>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
-        const __raw_byNumber = obj["byNumber"] as Record<string, Item | null>;
-        if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
-            ctx.pushScope("byNumber");
-            try {
-                instance.byNumber = __mf_decodeMap(__raw_byNumber, ctx, (__key0) => __mf_decodeNumberKey(__key0), (__raw0) => (__raw0 === null ? null : itemDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byNumber" : "byNumber." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
+                const __raw_byNumber = obj["byNumber"] as Record<string, Item | null>;
+                if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
+                    ctx.pushScope("byNumber");
+                    try {
+                        instance.byNumber = __mf_decodeMap(__raw_byNumber, ctx, (__key0) => __mf_decodeNumberKey(__key0), (__raw0) => (__raw0 === null ? null : itemDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byNumber" : "byNumber." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byNumber", message: __raw_byNumber == null ? "Nested.byNumber is required" : "expected Map<number, Item | null>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byNumber", message: __raw_byNumber == null ? "Nested.byNumber is required" : "expected Map<number, Item | null>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pairs")) ? "pairs" in obj : (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
-        const __raw_pairs = obj["pairs"] as [string, Item][];
-        if (Array.isArray(__raw_pairs)) {
-            ctx.pushScope("pairs");
-            try {
-                instance.pairs = __mf_decodeArray(__raw_pairs, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, (__raw1) => itemDecodeWithContext(__raw1, ctx)], 2) as [string, Item]));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pairs" : "pairs." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pairs")) ? "pairs" in obj : (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
+                const __raw_pairs = obj["pairs"] as [string, Item][];
+                if (Array.isArray(__raw_pairs)) {
+                    ctx.pushScope("pairs");
+                    try {
+                        instance.pairs = __mf_decodeArray(__raw_pairs, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, (__raw1) => itemDecodeWithContext(__raw1, ctx)], 2) as [string, Item]));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pairs" : "pairs." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pairs", message: __raw_pairs == null ? "Nested.pairs is required" : "expected [string, Item][]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pairs", message: __raw_pairs == null ? "Nested.pairs is required" : "expected [string, Item][]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
-        const __raw_patches = obj["patches"] as Array<Pick<Item, 'id'>>;
-        if (Array.isArray(__raw_patches)) {
-            ctx.pushScope("patches");
-            try {
-                instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => itemDecodePartialWithContext(__raw0, ctx, { only: ["id"] }));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "patches" : "patches." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
+                const __raw_patches = obj["patches"] as Array<Pick<Item, 'id'>>;
+                if (Array.isArray(__raw_patches)) {
+                    ctx.pushScope("patches");
+                    try {
+                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => itemDecodePartialWithContext(__raw0, ctx, { only: ["id"] }));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "patches" : "patches." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "patches", message: __raw_patches == null ? "Nested.patches is required" : "expected Array<Pick<Item, 'id'>>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "patches", message: __raw_patches == null ? "Nested.patches is required" : "expected Array<Pick<Item, 'id'>>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
-        const __raw_inline = obj["inline"] as { at: Date; item?: Item };
-        if (typeof __raw_inline === "object" && __raw_inline !== null) {
-            ctx.pushScope("inline");
-            try {
-                instance.inline = (__mf_decodeObject(__raw_inline, ctx, { at: __mf_decodeDate, item: (__raw0) => itemDecodeWithContext(__raw0, ctx) }, ["item"]) as { at: Date; item?: Item });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "inline" : "inline." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+                const __raw_inline = obj["inline"] as { at: Date; item?: Item };
+                if (typeof __raw_inline === "object" && __raw_inline !== null) {
+                    ctx.pushScope("inline");
+                    try {
+                        instance.inline = (__mf_decodeObject(__raw_inline, ctx, { at: __mf_decodeDate, item: (__raw0) => itemDecodeWithContext(__raw0, ctx) }, ["item"]) as { at: Date; item?: Item });
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "inline" : "inline." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "inline", message: __raw_inline == null ? "Nested.inline is required" : "expected { at: Date; item?: Item }" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "inline", message: __raw_inline == null ? "Nested.inline is required" : "expected { at: Date; item?: Item }" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("sizes")) ? "sizes" in obj : (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
-        const __raw_sizes = obj["sizes"] as ('small' | 'large')[];
-        if (Array.isArray(__raw_sizes)) {
-            ctx.pushScope("sizes");
-            try {
-                instance.sizes = __mf_decodeArray(__raw_sizes, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'small' || __raw0 === 'large', "'small' | 'large'") as 'small' | 'large'));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "sizes" : "sizes." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("sizes")) ? "sizes" in obj : (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
+                const __raw_sizes = obj["sizes"] as ('small' | 'large')[];
+                if (Array.isArray(__raw_sizes)) {
+                    ctx.pushScope("sizes");
+                    try {
+                        instance.sizes = __mf_decodeArray(__raw_sizes, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'small' || __raw0 === 'large', "'small' | 'large'") as 'small' | 'large'));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "sizes" : "sizes." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "sizes", message: __raw_sizes == null ? "Nested.sizes is required" : "expected ('small' | 'large')[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "sizes", message: __raw_sizes == null ? "Nested.sizes is required" : "expected ('small' | 'large')[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -589,7 +615,7 @@ export function nestedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "grid") && __mf_holds(obj, "setsByName") && __mf_holds(obj, "byNumber") && __mf_holds(obj, "pairs") && __mf_holds(obj, "patches") && __mf_holds(obj, "inline") && __mf_holds(obj, "sizes");
+    return __mf_holdsAll(obj, ["grid", "setsByName", "byNumber", "pairs", "patches", "inline", "sizes"]);
 }
 
 export function nestedIs(obj: unknown): obj is Nested {
@@ -711,17 +737,17 @@ export {};
 
 ## Mapping
 
-original 30..65 -> expanded 982..1017
-original 65..67 -> expanded 9101..9103
-original 97..358 -> expanded 9103..9364
-original 358..359 -> expanded 28471..28472
-generated 0..982 <- imports
-generated 1017..3078 <- Encode
-generated 3078..8194 <- Decode
-generated 8194..9101 <- __convenience_const
-generated 9364..13099 <- Encode
-generated 13099..27522 <- Decode
-generated 27522..28471 <- __convenience_const
+original 30..65 -> expanded 988..1023
+original 65..67 -> expanded 9272..9274
+original 97..358 -> expanded 9274..9535
+original 358..359 -> expanded 29908..29909
+generated 0..988 <- imports
+generated 1023..3084 <- Encode
+generated 3084..8365 <- Decode
+generated 8365..9272 <- __convenience_const
+generated 9535..13799 <- Encode
+generated 13799..28959 <- Decode
+generated 28959..29908 <- __convenience_const
 
 ## Metadata
 

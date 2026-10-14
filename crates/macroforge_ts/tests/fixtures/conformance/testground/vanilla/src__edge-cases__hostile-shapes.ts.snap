@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types decoded from input nobody vouches for: keys that reach a prototype,
@@ -45,7 +45,12 @@ export function hostileItemClone(value: HostileItem): HostileItem {
 
 export function hostileItemEquals(a: HostileItem, b: HostileItem): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.id === b.id && (a.score === b.score || a.score !== a.score && b.score !== b.score));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.id === b.id,
+            () => a.score === b.score || a.score !== a.score && b.score !== b.score,
+        ].every((same) => same());
+    });
 }
 
 export function hostileItemHashCode(value: HostileItem): number {
@@ -85,15 +90,23 @@ export function hostileItemEncodePartialWithContext(value: Partial<HostileItem>,
 }
 
 function hostileItemEncodeFields(value: HostileItem, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-        if (value.score !== undefined) {
-            result["score"] = value.score;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("score")) {
+                if (value.score !== undefined) {
+                    result["score"] = value.score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -171,11 +184,12 @@ export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
-        errors.push({ field: "score", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["score", "score"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -186,23 +200,31 @@ export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "HostileItem.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
-        const __raw_score = obj["score"] as number;
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "HostileItem.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
+                const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
-            errors.push({ field: "score", message: __raw_score == null ? "HostileItem.score is required" : "expected number" });
-        } else {
-            instance.score = __raw_score;
-        }
+                if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
+                    errors.push({ field: "score", message: __raw_score == null ? "HostileItem.score is required" : "expected number" });
+                } else {
+                    instance.score = __raw_score;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -227,7 +249,7 @@ export function hostileItemHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "score");
+    return __mf_holdsAll(obj, ["id", "score"]);
 }
 
 export function hostileItemIs(obj: unknown): obj is HostileItem {
@@ -320,13 +342,28 @@ export function hostileBagClone(value: HostileBag): HostileBag {
 
 export function hostileBagEquals(a: HostileBag, b: HostileBag): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.name === b.name && hostileItemEquals(a.item, b.item) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
-	const __other0 = b.items[__index0];
-	return __other0 === undefined ? __item0 === undefined : hostileItemEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.byName, b.byName) && __mf_structuralEquals(a.counts, b.counts) && a.lookup.size === b.lookup.size && Array.from(a.lookup).every(([__key0, __item0]) => {
-	const __other0 = b.lookup.get(__key0);
-	return b.lookup.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
-}) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && __mf_structuralEquals(a.pair, b.pair) && (a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime()) && a.big === b.big && a.flag === b.flag && (a.nested == null || b.nested == null ? a.nested === b.nested : hostileBagEquals(a.nested, b.nested)));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.name === b.name,
+            () => hostileItemEquals(a.item, b.item),
+            () => a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+            	const __other0 = b.items[__index0];
+            	return __other0 === undefined ? __item0 === undefined : hostileItemEquals(__item0, __other0);
+            }),
+            () => __mf_structuralEquals(a.byName, b.byName),
+            () => __mf_structuralEquals(a.counts, b.counts),
+            () => a.lookup.size === b.lookup.size && Array.from(a.lookup).every(([__key0, __item0]) => {
+            	const __other0 = b.lookup.get(__key0);
+            	return b.lookup.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+            }),
+            () => a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)),
+            () => __mf_structuralEquals(a.pair, b.pair),
+            () => a.at.getTime() === b.at.getTime() || a.at.getTime() !== a.at.getTime() && b.at.getTime() !== b.at.getTime(),
+            () => a.big === b.big,
+            () => a.flag === b.flag,
+            () => a.nested == null || b.nested == null ? a.nested === b.nested : hostileBagEquals(a.nested, b.nested),
+        ].every((same) => same());
+    });
 }
 
 export function hostileBagHashCode(value: HostileBag): number {
@@ -376,65 +413,93 @@ export function hostileBagEncodePartialWithContext(value: Partial<HostileBag>, c
 }
 
 function hostileBagEncodeFields(value: HostileBag, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("item")) {
-        if (value.item !== undefined) {
-            result["item"] = hostileItemEncodeWithContext(value.item, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("items")) {
-        if (value.items !== undefined) {
-            result["items"] = value.items.map((__item0) => hostileItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries((Object.entries(value.byName) as [string, HostileItem][]).map(([__key0, __item0]) => [__key0, hostileItemEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("counts")) {
-        if (value.counts !== undefined) {
-            result["counts"] = value.counts;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("lookup")) {
-        if (value.lookup !== undefined) {
-            result["lookup"] = Object.fromEntries(value.lookup.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = Array.from(value.tags);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("at")) {
-        if (value.at !== undefined) {
-            result["at"] = value.at.toISOString();
-        }
-    }
-    if (__fields === undefined || __fields.keeps("big")) {
-        if (value.big !== undefined) {
-            result["big"] = ((v) => String(v))(value.big);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("flag")) {
-        if (value.flag !== undefined) {
-            result["flag"] = value.flag;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = value.nested === null ? null : hostileBagEncodeWithContext(value.nested, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("item")) {
+                if (value.item !== undefined) {
+                    result["item"] = hostileItemEncodeWithContext(value.item, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("items")) {
+                if (value.items !== undefined) {
+                    result["items"] = value.items.map((__item0) => hostileItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries((Object.entries(value.byName) as [string, HostileItem][]).map(([__key0, __item0]) => [__key0, hostileItemEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("counts")) {
+                if (value.counts !== undefined) {
+                    result["counts"] = value.counts;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("lookup")) {
+                if (value.lookup !== undefined) {
+                    result["lookup"] = Object.fromEntries(value.lookup.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("tags")) {
+                if (value.tags !== undefined) {
+                    result["tags"] = Array.from(value.tags);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("at")) {
+                if (value.at !== undefined) {
+                    result["at"] = value.at.toISOString();
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("big")) {
+                if (value.big !== undefined) {
+                    result["big"] = ((v) => String(v))(value.big);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("flag")) {
+                if (value.flag !== undefined) {
+                    result["flag"] = value.flag;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = value.nested === null ? null : hostileBagEncodeWithContext(value.nested, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -512,41 +577,12 @@ export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
-        errors.push({ field: "item", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
-        errors.push({ field: "items", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("counts")) && !("counts" in obj)) {
-        errors.push({ field: "counts", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("lookup")) && !("lookup" in obj)) {
-        errors.push({ field: "lookup", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
-        errors.push({ field: "at", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
-        errors.push({ field: "big", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("flag")) && !("flag" in obj)) {
-        errors.push({ field: "flag", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
-        errors.push({ field: "nested", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["item", "item"], ["items", "items"], ["byName", "byName"], ["counts", "counts"], ["lookup", "lookup"], ["tags", "tags"], ["pair", "pair"], ["at", "at"], ["big", "big"], ["flag", "flag"], ["nested", "nested"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -557,242 +593,270 @@ export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "HostileBag.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
-        const __raw_item = obj["item"] as HostileItem;
-
-        ctx.pushScope("item");
-        try {
-            const __result = hostileItemDecodeWithContext(__raw_item, ctx);
-            ctx.assignOrDefer(instance, "item", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "item" : "item." + __err.field,
-                        message: __err.message
-                    });
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "HostileBag.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
                 }
-            } else {
-
-                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
-        const __raw_items = obj["items"] as HostileItem[];
-        if (Array.isArray(__raw_items)) {
-            ctx.pushScope("items");
-            try {
-                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => hostileItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "items" : "items." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+                const __raw_item = obj["item"] as HostileItem;
+
+                ctx.pushScope("item");
+                try {
+                    const __result = hostileItemDecodeWithContext(__raw_item, ctx);
+                    ctx.assignOrDefer(instance, "item", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+                const __raw_items = obj["items"] as HostileItem[];
+                if (Array.isArray(__raw_items)) {
+                    ctx.pushScope("items");
+                    try {
+                        instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => hostileItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "items" : "items." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "items", message: __raw_items == null ? "HostileBag.items is required" : "expected HostileItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "items", message: __raw_items == null ? "HostileBag.items is required" : "expected HostileItem[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, HostileItem>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = (__mf_decodeRecord(__raw_byName, ctx, (__raw0) => hostileItemDecodeWithContext(__raw0, ctx)) as Record<string, HostileItem>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, HostileItem>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = (__mf_decodeRecord(__raw_byName, ctx, (__raw0) => hostileItemDecodeWithContext(__raw0, ctx)) as Record<string, HostileItem>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byName", message: __raw_byName == null ? "HostileBag.byName is required" : "expected Record<string, HostileItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "HostileBag.byName is required" : "expected Record<string, HostileItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("counts")) ? "counts" in obj : (__fields.keeps("counts") && obj["counts"] !== undefined)) {
-        const __raw_counts = obj["counts"] as Record<string, number>;
-        if (typeof __raw_counts === "object" && __raw_counts !== null) {
-            ctx.pushScope("counts");
-            try {
-                instance.counts = (__mf_decodeRecord(__raw_counts, ctx, __mf_decodeNumber) as Record<string, number>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "counts" : "counts." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("counts")) ? "counts" in obj : (__fields.keeps("counts") && obj["counts"] !== undefined)) {
+                const __raw_counts = obj["counts"] as Record<string, number>;
+                if (typeof __raw_counts === "object" && __raw_counts !== null) {
+                    ctx.pushScope("counts");
+                    try {
+                        instance.counts = (__mf_decodeRecord(__raw_counts, ctx, __mf_decodeNumber) as Record<string, number>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "counts" : "counts." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "counts", message: __raw_counts == null ? "HostileBag.counts is required" : "expected Record<string, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "counts", message: __raw_counts == null ? "HostileBag.counts is required" : "expected Record<string, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("lookup")) ? "lookup" in obj : (__fields.keeps("lookup") && obj["lookup"] !== undefined)) {
-        const __raw_lookup = obj["lookup"] as Record<string, number>;
-        if (typeof __raw_lookup === "object" && __raw_lookup !== null) {
-            ctx.pushScope("lookup");
-            try {
-                instance.lookup = __mf_decodeMap(__raw_lookup, ctx, (__key0) => __key0, __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "lookup" : "lookup." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("lookup")) ? "lookup" in obj : (__fields.keeps("lookup") && obj["lookup"] !== undefined)) {
+                const __raw_lookup = obj["lookup"] as Record<string, number>;
+                if (typeof __raw_lookup === "object" && __raw_lookup !== null) {
+                    ctx.pushScope("lookup");
+                    try {
+                        instance.lookup = __mf_decodeMap(__raw_lookup, ctx, (__key0) => __key0, __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "lookup" : "lookup." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "lookup", message: __raw_lookup == null ? "HostileBag.lookup is required" : "expected Map<string, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "lookup", message: __raw_lookup == null ? "HostileBag.lookup is required" : "expected Map<string, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as Array<string>;
-        if (Array.isArray(__raw_tags)) {
-            ctx.pushScope("tags");
-            try {
-                instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+                const __raw_tags = obj["tags"] as Array<string>;
+                if (Array.isArray(__raw_tags)) {
+                    ctx.pushScope("tags");
+                    try {
+                        instance.tags = __mf_decodeSet(__raw_tags, ctx, __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "tags", message: __raw_tags == null ? "HostileBag.tags is required" : "expected Set<string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "tags", message: __raw_tags == null ? "HostileBag.tags is required" : "expected Set<string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [string, number];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [string, number];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "HostileBag.pair is required" : "expected [string, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "HostileBag.pair is required" : "expected [string, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
-        const __raw_at = obj["at"] as string | Date;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+                const __raw_at = obj["at"] as string | Date;
 
-        {
-            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
-                errors.push({ field: "at", message: __raw_at == null ? "HostileBag.at is required" : "expected Date" });
-            } else {
-                instance.at = __dateVal;
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
-        try {
-            instance.big = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(obj["big"]);
-        } catch (__error) {
-            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
-        const __raw_flag = obj["flag"] as boolean;
-
-        if (!(typeof __raw_flag === "boolean")) {
-            errors.push({ field: "flag", message: __raw_flag == null ? "HostileBag.flag is required" : "expected boolean" });
-        } else {
-            instance.flag = __raw_flag;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
-        const __raw_nested = obj["nested"] as HostileBag | null;
-
-        if (__raw_nested === null) {
-            instance.nested = null;
-        } else {
-            ctx.pushScope("nested");
-            try {
-                const __result = hostileBagDecodeWithContext(__raw_nested, ctx);
-                ctx.assignOrDefer(instance, "nested", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                            message: __err.message
-                        });
+                {
+                    const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "at", message: __raw_at == null ? "HostileBag.at is required" : "expected Date" });
+                    } else {
+                        instance.at = __dateVal;
                     }
-                } else {
-
-                    errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+                try {
+                    instance.big = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(obj["big"]);
+                } catch (__error) {
+                    errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+                const __raw_flag = obj["flag"] as boolean;
+
+                if (!(typeof __raw_flag === "boolean")) {
+                    errors.push({ field: "flag", message: __raw_flag == null ? "HostileBag.flag is required" : "expected boolean" });
+                } else {
+                    instance.flag = __raw_flag;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as HostileBag | null;
+
+                if (__raw_nested === null) {
+                    instance.nested = null;
+                } else {
+                    ctx.pushScope("nested");
+                    try {
+                        const __result = hostileBagDecodeWithContext(__raw_nested, ctx);
+                        ctx.assignOrDefer(instance, "nested", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -817,7 +881,7 @@ export function hostileBagHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "item") && __mf_holds(obj, "items") && __mf_holds(obj, "byName") && __mf_holds(obj, "counts") && __mf_holds(obj, "lookup") && __mf_holds(obj, "tags") && __mf_holds(obj, "pair") && __mf_holds(obj, "at") && __mf_holds(obj, "big") && __mf_holds(obj, "flag") && __mf_holds(obj, "nested");
+    return __mf_holdsAll(obj, ["name", "item", "items", "byName", "counts", "lookup", "tags", "pair", "at", "big", "flag", "nested"]);
 }
 
 export function hostileBagIs(obj: unknown): obj is HostileBag {
@@ -883,7 +947,12 @@ export class HostileClass {
 
     static equals(a: HostileClass, b: HostileClass): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && (a.count === b.count || a.count !== a.count && b.count !== b.count));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.count === b.count || a.count !== a.count && b.count !== b.count,
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: HostileClass): number {
@@ -916,15 +985,23 @@ static encodePartialWithContext(value: Partial<HostileClass>, ctx: __mf_EncodeCo
 }
 
 static #encodeFields(value: HostileClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("count")) {
-        if (value.count !== undefined) {
-            result["count"] = value.count;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("count")) {
+                if (value.count !== undefined) {
+                    result["count"] = value.count;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1014,11 +1091,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
-        errors.push({ field: "count", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["count", "count"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(HostileClass.prototype);
@@ -1029,23 +1107,31 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "HostileClass.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
-        const __raw_count = obj["count"] as number;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "HostileClass.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+                const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
-            errors.push({ field: "count", message: __raw_count == null ? "HostileClass.count is required" : "expected number" });
-        } else {
-            instance.count = __raw_count;
-        }
+                if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
+                    errors.push({ field: "count", message: __raw_count == null ? "HostileClass.count is required" : "expected number" });
+                } else {
+                    instance.count = __raw_count;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1066,7 +1152,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "count");
+    return __mf_holdsAll(obj, ["name", "count"]);
 }
 
 static is(obj: unknown): obj is HostileClass {
@@ -1259,8 +1345,12 @@ export function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeC
             errors.push({ field: key, message: "unknown field" });
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1303,7 +1393,7 @@ export function hostileStrictHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name");
+    return __mf_holdsAll(obj, ["name"]);
 }
 
 export function hostileStrictIs(obj: unknown): obj is HostileStrict {
@@ -1599,43 +1689,43 @@ export declare const HostileStrict: {
 
 ## Mapping
 
-original 0..324 -> expanded 1256..1580
-original 324..728 -> expanded 12480..12884
-original 728..940 -> expanded 40918..41130
-original 940..941 -> expanded 50090..50091
-original 941..1069 -> expanded 53770..53898
-original 1069..1070 -> expanded 62878..62879
-generated 0..1256 <- imports
-generated 1580..1890 <- Debug
-generated 1890..2057 <- Clone
-generated 2057..2294 <- PartialEq
-generated 2294..2749 <- Hash
-generated 2749..5076 <- Encode
-generated 5076..11111 <- Decode
-generated 11111..12480 <- __convenience_const
-generated 12884..13858 <- Debug
-generated 13858..14446 <- Clone
-generated 14446..15695 <- PartialEq
-generated 15695..17238 <- Hash
-generated 17238..21530 <- Encode
-generated 21530..39578 <- Decode
-generated 39578..40918 <- __convenience_const
-generated 41130..41458 <- Debug
-generated 41458..41634 <- Clone
-generated 41634..41873 <- PartialEq
-generated 41873..42343 <- Hash
-generated 42343..44081 <- Encode
-generated 44081..44412 <- Encode
-generated 44412..50090 <- Decode
-generated 50091..50203 <- Debug
-generated 50203..50315 <- Clone
-generated 50315..50436 <- PartialEq
-generated 50436..50548 <- Hash
-generated 50548..51928 <- Encode
-generated 51928..53770 <- Decode
-generated 53898..56102 <- Encode
-generated 56102..61775 <- Decode
-generated 61775..62878 <- __convenience_const
+original 0..324 -> expanded 1262..1586
+original 324..728 -> expanded 13012..13416
+original 728..940 -> expanded 43181..43393
+original 940..941 -> expanded 52917..52918
+original 941..1069 -> expanded 56597..56725
+original 1069..1070 -> expanded 65868..65869
+generated 0..1262 <- imports
+generated 1586..1896 <- Debug
+generated 1896..2063 <- Clone
+generated 2063..2393 <- PartialEq
+generated 2393..2848 <- Hash
+generated 2848..5369 <- Encode
+generated 5369..11643 <- Decode
+generated 11643..13012 <- __convenience_const
+generated 13416..14390 <- Debug
+generated 14390..14978 <- Clone
+generated 14978..16550 <- PartialEq
+generated 16550..18093 <- Hash
+generated 18093..23249 <- Encode
+generated 23249..41841 <- Decode
+generated 41841..43181 <- __convenience_const
+generated 43393..43721 <- Debug
+generated 43721..43897 <- Clone
+generated 43897..44269 <- PartialEq
+generated 44269..44739 <- Hash
+generated 44739..46671 <- Encode
+generated 46671..47002 <- Encode
+generated 47002..52917 <- Decode
+generated 52918..53030 <- Debug
+generated 53030..53142 <- Clone
+generated 53142..53263 <- PartialEq
+generated 53263..53375 <- Hash
+generated 53375..54755 <- Encode
+generated 54755..56597 <- Decode
+generated 56725..58929 <- Encode
+generated 58929..64765 <- Decode
+generated 64765..65868 <- __convenience_const
 
 ## Metadata
 

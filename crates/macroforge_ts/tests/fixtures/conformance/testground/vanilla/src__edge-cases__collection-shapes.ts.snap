@@ -13,7 +13,7 @@ true
 ## Output
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeCardHashCode, edgeCardEquals, edgeCardClone, edgeItemToString } from "./edge-types";
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -194,52 +194,66 @@ export function collectionNestedClone(value: CollectionNested): CollectionNested
 
 export function collectionNestedEquals(a: CollectionNested, b: CollectionNested): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.grid.length === b.grid.length && a.grid.every((__item0, __index0) => {
-	const __other0 = b.grid[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
-		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1;
-	});
-}) && a.dateGrid.length === b.dateGrid.length && a.dateGrid.every((__item0, __index0) => {
-	const __other0 = b.dateGrid[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
-		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime() || __item1.getTime() !== __item1.getTime() && __other1.getTime() !== __other1.getTime();
-	});
-}) && a.itemGrid.length === b.itemGrid.length && a.itemGrid.every((__item0, __index0) => {
-	const __other0 = b.itemGrid[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
-		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : edgeItemEquals(__item1, __other1);
-	});
-}) && a.datesByName.size === b.datesByName.size && Array.from(a.datesByName).every(([__key0, __item0]) => {
-	const __other0 = b.datesByName.get(__key0);
-	return b.datesByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
-		const __other1 = __other0[__index1];
-		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime() || __item1.getTime() !== __item1.getTime() && __other1.getTime() !== __other1.getTime();
-	}));
-}) && __mf_structuralEquals(a.itemsByName, b.itemsByName) && a.setsByName.size === b.setsByName.size && Array.from(a.setsByName).every(([__key0, __item0]) => {
-	const __other0 = b.setsByName.get(__key0);
-	return b.setsByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.size === __other0.size && Array.from(__item0).every((__item1) => __other0.has(__item1) || Array.from(__other0).some((__other1) => __item1 === __other1)));
-}) && a.mapOfMaps.size === b.mapOfMaps.size && Array.from(a.mapOfMaps).every(([__key0, __item0]) => {
-	const __other0 = b.mapOfMaps.get(__key0);
-	return b.mapOfMaps.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.size === __other0.size && Array.from(__item0).every(([__key1, __item1]) => {
-		const __other1 = __other0.get(__key1);
-		return __other0.has(__key1) && (__other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1);
-	}));
-}) && a.cardsByName.size === b.cardsByName.size && Array.from(a.cardsByName).every(([__key0, __item0]) => {
-	const __other0 = b.cardsByName.get(__key0);
-	return b.cardsByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : edgeCardEquals(__item0, __other0));
-}) && (a.optionalItems == null || b.optionalItems == null ? a.optionalItems === b.optionalItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
-	const __other0 = __right0[__index0];
-	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-}))(a.optionalItems, b.optionalItems)) && (a.maybeItems == null || b.maybeItems == null ? a.maybeItems === b.maybeItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
-	const __other0 = __right0[__index0];
-	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-}))(a.maybeItems, b.maybeItems)) && (a.laterItems == null || b.laterItems == null ? a.laterItems === b.laterItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
-	const __other0 = __right0[__index0];
-	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-}))(a.laterItems, b.laterItems)));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.grid.length === b.grid.length && a.grid.every((__item0, __index0) => {
+            	const __other0 = b.grid[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
+            		const __other1 = __other0[__index1];
+            		return __other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1;
+            	});
+            }),
+            () => a.dateGrid.length === b.dateGrid.length && a.dateGrid.every((__item0, __index0) => {
+            	const __other0 = b.dateGrid[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
+            		const __other1 = __other0[__index1];
+            		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime() || __item1.getTime() !== __item1.getTime() && __other1.getTime() !== __other1.getTime();
+            	});
+            }),
+            () => a.itemGrid.length === b.itemGrid.length && a.itemGrid.every((__item0, __index0) => {
+            	const __other0 = b.itemGrid[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
+            		const __other1 = __other0[__index1];
+            		return __other1 === undefined ? __item1 === undefined : edgeItemEquals(__item1, __other1);
+            	});
+            }),
+            () => a.datesByName.size === b.datesByName.size && Array.from(a.datesByName).every(([__key0, __item0]) => {
+            	const __other0 = b.datesByName.get(__key0);
+            	return b.datesByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
+            		const __other1 = __other0[__index1];
+            		return __other1 === undefined ? __item1 === undefined : __item1.getTime() === __other1.getTime() || __item1.getTime() !== __item1.getTime() && __other1.getTime() !== __other1.getTime();
+            	}));
+            }),
+            () => __mf_structuralEquals(a.itemsByName, b.itemsByName),
+            () => a.setsByName.size === b.setsByName.size && Array.from(a.setsByName).every(([__key0, __item0]) => {
+            	const __other0 = b.setsByName.get(__key0);
+            	return b.setsByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.size === __other0.size && Array.from(__item0).every((__item1) => __other0.has(__item1) || Array.from(__other0).some((__other1) => __item1 === __other1)));
+            }),
+            () => a.mapOfMaps.size === b.mapOfMaps.size && Array.from(a.mapOfMaps).every(([__key0, __item0]) => {
+            	const __other0 = b.mapOfMaps.get(__key0);
+            	return b.mapOfMaps.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.size === __other0.size && Array.from(__item0).every(([__key1, __item1]) => {
+            		const __other1 = __other0.get(__key1);
+            		return __other0.has(__key1) && (__other1 === undefined ? __item1 === undefined : __item1 === __other1 || __item1 !== __item1 && __other1 !== __other1);
+            	}));
+            }),
+            () => a.cardsByName.size === b.cardsByName.size && Array.from(a.cardsByName).every(([__key0, __item0]) => {
+            	const __other0 = b.cardsByName.get(__key0);
+            	return b.cardsByName.has(__key0) && (__other0 === undefined ? __item0 === undefined : edgeCardEquals(__item0, __other0));
+            }),
+            () => a.optionalItems == null || b.optionalItems == null ? a.optionalItems === b.optionalItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
+            	const __other0 = __right0[__index0];
+            	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
+            }))(a.optionalItems, b.optionalItems),
+            () => a.maybeItems == null || b.maybeItems == null ? a.maybeItems === b.maybeItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
+            	const __other0 = __right0[__index0];
+            	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
+            }))(a.maybeItems, b.maybeItems),
+            () => a.laterItems == null || b.laterItems == null ? a.laterItems === b.laterItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
+            	const __other0 = __right0[__index0];
+            	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
+            }))(a.laterItems, b.laterItems),
+        ].every((same) => same());
+    });
 }
 
 export function collectionNestedHashCode(value: CollectionNested): number {
@@ -303,60 +317,86 @@ export function collectionNestedEncodePartialWithContext(value: Partial<Collecti
 }
 
 function collectionNestedEncodeFields(value: CollectionNested, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("grid")) {
-        if (value.grid !== undefined) {
-            result["grid"] = value.grid;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dateGrid")) {
-        if (value.dateGrid !== undefined) {
-            result["dateGrid"] = value.dateGrid.map((__item0) => __item0.map((__item1) => __item1.toISOString()));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("itemGrid")) {
-        if (value.itemGrid !== undefined) {
-            result["itemGrid"] = value.itemGrid.map((__item0) => __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("datesByName")) {
-        if (value.datesByName !== undefined) {
-            result["datesByName"] = Object.fromEntries(Array.from(value.datesByName, ([__key0, __item0]) => [__key0, __item0.map((__item1) => __item1.toISOString())]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("itemsByName")) {
-        if (value.itemsByName !== undefined) {
-            result["itemsByName"] = Object.fromEntries((Object.entries(value.itemsByName) as [string, EdgeItem[]][]).map(([__key0, __item0]) => [__key0, __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx))]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("setsByName")) {
-        if (value.setsByName !== undefined) {
-            result["setsByName"] = Object.fromEntries(Array.from(value.setsByName, ([__key0, __item0]) => [__key0, Array.from(__item0)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("mapOfMaps")) {
-        if (value.mapOfMaps !== undefined) {
-            result["mapOfMaps"] = Object.fromEntries(Array.from(value.mapOfMaps, ([__key0, __item0]) => [__key0, Object.fromEntries(__item0.entries())]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("cardsByName")) {
-        if (value.cardsByName !== undefined) {
-            result["cardsByName"] = Object.fromEntries(Array.from(value.cardsByName, ([__key0, __item0]) => [__key0, edgeCardEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optionalItems")) {
-        if (value.optionalItems !== undefined) {
-            result["optionalItems"] = value.optionalItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybeItems")) {
-        if (value.maybeItems !== undefined) {
-            result["maybeItems"] = value.maybeItems === null ? null : value.maybeItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("laterItems")) {
-        if (value.laterItems !== undefined) {
-            result["laterItems"] = value.laterItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("grid")) {
+                if (value.grid !== undefined) {
+                    result["grid"] = value.grid;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dateGrid")) {
+                if (value.dateGrid !== undefined) {
+                    result["dateGrid"] = value.dateGrid.map((__item0) => __item0.map((__item1) => __item1.toISOString()));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("itemGrid")) {
+                if (value.itemGrid !== undefined) {
+                    result["itemGrid"] = value.itemGrid.map((__item0) => __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("datesByName")) {
+                if (value.datesByName !== undefined) {
+                    result["datesByName"] = Object.fromEntries(Array.from(value.datesByName, ([__key0, __item0]) => [__key0, __item0.map((__item1) => __item1.toISOString())]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("itemsByName")) {
+                if (value.itemsByName !== undefined) {
+                    result["itemsByName"] = Object.fromEntries((Object.entries(value.itemsByName) as [string, EdgeItem[]][]).map(([__key0, __item0]) => [__key0, __item0.map((__item1) => edgeItemEncodeWithContext(__item1, ctx))]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("setsByName")) {
+                if (value.setsByName !== undefined) {
+                    result["setsByName"] = Object.fromEntries(Array.from(value.setsByName, ([__key0, __item0]) => [__key0, Array.from(__item0)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("mapOfMaps")) {
+                if (value.mapOfMaps !== undefined) {
+                    result["mapOfMaps"] = Object.fromEntries(Array.from(value.mapOfMaps, ([__key0, __item0]) => [__key0, Object.fromEntries(__item0.entries())]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("cardsByName")) {
+                if (value.cardsByName !== undefined) {
+                    result["cardsByName"] = Object.fromEntries(Array.from(value.cardsByName, ([__key0, __item0]) => [__key0, edgeCardEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optionalItems")) {
+                if (value.optionalItems !== undefined) {
+                    result["optionalItems"] = value.optionalItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybeItems")) {
+                if (value.maybeItems !== undefined) {
+                    result["maybeItems"] = value.maybeItems === null ? null : value.maybeItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("laterItems")) {
+                if (value.laterItems !== undefined) {
+                    result["laterItems"] = value.laterItems.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -434,32 +474,12 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("grid")) && !("grid" in obj)) {
-        errors.push({ field: "grid", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dateGrid")) && !("dateGrid" in obj)) {
-        errors.push({ field: "dateGrid", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("itemGrid")) && !("itemGrid" in obj)) {
-        errors.push({ field: "itemGrid", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("datesByName")) && !("datesByName" in obj)) {
-        errors.push({ field: "datesByName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("itemsByName")) && !("itemsByName" in obj)) {
-        errors.push({ field: "itemsByName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("setsByName")) && !("setsByName" in obj)) {
-        errors.push({ field: "setsByName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("mapOfMaps")) && !("mapOfMaps" in obj)) {
-        errors.push({ field: "mapOfMaps", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("cardsByName")) && !("cardsByName" in obj)) {
-        errors.push({ field: "cardsByName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybeItems")) && !("maybeItems" in obj)) {
-        errors.push({ field: "maybeItems", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["grid", "grid"], ["dateGrid", "dateGrid"], ["itemGrid", "itemGrid"], ["datesByName", "datesByName"], ["itemsByName", "itemsByName"], ["setsByName", "setsByName"], ["mapOfMaps", "mapOfMaps"], ["cardsByName", "cardsByName"], ["maybeItems", "maybeItems"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -470,280 +490,306 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("grid")) ? "grid" in obj : (__fields.keeps("grid") && obj["grid"] !== undefined)) {
-        const __raw_grid = obj["grid"] as number[][];
-        if (Array.isArray(__raw_grid)) {
-            ctx.pushScope("grid");
-            try {
-                instance.grid = __mf_decodeArray(__raw_grid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeNumber));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "grid" : "grid." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("grid")) ? "grid" in obj : (__fields.keeps("grid") && obj["grid"] !== undefined)) {
+                const __raw_grid = obj["grid"] as number[][];
+                if (Array.isArray(__raw_grid)) {
+                    ctx.pushScope("grid");
+                    try {
+                        instance.grid = __mf_decodeArray(__raw_grid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeNumber));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "grid" : "grid." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "grid", message: __raw_grid == null ? "CollectionNested.grid is required" : "expected number[][]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "grid", message: __raw_grid == null ? "CollectionNested.grid is required" : "expected number[][]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dateGrid")) ? "dateGrid" in obj : (__fields.keeps("dateGrid") && obj["dateGrid"] !== undefined)) {
-        const __raw_dateGrid = obj["dateGrid"] as Array<Array<string | Date>>;
-        if (Array.isArray(__raw_dateGrid)) {
-            ctx.pushScope("dateGrid");
-            try {
-                instance.dateGrid = __mf_decodeArray(__raw_dateGrid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeDate));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "dateGrid" : "dateGrid." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dateGrid")) ? "dateGrid" in obj : (__fields.keeps("dateGrid") && obj["dateGrid"] !== undefined)) {
+                const __raw_dateGrid = obj["dateGrid"] as Array<Array<string | Date>>;
+                if (Array.isArray(__raw_dateGrid)) {
+                    ctx.pushScope("dateGrid");
+                    try {
+                        instance.dateGrid = __mf_decodeArray(__raw_dateGrid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeDate));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "dateGrid" : "dateGrid." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "dateGrid", message: __raw_dateGrid == null ? "CollectionNested.dateGrid is required" : "expected Array<Array<Date>>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "dateGrid", message: __raw_dateGrid == null ? "CollectionNested.dateGrid is required" : "expected Array<Array<Date>>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("itemGrid")) ? "itemGrid" in obj : (__fields.keeps("itemGrid") && obj["itemGrid"] !== undefined)) {
-        const __raw_itemGrid = obj["itemGrid"] as EdgeItem[][];
-        if (Array.isArray(__raw_itemGrid)) {
-            ctx.pushScope("itemGrid");
-            try {
-                instance.itemGrid = __mf_decodeArray(__raw_itemGrid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, (__raw1) => edgeItemDecodeWithContext(__raw1, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "itemGrid" : "itemGrid." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("itemGrid")) ? "itemGrid" in obj : (__fields.keeps("itemGrid") && obj["itemGrid"] !== undefined)) {
+                const __raw_itemGrid = obj["itemGrid"] as EdgeItem[][];
+                if (Array.isArray(__raw_itemGrid)) {
+                    ctx.pushScope("itemGrid");
+                    try {
+                        instance.itemGrid = __mf_decodeArray(__raw_itemGrid, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, (__raw1) => edgeItemDecodeWithContext(__raw1, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "itemGrid" : "itemGrid." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "itemGrid", message: __raw_itemGrid == null ? "CollectionNested.itemGrid is required" : "expected EdgeItem[][]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "itemGrid", message: __raw_itemGrid == null ? "CollectionNested.itemGrid is required" : "expected EdgeItem[][]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("datesByName")) ? "datesByName" in obj : (__fields.keeps("datesByName") && obj["datesByName"] !== undefined)) {
-        const __raw_datesByName = obj["datesByName"] as Record<string, Array<string | Date>>;
-        if (typeof __raw_datesByName === "object" && __raw_datesByName !== null) {
-            ctx.pushScope("datesByName");
-            try {
-                instance.datesByName = __mf_decodeMap(__raw_datesByName, ctx, (__key0) => __key0, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeDate));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "datesByName" : "datesByName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("datesByName")) ? "datesByName" in obj : (__fields.keeps("datesByName") && obj["datesByName"] !== undefined)) {
+                const __raw_datesByName = obj["datesByName"] as Record<string, Array<string | Date>>;
+                if (typeof __raw_datesByName === "object" && __raw_datesByName !== null) {
+                    ctx.pushScope("datesByName");
+                    try {
+                        instance.datesByName = __mf_decodeMap(__raw_datesByName, ctx, (__key0) => __key0, (__raw0) => __mf_decodeArray(__raw0, ctx, __mf_decodeDate));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "datesByName" : "datesByName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "datesByName", message: __raw_datesByName == null ? "CollectionNested.datesByName is required" : "expected Map<string, Date[]>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "datesByName", message: __raw_datesByName == null ? "CollectionNested.datesByName is required" : "expected Map<string, Date[]>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("itemsByName")) ? "itemsByName" in obj : (__fields.keeps("itemsByName") && obj["itemsByName"] !== undefined)) {
-        const __raw_itemsByName = obj["itemsByName"] as Record<string, EdgeItem[]>;
-        if (typeof __raw_itemsByName === "object" && __raw_itemsByName !== null) {
-            ctx.pushScope("itemsByName");
-            try {
-                instance.itemsByName = (__mf_decodeRecord(__raw_itemsByName, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, (__raw1) => edgeItemDecodeWithContext(__raw1, ctx))) as Record<string, EdgeItem[]>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "itemsByName" : "itemsByName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("itemsByName")) ? "itemsByName" in obj : (__fields.keeps("itemsByName") && obj["itemsByName"] !== undefined)) {
+                const __raw_itemsByName = obj["itemsByName"] as Record<string, EdgeItem[]>;
+                if (typeof __raw_itemsByName === "object" && __raw_itemsByName !== null) {
+                    ctx.pushScope("itemsByName");
+                    try {
+                        instance.itemsByName = (__mf_decodeRecord(__raw_itemsByName, ctx, (__raw0) => __mf_decodeArray(__raw0, ctx, (__raw1) => edgeItemDecodeWithContext(__raw1, ctx))) as Record<string, EdgeItem[]>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "itemsByName" : "itemsByName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "itemsByName", message: __raw_itemsByName == null ? "CollectionNested.itemsByName is required" : "expected Record<string, EdgeItem[]>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "itemsByName", message: __raw_itemsByName == null ? "CollectionNested.itemsByName is required" : "expected Record<string, EdgeItem[]>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("setsByName")) ? "setsByName" in obj : (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
-        const __raw_setsByName = obj["setsByName"] as Record<string, Array<string>>;
-        if (typeof __raw_setsByName === "object" && __raw_setsByName !== null) {
-            ctx.pushScope("setsByName");
-            try {
-                instance.setsByName = __mf_decodeMap(__raw_setsByName, ctx, (__key0) => __key0, (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "setsByName" : "setsByName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("setsByName")) ? "setsByName" in obj : (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
+                const __raw_setsByName = obj["setsByName"] as Record<string, Array<string>>;
+                if (typeof __raw_setsByName === "object" && __raw_setsByName !== null) {
+                    ctx.pushScope("setsByName");
+                    try {
+                        instance.setsByName = __mf_decodeMap(__raw_setsByName, ctx, (__key0) => __key0, (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "setsByName" : "setsByName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "setsByName", message: __raw_setsByName == null ? "CollectionNested.setsByName is required" : "expected Map<string, Set<string>>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "setsByName", message: __raw_setsByName == null ? "CollectionNested.setsByName is required" : "expected Map<string, Set<string>>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("mapOfMaps")) ? "mapOfMaps" in obj : (__fields.keeps("mapOfMaps") && obj["mapOfMaps"] !== undefined)) {
-        const __raw_mapOfMaps = obj["mapOfMaps"] as Record<string, Record<string, number>>;
-        if (typeof __raw_mapOfMaps === "object" && __raw_mapOfMaps !== null) {
-            ctx.pushScope("mapOfMaps");
-            try {
-                instance.mapOfMaps = __mf_decodeMap(__raw_mapOfMaps, ctx, (__key0) => __key0, (__raw0) => __mf_decodeMap(__raw0, ctx, (__key1) => __key1, __mf_decodeNumber));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "mapOfMaps" : "mapOfMaps." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mapOfMaps")) ? "mapOfMaps" in obj : (__fields.keeps("mapOfMaps") && obj["mapOfMaps"] !== undefined)) {
+                const __raw_mapOfMaps = obj["mapOfMaps"] as Record<string, Record<string, number>>;
+                if (typeof __raw_mapOfMaps === "object" && __raw_mapOfMaps !== null) {
+                    ctx.pushScope("mapOfMaps");
+                    try {
+                        instance.mapOfMaps = __mf_decodeMap(__raw_mapOfMaps, ctx, (__key0) => __key0, (__raw0) => __mf_decodeMap(__raw0, ctx, (__key1) => __key1, __mf_decodeNumber));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "mapOfMaps" : "mapOfMaps." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "mapOfMaps", message: __raw_mapOfMaps == null ? "CollectionNested.mapOfMaps is required" : "expected Map<string, Map<string, number>>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "mapOfMaps", message: __raw_mapOfMaps == null ? "CollectionNested.mapOfMaps is required" : "expected Map<string, Map<string, number>>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("cardsByName")) ? "cardsByName" in obj : (__fields.keeps("cardsByName") && obj["cardsByName"] !== undefined)) {
-        const __raw_cardsByName = obj["cardsByName"] as Record<string, EdgeCard>;
-        if (typeof __raw_cardsByName === "object" && __raw_cardsByName !== null) {
-            ctx.pushScope("cardsByName");
-            try {
-                instance.cardsByName = __mf_decodeMap(__raw_cardsByName, ctx, (__key0) => __key0, (__raw0) => edgeCardDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "cardsByName" : "cardsByName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("cardsByName")) ? "cardsByName" in obj : (__fields.keeps("cardsByName") && obj["cardsByName"] !== undefined)) {
+                const __raw_cardsByName = obj["cardsByName"] as Record<string, EdgeCard>;
+                if (typeof __raw_cardsByName === "object" && __raw_cardsByName !== null) {
+                    ctx.pushScope("cardsByName");
+                    try {
+                        instance.cardsByName = __mf_decodeMap(__raw_cardsByName, ctx, (__key0) => __key0, (__raw0) => edgeCardDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "cardsByName" : "cardsByName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "cardsByName", message: __raw_cardsByName == null ? "CollectionNested.cardsByName is required" : "expected Map<string, EdgeCard>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "cardsByName", message: __raw_cardsByName == null ? "CollectionNested.cardsByName is required" : "expected Map<string, EdgeCard>" });
-        }
-    }
-    if ((__fields === undefined || __fields.keeps("optionalItems"))) {
-        if (("optionalItems" in obj && obj["optionalItems"] !== undefined)) {
-            const __raw_optionalItems = obj["optionalItems"] as EdgeItem[];
-            if (Array.isArray(__raw_optionalItems)) {
-                ctx.pushScope("optionalItems");
-                try {
-                    instance.optionalItems = __mf_decodeArray(__raw_optionalItems, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "optionalItems" : "optionalItems." + __err.field,
-                                message: __err.message
-                            });
+        },
+        () => {
+            if ((__fields === undefined || __fields.keeps("optionalItems"))) {
+                if (("optionalItems" in obj && obj["optionalItems"] !== undefined)) {
+                    const __raw_optionalItems = obj["optionalItems"] as EdgeItem[];
+                    if (Array.isArray(__raw_optionalItems)) {
+                        ctx.pushScope("optionalItems");
+                        try {
+                            instance.optionalItems = __mf_decodeArray(__raw_optionalItems, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "optionalItems" : "optionalItems." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "optionalItems", message: "expected EdgeItem[]" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "optionalItems", message: "expected EdgeItem[]" });
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybeItems")) ? "maybeItems" in obj : (__fields.keeps("maybeItems") && obj["maybeItems"] !== undefined)) {
-        const __raw_maybeItems = obj["maybeItems"] as EdgeItem[] | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybeItems")) ? "maybeItems" in obj : (__fields.keeps("maybeItems") && obj["maybeItems"] !== undefined)) {
+                const __raw_maybeItems = obj["maybeItems"] as EdgeItem[] | null;
 
-        if (__raw_maybeItems === null) {
-            instance.maybeItems = null;
-        } else {
-            if (Array.isArray(__raw_maybeItems)) {
-                ctx.pushScope("maybeItems");
-                try {
-                    instance.maybeItems = __mf_decodeArray(__raw_maybeItems, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "maybeItems" : "maybeItems." + __err.field,
-                                message: __err.message
-                            });
+                if (__raw_maybeItems === null) {
+                    instance.maybeItems = null;
+                } else {
+                    if (Array.isArray(__raw_maybeItems)) {
+                        ctx.pushScope("maybeItems");
+                        try {
+                            instance.maybeItems = __mf_decodeArray(__raw_maybeItems, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "maybeItems" : "maybeItems." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "maybeItems", message: __raw_maybeItems == null ? "CollectionNested.maybeItems is required" : "expected EdgeItem[]" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "maybeItems", message: __raw_maybeItems == null ? "CollectionNested.maybeItems is required" : "expected EdgeItem[]" });
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("laterItems")) || (__fields.keeps("laterItems") && obj["laterItems"] !== undefined)) {
-        const __raw_laterItems = obj["laterItems"] as EdgeItem[] | undefined;
-        if (__raw_laterItems === undefined) {
-            instance.laterItems = undefined;
-        } else {
-            if (Array.isArray(__raw_laterItems)) {
-                ctx.pushScope("laterItems");
-                try {
-                    instance.laterItems = __mf_decodeArray(__raw_laterItems, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "laterItems" : "laterItems." + __err.field,
-                                message: __err.message
-                            });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("laterItems")) || (__fields.keeps("laterItems") && obj["laterItems"] !== undefined)) {
+                const __raw_laterItems = obj["laterItems"] as EdgeItem[] | undefined;
+                if (__raw_laterItems === undefined) {
+                    instance.laterItems = undefined;
+                } else {
+                    if (Array.isArray(__raw_laterItems)) {
+                        ctx.pushScope("laterItems");
+                        try {
+                            instance.laterItems = __mf_decodeArray(__raw_laterItems, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                        } catch (__e) {
+                            if (__e instanceof __mf_DecodeError) {
+                                for (const __err of __e.errors) {
+                                    errors.push({
+                                        field: __err.field === "_root" ? "laterItems" : "laterItems." + __err.field,
+                                        message: __err.message
+                                    });
+                                }
+                            } else {
+                                throw __e;
+                            }
+                        } finally {
+                            ctx.popScope();
                         }
                     } else {
-                        throw __e;
+                        errors.push({ field: "laterItems", message: __raw_laterItems == null ? "CollectionNested.laterItems is required" : "expected EdgeItem[]" });
                     }
-                } finally {
-                    ctx.popScope();
                 }
-            } else {
-                errors.push({ field: "laterItems", message: __raw_laterItems == null ? "CollectionNested.laterItems is required" : "expected EdgeItem[]" });
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -768,7 +814,7 @@ export function collectionNestedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "grid") && __mf_holds(obj, "dateGrid") && __mf_holds(obj, "itemGrid") && __mf_holds(obj, "datesByName") && __mf_holds(obj, "itemsByName") && __mf_holds(obj, "setsByName") && __mf_holds(obj, "mapOfMaps") && __mf_holds(obj, "cardsByName") && __mf_holds(obj, "maybeItems");
+    return __mf_holdsAll(obj, ["grid", "dateGrid", "itemGrid", "datesByName", "itemsByName", "setsByName", "mapOfMaps", "cardsByName", "maybeItems"]);
 }
 
 export function collectionNestedIs(obj: unknown): obj is CollectionNested {
@@ -857,19 +903,32 @@ export function collectionKeysClone(value: CollectionKeys): CollectionKeys {
 
 export function collectionKeysEquals(a: CollectionKeys, b: CollectionKeys): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.byNumber.size === b.byNumber.size && Array.from(a.byNumber).every(([__key0, __item0]) => {
-	const __other0 = b.byNumber.get(__key0);
-	return b.byNumber.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}) && a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
-	const __other0 = b.byKind.get(__key0);
-	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
-}) && a.byDate.size === b.byDate.size && Array.from(a.byDate).every(([__key0, __item0]) => {
-	const __other0 = b.byDate.get(__key0);
-	return b.byDate.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}) && __mf_structuralEquals(a.kindLabels, b.kindLabels) && __mf_structuralEquals(a.numbered, b.numbered) && a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => collectionKindEquals(__item0, __other0))) && a.dates.size === b.dates.size && Array.from(a.dates).every((__item0) => b.dates.has(__item0) || Array.from(b.dates).some((__other0) => __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime())) && a.nullableDates.length === b.nullableDates.length && a.nullableDates.every((__item0, __index0) => {
-	const __other0 = b.nullableDates[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime();
-}) && a.dateSet.size === b.dateSet.size && Array.from(a.dateSet).every((__item0) => b.dateSet.has(__item0) || Array.from(b.dateSet).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime())) && __mf_structuralEquals(a.dateRecord, b.dateRecord));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.byNumber.size === b.byNumber.size && Array.from(a.byNumber).every(([__key0, __item0]) => {
+            	const __other0 = b.byNumber.get(__key0);
+            	return b.byNumber.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+            }),
+            () => a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
+            	const __other0 = b.byKind.get(__key0);
+            	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0);
+            }),
+            () => a.byDate.size === b.byDate.size && Array.from(a.byDate).every(([__key0, __item0]) => {
+            	const __other0 = b.byDate.get(__key0);
+            	return b.byDate.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+            }),
+            () => __mf_structuralEquals(a.kindLabels, b.kindLabels),
+            () => __mf_structuralEquals(a.numbered, b.numbered),
+            () => a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => collectionKindEquals(__item0, __other0))),
+            () => a.dates.size === b.dates.size && Array.from(a.dates).every((__item0) => b.dates.has(__item0) || Array.from(b.dates).some((__other0) => __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime())),
+            () => a.nullableDates.length === b.nullableDates.length && a.nullableDates.every((__item0, __index0) => {
+            	const __other0 = b.nullableDates[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime();
+            }),
+            () => a.dateSet.size === b.dateSet.size && Array.from(a.dateSet).every((__item0) => b.dateSet.has(__item0) || Array.from(b.dateSet).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime() || __item0.getTime() !== __item0.getTime() && __other0.getTime() !== __other0.getTime())),
+            () => __mf_structuralEquals(a.dateRecord, b.dateRecord),
+        ].every((same) => same());
+    });
 }
 
 export function collectionKeysHashCode(value: CollectionKeys): number {
@@ -935,55 +994,79 @@ export function collectionKeysEncodePartialWithContext(value: Partial<Collection
 }
 
 function collectionKeysEncodeFields(value: CollectionKeys, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("byNumber")) {
-        if (value.byNumber !== undefined) {
-            result["byNumber"] = Object.fromEntries(value.byNumber.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byKind")) {
-        if (value.byKind !== undefined) {
-            result["byKind"] = Object.fromEntries(value.byKind.entries());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byDate")) {
-        if (value.byDate !== undefined) {
-            result["byDate"] = Object.fromEntries(Array.from(value.byDate, ([__key0, __item0]) => [__key0.toISOString(), __item0]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kindLabels")) {
-        if (value.kindLabels !== undefined) {
-            result["kindLabels"] = value.kindLabels;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("numbered")) {
-        if (value.numbered !== undefined) {
-            result["numbered"] = Object.fromEntries((Object.entries(value.numbered) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kinds")) {
-        if (value.kinds !== undefined) {
-            result["kinds"] = Array.from(value.kinds, (__item0) => collectionKindEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dates")) {
-        if (value.dates !== undefined) {
-            result["dates"] = Array.from(value.dates, (__item0) => __item0.toISOString());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nullableDates")) {
-        if (value.nullableDates !== undefined) {
-            result["nullableDates"] = value.nullableDates.map((__item0) => (__item0 === null ? null : __item0.toISOString()));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dateSet")) {
-        if (value.dateSet !== undefined) {
-            result["dateSet"] = Array.from(value.dateSet, (__item0) => (__item0 === null ? null : __item0.toISOString()));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("dateRecord")) {
-        if (value.dateRecord !== undefined) {
-            result["dateRecord"] = Object.fromEntries((Object.entries(value.dateRecord) as [string, Date][]).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("byNumber")) {
+                if (value.byNumber !== undefined) {
+                    result["byNumber"] = Object.fromEntries(value.byNumber.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byKind")) {
+                if (value.byKind !== undefined) {
+                    result["byKind"] = Object.fromEntries(value.byKind.entries());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byDate")) {
+                if (value.byDate !== undefined) {
+                    result["byDate"] = Object.fromEntries(Array.from(value.byDate, ([__key0, __item0]) => [__key0.toISOString(), __item0]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kindLabels")) {
+                if (value.kindLabels !== undefined) {
+                    result["kindLabels"] = value.kindLabels;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("numbered")) {
+                if (value.numbered !== undefined) {
+                    result["numbered"] = Object.fromEntries((Object.entries(value.numbered) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kinds")) {
+                if (value.kinds !== undefined) {
+                    result["kinds"] = Array.from(value.kinds, (__item0) => collectionKindEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dates")) {
+                if (value.dates !== undefined) {
+                    result["dates"] = Array.from(value.dates, (__item0) => __item0.toISOString());
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nullableDates")) {
+                if (value.nullableDates !== undefined) {
+                    result["nullableDates"] = value.nullableDates.map((__item0) => (__item0 === null ? null : __item0.toISOString()));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dateSet")) {
+                if (value.dateSet !== undefined) {
+                    result["dateSet"] = Array.from(value.dateSet, (__item0) => (__item0 === null ? null : __item0.toISOString()));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("dateRecord")) {
+                if (value.dateRecord !== undefined) {
+                    result["dateRecord"] = Object.fromEntries((Object.entries(value.dateRecord) as [string, Date][]).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1061,35 +1144,12 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("byNumber")) && !("byNumber" in obj)) {
-        errors.push({ field: "byNumber", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byKind")) && !("byKind" in obj)) {
-        errors.push({ field: "byKind", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byDate")) && !("byDate" in obj)) {
-        errors.push({ field: "byDate", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kindLabels")) && !("kindLabels" in obj)) {
-        errors.push({ field: "kindLabels", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("numbered")) && !("numbered" in obj)) {
-        errors.push({ field: "numbered", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kinds")) && !("kinds" in obj)) {
-        errors.push({ field: "kinds", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dates")) && !("dates" in obj)) {
-        errors.push({ field: "dates", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nullableDates")) && !("nullableDates" in obj)) {
-        errors.push({ field: "nullableDates", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dateSet")) && !("dateSet" in obj)) {
-        errors.push({ field: "dateSet", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("dateRecord")) && !("dateRecord" in obj)) {
-        errors.push({ field: "dateRecord", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["byNumber", "byNumber"], ["byKind", "byKind"], ["byDate", "byDate"], ["kindLabels", "kindLabels"], ["numbered", "numbered"], ["kinds", "kinds"], ["dates", "dates"], ["nullableDates", "nullableDates"], ["dateSet", "dateSet"], ["dateRecord", "dateRecord"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1100,245 +1160,269 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
-        const __raw_byNumber = obj["byNumber"] as Record<string, string>;
-        if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
-            ctx.pushScope("byNumber");
-            try {
-                instance.byNumber = __mf_decodeMap(__raw_byNumber, ctx, (__key0) => __mf_decodeNumberKey(__key0), __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byNumber" : "byNumber." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
+                const __raw_byNumber = obj["byNumber"] as Record<string, string>;
+                if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
+                    ctx.pushScope("byNumber");
+                    try {
+                        instance.byNumber = __mf_decodeMap(__raw_byNumber, ctx, (__key0) => __mf_decodeNumberKey(__key0), __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byNumber" : "byNumber." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byNumber", message: __raw_byNumber == null ? "CollectionKeys.byNumber is required" : "expected Map<number, string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byNumber", message: __raw_byNumber == null ? "CollectionKeys.byNumber is required" : "expected Map<number, string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
-        const __raw_byKind = obj["byKind"] as Record<string, number>;
-        if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
-            ctx.pushScope("byKind");
-            try {
-                instance.byKind = __mf_decodeMap(__raw_byKind, ctx, (__key0) => collectionKindDecodeWithContext(__key0, ctx), __mf_decodeNumber);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+                const __raw_byKind = obj["byKind"] as Record<string, number>;
+                if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
+                    ctx.pushScope("byKind");
+                    try {
+                        instance.byKind = __mf_decodeMap(__raw_byKind, ctx, (__key0) => collectionKindDecodeWithContext(__key0, ctx), __mf_decodeNumber);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byKind" : "byKind." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byKind", message: __raw_byKind == null ? "CollectionKeys.byKind is required" : "expected Map<CollectionKind, number>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byKind", message: __raw_byKind == null ? "CollectionKeys.byKind is required" : "expected Map<CollectionKind, number>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byDate")) ? "byDate" in obj : (__fields.keeps("byDate") && obj["byDate"] !== undefined)) {
-        const __raw_byDate = obj["byDate"] as Record<string, string>;
-        if (typeof __raw_byDate === "object" && __raw_byDate !== null) {
-            ctx.pushScope("byDate");
-            try {
-                instance.byDate = __mf_decodeMap(__raw_byDate, ctx, (__key0) => __mf_decodeDate(__key0), __mf_decodeString);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byDate" : "byDate." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byDate")) ? "byDate" in obj : (__fields.keeps("byDate") && obj["byDate"] !== undefined)) {
+                const __raw_byDate = obj["byDate"] as Record<string, string>;
+                if (typeof __raw_byDate === "object" && __raw_byDate !== null) {
+                    ctx.pushScope("byDate");
+                    try {
+                        instance.byDate = __mf_decodeMap(__raw_byDate, ctx, (__key0) => __mf_decodeDate(__key0), __mf_decodeString);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byDate" : "byDate." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byDate", message: __raw_byDate == null ? "CollectionKeys.byDate is required" : "expected Map<Date, string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byDate", message: __raw_byDate == null ? "CollectionKeys.byDate is required" : "expected Map<Date, string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kindLabels")) ? "kindLabels" in obj : (__fields.keeps("kindLabels") && obj["kindLabels"] !== undefined)) {
-        const __raw_kindLabels = obj["kindLabels"] as Record<CollectionKind, string>;
-        if (typeof __raw_kindLabels === "object" && __raw_kindLabels !== null) {
-            ctx.pushScope("kindLabels");
-            try {
-                instance.kindLabels = (__mf_decodeRecord(__raw_kindLabels, ctx, __mf_decodeString, (__key0) => collectionKindDecodeWithContext(__key0, ctx), [String(CollectionKind.Plain), String(CollectionKind.Fancy)]) as Record<CollectionKind, string>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "kindLabels" : "kindLabels." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kindLabels")) ? "kindLabels" in obj : (__fields.keeps("kindLabels") && obj["kindLabels"] !== undefined)) {
+                const __raw_kindLabels = obj["kindLabels"] as Record<CollectionKind, string>;
+                if (typeof __raw_kindLabels === "object" && __raw_kindLabels !== null) {
+                    ctx.pushScope("kindLabels");
+                    try {
+                        instance.kindLabels = (__mf_decodeRecord(__raw_kindLabels, ctx, __mf_decodeString, (__key0) => collectionKindDecodeWithContext(__key0, ctx), [String(CollectionKind.Plain), String(CollectionKind.Fancy)]) as Record<CollectionKind, string>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "kindLabels" : "kindLabels." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "kindLabels", message: __raw_kindLabels == null ? "CollectionKeys.kindLabels is required" : "expected Record<CollectionKind, string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "kindLabels", message: __raw_kindLabels == null ? "CollectionKeys.kindLabels is required" : "expected Record<CollectionKind, string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("numbered")) ? "numbered" in obj : (__fields.keeps("numbered") && obj["numbered"] !== undefined)) {
-        const __raw_numbered = obj["numbered"] as Record<number, EdgeItem>;
-        if (typeof __raw_numbered === "object" && __raw_numbered !== null) {
-            ctx.pushScope("numbered");
-            try {
-                instance.numbered = (__mf_decodeRecord(__raw_numbered, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__key0) => __mf_decodeNumberKey(__key0), []) as Record<number, EdgeItem>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "numbered" : "numbered." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("numbered")) ? "numbered" in obj : (__fields.keeps("numbered") && obj["numbered"] !== undefined)) {
+                const __raw_numbered = obj["numbered"] as Record<number, EdgeItem>;
+                if (typeof __raw_numbered === "object" && __raw_numbered !== null) {
+                    ctx.pushScope("numbered");
+                    try {
+                        instance.numbered = (__mf_decodeRecord(__raw_numbered, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__key0) => __mf_decodeNumberKey(__key0), []) as Record<number, EdgeItem>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "numbered" : "numbered." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "numbered", message: __raw_numbered == null ? "CollectionKeys.numbered is required" : "expected Record<number, EdgeItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "numbered", message: __raw_numbered == null ? "CollectionKeys.numbered is required" : "expected Record<number, EdgeItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kinds")) ? "kinds" in obj : (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
-        const __raw_kinds = obj["kinds"] as Array<CollectionKind>;
-        if (Array.isArray(__raw_kinds)) {
-            ctx.pushScope("kinds");
-            try {
-                instance.kinds = __mf_decodeSet(__raw_kinds, ctx, (__raw0) => collectionKindDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "kinds" : "kinds." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kinds")) ? "kinds" in obj : (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
+                const __raw_kinds = obj["kinds"] as Array<CollectionKind>;
+                if (Array.isArray(__raw_kinds)) {
+                    ctx.pushScope("kinds");
+                    try {
+                        instance.kinds = __mf_decodeSet(__raw_kinds, ctx, (__raw0) => collectionKindDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "kinds" : "kinds." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "kinds", message: __raw_kinds == null ? "CollectionKeys.kinds is required" : "expected Set<CollectionKind>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "kinds", message: __raw_kinds == null ? "CollectionKeys.kinds is required" : "expected Set<CollectionKind>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dates")) ? "dates" in obj : (__fields.keeps("dates") && obj["dates"] !== undefined)) {
-        const __raw_dates = obj["dates"] as Array<string | Date>;
-        if (Array.isArray(__raw_dates)) {
-            ctx.pushScope("dates");
-            try {
-                instance.dates = __mf_decodeSet(__raw_dates, ctx, __mf_decodeDate);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "dates" : "dates." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dates")) ? "dates" in obj : (__fields.keeps("dates") && obj["dates"] !== undefined)) {
+                const __raw_dates = obj["dates"] as Array<string | Date>;
+                if (Array.isArray(__raw_dates)) {
+                    ctx.pushScope("dates");
+                    try {
+                        instance.dates = __mf_decodeSet(__raw_dates, ctx, __mf_decodeDate);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "dates" : "dates." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "dates", message: __raw_dates == null ? "CollectionKeys.dates is required" : "expected Set<Date>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "dates", message: __raw_dates == null ? "CollectionKeys.dates is required" : "expected Set<Date>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nullableDates")) ? "nullableDates" in obj : (__fields.keeps("nullableDates") && obj["nullableDates"] !== undefined)) {
-        const __raw_nullableDates = obj["nullableDates"] as Array<string | Date | null>;
-        if (Array.isArray(__raw_nullableDates)) {
-            ctx.pushScope("nullableDates");
-            try {
-                instance.nullableDates = __mf_decodeArray(__raw_nullableDates, ctx, (__raw0) => (__raw0 === null ? null : __mf_decodeDate(__raw0)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nullableDates" : "nullableDates." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nullableDates")) ? "nullableDates" in obj : (__fields.keeps("nullableDates") && obj["nullableDates"] !== undefined)) {
+                const __raw_nullableDates = obj["nullableDates"] as Array<string | Date | null>;
+                if (Array.isArray(__raw_nullableDates)) {
+                    ctx.pushScope("nullableDates");
+                    try {
+                        instance.nullableDates = __mf_decodeArray(__raw_nullableDates, ctx, (__raw0) => (__raw0 === null ? null : __mf_decodeDate(__raw0)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nullableDates" : "nullableDates." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nullableDates", message: __raw_nullableDates == null ? "CollectionKeys.nullableDates is required" : "expected (Date | null)[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nullableDates", message: __raw_nullableDates == null ? "CollectionKeys.nullableDates is required" : "expected (Date | null)[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dateSet")) ? "dateSet" in obj : (__fields.keeps("dateSet") && obj["dateSet"] !== undefined)) {
-        const __raw_dateSet = obj["dateSet"] as Array<string | Date | null>;
-        if (Array.isArray(__raw_dateSet)) {
-            ctx.pushScope("dateSet");
-            try {
-                instance.dateSet = __mf_decodeSet(__raw_dateSet, ctx, (__raw0) => (__raw0 === null ? null : __mf_decodeDate(__raw0)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "dateSet" : "dateSet." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dateSet")) ? "dateSet" in obj : (__fields.keeps("dateSet") && obj["dateSet"] !== undefined)) {
+                const __raw_dateSet = obj["dateSet"] as Array<string | Date | null>;
+                if (Array.isArray(__raw_dateSet)) {
+                    ctx.pushScope("dateSet");
+                    try {
+                        instance.dateSet = __mf_decodeSet(__raw_dateSet, ctx, (__raw0) => (__raw0 === null ? null : __mf_decodeDate(__raw0)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "dateSet" : "dateSet." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "dateSet", message: __raw_dateSet == null ? "CollectionKeys.dateSet is required" : "expected Set<Date | null>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "dateSet", message: __raw_dateSet == null ? "CollectionKeys.dateSet is required" : "expected Set<Date | null>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("dateRecord")) ? "dateRecord" in obj : (__fields.keeps("dateRecord") && obj["dateRecord"] !== undefined)) {
-        const __raw_dateRecord = obj["dateRecord"] as Record<string, Date>;
-        if (typeof __raw_dateRecord === "object" && __raw_dateRecord !== null) {
-            ctx.pushScope("dateRecord");
-            try {
-                instance.dateRecord = (__mf_decodeRecord(__raw_dateRecord, ctx, __mf_decodeDate) as Record<string, Date>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "dateRecord" : "dateRecord." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("dateRecord")) ? "dateRecord" in obj : (__fields.keeps("dateRecord") && obj["dateRecord"] !== undefined)) {
+                const __raw_dateRecord = obj["dateRecord"] as Record<string, Date>;
+                if (typeof __raw_dateRecord === "object" && __raw_dateRecord !== null) {
+                    ctx.pushScope("dateRecord");
+                    try {
+                        instance.dateRecord = (__mf_decodeRecord(__raw_dateRecord, ctx, __mf_decodeDate) as Record<string, Date>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "dateRecord" : "dateRecord." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "dateRecord", message: __raw_dateRecord == null ? "CollectionKeys.dateRecord is required" : "expected Record<string, Date>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "dateRecord", message: __raw_dateRecord == null ? "CollectionKeys.dateRecord is required" : "expected Record<string, Date>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1363,7 +1447,7 @@ export function collectionKeysHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "byNumber") && __mf_holds(obj, "byKind") && __mf_holds(obj, "byDate") && __mf_holds(obj, "kindLabels") && __mf_holds(obj, "numbered") && __mf_holds(obj, "kinds") && __mf_holds(obj, "dates") && __mf_holds(obj, "nullableDates") && __mf_holds(obj, "dateSet") && __mf_holds(obj, "dateRecord");
+    return __mf_holdsAll(obj, ["byNumber", "byKind", "byDate", "kindLabels", "numbered", "kinds", "dates", "nullableDates", "dateSet", "dateRecord"]);
 }
 
 export function collectionKeysIs(obj: unknown): obj is CollectionKeys {
@@ -1447,22 +1531,32 @@ export function collectionUnionsClone(value: CollectionUnions): CollectionUnions
 
 export function collectionUnionsEquals(a: CollectionUnions, b: CollectionUnions): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.mixed.length === b.mixed.length && a.mixed.every((__item0, __index0) => {
-	const __other0 = b.mixed[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && a.itemOrText.length === b.itemOrText.length && a.itemOrText.every((__item0, __index0) => {
-	const __other0 = b.itemOrText[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && a.itemOrNull.size === b.itemOrNull.size && Array.from(a.itemOrNull).every((__item0) => b.itemOrNull.has(__item0) || Array.from(b.itemOrNull).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : edgeItemEquals(__item0, __other0))) && a.valueOrNull.size === b.valueOrNull.size && Array.from(a.valueOrNull).every(([__key0, __item0]) => {
-	const __other0 = b.valueOrNull.get(__key0);
-	return b.valueOrNull.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : edgeItemEquals(__item0, __other0));
-}) && __mf_structuralEquals(a.recordOrNull, b.recordOrNull) && a.literal.length === b.literal.length && a.literal.every((__item0, __index0) => {
-	const __other0 = b.literal[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-}) && a.kindOrNull.length === b.kindOrNull.length && a.kindOrNull.every((__item0, __index0) => {
-	const __other0 = b.kindOrNull[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.mixed.length === b.mixed.length && a.mixed.every((__item0, __index0) => {
+            	const __other0 = b.mixed[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+            () => a.itemOrText.length === b.itemOrText.length && a.itemOrText.every((__item0, __index0) => {
+            	const __other0 = b.itemOrText[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+            () => a.itemOrNull.size === b.itemOrNull.size && Array.from(a.itemOrNull).every((__item0) => b.itemOrNull.has(__item0) || Array.from(b.itemOrNull).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : edgeItemEquals(__item0, __other0))),
+            () => a.valueOrNull.size === b.valueOrNull.size && Array.from(a.valueOrNull).every(([__key0, __item0]) => {
+            	const __other0 = b.valueOrNull.get(__key0);
+            	return b.valueOrNull.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : edgeItemEquals(__item0, __other0));
+            }),
+            () => __mf_structuralEquals(a.recordOrNull, b.recordOrNull),
+            () => a.literal.length === b.literal.length && a.literal.every((__item0, __index0) => {
+            	const __other0 = b.literal[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+            }),
+            () => a.kindOrNull.length === b.kindOrNull.length && a.kindOrNull.every((__item0, __index0) => {
+            	const __other0 = b.kindOrNull[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function collectionUnionsHashCode(value: CollectionUnions): number {
@@ -1519,40 +1613,58 @@ export function collectionUnionsEncodePartialWithContext(value: Partial<Collecti
 }
 
 function collectionUnionsEncodeFields(value: CollectionUnions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("mixed")) {
-        if (value.mixed !== undefined) {
-            result["mixed"] = value.mixed;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("itemOrText")) {
-        if (value.itemOrText !== undefined) {
-            result["itemOrText"] = value.itemOrText.map((__item0) => (typeof __item0 === "string" ? __item0 : edgeItemEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("itemOrNull")) {
-        if (value.itemOrNull !== undefined) {
-            result["itemOrNull"] = Array.from(value.itemOrNull, (__item0) => (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx)));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("valueOrNull")) {
-        if (value.valueOrNull !== undefined) {
-            result["valueOrNull"] = Object.fromEntries(Array.from(value.valueOrNull, ([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("recordOrNull")) {
-        if (value.recordOrNull !== undefined) {
-            result["recordOrNull"] = Object.fromEntries((Object.entries(value.recordOrNull) as [string, EdgeItem | null][]).map(([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("literal")) {
-        if (value.literal !== undefined) {
-            result["literal"] = value.literal;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("kindOrNull")) {
-        if (value.kindOrNull !== undefined) {
-            result["kindOrNull"] = value.kindOrNull.map((__item0) => (__item0 === null ? null : collectionKindEncodeWithContext(__item0, ctx)));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("mixed")) {
+                if (value.mixed !== undefined) {
+                    result["mixed"] = value.mixed;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("itemOrText")) {
+                if (value.itemOrText !== undefined) {
+                    result["itemOrText"] = value.itemOrText.map((__item0) => (typeof __item0 === "string" ? __item0 : edgeItemEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("itemOrNull")) {
+                if (value.itemOrNull !== undefined) {
+                    result["itemOrNull"] = Array.from(value.itemOrNull, (__item0) => (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("valueOrNull")) {
+                if (value.valueOrNull !== undefined) {
+                    result["valueOrNull"] = Object.fromEntries(Array.from(value.valueOrNull, ([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("recordOrNull")) {
+                if (value.recordOrNull !== undefined) {
+                    result["recordOrNull"] = Object.fromEntries((Object.entries(value.recordOrNull) as [string, EdgeItem | null][]).map(([__key0, __item0]) => [__key0, (__item0 === null ? null : edgeItemEncodeWithContext(__item0, ctx))]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("literal")) {
+                if (value.literal !== undefined) {
+                    result["literal"] = value.literal;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("kindOrNull")) {
+                if (value.kindOrNull !== undefined) {
+                    result["kindOrNull"] = value.kindOrNull.map((__item0) => (__item0 === null ? null : collectionKindEncodeWithContext(__item0, ctx)));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1630,26 +1742,12 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("mixed")) && !("mixed" in obj)) {
-        errors.push({ field: "mixed", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("itemOrText")) && !("itemOrText" in obj)) {
-        errors.push({ field: "itemOrText", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("itemOrNull")) && !("itemOrNull" in obj)) {
-        errors.push({ field: "itemOrNull", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("valueOrNull")) && !("valueOrNull" in obj)) {
-        errors.push({ field: "valueOrNull", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("recordOrNull")) && !("recordOrNull" in obj)) {
-        errors.push({ field: "recordOrNull", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("literal")) && !("literal" in obj)) {
-        errors.push({ field: "literal", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("kindOrNull")) && !("kindOrNull" in obj)) {
-        errors.push({ field: "kindOrNull", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["mixed", "mixed"], ["itemOrText", "itemOrText"], ["itemOrNull", "itemOrNull"], ["valueOrNull", "valueOrNull"], ["recordOrNull", "recordOrNull"], ["literal", "literal"], ["kindOrNull", "kindOrNull"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1660,173 +1758,191 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
-        const __raw_mixed = obj["mixed"] as (string | number)[];
-        if (Array.isArray(__raw_mixed)) {
-            ctx.pushScope("mixed");
-            try {
-                instance.mixed = __mf_decodeArray(__raw_mixed, ctx, (__raw0) => (__mf_decodeChecked(__raw0, typeof __raw0 === "string" || (typeof __raw0 === "number" && globalThis.Number.isFinite(__raw0)), "string | number") as string | number));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+                const __raw_mixed = obj["mixed"] as (string | number)[];
+                if (Array.isArray(__raw_mixed)) {
+                    ctx.pushScope("mixed");
+                    try {
+                        instance.mixed = __mf_decodeArray(__raw_mixed, ctx, (__raw0) => (__mf_decodeChecked(__raw0, typeof __raw0 === "string" || (typeof __raw0 === "number" && globalThis.Number.isFinite(__raw0)), "string | number") as string | number));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "mixed", message: __raw_mixed == null ? "CollectionUnions.mixed is required" : "expected (string | number)[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "mixed", message: __raw_mixed == null ? "CollectionUnions.mixed is required" : "expected (string | number)[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("itemOrText")) ? "itemOrText" in obj : (__fields.keeps("itemOrText") && obj["itemOrText"] !== undefined)) {
-        const __raw_itemOrText = obj["itemOrText"] as Array<EdgeItem | string>;
-        if (Array.isArray(__raw_itemOrText)) {
-            ctx.pushScope("itemOrText");
-            try {
-                instance.itemOrText = __mf_decodeArray(__raw_itemOrText, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : edgeItemDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "itemOrText" : "itemOrText." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("itemOrText")) ? "itemOrText" in obj : (__fields.keeps("itemOrText") && obj["itemOrText"] !== undefined)) {
+                const __raw_itemOrText = obj["itemOrText"] as Array<EdgeItem | string>;
+                if (Array.isArray(__raw_itemOrText)) {
+                    ctx.pushScope("itemOrText");
+                    try {
+                        instance.itemOrText = __mf_decodeArray(__raw_itemOrText, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : edgeItemDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "itemOrText" : "itemOrText." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "itemOrText", message: __raw_itemOrText == null ? "CollectionUnions.itemOrText is required" : "expected Array<EdgeItem | string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "itemOrText", message: __raw_itemOrText == null ? "CollectionUnions.itemOrText is required" : "expected Array<EdgeItem | string>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("itemOrNull")) ? "itemOrNull" in obj : (__fields.keeps("itemOrNull") && obj["itemOrNull"] !== undefined)) {
-        const __raw_itemOrNull = obj["itemOrNull"] as Array<EdgeItem | null>;
-        if (Array.isArray(__raw_itemOrNull)) {
-            ctx.pushScope("itemOrNull");
-            try {
-                instance.itemOrNull = __mf_decodeSet(__raw_itemOrNull, ctx, (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "itemOrNull" : "itemOrNull." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("itemOrNull")) ? "itemOrNull" in obj : (__fields.keeps("itemOrNull") && obj["itemOrNull"] !== undefined)) {
+                const __raw_itemOrNull = obj["itemOrNull"] as Array<EdgeItem | null>;
+                if (Array.isArray(__raw_itemOrNull)) {
+                    ctx.pushScope("itemOrNull");
+                    try {
+                        instance.itemOrNull = __mf_decodeSet(__raw_itemOrNull, ctx, (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "itemOrNull" : "itemOrNull." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "itemOrNull", message: __raw_itemOrNull == null ? "CollectionUnions.itemOrNull is required" : "expected Set<EdgeItem | null>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "itemOrNull", message: __raw_itemOrNull == null ? "CollectionUnions.itemOrNull is required" : "expected Set<EdgeItem | null>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("valueOrNull")) ? "valueOrNull" in obj : (__fields.keeps("valueOrNull") && obj["valueOrNull"] !== undefined)) {
-        const __raw_valueOrNull = obj["valueOrNull"] as Record<string, EdgeItem | null>;
-        if (typeof __raw_valueOrNull === "object" && __raw_valueOrNull !== null) {
-            ctx.pushScope("valueOrNull");
-            try {
-                instance.valueOrNull = __mf_decodeMap(__raw_valueOrNull, ctx, (__key0) => __key0, (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "valueOrNull" : "valueOrNull." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("valueOrNull")) ? "valueOrNull" in obj : (__fields.keeps("valueOrNull") && obj["valueOrNull"] !== undefined)) {
+                const __raw_valueOrNull = obj["valueOrNull"] as Record<string, EdgeItem | null>;
+                if (typeof __raw_valueOrNull === "object" && __raw_valueOrNull !== null) {
+                    ctx.pushScope("valueOrNull");
+                    try {
+                        instance.valueOrNull = __mf_decodeMap(__raw_valueOrNull, ctx, (__key0) => __key0, (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "valueOrNull" : "valueOrNull." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "valueOrNull", message: __raw_valueOrNull == null ? "CollectionUnions.valueOrNull is required" : "expected Map<string, EdgeItem | null>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "valueOrNull", message: __raw_valueOrNull == null ? "CollectionUnions.valueOrNull is required" : "expected Map<string, EdgeItem | null>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("recordOrNull")) ? "recordOrNull" in obj : (__fields.keeps("recordOrNull") && obj["recordOrNull"] !== undefined)) {
-        const __raw_recordOrNull = obj["recordOrNull"] as Record<string, EdgeItem | null>;
-        if (typeof __raw_recordOrNull === "object" && __raw_recordOrNull !== null) {
-            ctx.pushScope("recordOrNull");
-            try {
-                instance.recordOrNull = (__mf_decodeRecord(__raw_recordOrNull, ctx, (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx))) as Record<string, EdgeItem | null>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "recordOrNull" : "recordOrNull." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("recordOrNull")) ? "recordOrNull" in obj : (__fields.keeps("recordOrNull") && obj["recordOrNull"] !== undefined)) {
+                const __raw_recordOrNull = obj["recordOrNull"] as Record<string, EdgeItem | null>;
+                if (typeof __raw_recordOrNull === "object" && __raw_recordOrNull !== null) {
+                    ctx.pushScope("recordOrNull");
+                    try {
+                        instance.recordOrNull = (__mf_decodeRecord(__raw_recordOrNull, ctx, (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx))) as Record<string, EdgeItem | null>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "recordOrNull" : "recordOrNull." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "recordOrNull", message: __raw_recordOrNull == null ? "CollectionUnions.recordOrNull is required" : "expected Record<string, EdgeItem | null>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "recordOrNull", message: __raw_recordOrNull == null ? "CollectionUnions.recordOrNull is required" : "expected Record<string, EdgeItem | null>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("literal")) ? "literal" in obj : (__fields.keeps("literal") && obj["literal"] !== undefined)) {
-        const __raw_literal = obj["literal"] as ('on' | 'off')[];
-        if (Array.isArray(__raw_literal)) {
-            ctx.pushScope("literal");
-            try {
-                instance.literal = __mf_decodeArray(__raw_literal, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'on' || __raw0 === 'off', "'on' | 'off'") as 'on' | 'off'));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "literal" : "literal." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("literal")) ? "literal" in obj : (__fields.keeps("literal") && obj["literal"] !== undefined)) {
+                const __raw_literal = obj["literal"] as ('on' | 'off')[];
+                if (Array.isArray(__raw_literal)) {
+                    ctx.pushScope("literal");
+                    try {
+                        instance.literal = __mf_decodeArray(__raw_literal, ctx, (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'on' || __raw0 === 'off', "'on' | 'off'") as 'on' | 'off'));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "literal" : "literal." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "literal", message: __raw_literal == null ? "CollectionUnions.literal is required" : "expected ('on' | 'off')[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "literal", message: __raw_literal == null ? "CollectionUnions.literal is required" : "expected ('on' | 'off')[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("kindOrNull")) ? "kindOrNull" in obj : (__fields.keeps("kindOrNull") && obj["kindOrNull"] !== undefined)) {
-        const __raw_kindOrNull = obj["kindOrNull"] as (CollectionKind | null)[];
-        if (Array.isArray(__raw_kindOrNull)) {
-            ctx.pushScope("kindOrNull");
-            try {
-                instance.kindOrNull = __mf_decodeArray(__raw_kindOrNull, ctx, (__raw0) => (__raw0 === null ? null : collectionKindDecodeWithContext(__raw0, ctx)));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "kindOrNull" : "kindOrNull." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("kindOrNull")) ? "kindOrNull" in obj : (__fields.keeps("kindOrNull") && obj["kindOrNull"] !== undefined)) {
+                const __raw_kindOrNull = obj["kindOrNull"] as (CollectionKind | null)[];
+                if (Array.isArray(__raw_kindOrNull)) {
+                    ctx.pushScope("kindOrNull");
+                    try {
+                        instance.kindOrNull = __mf_decodeArray(__raw_kindOrNull, ctx, (__raw0) => (__raw0 === null ? null : collectionKindDecodeWithContext(__raw0, ctx)));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "kindOrNull" : "kindOrNull." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "kindOrNull", message: __raw_kindOrNull == null ? "CollectionUnions.kindOrNull is required" : "expected (CollectionKind | null)[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "kindOrNull", message: __raw_kindOrNull == null ? "CollectionUnions.kindOrNull is required" : "expected (CollectionKind | null)[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1851,7 +1967,7 @@ export function collectionUnionsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "mixed") && __mf_holds(obj, "itemOrText") && __mf_holds(obj, "itemOrNull") && __mf_holds(obj, "valueOrNull") && __mf_holds(obj, "recordOrNull") && __mf_holds(obj, "literal") && __mf_holds(obj, "kindOrNull");
+    return __mf_holdsAll(obj, ["mixed", "itemOrText", "itemOrNull", "valueOrNull", "recordOrNull", "literal", "kindOrNull"]);
 }
 
 export function collectionUnionsIs(obj: unknown): obj is CollectionUnions {
@@ -1934,10 +2050,21 @@ export function collectionTuplesClone(value: CollectionTuples): CollectionTuples
 
 export function collectionTuplesEquals(a: CollectionTuples, b: CollectionTuples): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.pair, b.pair) && __mf_structuralEquals(a.named, b.named) && __mf_structuralEquals(a.itemPair, b.itemPair) && __mf_structuralEquals(a.readonlyPair, b.readonlyPair) && __mf_structuralEquals(a.optionalTail, b.optionalTail) && __mf_structuralEquals(a.rest, b.rest) && a.pairs.length === b.pairs.length && a.pairs.every((__item0, __index0) => {
-	const __other0 = b.pairs[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.nested, b.nested));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.pair, b.pair),
+            () => __mf_structuralEquals(a.named, b.named),
+            () => __mf_structuralEquals(a.itemPair, b.itemPair),
+            () => __mf_structuralEquals(a.readonlyPair, b.readonlyPair),
+            () => __mf_structuralEquals(a.optionalTail, b.optionalTail),
+            () => __mf_structuralEquals(a.rest, b.rest),
+            () => a.pairs.length === b.pairs.length && a.pairs.every((__item0, __index0) => {
+            	const __other0 = b.pairs[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
+            () => __mf_structuralEquals(a.nested, b.nested),
+        ].every((same) => same());
+    });
 }
 
 export function collectionTuplesHashCode(value: CollectionTuples): number {
@@ -1996,45 +2123,65 @@ export function collectionTuplesEncodePartialWithContext(value: Partial<Collecti
 }
 
 function collectionTuplesEncodeFields(value: CollectionTuples, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = value.pair;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("named")) {
-        if (value.named !== undefined) {
-            result["named"] = [value.named[0], value.named[1].toISOString()];
-        }
-    }
-    if (__fields === undefined || __fields.keeps("itemPair")) {
-        if (value.itemPair !== undefined) {
-            result["itemPair"] = [edgeItemEncodeWithContext(value.itemPair[0], ctx), (value.itemPair[1] === null ? null : edgeItemEncodeWithContext(value.itemPair[1], ctx))];
-        }
-    }
-    if (__fields === undefined || __fields.keeps("readonlyPair")) {
-        if (value.readonlyPair !== undefined) {
-            result["readonlyPair"] = value.readonlyPair;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("optionalTail")) {
-        if (value.optionalTail !== undefined) {
-            result["optionalTail"] = value.optionalTail;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rest")) {
-        if (value.rest !== undefined) {
-            result["rest"] = value.rest;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pairs")) {
-        if (value.pairs !== undefined) {
-            result["pairs"] = value.pairs.map((__item0) => [__item0[0], edgeItemEncodeWithContext(__item0[1], ctx)]);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = [value.nested[0], [value.nested[1][0], value.nested[1][1].toISOString()]];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("named")) {
+                if (value.named !== undefined) {
+                    result["named"] = [value.named[0], value.named[1].toISOString()];
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("itemPair")) {
+                if (value.itemPair !== undefined) {
+                    result["itemPair"] = [edgeItemEncodeWithContext(value.itemPair[0], ctx), (value.itemPair[1] === null ? null : edgeItemEncodeWithContext(value.itemPair[1], ctx))];
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("readonlyPair")) {
+                if (value.readonlyPair !== undefined) {
+                    result["readonlyPair"] = value.readonlyPair;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("optionalTail")) {
+                if (value.optionalTail !== undefined) {
+                    result["optionalTail"] = value.optionalTail;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rest")) {
+                if (value.rest !== undefined) {
+                    result["rest"] = value.rest;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pairs")) {
+                if (value.pairs !== undefined) {
+                    result["pairs"] = value.pairs.map((__item0) => [__item0[0], edgeItemEncodeWithContext(__item0[1], ctx)]);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = [value.nested[0], [value.nested[1][0], value.nested[1][1].toISOString()]];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2112,29 +2259,12 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("named")) && !("named" in obj)) {
-        errors.push({ field: "named", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("itemPair")) && !("itemPair" in obj)) {
-        errors.push({ field: "itemPair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("readonlyPair")) && !("readonlyPair" in obj)) {
-        errors.push({ field: "readonlyPair", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("optionalTail")) && !("optionalTail" in obj)) {
-        errors.push({ field: "optionalTail", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rest")) && !("rest" in obj)) {
-        errors.push({ field: "rest", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pairs")) && !("pairs" in obj)) {
-        errors.push({ field: "pairs", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
-        errors.push({ field: "nested", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["pair", "pair"], ["named", "named"], ["itemPair", "itemPair"], ["readonlyPair", "readonlyPair"], ["optionalTail", "optionalTail"], ["rest", "rest"], ["pairs", "pairs"], ["nested", "nested"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2145,200 +2275,220 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [string, number];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [string, number];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "CollectionTuples.pair is required" : "expected [string, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "CollectionTuples.pair is required" : "expected [string, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("named")) ? "named" in obj : (__fields.keeps("named") && obj["named"] !== undefined)) {
-        const __raw_named = obj["named"] as [label: string, at: Date];
-        if (Array.isArray(__raw_named)) {
-            ctx.pushScope("named");
-            try {
-                instance.named = (__mf_decodeTuple(__raw_named, ctx, [__mf_decodeString, __mf_decodeDate], 2) as [label: string, at: Date]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "named" : "named." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("named")) ? "named" in obj : (__fields.keeps("named") && obj["named"] !== undefined)) {
+                const __raw_named = obj["named"] as [label: string, at: Date];
+                if (Array.isArray(__raw_named)) {
+                    ctx.pushScope("named");
+                    try {
+                        instance.named = (__mf_decodeTuple(__raw_named, ctx, [__mf_decodeString, __mf_decodeDate], 2) as [label: string, at: Date]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "named" : "named." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "named", message: __raw_named == null ? "CollectionTuples.named is required" : "expected [label: string, at: Date]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "named", message: __raw_named == null ? "CollectionTuples.named is required" : "expected [label: string, at: Date]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("itemPair")) ? "itemPair" in obj : (__fields.keeps("itemPair") && obj["itemPair"] !== undefined)) {
-        const __raw_itemPair = obj["itemPair"] as [EdgeItem, EdgeItem | null];
-        if (Array.isArray(__raw_itemPair)) {
-            ctx.pushScope("itemPair");
-            try {
-                instance.itemPair = (__mf_decodeTuple(__raw_itemPair, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx))], 2) as [EdgeItem, EdgeItem | null]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "itemPair" : "itemPair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("itemPair")) ? "itemPair" in obj : (__fields.keeps("itemPair") && obj["itemPair"] !== undefined)) {
+                const __raw_itemPair = obj["itemPair"] as [EdgeItem, EdgeItem | null];
+                if (Array.isArray(__raw_itemPair)) {
+                    ctx.pushScope("itemPair");
+                    try {
+                        instance.itemPair = (__mf_decodeTuple(__raw_itemPair, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__raw0) => (__raw0 === null ? null : edgeItemDecodeWithContext(__raw0, ctx))], 2) as [EdgeItem, EdgeItem | null]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "itemPair" : "itemPair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "itemPair", message: __raw_itemPair == null ? "CollectionTuples.itemPair is required" : "expected [EdgeItem, EdgeItem | null]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "itemPair", message: __raw_itemPair == null ? "CollectionTuples.itemPair is required" : "expected [EdgeItem, EdgeItem | null]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("readonlyPair")) ? "readonlyPair" in obj : (__fields.keeps("readonlyPair") && obj["readonlyPair"] !== undefined)) {
-        const __raw_readonlyPair = obj["readonlyPair"] as readonly [number, number];
-        if (Array.isArray(__raw_readonlyPair)) {
-            ctx.pushScope("readonlyPair");
-            try {
-                instance.readonlyPair = (__mf_decodeTuple(__raw_readonlyPair, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "readonlyPair" : "readonlyPair." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("readonlyPair")) ? "readonlyPair" in obj : (__fields.keeps("readonlyPair") && obj["readonlyPair"] !== undefined)) {
+                const __raw_readonlyPair = obj["readonlyPair"] as readonly [number, number];
+                if (Array.isArray(__raw_readonlyPair)) {
+                    ctx.pushScope("readonlyPair");
+                    try {
+                        instance.readonlyPair = (__mf_decodeTuple(__raw_readonlyPair, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "readonlyPair" : "readonlyPair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "readonlyPair", message: __raw_readonlyPair == null ? "CollectionTuples.readonlyPair is required" : "expected readonly [number, number]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "readonlyPair", message: __raw_readonlyPair == null ? "CollectionTuples.readonlyPair is required" : "expected readonly [number, number]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("optionalTail")) ? "optionalTail" in obj : (__fields.keeps("optionalTail") && obj["optionalTail"] !== undefined)) {
-        const __raw_optionalTail = obj["optionalTail"] as [string, number?];
-        if (Array.isArray(__raw_optionalTail)) {
-            ctx.pushScope("optionalTail");
-            try {
-                instance.optionalTail = (__mf_decodeTuple(__raw_optionalTail, ctx, [__mf_decodeString, (__raw0) => {
-            const __read0 = __raw0 ?? undefined;
-            return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
-        }], 1) as [string, number?]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "optionalTail" : "optionalTail." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("optionalTail")) ? "optionalTail" in obj : (__fields.keeps("optionalTail") && obj["optionalTail"] !== undefined)) {
+                const __raw_optionalTail = obj["optionalTail"] as [string, number?];
+                if (Array.isArray(__raw_optionalTail)) {
+                    ctx.pushScope("optionalTail");
+                    try {
+                        instance.optionalTail = (__mf_decodeTuple(__raw_optionalTail, ctx, [__mf_decodeString, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, (typeof __read0 === "number" && globalThis.Number.isFinite(__read0)) || __read0 === undefined, "number | undefined") as number | undefined);
+                }], 1) as [string, number?]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "optionalTail" : "optionalTail." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "optionalTail", message: __raw_optionalTail == null ? "CollectionTuples.optionalTail is required" : "expected [string, number?]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "optionalTail", message: __raw_optionalTail == null ? "CollectionTuples.optionalTail is required" : "expected [string, number?]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
-        const __raw_rest = obj["rest"] as [string, ...number[]];
-        if (Array.isArray(__raw_rest)) {
-            ctx.pushScope("rest");
-            try {
-                instance.rest = (__mf_decodeTuple(__raw_rest, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "rest" : "rest." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+                const __raw_rest = obj["rest"] as [string, ...number[]];
+                if (Array.isArray(__raw_rest)) {
+                    ctx.pushScope("rest");
+                    try {
+                        instance.rest = (__mf_decodeTuple(__raw_rest, ctx, [__mf_decodeString], 1, __mf_decodeNumber) as [string, ...number[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "rest", message: __raw_rest == null ? "CollectionTuples.rest is required" : "expected [string, ...number[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "rest", message: __raw_rest == null ? "CollectionTuples.rest is required" : "expected [string, ...number[]]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pairs")) ? "pairs" in obj : (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
-        const __raw_pairs = obj["pairs"] as [string, EdgeItem][];
-        if (Array.isArray(__raw_pairs)) {
-            ctx.pushScope("pairs");
-            try {
-                instance.pairs = __mf_decodeArray(__raw_pairs, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, (__raw1) => edgeItemDecodeWithContext(__raw1, ctx)], 2) as [string, EdgeItem]));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pairs" : "pairs." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pairs")) ? "pairs" in obj : (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
+                const __raw_pairs = obj["pairs"] as [string, EdgeItem][];
+                if (Array.isArray(__raw_pairs)) {
+                    ctx.pushScope("pairs");
+                    try {
+                        instance.pairs = __mf_decodeArray(__raw_pairs, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, (__raw1) => edgeItemDecodeWithContext(__raw1, ctx)], 2) as [string, EdgeItem]));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pairs" : "pairs." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pairs", message: __raw_pairs == null ? "CollectionTuples.pairs is required" : "expected [string, EdgeItem][]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "pairs", message: __raw_pairs == null ? "CollectionTuples.pairs is required" : "expected [string, EdgeItem][]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
-        const __raw_nested = obj["nested"] as [[number, number], [string, Date]];
-        if (Array.isArray(__raw_nested)) {
-            ctx.pushScope("nested");
-            try {
-                instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]), (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, __mf_decodeDate], 2) as [string, Date])], 2) as [[number, number], [string, Date]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as [[number, number], [string, Date]];
+                if (Array.isArray(__raw_nested)) {
+                    ctx.pushScope("nested");
+                    try {
+                        instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeNumber, __mf_decodeNumber], 2) as [number, number]), (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, __mf_decodeDate], 2) as [string, Date])], 2) as [[number, number], [string, Date]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nested", message: __raw_nested == null ? "CollectionTuples.nested is required" : "expected [[number, number], [string, Date]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nested", message: __raw_nested == null ? "CollectionTuples.nested is required" : "expected [[number, number], [string, Date]]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2363,7 +2513,7 @@ export function collectionTuplesHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "pair") && __mf_holds(obj, "named") && __mf_holds(obj, "itemPair") && __mf_holds(obj, "readonlyPair") && __mf_holds(obj, "optionalTail") && __mf_holds(obj, "rest") && __mf_holds(obj, "pairs") && __mf_holds(obj, "nested");
+    return __mf_holdsAll(obj, ["pair", "named", "itemPair", "readonlyPair", "optionalTail", "rest", "pairs", "nested"]);
 }
 
 export function collectionTuplesIs(obj: unknown): obj is CollectionTuples {
@@ -2437,7 +2587,15 @@ export function collectionLengthsClone(value: CollectionLengths): CollectionLeng
 
 export function collectionLengthsEquals(a: CollectionLengths, b: CollectionLengths): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.none, b.none) && __mf_structuralEquals(a.nested, b.nested) && __mf_structuralEquals(a.loose, b.loose) && __mf_structuralEquals(a.mixedRest, b.mixedRest) && __mf_structuralEquals(a.laterRest, b.laterRest));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.none, b.none),
+            () => __mf_structuralEquals(a.nested, b.nested),
+            () => __mf_structuralEquals(a.loose, b.loose),
+            () => __mf_structuralEquals(a.mixedRest, b.mixedRest),
+            () => __mf_structuralEquals(a.laterRest, b.laterRest),
+        ].every((same) => same());
+    });
 }
 
 export function collectionLengthsHashCode(value: CollectionLengths): number {
@@ -2490,30 +2648,44 @@ export function collectionLengthsEncodePartialWithContext(value: Partial<Collect
 }
 
 function collectionLengthsEncodeFields(value: CollectionLengths, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("none")) {
-        if (value.none !== undefined) {
-            result["none"] = value.none;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("nested")) {
-        if (value.nested !== undefined) {
-            result["nested"] = value.nested;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("loose")) {
-        if (value.loose !== undefined) {
-            result["loose"] = value.loose;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("mixedRest")) {
-        if (value.mixedRest !== undefined) {
-            result["mixedRest"] = [edgeItemEncodeWithContext(value.mixedRest[0], ctx), ...(([, ...__rest0]) => __rest0)(value.mixedRest).map((__item0) => __item0.toISOString())];
-        }
-    }
-    if (__fields === undefined || __fields.keeps("laterRest")) {
-        if (value.laterRest !== undefined) {
-            result["laterRest"] = [value.laterRest[0], ...(1 < value.laterRest.length ? [(value.laterRest[1] === undefined ? undefined : edgeItemEncodeWithContext(value.laterRest[1], ctx))] : []), ...(([, , ...__rest0]) => __rest0)(value.laterRest).map((__item0) => __item0.toISOString())];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("none")) {
+                if (value.none !== undefined) {
+                    result["none"] = value.none;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nested")) {
+                if (value.nested !== undefined) {
+                    result["nested"] = value.nested;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("loose")) {
+                if (value.loose !== undefined) {
+                    result["loose"] = value.loose;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("mixedRest")) {
+                if (value.mixedRest !== undefined) {
+                    result["mixedRest"] = [edgeItemEncodeWithContext(value.mixedRest[0], ctx), ...(([, ...__rest0]) => __rest0)(value.mixedRest).map((__item0) => __item0.toISOString())];
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("laterRest")) {
+                if (value.laterRest !== undefined) {
+                    result["laterRest"] = [value.laterRest[0], ...(1 < value.laterRest.length ? [(value.laterRest[1] === undefined ? undefined : edgeItemEncodeWithContext(value.laterRest[1], ctx))] : []), ...(([, , ...__rest0]) => __rest0)(value.laterRest).map((__item0) => __item0.toISOString())];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2591,20 +2763,12 @@ export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("none")) && !("none" in obj)) {
-        errors.push({ field: "none", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
-        errors.push({ field: "nested", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("loose")) && !("loose" in obj)) {
-        errors.push({ field: "loose", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("mixedRest")) && !("mixedRest" in obj)) {
-        errors.push({ field: "mixedRest", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("laterRest")) && !("laterRest" in obj)) {
-        errors.push({ field: "laterRest", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["none", "none"], ["nested", "nested"], ["loose", "loose"], ["mixedRest", "mixedRest"], ["laterRest", "laterRest"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2615,128 +2779,142 @@ export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("none")) ? "none" in obj : (__fields.keeps("none") && obj["none"] !== undefined)) {
-        const __raw_none = obj["none"] as [];
-        if (Array.isArray(__raw_none)) {
-            ctx.pushScope("none");
-            try {
-                instance.none = (__mf_decodeTuple(__raw_none, ctx, [], 0) as []);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "none" : "none." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("none")) ? "none" in obj : (__fields.keeps("none") && obj["none"] !== undefined)) {
+                const __raw_none = obj["none"] as [];
+                if (Array.isArray(__raw_none)) {
+                    ctx.pushScope("none");
+                    try {
+                        instance.none = (__mf_decodeTuple(__raw_none, ctx, [], 0) as []);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "none" : "none." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "none", message: __raw_none == null ? "CollectionLengths.none is required" : "expected []" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "none", message: __raw_none == null ? "CollectionLengths.none is required" : "expected []" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
-        const __raw_nested = obj["nested"] as [[]];
-        if (Array.isArray(__raw_nested)) {
-            ctx.pushScope("nested");
-            try {
-                instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [], 0) as [])], 1) as [[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+                const __raw_nested = obj["nested"] as [[]];
+                if (Array.isArray(__raw_nested)) {
+                    ctx.pushScope("nested");
+                    try {
+                        instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [], 0) as [])], 1) as [[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "nested", message: __raw_nested == null ? "CollectionLengths.nested is required" : "expected [[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "nested", message: __raw_nested == null ? "CollectionLengths.nested is required" : "expected [[]]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("loose")) ? "loose" in obj : (__fields.keeps("loose") && obj["loose"] !== undefined)) {
-        const __raw_loose = obj["loose"] as [unknown, unknown];
-        if (Array.isArray(__raw_loose)) {
-            ctx.pushScope("loose");
-            try {
-                instance.loose = (__mf_decodeTuple(__raw_loose, ctx, [(__raw0) => __raw0 as unknown, (__raw0) => __raw0 as unknown], 2) as [unknown, unknown]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "loose" : "loose." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("loose")) ? "loose" in obj : (__fields.keeps("loose") && obj["loose"] !== undefined)) {
+                const __raw_loose = obj["loose"] as [unknown, unknown];
+                if (Array.isArray(__raw_loose)) {
+                    ctx.pushScope("loose");
+                    try {
+                        instance.loose = (__mf_decodeTuple(__raw_loose, ctx, [(__raw0) => __raw0 as unknown, (__raw0) => __raw0 as unknown], 2) as [unknown, unknown]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "loose" : "loose." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "loose", message: __raw_loose == null ? "CollectionLengths.loose is required" : "expected [unknown, unknown]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "loose", message: __raw_loose == null ? "CollectionLengths.loose is required" : "expected [unknown, unknown]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("mixedRest")) ? "mixedRest" in obj : (__fields.keeps("mixedRest") && obj["mixedRest"] !== undefined)) {
-        const __raw_mixedRest = obj["mixedRest"] as [EdgeItem, ...Date[]];
-        if (Array.isArray(__raw_mixedRest)) {
-            ctx.pushScope("mixedRest");
-            try {
-                instance.mixedRest = (__mf_decodeTuple(__raw_mixedRest, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx)], 1, __mf_decodeDate) as [EdgeItem, ...Date[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "mixedRest" : "mixedRest." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("mixedRest")) ? "mixedRest" in obj : (__fields.keeps("mixedRest") && obj["mixedRest"] !== undefined)) {
+                const __raw_mixedRest = obj["mixedRest"] as [EdgeItem, ...Date[]];
+                if (Array.isArray(__raw_mixedRest)) {
+                    ctx.pushScope("mixedRest");
+                    try {
+                        instance.mixedRest = (__mf_decodeTuple(__raw_mixedRest, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx)], 1, __mf_decodeDate) as [EdgeItem, ...Date[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "mixedRest" : "mixedRest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "mixedRest", message: __raw_mixedRest == null ? "CollectionLengths.mixedRest is required" : "expected [EdgeItem, ...Date[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "mixedRest", message: __raw_mixedRest == null ? "CollectionLengths.mixedRest is required" : "expected [EdgeItem, ...Date[]]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("laterRest")) ? "laterRest" in obj : (__fields.keeps("laterRest") && obj["laterRest"] !== undefined)) {
-        const __raw_laterRest = obj["laterRest"] as [string, EdgeItem?, ...Date[]];
-        if (Array.isArray(__raw_laterRest)) {
-            ctx.pushScope("laterRest");
-            try {
-                instance.laterRest = (__mf_decodeTuple(__raw_laterRest, ctx, [__mf_decodeString, (__raw0) => {
-            const __read0 = __raw0 ?? undefined;
-            return (__read0 === undefined ? undefined : edgeItemDecodeWithContext(__read0, ctx));
-        }], 1, __mf_decodeDate) as [string, EdgeItem?, ...Date[]]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "laterRest" : "laterRest." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("laterRest")) ? "laterRest" in obj : (__fields.keeps("laterRest") && obj["laterRest"] !== undefined)) {
+                const __raw_laterRest = obj["laterRest"] as [string, EdgeItem?, ...Date[]];
+                if (Array.isArray(__raw_laterRest)) {
+                    ctx.pushScope("laterRest");
+                    try {
+                        instance.laterRest = (__mf_decodeTuple(__raw_laterRest, ctx, [__mf_decodeString, (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__read0 === undefined ? undefined : edgeItemDecodeWithContext(__read0, ctx));
+                }], 1, __mf_decodeDate) as [string, EdgeItem?, ...Date[]]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "laterRest" : "laterRest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "laterRest", message: __raw_laterRest == null ? "CollectionLengths.laterRest is required" : "expected [string, EdgeItem?, ...Date[]]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "laterRest", message: __raw_laterRest == null ? "CollectionLengths.laterRest is required" : "expected [string, EdgeItem?, ...Date[]]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2761,7 +2939,7 @@ export function collectionLengthsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "none") && __mf_holds(obj, "nested") && __mf_holds(obj, "loose") && __mf_holds(obj, "mixedRest") && __mf_holds(obj, "laterRest");
+    return __mf_holdsAll(obj, ["none", "nested", "loose", "mixedRest", "laterRest"]);
 }
 
 export function collectionLengthsIs(obj: unknown): obj is CollectionLengths {
@@ -2832,13 +3010,20 @@ export function collectionBigClone(value: CollectionBig): CollectionBig {
 
 export function collectionBigEquals(a: CollectionBig, b: CollectionBig): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.total === b.total && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
-	const __other0 = b.totals[__index0];
-	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-}) && a.maybeTotal === b.maybeTotal && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
-	const __other0 = b.byName.get(__key0);
-	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.total === b.total,
+            () => a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
+            	const __other0 = b.totals[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+            }),
+            () => a.maybeTotal === b.maybeTotal,
+            () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+            	const __other0 = b.byName.get(__key0);
+            	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function collectionBigHashCode(value: CollectionBig): number {
@@ -2880,25 +3065,37 @@ export function collectionBigEncodePartialWithContext(value: Partial<CollectionB
 }
 
 function collectionBigEncodeFields(value: CollectionBig, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("total")) {
-        if (value.total !== undefined) {
-            result["total"] = ((v) => String(v))(value.total);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("totals")) {
-        if (value.totals !== undefined) {
-            result["totals"] = value.totals.map((__item0) => ((v) => String(v))(__item0));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybeTotal")) {
-        if (value.maybeTotal !== undefined) {
-            result["maybeTotal"] = value.maybeTotal === null ? null : ((v) => String(v))(value.maybeTotal);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, ((v) => String(v))(__item0)]));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("total")) {
+                if (value.total !== undefined) {
+                    result["total"] = ((v) => String(v))(value.total);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("totals")) {
+                if (value.totals !== undefined) {
+                    result["totals"] = value.totals.map((__item0) => ((v) => String(v))(__item0));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybeTotal")) {
+                if (value.maybeTotal !== undefined) {
+                    result["maybeTotal"] = value.maybeTotal === null ? null : ((v) => String(v))(value.maybeTotal);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, ((v) => String(v))(__item0)]));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -2976,17 +3173,12 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("total")) && !("total" in obj)) {
-        errors.push({ field: "total", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("totals")) && !("totals" in obj)) {
-        errors.push({ field: "totals", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybeTotal")) && !("maybeTotal" in obj)) {
-        errors.push({ field: "maybeTotal", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["total", "total"], ["totals", "totals"], ["maybeTotal", "maybeTotal"], ["byName", "byName"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -2997,93 +3189,105 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
-        try {
-            instance.total = ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(obj["total"]);
-        } catch (__error) {
-            errors.push({ field: "total", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("totals")) ? "totals" in obj : (__fields.keeps("totals") && obj["totals"] !== undefined)) {
-        const __raw_totals = obj["totals"] as bigint[];
-        if (Array.isArray(__raw_totals)) {
-            ctx.pushScope("totals");
-            try {
-                instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => ((v) => {
-                        const raw: unknown = v;
-                        if (typeof raw === "bigint") return raw;
-                        // A number past the safe integers has lost digits already.
-                        if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-                        if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-                        return BigInt(raw);
-                    })(__raw0));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "totals" : "totals." + __err.field,
-                            message: __err.message
-                        });
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
+                try {
+                    instance.total = ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(obj["total"]);
+                } catch (__error) {
+                    errors.push({ field: "total", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("totals")) ? "totals" in obj : (__fields.keeps("totals") && obj["totals"] !== undefined)) {
+                const __raw_totals = obj["totals"] as bigint[];
+                if (Array.isArray(__raw_totals)) {
+                    ctx.pushScope("totals");
+                    try {
+                        instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => ((v) => {
+                                const raw: unknown = v;
+                                if (typeof raw === "bigint") return raw;
+                                // A number past the safe integers has lost digits already.
+                                if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                                if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                                return BigInt(raw);
+                            })(__raw0));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "totals" : "totals." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "totals", message: __raw_totals == null ? "CollectionBig.totals is required" : "expected bigint[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "totals", message: __raw_totals == null ? "CollectionBig.totals is required" : "expected bigint[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybeTotal")) ? "maybeTotal" in obj : (__fields.keeps("maybeTotal") && obj["maybeTotal"] !== undefined)) {
-        try {
-            instance.maybeTotal = ((__raw: unknown) => __raw === null ? null : ((v) => {
-        	const raw: unknown = v;
-        	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-        	return BigInt(raw);
-        })(__raw))(obj["maybeTotal"]);
-        } catch (__error) {
-            errors.push({ field: "maybeTotal", message: __error instanceof Error ? __error.message : String(__error) });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, bigint>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => ((v) => {
-                        const raw: unknown = v;
-                        if (typeof raw === "bigint") return raw;
-                        // A number past the safe integers has lost digits already.
-                        if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
-                        if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
-                        return BigInt(raw);
-                    })(__raw0));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybeTotal")) ? "maybeTotal" in obj : (__fields.keeps("maybeTotal") && obj["maybeTotal"] !== undefined)) {
+                try {
+                    instance.maybeTotal = ((__raw: unknown) => __raw === null ? null : ((v) => {
+                	const raw: unknown = v;
+                	if (typeof raw === "bigint") return raw;
+                	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                	return BigInt(raw);
+                })(__raw))(obj["maybeTotal"]);
+                } catch (__error) {
+                    errors.push({ field: "maybeTotal", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, bigint>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => ((v) => {
+                                const raw: unknown = v;
+                                if (typeof raw === "bigint") return raw;
+                                // A number past the safe integers has lost digits already.
+                                if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                                if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                                return BigInt(raw);
+                            })(__raw0));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byName", message: __raw_byName == null ? "CollectionBig.byName is required" : "expected Map<string, bigint>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "CollectionBig.byName is required" : "expected Map<string, bigint>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -3108,7 +3312,7 @@ export function collectionBigHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "total") && __mf_holds(obj, "totals") && __mf_holds(obj, "maybeTotal") && __mf_holds(obj, "byName");
+    return __mf_holdsAll(obj, ["total", "totals", "maybeTotal", "byName"]);
 }
 
 export function collectionBigIs(obj: unknown): obj is CollectionBig {
@@ -3589,72 +3793,72 @@ export declare const CollectionBig: {
 
 ## Mapping
 
-original 0..433 -> expanded 1675..2108
-original 433..948 -> expanded 5980..6495
-original 948..1410 -> expanded 44346..44808
-original 1410..1804 -> expanded 76035..76429
-original 1804..2219 -> expanded 102006..102421
-original 2219..2478 -> expanded 127471..127730
-original 2478..2681 -> expanded 146699..146902
-original 2681..2682 -> expanded 163932..163933
-generated 0..1675 <- imports
-generated 2108..2447 <- Debug
-generated 2447..2545 <- Clone
-generated 2545..2654 <- PartialEq
-generated 2654..2825 <- Hash
-generated 2825..3049 <- PartialOrd
-generated 3049..3259 <- Ord
-generated 3259..3358 <- Default
-generated 3358..3816 <- Encode
-generated 3816..4935 <- Decode
-generated 4935..5980 <- __convenience_const
-generated 6495..7764 <- Debug
-generated 7764..9396 <- Clone
-generated 9396..13734 <- PartialEq
-generated 13734..16664 <- Hash
-generated 16664..17025 <- Default
-generated 17025..22024 <- Encode
-generated 22024..42724 <- Decode
-generated 42724..44346 <- __convenience_const
-generated 44808..45721 <- Debug
-generated 45721..46515 <- Clone
-generated 46515..48788 <- PartialEq
-generated 48788..50647 <- Hash
-generated 50647..51057 <- Default
-generated 51057..55510 <- Encode
-generated 55510..74475 <- Decode
-generated 74475..76035 <- __convenience_const
-generated 76429..77163 <- Debug
-generated 77163..77965 <- Clone
-generated 77965..79683 <- PartialEq
-generated 79683..80968 <- Hash
-generated 80968..81237 <- Default
-generated 81237..85170 <- Encode
-generated 85170..100384 <- Decode
-generated 100384..102006 <- __convenience_const
-generated 102421..103190 <- Debug
-generated 103190..103743 <- Clone
-generated 103743..104458 <- PartialEq
-generated 104458..105237 <- Hash
-generated 105237..105574 <- Default
-generated 105574..109314 <- Encode
-generated 109314..125849 <- Decode
-generated 125849..127471 <- __convenience_const
-generated 127730..128297 <- Debug
-generated 128297..128683 <- Clone
-generated 128683..129081 <- PartialEq
-generated 129081..129591 <- Hash
-generated 129591..129832 <- Default
-generated 129832..133143 <- Encode
-generated 133143..145046 <- Decode
-generated 145046..146699 <- __convenience_const
-generated 146902..147364 <- Debug
-generated 147364..147615 <- Clone
-generated 147615..148266 <- PartialEq
-generated 148266..149214 <- Hash
-generated 149214..152148 <- Encode
-generated 152148..162505 <- Decode
-generated 162505..163932 <- __convenience_const
+original 0..433 -> expanded 1681..2114
+original 433..948 -> expanded 5986..6501
+original 948..1410 -> expanded 47252..47714
+original 1410..1804 -> expanded 80910..81304
+original 1804..2219 -> expanded 108482..108897
+original 2219..2478 -> expanded 135576..135835
+original 2478..2681 -> expanded 156003..156206
+original 2681..2682 -> expanded 174286..174287
+generated 0..1681 <- imports
+generated 2114..2453 <- Debug
+generated 2453..2551 <- Clone
+generated 2551..2660 <- PartialEq
+generated 2660..2831 <- Hash
+generated 2831..3055 <- PartialOrd
+generated 3055..3265 <- Ord
+generated 3265..3364 <- Default
+generated 3364..3822 <- Encode
+generated 3822..4941 <- Decode
+generated 4941..5986 <- __convenience_const
+generated 6501..7770 <- Debug
+generated 7770..9402 <- Clone
+generated 9402..14513 <- PartialEq
+generated 14513..17443 <- Hash
+generated 17443..17804 <- Default
+generated 17804..23600 <- Encode
+generated 23600..45630 <- Decode
+generated 45630..47252 <- __convenience_const
+generated 47714..48627 <- Debug
+generated 48627..49421 <- Clone
+generated 49421..52061 <- PartialEq
+generated 52061..53920 <- Hash
+generated 53920..54330 <- Default
+generated 54330..59513 <- Encode
+generated 59513..79350 <- Decode
+generated 79350..80910 <- __convenience_const
+generated 81304..82038 <- Debug
+generated 82038..82840 <- Clone
+generated 82840..84913 <- PartialEq
+generated 84913..86198 <- Hash
+generated 86198..86467 <- Default
+generated 86467..90929 <- Encode
+generated 90929..106860 <- Decode
+generated 106860..108482 <- __convenience_const
+generated 108897..109666 <- Debug
+generated 109666..110219 <- Clone
+generated 110219..111161 <- PartialEq
+generated 111161..111940 <- Hash
+generated 111940..112277 <- Default
+generated 112277..116613 <- Encode
+generated 116613..133954 <- Decode
+generated 133954..135576 <- __convenience_const
+generated 135835..136402 <- Debug
+generated 136402..136788 <- Clone
+generated 136788..137329 <- PartialEq
+generated 137329..137839 <- Hash
+generated 137839..138080 <- Default
+generated 138080..141786 <- Encode
+generated 141786..154350 <- Decode
+generated 154350..156003 <- __convenience_const
+generated 156206..156668 <- Debug
+generated 156668..156919 <- Clone
+generated 156919..157769 <- PartialEq
+generated 157769..158717 <- Hash
+generated 158717..161979 <- Encode
+generated 161979..172859 <- Decode
+generated 172859..174286 <- __convenience_const
 
 ## Metadata
 

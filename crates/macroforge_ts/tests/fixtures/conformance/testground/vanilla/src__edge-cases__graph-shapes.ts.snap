@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Object graphs rather than trees: a value held twice, a child pointing back
@@ -51,10 +51,16 @@ export function graphTreeClone(value: GraphTree): GraphTree {
 
 export function graphTreeEquals(a: GraphTree, b: GraphTree): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => a.name === b.name && (a.parent == null || b.parent == null ? a.parent === b.parent : graphTreeEquals(a.parent, b.parent)) && a.children.length === b.children.length && a.children.every((__item0, __index0) => {
-	const __other0 = b.children[__index0];
-	return __other0 === undefined ? __item0 === undefined : graphTreeEquals(__item0, __other0);
-}));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.name === b.name,
+            () => a.parent == null || b.parent == null ? a.parent === b.parent : graphTreeEquals(a.parent, b.parent),
+            () => a.children.length === b.children.length && a.children.every((__item0, __index0) => {
+            	const __other0 = b.children[__index0];
+            	return __other0 === undefined ? __item0 === undefined : graphTreeEquals(__item0, __other0);
+            }),
+        ].every((same) => same());
+    });
 }
 
 export function graphTreeHashCode(value: GraphTree): number {
@@ -70,54 +76,55 @@ export function graphTreeHashCode(value: GraphTree): number {
 export function graphTreePartialCompare(a: GraphTree, b: GraphTree): number | null {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreePartialCompare(a.parent, b.parent));
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (() => {
-        const __left0 = a.children;
-        const __right0 = b.children;
-        const __shared0 = Math.min(__left0.length, __right0.length);
-        for (let __index0 = 0; __index0 < __shared0; __index0++) {
-            const __item0 = __left0[__index0];
-            const __other0 = __right0[__index0];
-            const __order0 = __item0 === undefined || __other0 === undefined
-                ? __mf_structuralCompare(__item0, __other0)
-                : graphTreePartialCompare(__item0, __other0);
-            if (__order0 !== 0) return __order0;
-        }
-        return __left0.length < __right0.length ? -1
-            : __left0.length > __right0.length ? 1 : 0;
-    })();
-    if (cmp2 === null) return null;
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+        () => (a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreePartialCompare(a.parent, b.parent)),
+        () => (() => {
+            const __left0 = a.children;
+            const __right0 = b.children;
+            const __shared0 = Math.min(__left0.length, __right0.length);
+            for (let __index0 = 0; __index0 < __shared0; __index0++) {
+                const __item0 = __left0[__index0];
+                const __other0 = __right0[__index0];
+                const __order0 = __item0 === undefined || __other0 === undefined
+                    ? __mf_structuralCompare(__item0, __other0)
+                    : graphTreePartialCompare(__item0, __other0);
+                if (__order0 !== 0) return __order0;
+            }
+            return __left0.length < __right0.length ? -1
+                : __left0.length > __right0.length ? 1 : 0;
+        })(),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
 export function graphTreeCompare(a: GraphTree, b: GraphTree): number {
     if (a === b) return 0;
     return __mf_comparedWithin(a, b, () => {
-    const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreeCompare(a.parent, b.parent);
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = (() => {
-	const __left0 = a.children;
-	const __right0 = b.children;
-	const __shared0 = Math.min(__left0.length, __right0.length);
-	for (let __index0 = 0; __index0 < __shared0; __index0++) {
-		const __item0 = __left0[__index0];
-		const __other0 = __right0[__index0];
-		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : graphTreeCompare(__item0, __other0);
-		if (__order0 !== 0) return __order0;
-	}
-	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
-})();
-    if (cmp2 !== 0) return cmp2;
-        return 0;
+    for (const __order of [
+        () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+        () => a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreeCompare(a.parent, b.parent),
+        () => (() => {
+        	const __left0 = a.children;
+        	const __right0 = b.children;
+        	const __shared0 = Math.min(__left0.length, __right0.length);
+        	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+        		const __item0 = __left0[__index0];
+        		const __other0 = __right0[__index0];
+        		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : graphTreeCompare(__item0, __other0);
+        		if (__order0 !== 0) return __order0;
+        	}
+        	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+        })(),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
     });
 }
 
@@ -149,20 +156,30 @@ export function graphTreeEncodePartialWithContext(value: Partial<GraphTree>, ctx
 }
 
 function graphTreeEncodeFields(value: GraphTree, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("parent")) {
-        if (value.parent !== undefined) {
-            result["parent"] = value.parent === null ? null : graphTreeEncodeWithContext(value.parent, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("children")) {
-        if (value.children !== undefined) {
-            result["children"] = value.children.map((__item0) => graphTreeEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("parent")) {
+                if (value.parent !== undefined) {
+                    result["parent"] = value.parent === null ? null : graphTreeEncodeWithContext(value.parent, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("children")) {
+                if (value.children !== undefined) {
+                    result["children"] = value.children.map((__item0) => graphTreeEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -240,14 +257,12 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("parent")) && !("parent" in obj)) {
-        errors.push({ field: "parent", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("children")) && !("children" in obj)) {
-        errors.push({ field: "children", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["parent", "parent"], ["children", "children"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -258,65 +273,75 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "GraphTree.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("parent")) ? "parent" in obj : (__fields.keeps("parent") && obj["parent"] !== undefined)) {
-        const __raw_parent = obj["parent"] as GraphTree | null;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "GraphTree.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("parent")) ? "parent" in obj : (__fields.keeps("parent") && obj["parent"] !== undefined)) {
+                const __raw_parent = obj["parent"] as GraphTree | null;
 
-        if (__raw_parent === null) {
-            instance.parent = null;
-        } else {
-            ctx.pushScope("parent");
-            try {
-                const __result = graphTreeDecodeWithContext(__raw_parent, ctx);
-                ctx.assignOrDefer(instance, "parent", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "parent" : "parent." + __err.field,
-                            message: __err.message
-                        });
+                if (__raw_parent === null) {
+                    instance.parent = null;
+                } else {
+                    ctx.pushScope("parent");
+                    try {
+                        const __result = graphTreeDecodeWithContext(__raw_parent, ctx);
+                        ctx.assignOrDefer(instance, "parent", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "parent" : "parent." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "parent", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
+                const __raw_children = obj["children"] as GraphTree[];
+                if (Array.isArray(__raw_children)) {
+                    ctx.pushScope("children");
+                    try {
+                        instance.children = __mf_decodeArray(__raw_children, ctx, (__raw0) => graphTreeDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "children" : "children." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "parent", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "children", message: __raw_children == null ? "GraphTree.children is required" : "expected GraphTree[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
-        const __raw_children = obj["children"] as GraphTree[];
-        if (Array.isArray(__raw_children)) {
-            ctx.pushScope("children");
-            try {
-                instance.children = __mf_decodeArray(__raw_children, ctx, (__raw0) => graphTreeDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "children" : "children." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "children", message: __raw_children == null ? "GraphTree.children is required" : "expected GraphTree[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -341,7 +366,7 @@ export function graphTreeHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "parent") && __mf_holds(obj, "children");
+    return __mf_holdsAll(obj, ["name", "parent", "children"]);
 }
 
 export function graphTreeIs(obj: unknown): obj is GraphTree {
@@ -420,13 +445,21 @@ export class GraphPerson {
 
     static equals(a: GraphPerson, b: GraphPerson): boolean {
         if (a === b) return true;
-        return __mf_equalWithin(a, b, () => a.name === b.name && (a.best == null || b.best == null ? a.best === b.best : graphPersonEquals(a.best, b.best)) && a.friends.length === b.friends.length && a.friends.every((__item0, __index0) => {
-        	const __other0 = b.friends[__index0];
-        	return __other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0);
-        }) && a.circle.size === b.circle.size && Array.from(a.circle).every((__item0) => b.circle.has(__item0) || Array.from(b.circle).some((__other0) => graphPersonEquals(__item0, __other0))) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
-        	const __other0 = b.byName.get(__key0);
-        	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0));
-        }));
+        return __mf_equalWithin(a, b, () => {
+                return [
+                    () => a.name === b.name,
+                    () => a.best == null || b.best == null ? a.best === b.best : graphPersonEquals(a.best, b.best),
+                    () => a.friends.length === b.friends.length && a.friends.every((__item0, __index0) => {
+                    	const __other0 = b.friends[__index0];
+                    	return __other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0);
+                    }),
+                    () => a.circle.size === b.circle.size && Array.from(a.circle).every((__item0) => b.circle.has(__item0) || Array.from(b.circle).some((__other0) => graphPersonEquals(__item0, __other0))),
+                    () => a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+                    	const __other0 = b.byName.get(__key0);
+                    	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0));
+                    }),
+                ].every((same) => same());
+            });
     }
 
     static hashCode(value: GraphPerson): number {
@@ -462,30 +495,44 @@ static encodePartialWithContext(value: Partial<GraphPerson>, ctx: __mf_EncodeCon
 }
 
 static #encodeFields(value: GraphPerson, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("best")) {
-        if (value.best !== undefined) {
-            result["best"] = value.best === null ? null : graphPersonEncodeWithContext(value.best, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("friends")) {
-        if (value.friends !== undefined) {
-            result["friends"] = value.friends.map((__item0) => graphPersonEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("circle")) {
-        if (value.circle !== undefined) {
-            result["circle"] = Array.from(value.circle, (__item0) => graphPersonEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, graphPersonEncodeWithContext(__item0, ctx)]));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("best")) {
+                if (value.best !== undefined) {
+                    result["best"] = value.best === null ? null : graphPersonEncodeWithContext(value.best, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("friends")) {
+                if (value.friends !== undefined) {
+                    result["friends"] = value.friends.map((__item0) => graphPersonEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("circle")) {
+                if (value.circle !== undefined) {
+                    result["circle"] = Array.from(value.circle, (__item0) => graphPersonEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, graphPersonEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -578,20 +625,12 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("best")) && !("best" in obj)) {
-        errors.push({ field: "best", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("friends")) && !("friends" in obj)) {
-        errors.push({ field: "friends", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("circle")) && !("circle" in obj)) {
-        errors.push({ field: "circle", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["best", "best"], ["friends", "friends"], ["circle", "circle"], ["byName", "byName"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = Object.create(GraphPerson.prototype);
@@ -602,113 +641,127 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "GraphPerson.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("best")) ? "best" in obj : (__fields.keeps("best") && obj["best"] !== undefined)) {
-        const __raw_best = obj["best"] as GraphPerson | null;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "GraphPerson.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("best")) ? "best" in obj : (__fields.keeps("best") && obj["best"] !== undefined)) {
+                const __raw_best = obj["best"] as GraphPerson | null;
 
-        if (__raw_best === null) {
-            instance.best = null;
-        } else {
-            ctx.pushScope("best");
-            try {
-                const __result = graphPersonDecodeWithContext(__raw_best, ctx);
-                ctx.assignOrDefer(instance, "best", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "best" : "best." + __err.field,
-                            message: __err.message
-                        });
-                    }
+                if (__raw_best === null) {
+                    instance.best = null;
                 } else {
+                    ctx.pushScope("best");
+                    try {
+                        const __result = graphPersonDecodeWithContext(__raw_best, ctx);
+                        ctx.assignOrDefer(instance, "best", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-                    errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
+                            errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("friends")) ? "friends" in obj : (__fields.keeps("friends") && obj["friends"] !== undefined)) {
-        const __raw_friends = obj["friends"] as GraphPerson[];
-        if (Array.isArray(__raw_friends)) {
-            ctx.pushScope("friends");
-            try {
-                instance.friends = __mf_decodeArray(__raw_friends, ctx, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "friends" : "friends." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("friends")) ? "friends" in obj : (__fields.keeps("friends") && obj["friends"] !== undefined)) {
+                const __raw_friends = obj["friends"] as GraphPerson[];
+                if (Array.isArray(__raw_friends)) {
+                    ctx.pushScope("friends");
+                    try {
+                        instance.friends = __mf_decodeArray(__raw_friends, ctx, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "friends" : "friends." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "friends", message: __raw_friends == null ? "GraphPerson.friends is required" : "expected GraphPerson[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "friends", message: __raw_friends == null ? "GraphPerson.friends is required" : "expected GraphPerson[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("circle")) ? "circle" in obj : (__fields.keeps("circle") && obj["circle"] !== undefined)) {
-        const __raw_circle = obj["circle"] as Array<GraphPerson>;
-        if (Array.isArray(__raw_circle)) {
-            ctx.pushScope("circle");
-            try {
-                instance.circle = __mf_decodeSet(__raw_circle, ctx, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "circle" : "circle." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("circle")) ? "circle" in obj : (__fields.keeps("circle") && obj["circle"] !== undefined)) {
+                const __raw_circle = obj["circle"] as Array<GraphPerson>;
+                if (Array.isArray(__raw_circle)) {
+                    ctx.pushScope("circle");
+                    try {
+                        instance.circle = __mf_decodeSet(__raw_circle, ctx, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "circle" : "circle." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "circle", message: __raw_circle == null ? "GraphPerson.circle is required" : "expected Set<GraphPerson>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "circle", message: __raw_circle == null ? "GraphPerson.circle is required" : "expected Set<GraphPerson>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, GraphPerson>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, GraphPerson>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => graphPersonDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byName", message: __raw_byName == null ? "GraphPerson.byName is required" : "expected Map<string, GraphPerson>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "GraphPerson.byName is required" : "expected Map<string, GraphPerson>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -729,7 +782,7 @@ static hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "best") && __mf_holds(obj, "friends") && __mf_holds(obj, "circle") && __mf_holds(obj, "byName");
+    return __mf_holdsAll(obj, ["name", "best", "friends", "circle", "byName"]);
 }
 
 static is(obj: unknown): obj is GraphPerson {
@@ -841,45 +894,65 @@ export function graphSharedEncodePartialWithContext(value: Partial<GraphShared>,
 }
 
 function graphSharedEncodeFields(value: GraphShared, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("first")) {
-        if (value.first !== undefined) {
-            result["first"] = edgeItemEncodeWithContext(value.first, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("again")) {
-        if (value.again !== undefined) {
-            result["again"] = edgeItemEncodeWithContext(value.again, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("maybe")) {
-        if (value.maybe !== undefined) {
-            result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("set")) {
-        if (value.set !== undefined) {
-            result["set"] = Array.from(value.set, (__item0) => edgeItemEncodeWithContext(__item0, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byName")) {
-        if (value.byName !== undefined) {
-            result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("record")) {
-        if (value.record !== undefined) {
-            result["record"] = Object.fromEntries((Object.entries(value.record) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("pair")) {
-        if (value.pair !== undefined) {
-            result["pair"] = [edgeItemEncodeWithContext(value.pair[0], ctx), edgeItemEncodeWithContext(value.pair[1], ctx)];
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("first")) {
+                if (value.first !== undefined) {
+                    result["first"] = edgeItemEncodeWithContext(value.first, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("again")) {
+                if (value.again !== undefined) {
+                    result["again"] = edgeItemEncodeWithContext(value.again, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("maybe")) {
+                if (value.maybe !== undefined) {
+                    result["maybe"] = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("set")) {
+                if (value.set !== undefined) {
+                    result["set"] = Array.from(value.set, (__item0) => edgeItemEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byName")) {
+                if (value.byName !== undefined) {
+                    result["byName"] = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("record")) {
+                if (value.record !== undefined) {
+                    result["record"] = Object.fromEntries((Object.entries(value.record) as [string, EdgeItem][]).map(([__key0, __item0]) => [__key0, edgeItemEncodeWithContext(__item0, ctx)]));
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = [edgeItemEncodeWithContext(value.pair[0], ctx), edgeItemEncodeWithContext(value.pair[1], ctx)];
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -957,29 +1030,12 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
-        errors.push({ field: "first", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("again")) && !("again" in obj)) {
-        errors.push({ field: "again", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
-        errors.push({ field: "maybe", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
-        errors.push({ field: "set", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
-        errors.push({ field: "byName", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
-        errors.push({ field: "record", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
-        errors.push({ field: "pair", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["first", "first"], ["again", "again"], ["maybe", "maybe"], ["list", "list"], ["set", "set"], ["byName", "byName"], ["record", "record"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -990,198 +1046,218 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
-        const __raw_first = obj["first"] as EdgeItem;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
+                const __raw_first = obj["first"] as EdgeItem;
 
-        ctx.pushScope("first");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_first, ctx);
-            ctx.assignOrDefer(instance, "first", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "first" : "first." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("first");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_first, ctx);
+                    ctx.assignOrDefer(instance, "first", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "first" : "first." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("again")) ? "again" in obj : (__fields.keeps("again") && obj["again"] !== undefined)) {
-        const __raw_again = obj["again"] as EdgeItem;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("again")) ? "again" in obj : (__fields.keeps("again") && obj["again"] !== undefined)) {
+                const __raw_again = obj["again"] as EdgeItem;
 
-        ctx.pushScope("again");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_again, ctx);
-            ctx.assignOrDefer(instance, "again", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "again" : "again." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("again");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_again, ctx);
+                    ctx.assignOrDefer(instance, "again", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "again" : "again." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "again", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "again", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-        const __raw_maybe = obj["maybe"] as EdgeItem | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+                const __raw_maybe = obj["maybe"] as EdgeItem | null;
 
-        if (__raw_maybe === null) {
-            instance.maybe = null;
-        } else {
-            ctx.pushScope("maybe");
-            try {
-                const __result = edgeItemDecodeWithContext(__raw_maybe, ctx);
-                ctx.assignOrDefer(instance, "maybe", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                            message: __err.message
-                        });
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    ctx.pushScope("maybe");
+                    try {
+                        const __result = edgeItemDecodeWithContext(__raw_maybe, ctx);
+                        ctx.assignOrDefer(instance, "maybe", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as EdgeItem[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-
-                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                    errors.push({ field: "list", message: __raw_list == null ? "GraphShared.list is required" : "expected EdgeItem[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as EdgeItem[];
-        if (Array.isArray(__raw_list)) {
-            ctx.pushScope("list");
-            try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "list" : "list." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+                const __raw_set = obj["set"] as Array<EdgeItem>;
+                if (Array.isArray(__raw_set)) {
+                    ctx.pushScope("set");
+                    try {
+                        instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "set" : "set." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "set", message: __raw_set == null ? "GraphShared.set is required" : "expected Set<EdgeItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "list", message: __raw_list == null ? "GraphShared.list is required" : "expected EdgeItem[]" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
-        const __raw_set = obj["set"] as Array<EdgeItem>;
-        if (Array.isArray(__raw_set)) {
-            ctx.pushScope("set");
-            try {
-                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "set" : "set." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+                const __raw_byName = obj["byName"] as Record<string, EdgeItem>;
+                if (typeof __raw_byName === "object" && __raw_byName !== null) {
+                    ctx.pushScope("byName");
+                    try {
+                        instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byName", message: __raw_byName == null ? "GraphShared.byName is required" : "expected Map<string, EdgeItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "set", message: __raw_set == null ? "GraphShared.set is required" : "expected Set<EdgeItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
-        const __raw_byName = obj["byName"] as Record<string, EdgeItem>;
-        if (typeof __raw_byName === "object" && __raw_byName !== null) {
-            ctx.pushScope("byName");
-            try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+                const __raw_record = obj["record"] as Record<string, EdgeItem>;
+                if (typeof __raw_record === "object" && __raw_record !== null) {
+                    ctx.pushScope("record");
+                    try {
+                        instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)) as Record<string, EdgeItem>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "record" : "record." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "record", message: __raw_record == null ? "GraphShared.record is required" : "expected Record<string, EdgeItem>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byName", message: __raw_byName == null ? "GraphShared.byName is required" : "expected Map<string, EdgeItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
-        const __raw_record = obj["record"] as Record<string, EdgeItem>;
-        if (typeof __raw_record === "object" && __raw_record !== null) {
-            ctx.pushScope("record");
-            try {
-                instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)) as Record<string, EdgeItem>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "record" : "record." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [EdgeItem, EdgeItem];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)], 2) as [EdgeItem, EdgeItem]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "pair", message: __raw_pair == null ? "GraphShared.pair is required" : "expected [EdgeItem, EdgeItem]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "record", message: __raw_record == null ? "GraphShared.record is required" : "expected Record<string, EdgeItem>" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-        const __raw_pair = obj["pair"] as [EdgeItem, EdgeItem];
-        if (Array.isArray(__raw_pair)) {
-            ctx.pushScope("pair");
-            try {
-                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx), (__raw0) => edgeItemDecodeWithContext(__raw0, ctx)], 2) as [EdgeItem, EdgeItem]);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "pair", message: __raw_pair == null ? "GraphShared.pair is required" : "expected [EdgeItem, EdgeItem]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1206,7 +1282,7 @@ export function graphSharedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "first") && __mf_holds(obj, "again") && __mf_holds(obj, "maybe") && __mf_holds(obj, "list") && __mf_holds(obj, "set") && __mf_holds(obj, "byName") && __mf_holds(obj, "record") && __mf_holds(obj, "pair");
+    return __mf_holdsAll(obj, ["first", "again", "maybe", "list", "set", "byName", "record", "pair"]);
 }
 
 export function graphSharedIs(obj: unknown): obj is GraphShared {
@@ -1274,30 +1350,44 @@ export function graphLoopEncodePartialWithContext(value: Partial<GraphLoop>, ctx
 }
 
 function graphLoopEncodeFields(value: GraphLoop, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("name")) {
-        if (value.name !== undefined) {
-            result["name"] = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("self")) {
-        if (value.self !== undefined) {
-            result["self"] = value.self === null ? null : graphLoopEncodeWithContext(value.self, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("view")) {
-        if (value.view !== undefined) {
-            result["view"] = value.view === null ? null : graphLoopEncodePartialWithContext(value.view, ctx, { only: ["name", "view"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("rest")) {
-        if (value.rest !== undefined) {
-            result["rest"] = value.rest === null ? null : graphLoopEncodePartialWithContext(value.rest, ctx, { except: ["name"] });
-        }
-    }
-    if (__fields === undefined || __fields.keeps("patch")) {
-        if (value.patch !== undefined) {
-            result["patch"] = value.patch === null ? null : graphLoopEncodePartialWithContext(value.patch, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("name")) {
+                if (value.name !== undefined) {
+                    result["name"] = value.name;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("self")) {
+                if (value.self !== undefined) {
+                    result["self"] = value.self === null ? null : graphLoopEncodeWithContext(value.self, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("view")) {
+                if (value.view !== undefined) {
+                    result["view"] = value.view === null ? null : graphLoopEncodePartialWithContext(value.view, ctx, { only: ["name", "view"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("rest")) {
+                if (value.rest !== undefined) {
+                    result["rest"] = value.rest === null ? null : graphLoopEncodePartialWithContext(value.rest, ctx, { except: ["name"] });
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = value.patch === null ? null : graphLoopEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1375,20 +1465,12 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
-        errors.push({ field: "name", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("self")) && !("self" in obj)) {
-        errors.push({ field: "self", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("view")) && !("view" in obj)) {
-        errors.push({ field: "view", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("rest")) && !("rest" in obj)) {
-        errors.push({ field: "rest", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
-        errors.push({ field: "patch", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["name", "name"], ["self", "self"], ["view", "view"], ["rest", "rest"], ["patch", "patch"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1399,125 +1481,139 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
-        const __raw_name = obj["name"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+                const __raw_name = obj["name"] as string;
 
-        if (!(typeof __raw_name === "string")) {
-            errors.push({ field: "name", message: __raw_name == null ? "GraphLoop.name is required" : "expected string" });
-        } else {
-            instance.name = __raw_name;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("self")) ? "self" in obj : (__fields.keeps("self") && obj["self"] !== undefined)) {
-        const __raw_self = obj["self"] as GraphLoop | null;
+                if (!(typeof __raw_name === "string")) {
+                    errors.push({ field: "name", message: __raw_name == null ? "GraphLoop.name is required" : "expected string" });
+                } else {
+                    instance.name = __raw_name;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("self")) ? "self" in obj : (__fields.keeps("self") && obj["self"] !== undefined)) {
+                const __raw_self = obj["self"] as GraphLoop | null;
 
-        if (__raw_self === null) {
-            instance.self = null;
-        } else {
-            ctx.pushScope("self");
-            try {
-                const __result = graphLoopDecodeWithContext(__raw_self, ctx);
-                ctx.assignOrDefer(instance, "self", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "self" : "self." + __err.field,
-                            message: __err.message
-                        });
+                if (__raw_self === null) {
+                    instance.self = null;
+                } else {
+                    ctx.pushScope("self");
+                    try {
+                        const __result = graphLoopDecodeWithContext(__raw_self, ctx);
+                        ctx.assignOrDefer(instance, "self", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "self" : "self." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+
+                            errors.push({ field: "self", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("view")) ? "view" in obj : (__fields.keeps("view") && obj["view"] !== undefined)) {
+                const __raw_view = obj["view"] as Pick<GraphLoop, 'name' | 'view'> | null;
+
+                if (__raw_view === null) {
+                    instance.view = null;
                 } else {
 
-                    errors.push({ field: "self", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("view")) ? "view" in obj : (__fields.keeps("view") && obj["view"] !== undefined)) {
-        const __raw_view = obj["view"] as Pick<GraphLoop, 'name' | 'view'> | null;
+                    ctx.pushScope("view");
+                    try {
+                        const __result = graphLoopDecodePartialWithContext(__raw_view, ctx, { only: ["name", "view"] });
+                        ctx.assignOrDefer(instance, "view", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "view" : "view." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        if (__raw_view === null) {
-            instance.view = null;
-        } else {
-
-            ctx.pushScope("view");
-            try {
-                const __result = graphLoopDecodePartialWithContext(__raw_view, ctx, { only: ["name", "view"] });
-                ctx.assignOrDefer(instance, "view", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "view" : "view." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "view", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+                const __raw_rest = obj["rest"] as Omit<GraphLoop, 'name'> | null;
+
+                if (__raw_rest === null) {
+                    instance.rest = null;
                 } else {
 
-                    errors.push({ field: "view", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
-        const __raw_rest = obj["rest"] as Omit<GraphLoop, 'name'> | null;
+                    ctx.pushScope("rest");
+                    try {
+                        const __result = graphLoopDecodePartialWithContext(__raw_rest, ctx, { except: ["name"] });
+                        ctx.assignOrDefer(instance, "rest", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        if (__raw_rest === null) {
-            instance.rest = null;
-        } else {
-
-            ctx.pushScope("rest");
-            try {
-                const __result = graphLoopDecodePartialWithContext(__raw_rest, ctx, { except: ["name"] });
-                ctx.assignOrDefer(instance, "rest", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "rest" : "rest." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "rest", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<GraphLoop> | null;
+
+                if (__raw_patch === null) {
+                    instance.patch = null;
                 } else {
 
-                    errors.push({ field: "rest", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
-        const __raw_patch = obj["patch"] as Partial<GraphLoop> | null;
+                    ctx.pushScope("patch");
+                    try {
+                        const __result = graphLoopDecodePartialWithContext(__raw_patch, ctx);
+                        ctx.assignOrDefer(instance, "patch", __result);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
 
-        if (__raw_patch === null) {
-            instance.patch = null;
-        } else {
-
-            ctx.pushScope("patch");
-            try {
-                const __result = graphLoopDecodePartialWithContext(__raw_patch, ctx);
-                ctx.assignOrDefer(instance, "patch", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "patch" : "patch." + __err.field,
-                            message: __err.message
-                        });
+                            errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
-                } else {
-
-                    errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
                 }
-            } finally {
-                ctx.popScope();
             }
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1542,7 +1638,7 @@ export function graphLoopHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "name") && __mf_holds(obj, "self") && __mf_holds(obj, "view") && __mf_holds(obj, "rest") && __mf_holds(obj, "patch");
+    return __mf_holdsAll(obj, ["name", "self", "view", "rest", "patch"]);
 }
 
 export function graphLoopIs(obj: unknown): obj is GraphLoop {
@@ -1608,20 +1704,30 @@ export function graphPatchedEncodePartialWithContext(value: Partial<GraphPatched
 }
 
 function graphPatchedEncodeFields(value: GraphPatched, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("whole")) {
-        if (value.whole !== undefined) {
-            result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("patch")) {
-        if (value.patch !== undefined) {
-            result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("patches")) {
-        if (value.patches !== undefined) {
-            result["patches"] = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("whole")) {
+                if (value.whole !== undefined) {
+                    result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("patches")) {
+                if (value.patches !== undefined) {
+                    result["patches"] = value.patches.map((__item0) => edgeItemEncodePartialWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1699,14 +1805,12 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("whole")) && !("whole" in obj)) {
-        errors.push({ field: "whole", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
-        errors.push({ field: "patch", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("patches")) && !("patches" in obj)) {
-        errors.push({ field: "patches", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["whole", "whole"], ["patch", "patch"], ["patches", "patches"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1717,75 +1821,85 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
-        const __raw_whole = obj["whole"] as EdgeItem;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+                const __raw_whole = obj["whole"] as EdgeItem;
 
-        ctx.pushScope("whole");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_whole, ctx);
-            ctx.assignOrDefer(instance, "whole", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "whole" : "whole." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("whole");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_whole, ctx);
+                    ctx.assignOrDefer(instance, "whole", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "whole" : "whole." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
-        const __raw_patch = obj["patch"] as Partial<EdgeItem>;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<EdgeItem>;
 
-        ctx.pushScope("patch");
-        try {
-            const __result = edgeItemDecodePartialWithContext(__raw_patch, ctx);
-            ctx.assignOrDefer(instance, "patch", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "patch" : "patch." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("patch");
+                try {
+                    const __result = edgeItemDecodePartialWithContext(__raw_patch, ctx);
+                    ctx.assignOrDefer(instance, "patch", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
-        const __raw_patches = obj["patches"] as Partial<EdgeItem>[];
-        if (Array.isArray(__raw_patches)) {
-            ctx.pushScope("patches");
-            try {
-                instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "patches" : "patches." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
+                const __raw_patches = obj["patches"] as Partial<EdgeItem>[];
+                if (Array.isArray(__raw_patches)) {
+                    ctx.pushScope("patches");
+                    try {
+                        instance.patches = __mf_decodeArray(__raw_patches, ctx, (__raw0) => edgeItemDecodePartialWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "patches" : "patches." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "patches", message: __raw_patches == null ? "GraphPatched.patches is required" : "expected Partial<EdgeItem>[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "patches", message: __raw_patches == null ? "GraphPatched.patches is required" : "expected Partial<EdgeItem>[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -1810,7 +1924,7 @@ export function graphPatchedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "whole") && __mf_holds(obj, "patch") && __mf_holds(obj, "patches");
+    return __mf_holdsAll(obj, ["whole", "patch", "patches"]);
 }
 
 export function graphPatchedIs(obj: unknown): obj is GraphPatched {
@@ -1875,15 +1989,23 @@ export function graphPatchedFirstEncodePartialWithContext(value: Partial<GraphPa
 }
 
 function graphPatchedFirstEncodeFields(value: GraphPatchedFirst, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("patch")) {
-        if (value.patch !== undefined) {
-            result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("whole")) {
-        if (value.whole !== undefined) {
-            result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("patch")) {
+                if (value.patch !== undefined) {
+                    result["patch"] = edgeItemEncodePartialWithContext(value.patch, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("whole")) {
+                if (value.whole !== undefined) {
+                    result["whole"] = edgeItemEncodeWithContext(value.whole, ctx);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -1961,11 +2083,12 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
-        errors.push({ field: "patch", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("whole")) && !("whole" in obj)) {
-        errors.push({ field: "whole", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["patch", "patch"], ["whole", "whole"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -1976,51 +2099,59 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
-        const __raw_patch = obj["patch"] as Partial<EdgeItem>;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+                const __raw_patch = obj["patch"] as Partial<EdgeItem>;
 
-        ctx.pushScope("patch");
-        try {
-            const __result = edgeItemDecodePartialWithContext(__raw_patch, ctx);
-            ctx.assignOrDefer(instance, "patch", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "patch" : "patch." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("patch");
+                try {
+                    const __result = edgeItemDecodePartialWithContext(__raw_patch, ctx);
+                    ctx.assignOrDefer(instance, "patch", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
-        const __raw_whole = obj["whole"] as EdgeItem;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+                const __raw_whole = obj["whole"] as EdgeItem;
 
-        ctx.pushScope("whole");
-        try {
-            const __result = edgeItemDecodeWithContext(__raw_whole, ctx);
-            ctx.assignOrDefer(instance, "whole", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "whole" : "whole." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("whole");
+                try {
+                    const __result = edgeItemDecodeWithContext(__raw_whole, ctx);
+                    ctx.assignOrDefer(instance, "whole", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "whole" : "whole." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -2045,7 +2176,7 @@ export function graphPatchedFirstHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "patch") && __mf_holds(obj, "whole");
+    return __mf_holdsAll(obj, ["patch", "whole"]);
 }
 
 export function graphPatchedFirstIs(obj: unknown): obj is GraphPatchedFirst {
@@ -2444,49 +2575,49 @@ export declare const GraphPatchedFirst: {
 
 ## Mapping
 
-original 0..435 -> expanded 1300..1735
-original 435..711 -> expanded 17915..18191
-original 711..712 -> expanded 34664..34665
-original 712..998 -> expanded 38305..38591
-original 998..1238 -> expanded 58508..58748
-original 1238..1389 -> expanded 73437..73588
-original 1389..1511 -> expanded 85722..85844
-original 1511..1512 -> expanded 96728..96729
-generated 0..1300 <- imports
-generated 1735..2197 <- Debug
-generated 2197..2485 <- Clone
-generated 2485..2977 <- PartialEq
-generated 2977..3482 <- Hash
-generated 3482..4798 <- PartialOrd
-generated 4798..5844 <- Ord
-generated 5844..8448 <- Encode
-generated 8448..16428 <- Decode
-generated 16428..17915 <- __convenience_const
-generated 18191..18807 <- Debug
-generated 18807..19420 <- Clone
-generated 19420..20386 <- PartialEq
-generated 20386..21306 <- Hash
-generated 21306..23832 <- Encode
-generated 23832..24161 <- Encode
-generated 24161..34664 <- Decode
-generated 34665..34774 <- Debug
-generated 34774..34882 <- Clone
-generated 34882..34999 <- PartialEq
-generated 34999..35108 <- Hash
-generated 35108..36478 <- Encode
-generated 36478..38305 <- Decode
-generated 38591..42467 <- Encode
-generated 42467..57447 <- Decode
-generated 57447..58508 <- __convenience_const
-generated 58748..61843 <- Encode
-generated 61843..72418 <- Decode
-generated 72418..73437 <- __convenience_const
-generated 73588..76246 <- Encode
-generated 76246..84640 <- Decode
-generated 84640..85722 <- __convenience_const
-generated 85844..88343 <- Encode
-generated 88343..95541 <- Decode
-generated 95541..96728 <- __convenience_const
+original 0..435 -> expanded 1306..1741
+original 435..711 -> expanded 18807..19083
+original 711..712 -> expanded 36751..36752
+original 712..998 -> expanded 40392..40678
+original 998..1238 -> expanded 61951..62191
+original 1238..1389 -> expanded 77828..77979
+original 1389..1511 -> expanded 90867..90989
+original 1511..1512 -> expanded 102511..102512
+generated 0..1306 <- imports
+generated 1741..2203 <- Debug
+generated 2203..2491 <- Clone
+generated 2491..3128 <- PartialEq
+generated 3128..3633 <- Hash
+generated 3633..4909 <- PartialOrd
+generated 4909..6055 <- Ord
+generated 6055..8920 <- Encode
+generated 8920..17320 <- Decode
+generated 17320..18807 <- __convenience_const
+generated 19083..19699 <- Debug
+generated 19699..20312 <- Clone
+generated 20312..21555 <- PartialEq
+generated 21555..22475 <- Hash
+generated 22475..25396 <- Encode
+generated 25396..25725 <- Encode
+generated 25725..36751 <- Decode
+generated 36752..36861 <- Debug
+generated 36861..36969 <- Clone
+generated 36969..37086 <- PartialEq
+generated 37086..37195 <- Hash
+generated 37195..38565 <- Encode
+generated 38565..40392 <- Decode
+generated 40678..45150 <- Encode
+generated 45150..60890 <- Decode
+generated 60890..61951 <- __convenience_const
+generated 62191..65681 <- Encode
+generated 65681..76809 <- Decode
+generated 76809..77828 <- __convenience_const
+generated 77979..80898 <- Encode
+generated 80898..89785 <- Decode
+generated 89785..90867 <- __convenience_const
+generated 90989..93682 <- Encode
+generated 93682..101324 <- Decode
+generated 101324..102511 <- __convenience_const
 
 ## Metadata
 

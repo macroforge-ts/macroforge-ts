@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -61,15 +61,23 @@ export function commentedEncodePartialWithContext(value: Partial<Commented>, ctx
 }
 
 function commentedEncodeFields(value: Commented, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("comment")) {
-        if (value.comment !== undefined) {
-            result["comment"] = value.comment;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("replyTo")) {
-        if (value.replyTo !== undefined) {
-            result["replyTo"] = value.replyTo;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("comment")) {
+                if (value.comment !== undefined) {
+                    result["comment"] = value.comment;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("replyTo")) {
+                if (value.replyTo !== undefined) {
+                    result["replyTo"] = value.replyTo;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -147,11 +155,12 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("comment")) && !("comment" in obj)) {
-        errors.push({ field: "comment", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("replyTo")) && !("replyTo" in obj)) {
-        errors.push({ field: "replyTo", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["comment", "comment"], ["replyTo", "replyTo"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -162,26 +171,34 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("comment")) ? "comment" in obj : (__fields.keeps("comment") && obj["comment"] !== undefined)) {
-        const __raw_comment = obj["comment"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("comment")) ? "comment" in obj : (__fields.keeps("comment") && obj["comment"] !== undefined)) {
+                const __raw_comment = obj["comment"] as string;
 
-        if (!(typeof __raw_comment === "string")) {
-            errors.push({ field: "comment", message: __raw_comment == null ? "Commented.comment is required" : "expected string" });
-        } else {
-            if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
-                if (__raw_comment.length === 0) { errors.push({ field: "comment", message: "Commented.comment must not be empty" }); }
+                if (!(typeof __raw_comment === "string")) {
+                    errors.push({ field: "comment", message: __raw_comment == null ? "Commented.comment is required" : "expected string" });
+                } else {
+                    if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
+                        if (__raw_comment.length === 0) { errors.push({ field: "comment", message: "Commented.comment must not be empty" }); }
+                    }
+                    instance.comment = __raw_comment;
+                }
             }
-            instance.comment = __raw_comment;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("replyTo")) ? "replyTo" in obj : (__fields.keeps("replyTo") && obj["replyTo"] !== undefined)) {
-        const __raw_replyTo = obj["replyTo"] as string | null;
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("replyTo")) ? "replyTo" in obj : (__fields.keeps("replyTo") && obj["replyTo"] !== undefined)) {
+                const __raw_replyTo = obj["replyTo"] as string | null;
 
-        if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
-            errors.push({ field: "replyTo", message: "expected string | null" });
-        } else {
-            instance.replyTo = __raw_replyTo;
-        }
+                if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
+                    errors.push({ field: "replyTo", message: "expected string | null" });
+                } else {
+                    instance.replyTo = __raw_replyTo;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -218,7 +235,7 @@ export function commentedHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "comment") && __mf_holds(obj, "replyTo");
+    return __mf_holdsAll(obj, ["comment", "replyTo"]);
 }
 
 export function commentedIs(obj: unknown): obj is Commented {
@@ -478,16 +495,16 @@ export declare const Commented: {
 
 ## Mapping
 
-original 0..58 -> expanded 838..896
-original 107..141 -> expanded 896..930
-original 182..233 -> expanded 930..981
-original 233..234 -> expanded 16139..16140
-generated 0..838 <- imports
-generated 981..1101 <- Default
-generated 1101..3426 <- Encode
-generated 3426..10381 <- Decode
-generated 10381..14846 <- Gigaform
-generated 14846..16139 <- __convenience_const
+original 0..58 -> expanded 844..902
+original 107..141 -> expanded 902..936
+original 182..233 -> expanded 936..987
+original 233..234 -> expanded 16595..16596
+generated 0..844 <- imports
+generated 987..1107 <- Default
+generated 1107..3626 <- Encode
+generated 3626..10837 <- Decode
+generated 10837..15302 <- Gigaform
+generated 15302..16595 <- __convenience_const
 
 ## Metadata
 

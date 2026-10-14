@@ -34,7 +34,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Literals {
@@ -72,7 +72,16 @@ export function literalsClone(value: Literals): Literals {
 
 export function literalsEquals(a: Literals, b: Literals): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => (a.sign === b.sign || a.sign !== a.sign && b.sign !== b.sign) && (a.grouped === b.grouped || a.grouped !== a.grouped && b.grouped !== b.grouped) && (a.hex === b.hex || a.hex !== a.hex && b.hex !== b.hex) && a.big === b.big && (a.exp === b.exp || a.exp !== a.exp && b.exp !== b.exp) && __mf_structuralEquals(a.byNumber, b.byNumber));
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.sign === b.sign || a.sign !== a.sign && b.sign !== b.sign,
+            () => a.grouped === b.grouped || a.grouped !== a.grouped && b.grouped !== b.grouped,
+            () => a.hex === b.hex || a.hex !== a.hex && b.hex !== b.hex,
+            () => a.big === b.big,
+            () => a.exp === b.exp || a.exp !== a.exp && b.exp !== b.exp,
+            () => __mf_structuralEquals(a.byNumber, b.byNumber),
+        ].every((same) => same());
+    });
 }
 
 export function literalsHashCode(value: Literals): number {
@@ -130,35 +139,51 @@ export function literalsEncodePartialWithContext(value: Partial<Literals>, ctx: 
 }
 
 function literalsEncodeFields(value: Literals, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("sign")) {
-        if (value.sign !== undefined) {
-            result["sign"] = value.sign;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("grouped")) {
-        if (value.grouped !== undefined) {
-            result["grouped"] = value.grouped;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("hex")) {
-        if (value.hex !== undefined) {
-            result["hex"] = value.hex;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("big")) {
-        if (value.big !== undefined) {
-            result["big"] = value.big;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("exp")) {
-        if (value.exp !== undefined) {
-            result["exp"] = value.exp;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byNumber")) {
-        if (value.byNumber !== undefined) {
-            result["byNumber"] = value.byNumber;
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("sign")) {
+                if (value.sign !== undefined) {
+                    result["sign"] = value.sign;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("grouped")) {
+                if (value.grouped !== undefined) {
+                    result["grouped"] = value.grouped;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("hex")) {
+                if (value.hex !== undefined) {
+                    result["hex"] = value.hex;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("big")) {
+                if (value.big !== undefined) {
+                    result["big"] = value.big;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("exp")) {
+                if (value.exp !== undefined) {
+                    result["exp"] = value.exp;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("byNumber")) {
+                if (value.byNumber !== undefined) {
+                    result["byNumber"] = value.byNumber;
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -236,23 +261,12 @@ export function literalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("sign")) && !("sign" in obj)) {
-        errors.push({ field: "sign", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("grouped")) && !("grouped" in obj)) {
-        errors.push({ field: "grouped", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("hex")) && !("hex" in obj)) {
-        errors.push({ field: "hex", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
-        errors.push({ field: "big", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("exp")) && !("exp" in obj)) {
-        errors.push({ field: "exp", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byNumber")) && !("byNumber" in obj)) {
-        errors.push({ field: "byNumber", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["sign", "sign"], ["grouped", "grouped"], ["hex", "hex"], ["big", "big"], ["exp", "exp"], ["byNumber", "byNumber"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -263,74 +277,90 @@ export function literalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("sign")) ? "sign" in obj : (__fields.keeps("sign") && obj["sign"] !== undefined)) {
-        const __raw_sign = obj["sign"] as -1 | 0 | 1;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("sign")) ? "sign" in obj : (__fields.keeps("sign") && obj["sign"] !== undefined)) {
+                const __raw_sign = obj["sign"] as -1 | 0 | 1;
 
-        if (!(__raw_sign === -1 || __raw_sign === 0 || __raw_sign === 1)) {
-            errors.push({ field: "sign", message: __raw_sign == null ? "Literals.sign is required" : "expected -1 | 0 | 1" });
-        } else {
-            instance.sign = __raw_sign;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("grouped")) ? "grouped" in obj : (__fields.keeps("grouped") && obj["grouped"] !== undefined)) {
-        const __raw_grouped = obj["grouped"] as 1_000 | 2_000;
+                if (!(__raw_sign === -1 || __raw_sign === 0 || __raw_sign === 1)) {
+                    errors.push({ field: "sign", message: __raw_sign == null ? "Literals.sign is required" : "expected -1 | 0 | 1" });
+                } else {
+                    instance.sign = __raw_sign;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("grouped")) ? "grouped" in obj : (__fields.keeps("grouped") && obj["grouped"] !== undefined)) {
+                const __raw_grouped = obj["grouped"] as 1_000 | 2_000;
 
-        if (!(__raw_grouped === 1e3 || __raw_grouped === 2e3)) {
-            errors.push({ field: "grouped", message: __raw_grouped == null ? "Literals.grouped is required" : "expected 1_000 | 2_000" });
-        } else {
-            instance.grouped = __raw_grouped;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("hex")) ? "hex" in obj : (__fields.keeps("hex") && obj["hex"] !== undefined)) {
-        const __raw_hex = obj["hex"] as 0x10 | 0b11;
+                if (!(__raw_grouped === 1e3 || __raw_grouped === 2e3)) {
+                    errors.push({ field: "grouped", message: __raw_grouped == null ? "Literals.grouped is required" : "expected 1_000 | 2_000" });
+                } else {
+                    instance.grouped = __raw_grouped;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("hex")) ? "hex" in obj : (__fields.keeps("hex") && obj["hex"] !== undefined)) {
+                const __raw_hex = obj["hex"] as 0x10 | 0b11;
 
-        if (!(__raw_hex === 16 || __raw_hex === 3)) {
-            errors.push({ field: "hex", message: __raw_hex == null ? "Literals.hex is required" : "expected 0x10 | 0b11" });
-        } else {
-            instance.hex = __raw_hex;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
-        const __raw_big = obj["big"] as 1n | -2n;
+                if (!(__raw_hex === 16 || __raw_hex === 3)) {
+                    errors.push({ field: "hex", message: __raw_hex == null ? "Literals.hex is required" : "expected 0x10 | 0b11" });
+                } else {
+                    instance.hex = __raw_hex;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+                const __raw_big = obj["big"] as 1n | -2n;
 
-        if (!(__raw_big === 1n || __raw_big === -2n)) {
-            errors.push({ field: "big", message: __raw_big == null ? "Literals.big is required" : "expected 1n | -2n" });
-        } else {
-            instance.big = __raw_big;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("exp")) ? "exp" in obj : (__fields.keeps("exp") && obj["exp"] !== undefined)) {
-        const __raw_exp = obj["exp"] as 1e3 | 2.5e-1;
+                if (!(__raw_big === 1n || __raw_big === -2n)) {
+                    errors.push({ field: "big", message: __raw_big == null ? "Literals.big is required" : "expected 1n | -2n" });
+                } else {
+                    instance.big = __raw_big;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("exp")) ? "exp" in obj : (__fields.keeps("exp") && obj["exp"] !== undefined)) {
+                const __raw_exp = obj["exp"] as 1e3 | 2.5e-1;
 
-        if (!(__raw_exp === 1e3 || __raw_exp === .25)) {
-            errors.push({ field: "exp", message: __raw_exp == null ? "Literals.exp is required" : "expected 1e3 | 2.5e-1" });
-        } else {
-            instance.exp = __raw_exp;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
-        const __raw_byNumber = obj["byNumber"] as Record<1 | 2, string>;
-        if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
-            ctx.pushScope("byNumber");
-            try {
-                instance.byNumber = (__mf_decodeRecord(__raw_byNumber, ctx, __mf_decodeString, (__key0) => __mf_decodeChecked(__mf_decodeNumberKey(__key0), __mf_decodeNumberKey(__key0) === 1 || __mf_decodeNumberKey(__key0) === 2, "1 | 2") as 1 | 2, [String(1), String(2)]) as Record<1 | 2, string>);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byNumber" : "byNumber." + __err.field,
-                            message: __err.message
-                        });
+                if (!(__raw_exp === 1e3 || __raw_exp === .25)) {
+                    errors.push({ field: "exp", message: __raw_exp == null ? "Literals.exp is required" : "expected 1e3 | 2.5e-1" });
+                } else {
+                    instance.exp = __raw_exp;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
+                const __raw_byNumber = obj["byNumber"] as Record<1 | 2, string>;
+                if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
+                    ctx.pushScope("byNumber");
+                    try {
+                        instance.byNumber = (__mf_decodeRecord(__raw_byNumber, ctx, __mf_decodeString, (__key0) => __mf_decodeChecked(__mf_decodeNumberKey(__key0), __mf_decodeNumberKey(__key0) === 1 || __mf_decodeNumberKey(__key0) === 2, "1 | 2") as 1 | 2, [String(1), String(2)]) as Record<1 | 2, string>);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "byNumber" : "byNumber." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "byNumber", message: __raw_byNumber == null ? "Literals.byNumber is required" : "expected Record<1 | 2, string>" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "byNumber", message: __raw_byNumber == null ? "Literals.byNumber is required" : "expected Record<1 | 2, string>" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -355,7 +385,7 @@ export function literalsHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "sign") && __mf_holds(obj, "grouped") && __mf_holds(obj, "hex") && __mf_holds(obj, "big") && __mf_holds(obj, "exp") && __mf_holds(obj, "byNumber");
+    return __mf_holdsAll(obj, ["sign", "grouped", "hex", "big", "exp", "byNumber"]);
 }
 
 export function literalsIs(obj: unknown): obj is Literals {
@@ -529,8 +559,12 @@ export function infDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
-        errors.push({ field: "value", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["value", "value"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -573,7 +607,7 @@ export function infHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "value");
+    return __mf_holdsAll(obj, ["value"]);
 }
 
 export function infIs(obj: unknown): obj is Inf {
@@ -667,15 +701,23 @@ export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf
 }
 
 function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("inf")) {
-        if (value.inf !== undefined) {
-            result["inf"] = infEncodeWithContext(value.inf, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("list")) {
-        if (value.list !== undefined) {
-            result["list"] = value.list.map((__item0) => infEncodeWithContext(__item0, ctx));
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("inf")) {
+                if (value.inf !== undefined) {
+                    result["inf"] = infEncodeWithContext(value.inf, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("list")) {
+                if (value.list !== undefined) {
+                    result["list"] = value.list.map((__item0) => infEncodeWithContext(__item0, ctx));
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -753,11 +795,12 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("inf")) && !("inf" in obj)) {
-        errors.push({ field: "inf", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
-        errors.push({ field: "list", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["inf", "inf"], ["list", "list"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -768,52 +811,60 @@ export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("inf")) ? "inf" in obj : (__fields.keeps("inf") && obj["inf"] !== undefined)) {
-        const __raw_inf = obj["inf"] as Inf;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("inf")) ? "inf" in obj : (__fields.keeps("inf") && obj["inf"] !== undefined)) {
+                const __raw_inf = obj["inf"] as Inf;
 
-        ctx.pushScope("inf");
-        try {
-            const __result = infDecodeWithContext(__raw_inf, ctx);
-            ctx.assignOrDefer(instance, "inf", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "inf" : "inf." + __err.field,
-                        message: __err.message
-                    });
+                ctx.pushScope("inf");
+                try {
+                    const __result = infDecodeWithContext(__raw_inf, ctx);
+                    ctx.assignOrDefer(instance, "inf", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "inf" : "inf." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "inf", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
-            } else {
-
-                errors.push({ field: "inf", message: __e instanceof Error ? __e.message : String(__e) });
             }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
-        const __raw_list = obj["list"] as Inf[];
-        if (Array.isArray(__raw_list)) {
-            ctx.pushScope("list");
-            try {
-                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => infDecodeWithContext(__raw0, ctx));
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "list" : "list." + __err.field,
-                            message: __err.message
-                        });
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+                const __raw_list = obj["list"] as Inf[];
+                if (Array.isArray(__raw_list)) {
+                    ctx.pushScope("list");
+                    try {
+                        instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => infDecodeWithContext(__raw0, ctx));
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "list" : "list." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
                     }
                 } else {
-                    throw __e;
+                    errors.push({ field: "list", message: __raw_list == null ? "Holder.list is required" : "expected Inf[]" });
                 }
-            } finally {
-                ctx.popScope();
             }
-        } else {
-            errors.push({ field: "list", message: __raw_list == null ? "Holder.list is required" : "expected Inf[]" });
-        }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -838,7 +889,7 @@ export function holderHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "inf") && __mf_holds(obj, "list");
+    return __mf_holdsAll(obj, ["inf", "list"]);
 }
 
 export function holderIs(obj: unknown): obj is Holder {
@@ -1057,33 +1108,33 @@ export declare const Holder: {
 
 ## Mapping
 
-original 70..251 -> expanded 1208..1389
-original 251..323 -> expanded 17648..17720
-original 376..420 -> expanded 17720..17764
-original 420..422 -> expanded 26535..26537
-original 475..534 -> expanded 26537..26596
-original 534..535 -> expanded 37684..37685
-generated 0..1208 <- imports
-generated 1389..1902 <- Debug
-generated 1902..2165 <- Clone
-generated 2165..2639 <- PartialEq
-generated 2639..3670 <- Hash
-generated 3670..3876 <- Default
-generated 3876..6806 <- Encode
-generated 6806..16274 <- Decode
-generated 16274..17648 <- __convenience_const
-generated 17764..18007 <- Debug
-generated 18007..18126 <- Clone
-generated 18126..18208 <- Default
-generated 18208..20266 <- Encode
-generated 20266..25440 <- Decode
-generated 25440..26535 <- __convenience_const
-generated 26596..26919 <- Debug
-generated 26919..27136 <- Clone
-generated 27136..27256 <- Default
-generated 27256..29587 <- Encode
-generated 29587..36508 <- Decode
-generated 36508..37684 <- __convenience_const
+original 70..251 -> expanded 1214..1395
+original 251..323 -> expanded 18325..18397
+original 376..420 -> expanded 18397..18441
+original 420..422 -> expanded 27374..27376
+original 475..534 -> expanded 27376..27435
+original 534..535 -> expanded 39188..39189
+generated 0..1214 <- imports
+generated 1395..1908 <- Debug
+generated 1908..2171 <- Clone
+generated 2171..2796 <- PartialEq
+generated 2796..3827 <- Hash
+generated 3827..4033 <- Default
+generated 4033..7425 <- Encode
+generated 7425..16951 <- Decode
+generated 16951..18325 <- __convenience_const
+generated 18441..18684 <- Debug
+generated 18684..18803 <- Clone
+generated 18803..18885 <- Default
+generated 18885..20943 <- Encode
+generated 20943..26279 <- Decode
+generated 26279..27374 <- __convenience_const
+generated 27435..27758 <- Debug
+generated 27758..27975 <- Clone
+generated 27975..28095 <- Default
+generated 28095..30620 <- Encode
+generated 30620..38012 <- Decode
+generated 38012..39188 <- __convenience_const
 
 ## Metadata
 

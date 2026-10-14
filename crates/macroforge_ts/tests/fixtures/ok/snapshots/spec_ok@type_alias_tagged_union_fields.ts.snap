@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, parsedText as __mf_parsedText, decodedMember as __mf_decodedMember, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Shape =
@@ -33,33 +33,49 @@ export function shapeEncode(value: Shape, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown {
-    let __variant: unknown;
-    let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
-    if (__encoder) {
-        __variant = __encoder(value, ctx);
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "circle") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["radius"] = value.radius;
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "event") {
-        const result: Record<string, unknown> = {};
-        result["kind"] = value.kind;
-        result["at"] = value.at.toISOString();
-        if (value.note !== undefined) {
-            result["note"] = value.note;
-        }
-        __variant = result;
-        __matched = true;
-    }
-    if (!__matched) {
-        __variant = value;
-    }
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        (value: Shape): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "circle")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["radius"] = value.radius;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+        (value: Shape): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "event")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["at"] = value.at.toISOString();
+                },
+                () => {
+                    if (value.note !== undefined) {
+                        result["note"] = value.note;
+                    }
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
         const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
@@ -137,11 +153,13 @@ export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     if (typeof value === "object" && value !== null) {
         const __typeName = __mf_member(value, "kind");
         if (typeof __typeName === "string") {
-            if (__typeName === "circle") {
-                return { "kind": "circle", ...__mf_decodeObject(value, ctx, { radius: __mf_decodeNumber }) } as Shape;
-            }
-            if (__typeName === "event") {
-                return { "kind": "event", ...__mf_decodeObject(value, ctx, { at: __mf_decodeDate, note: __mf_decodeString }, ["note"]) } as Shape;
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "circle" ? { "kind": "circle", ...__mf_decodeObject(value, ctx, { radius: __mf_decodeNumber }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "event" ? { "kind": "event", ...__mf_decodeObject(value, ctx, { at: __mf_decodeDate, note: __mf_decodeString }, ["note"]) } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as Shape;
             }
         }
     }
@@ -235,12 +253,12 @@ export {};
 
 ## Mapping
 
-original 61..165 -> expanded 616..720
-original 165..166 -> expanded 6938..6939
-generated 0..616 <- imports
-generated 720..2826 <- Encode
-generated 2826..6326 <- Decode
-generated 6326..6938 <- __convenience_const
+original 61..165 -> expanded 758..862
+original 165..166 -> expanded 7793..7794
+generated 0..758 <- imports
+generated 862..3507 <- Encode
+generated 3507..7181 <- Decode
+generated 7181..7793 <- __convenience_const
 
 ## Metadata
 

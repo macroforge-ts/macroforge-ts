@@ -21,7 +21,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -67,15 +67,23 @@ export function fooEncodePartialWithContext(value: Partial<Foo>, ctx: __mf_Encod
 }
 
 function fooEncodeFields(value: Foo, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("id")) {
-        if (value.id !== undefined) {
-            result["id"] = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("createdAt")) {
-        if (value.createdAt !== undefined) {
-            result["createdAt"] = __foreign__dateTimeUtcEncode(value.createdAt);
-        }
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("id")) {
+                if (value.id !== undefined) {
+                    result["id"] = value.id;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("createdAt")) {
+                if (value.createdAt !== undefined) {
+                    result["createdAt"] = __foreign__dateTimeUtcEncode(value.createdAt);
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 }
 
@@ -153,11 +161,12 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
-        errors.push({ field: "id", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
-        errors.push({ field: "createdAt", message: "missing required field" });
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["id", "id"], ["createdAt", "createdAt"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
     }
 
     const instance: any = {};
@@ -168,21 +177,29 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
-        const __raw_id = obj["id"] as string;
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+                const __raw_id = obj["id"] as string;
 
-        if (!(typeof __raw_id === "string")) {
-            errors.push({ field: "id", message: __raw_id == null ? "Foo.id is required" : "expected string" });
-        } else {
-            instance.id = __raw_id;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
-        try {
-            instance.createdAt = __foreign__dateTimeUtcDecode(obj["createdAt"]);
-        } catch (__error) {
-            errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
-        }
+                if (!(typeof __raw_id === "string")) {
+                    errors.push({ field: "id", message: __raw_id == null ? "Foo.id is required" : "expected string" });
+                } else {
+                    instance.id = __raw_id;
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+                try {
+                    instance.createdAt = __foreign__dateTimeUtcDecode(obj["createdAt"]);
+                } catch (__error) {
+                    errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+                }
+            }
+        },
+    ]) {
+        __part();
     }
 
     ctx.pushErrors(errors);
@@ -207,7 +224,7 @@ export function fooHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "id") && __mf_holds(obj, "createdAt");
+    return __mf_holdsAll(obj, ["id", "createdAt"]);
 }
 
 export function fooIs(obj: unknown): obj is Foo {
@@ -301,15 +318,15 @@ export declare const Foo: {
 
 ## Mapping
 
-original 0..36 -> expanded 807..843
-original 75..103 -> expanded 843..871
-original 134..181 -> expanded 871..918
-original 181..182 -> expanded 10002..10003
-generated 0..807 <- imports
-generated 918..1062 <- Default
-generated 1062..3315 <- Encode
-generated 3315..9027 <- Decode
-generated 9027..10002 <- __convenience_const
+original 0..36 -> expanded 813..849
+original 75..103 -> expanded 849..877
+original 134..181 -> expanded 877..924
+original 181..182 -> expanded 10429..10430
+generated 0..813 <- imports
+generated 924..1068 <- Default
+generated 1068..3515 <- Encode
+generated 3515..9454 <- Decode
+generated 9454..10429 <- __convenience_const
 
 ## Metadata
 
