@@ -6,4 +6,5 @@ mod diagnostic_limit;
 mod existing_declaration;
 mod external_type_function_import;
 mod failing_derive;
+mod generated_fields;
 mod type_depth;
