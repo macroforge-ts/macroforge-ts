@@ -21,7 +21,6 @@
 //! - [`jsdoc`] - JSDoc directive parsing used by lowering
 //! - [`lower`] - AST lowering from OXC types to IR representations
 //! - [`stream`] - Parsing stream abstraction similar to `syn::parse::ParseBuffer`
-//! - [`type_normalize`] - Helpers for splitting TS type-string snippets into structural pieces
 //!
 //! ## Architecture
 //!
@@ -103,7 +102,6 @@ pub mod lower;
 pub mod preamble;
 mod quote_helpers;
 pub mod stream;
-pub mod type_normalize;
 
 pub use abi::*;
 pub use derive::*;

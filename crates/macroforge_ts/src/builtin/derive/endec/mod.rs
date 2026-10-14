@@ -276,7 +276,7 @@ pub use crate::host::import_registry::{
 };
 
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::derive::endec::*`) keep working.
-pub(crate) use coder::inline_object_fields;
+pub(crate) use coder::{TypeScope, inline_object_fields};
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types};
 pub(crate) use options::{ENDEC_OPTIONS, Placement, endec_option};
 pub use options::{
@@ -284,5 +284,6 @@ pub use options::{
     TaggingMode, decorator_validators,
 };
 pub use type_category::{TypeCategory, WrapperFields};
+pub(crate) use uncodable::checker_only;
 pub(crate) use validators::KNOWN_VALIDATORS;
 pub use validators::{Validator, ValidatorSpec, extract_validators};

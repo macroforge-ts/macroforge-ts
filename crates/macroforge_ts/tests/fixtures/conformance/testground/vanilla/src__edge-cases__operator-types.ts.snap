@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/operator-types.ts
-sha256 3180db78bddabb9318143f35c888199756658118c320a1f2533957d7083bfc3d
+sha256 c1d8bba1597683747043245347312e804ee8421cc84cbc5ebc7bd77659e261e6
 
 ## Changed
 
@@ -20,7 +20,7 @@ import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_Fi
  * without importing the type a field of them names.
  */
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface OperatorOwner {
     name: string;
     since: Date;
@@ -54,6 +54,13 @@ export function operatorOwnerHashCode(value: OperatorOwner): number {
     hash = (hash * 31 + (value.since.getTime() | 0)) | 0;
         return hash;
     });
+}
+
+export function operatorOwnerDefaultValue(): OperatorOwner {
+    return {
+        name: "",
+        since: new Date(),
+    };
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -241,6 +248,7 @@ export const OperatorOwner: {
   readonly clone: typeof operatorOwnerClone;
   readonly equals: typeof operatorOwnerEquals;
   readonly hashCode: typeof operatorOwnerHashCode;
+  readonly defaultValue: typeof operatorOwnerDefaultValue;
   readonly encode: typeof operatorOwnerEncode;
   readonly encodeWithContext: typeof operatorOwnerEncodeWithContext;
   readonly encodePartialWithContext: typeof operatorOwnerEncodePartialWithContext;
@@ -256,6 +264,7 @@ export const OperatorOwner: {
   clone: operatorOwnerClone,
   equals: operatorOwnerEquals,
   hashCode: operatorOwnerHashCode,
+  defaultValue: operatorOwnerDefaultValue,
   encode: operatorOwnerEncode,
   encodeWithContext: operatorOwnerEncodeWithContext,
   encodePartialWithContext: operatorOwnerEncodePartialWithContext,
@@ -268,7 +277,7 @@ export const OperatorOwner: {
   is: operatorOwnerIs
 };
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface OperatorItem {
     owner: OperatorOwner;
     owners: OperatorOwner[];
@@ -313,6 +322,14 @@ export function operatorItemHashCode(value: OperatorItem): number {
     hash = (hash * 31 + (value.weight == null ? 0 : Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         return hash;
     });
+}
+
+export function operatorItemDefaultValue(): OperatorItem {
+    return {
+        owner: operatorOwnerDefaultValue(),
+        owners: [],
+        label: "",
+    };
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -559,6 +576,7 @@ export const OperatorItem: {
   readonly clone: typeof operatorItemClone;
   readonly equals: typeof operatorItemEquals;
   readonly hashCode: typeof operatorItemHashCode;
+  readonly defaultValue: typeof operatorItemDefaultValue;
   readonly encode: typeof operatorItemEncode;
   readonly encodeWithContext: typeof operatorItemEncodeWithContext;
   readonly encodePartialWithContext: typeof operatorItemEncodePartialWithContext;
@@ -574,6 +592,7 @@ export const OperatorItem: {
   clone: operatorItemClone,
   equals: operatorItemEquals,
   hashCode: operatorItemHashCode,
+  defaultValue: operatorItemDefaultValue,
   encode: operatorItemEncode,
   encodeWithContext: operatorItemEncodeWithContext,
   encodePartialWithContext: operatorItemEncodePartialWithContext,
@@ -592,7 +611,7 @@ export const OperatorItem: {
 * The types `operator-shapes.ts` reads through `keyof` and an indexed access,
 * without importing the type a field of them names.
 */
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface OperatorOwner {
 	name: string;
 	since: Date;
@@ -601,6 +620,7 @@ export declare function operatorOwnerToString(value: OperatorOwner): string;
 export declare function operatorOwnerClone(value: OperatorOwner): OperatorOwner;
 export declare function operatorOwnerEquals(a: OperatorOwner, b: OperatorOwner): boolean;
 export declare function operatorOwnerHashCode(value: OperatorOwner): number;
+export declare function operatorOwnerDefaultValue(): OperatorOwner;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function operatorOwnerEncode(value: OperatorOwner, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -639,6 +659,7 @@ export declare const OperatorOwner: {
 	readonly clone: typeof operatorOwnerClone;
 	readonly equals: typeof operatorOwnerEquals;
 	readonly hashCode: typeof operatorOwnerHashCode;
+	readonly defaultValue: typeof operatorOwnerDefaultValue;
 	readonly encode: typeof operatorOwnerEncode;
 	readonly encodeWithContext: typeof operatorOwnerEncodeWithContext;
 	readonly encodePartialWithContext: typeof operatorOwnerEncodePartialWithContext;
@@ -650,7 +671,7 @@ export declare const OperatorOwner: {
 	readonly hasShape: typeof operatorOwnerHasShape;
 	readonly is: typeof operatorOwnerIs;
 };
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface OperatorItem {
 	owner: OperatorOwner;
 	owners: OperatorOwner[];
@@ -661,6 +682,7 @@ export declare function operatorItemToString(value: OperatorItem): string;
 export declare function operatorItemClone(value: OperatorItem): OperatorItem;
 export declare function operatorItemEquals(a: OperatorItem, b: OperatorItem): boolean;
 export declare function operatorItemHashCode(value: OperatorItem): number;
+export declare function operatorItemDefaultValue(): OperatorItem;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function operatorItemEncode(value: OperatorItem, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -699,6 +721,7 @@ export declare const OperatorItem: {
 	readonly clone: typeof operatorItemClone;
 	readonly equals: typeof operatorItemEquals;
 	readonly hashCode: typeof operatorItemHashCode;
+	readonly defaultValue: typeof operatorItemDefaultValue;
 	readonly encode: typeof operatorItemEncode;
 	readonly encodeWithContext: typeof operatorItemEncodeWithContext;
 	readonly encodePartialWithContext: typeof operatorItemEncodePartialWithContext;
@@ -717,29 +740,31 @@ export declare const OperatorItem: {
 
 ## Mapping
 
-original 0..272 -> expanded 896..1168
-original 272..464 -> expanded 12463..12655
-original 464..465 -> expanded 27189..27190
+original 0..281 -> expanded 896..1177
+original 281..482 -> expanded 12703..12904
+original 482..483 -> expanded 27703..27704
 generated 0..896 <- imports
-generated 1168..1488 <- Debug
-generated 1488..1687 <- Clone
-generated 1687..1994 <- PartialEq
-generated 1994..2340 <- Hash
-generated 2340..4719 <- Encode
-generated 4719..11036 <- Decode
-generated 11036..12463 <- __convenience_const
-generated 12655..13133 <- Debug
-generated 13133..13454 <- Clone
-generated 13454..13967 <- PartialEq
-generated 13967..14660 <- Hash
-generated 14660..17443 <- Encode
-generated 17443..25791 <- Decode
-generated 25791..27189 <- __convenience_const
+generated 1177..1497 <- Debug
+generated 1497..1696 <- Clone
+generated 1696..2003 <- PartialEq
+generated 2003..2349 <- Hash
+generated 2349..2478 <- Default
+generated 2478..4857 <- Encode
+generated 4857..11174 <- Decode
+generated 11174..12703 <- __convenience_const
+generated 12904..13382 <- Debug
+generated 13382..13703 <- Clone
+generated 13703..14216 <- PartialEq
+generated 14216..14909 <- Hash
+generated 14909..15074 <- Default
+generated 15074..17857 <- Encode
+generated 17857..26205 <- Decode
+generated 26205..27703 <- __convenience_const
 
 ## Metadata
 
-interface OperatorOwner: {"body_span":{"end":273,"start":235},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":203,"start":142}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":254,"start":241},"ts_type":"string"},{"decorators":[],"key":"Named","name":"since","optional":false,"readonly":false,"span":{"end":271,"start":259},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"OperatorOwner","span":{"end":273,"start":211},"type_params":[]}
-interface OperatorItem: {"body_span":{"end":465,"start":367},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":336,"start":275}}],"fields":[{"decorators":[],"key":"Named","name":"owner","optional":false,"readonly":false,"span":{"end":394,"start":373},"ts_type":"OperatorOwner"},{"decorators":[],"key":"Named","name":"owners","optional":false,"readonly":false,"span":{"end":423,"start":399},"ts_type":"OperatorOwner[]"},{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":442,"start":428},"ts_type":"string"},{"decorators":[],"key":"Named","name":"weight","optional":true,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OperatorItem","span":{"end":465,"start":344},"type_params":[]}
+interface OperatorOwner: {"body_span":{"end":282,"start":244},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":212,"start":142}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":263,"start":250},"ts_type":"string"},{"decorators":[],"key":"Named","name":"since","optional":false,"readonly":false,"span":{"end":280,"start":268},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"OperatorOwner","span":{"end":282,"start":220},"type_params":[]}
+interface OperatorItem: {"body_span":{"end":483,"start":385},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":354,"start":284}}],"fields":[{"decorators":[],"key":"Named","name":"owner","optional":false,"readonly":false,"span":{"end":412,"start":391},"ts_type":"OperatorOwner"},{"decorators":[],"key":"Named","name":"owners","optional":false,"readonly":false,"span":{"end":441,"start":417},"ts_type":"OperatorOwner[]"},{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":460,"start":446},"ts_type":"string"},{"decorators":[],"key":"Named","name":"weight","optional":true,"readonly":false,"span":{"end":481,"start":465},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OperatorItem","span":{"end":483,"start":362},"type_params":[]}
 
 ## Registry reads
 

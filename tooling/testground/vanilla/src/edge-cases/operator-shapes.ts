@@ -6,7 +6,7 @@
 
 import type { OperatorItem } from './operator-types';
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface OperatorHolder {
     owner: OperatorItem['owner'];
     owners: OperatorItem['owners'];

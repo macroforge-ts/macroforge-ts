@@ -51,3 +51,13 @@ Deno.test('an indexed access is coded as the type it yields, from the module tha
     assertEquals(fieldsOf({ key: 'missing' }), ['key']);
     assertStrictEquals(decoded(mod.operatorHolderDecode({ ...encoded, weight: 2 })).weight, 2);
 });
+
+Deno.test('a field typed by an operator defaults as the type the operator yields', () => {
+    const value = mod.operatorHolderDefaultValue();
+    assertStrictEquals(value.owner.name, '');
+    assert(value.owner.since instanceof Date);
+    assertEquals(value.owners, []);
+    assertStrictEquals(value.label, '');
+    assertStrictEquals(value.weight, undefined);
+    assertStrictEquals(value.key, 'owner');
+});

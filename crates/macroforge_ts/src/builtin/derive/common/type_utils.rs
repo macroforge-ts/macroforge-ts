@@ -1,7 +1,7 @@
 use crate::builtin::derive::common::function_prefix;
 
 use super::value_type::rendered;
-use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
+use crate::builtin::derive::endec::{TypeCategory, TypeScope, checker_only, get_foreign_types};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::class::MemberKey;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
@@ -373,14 +373,16 @@ pub fn get_type_default_with_registry(
         return get_type_default_with_registry(&member, registry, caller_file_path, file_imports);
     }
     let resolved = resolve_generic_aliases(ts_type, registry, caller_file_path, file_imports);
-    get_type_default_resolved(
-        &resolved,
-        &Names {
-            registry,
-            file_path: caller_file_path,
-            file_imports,
-        },
-    )
+    let names = &Names {
+        registry,
+        file_path: caller_file_path,
+        file_imports,
+    };
+    // An operator that cannot be read is what `undefaultable` reports.
+    match names.scope().operators_resolved(&resolved) {
+        Ok(Some(yielded)) => get_type_default_resolved(&yielded, names),
+        Ok(None) | Err(_) => get_type_default_resolved(&resolved, names),
+    }
 }
 
 /// What resolves the names in a type whose default is being written.
@@ -391,11 +393,12 @@ struct Names<'a> {
 }
 
 impl<'a> Names<'a> {
-    fn declared(&self) -> super::Declared<'a> {
-        super::Declared {
+    fn scope(&self) -> TypeScope<'a> {
+        TypeScope {
             registry: self.registry,
             file_path: self.file_path,
             file_imports: self.file_imports,
+            type_params: &[],
         }
     }
 }
@@ -487,6 +490,25 @@ fn finite_record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<RecordKey
     }
 }
 
+/// The member a union defaults to: a primitive when it has one, else its
+/// first literal, else its first member.
+fn defaulted_member<'t>(parts: &[&'t str]) -> Option<&'t str> {
+    let is_literal = |part: &&&str| {
+        let part = part.trim();
+        ['"', '\'', '`']
+            .into_iter()
+            .any(|quote| part.starts_with(quote) && part.ends_with(quote))
+            || crate::ts_syn::abi::ir::number_literal(part).is_some()
+            || matches!(part, "true" | "false")
+    };
+    parts
+        .iter()
+        .find(|part| is_primitive_type(part))
+        .or_else(|| parts.iter().find(is_literal))
+        .or(parts.first())
+        .map(|part| part.trim())
+}
+
 fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
     let t = ungrouped(ts_type);
     // A readonly tuple or array defaults as the mutable one does.
@@ -543,27 +565,8 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
 
     // Handle union types (e.g., string | Account, "Estimate" | "Invoice")
     // Nullable unions (T | null, T | undefined) are already handled above.
-    if let Some(parts) = split_top_level_union(t) {
-        // 1. If any member is a primitive, use that primitive's default
-        for part in &parts {
-            if is_primitive_type(part) {
-                return get_type_default_resolved(part, names);
-            }
-        }
-        // 2. If any member is a literal, use the first literal
-        for part in &parts {
-            let p = part.trim();
-            if (p.starts_with('"') && p.ends_with('"'))
-                || (p.starts_with('\'') && p.ends_with('\''))
-                || (p.starts_with('`') && p.ends_with('`'))
-                || crate::ts_syn::abi::ir::number_literal(p).is_some()
-                || matches!(p, "true" | "false")
-            {
-                return get_type_default_resolved(p, names);
-            }
-        }
-        // 3. Union of only custom types: default via first member
-        return get_type_default_resolved(parts[0], names);
+    if let Some(member) = split_top_level_union(t).and_then(|parts| defaulted_member(&parts)) {
+        return get_type_default_resolved(member, names);
     }
 
     match t {
@@ -596,14 +599,25 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         "void" | "never" => "undefined".to_string(),
         "null" => "null".to_string(),
         "undefined" => "undefined".to_string(),
-        "object" => "({})".to_string(),
-        "symbol" => "Symbol()".to_string(),
+        "object" | "Object" => "({})".to_string(),
+        "symbol" | "Symbol" => "Symbol()".to_string(),
+        "String" => r#""""#.to_string(),
+        "Number" => "0".to_string(),
+        "Boolean" => "false".to_string(),
+        "BigInt" => "0n".to_string(),
         "Function" => "(() => {})".to_string(),
         // Built-in generic collection types
         t if t.starts_with("ReadonlyArray<") => "[]".to_string(),
         t if t.starts_with("WeakMap<") => "new WeakMap()".to_string(),
         t if t.starts_with("WeakSet<") => "new WeakSet()".to_string(),
-        t if t.starts_with("Promise<") => "Promise.resolve()".to_string(),
+        // A promise defaults to one already settled on its value's default.
+        t if let Some(value) = t
+            .strip_prefix("Promise<")
+            .and_then(|inner| inner.strip_suffix('>')) =>
+        {
+            let settled = get_type_default_resolved(value, names);
+            rendered(ts_template! { Promise.resolve(@{settled}) })
+        }
         // A record over a finite set of keys has each of them.
         t if t.starts_with("Record<") && t.ends_with('>') => {
             let arguments = split_top_level_commas(&t["Record<".len()..t.len() - 1]);
@@ -647,29 +661,17 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
                 None => "({})".to_string(),
             }
         }
-        // Built-in generic utility types (all produce object-like values)
-        t if crate::ts_syn::type_normalize::is_ts_object_utility_type(
-            crate::ts_syn::type_normalize::base_type_name(t),
-        ) =>
-        {
-            "({})".to_string()
-        }
-        // A generic type the registry holds deriving `Default` defaults
-        // through its own function, given the same arguments. An alias that
-        // could be written out was, by `resolve_generic_aliases`, before
-        // this, and one the registry does not hold has no function to call.
-        t if is_generic_type(t) => match parse_generic_type(t) {
-            Some((base, arguments))
-                if names
-                    .registry
-                    .resolve_in_file(base, names.file_path, names.file_imports)
-                    .is_some()
-                    && super::declared_type_has_derive(names.declared(), base, "Default") =>
-            {
+        // A `Partial` may lack every field.
+        t if t.starts_with("Partial<") && t.ends_with('>') => "({})".to_string(),
+        // A generic type defaults through its own function, given the same
+        // arguments, as a type named without any does. An alias that could
+        // be written out was, by `resolve_generic_aliases`, before this.
+        t if is_generic_type(t) && t.ends_with('>') => match parse_generic_type(t) {
+            Some((base, arguments)) => {
                 let callee = ts_ident!("{}DefaultValue", function_prefix(base));
                 rendered(ts_template! { @{callee}<@{arguments}>() })
             }
-            _ => "undefined".to_string(),
+            None => format_default_call(t),
         },
         // A template literal type defaults to its text, each hole filled.
         t if t.starts_with('`') && t.ends_with('`') => match template_default(t) {
@@ -778,6 +780,19 @@ pub fn undefaultable(ts_type: &str, declared: super::Declared<'_>) -> Option<Str
             "has type `{ts_type}`, whose `${{{hole}}}` names no text a default could hold"
         ));
     }
+    // A default is written for what an operator on a declared type yields.
+    let yielded = match names.scope().operators_resolved(ts_type) {
+        Ok(yielded) => yielded,
+        Err(unread) => return Some(format!("has a type no default can be read from: {unread}")),
+    };
+    let ts_type = yielded.as_deref().unwrap_or(ts_type);
+    if let Some((defaultless, why)) = defaultless(ts_type, names) {
+        return Some(if defaultless == ts_type {
+            format!("has type `{ts_type}`, {why}")
+        } else {
+            format!("has type `{ts_type}`, which holds `{defaultless}`, {why}")
+        });
+    }
     if !ts_type.ends_with('>') {
         return None;
     }
@@ -806,6 +821,93 @@ pub fn undefaultable(ts_type: &str, declared: super::Declared<'_>) -> Option<Str
                 )
             })
         }
+        _ => None,
+    }
+}
+
+/// The type a default of `ts_type` would have to be written from that has
+/// none, and why: `ts_type` itself, or an element or a member its default
+/// holds. A type that may be `null` or `undefined` defaults to that.
+fn defaultless(ts_type: &str, names: &Names<'_>) -> Option<(String, &'static str)> {
+    use oxc::ast::ast::Statement;
+
+    let t = ungrouped(ts_type);
+    let t = t.strip_prefix("readonly ").map_or(t, str::trim_start);
+    let has_foreign_default = TypeCategory::match_foreign_type(t, &get_foreign_types())
+        .config
+        .and_then(|ft| ft.handler_callee(crate::ts_syn::config::ForeignHandler::Default))
+        .is_some();
+    if has_foreign_default || has_union_member(t, "null") || has_union_member(t, "undefined") {
+        return None;
+    }
+    if let Some(elements) = tuple_body(t) {
+        return split_top_level_commas(elements)
+            .into_iter()
+            .filter(|source| !source.is_empty())
+            .map(tuple_element)
+            .take_while(|element| !element.rest && !element.optional)
+            .find_map(|element| defaultless(element.ts_type, names));
+    }
+    if let Some(fields) = crate::builtin::derive::endec::inline_object_fields(t) {
+        return fields
+            .iter()
+            .filter(|field| field.key == MemberKey::Named && !field.optional)
+            .find_map(|field| defaultless(&field.ts_type, names));
+    }
+    if let Some(member) = split_top_level_union(t).and_then(|parts| defaulted_member(&parts)) {
+        return defaultless(member, names);
+    }
+    // A wrapper defaults as what it wraps does, and a record over a finite
+    // set of keys holds a default of its value type under each.
+    if let Some((base, arguments)) = parse_generic_type(t).filter(|_| t.ends_with('>')) {
+        match (base, split_top_level_commas(arguments).as_slice()) {
+            ("Promise" | "Readonly" | "Required" | "NonNullable", [inner]) => {
+                let present: Vec<&str> = split_top_level_union(inner)
+                    .unwrap_or_else(|| vec![inner])
+                    .into_iter()
+                    .filter(|member| !matches!(member.trim(), "null" | "undefined"))
+                    .collect();
+                return defaultless(&present.join(" | "), names);
+            }
+            ("Record", [key_type, value_type]) => {
+                return record_keys(key_type, names).and_then(|_| defaultless(value_type, names));
+            }
+            _ => {}
+        }
+    }
+    let allocator = oxc::allocator::Allocator::default();
+    let source = format!("type __T = {t};");
+    let parsed = oxc::parser::Parser::new(&allocator, &source, oxc::span::SourceType::ts()).parse();
+    let Some(Statement::TSTypeAliasDeclaration(alias)) = parsed.program.body.first() else {
+        return None;
+    };
+    default_refusal(&alias.type_annotation).map(|why| (t.to_string(), why))
+}
+
+/// Why no default can be written for a value of `ts_type`, when none can.
+fn default_refusal(ts_type: &oxc::ast::ast::TSType<'_>) -> Option<&'static str> {
+    use oxc::ast::ast::{TSType, TSTypeName, TSTypeOperatorOperator};
+
+    if let Some(why) = checker_only(ts_type) {
+        return Some(why);
+    }
+    match ts_type {
+        TSType::TSNeverKeyword(_) => Some("a type with no value"),
+        TSType::TSIntersectionType(_) => Some("an intersection, which has no default of its own"),
+        TSType::TSTypeOperatorType(operator) => match operator.operator {
+            TSTypeOperatorOperator::Unique => Some("a symbol only its own declaration makes"),
+            TSTypeOperatorOperator::Readonly => default_refusal(&operator.type_annotation),
+            TSTypeOperatorOperator::Keyof => None,
+        },
+        TSType::TSParenthesizedType(grouped) => default_refusal(&grouped.type_annotation),
+        TSType::TSTypeReference(reference) => match &reference.type_name {
+            TSTypeName::IdentifierReference(name)
+                if matches!(name.name.as_str(), "URL" | "DataView" | "WeakRef") =>
+            {
+                Some("a built-in class with no value to default to")
+            }
+            _ => None,
+        },
         _ => None,
     }
 }

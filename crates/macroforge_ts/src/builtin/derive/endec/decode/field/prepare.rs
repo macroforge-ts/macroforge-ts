@@ -1,6 +1,6 @@
 use crate::ast::Expr;
 use crate::builtin::derive::common::{
-    Member, get_type_default_with_registry, rendered, tuple_body,
+    Declared, Member, get_type_default_with_registry, rendered, tuple_body, undefaultable,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
@@ -26,6 +26,25 @@ use crate::builtin::derive::endec::{
     EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, get_foreign_types,
 };
 
+/// Reports a field that is to take its type's default when that type has
+/// none a derive can write.
+fn report_undefaultable(
+    field: &SourceField<'_>,
+    ts_type: &str,
+    declared: Declared<'_>,
+    diagnostics: &mut DiagnosticCollector,
+) {
+    if let Some(reason) = undefaultable(ts_type, declared) {
+        diagnostics.error(
+            field.span,
+            format!(
+                "@derive(Decode): field '{}' {reason}; write its default, as in `@endec({{ default: value }})`",
+                field.name
+            ),
+        );
+    }
+}
+
 /// Converts a field into a `DecodeField`, or `None` when the field is
 /// skipped.
 ///
@@ -44,6 +63,11 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     let parse_result = EndecFieldOptions::from_decorators(field.decorators, field.name);
     diagnostics.extend(parse_result.diagnostics);
     let opts = parse_result.options;
+    let declared = Declared {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+    };
 
     let json_key = opts
         .rename
@@ -59,12 +83,15 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         }
         let default_parsed = match &opts.default_expr {
             Some(expr_src) => parse_default_expr(expr_src),
-            None => Expr::parse(&get_type_default_with_registry(
-                field.ts_type,
-                type_registry,
-                caller_file_path,
-                file_imports,
-            )),
+            None => {
+                report_undefaultable(&field, field.ts_type, declared, diagnostics);
+                Expr::parse(&get_type_default_with_registry(
+                    field.ts_type,
+                    type_registry,
+                    caller_file_path,
+                    file_imports,
+                ))
+            }
         };
         return match default_parsed {
             Ok(default_expr) => Some(never_read_field(&field, &opts, json_key, default_expr)),
@@ -337,12 +364,15 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     // an expression as it is.
     let default_parsed = match (&opts.default_expr, opts.default) {
         (Some(expr_src), _) => Some(parse_default_expr(expr_src)),
-        (None, true) => Some(Expr::parse(&get_type_default_with_registry(
-            &resolved_ts_type,
-            type_registry,
-            caller_file_path,
-            file_imports,
-        ))),
+        (None, true) => {
+            report_undefaultable(&field, &resolved_ts_type, declared, diagnostics);
+            Some(Expr::parse(&get_type_default_with_registry(
+                &resolved_ts_type,
+                type_registry,
+                caller_file_path,
+                file_imports,
+            )))
+        }
         (None, false) => None,
     };
     let default_expr = match default_parsed {

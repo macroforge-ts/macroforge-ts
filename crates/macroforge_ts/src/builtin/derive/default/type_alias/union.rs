@@ -6,7 +6,7 @@ use crate::builtin::derive::common::function_prefix;
 use crate::ast::Expr;
 use crate::builtin::derive::common::{
     DefaultFieldOptions, TypeNames, flatten_intersection_fields, get_type_default_with_registry,
-    property_key, rendered,
+    property_key, rendered, undefaultable,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::TypeMember;
@@ -184,12 +184,22 @@ pub(super) fn union_default(
         let default_expr = match default_variant {
             // A literal member is its own default; a named one, foreign types
             // and generic aliases included, takes its type's.
-            UnionDefault::Member(member) => get_type_default_with_registry(
-                &member,
-                sources.registry,
-                sources.caller_file_path,
-                sources.file_imports,
-            ),
+            UnionDefault::Member(member) => {
+                if let Some(reason) = undefaultable(&member, sources.declared()) {
+                    return Err(MacroforgeError::new(
+                        input.decorator_span(),
+                        format!(
+                            "@derive(Default) on '{type_name}': the member marked @default {reason}; mark another member, or write the default on the type with @default(value)"
+                        ),
+                    ));
+                }
+                get_type_default_with_registry(
+                    &member,
+                    sources.registry,
+                    sources.caller_file_path,
+                    sources.file_imports,
+                )
+            }
             UnionDefault::Value(value) => value,
         };
 

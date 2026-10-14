@@ -1,0 +1,131 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/default_unwritable_types.ts
+---
+## Input
+
+/** A type no default can be written for is refused, not given a placeholder. */
+/** @derive(Default) */
+export interface Holder {
+    keys: keyof Elsewhere;
+    seeded: typeof seed;
+    mode: Elsewhere['mode'];
+    self: this;
+    inline: import('./elsewhere').Named;
+    both: Named & Dated;
+    id: string & { readonly __brand: 'Id' };
+    left: Exclude<'a' | 'b', 'a'>;
+    result: ReturnType<() => string>;
+    flags: { [K in 'a' | 'b']: boolean };
+    mark: unique symbol;
+    none: never;
+    at: URL;
+    pair: [string, Promise<this>];
+    held: { at: URL };
+}
+
+/** @derive(Decode) */
+export interface Filled {
+    /** @endec({ default: true }) */
+    at: URL;
+}
+
+## Changed
+
+true
+
+## Output
+
+/** A type no default can be written for is refused, not given a placeholder. */
+
+export interface Holder {
+    keys: keyof Elsewhere;
+    seeded: typeof seed;
+    mode: Elsewhere['mode'];
+    self: this;
+    inline: import('./elsewhere').Named;
+    both: Named & Dated;
+    id: string & { readonly __brand: 'Id' };
+    left: Exclude<'a' | 'b', 'a'>;
+    result: ReturnType<() => string>;
+    flags: { [K in 'a' | 'b']: boolean };
+    mark: unique symbol;
+    none: never;
+    at: URL;
+    pair: [string, Promise<this>];
+    held: { at: URL };
+}
+
+
+export interface Filled {
+    
+    at: URL;
+}
+
+## DTS
+
+/** A type no default can be written for is refused, not given a placeholder. */
+export interface Holder {
+	keys: keyof Elsewhere;
+	seeded: typeof seed;
+	mode: Elsewhere["mode"];
+	self: this;
+	inline: import("./elsewhere").Named;
+	both: Named & Dated;
+	id: string & {
+		readonly __brand: "Id";
+	};
+	left: Exclude<"a" | "b", "a">;
+	result: ReturnType<() => string>;
+	flags: { [K in "a" | "b"]: boolean };
+	mark: unique symbol;
+	none: never;
+	at: URL;
+	pair: [string, Promise<this>];
+	held: {
+		at: URL;
+	};
+}
+export interface Filled {
+	at: URL;
+}
+
+## Diagnostics
+
+Error [136..158]: @derive(Default) on 'Holder': field 'keys' has type `keyof Elsewhere`, a `keyof` type, which only the type checker can resolve; add @default(value)
+Error [163..183]: @derive(Default) on 'Holder': field 'seeded' has type `typeof seed`, a `typeof` type, which only the type checker can resolve; add @default(value)
+Error [188..212]: @derive(Default) on 'Holder': field 'mode' has type `Elsewhere['mode']`, an indexed access type, which only the type checker can resolve; add @default(value)
+Error [217..228]: @derive(Default) on 'Holder': field 'self' has type `this`, the type of whatever value holds it, which only the type checker can resolve; add @default(value)
+Error [233..269]: @derive(Default) on 'Holder': field 'inline' has type `import('./elsewhere').Named`, a type written as an inline `import()`, which no import of the file names; add @default(value)
+Error [274..294]: @derive(Default) on 'Holder': field 'both' has type `Named & Dated`, an intersection, which has no default of its own; add @default(value)
+Error [299..339]: @derive(Default) on 'Holder': field 'id' has type `string & { readonly __brand: 'Id' }`, an intersection, which has no default of its own; add @default(value)
+Error [344..374]: @derive(Default) on 'Holder': field 'left' has type `Exclude<'a' | 'b', 'a'>`, a utility type, which only the type checker can resolve; add @default(value)
+Error [379..412]: @derive(Default) on 'Holder': field 'result' has type `ReturnType<() => string>`, a utility type, which only the type checker can resolve; add @default(value)
+Error [417..454]: @derive(Default) on 'Holder': field 'flags' has type `{ [K in 'a' | 'b']: boolean }`, a mapped type, whose members only the type checker can read; add @default(value)
+Error [459..479]: @derive(Default) on 'Holder': field 'mark' has type `unique symbol`, a symbol only its own declaration makes; add @default(value)
+Error [484..496]: @derive(Default) on 'Holder': field 'none' has type `never`, a type with no value; add @default(value)
+Error [501..509]: @derive(Default) on 'Holder': field 'at' has type `URL`, a built-in class with no value to default to; add @default(value)
+Error [514..544]: @derive(Default) on 'Holder': field 'pair' has type `[string, Promise<this>]`, which holds `this`, the type of whatever value holds it, which only the type checker can resolve; add @default(value)
+Error [549..567]: @derive(Default) on 'Holder': field 'held' has type `{ at: URL }`, which holds `URL`, a built-in class with no value to default to; add @default(value)
+Error [661..669]: @derive(Decode): field 'at' has type `URL`, a built-in class with no value to default to; write its default, as in `@endec({ default: value })`
+
+## Mapping
+
+original 0..81 -> expanded 0..81
+original 104..570 -> expanded 81..547
+original 592..623 -> expanded 547..578
+original 655..671 -> expanded 578..594
+
+## Metadata
+
+interface Holder: {"body_span":{"end":569,"start":130},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":105,"start":82}}],"fields":[{"decorators":[],"key":"Named","name":"keys","optional":false,"readonly":false,"span":{"end":158,"start":136},"ts_type":"keyof Elsewhere"},{"decorators":[],"key":"Named","name":"seeded","optional":false,"readonly":false,"span":{"end":183,"start":163},"ts_type":"typeof seed"},{"decorators":[],"key":"Named","name":"mode","optional":false,"readonly":false,"span":{"end":212,"start":188},"ts_type":"Elsewhere['mode']"},{"decorators":[],"key":"Named","name":"self","optional":false,"readonly":false,"span":{"end":228,"start":217},"ts_type":"this"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":269,"start":233},"ts_type":"import('./elsewhere').Named"},{"decorators":[],"key":"Named","name":"both","optional":false,"readonly":false,"span":{"end":294,"start":274},"ts_type":"Named & Dated"},{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":339,"start":299},"ts_type":"string & { readonly __brand: 'Id' }"},{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":374,"start":344},"ts_type":"Exclude<'a' | 'b', 'a'>"},{"decorators":[],"key":"Named","name":"result","optional":false,"readonly":false,"span":{"end":412,"start":379},"ts_type":"ReturnType<() => string>"},{"decorators":[],"key":"Named","name":"flags","optional":false,"readonly":false,"span":{"end":454,"start":417},"ts_type":"{ [K in 'a' | 'b']: boolean }"},{"decorators":[],"key":"Named","name":"mark","optional":false,"readonly":false,"span":{"end":479,"start":459},"ts_type":"unique symbol"},{"decorators":[],"key":"Named","name":"none","optional":false,"readonly":false,"span":{"end":496,"start":484},"ts_type":"never"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":509,"start":501},"ts_type":"URL"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":544,"start":514},"ts_type":"[string, Promise<this>]"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":567,"start":549},"ts_type":"{ at: URL }"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":569,"start":113},"type_params":[]}
+interface Filled: {"body_span":{"end":671,"start":618},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":593,"start":571}}],"fields":[{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":656,"start":624}}],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":669,"start":661},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Filled","span":{"end":671,"start":601},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
