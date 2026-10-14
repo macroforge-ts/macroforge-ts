@@ -252,6 +252,7 @@ static is(obj: unknown): obj is ClassTagged {
     if (!ClassTagged.hasShape(obj)) {
         return false;
     }
+
     const result = ClassTagged.decode(obj);
     return result.success;
 }
@@ -383,16 +384,16 @@ export declare function classTaggedIs(value: unknown): value is ClassTagged;
 ## Mapping
 
 original 0..386 -> expanded 762..1148
-original 386..387 -> expanded 10518..10519
-original 387..388 -> expanded 13815..13816
+original 386..387 -> expanded 10519..10520
+original 387..388 -> expanded 13816..13817
 generated 0..762 <- imports
 generated 1148..1421 <- Default
 generated 1421..3573 <- Encode
 generated 3573..3902 <- Encode
-generated 3902..10518 <- Decode
-generated 10519..10618 <- Default
-generated 10618..11988 <- Encode
-generated 11988..13815 <- Decode
+generated 3902..10519 <- Decode
+generated 10520..10619 <- Default
+generated 10619..11989 <- Encode
+generated 11989..13816 <- Decode
 
 ## Metadata
 

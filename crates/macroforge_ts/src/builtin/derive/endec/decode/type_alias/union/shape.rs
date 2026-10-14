@@ -9,6 +9,9 @@ use crate::builtin::derive::common::function_prefix;
 use crate::builtin::derive::common::js_string;
 use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
 use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
+use crate::builtin::derive::endec::type_arguments::{
+    declared_param_guards, guarded_param_decoders,
+};
 
 /// True when a value has the shape of some member.
 pub(super) fn has_shape(u: &Union) -> TsStream {
@@ -228,23 +231,28 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
 }
 
 /// Narrows to the union: the shape check, and a decode as well when an arm
-/// carries validators.
+/// carries validators or the union has type parameters, whose values the
+/// guards handed in for them check.
 pub(super) fn is_guard(u: &Union) -> TsStream {
     let Union {
         has_arm_validators,
         type_name,
         generic_decl,
         full_type_ident,
+        param_names,
         ..
     } = u;
     let camel = function_prefix(type_name);
     let fn_is_ident = ts_ident!("{}Is{}", camel, generic_decl);
     let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", camel).into();
     let fn_decode_expr: Expr = ts_ident!("{}Decode", camel).into();
+    let guards = declared_param_guards(param_names);
+    let guarded = guarded_param_decoders(param_names);
+    let decodes = *has_arm_validators || !param_names.is_empty();
     ts_template! {
-        export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
-            {#if *has_arm_validators}
-                return @{fn_has_shape_expr}(value) && @{fn_decode_expr}(value).success;
+        export function @{fn_is_ident}(value: unknown@{&guards}): value is @{full_type_ident} {
+            {#if decodes}
+                return @{fn_has_shape_expr}(value) && @{fn_decode_expr}(value@{&guarded}).success;
             {:else}
                 return @{fn_has_shape_expr}(value);
             {/if}

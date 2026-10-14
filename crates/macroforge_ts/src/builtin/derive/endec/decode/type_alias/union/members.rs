@@ -77,6 +77,8 @@ pub(super) struct Union<'a> {
     pub(super) decode_options_ident: Ident,
     pub(super) generic_decl: &'a str,
     pub(super) generic_args: &'a str,
+    /// The names of the alias's type parameters.
+    pub(super) param_names: Vec<String>,
     pub(super) coders: &'a str,
     pub(super) passed_coders: &'a str,
     pub(super) full_type_name: &'a str,
@@ -499,6 +501,7 @@ impl<'a> Union<'a> {
                 .join(" || ")
         };
         Ok(Self {
+            param_names: type_param_names.clone(),
             type_name,
             decode_context_ident: alias.decode_context_ident.clone(),
             decode_context_expr: alias.decode_context_expr.clone(),

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralClone as __mf_structuralClone, structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, instanceOf as __mf_instanceOf, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, notTheMember as __mf_notTheMember, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, holdsAll as __mf_holdsAll, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, notTheMember as __mf_notTheMember, guardedDecoder as __mf_guardedDecoder, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * PartialEq, Hash and Clone over built-in, collection, optional, union and
@@ -470,6 +470,7 @@ static is(obj: unknown): obj is Ledger {
     if (!Ledger.hasShape(obj)) {
         return false;
     }
+
     const result = Ledger.decode(obj);
     return result.success;
 }
@@ -1457,8 +1458,8 @@ export function labeledHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["label", "weight"]);
 }
 
-export function labeledIs<T extends string = string>(obj: unknown): obj is Labeled<T> {
-    return labeledHasShape(obj) && labeledDecode(obj).success;
+export function labeledIs<T extends string = string>(obj: unknown, __isT: (value: unknown) => value is T): obj is Labeled<T> {
+    return labeledHasShape(obj) && labeledDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const Labeled: {
@@ -1781,8 +1782,8 @@ export function keyedHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["key", "rank"]);
 }
 
-export function keyedIs<K extends string>(obj: unknown): obj is Keyed<K> {
-    return keyedHasShape(obj) && keyedDecode(obj).success;
+export function keyedIs<K extends string>(obj: unknown, __isK: (value: unknown) => value is K): obj is Keyed<K> {
+    return keyedHasShape(obj) && keyedDecode(obj, undefined, __mf_guardedDecoder(__isK, "K")).success;
 }
 
 export const Keyed: {
@@ -2102,14 +2103,12 @@ static hasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["held", "index"]);
 }
 
-static is<T extends object>(obj: unknown): obj is Slot<T> {
-    if (obj instanceof Slot) {
-        return true;
-    }
+static is<T extends object>(obj: unknown, __isT: (value: unknown) => value is T): obj is Slot<T> {
     if (!Slot.hasShape(obj)) {
         return false;
     }
-    const result = Slot.decode(obj);
+
+    const result = Slot.decode<T>(obj, undefined, __mf_guardedDecoder(__isT, "T"));
     return result.success;
 }
 }
@@ -2175,8 +2174,8 @@ export function slotDecodePartialWithContext<T extends object>(value: unknown, c
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export function slotIs<T extends object>(value: unknown): value is Slot<T> {
-    return Slot.is<T>(value);
+export function slotIs<T extends object>(value: unknown, __isT: (value: unknown) => value is T): value is Slot<T> {
+    return Slot.is<T>(value, __isT);
 }
 
 /** @derive(Encode, Decode) */
@@ -2256,8 +2255,8 @@ export function countedDecode<T extends object>(input: unknown, opts?: __mf_Deco
     }
 }
 
-export function countedIs<T extends object>(value: unknown): value is Counted<T> {
-    return countedHasShape(value);
+export function countedIs<T extends object>(value: unknown, __isT: (value: unknown) => value is T): value is Counted<T> {
+    return countedHasShape(value) && countedDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Counted<T> {
@@ -2463,8 +2462,8 @@ export function codeDecodeWithContext<T extends string>(value: unknown, ctx: __m
 export function codeHasShape(_value: unknown): boolean {
                 return true;
 }
-export function codeIs<T extends string>(value: unknown): value is Code<T> {
-    return codeHasShape(value);
+export function codeIs<T extends string>(value: unknown, __isT: (value: unknown) => value is T): value is Code<T> {
+    return codeHasShape(value) && codeDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const Code: {
@@ -2544,8 +2543,8 @@ export function boxedDecode<T extends object>(input: unknown, opts?: __mf_Decode
     }
 }
 
-export function boxedIs<T extends object>(value: unknown): value is Boxed<T> {
-    return boxedHasShape(value);
+export function boxedIs<T extends object>(value: unknown, __isT: (value: unknown) => value is T): value is Boxed<T> {
+    return boxedHasShape(value) && boxedDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Boxed<T> {
@@ -2983,7 +2982,7 @@ export declare function labeledValidateFields<T extends string = string>(partial
 	message: string;
 }>;
 export declare function labeledHasShape(obj: unknown): boolean;
-export declare function labeledIs<T extends string = string>(obj: unknown): obj is Labeled<T>;
+export declare function labeledIs<T extends string = string>(obj: unknown, __isT: (value: unknown) => value is T): obj is Labeled<T>;
 export declare const Labeled: {
 	readonly equals: typeof labeledEquals;
 	readonly hashCode: typeof labeledHashCode;
@@ -3052,7 +3051,7 @@ export declare function keyedValidateFields<K extends string>(partial: { readonl
 	message: string;
 }>;
 export declare function keyedHasShape(obj: unknown): boolean;
-export declare function keyedIs<K extends string>(obj: unknown): obj is Keyed<K>;
+export declare function keyedIs<K extends string>(obj: unknown, __isK: (value: unknown) => value is K): obj is Keyed<K>;
 export declare const Keyed: {
 	readonly equals: typeof keyedEquals;
 	readonly hashCode: typeof keyedHashCode;
@@ -3119,7 +3118,7 @@ export declare class Slot<T extends object> {
 		message: string;
 	}>;
 	static hasShape(obj: unknown): boolean;
-	static is<T extends object>(obj: unknown): obj is Slot<T>;
+	static is<T extends object>(obj: unknown, __isT: (value: unknown) => value is T): obj is Slot<T>;
 }
 export declare function slotEquals<T extends object>(a: Slot<T>, b: Slot<T>): boolean;
 export declare function slotHashCode<T extends object>(value: Slot<T>): number;
@@ -3151,7 +3150,7 @@ export declare function slotHasShape(value: unknown): boolean;
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
 export declare function slotDecodePartialWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __decodeT?: __mf_Decoder<T>): Partial<Slot<T>> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export declare function slotIs<T extends object>(value: unknown): value is Slot<T>;
+export declare function slotIs<T extends object>(value: unknown, __isT: (value: unknown) => value is T): value is Slot<T>;
 /** @derive(Encode, Decode) */
 export type Counted<T extends object> = [T, number];
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -3169,7 +3168,7 @@ export declare function countedDecode<T extends object>(input: unknown, opts?: _
 		message: string;
 	}>;
 };
-export declare function countedIs<T extends object>(value: unknown): value is Counted<T>;
+export declare function countedIs<T extends object>(value: unknown, __isT: (value: unknown) => value is T): value is Counted<T>;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Counted<T>;
 export declare function countedHasShape(value: unknown): boolean;
@@ -3201,7 +3200,7 @@ export declare function codeDecode<T extends string>(input: unknown, opts?: __mf
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Code<T> | __mf_PendingRef;
 export declare function codeHasShape(_value: unknown): boolean;
-export declare function codeIs<T extends string>(value: unknown): value is Code<T>;
+export declare function codeIs<T extends string>(value: unknown, __isT: (value: unknown) => value is T): value is Code<T>;
 export declare const Code: {
 	readonly encode: typeof codeEncode;
 	readonly encodeWithContext: typeof codeEncodeWithContext;
@@ -3227,7 +3226,7 @@ export declare function boxedDecode<T extends object>(input: unknown, opts?: __m
 		message: string;
 	}>;
 };
-export declare function boxedIs<T extends object>(value: unknown): value is Boxed<T>;
+export declare function boxedIs<T extends object>(value: unknown, __isT: (value: unknown) => value is T): value is Boxed<T>;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Boxed<T>;
 export declare function boxedHasShape(value: unknown): boolean;
@@ -3246,142 +3245,142 @@ export declare const Boxed: {
 
 ## Mapping
 
-original 0..349 -> expanded 1462..1811
-original 349..435 -> expanded 4546..4632
-original 435..436 -> expanded 5233..5234
-original 436..547 -> expanded 5502..5613
-original 547..698 -> expanded 6849..7000
-original 698..786 -> expanded 7542..7630
-original 786..867 -> expanded 8527..8608
-original 867..1002 -> expanded 9180..9315
-original 1002..1074 -> expanded 9817..9889
-original 1074..1175 -> expanded 10110..10211
-original 1175..1176 -> expanded 18039..18040
-original 1176..1251 -> expanded 21112..21187
-original 1251..1316 -> expanded 28395..28460
-original 1316..1390 -> expanded 32951..33025
-original 1390..1458 -> expanded 37748..37816
-original 1458..1529 -> expanded 39775..39846
-original 1529..1696 -> expanded 41395..41562
-original 1696..1791 -> expanded 44255..44350
-original 1791..1792 -> expanded 44568..44569
-original 1792..1928 -> expanded 44659..44795
-original 1928..2064 -> expanded 46880..47016
-original 2064..2217 -> expanded 47637..47790
-original 2217..2303 -> expanded 60551..60637
-original 2303..2304 -> expanded 60832..60833
-original 2304..2463 -> expanded 60938..61097
-original 2463..2636 -> expanded 74567..74740
-original 2636..2637 -> expanded 86800..86801
-original 2637..2722 -> expanded 90936..91021
-original 2722..2803 -> expanded 97855..97936
-original 2803..2883 -> expanded 102336..102416
-original 2883..2884 -> expanded 107262..107263
-generated 0..1462 <- imports
-generated 1811..3035 <- PartialEq
-generated 3035..3797 <- Hash
-generated 3797..4304 <- Clone
-generated 4304..4546 <- __convenience_const
-generated 4632..4828 <- PartialEq
-generated 4828..5115 <- Hash
-generated 5115..5233 <- Clone
-generated 5234..5327 <- PartialEq
-generated 5327..5418 <- Hash
-generated 5418..5502 <- Clone
-generated 5613..6057 <- PartialEq
-generated 6057..6409 <- Hash
-generated 6409..6635 <- Clone
-generated 6635..6849 <- __convenience_const
-generated 7000..7132 <- PartialEq
-generated 7132..7228 <- Hash
-generated 7228..7321 <- Clone
-generated 7321..7542 <- __convenience_const
-generated 7630..7920 <- PartialEq
-generated 7920..8190 <- Hash
-generated 8190..8299 <- Clone
-generated 8299..8527 <- __convenience_const
-generated 8608..8746 <- PartialEq
-generated 8746..8846 <- Hash
-generated 8846..8945 <- Clone
-generated 8945..9180 <- __convenience_const
-generated 9315..9704 <- Debug
-generated 9704..9817 <- __convenience_const
-generated 9889..10006 <- Debug
-generated 10006..10110 <- __convenience_const
-generated 10211..11776 <- Encode
-generated 11776..12095 <- Encode
-generated 12095..18039 <- Decode
-generated 18040..19360 <- Encode
-generated 19360..21112 <- Decode
-generated 21187..22589 <- Encode
-generated 22589..27847 <- Decode
-generated 27847..28395 <- __convenience_const
-generated 28460..29416 <- Encode
-generated 29416..32403 <- Decode
-generated 32403..32951 <- __convenience_const
-generated 33025..34039 <- Encode
-generated 34039..37252 <- Decode
-generated 37252..37748 <- __convenience_const
-generated 37816..39541 <- Encode
-generated 39541..39775 <- __convenience_const
-generated 39846..41161 <- Encode
-generated 41161..41395 <- __convenience_const
-generated 41562..44056 <- Encode
-generated 44056..44255 <- __convenience_const
-generated 44350..44568 <- Default
-generated 44569..44659 <- Default
-generated 44795..45256 <- PartialEq
-generated 45256..45954 <- PartialOrd
-generated 45954..46634 <- Ord
-generated 46634..46880 <- __convenience_const
-generated 47016..47151 <- PartialEq
-generated 47151..47271 <- PartialOrd
-generated 47271..47377 <- Ord
-generated 47377..47637 <- __convenience_const
-generated 47790..48173 <- PartialEq
-generated 48173..48601 <- Hash
-generated 48601..48818 <- Clone
-generated 48818..49168 <- Debug
-generated 49168..51986 <- Encode
-generated 51986..59298 <- Decode
-generated 59298..60551 <- __convenience_const
-generated 60637..60832 <- Default
-generated 60833..60938 <- Default
-generated 61097..61449 <- PartialEq
-generated 61449..61856 <- Hash
-generated 61856..62048 <- Clone
-generated 62048..62375 <- Debug
-generated 62375..62880 <- PartialOrd
-generated 62880..63371 <- Ord
-generated 63371..66105 <- Encode
-generated 66105..73212 <- Decode
-generated 73212..74567 <- __convenience_const
-generated 74740..75140 <- PartialEq
-generated 75140..75568 <- Hash
-generated 75568..75774 <- Clone
-generated 75774..76121 <- Debug
-generated 76121..76674 <- PartialOrd
-generated 76674..77213 <- Ord
-generated 77213..79342 <- Encode
-generated 79342..79718 <- Encode
-generated 79718..86800 <- Decode
-generated 86801..86917 <- PartialEq
-generated 86917..87029 <- Hash
-generated 87029..87136 <- Clone
-generated 87136..87248 <- Debug
-generated 87248..87386 <- PartialOrd
-generated 87386..87503 <- Ord
-generated 87503..88995 <- Encode
-generated 88995..90936 <- Decode
-generated 91021..92504 <- Encode
-generated 92504..97346 <- Decode
-generated 97346..97855 <- __convenience_const
-generated 97936..99322 <- Encode
-generated 99322..101866 <- Decode
-generated 101866..102336 <- __convenience_const
-generated 102416..103510 <- Encode
-generated 103510..106779 <- Decode
-generated 106779..107262 <- __convenience_const
+original 0..349 -> expanded 1501..1850
+original 349..435 -> expanded 4585..4671
+original 435..436 -> expanded 5272..5273
+original 436..547 -> expanded 5541..5652
+original 547..698 -> expanded 6888..7039
+original 698..786 -> expanded 7581..7669
+original 786..867 -> expanded 8566..8647
+original 867..1002 -> expanded 9219..9354
+original 1002..1074 -> expanded 9856..9928
+original 1074..1175 -> expanded 10149..10250
+original 1175..1176 -> expanded 18079..18080
+original 1176..1251 -> expanded 21152..21227
+original 1251..1316 -> expanded 28435..28500
+original 1316..1390 -> expanded 32991..33065
+original 1390..1458 -> expanded 37788..37856
+original 1458..1529 -> expanded 39815..39886
+original 1529..1696 -> expanded 41435..41602
+original 1696..1791 -> expanded 44295..44390
+original 1791..1792 -> expanded 44608..44609
+original 1792..1928 -> expanded 44699..44835
+original 1928..2064 -> expanded 46920..47056
+original 2064..2217 -> expanded 47677..47830
+original 2217..2303 -> expanded 60674..60760
+original 2303..2304 -> expanded 60955..60956
+original 2304..2463 -> expanded 61061..61220
+original 2463..2636 -> expanded 74773..74946
+original 2636..2637 -> expanded 87035..87036
+original 2637..2722 -> expanded 91217..91302
+original 2722..2803 -> expanded 98251..98332
+original 2803..2883 -> expanded 102844..102924
+original 2883..2884 -> expanded 107883..107884
+generated 0..1501 <- imports
+generated 1850..3074 <- PartialEq
+generated 3074..3836 <- Hash
+generated 3836..4343 <- Clone
+generated 4343..4585 <- __convenience_const
+generated 4671..4867 <- PartialEq
+generated 4867..5154 <- Hash
+generated 5154..5272 <- Clone
+generated 5273..5366 <- PartialEq
+generated 5366..5457 <- Hash
+generated 5457..5541 <- Clone
+generated 5652..6096 <- PartialEq
+generated 6096..6448 <- Hash
+generated 6448..6674 <- Clone
+generated 6674..6888 <- __convenience_const
+generated 7039..7171 <- PartialEq
+generated 7171..7267 <- Hash
+generated 7267..7360 <- Clone
+generated 7360..7581 <- __convenience_const
+generated 7669..7959 <- PartialEq
+generated 7959..8229 <- Hash
+generated 8229..8338 <- Clone
+generated 8338..8566 <- __convenience_const
+generated 8647..8785 <- PartialEq
+generated 8785..8885 <- Hash
+generated 8885..8984 <- Clone
+generated 8984..9219 <- __convenience_const
+generated 9354..9743 <- Debug
+generated 9743..9856 <- __convenience_const
+generated 9928..10045 <- Debug
+generated 10045..10149 <- __convenience_const
+generated 10250..11815 <- Encode
+generated 11815..12134 <- Encode
+generated 12134..18079 <- Decode
+generated 18080..19400 <- Encode
+generated 19400..21152 <- Decode
+generated 21227..22629 <- Encode
+generated 22629..27887 <- Decode
+generated 27887..28435 <- __convenience_const
+generated 28500..29456 <- Encode
+generated 29456..32443 <- Decode
+generated 32443..32991 <- __convenience_const
+generated 33065..34079 <- Encode
+generated 34079..37292 <- Decode
+generated 37292..37788 <- __convenience_const
+generated 37856..39581 <- Encode
+generated 39581..39815 <- __convenience_const
+generated 39886..41201 <- Encode
+generated 41201..41435 <- __convenience_const
+generated 41602..44096 <- Encode
+generated 44096..44295 <- __convenience_const
+generated 44390..44608 <- Default
+generated 44609..44699 <- Default
+generated 44835..45296 <- PartialEq
+generated 45296..45994 <- PartialOrd
+generated 45994..46674 <- Ord
+generated 46674..46920 <- __convenience_const
+generated 47056..47191 <- PartialEq
+generated 47191..47311 <- PartialOrd
+generated 47311..47417 <- Ord
+generated 47417..47677 <- __convenience_const
+generated 47830..48213 <- PartialEq
+generated 48213..48641 <- Hash
+generated 48641..48858 <- Clone
+generated 48858..49208 <- Debug
+generated 49208..52026 <- Encode
+generated 52026..59421 <- Decode
+generated 59421..60674 <- __convenience_const
+generated 60760..60955 <- Default
+generated 60956..61061 <- Default
+generated 61220..61572 <- PartialEq
+generated 61572..61979 <- Hash
+generated 61979..62171 <- Clone
+generated 62171..62498 <- Debug
+generated 62498..63003 <- PartialOrd
+generated 63003..63494 <- Ord
+generated 63494..66228 <- Encode
+generated 66228..73418 <- Decode
+generated 73418..74773 <- __convenience_const
+generated 74946..75346 <- PartialEq
+generated 75346..75774 <- Hash
+generated 75774..75980 <- Clone
+generated 75980..76327 <- Debug
+generated 76327..76880 <- PartialOrd
+generated 76880..77419 <- Ord
+generated 77419..79548 <- Encode
+generated 79548..79924 <- Encode
+generated 79924..87035 <- Decode
+generated 87036..87152 <- PartialEq
+generated 87152..87264 <- Hash
+generated 87264..87371 <- Clone
+generated 87371..87483 <- Debug
+generated 87483..87621 <- PartialOrd
+generated 87621..87738 <- Ord
+generated 87738..89230 <- Encode
+generated 89230..91217 <- Decode
+generated 91302..92785 <- Encode
+generated 92785..97742 <- Decode
+generated 97742..98251 <- __convenience_const
+generated 98332..99718 <- Encode
+generated 99718..102374 <- Decode
+generated 102374..102844 <- __convenience_const
+generated 102924..104018 <- Encode
+generated 104018..107400 <- Decode
+generated 107400..107883 <- __convenience_const
 
 ## Metadata
 

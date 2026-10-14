@@ -183,6 +183,7 @@ static is(obj: unknown): obj is MultipleValidatorsTest {
     if (!MultipleValidatorsTest.hasShape(obj)) {
         return false;
     }
+
     const result = MultipleValidatorsTest.decode(obj);
     return result.success;
 }
@@ -372,6 +373,7 @@ static is(obj: unknown): obj is CustomMessageTest {
     if (!CustomMessageTest.hasShape(obj)) {
         return false;
     }
+
     const result = CustomMessageTest.decode(obj);
     return result.success;
 }
@@ -564,6 +566,7 @@ static is(obj: unknown): obj is MixedValidatorsTest {
     if (!MixedValidatorsTest.hasShape(obj)) {
         return false;
     }
+
     const result = MixedValidatorsTest.decode(obj);
     return result.success;
 }
@@ -759,6 +762,7 @@ static is(obj: unknown): obj is CombinedStringValidatorsTest {
     if (!CombinedStringValidatorsTest.hasShape(obj)) {
         return false;
     }
+
     const result = CombinedStringValidatorsTest.decode(obj);
     return result.success;
 }
@@ -954,6 +958,7 @@ static is(obj: unknown): obj is CombinedNumberValidatorsTest {
     if (!CombinedNumberValidatorsTest.hasShape(obj)) {
         return false;
     }
+
     const result = CombinedNumberValidatorsTest.decode(obj);
     return result.success;
 }
@@ -1257,27 +1262,27 @@ export declare function combinedNumberValidatorsTestIs(value: unknown): value is
 ## Mapping
 
 original 0..274 -> expanded 439..713
-original 274..275 -> expanded 8103..8104
-original 275..480 -> expanded 10096..10301
-original 480..481 -> expanded 16777..16778
-original 481..702 -> expanded 18695..18916
-original 702..703 -> expanded 25799..25800
-original 703..904 -> expanded 27747..27948
-original 904..905 -> expanded 35813..35814
-original 905..1094 -> expanded 37896..38085
-original 1094..1095 -> expanded 45717..45718
-original 1095..1096 -> expanded 47800..47801
+original 274..275 -> expanded 8104..8105
+original 275..480 -> expanded 10097..10302
+original 480..481 -> expanded 16779..16780
+original 481..702 -> expanded 18697..18918
+original 702..703 -> expanded 25802..25803
+original 703..904 -> expanded 27750..27951
+original 904..905 -> expanded 35817..35818
+original 905..1094 -> expanded 37900..38089
+original 1094..1095 -> expanded 45722..45723
+original 1095..1096 -> expanded 47805..47806
 generated 0..439 <- imports
-generated 713..8103 <- Decode
-generated 8104..10096 <- Decode
-generated 10301..16777 <- Decode
-generated 16778..18695 <- Decode
-generated 18916..25799 <- Decode
-generated 25800..27747 <- Decode
-generated 27948..35813 <- Decode
-generated 35814..37896 <- Decode
-generated 38085..45717 <- Decode
-generated 45718..47800 <- Decode
+generated 713..8104 <- Decode
+generated 8105..10097 <- Decode
+generated 10302..16779 <- Decode
+generated 16780..18697 <- Decode
+generated 18918..25802 <- Decode
+generated 25803..27750 <- Decode
+generated 27951..35817 <- Decode
+generated 35818..37900 <- Decode
+generated 38089..45722 <- Decode
+generated 45723..47805 <- Decode
 
 ## Metadata
 

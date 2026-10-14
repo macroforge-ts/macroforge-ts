@@ -266,6 +266,7 @@ static is(obj: unknown): obj is Tagged {
     if (!Tagged.hasShape(obj)) {
         return false;
     }
+
     const result = Tagged.decode(obj);
     return result.success;
 }
@@ -398,16 +399,16 @@ original 120..161 -> expanded 843..884
 original 179..214 -> expanded 884..919
 original 248..298 -> expanded 919..969
 original 327..405 -> expanded 969..1047
-original 405..406 -> expanded 10464..10465
-original 406..407 -> expanded 13621..13622
+original 405..406 -> expanded 10465..10466
+original 406..407 -> expanded 13622..13623
 generated 0..762 <- imports
 generated 1047..1347 <- Default
 generated 1347..3454 <- Encode
 generated 3454..3773 <- Encode
-generated 3773..10464 <- Decode
-generated 10465..10549 <- Default
-generated 10549..11869 <- Encode
-generated 11869..13621 <- Decode
+generated 3773..10465 <- Decode
+generated 10466..10550 <- Default
+generated 10550..11870 <- Encode
+generated 11870..13622 <- Decode
 
 ## Metadata
 

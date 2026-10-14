@@ -320,6 +320,7 @@ static is(obj: unknown): obj is UserRegistrationForm {
     if (!UserRegistrationForm.hasShape(obj)) {
         return false;
     }
+
     const result = UserRegistrationForm.decode(obj);
     return result.success;
 }
@@ -661,6 +662,7 @@ static is(obj: unknown): obj is ProductForm {
     if (!ProductForm.hasShape(obj)) {
         return false;
     }
+
     const result = ProductForm.decode(obj);
     return result.success;
 }
@@ -958,6 +960,7 @@ static is(obj: unknown): obj is EventForm {
     if (!EventForm.hasShape(obj)) {
         return false;
     }
+
     const result = EventForm.decode(obj);
     return result.success;
 }
@@ -1234,30 +1237,30 @@ original 392..420 -> expanded 777..805
 original 529..557 -> expanded 805..833
 original 613..636 -> expanded 833..856
 original 672..694 -> expanded 856..878
-original 694..695 -> expanded 17094..17095
-original 695..697 -> expanded 19057..19059
-original 719..751 -> expanded 19059..19091
-original 810..834 -> expanded 19091..19115
-original 896..921 -> expanded 19115..19140
-original 972..1000 -> expanded 19140..19168
-original 1059..1090 -> expanded 19168..19199
-original 1127..1145 -> expanded 19199..19217
-original 1145..1146 -> expanded 34713..34714
-original 1146..1148 -> expanded 36541..36543
-original 1170..1200 -> expanded 36543..36573
-original 1252..1277 -> expanded 36573..36598
-original 1354..1381 -> expanded 36598..36625
-original 1423..1448 -> expanded 36625..36650
-original 1504..1531 -> expanded 36650..36677
-original 1531..1532 -> expanded 50218..50219
-original 1532..2731 -> expanded 52016..53215
+original 694..695 -> expanded 17095..17096
+original 695..697 -> expanded 19058..19060
+original 719..751 -> expanded 19060..19092
+original 810..834 -> expanded 19092..19116
+original 896..921 -> expanded 19116..19141
+original 972..1000 -> expanded 19141..19169
+original 1059..1090 -> expanded 19169..19200
+original 1127..1145 -> expanded 19200..19218
+original 1145..1146 -> expanded 34715..34716
+original 1146..1148 -> expanded 36543..36545
+original 1170..1200 -> expanded 36545..36575
+original 1252..1277 -> expanded 36575..36600
+original 1354..1381 -> expanded 36600..36627
+original 1423..1448 -> expanded 36627..36652
+original 1504..1531 -> expanded 36652..36679
+original 1531..1532 -> expanded 50221..50222
+original 1532..2731 -> expanded 52019..53218
 generated 0..507 <- imports
-generated 878..17094 <- Decode
-generated 17095..19057 <- Decode
-generated 19217..34713 <- Decode
-generated 34714..36541 <- Decode
-generated 36677..50218 <- Decode
-generated 50219..52016 <- Decode
+generated 878..17095 <- Decode
+generated 17096..19058 <- Decode
+generated 19218..34715 <- Decode
+generated 34716..36543 <- Decode
+generated 36679..50221 <- Decode
+generated 50222..52019 <- Decode
 
 ## Metadata
 

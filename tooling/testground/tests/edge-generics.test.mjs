@@ -409,3 +409,31 @@ Deno.test('a type argument left to its default is coded and checked as that defa
     assertEquals(fieldsOf('counted', { many: ['two'] }), ['counted.many[0]']);
     assertEquals(fieldsOf('explicit', { many: [1] }), ['explicit.many[0]']);
 });
+
+Deno.test('a generic type is what the guards handed in say of each value of its parameters', () => {
+    const isNumber = (value) => typeof value === 'number';
+    const isText = (value) => typeof value === 'string';
+    assert(mod.genericMaybeIs(5, isNumber));
+    assert(mod.genericMaybeIs(null, isNumber));
+    assert(!mod.genericMaybeIs('x', isNumber));
+    assert(mod.genericListIs([1, 2], isNumber));
+    assert(!mod.genericListIs([1, 'x'], isNumber));
+
+    const box = (held) => ({
+        held,
+        list: [held],
+        maybe: null,
+        byName: { a: held },
+        set: [held],
+        record: { a: held },
+        pair: [held, held]
+    });
+    assert(mod.genericBoxIs(box(1), isNumber));
+    assert(!mod.genericBoxIs(box('x'), isNumber));
+    assert(!mod.genericBoxIs({ ...box(1), pair: [1, 'x'] }, isNumber));
+
+    assert(mod.genericResultIs({ ok: true, value: 1 }, isNumber, isText));
+    assert(!mod.genericResultIs({ ok: false, failure: 1 }, isNumber, isText));
+    assert(mod.genericStackIs({ items: [1], top: 1, depth: 1 }, isNumber));
+    assert(!mod.genericStackIs({ items: ['x'], top: null, depth: 1 }, isNumber));
+});

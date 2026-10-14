@@ -267,6 +267,7 @@ static is(obj: unknown): obj is Settings {
     if (!Settings.hasShape(obj)) {
         return false;
     }
+
     const result = Settings.decode(obj);
     return result.success;
 }
@@ -540,6 +541,7 @@ static is(obj: unknown): obj is Counter {
     if (!Counter.hasShape(obj)) {
         return false;
     }
+
     const result = Counter.decode(obj);
     return result.success;
 }
@@ -782,38 +784,38 @@ export declare function counterDefaultValue(): Counter;
 ## Mapping
 
 original 0..396 -> expanded 1007..1403
-original 396..397 -> expanded 11315..11316
-original 397..579 -> expanded 13188..13370
-original 579..580 -> expanded 13643..13644
-original 580..752 -> expanded 13731..13903
-original 752..753 -> expanded 22783..22784
-original 753..754 -> expanded 26580..26581
+original 396..397 -> expanded 11316..11317
+original 397..579 -> expanded 13189..13371
+original 579..580 -> expanded 13644..13645
+original 580..752 -> expanded 13732..13904
+original 752..753 -> expanded 22785..22786
+original 753..754 -> expanded 26582..26583
 generated 0..1007 <- imports
 generated 1403..1769 <- Default
-generated 1769..11315 <- Decode
-generated 11316..11406 <- Default
-generated 11406..13188 <- Decode
-generated 13370..13643 <- Default
-generated 13644..13731 <- Default
-generated 13903..14170 <- Debug
-generated 14170..14292 <- Clone
-generated 14292..14538 <- PartialEq
-generated 14538..14880 <- Hash
-generated 14880..15192 <- PartialOrd
-generated 15192..15490 <- Ord
-generated 15490..17026 <- Encode
-generated 17026..17347 <- Encode
-generated 17347..22603 <- Decode
-generated 22603..22783 <- Default
-generated 22784..22881 <- Debug
-generated 22881..22973 <- Clone
-generated 22973..23074 <- PartialEq
-generated 23074..23171 <- Hash
-generated 23171..23294 <- PartialOrd
-generated 23294..23396 <- Ord
-generated 23396..24726 <- Encode
-generated 24726..26493 <- Decode
-generated 26493..26580 <- Default
+generated 1769..11316 <- Decode
+generated 11317..11407 <- Default
+generated 11407..13189 <- Decode
+generated 13371..13644 <- Default
+generated 13645..13732 <- Default
+generated 13904..14171 <- Debug
+generated 14171..14293 <- Clone
+generated 14293..14539 <- PartialEq
+generated 14539..14881 <- Hash
+generated 14881..15193 <- PartialOrd
+generated 15193..15491 <- Ord
+generated 15491..17027 <- Encode
+generated 17027..17348 <- Encode
+generated 17348..22605 <- Decode
+generated 22605..22785 <- Default
+generated 22786..22883 <- Debug
+generated 22883..22975 <- Clone
+generated 22975..23076 <- PartialEq
+generated 23076..23173 <- Hash
+generated 23173..23296 <- PartialOrd
+generated 23296..23398 <- Ord
+generated 23398..24728 <- Encode
+generated 24728..26495 <- Decode
+generated 26495..26582 <- Default
 
 ## Metadata
 

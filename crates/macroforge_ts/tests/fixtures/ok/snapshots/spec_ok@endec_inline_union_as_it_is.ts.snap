@@ -35,7 +35,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, notTheMember as __mf_notTheMember, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, notTheMember as __mf_notTheMember, guardedDecoder as __mf_guardedDecoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 
 interface Circle {
@@ -526,8 +526,8 @@ export function slotDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext
 export function slotHasShape(_value: unknown): boolean {
                 return true;
 }
-export function slotIs<T>(value: unknown): value is Slot<T> {
-    return slotHasShape(value);
+export function slotIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Slot<T> {
+    return slotHasShape(value) && slotDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 const Slot: {
@@ -636,7 +636,7 @@ export declare function slotDecode<T>(input: unknown, opts?: __mf_DecodeOptions,
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function slotDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Slot<T> | __mf_PendingRef;
 export declare function slotHasShape(_value: unknown): boolean;
-export declare function slotIs<T>(value: unknown): value is Slot<T>;
+export declare function slotIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Slot<T>;
 export {};
 
 ## Diagnostics
@@ -646,23 +646,23 @@ Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JS
 
 ## Mapping
 
-original 30..71 -> expanded 1073..1114
-original 71..73 -> expanded 9651..9653
-original 103..133 -> expanded 9653..9683
-original 133..135 -> expanded 15969..15971
-original 165..192 -> expanded 15971..15998
-original 192..194 -> expanded 21652..21654
-original 224..511 -> expanded 21654..21941
-generated 0..1073 <- imports
-generated 1114..3221 <- Encode
-generated 3221..8702 <- Decode
-generated 8702..9651 <- __convenience_const
-generated 9683..11287 <- Encode
-generated 11287..15493 <- Decode
-generated 15493..15969 <- __convenience_const
-generated 15998..17834 <- Encode
-generated 17834..21189 <- Decode
-generated 21189..21652 <- __convenience_const
+original 30..71 -> expanded 1112..1153
+original 71..73 -> expanded 9690..9692
+original 103..133 -> expanded 9692..9722
+original 133..135 -> expanded 16008..16010
+original 165..192 -> expanded 16010..16037
+original 192..194 -> expanded 21803..21805
+original 224..511 -> expanded 21805..22092
+generated 0..1112 <- imports
+generated 1153..3260 <- Encode
+generated 3260..8741 <- Decode
+generated 8741..9690 <- __convenience_const
+generated 9722..11326 <- Encode
+generated 11326..15532 <- Decode
+generated 15532..16008 <- __convenience_const
+generated 16037..17873 <- Encode
+generated 17873..21340 <- Decode
+generated 21340..21803 <- __convenience_const
 
 ## Metadata
 

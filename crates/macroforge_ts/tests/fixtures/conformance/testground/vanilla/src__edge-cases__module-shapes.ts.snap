@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/module-shapes.ts
-sha256 da366d112073dbdff8b41f4869c9eba097c82337a79d840c2cbde08dcf3cead0
+sha256 a5fbf52cbe99caec24eab0be8857cfb770a0e25743abf48645e6a00c3caae746
 
 ## Changed
 
@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, guardedDecoder as __mf_guardedDecoder, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Declarations by where and how a module writes them: types it keeps to
@@ -466,6 +466,7 @@ static is(obj: unknown): obj is ModulePrivateClass {
     if (!ModulePrivateClass.hasShape(obj)) {
         return false;
     }
+
     const result = ModulePrivateClass.decode(obj);
     return result.success;
 }
@@ -1109,7 +1110,6 @@ const ModuleLater: {
 };
 export type { ModuleLater };
 
-
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export class ModuleStatics {
     static count = 0;
@@ -1328,6 +1328,7 @@ static is(obj: unknown): obj is ModuleStatics {
     if (!ModuleStatics.hasShape(obj)) {
         return false;
     }
+
     const result = ModuleStatics.decode(obj);
     return result.success;
 }
@@ -1612,6 +1613,7 @@ static is(obj: unknown): obj is ModuleImplements {
     if (!ModuleImplements.hasShape(obj)) {
         return false;
     }
+
     const result = ModuleImplements.decode(obj);
     return result.success;
 }
@@ -1898,14 +1900,12 @@ static hasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["held"]);
 }
 
-static is<T>(obj: unknown): obj is ModuleBase<T> {
-    if (obj instanceof ModuleBase) {
-        return true;
-    }
+static is<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is ModuleBase<T> {
     if (!ModuleBase.hasShape(obj)) {
         return false;
     }
-    const result = ModuleBase.decode(obj);
+
+    const result = ModuleBase.decode<T>(obj, undefined, __mf_guardedDecoder(__isT, "T"));
     return result.success;
 }
 }
@@ -1967,10 +1967,9 @@ export function moduleBaseDecodePartialWithContext<T>(value: unknown, ctx: __mf_
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export function moduleBaseIs<T>(value: unknown): value is ModuleBase<T> {
-    return ModuleBase.is<T>(value);
+export function moduleBaseIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is ModuleBase<T> {
+    return ModuleBase.is<T>(value, __isT);
 }
-
 
 export class ModulePlainBase {
     plain: string = 'p';
@@ -2225,6 +2224,7 @@ static is(obj: unknown): obj is ModuleExtendsPlain {
     if (!ModuleExtendsPlain.hasShape(obj)) {
         return false;
     }
+
     const result = ModuleExtendsPlain.decode(obj);
     return result.success;
 }
@@ -2506,6 +2506,7 @@ static is(obj: unknown): obj is ModuleOverloads {
     if (!ModuleOverloads.hasShape(obj)) {
         return false;
     }
+
     const result = ModuleOverloads.decode(obj);
     return result.success;
 }
@@ -2782,6 +2783,7 @@ static is(obj: unknown): obj is ModuleAbstract {
     if (!ModuleAbstract.hasShape(obj)) {
         return false;
     }
+
     const result = ModuleAbstract.decode(obj);
     return result.success;
 }
@@ -3157,6 +3159,7 @@ static is(obj: unknown): obj is ModuleOptionalMethods {
     if (!ModuleOptionalMethods.hasShape(obj)) {
         return false;
     }
+
     const result = ModuleOptionalMethods.decode(obj);
     return result.success;
 }
@@ -3683,7 +3686,7 @@ export declare class ModuleBase<T> {
 		message: string;
 	}>;
 	static hasShape(obj: unknown): boolean;
-	static is<T>(obj: unknown): obj is ModuleBase<T>;
+	static is<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is ModuleBase<T>;
 }
 export declare function moduleBaseToString<T>(value: ModuleBase<T>): string;
 export declare function moduleBaseClone<T>(value: ModuleBase<T>): ModuleBase<T>;
@@ -3714,7 +3717,7 @@ export declare function moduleBaseHasShape(value: unknown): boolean;
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
 export declare function moduleBaseDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ModuleBase<T>>, __decodeT?: __mf_Decoder<T>): Partial<ModuleBase<T>> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export declare function moduleBaseIs<T>(value: unknown): value is ModuleBase<T>;
+export declare function moduleBaseIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is ModuleBase<T>;
 export declare class ModulePlainBase {
 	plain: string;
 }
@@ -4030,196 +4033,196 @@ export declare function moduleOptionalMethodsIs(value: unknown): value is Module
 
 ## Mapping
 
-original 0..345 -> expanded 1283..1628
-original 345..465 -> expanded 11924..12044
-original 465..466 -> expanded 20518..20519
-original 466..579 -> expanded 24552..24665
-original 579..744 -> expanded 35418..35583
-original 744..1215 -> expanded 39620..40091
-original 1215..1538 -> expanded 50008..50331
-original 1538..1539 -> expanded 58686..58687
-original 1539..1824 -> expanded 62510..62795
-original 1824..1825 -> expanded 71279..71280
-original 1825..1954 -> expanded 75229..75358
-original 1954..1955 -> expanded 84781..84782
-original 1955..2169 -> expanded 88836..89050
-original 2169..2170 -> expanded 99350..99351
-original 2170..2451 -> expanded 103384..103665
-original 2451..2452 -> expanded 112106..112107
-original 2452..2616 -> expanded 116014..116178
-original 2616..2617 -> expanded 124576..124577
-original 2617..2872 -> expanded 128442..128697
-original 2872..2873 -> expanded 142027..142028
-original 2873..2874 -> expanded 146187..146188
-generated 0..1283 <- imports
-generated 1628..1893 <- Debug
-generated 1893..2044 <- Clone
-generated 2044..2238 <- PartialEq
-generated 2238..2523 <- Hash
-generated 2523..2622 <- Default
-generated 2622..4814 <- Encode
-generated 4814..10402 <- Decode
-generated 10402..11924 <- __convenience_const
-generated 12044..12325 <- Debug
-generated 12325..12461 <- Clone
-generated 12461..12675 <- PartialEq
-generated 12675..12971 <- Hash
-generated 12971..13166 <- Default
-generated 13166..14785 <- Encode
-generated 14785..15128 <- Encode
-generated 15128..20518 <- Decode
-generated 20519..20649 <- Debug
-generated 20649..20785 <- Clone
-generated 20785..20930 <- PartialEq
-generated 20930..21060 <- Hash
-generated 21060..21180 <- Default
-generated 21180..22620 <- Encode
-generated 22620..24552 <- Decode
-generated 24665..24945 <- Debug
-generated 24945..25116 <- Clone
-generated 25116..25317 <- PartialEq
-generated 25317..25612 <- Hash
-generated 25612..25721 <- Default
-generated 25721..27988 <- Encode
-generated 27988..33741 <- Decode
-generated 33741..35418 <- __convenience_const
-generated 35583..35927 <- Debug
-generated 35927..36034 <- Clone
-generated 36034..36152 <- PartialEq
-generated 36152..36329 <- Hash
-generated 36329..36562 <- PartialOrd
-generated 36562..36781 <- Ord
-generated 36781..36885 <- Default
-generated 36885..37361 <- Encode
-generated 37361..38507 <- Decode
-generated 38507..39620 <- __convenience_const
-generated 40091..40350 <- Debug
-generated 40350..40493 <- Clone
-generated 40493..40681 <- PartialEq
-generated 40681..40962 <- Hash
-generated 40962..43124 <- Encode
-generated 43124..48646 <- Decode
-generated 48646..50008 <- __convenience_const
-generated 50331..50608 <- Debug
-generated 50608..50740 <- Clone
-generated 50740..50950 <- PartialEq
-generated 50950..51244 <- Hash
-generated 51244..51435 <- Default
-generated 51435..53021 <- Encode
-generated 53021..53354 <- Encode
-generated 53354..58686 <- Decode
-generated 58687..58802 <- Debug
-generated 58802..58918 <- Clone
-generated 58918..59043 <- PartialEq
-generated 59043..59158 <- Hash
-generated 59158..59263 <- Default
-generated 59263..60653 <- Encode
-generated 60653..62510 <- Decode
-generated 62795..63078 <- Debug
-generated 63078..63216 <- Clone
-generated 63216..63432 <- PartialEq
-generated 63432..63729 <- Hash
-generated 63729..63926 <- Default
-generated 63926..65539 <- Encode
-generated 65539..65878 <- Encode
-generated 65878..71279 <- Decode
-generated 71280..71404 <- Debug
-generated 71404..71532 <- Clone
-generated 71532..71669 <- PartialEq
-generated 71669..71793 <- Hash
-generated 71793..71907 <- Default
-generated 71907..73327 <- Encode
-generated 73327..75229 <- Decode
-generated 75358..75649 <- Debug
-generated 75649..75806 <- Clone
-generated 75806..76039 <- PartialEq
-generated 76039..76281 <- Hash
-generated 76281..76476 <- Default
-generated 76476..78259 <- Encode
-generated 78259..78632 <- Encode
-generated 78632..84781 <- Decode
-generated 84782..84897 <- Debug
-generated 84897..85013 <- Clone
-generated 85013..85138 <- PartialEq
-generated 85138..85253 <- Hash
-generated 85253..85358 <- Default
-generated 85358..86865 <- Encode
-generated 86865..88836 <- Decode
-generated 89050..89401 <- Debug
-generated 89401..89591 <- Clone
-generated 89591..89977 <- PartialEq
-generated 89977..90454 <- Hash
-generated 90454..90695 <- Default
-generated 90695..92685 <- Encode
-generated 92685..93028 <- Encode
-generated 93028..99350 <- Decode
-generated 99351..99481 <- Debug
-generated 99481..99617 <- Clone
-generated 99617..99762 <- PartialEq
-generated 99762..99892 <- Hash
-generated 99892..100012 <- Default
-generated 100012..101452 <- Encode
-generated 101452..103384 <- Decode
-generated 103665..103946 <- Debug
-generated 103946..104082 <- Clone
-generated 104082..104296 <- PartialEq
-generated 104296..104592 <- Hash
-generated 104592..104787 <- Default
-generated 104787..106391 <- Encode
-generated 106391..106728 <- Encode
-generated 106728..112106 <- Decode
-generated 112107..112228 <- Debug
-generated 112228..112352 <- Clone
-generated 112352..112485 <- PartialEq
-generated 112485..112606 <- Hash
-generated 112606..112717 <- Default
-generated 112717..114127 <- Encode
-generated 114127..116014 <- Decode
-generated 116178..116457 <- Debug
-generated 116457..116591 <- Clone
-generated 116591..116803 <- PartialEq
-generated 116803..117098 <- Hash
-generated 117098..117291 <- Default
-generated 117291..118886 <- Encode
-generated 118886..119221 <- Encode
-generated 119221..124576 <- Decode
-generated 124577..124695 <- Debug
-generated 124695..124815 <- Clone
-generated 124815..124944 <- PartialEq
-generated 124944..125062 <- Hash
-generated 125062..125170 <- Default
-generated 125170..126570 <- Encode
-generated 126570..128442 <- Decode
-generated 128697..129120 <- Debug
-generated 129120..129366 <- Clone
-generated 129366..130006 <- PartialEq
-generated 130006..130567 <- Hash
-generated 130567..130882 <- Default
-generated 130882..133115 <- Encode
-generated 133115..133464 <- Encode
-generated 133464..142027 <- Decode
-generated 142028..142167 <- Debug
-generated 142167..142315 <- Clone
-generated 142315..142472 <- PartialEq
-generated 142472..142611 <- Hash
-generated 142611..142740 <- Default
-generated 142740..144210 <- Encode
-generated 144210..146187 <- Decode
+original 0..345 -> expanded 1322..1667
+original 345..465 -> expanded 11963..12083
+original 465..466 -> expanded 20558..20559
+original 466..579 -> expanded 24592..24705
+original 579..744 -> expanded 35458..35623
+original 744..1215 -> expanded 39660..40131
+original 1215..1537 -> expanded 50048..50370
+original 1537..1538 -> expanded 58726..58727
+original 1538..1823 -> expanded 62550..62835
+original 1823..1824 -> expanded 71320..71321
+original 1824..1953 -> expanded 75270..75399
+original 1953..1954 -> expanded 84845..84846
+original 1954..2167 -> expanded 88946..89159
+original 2167..2168 -> expanded 99460..99461
+original 2168..2449 -> expanded 103494..103775
+original 2449..2450 -> expanded 112217..112218
+original 2450..2614 -> expanded 116125..116289
+original 2614..2615 -> expanded 124688..124689
+original 2615..2870 -> expanded 128554..128809
+original 2870..2871 -> expanded 142140..142141
+original 2871..2872 -> expanded 146300..146301
+generated 0..1322 <- imports
+generated 1667..1932 <- Debug
+generated 1932..2083 <- Clone
+generated 2083..2277 <- PartialEq
+generated 2277..2562 <- Hash
+generated 2562..2661 <- Default
+generated 2661..4853 <- Encode
+generated 4853..10441 <- Decode
+generated 10441..11963 <- __convenience_const
+generated 12083..12364 <- Debug
+generated 12364..12500 <- Clone
+generated 12500..12714 <- PartialEq
+generated 12714..13010 <- Hash
+generated 13010..13205 <- Default
+generated 13205..14824 <- Encode
+generated 14824..15167 <- Encode
+generated 15167..20558 <- Decode
+generated 20559..20689 <- Debug
+generated 20689..20825 <- Clone
+generated 20825..20970 <- PartialEq
+generated 20970..21100 <- Hash
+generated 21100..21220 <- Default
+generated 21220..22660 <- Encode
+generated 22660..24592 <- Decode
+generated 24705..24985 <- Debug
+generated 24985..25156 <- Clone
+generated 25156..25357 <- PartialEq
+generated 25357..25652 <- Hash
+generated 25652..25761 <- Default
+generated 25761..28028 <- Encode
+generated 28028..33781 <- Decode
+generated 33781..35458 <- __convenience_const
+generated 35623..35967 <- Debug
+generated 35967..36074 <- Clone
+generated 36074..36192 <- PartialEq
+generated 36192..36369 <- Hash
+generated 36369..36602 <- PartialOrd
+generated 36602..36821 <- Ord
+generated 36821..36925 <- Default
+generated 36925..37401 <- Encode
+generated 37401..38547 <- Decode
+generated 38547..39660 <- __convenience_const
+generated 40131..40390 <- Debug
+generated 40390..40533 <- Clone
+generated 40533..40721 <- PartialEq
+generated 40721..41002 <- Hash
+generated 41002..43164 <- Encode
+generated 43164..48686 <- Decode
+generated 48686..50048 <- __convenience_const
+generated 50370..50647 <- Debug
+generated 50647..50779 <- Clone
+generated 50779..50989 <- PartialEq
+generated 50989..51283 <- Hash
+generated 51283..51474 <- Default
+generated 51474..53060 <- Encode
+generated 53060..53393 <- Encode
+generated 53393..58726 <- Decode
+generated 58727..58842 <- Debug
+generated 58842..58958 <- Clone
+generated 58958..59083 <- PartialEq
+generated 59083..59198 <- Hash
+generated 59198..59303 <- Default
+generated 59303..60693 <- Encode
+generated 60693..62550 <- Decode
+generated 62835..63118 <- Debug
+generated 63118..63256 <- Clone
+generated 63256..63472 <- PartialEq
+generated 63472..63769 <- Hash
+generated 63769..63966 <- Default
+generated 63966..65579 <- Encode
+generated 65579..65918 <- Encode
+generated 65918..71320 <- Decode
+generated 71321..71445 <- Debug
+generated 71445..71573 <- Clone
+generated 71573..71710 <- PartialEq
+generated 71710..71834 <- Hash
+generated 71834..71948 <- Default
+generated 71948..73368 <- Encode
+generated 73368..75270 <- Decode
+generated 75399..75690 <- Debug
+generated 75690..75847 <- Clone
+generated 75847..76080 <- PartialEq
+generated 76080..76322 <- Hash
+generated 76322..76517 <- Default
+generated 76517..78300 <- Encode
+generated 78300..78673 <- Encode
+generated 78673..84845 <- Decode
+generated 84846..84961 <- Debug
+generated 84961..85077 <- Clone
+generated 85077..85202 <- PartialEq
+generated 85202..85317 <- Hash
+generated 85317..85422 <- Default
+generated 85422..86929 <- Encode
+generated 86929..88946 <- Decode
+generated 89159..89510 <- Debug
+generated 89510..89700 <- Clone
+generated 89700..90086 <- PartialEq
+generated 90086..90563 <- Hash
+generated 90563..90804 <- Default
+generated 90804..92794 <- Encode
+generated 92794..93137 <- Encode
+generated 93137..99460 <- Decode
+generated 99461..99591 <- Debug
+generated 99591..99727 <- Clone
+generated 99727..99872 <- PartialEq
+generated 99872..100002 <- Hash
+generated 100002..100122 <- Default
+generated 100122..101562 <- Encode
+generated 101562..103494 <- Decode
+generated 103775..104056 <- Debug
+generated 104056..104192 <- Clone
+generated 104192..104406 <- PartialEq
+generated 104406..104702 <- Hash
+generated 104702..104897 <- Default
+generated 104897..106501 <- Encode
+generated 106501..106838 <- Encode
+generated 106838..112217 <- Decode
+generated 112218..112339 <- Debug
+generated 112339..112463 <- Clone
+generated 112463..112596 <- PartialEq
+generated 112596..112717 <- Hash
+generated 112717..112828 <- Default
+generated 112828..114238 <- Encode
+generated 114238..116125 <- Decode
+generated 116289..116568 <- Debug
+generated 116568..116702 <- Clone
+generated 116702..116914 <- PartialEq
+generated 116914..117209 <- Hash
+generated 117209..117402 <- Default
+generated 117402..118997 <- Encode
+generated 118997..119332 <- Encode
+generated 119332..124688 <- Decode
+generated 124689..124807 <- Debug
+generated 124807..124927 <- Clone
+generated 124927..125056 <- PartialEq
+generated 125056..125174 <- Hash
+generated 125174..125282 <- Default
+generated 125282..126682 <- Encode
+generated 126682..128554 <- Decode
+generated 128809..129232 <- Debug
+generated 129232..129478 <- Clone
+generated 129478..130118 <- PartialEq
+generated 130118..130679 <- Hash
+generated 130679..130994 <- Default
+generated 130994..133227 <- Encode
+generated 133227..133576 <- Encode
+generated 133576..142140 <- Decode
+generated 142141..142280 <- Debug
+generated 142280..142428 <- Clone
+generated 142428..142585 <- PartialEq
+generated 142585..142724 <- Hash
+generated 142724..142853 <- Default
+generated 142853..144323 <- Encode
+generated 144323..146300 <- Decode
 
 ## Metadata
 
 class ModulePrivateClass: {"body_span":{"end":467,"start":444},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":418,"start":348}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":465,"start":450},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModulePrivateClass","span":{"end":467,"start":419},"superclass":null,"type_params":[]}
-class ModuleStatics: {"body_span":{"end":1540,"start":1346},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1318,"start":1248}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1467,"start":1449},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":1538,"start":1495},"body_src":"\n        return ModuleStatics.#made;\n    ","decorators":[],"is_async":false,"is_static":true,"name":"made","params_src":"","return_type_src":"number","span":{"end":1538,"start":1473},"type_params":[],"visibility":"Public"}],"name":"ModuleStatics","span":{"end":1540,"start":1326},"superclass":null,"type_params":[]}
-class ModuleImplements: {"body_span":{"end":1826,"start":1742},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1688,"start":1618}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1766,"start":1748},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":["ModuleNamed"],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":1824,"start":1791},"body_src":"\n        return this.name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":1824,"start":1772},"type_params":[],"visibility":"Public"}],"name":"ModuleImplements","span":{"end":1826,"start":1696},"superclass":null,"type_params":[]}
-class ModuleBase: {"body_span":{"end":1956,"start":1926},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1898,"start":1828}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":1954,"start":1932},"ts_type":"T | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModuleBase","span":{"end":1956,"start":1906},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
-class ModulePlainBase: {"body_span":{"end":2016,"start":1988},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":"'p'","key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":2014,"start":1994},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModulePlainBase","span":{"end":2016,"start":1966},"superclass":null,"type_params":[]}
-class ModuleExtendsPlain: {"body_span":{"end":2171,"start":2145},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2088,"start":2018}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2169,"start":2151},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["ModulePlainBase"],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModuleExtendsPlain","span":{"end":2171,"start":2096},"superclass":"ModulePlainBase","type_params":[]}
-class ModuleOverloads: {"body_span":{"end":2453,"start":2273},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2243,"start":2173}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2297,"start":2279},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"pick","params_src":"index: number","return_type_src":"string","span":{"end":2331,"start":2303},"type_params":[],"visibility":"Public"},{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"pick","params_src":"key: string","return_type_src":"string","span":{"end":2362,"start":2336},"type_params":[],"visibility":"Public"},{"body_span":{"end":2451,"start":2404},"body_src":"\n        return `${this.name}:${which}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"pick","params_src":"which: number | string","return_type_src":"string","span":{"end":2451,"start":2367},"type_params":[],"visibility":"Public"}],"name":"ModuleOverloads","span":{"end":2453,"start":2251},"superclass":null,"type_params":[]}
-class ModuleAbstract: {"body_span":{"end":2618,"start":2563},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2525,"start":2455}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2587,"start":2569},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":true,"is_declare":false,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2616,"start":2592},"type_params":[],"visibility":"Public"}],"name":"ModuleAbstract","span":{"end":2618,"start":2533},"superclass":null,"type_params":[]}
-class ModuleOptionalMethods: {"body_span":{"end":2874,"start":2726},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2690,"start":2620}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2750,"start":2732},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"tags","optional":false,"readonly":true,"span":{"end":2815,"start":2777},"ts_type":"readonly string[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"['a', 1]","key":"Named","name":"pair","optional":false,"readonly":true,"span":{"end":2872,"start":2820},"ts_type":"readonly [string, number]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"handler","params_src":"","return_type_src":"void","span":{"end":2772,"start":2755},"type_params":[],"visibility":"Public"}],"name":"ModuleOptionalMethods","span":{"end":2874,"start":2698},"superclass":null,"type_params":[]}
+class ModuleStatics: {"body_span":{"end":1539,"start":1345},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1317,"start":1247}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1466,"start":1448},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":1537,"start":1494},"body_src":"\n        return ModuleStatics.#made;\n    ","decorators":[],"is_async":false,"is_static":true,"name":"made","params_src":"","return_type_src":"number","span":{"end":1537,"start":1472},"type_params":[],"visibility":"Public"}],"name":"ModuleStatics","span":{"end":1539,"start":1325},"superclass":null,"type_params":[]}
+class ModuleImplements: {"body_span":{"end":1825,"start":1741},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1687,"start":1617}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1765,"start":1747},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":["ModuleNamed"],"is_abstract":false,"is_declare":false,"methods":[{"body_span":{"end":1823,"start":1790},"body_src":"\n        return this.name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":1823,"start":1771},"type_params":[],"visibility":"Public"}],"name":"ModuleImplements","span":{"end":1825,"start":1695},"superclass":null,"type_params":[]}
+class ModuleBase: {"body_span":{"end":1955,"start":1925},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1897,"start":1827}}],"fields":[{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":1953,"start":1931},"ts_type":"T | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModuleBase","span":{"end":1955,"start":1905},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class ModulePlainBase: {"body_span":{"end":2014,"start":1986},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":"'p'","key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":2012,"start":1992},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModulePlainBase","span":{"end":2014,"start":1964},"superclass":null,"type_params":[]}
+class ModuleExtendsPlain: {"body_span":{"end":2169,"start":2143},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2086,"start":2016}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2167,"start":2149},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["ModulePlainBase"],"is_abstract":false,"is_declare":false,"methods":[],"name":"ModuleExtendsPlain","span":{"end":2169,"start":2094},"superclass":"ModulePlainBase","type_params":[]}
+class ModuleOverloads: {"body_span":{"end":2451,"start":2271},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2241,"start":2171}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2295,"start":2277},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"pick","params_src":"index: number","return_type_src":"string","span":{"end":2329,"start":2301},"type_params":[],"visibility":"Public"},{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"pick","params_src":"key: string","return_type_src":"string","span":{"end":2360,"start":2334},"type_params":[],"visibility":"Public"},{"body_span":{"end":2449,"start":2402},"body_src":"\n        return `${this.name}:${which}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"pick","params_src":"which: number | string","return_type_src":"string","span":{"end":2449,"start":2365},"type_params":[],"visibility":"Public"}],"name":"ModuleOverloads","span":{"end":2451,"start":2249},"superclass":null,"type_params":[]}
+class ModuleAbstract: {"body_span":{"end":2616,"start":2561},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2523,"start":2453}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2585,"start":2567},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":true,"is_declare":false,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2614,"start":2590},"type_params":[],"visibility":"Public"}],"name":"ModuleAbstract","span":{"end":2616,"start":2531},"superclass":null,"type_params":[]}
+class ModuleOptionalMethods: {"body_span":{"end":2872,"start":2724},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2688,"start":2618}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2748,"start":2730},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"tags","optional":false,"readonly":true,"span":{"end":2813,"start":2775},"ts_type":"readonly string[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"['a', 1]","key":"Named","name":"pair","optional":false,"readonly":true,"span":{"end":2870,"start":2818},"ts_type":"readonly [string, number]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"handler","params_src":"","return_type_src":"void","span":{"end":2770,"start":2753},"type_params":[],"visibility":"Public"}],"name":"ModuleOptionalMethods","span":{"end":2872,"start":2696},"superclass":null,"type_params":[]}
 interface ModulePrivate: {"body_span":{"end":346,"start":328},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":303,"start":233}}],"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":344,"start":334},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ModulePrivate","span":{"end":346,"start":304},"type_params":[]}
 interface ModuleLater: {"body_span":{"end":1216,"start":1198},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1175,"start":1114}}],"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":1214,"start":1204},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ModuleLater","span":{"end":1216,"start":1176},"type_params":[]}
-interface ModuleNamed: {"body_span":{"end":1616,"start":1571},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1590,"start":1577},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1614,"start":1595},"type_params":[]}],"name":"ModuleNamed","span":{"end":1616,"start":1549},"type_params":[]}
+interface ModuleNamed: {"body_span":{"end":1615,"start":1570},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1589,"start":1576},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1613,"start":1594},"type_params":[]}],"name":"ModuleNamed","span":{"end":1615,"start":1548},"type_params":[]}
 enum ModulePrivateEnum: {"body_span":{"end":745,"start":697},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":673,"start":582}}],"is_const":false,"is_declare":false,"name":"ModulePrivateEnum","span":{"end":745,"start":674},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":718,"start":703}}],"name":"A","span":{"end":730,"start":723},"value":{"String":"a"}},{"decorators":[],"name":"B","span":{"end":743,"start":736},"value":{"String":"b"}}]}
 type ModulePrivateAlias: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":577,"start":568},"ts_type":"string"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":539,"start":469}}],"name":"ModulePrivateAlias","span":{"end":580,"start":540},"type_params":[]}
 

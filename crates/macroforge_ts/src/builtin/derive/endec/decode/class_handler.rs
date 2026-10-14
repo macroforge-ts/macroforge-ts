@@ -21,7 +21,8 @@ use crate::builtin::derive::common::{
 };
 use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{
-    declared_param_coders, passed_param_coders, required_param_coders,
+    declared_param_coders, declared_param_guards, guarded_param_decoders, passed_param_coders,
+    passed_param_guards, required_param_coders,
 };
 use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{
@@ -54,6 +55,10 @@ pub(super) fn handle_class(
     let fn_decode_ident = class_names.generic_function("Decode");
     let fn_decode_internal_ident = class_names.generic_function("DecodeWithContext");
     let fn_is_ident = class_names.generic_function("Is");
+    // A value of a type parameter is checked by the guard handed in for it.
+    let guards = declared_param_guards(&class_names.params);
+    let passed_guards = passed_param_guards(&class_names.params);
+    let guarded = guarded_param_decoders(&class_names.params);
     let fn_has_shape_ident = ts_ident!(class_names.function("HasShape"));
     let fn_decode_partial_ident = class_names.generic_function("DecodePartialWithContext");
     let field_selection_ident = ts_ident!(FIELD_SELECTION);
@@ -351,14 +356,18 @@ pub(super) fn handle_class(
             return @{shape_check_condition};
         }
 
-        static @{class_names.generic_method("is")}(obj: unknown): obj is @{class_ident} {
-            if (obj instanceof @{&class_expr}) {
-                return true;
-            }
+        static @{class_names.generic_method("is")}(obj: unknown@{&guards}): obj is @{class_ident} {
+            {#if class_names.params.is_empty()}
+                if (obj instanceof @{&class_expr}) {
+                    return true;
+                }
+            {/if}
             if (!@{&class_expr}.hasShape(obj)) {
                 return false;
             }
-            const result = @{&class_expr}.decode(obj);
+            // An instance says nothing of its type arguments: what it holds
+            // of them is checked by the guards handed in.
+            const result = @{&class_expr}.decode@{&class_names.generic_args}(obj@{&guarded});
             return @{Expr::parse(&is_ok_check("result")).expect("decode is_ok expression should parse")};
         }
     });
@@ -390,8 +399,8 @@ pub(super) fn handle_class(
         }
 
         /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type */
-        export function @{fn_is_ident}(value: unknown): value is @{class_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("is{generic_args}"))}(value);
+        export function @{fn_is_ident}(value: unknown@{&guards}): value is @{class_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("is{generic_args}"))}(value@{&passed_guards});
         }
     };
     standalone.add_aliased_import("DecodeContext", crate::package::ENDEC);

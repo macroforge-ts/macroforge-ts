@@ -364,6 +364,7 @@ static is(obj: unknown): obj is AllMacrosTestClass {
     if (!AllMacrosTestClass.hasShape(obj)) {
         return false;
     }
+
     const result = AllMacrosTestClass.decode(obj);
     return result.success;
 }
@@ -535,8 +536,8 @@ export declare const testInstance: unknown;
 ## Mapping
 
 original 0..449 -> expanded 869..1318
-original 449..450 -> expanded 16037..16038
-original 450..695 -> expanded 19951..20196
+original 449..450 -> expanded 16038..16039
+original 450..695 -> expanded 19952..20197
 generated 0..869 <- imports
 generated 1318..1825 <- Debug
 generated 1825..2141 <- Clone
@@ -544,13 +545,13 @@ generated 2141..2759 <- PartialEq
 generated 2759..3722 <- Hash
 generated 3722..6644 <- Encode
 generated 6644..6987 <- Encode
-generated 6987..16037 <- Decode
-generated 16038..16168 <- Debug
-generated 16168..16304 <- Clone
-generated 16304..16449 <- PartialEq
-generated 16449..16579 <- Hash
-generated 16579..18019 <- Encode
-generated 18019..19951 <- Decode
+generated 6987..16038 <- Decode
+generated 16039..16169 <- Debug
+generated 16169..16305 <- Clone
+generated 16305..16450 <- PartialEq
+generated 16450..16580 <- Hash
+generated 16580..18020 <- Encode
+generated 18020..19952 <- Decode
 
 ## Metadata
 

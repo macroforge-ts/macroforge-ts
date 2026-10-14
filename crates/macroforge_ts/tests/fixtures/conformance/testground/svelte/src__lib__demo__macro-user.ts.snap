@@ -318,6 +318,7 @@ static is(obj: unknown): obj is MacroUser {
     if (!MacroUser.hasShape(obj)) {
         return false;
     }
+
     const result = MacroUser.decode(obj);
     return result.success;
 }
@@ -471,16 +472,16 @@ original 0..56 -> expanded 770..826
 original 93..123 -> expanded 826..856
 original 158..278 -> expanded 856..976
 original 307..330 -> expanded 976..999
-original 330..331 -> expanded 13492..13493
-original 331..683 -> expanded 16743..17095
+original 330..331 -> expanded 13493..13494
+original 331..683 -> expanded 16744..17096
 generated 0..770 <- imports
 generated 999..1492 <- Debug
 generated 1492..4337 <- Encode
 generated 4337..4662 <- Encode
-generated 4662..13492 <- Decode
-generated 13493..13596 <- Debug
-generated 13596..14946 <- Encode
-generated 14946..16743 <- Decode
+generated 4662..13493 <- Decode
+generated 13494..13597 <- Debug
+generated 13597..14947 <- Encode
+generated 14947..16744 <- Decode
 
 ## Metadata
 

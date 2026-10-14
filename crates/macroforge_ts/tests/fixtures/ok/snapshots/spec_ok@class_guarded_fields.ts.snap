@@ -354,6 +354,7 @@ static is(obj: unknown): obj is Guarded {
     if (!Guarded.hasShape(obj)) {
         return false;
     }
+
     const result = Guarded.decode(obj);
     return result.success;
 }
@@ -522,8 +523,8 @@ export {};
 ## Mapping
 
 original 91..248 -> expanded 939..1096
-original 248..249 -> expanded 14546..14547
-original 249..250 -> expanded 18343..18344
+original 248..249 -> expanded 14547..14548
+original 249..250 -> expanded 18344..18345
 generated 0..939 <- imports
 generated 1096..1524 <- Debug
 generated 1524..1752 <- Clone
@@ -534,16 +535,16 @@ generated 3553..4221 <- Ord
 generated 4221..4526 <- Default
 generated 4526..6877 <- Encode
 generated 6877..7198 <- Encode
-generated 7198..14546 <- Decode
-generated 14547..14644 <- Debug
-generated 14644..14736 <- Clone
-generated 14736..14837 <- PartialEq
-generated 14837..14934 <- Hash
-generated 14934..15057 <- PartialOrd
-generated 15057..15159 <- Ord
-generated 15159..15246 <- Default
-generated 15246..16576 <- Encode
-generated 16576..18343 <- Decode
+generated 7198..14547 <- Decode
+generated 14548..14645 <- Debug
+generated 14645..14737 <- Clone
+generated 14737..14838 <- PartialEq
+generated 14838..14935 <- Hash
+generated 14935..15058 <- PartialOrd
+generated 15058..15160 <- Ord
+generated 15160..15247 <- Default
+generated 15247..16577 <- Encode
+generated 16577..18344 <- Decode
 
 ## Metadata
 

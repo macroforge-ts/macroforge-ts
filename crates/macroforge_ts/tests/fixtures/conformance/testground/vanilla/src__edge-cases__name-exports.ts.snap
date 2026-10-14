@@ -273,6 +273,7 @@ static is(obj: unknown): obj is NameModel {
     if (!NameModel.hasShape(obj)) {
         return false;
     }
+
     const result = NameModel.decode(obj);
     return result.success;
 }
@@ -796,9 +797,9 @@ export type { NameLate as NameShown };
 ## Mapping
 
 original 0..309 -> expanded 900..1209
-original 309..310 -> expanded 11166..11167
-original 310..516 -> expanded 14822..15028
-original 516..557 -> expanded 27533..27574
+original 309..310 -> expanded 11167..11168
+original 310..516 -> expanded 14823..15029
+original 516..557 -> expanded 27534..27575
 generated 0..900 <- imports
 generated 1209..1527 <- Debug
 generated 1527..1713 <- Clone
@@ -807,22 +808,22 @@ generated 2123..2473 <- Hash
 generated 2473..2697 <- Default
 generated 2697..4608 <- Encode
 generated 4608..4933 <- Encode
-generated 4933..11166 <- Decode
-generated 11167..11270 <- Debug
-generated 11270..11370 <- Clone
-generated 11370..11479 <- PartialEq
-generated 11479..11582 <- Hash
-generated 11582..11675 <- Default
-generated 11675..13025 <- Encode
-generated 13025..14822 <- Decode
-generated 15028..15376 <- Debug
-generated 15376..15570 <- Clone
-generated 15570..15937 <- PartialEq
-generated 15937..16270 <- Hash
-generated 16270..16404 <- Default
-generated 16404..19118 <- Encode
-generated 19118..26166 <- Decode
-generated 26166..27533 <- __convenience_const
+generated 4933..11167 <- Decode
+generated 11168..11271 <- Debug
+generated 11271..11371 <- Clone
+generated 11371..11480 <- PartialEq
+generated 11480..11583 <- Hash
+generated 11583..11676 <- Default
+generated 11676..13026 <- Encode
+generated 13026..14823 <- Decode
+generated 15029..15377 <- Debug
+generated 15377..15571 <- Clone
+generated 15571..15938 <- PartialEq
+generated 15938..16271 <- Hash
+generated 16271..16405 <- Default
+generated 16405..19119 <- Encode
+generated 19119..26167 <- Decode
+generated 26167..27534 <- __convenience_const
 
 ## Metadata
 

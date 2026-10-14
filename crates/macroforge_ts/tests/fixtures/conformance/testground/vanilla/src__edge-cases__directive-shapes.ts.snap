@@ -921,6 +921,7 @@ static is(obj: unknown): obj is DirectiveSkippedClass {
     if (!DirectiveSkippedClass.hasShape(obj)) {
         return false;
     }
+
     const result = DirectiveSkippedClass.decode(obj);
     return result.success;
 }
@@ -1737,10 +1738,10 @@ original 678..790 -> expanded 17514..17626
 original 790..959 -> expanded 18582..18751
 original 959..1414 -> expanded 19736..20191
 original 1414..1665 -> expanded 31100..31351
-original 1665..1666 -> expanded 40035..40036
-original 1666..1753 -> expanded 43483..43570
-original 1753..1900 -> expanded 52645..52792
-original 1900..1901 -> expanded 63407..63408
+original 1665..1666 -> expanded 40036..40037
+original 1666..1753 -> expanded 43484..43571
+original 1753..1900 -> expanded 52646..52793
+original 1900..1901 -> expanded 63408..63409
 generated 0..943 <- imports
 generated 1621..2116 <- Debug
 generated 2116..2308 <- Default
@@ -1760,15 +1761,15 @@ generated 23023..29934 <- Decode
 generated 29934..31100 <- __convenience_const
 generated 31351..33372 <- Encode
 generated 33372..33721 <- Encode
-generated 33721..40035 <- Decode
-generated 40036..41506 <- Encode
-generated 41506..43483 <- Decode
-generated 43570..45793 <- Encode
-generated 45793..51521 <- Decode
-generated 51521..52645 <- __convenience_const
-generated 52792..55579 <- Encode
-generated 55579..62304 <- Decode
-generated 62304..63407 <- __convenience_const
+generated 33721..40036 <- Decode
+generated 40037..41507 <- Encode
+generated 41507..43484 <- Decode
+generated 43571..45794 <- Encode
+generated 45794..51522 <- Decode
+generated 51522..52646 <- __convenience_const
+generated 52793..55580 <- Encode
+generated 55580..62305 <- Decode
+generated 62305..63408 <- __convenience_const
 
 ## Metadata
 

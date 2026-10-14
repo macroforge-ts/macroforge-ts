@@ -188,6 +188,7 @@ static is(obj: unknown): obj is CustomNumberValidator {
     if (!CustomNumberValidator.hasShape(obj)) {
         return false;
     }
+
     const result = CustomNumberValidator.decode(obj);
     return result.success;
 }
@@ -377,6 +378,7 @@ static is(obj: unknown): obj is CustomStringValidator {
     if (!CustomStringValidator.hasShape(obj)) {
         return false;
     }
+
     const result = CustomStringValidator.decode(obj);
     return result.success;
 }
@@ -567,6 +569,7 @@ static is(obj: unknown): obj is ImportedCustomValidator {
     if (!ImportedCustomValidator.hasShape(obj)) {
         return false;
     }
+
     const result = ImportedCustomValidator.decode(obj);
     return result.success;
 }
@@ -755,6 +758,7 @@ static is(obj: unknown): obj is CustomWithMessageValidator {
     if (!CustomWithMessageValidator.hasShape(obj)) {
         return false;
     }
+
     const result = CustomWithMessageValidator.decode(obj);
     return result.success;
 }
@@ -1008,23 +1012,23 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 ## Mapping
 
 original 0..536 -> expanded 541..1077
-original 536..537 -> expanded 7890..7891
-original 537..709 -> expanded 9868..10040
-original 709..710 -> expanded 16785..16786
-original 710..1016 -> expanded 18763..19069
-original 1016..1017 -> expanded 25888..25889
-original 1017..1206 -> expanded 27896..28085
-original 1206..1207 -> expanded 34887..34888
-original 1207..1208 -> expanded 36940..36941
+original 536..537 -> expanded 7891..7892
+original 537..709 -> expanded 9869..10041
+original 709..710 -> expanded 16787..16788
+original 710..1016 -> expanded 18765..19071
+original 1016..1017 -> expanded 25891..25892
+original 1017..1206 -> expanded 27899..28088
+original 1206..1207 -> expanded 34891..34892
+original 1207..1208 -> expanded 36944..36945
 generated 0..541 <- imports
-generated 1077..7890 <- Decode
-generated 7891..9868 <- Decode
-generated 10040..16785 <- Decode
-generated 16786..18763 <- Decode
-generated 19069..25888 <- Decode
-generated 25889..27896 <- Decode
-generated 28085..34887 <- Decode
-generated 34888..36940 <- Decode
+generated 1077..7891 <- Decode
+generated 7892..9869 <- Decode
+generated 10041..16787 <- Decode
+generated 16788..18765 <- Decode
+generated 19071..25891 <- Decode
+generated 25892..27899 <- Decode
+generated 28088..34891 <- Decode
+generated 34892..36944 <- Decode
 
 ## Metadata
 

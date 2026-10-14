@@ -796,6 +796,7 @@ static is(obj: unknown): obj is GraphPerson {
     if (!GraphPerson.hasShape(obj)) {
         return false;
     }
+
     const result = GraphPerson.decode(obj);
     return result.success;
 }
@@ -2581,12 +2582,12 @@ export declare const GraphPatchedFirst: {
 
 original 0..435 -> expanded 1306..1741
 original 435..711 -> expanded 18914..19190
-original 711..712 -> expanded 37227..37228
-original 712..998 -> expanded 40868..41154
-original 998..1238 -> expanded 62735..62975
-original 1238..1389 -> expanded 78843..78994
-original 1389..1511 -> expanded 92040..92162
-original 1511..1512 -> expanded 103756..103757
+original 711..712 -> expanded 37228..37229
+original 712..998 -> expanded 40869..41155
+original 998..1238 -> expanded 62736..62976
+original 1238..1389 -> expanded 78844..78995
+original 1389..1511 -> expanded 92041..92163
+original 1511..1512 -> expanded 103757..103758
 generated 0..1306 <- imports
 generated 1741..2203 <- Debug
 generated 2203..2491 <- Clone
@@ -2603,25 +2604,25 @@ generated 20419..21662 <- PartialEq
 generated 21662..22582 <- Hash
 generated 22582..25503 <- Encode
 generated 25503..25832 <- Encode
-generated 25832..37227 <- Decode
-generated 37228..37337 <- Debug
-generated 37337..37445 <- Clone
-generated 37445..37562 <- PartialEq
-generated 37562..37671 <- Hash
-generated 37671..39041 <- Encode
-generated 39041..40868 <- Decode
-generated 41154..45626 <- Encode
-generated 45626..61674 <- Decode
-generated 61674..62735 <- __convenience_const
-generated 62975..66465 <- Encode
-generated 66465..77824 <- Decode
-generated 77824..78843 <- __convenience_const
-generated 78994..81913 <- Encode
-generated 81913..90958 <- Decode
-generated 90958..92040 <- __convenience_const
-generated 92162..94855 <- Encode
-generated 94855..102569 <- Decode
-generated 102569..103756 <- __convenience_const
+generated 25832..37228 <- Decode
+generated 37229..37338 <- Debug
+generated 37338..37446 <- Clone
+generated 37446..37563 <- PartialEq
+generated 37563..37672 <- Hash
+generated 37672..39042 <- Encode
+generated 39042..40869 <- Decode
+generated 41155..45627 <- Encode
+generated 45627..61675 <- Decode
+generated 61675..62736 <- __convenience_const
+generated 62976..66466 <- Encode
+generated 66466..77825 <- Decode
+generated 77825..78844 <- __convenience_const
+generated 78995..81914 <- Encode
+generated 81914..90959 <- Decode
+generated 90959..92041 <- __convenience_const
+generated 92163..94856 <- Encode
+generated 94856..102570 <- Decode
+generated 102570..103757 <- __convenience_const
 
 ## Metadata
 

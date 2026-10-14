@@ -574,6 +574,21 @@ function mismatch(expected: string): DecodeError {
 }
 
 /**
+ * A decoder of the values `is` says are of a type, refusing every other as
+ * not `expected`: what checks a value of a type parameter, which only a
+ * guard can say anything of.
+ */
+export function guardedDecoder<Value>(
+  is: (value: unknown) => value is Value,
+  expected: string,
+): Decoder<Value> {
+  return (raw) => {
+    if (is(raw)) return raw;
+    throw mismatch(expected);
+  };
+}
+
+/**
  * What the text at a hole of a template literal type has to be: any text,
  * a decimal number, a whole number, or one of the texts listed.
  */

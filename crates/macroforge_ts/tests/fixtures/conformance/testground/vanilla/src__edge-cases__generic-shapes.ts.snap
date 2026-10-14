@@ -15,7 +15,7 @@ true
 import { edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeItemDecodeWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 /**
  * Generic types: parameters with constraints and defaults, parameters used
  * in every position a field can hold one, and fields that instantiate
@@ -524,8 +524,8 @@ export function genericBoxHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["held", "list", "maybe", "byName", "set", "record", "pair"]);
 }
 
-export function genericBoxIs<T>(obj: unknown): obj is GenericBox<T> {
-    return genericBoxHasShape(obj) && genericBoxDecode(obj).success;
+export function genericBoxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is GenericBox<T> {
+    return genericBoxHasShape(obj) && genericBoxDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const GenericBox: {
@@ -817,8 +817,8 @@ export function genericPairHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["left", "right"]);
 }
 
-export function genericPairIs<Left, Right = Left>(obj: unknown): obj is GenericPair<Left, Right> {
-    return genericPairHasShape(obj) && genericPairDecode(obj).success;
+export function genericPairIs<Left, Right = Left>(obj: unknown, __isLeft: (value: unknown) => value is Left, __isRight: (value: unknown) => value is Right): obj is GenericPair<Left, Right> {
+    return genericPairHasShape(obj) && genericPairDecode(obj, undefined, __mf_guardedDecoder(__isLeft, "Left"), __mf_guardedDecoder(__isRight, "Right")).success;
 }
 
 export const GenericPair: {
@@ -1151,8 +1151,8 @@ export function genericConstrainedHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["item", "name", "items"]);
 }
 
-export function genericConstrainedIs<Item extends EdgeItem, Name extends string = string>(obj: unknown): obj is GenericConstrained<Item, Name> {
-    return genericConstrainedHasShape(obj) && genericConstrainedDecode(obj).success;
+export function genericConstrainedIs<Item extends EdgeItem, Name extends string = string>(obj: unknown, __isItem: (value: unknown) => value is Item, __isName: (value: unknown) => value is Name): obj is GenericConstrained<Item, Name> {
+    return genericConstrainedHasShape(obj) && genericConstrainedDecode(obj, undefined, __mf_guardedDecoder(__isItem, "Item"), __mf_guardedDecoder(__isName, "Name")).success;
 }
 
 export const GenericConstrained: {
@@ -1491,14 +1491,12 @@ static hasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["items", "top", "depth"]);
 }
 
-static is<T>(obj: unknown): obj is GenericStack<T> {
-    if (obj instanceof GenericStack) {
-        return true;
-    }
+static is<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is GenericStack<T> {
     if (!GenericStack.hasShape(obj)) {
         return false;
     }
-    const result = GenericStack.decode(obj);
+
+    const result = GenericStack.decode<T>(obj, undefined, __mf_guardedDecoder(__isT, "T"));
     return result.success;
 }
 }
@@ -1560,8 +1558,8 @@ export function genericStackDecodePartialWithContext<T>(value: unknown, ctx: __m
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export function genericStackIs<T>(value: unknown): value is GenericStack<T> {
-    return GenericStack.is<T>(value);
+export function genericStackIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericStack<T> {
+    return GenericStack.is<T>(value, __isT);
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -1728,8 +1726,8 @@ export function genericResultHasShape(value: unknown): boolean {
                 if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
-export function genericResultIs<Value, Failure>(value: unknown): value is GenericResult<Value, Failure> {
-    return genericResultHasShape(value);
+export function genericResultIs<Value, Failure>(value: unknown, __isValue: (value: unknown) => value is Value, __isFailure: (value: unknown) => value is Failure): value is GenericResult<Value, Failure> {
+    return genericResultHasShape(value) && genericResultDecode(value, undefined, __mf_guardedDecoder(__isValue, "Value"), __mf_guardedDecoder(__isFailure, "Failure")).success;
 }
 
 export const GenericResult: {
@@ -1834,8 +1832,8 @@ export function genericListDecode<T>(input: unknown, opts?: __mf_DecodeOptions, 
     }
 }
 
-export function genericListIs<T>(value: unknown): value is GenericList<T> {
-    return genericListHasShape(value);
+export function genericListIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericList<T> {
+    return genericListHasShape(value) && genericListDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function genericListDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericList<T> {
@@ -2024,8 +2022,8 @@ export function genericMaybeDecodeWithContext<T>(value: unknown, ctx: __mf_Decod
 export function genericMaybeHasShape(_value: unknown): boolean {
                 return true;
 }
-export function genericMaybeIs<T>(value: unknown): value is GenericMaybe<T> {
-    return genericMaybeHasShape(value);
+export function genericMaybeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericMaybe<T> {
+    return genericMaybeHasShape(value) && genericMaybeDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const GenericMaybe: {
@@ -2923,8 +2921,8 @@ export function genericWrapperHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["inner", "pairs"]);
 }
 
-export function genericWrapperIs<T>(obj: unknown): obj is GenericWrapper<T> {
-    return genericWrapperHasShape(obj) && genericWrapperDecode(obj).success;
+export function genericWrapperIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is GenericWrapper<T> {
+    return genericWrapperHasShape(obj) && genericWrapperDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const GenericWrapper: {
@@ -3125,8 +3123,8 @@ export function genericOutcomeHasShape(value: unknown): boolean {
                 }
                 return false;
 }
-export function genericOutcomeIs<T>(value: unknown): value is GenericOutcome<T> {
-    return genericOutcomeHasShape(value);
+export function genericOutcomeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericOutcome<T> {
+    return genericOutcomeHasShape(value) && genericOutcomeDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const GenericOutcome: {
@@ -4250,14 +4248,12 @@ static hasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["value", "many", "pair"]);
 }
 
-static is<T extends string | number = string, U = T[]>(obj: unknown): obj is GenericDefaults<T, U> {
-    if (obj instanceof GenericDefaults) {
-        return true;
-    }
+static is<T extends string | number = string, U = T[]>(obj: unknown, __isT: (value: unknown) => value is T, __isU: (value: unknown) => value is U): obj is GenericDefaults<T, U> {
     if (!GenericDefaults.hasShape(obj)) {
         return false;
     }
-    const result = GenericDefaults.decode(obj);
+
+    const result = GenericDefaults.decode<T, U>(obj, undefined, __mf_guardedDecoder(__isT, "T"), __mf_guardedDecoder(__isU, "U"));
     return result.success;
 }
 }
@@ -4319,8 +4315,8 @@ export function genericDefaultsDecodePartialWithContext<T extends string | numbe
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export function genericDefaultsIs<T extends string | number = string, U = T[]>(value: unknown): value is GenericDefaults<T, U> {
-    return GenericDefaults.is<T, U>(value);
+export function genericDefaultsIs<T extends string | number = string, U = T[]>(value: unknown, __isT: (value: unknown) => value is T, __isU: (value: unknown) => value is U): value is GenericDefaults<T, U> {
+    return GenericDefaults.is<T, U>(value, __isT, __isU);
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -4713,7 +4709,7 @@ export declare function genericBoxValidateFields<T>(partial: { readonly [K in ke
 	message: string;
 }>;
 export declare function genericBoxHasShape(obj: unknown): boolean;
-export declare function genericBoxIs<T>(obj: unknown): obj is GenericBox<T>;
+export declare function genericBoxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is GenericBox<T>;
 export declare const GenericBox: {
 	readonly toString: typeof genericBoxToString;
 	readonly clone: typeof genericBoxClone;
@@ -4817,7 +4813,7 @@ export declare function genericPairHasShape(obj: unknown): boolean;
 export declare function genericPairIs<
 	Left,
 	Right = Left
->(obj: unknown): obj is GenericPair<Left, Right>;
+>(obj: unknown, __isLeft: (value: unknown) => value is Left, __isRight: (value: unknown) => value is Right): obj is GenericPair<Left, Right>;
 export declare const GenericPair: {
 	readonly toString: typeof genericPairToString;
 	readonly clone: typeof genericPairClone;
@@ -4922,7 +4918,7 @@ export declare function genericConstrainedHasShape(obj: unknown): boolean;
 export declare function genericConstrainedIs<
 	Item extends EdgeItem,
 	Name extends string = string
->(obj: unknown): obj is GenericConstrained<Item, Name>;
+>(obj: unknown, __isItem: (value: unknown) => value is Item, __isName: (value: unknown) => value is Name): obj is GenericConstrained<Item, Name>;
 export declare const GenericConstrained: {
 	readonly toString: typeof genericConstrainedToString;
 	readonly clone: typeof genericConstrainedClone;
@@ -4988,7 +4984,7 @@ export declare class GenericStack<T> {
 		message: string;
 	}>;
 	static hasShape(obj: unknown): boolean;
-	static is<T>(obj: unknown): obj is GenericStack<T>;
+	static is<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is GenericStack<T>;
 }
 export declare function genericStackToString<T>(value: GenericStack<T>): string;
 export declare function genericStackClone<T>(value: GenericStack<T>): GenericStack<T>;
@@ -5019,7 +5015,7 @@ export declare function genericStackHasShape(value: unknown): boolean;
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
 export declare function genericStackDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>, __decodeT?: __mf_Decoder<T>): Partial<GenericStack<T>> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export declare function genericStackIs<T>(value: unknown): value is GenericStack<T>;
+export declare function genericStackIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericStack<T>;
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type GenericResult<
 	Value,
@@ -5080,7 +5076,7 @@ export declare function genericResultHasShape(value: unknown): boolean;
 export declare function genericResultIs<
 	Value,
 	Failure
->(value: unknown): value is GenericResult<Value, Failure>;
+>(value: unknown, __isValue: (value: unknown) => value is Value, __isFailure: (value: unknown) => value is Failure): value is GenericResult<Value, Failure>;
 export declare const GenericResult: {
 	readonly toString: typeof genericResultToString;
 	readonly clone: typeof genericResultClone;
@@ -5114,7 +5110,7 @@ export declare function genericListDecode<T>(input: unknown, opts?: __mf_DecodeO
 		message: string;
 	}>;
 };
-export declare function genericListIs<T>(value: unknown): value is GenericList<T>;
+export declare function genericListIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericList<T>;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function genericListDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericList<T>;
 export declare function genericListHasShape(value: unknown): boolean;
@@ -5154,7 +5150,7 @@ export declare function genericMaybeDecode<T>(input: unknown, opts?: __mf_Decode
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function genericMaybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericMaybe<T> | __mf_PendingRef;
 export declare function genericMaybeHasShape(_value: unknown): boolean;
-export declare function genericMaybeIs<T>(value: unknown): value is GenericMaybe<T>;
+export declare function genericMaybeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericMaybe<T>;
 export declare const GenericMaybe: {
 	readonly toString: typeof genericMaybeToString;
 	readonly clone: typeof genericMaybeClone;
@@ -5277,7 +5273,7 @@ export declare function genericWrapperValidateFields<T>(partial: { readonly [K i
 	message: string;
 }>;
 export declare function genericWrapperHasShape(obj: unknown): boolean;
-export declare function genericWrapperIs<T>(obj: unknown): obj is GenericWrapper<T>;
+export declare function genericWrapperIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is GenericWrapper<T>;
 export declare const GenericWrapper: {
 	readonly toString: typeof genericWrapperToString;
 	readonly clone: typeof genericWrapperClone;
@@ -5318,7 +5314,7 @@ export declare function genericOutcomeDecode<T>(input: unknown, opts?: __mf_Deco
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function genericOutcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericOutcome<T> | __mf_PendingRef;
 export declare function genericOutcomeHasShape(value: unknown): boolean;
-export declare function genericOutcomeIs<T>(value: unknown): value is GenericOutcome<T>;
+export declare function genericOutcomeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericOutcome<T>;
 export declare const GenericOutcome: {
 	readonly toString: typeof genericOutcomeToString;
 	readonly clone: typeof genericOutcomeClone;
@@ -5493,7 +5489,7 @@ export declare class GenericDefaults<
 	static is<
 		T extends string | number = string,
 		U = T[]
-	>(obj: unknown): obj is GenericDefaults<T, U>;
+	>(obj: unknown, __isT: (value: unknown) => value is T, __isU: (value: unknown) => value is U): obj is GenericDefaults<T, U>;
 }
 export declare function genericDefaultsToString<
 	T extends string | number = string,
@@ -5560,7 +5556,7 @@ export declare function genericDefaultsDecodePartialWithContext<
 export declare function genericDefaultsIs<
 	T extends string | number = string,
 	U = T[]
->(value: unknown): value is GenericDefaults<T, U>;
+>(value: unknown, __isT: (value: unknown) => value is T, __isU: (value: unknown) => value is U): value is GenericDefaults<T, U>;
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface GenericDefaulted {
 	text: GenericDefaults;
@@ -5627,130 +5623,130 @@ export declare const GenericDefaulted: {
 
 ## Mapping
 
-original 0..519 -> expanded 1843..2362
-original 519..669 -> expanded 28726..28876
-original 669..876 -> expanded 43173..43380
-original 876..1050 -> expanded 60995..61169
-original 1050..1051 -> expanded 74798..74799
-original 1051..1230 -> expanded 78937..79116
-original 1230..1327 -> expanded 88022..88119
-original 1327..1430 -> expanded 94152..94255
-original 1430..1885 -> expanded 99842..100297
-original 1885..2047 -> expanded 129120..129282
-original 2047..2172 -> expanded 143817..143942
-original 2172..2817 -> expanded 153241..153886
-original 2817..3053 -> expanded 192704..192940
-original 3053..3054 -> expanded 208617..208618
-original 3054..3269 -> expanded 213707..213922
-original 3269..3270 -> expanded 229241..229242
-generated 0..1843 <- imports
-generated 2362..3087 <- Debug
-generated 3087..3812 <- Clone
-generated 3812..5092 <- PartialEq
-generated 5092..6105 <- Hash
-generated 6105..10975 <- Encode
-generated 10975..27386 <- Decode
-generated 27386..28726 <- __convenience_const
-generated 28876..29251 <- Debug
-generated 29251..29525 <- Clone
-generated 29525..29899 <- PartialEq
-generated 29899..30226 <- Hash
-generated 30226..33455 <- Encode
-generated 33455..41804 <- Decode
-generated 41804..43173 <- __convenience_const
-generated 43380..43869 <- Debug
-generated 43869..44268 <- Clone
-generated 44268..44962 <- PartialEq
-generated 44962..45467 <- Hash
-generated 45467..49220 <- Encode
-generated 49220..59423 <- Decode
-generated 59423..60995 <- __convenience_const
-generated 61169..61582 <- Debug
-generated 61582..61864 <- Clone
-generated 61864..62565 <- PartialEq
-generated 62565..63122 <- Hash
-generated 63122..63391 <- Default
-generated 63391..65849 <- Encode
-generated 65849..66226 <- Encode
-generated 66226..74798 <- Decode
-generated 74799..74920 <- Debug
-generated 74920..75044 <- Clone
-generated 75044..75177 <- PartialEq
-generated 75177..75298 <- Hash
-generated 75298..75409 <- Default
-generated 75409..76936 <- Encode
-generated 76936..78937 <- Decode
-generated 79116..79286 <- Debug
-generated 79286..79451 <- Clone
-generated 79451..79655 <- PartialEq
-generated 79655..79799 <- Hash
-generated 79799..82820 <- Encode
-generated 82820..87111 <- Decode
-generated 87111..88022 <- __convenience_const
-generated 88119..88257 <- Debug
-generated 88257..88403 <- Clone
-generated 88403..88725 <- PartialEq
-generated 88725..88907 <- Hash
-generated 88907..89996 <- Encode
-generated 89996..93283 <- Decode
-generated 93283..94152 <- __convenience_const
-generated 94255..94396 <- Debug
-generated 94396..94519 <- Clone
-generated 94519..94681 <- PartialEq
-generated 94681..94797 <- Hash
-generated 94797..96383 <- Encode
-generated 96383..98952 <- Decode
-generated 98952..99842 <- __convenience_const
-generated 100297..101157 <- Debug
-generated 101157..101835 <- Clone
-generated 101835..103049 <- PartialEq
-generated 103049..104109 <- Hash
-generated 104109..109270 <- Encode
-generated 109270..127751 <- Decode
-generated 127751..129120 <- __convenience_const
-generated 129282..129665 <- Debug
-generated 129665..129923 <- Clone
-generated 129923..130473 <- PartialEq
-generated 130473..130847 <- Hash
-generated 130847..133964 <- Encode
-generated 133964..142361 <- Decode
-generated 142361..143817 <- __convenience_const
-generated 143942..144089 <- Debug
-generated 144089..144218 <- Clone
-generated 144218..144386 <- PartialEq
-generated 144386..144506 <- Hash
-generated 144506..146907 <- Encode
-generated 146907..152309 <- Decode
-generated 152309..153241 <- __convenience_const
-generated 153886..155158 <- Debug
-generated 155158..156051 <- Clone
-generated 156051..157453 <- PartialEq
-generated 157453..158686 <- Hash
-generated 158686..165824 <- Encode
-generated 165824..191190 <- Decode
-generated 191190..192704 <- __convenience_const
-generated 192940..193418 <- Debug
-generated 193418..193750 <- Clone
-generated 193750..194244 <- PartialEq
-generated 194244..194673 <- Hash
-generated 194673..195010 <- Default
-generated 195010..197930 <- Encode
-generated 197930..198398 <- Encode
-generated 198398..208617 <- Decode
-generated 208618..208796 <- Debug
-generated 208796..208983 <- Clone
-generated 208983..209179 <- PartialEq
-generated 209179..209357 <- Hash
-generated 209357..209525 <- Default
-generated 209525..211346 <- Encode
-generated 211346..213707 <- Decode
-generated 213922..214361 <- Debug
-generated 214361..214649 <- Clone
-generated 214649..215061 <- PartialEq
-generated 215061..215447 <- Hash
-generated 215447..218415 <- Encode
-generated 218415..227727 <- Decode
-generated 227727..229241 <- __convenience_const
+original 0..519 -> expanded 1882..2401
+original 519..669 -> expanded 28848..28998
+original 669..876 -> expanded 43478..43685
+original 876..1050 -> expanded 61479..61653
+original 1050..1051 -> expanded 75303..75304
+original 1051..1230 -> expanded 79488..79667
+original 1230..1327 -> expanded 88806..88903
+original 1327..1430 -> expanded 95055..95158
+original 1430..1885 -> expanded 100865..101320
+original 1885..2047 -> expanded 130143..130305
+original 2047..2172 -> expanded 144923..145048
+original 2172..2817 -> expanded 154469..155114
+original 2817..3053 -> expanded 193932..194168
+original 3053..3054 -> expanded 209938..209939
+original 3054..3269 -> expanded 215120..215335
+original 3269..3270 -> expanded 230654..230655
+generated 0..1882 <- imports
+generated 2401..3126 <- Debug
+generated 3126..3851 <- Clone
+generated 3851..5131 <- PartialEq
+generated 5131..6144 <- Hash
+generated 6144..11014 <- Encode
+generated 11014..27508 <- Decode
+generated 27508..28848 <- __convenience_const
+generated 28998..29373 <- Debug
+generated 29373..29647 <- Clone
+generated 29647..30021 <- PartialEq
+generated 30021..30348 <- Hash
+generated 30348..33577 <- Encode
+generated 33577..42109 <- Decode
+generated 42109..43478 <- __convenience_const
+generated 43685..44174 <- Debug
+generated 44174..44573 <- Clone
+generated 44573..45267 <- PartialEq
+generated 45267..45772 <- Hash
+generated 45772..49525 <- Encode
+generated 49525..59907 <- Decode
+generated 59907..61479 <- __convenience_const
+generated 61653..62066 <- Debug
+generated 62066..62348 <- Clone
+generated 62348..63049 <- PartialEq
+generated 63049..63606 <- Hash
+generated 63606..63875 <- Default
+generated 63875..66333 <- Encode
+generated 66333..66710 <- Encode
+generated 66710..75303 <- Decode
+generated 75304..75425 <- Debug
+generated 75425..75549 <- Clone
+generated 75549..75682 <- PartialEq
+generated 75682..75803 <- Hash
+generated 75803..75914 <- Default
+generated 75914..77441 <- Encode
+generated 77441..79488 <- Decode
+generated 79667..79837 <- Debug
+generated 79837..80002 <- Clone
+generated 80002..80206 <- PartialEq
+generated 80206..80350 <- Hash
+generated 80350..83371 <- Encode
+generated 83371..87895 <- Decode
+generated 87895..88806 <- __convenience_const
+generated 88903..89041 <- Debug
+generated 89041..89187 <- Clone
+generated 89187..89509 <- PartialEq
+generated 89509..89691 <- Hash
+generated 89691..90780 <- Encode
+generated 90780..94186 <- Decode
+generated 94186..95055 <- __convenience_const
+generated 95158..95299 <- Debug
+generated 95299..95422 <- Clone
+generated 95422..95584 <- PartialEq
+generated 95584..95700 <- Hash
+generated 95700..97286 <- Encode
+generated 97286..99975 <- Decode
+generated 99975..100865 <- __convenience_const
+generated 101320..102180 <- Debug
+generated 102180..102858 <- Clone
+generated 102858..104072 <- PartialEq
+generated 104072..105132 <- Hash
+generated 105132..110293 <- Encode
+generated 110293..128774 <- Decode
+generated 128774..130143 <- __convenience_const
+generated 130305..130688 <- Debug
+generated 130688..130946 <- Clone
+generated 130946..131496 <- PartialEq
+generated 131496..131870 <- Hash
+generated 131870..134987 <- Encode
+generated 134987..143467 <- Decode
+generated 143467..144923 <- __convenience_const
+generated 145048..145195 <- Debug
+generated 145195..145324 <- Clone
+generated 145324..145492 <- PartialEq
+generated 145492..145612 <- Hash
+generated 145612..148013 <- Encode
+generated 148013..153537 <- Decode
+generated 153537..154469 <- __convenience_const
+generated 155114..156386 <- Debug
+generated 156386..157279 <- Clone
+generated 157279..158681 <- PartialEq
+generated 158681..159914 <- Hash
+generated 159914..167052 <- Encode
+generated 167052..192418 <- Decode
+generated 192418..193932 <- __convenience_const
+generated 194168..194646 <- Debug
+generated 194646..194978 <- Clone
+generated 194978..195472 <- PartialEq
+generated 195472..195901 <- Hash
+generated 195901..196238 <- Default
+generated 196238..199158 <- Encode
+generated 199158..199626 <- Encode
+generated 199626..209938 <- Decode
+generated 209939..210117 <- Debug
+generated 210117..210304 <- Clone
+generated 210304..210500 <- PartialEq
+generated 210500..210678 <- Hash
+generated 210678..210846 <- Default
+generated 210846..212667 <- Encode
+generated 212667..215120 <- Decode
+generated 215335..215774 <- Debug
+generated 215774..216062 <- Clone
+generated 216062..216474 <- PartialEq
+generated 216474..216860 <- Hash
+generated 216860..219828 <- Encode
+generated 219828..229140 <- Decode
+generated 229140..230654 <- __convenience_const
 
 ## Metadata
 

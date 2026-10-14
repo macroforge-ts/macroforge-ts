@@ -1166,6 +1166,7 @@ static is(obj: unknown): obj is HostileClass {
     if (!HostileClass.hasShape(obj)) {
         return false;
     }
+
     const result = HostileClass.decode(obj);
     return result.success;
 }
@@ -1696,9 +1697,9 @@ export declare const HostileStrict: {
 original 0..324 -> expanded 1262..1586
 original 324..728 -> expanded 13068..13472
 original 728..940 -> expanded 43716..43928
-original 940..941 -> expanded 53684..53685
-original 941..1069 -> expanded 57364..57492
-original 1069..1070 -> expanded 66663..66664
+original 940..941 -> expanded 53685..53686
+original 941..1069 -> expanded 57365..57493
+original 1069..1070 -> expanded 66664..66665
 generated 0..1262 <- imports
 generated 1586..1896 <- Debug
 generated 1896..2063 <- Clone
@@ -1720,16 +1721,16 @@ generated 44432..44804 <- PartialEq
 generated 44804..45274 <- Hash
 generated 45274..47206 <- Encode
 generated 47206..47537 <- Encode
-generated 47537..53684 <- Decode
-generated 53685..53797 <- Debug
-generated 53797..53909 <- Clone
-generated 53909..54030 <- PartialEq
-generated 54030..54142 <- Hash
-generated 54142..55522 <- Encode
-generated 55522..57364 <- Decode
-generated 57492..59696 <- Encode
-generated 59696..65560 <- Decode
-generated 65560..66663 <- __convenience_const
+generated 47537..53685 <- Decode
+generated 53686..53798 <- Debug
+generated 53798..53910 <- Clone
+generated 53910..54031 <- PartialEq
+generated 54031..54143 <- Hash
+generated 54143..55523 <- Encode
+generated 55523..57365 <- Decode
+generated 57493..59697 <- Encode
+generated 59697..65561 <- Decode
+generated 65561..66664 <- __convenience_const
 
 ## Metadata
 

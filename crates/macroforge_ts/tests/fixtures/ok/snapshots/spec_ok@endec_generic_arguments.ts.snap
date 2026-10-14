@@ -51,7 +51,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -347,8 +347,8 @@ export function boxHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["held", "list", "maybe"]);
 }
 
-export function boxIs<T>(obj: unknown): obj is Box<T> {
-    return boxHasShape(obj) && boxDecode(obj).success;
+export function boxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Box<T> {
+    return boxHasShape(obj) && boxDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 const Box: {
@@ -558,14 +558,12 @@ static hasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["items"]);
 }
 
-static is<T>(obj: unknown): obj is Stack<T> {
-    if (obj instanceof Stack) {
-        return true;
-    }
+static is<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Stack<T> {
     if (!Stack.hasShape(obj)) {
         return false;
     }
-    const result = Stack.decode(obj);
+
+    const result = Stack.decode<T>(obj, undefined, __mf_guardedDecoder(__isT, "T"));
     return result.success;
 }
 }
@@ -607,8 +605,8 @@ export function stackDecodePartialWithContext<T>(value: unknown, ctx: __mf_Decod
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export function stackIs<T>(value: unknown): value is Stack<T> {
-    return Stack.is<T>(value);
+export function stackIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Stack<T> {
+    return Stack.is<T>(value, __isT);
 }
 
 
@@ -756,8 +754,8 @@ export function outcomeHasShape(value: unknown): boolean {
                 if (__shapes.some((shape) => shape(value))) return true;
                 return false;
 }
-export function outcomeIs<Value, Failure>(value: unknown): value is Outcome<Value, Failure> {
-    return outcomeHasShape(value);
+export function outcomeIs<Value, Failure>(value: unknown, __isValue: (value: unknown) => value is Value, __isFailure: (value: unknown) => value is Failure): value is Outcome<Value, Failure> {
+    return outcomeHasShape(value) && outcomeDecode(value, undefined, __mf_guardedDecoder(__isValue, "Value"), __mf_guardedDecoder(__isFailure, "Failure")).success;
 }
 
 const Outcome: {
@@ -877,8 +875,8 @@ export function maybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContex
 export function maybeHasShape(_value: unknown): boolean {
                 return true;
 }
-export function maybeIs<T>(value: unknown): value is Maybe<T> {
-    return maybeHasShape(value);
+export function maybeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Maybe<T> {
+    return maybeHasShape(value) && maybeDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 const Maybe: {
@@ -974,8 +972,8 @@ export function pairDecode<Left, Right>(input: unknown, opts?: __mf_DecodeOption
     }
 }
 
-export function pairIs<Left, Right>(value: unknown): value is Pair<Left, Right> {
-    return pairHasShape(value);
+export function pairIs<Left, Right>(value: unknown, __isLeft: (value: unknown) => value is Left, __isRight: (value: unknown) => value is Right): value is Pair<Left, Right> {
+    return pairHasShape(value) && pairDecode(value, undefined, __mf_guardedDecoder(__isLeft, "Left"), __mf_guardedDecoder(__isRight, "Right")).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function pairDecodeWithContext<Left, Right>(value: unknown, ctx: __mf_DecodeContext, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): Pair<Left, Right> {
@@ -1275,8 +1273,8 @@ export function wrapperHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["inner"]);
 }
 
-export function wrapperIs<T>(obj: unknown): obj is Wrapper<T> {
-    return wrapperHasShape(obj) && wrapperDecode(obj).success;
+export function wrapperIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Wrapper<T> {
+    return wrapperHasShape(obj) && wrapperDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 const Wrapper: {
@@ -1808,7 +1806,7 @@ export declare function boxValidateFields<T>(partial: { readonly [K in keyof Box
 	message: string;
 }>;
 export declare function boxHasShape(obj: unknown): boolean;
-export declare function boxIs<T>(obj: unknown): obj is Box<T>;
+export declare function boxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Box<T>;
 declare class Stack<T> {
 	#private;
 	items: T[];
@@ -1848,7 +1846,7 @@ declare class Stack<T> {
 		message: string;
 	}>;
 	static hasShape(obj: unknown): boolean;
-	static is<T>(obj: unknown): obj is Stack<T>;
+	static is<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Stack<T>;
 }
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function stackEncode<T>(value: Stack<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
@@ -1874,7 +1872,7 @@ export declare function stackHasShape(value: unknown): boolean;
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
 export declare function stackDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Stack<T>>, __decodeT?: __mf_Decoder<T>): Partial<Stack<T>> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export declare function stackIs<T>(value: unknown): value is Stack<T>;
+export declare function stackIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Stack<T>;
 type Outcome<
 	Value,
 	Failure
@@ -1918,7 +1916,7 @@ export declare function outcomeHasShape(value: unknown): boolean;
 export declare function outcomeIs<
 	Value,
 	Failure
->(value: unknown): value is Outcome<Value, Failure>;
+>(value: unknown, __isValue: (value: unknown) => value is Value, __isFailure: (value: unknown) => value is Failure): value is Outcome<Value, Failure>;
 type Maybe<T> = T | null;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function maybeEncode<T>(value: Maybe<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
@@ -1938,7 +1936,7 @@ export declare function maybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function maybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Maybe<T> | __mf_PendingRef;
 export declare function maybeHasShape(_value: unknown): boolean;
-export declare function maybeIs<T>(value: unknown): value is Maybe<T>;
+export declare function maybeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Maybe<T>;
 type Pair<
 	Left,
 	Right
@@ -1970,7 +1968,7 @@ export declare function pairDecode<
 export declare function pairIs<
 	Left,
 	Right
->(value: unknown): value is Pair<Left, Right>;
+>(value: unknown, __isLeft: (value: unknown) => value is Left, __isRight: (value: unknown) => value is Right): value is Pair<Left, Right>;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function pairDecodeWithContext<
 	Left,
@@ -2015,7 +2013,7 @@ export declare function wrapperValidateFields<T>(partial: { readonly [K in keyof
 	message: string;
 }>;
 export declare function wrapperHasShape(obj: unknown): boolean;
-export declare function wrapperIs<T>(obj: unknown): obj is Wrapper<T>;
+export declare function wrapperIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Wrapper<T>;
 interface Shelf {
 	dated: Box<Date>;
 	stack: Stack<Box<Date>>;
@@ -2067,45 +2065,45 @@ export {};
 
 ## Mapping
 
-original 30..115 -> expanded 1131..1216
-original 115..117 -> expanded 15769..15771
-original 147..186 -> expanded 15771..15810
-original 186..187 -> expanded 23932..23933
-original 187..189 -> expanded 27286..27288
-original 219..312 -> expanded 27288..27381
-original 312..314 -> expanded 35069..35071
-original 344..370 -> expanded 35071..35097
-original 370..372 -> expanded 39581..39583
-original 402..442 -> expanded 39583..39623
-original 442..444 -> expanded 47284..47286
-original 474..518 -> expanded 47286..47330
-original 518..520 -> expanded 56975..56977
-original 550..803 -> expanded 56977..57230
-original 803..804 -> expanded 78317..78318
-generated 0..1131 <- imports
-generated 1216..4547 <- Encode
-generated 4547..14883 <- Decode
-generated 14883..15769 <- __convenience_const
-generated 15810..17546 <- Encode
-generated 17546..17909 <- Encode
-generated 17909..23932 <- Decode
-generated 23933..25390 <- Encode
-generated 25390..27286 <- Decode
-generated 27381..30360 <- Encode
-generated 30360..34567 <- Decode
-generated 34567..35069 <- __convenience_const
-generated 35097..36641 <- Encode
-generated 36641..39105 <- Decode
-generated 39105..39581 <- __convenience_const
-generated 39623..41278 <- Encode
-generated 41278..46821 <- Decode
-generated 46821..47284 <- __convenience_const
-generated 47330..49738 <- Encode
-generated 49738..56005 <- Decode
-generated 56005..56975 <- __convenience_const
-generated 57230..61733 <- Encode
-generated 61733..77389 <- Decode
-generated 77389..78317 <- __convenience_const
+original 30..115 -> expanded 1170..1255
+original 115..117 -> expanded 15891..15893
+original 147..186 -> expanded 15893..15932
+original 186..187 -> expanded 24082..24083
+original 187..189 -> expanded 27482..27484
+original 219..312 -> expanded 27484..27577
+original 312..314 -> expanded 35492..35494
+original 344..370 -> expanded 35494..35520
+original 370..372 -> expanded 40117..40119
+original 402..442 -> expanded 40119..40159
+original 442..444 -> expanded 48032..48034
+original 474..518 -> expanded 48034..48078
+original 518..520 -> expanded 57806..57808
+original 550..803 -> expanded 57808..58061
+original 803..804 -> expanded 79148..79149
+generated 0..1170 <- imports
+generated 1255..4586 <- Encode
+generated 4586..15005 <- Decode
+generated 15005..15891 <- __convenience_const
+generated 15932..17668 <- Encode
+generated 17668..18031 <- Encode
+generated 18031..24082 <- Decode
+generated 24083..25540 <- Encode
+generated 25540..27482 <- Decode
+generated 27577..30556 <- Encode
+generated 30556..34990 <- Decode
+generated 34990..35492 <- __convenience_const
+generated 35520..37064 <- Encode
+generated 37064..39641 <- Decode
+generated 39641..40117 <- __convenience_const
+generated 40159..41814 <- Encode
+generated 41814..47569 <- Decode
+generated 47569..48032 <- __convenience_const
+generated 48078..50486 <- Encode
+generated 50486..56836 <- Decode
+generated 56836..57806 <- __convenience_const
+generated 58061..62564 <- Encode
+generated 62564..78220 <- Decode
+generated 78220..79148 <- __convenience_const
 
 ## Metadata
 

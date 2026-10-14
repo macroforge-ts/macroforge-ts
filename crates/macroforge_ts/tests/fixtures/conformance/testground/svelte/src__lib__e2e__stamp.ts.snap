@@ -14,7 +14,7 @@ true
 
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { memberCoder as __mf_memberCoder, encodedMember as __mf_encodedMember, encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, member as __mf_member, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 /**
  * A generic alias over a foreign type, declared apart from the types that use
@@ -135,8 +135,8 @@ export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
 export function stampedHasShape(_value: unknown): boolean {
                 return true;
 }
-export function stampedIs<T>(value: unknown): value is Stamped<T> {
-    return stampedHasShape(value);
+export function stampedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Stamped<T> {
+    return stampedHasShape(value) && stampedDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const Stamped: {
@@ -284,7 +284,7 @@ export declare function stampedDecode<T>(input: unknown, opts?: __mf_DecodeOptio
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Stamped<T> | __mf_PendingRef;
 export declare function stampedHasShape(_value: unknown): boolean;
-export declare function stampedIs<T>(value: unknown): value is Stamped<T>;
+export declare function stampedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Stamped<T>;
 export declare const Stamped: {
 	readonly defaultValue: typeof stampedDefaultValue;
 	readonly encode: typeof stampedEncode;
@@ -334,23 +334,23 @@ export {};
 
 ## Mapping
 
-original 0..251 -> expanded 823..1074
-original 290..354 -> expanded 1074..1138
-original 354..356 -> expanded 6141..6143
-original 447..467 -> expanded 6143..6163
-original 483..484 -> expanded 6207..6208
-original 484..485 -> expanded 9539..9540
-generated 0..778 <- imports
-generated 778..823 <- $Newtype
-generated 1138..1245 <- Default
-generated 1245..2616 <- Encode
-generated 2616..5542 <- Decode
-generated 5542..6141 <- __convenience_const
-generated 6163..6207 <- $Newtype
-generated 6208..6285 <- Default
-generated 6285..6977 <- Encode
-generated 6977..8985 <- Decode
-generated 8985..9539 <- __convenience_const
+original 0..251 -> expanded 862..1113
+original 290..354 -> expanded 1113..1177
+original 354..356 -> expanded 6295..6297
+original 447..467 -> expanded 6297..6317
+original 483..484 -> expanded 6361..6362
+original 484..485 -> expanded 9693..9694
+generated 0..817 <- imports
+generated 817..862 <- $Newtype
+generated 1177..1284 <- Default
+generated 1284..2655 <- Encode
+generated 2655..5696 <- Decode
+generated 5696..6295 <- __convenience_const
+generated 6317..6361 <- $Newtype
+generated 6362..6439 <- Default
+generated 6439..7131 <- Encode
+generated 7131..9139 <- Decode
+generated 9139..9693 <- __convenience_const
 
 ## Metadata
 

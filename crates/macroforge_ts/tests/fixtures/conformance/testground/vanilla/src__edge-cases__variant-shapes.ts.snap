@@ -1580,6 +1580,7 @@ static is(obj: unknown): obj is VariantBase {
     if (!VariantBase.hasShape(obj)) {
         return false;
     }
+
     const result = VariantBase.decode(obj);
     return result.success;
 }
@@ -1983,6 +1984,7 @@ static override is(obj: unknown): obj is VariantMid {
     if (!VariantMid.hasShape(obj)) {
         return false;
     }
+
     const result = VariantMid.decode(obj);
     return result.success;
 }
@@ -2489,6 +2491,7 @@ static override is(obj: unknown): obj is VariantLeaf {
     if (!VariantLeaf.hasShape(obj)) {
         return false;
     }
+
     const result = VariantLeaf.decode(obj);
     return result.success;
 }
@@ -3319,15 +3322,15 @@ original 650..814 -> expanded 35444..35608
 original 814..978 -> expanded 42909..43073
 original 978..1152 -> expanded 50942..51116
 original 1152..1318 -> expanded 58011..58177
-original 1318..1319 -> expanded 69658..69659
-original 1319..1510 -> expanded 73398..73589
-original 1510..1511 -> expanded 88420..88421
-original 1511..1727 -> expanded 92118..92334
-original 1727..1728 -> expanded 112597..112598
-original 1728..1817 -> expanded 116337..116426
-original 1817..1908 -> expanded 119318..119409
-original 1908..2096 -> expanded 122323..122511
-original 2096..2097 -> expanded 125562..125563
+original 1318..1319 -> expanded 69659..69660
+original 1319..1510 -> expanded 73399..73590
+original 1510..1511 -> expanded 88422..88423
+original 1511..1727 -> expanded 92120..92336
+original 1727..1728 -> expanded 112600..112601
+original 1728..1817 -> expanded 116340..116429
+original 1817..1908 -> expanded 119321..119412
+original 1908..2096 -> expanded 122326..122514
+original 2096..2097 -> expanded 125565..125566
 generated 0..1552 <- imports
 generated 1868..2143 <- Debug
 generated 2143..2304 <- Clone
@@ -3381,50 +3384,50 @@ generated 59320..59854 <- Hash
 generated 59854..60125 <- Default
 generated 60125..62294 <- Encode
 generated 62294..62623 <- Encode
-generated 62623..69658 <- Decode
-generated 69659..69768 <- Debug
-generated 69768..69876 <- Clone
-generated 69876..69993 <- PartialEq
-generated 69993..70102 <- Hash
-generated 70102..70201 <- Default
-generated 70201..71571 <- Encode
-generated 71571..73398 <- Decode
-generated 73589..74093 <- Debug
-generated 74093..74388 <- Clone
-generated 74388..75157 <- PartialEq
-generated 75157..76045 <- Hash
-generated 76045..76424 <- Default
-generated 76424..79062 <- Encode
-generated 79062..79398 <- Encode
-generated 79398..88420 <- Decode
-generated 88421..88527 <- Debug
-generated 88527..88631 <- Clone
-generated 88631..88744 <- PartialEq
-generated 88744..88850 <- Hash
-generated 88850..88946 <- Default
-generated 88946..90306 <- Encode
-generated 90306..92118 <- Decode
-generated 92334..93060 <- Debug
-generated 93060..93514 <- Clone
-generated 93514..94707 <- PartialEq
-generated 94707..95932 <- Hash
-generated 95932..96453 <- Default
-generated 96453..99891 <- Encode
-generated 99891..100229 <- Encode
-generated 100229..112597 <- Decode
-generated 112598..112707 <- Debug
-generated 112707..112815 <- Clone
-generated 112815..112932 <- PartialEq
-generated 112932..113041 <- Hash
-generated 113041..113140 <- Default
-generated 113140..114510 <- Encode
-generated 114510..116337 <- Decode
-generated 116426..118950 <- Encode
-generated 118950..119318 <- __convenience_const
-generated 119409..121948 <- Encode
-generated 121948..122323 <- __convenience_const
-generated 122511..125338 <- Encode
-generated 125338..125562 <- __convenience_const
+generated 62623..69659 <- Decode
+generated 69660..69769 <- Debug
+generated 69769..69877 <- Clone
+generated 69877..69994 <- PartialEq
+generated 69994..70103 <- Hash
+generated 70103..70202 <- Default
+generated 70202..71572 <- Encode
+generated 71572..73399 <- Decode
+generated 73590..74094 <- Debug
+generated 74094..74389 <- Clone
+generated 74389..75158 <- PartialEq
+generated 75158..76046 <- Hash
+generated 76046..76425 <- Default
+generated 76425..79063 <- Encode
+generated 79063..79399 <- Encode
+generated 79399..88422 <- Decode
+generated 88423..88529 <- Debug
+generated 88529..88633 <- Clone
+generated 88633..88746 <- PartialEq
+generated 88746..88852 <- Hash
+generated 88852..88948 <- Default
+generated 88948..90308 <- Encode
+generated 90308..92120 <- Decode
+generated 92336..93062 <- Debug
+generated 93062..93516 <- Clone
+generated 93516..94709 <- PartialEq
+generated 94709..95934 <- Hash
+generated 95934..96455 <- Default
+generated 96455..99893 <- Encode
+generated 99893..100231 <- Encode
+generated 100231..112600 <- Decode
+generated 112601..112710 <- Debug
+generated 112710..112818 <- Clone
+generated 112818..112935 <- PartialEq
+generated 112935..113044 <- Hash
+generated 113044..113143 <- Default
+generated 113143..114513 <- Encode
+generated 114513..116340 <- Decode
+generated 116429..118953 <- Encode
+generated 118953..119321 <- __convenience_const
+generated 119412..121951 <- Encode
+generated 121951..122326 <- __convenience_const
+generated 122514..125341 <- Encode
+generated 125341..125565 <- __convenience_const
 
 ## Metadata
 

@@ -11,6 +11,9 @@ use crate::builtin::derive::common::function_prefix;
 
 use crate::builtin::derive::endec::decode::helpers::type_accepts_string;
 use crate::builtin::derive::endec::get_foreign_types;
+use crate::builtin::derive::endec::type_arguments::{
+    declared_param_guards, guarded_param_decoders,
+};
 use crate::builtin::return_types::{decode_return_type, wrap_error, wrap_success};
 
 pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream, MacroforgeError> {
@@ -39,6 +42,16 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
     let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
     let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", function_prefix(type_name)).into();
     let full_type_ident = ts_ident!(full_type_name);
+    // A value of a type parameter is checked by the guard handed in for it,
+    // through the alias's decoder.
+    let param_names: Vec<String> = type_alias
+        .type_params()
+        .iter()
+        .map(|param| param.name.clone())
+        .collect();
+    let guards = declared_param_guards(&param_names);
+    let guarded = guarded_param_decoders(&param_names);
+    let fn_decode_ident_expr: Expr = ts_ident!("{}Decode", function_prefix(type_name)).into();
 
     // Compute return type and wrappers
     let return_type = decode_return_type(full_type_name);
@@ -109,8 +122,12 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
             }
         }
 
-        export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
-            return @{fn_has_shape_expr}(value);
+        export function @{fn_is_ident}(value: unknown@{&guards}): value is @{full_type_ident} {
+            {#if param_names.is_empty()}
+                return @{fn_has_shape_expr}(value);
+            {:else}
+                return @{fn_has_shape_expr}(value) && @{fn_decode_ident_expr}(value@{&guarded}).success;
+            {/if}
         }
     };
     // The object, union and intersection bodies have decoders of their own.

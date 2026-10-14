@@ -16,7 +16,8 @@ use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{TypeNames, js_string, rendered};
 use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{
-    declared_param_coders, passed_param_coders, required_param_coders,
+    declared_param_coders, declared_param_guards, guarded_param_decoders, passed_param_coders,
+    required_param_coders,
 };
 use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{
@@ -257,6 +258,9 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
     let fn_decode_expr: Expr = ts_ident!(names.function("Decode")).into();
     let full_type_ident = names.full_type_ident();
     let shape_check_condition = holds_required_keys(fields);
+    // A value of a type parameter is checked by the guard handed in for it.
+    let guards = declared_param_guards(&names.params);
+    let guarded = guarded_param_decoders(&names.params);
     ts_template! {
         export function @{fn_has_shape_ident}(obj: unknown): boolean {
             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
@@ -265,8 +269,8 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
             return @{shape_check_condition};
         }
 
-        export function @{fn_is_ident}(obj: unknown): obj is @{full_type_ident} {
-            return @{fn_has_shape_expr}(obj) && @{fn_decode_expr}(obj).success;
+        export function @{fn_is_ident}(obj: unknown@{&guards}): obj is @{full_type_ident} {
+            return @{fn_has_shape_expr}(obj) && @{fn_decode_expr}(obj@{&guarded}).success;
         }
     }
 }

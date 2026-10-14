@@ -164,6 +164,7 @@ static is(obj: unknown): obj is Data {
     if (!Data.hasShape(obj)) {
         return false;
     }
+
     const result = Data.decode(obj);
     return result.success;
 }
@@ -256,11 +257,11 @@ export {};
 
 original 0..41 -> expanded 439..480
 original 63..94 -> expanded 480..511
-original 94..95 -> expanded 5658..5659
-original 95..96 -> expanded 7381..7382
+original 94..95 -> expanded 5659..5660
+original 95..96 -> expanded 7382..7383
 generated 0..439 <- imports
-generated 511..5658 <- Decode
-generated 5659..7381 <- Decode
+generated 511..5659 <- Decode
+generated 5660..7382 <- Decode
 
 ## Metadata
 

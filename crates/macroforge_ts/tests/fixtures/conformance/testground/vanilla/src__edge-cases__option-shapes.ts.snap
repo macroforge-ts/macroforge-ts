@@ -1369,6 +1369,7 @@ static is(obj: unknown): obj is OptionPascal {
     if (!OptionPascal.hasShape(obj)) {
         return false;
     }
+
     const result = OptionPascal.decode(obj);
     return result.success;
 }
@@ -4556,6 +4557,7 @@ static is(obj: unknown): obj is OptionKindsClass {
     if (!OptionKindsClass.hasShape(obj)) {
         return false;
     }
+
     const result = OptionKindsClass.decode(obj);
     return result.success;
 }
@@ -5453,18 +5455,18 @@ original 1440..2512 -> expanded 7193..8265
 original 2512..2743 -> expanded 28124..28355
 original 2743..2920 -> expanded 39666..39843
 original 2920..3088 -> expanded 51594..51762
-original 3088..3089 -> expanded 60305..60306
-original 3089..3243 -> expanded 63528..63682
-original 3243..3431 -> expanded 73775..73963
-original 3431..3637 -> expanded 85860..86066
-original 3637..3837 -> expanded 99114..99314
-original 3837..3984 -> expanded 111756..111903
-original 3984..4627 -> expanded 122749..123392
-original 4627..5235 -> expanded 147290..147898
-original 5235..5710 -> expanded 183814..184289
-original 5710..6103 -> expanded 184871..185264
-original 6103..6104 -> expanded 209854..209855
-original 6104..6105 -> expanded 213291..213292
+original 3088..3089 -> expanded 60306..60307
+original 3089..3243 -> expanded 63529..63683
+original 3243..3431 -> expanded 73776..73964
+original 3431..3637 -> expanded 85861..86067
+original 3637..3837 -> expanded 99115..99315
+original 3837..3984 -> expanded 111757..111904
+original 3984..4627 -> expanded 122750..123393
+original 4627..5235 -> expanded 147291..147899
+original 5235..5710 -> expanded 183815..184290
+original 5710..6103 -> expanded 184872..185265
+original 6103..6104 -> expanded 209856..209857
+original 6104..6105 -> expanded 213293..213294
 generated 0..1583 <- imports
 generated 2263..2684 <- Debug
 generated 2684..2930 <- Clone
@@ -5488,39 +5490,39 @@ generated 42691..50533 <- Decode
 generated 50533..51594 <- __convenience_const
 generated 51762..53726 <- Encode
 generated 53726..54057 <- Encode
-generated 54057..60305 <- Decode
-generated 60306..61686 <- Encode
-generated 61686..63528 <- Decode
-generated 63682..66249 <- Encode
-generated 66249..72714 <- Decode
-generated 72714..73775 <- __convenience_const
-generated 73963..77179 <- Encode
-generated 77179..84715 <- Decode
-generated 84715..85860 <- __convenience_const
-generated 86066..89203 <- Encode
-generated 89203..97801 <- Decode
-generated 97801..99114 <- __convenience_const
-generated 99314..102170 <- Encode
-generated 102170..110674 <- Decode
-generated 110674..111756 <- __convenience_const
-generated 111903..114506 <- Encode
-generated 114506..121667 <- Decode
-generated 121667..122749 <- __convenience_const
-generated 123392..127493 <- Encode
-generated 127493..146145 <- Decode
-generated 146145..147290 <- __convenience_const
-generated 147898..155631 <- Encode
-generated 155631..182753 <- Decode
-generated 182753..183814 <- __convenience_const
-generated 184289..184715 <- Default
-generated 184715..184871 <- __convenience_const
-generated 185264..186013 <- Default
-generated 186013..190653 <- Encode
-generated 190653..190992 <- Encode
-generated 190992..209854 <- Decode
-generated 209855..209969 <- Default
-generated 209969..211389 <- Encode
-generated 211389..213291 <- Decode
+generated 54057..60306 <- Decode
+generated 60307..61687 <- Encode
+generated 61687..63529 <- Decode
+generated 63683..66250 <- Encode
+generated 66250..72715 <- Decode
+generated 72715..73776 <- __convenience_const
+generated 73964..77180 <- Encode
+generated 77180..84716 <- Decode
+generated 84716..85861 <- __convenience_const
+generated 86067..89204 <- Encode
+generated 89204..97802 <- Decode
+generated 97802..99115 <- __convenience_const
+generated 99315..102171 <- Encode
+generated 102171..110675 <- Decode
+generated 110675..111757 <- __convenience_const
+generated 111904..114507 <- Encode
+generated 114507..121668 <- Decode
+generated 121668..122750 <- __convenience_const
+generated 123393..127494 <- Encode
+generated 127494..146146 <- Decode
+generated 146146..147291 <- __convenience_const
+generated 147899..155632 <- Encode
+generated 155632..182754 <- Decode
+generated 182754..183815 <- __convenience_const
+generated 184290..184716 <- Default
+generated 184716..184872 <- __convenience_const
+generated 185265..186014 <- Default
+generated 186014..190654 <- Encode
+generated 190654..190993 <- Encode
+generated 190993..209856 <- Decode
+generated 209857..209971 <- Default
+generated 209971..211391 <- Encode
+generated 211391..213293 <- Decode
 
 ## Metadata
 

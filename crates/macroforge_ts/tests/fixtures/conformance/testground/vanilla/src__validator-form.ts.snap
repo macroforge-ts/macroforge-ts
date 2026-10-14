@@ -324,6 +324,7 @@ static is(obj: unknown): obj is UserRegistrationForm {
     if (!UserRegistrationForm.hasShape(obj)) {
         return false;
     }
+
     const result = UserRegistrationForm.decode(obj);
     return result.success;
 }
@@ -665,6 +666,7 @@ static is(obj: unknown): obj is ProductForm {
     if (!ProductForm.hasShape(obj)) {
         return false;
     }
+
     const result = ProductForm.decode(obj);
     return result.success;
 }
@@ -962,6 +964,7 @@ static is(obj: unknown): obj is EventForm {
     if (!EventForm.hasShape(obj)) {
         return false;
     }
+
     const result = EventForm.decode(obj);
     return result.success;
 }
@@ -1238,6 +1241,7 @@ static is(obj: unknown): obj is MeasurementForm {
     if (!MeasurementForm.hasShape(obj)) {
         return false;
     }
+
     const result = MeasurementForm.decode(obj);
     return result.success;
 }
@@ -1575,23 +1579,23 @@ export declare function validateMeasurement(data: unknown): ValidationResult<Mea
 ## Mapping
 
 original 0..840 -> expanded 727..1567
-original 840..841 -> expanded 17783..17784
-original 841..1291 -> expanded 19746..20196
-original 1291..1292 -> expanded 35692..35693
-original 1292..1677 -> expanded 37520..37905
-original 1677..1678 -> expanded 51446..51447
-original 1678..1821 -> expanded 53244..53387
-original 1821..1822 -> expanded 63282..63283
-original 1822..2740 -> expanded 65170..66088
+original 840..841 -> expanded 17784..17785
+original 841..1291 -> expanded 19747..20197
+original 1291..1292 -> expanded 35694..35695
+original 1292..1677 -> expanded 37522..37907
+original 1677..1678 -> expanded 51449..51450
+original 1678..1821 -> expanded 53247..53390
+original 1821..1822 -> expanded 63286..63287
+original 1822..2740 -> expanded 65174..66092
 generated 0..727 <- imports
-generated 1567..17783 <- Decode
-generated 17784..19746 <- Decode
-generated 20196..35692 <- Decode
-generated 35693..37520 <- Decode
-generated 37905..51446 <- Decode
-generated 51447..53244 <- Decode
-generated 53387..63282 <- Decode
-generated 63283..65170 <- Decode
+generated 1567..17784 <- Decode
+generated 17785..19747 <- Decode
+generated 20197..35694 <- Decode
+generated 35695..37522 <- Decode
+generated 37907..51449 <- Decode
+generated 51450..53247 <- Decode
+generated 53390..63286 <- Decode
+generated 63287..65174 <- Decode
 
 ## Metadata
 

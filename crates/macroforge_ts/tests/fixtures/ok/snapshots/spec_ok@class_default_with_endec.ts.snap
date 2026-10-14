@@ -235,6 +235,7 @@ static is(obj: unknown): obj is Account {
     if (!Account.hasShape(obj)) {
         return false;
     }
+
     const result = Account.decode(obj);
     return result.success;
 }
@@ -362,16 +363,16 @@ export declare function accountIs(value: unknown): value is Account;
 ## Mapping
 
 original 39..111 -> expanded 762..834
-original 111..112 -> expanded 9337..9338
-original 112..113 -> expanded 12522..12523
+original 111..112 -> expanded 9338..9339
+original 112..113 -> expanded 12523..12524
 generated 0..762 <- imports
 generated 834..1054 <- Default
 generated 1054..2949 <- Encode
 generated 2949..3270 <- Encode
-generated 3270..9337 <- Decode
-generated 9338..9425 <- Default
-generated 9425..10755 <- Encode
-generated 10755..12522 <- Decode
+generated 3270..9338 <- Decode
+generated 9339..9426 <- Default
+generated 9426..10756 <- Encode
+generated 10756..12523 <- Decode
 
 ## Metadata
 

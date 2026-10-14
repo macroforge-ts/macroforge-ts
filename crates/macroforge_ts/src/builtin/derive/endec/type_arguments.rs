@@ -6,10 +6,10 @@
 //! made from each argument; a value of a parameter given none is carried as
 //! it is.
 
-use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::common::{js_string, rendered};
 use crate::macros::ts_template;
 
-use super::coder::{TypeScope, endec_type};
+use super::coder::{TypeScope, endec_helper, endec_type};
 use super::decode::helpers::{extract_base_type, nested_decode_fn_name};
 use super::encode::types::nested_encode_fn_name;
 use super::union_guard::Direction;
@@ -54,6 +54,54 @@ pub(crate) fn passed_param_coders(direction: Direction, params: &[String]) -> St
             rendered(ts_template! { , @{name} })
         })
         .collect()
+}
+
+/// The guard a generic type's `is` takes for its parameter `param`.
+fn param_guard(param: &str) -> String {
+    format!("__is{param}")
+}
+
+/// The guard parameters of a generic type's `is`, one a type parameter, as a
+/// parameter list declares them after the value: `, __isT: (value: unknown)
+/// => value is T`. Nothing but a guard says a value is of a type parameter.
+pub(crate) fn declared_param_guards(params: &[String]) -> String {
+    params
+        .iter()
+        .map(|param| {
+            let name = param_guard(param);
+            rendered(ts_template! { , @{name}: (value: unknown) => value is @{param} })
+        })
+        .collect()
+}
+
+/// The guards of a generic type's `is` as it hands them on: `, __isT`.
+pub(crate) fn passed_param_guards(params: &[String]) -> String {
+    params
+        .iter()
+        .map(|param| {
+            let name = param_guard(param);
+            rendered(ts_template! { , @{name} })
+        })
+        .collect()
+}
+
+/// The guards of a generic type's `is` as decoders of its parameters, after
+/// the options of its `decode`: `, undefined, __mf_guardedDecoder(__isT, "T")`.
+/// Empty for a type with no parameters.
+pub(crate) fn guarded_param_decoders(params: &[String]) -> String {
+    if params.is_empty() {
+        return String::new();
+    }
+    let guarded = endec_helper("guardedDecoder");
+    let decoders: String = params
+        .iter()
+        .map(|param| {
+            let name = param_guard(param);
+            let expected = js_string(param);
+            rendered(ts_template! { , @{&guarded}(@{name}, @{expected}) })
+        })
+        .collect();
+    format!(", undefined{decoders}")
 }
 
 /// The decoders of a generic type with `params` where a parameter follows

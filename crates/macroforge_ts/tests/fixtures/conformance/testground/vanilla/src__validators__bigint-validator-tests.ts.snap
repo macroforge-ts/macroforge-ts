@@ -182,6 +182,7 @@ static is(obj: unknown): obj is GreaterThanBigIntValidator {
     if (!GreaterThanBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = GreaterThanBigIntValidator.decode(obj);
     return result.success;
 }
@@ -376,6 +377,7 @@ static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator {
     if (!GreaterThanOrEqualToBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = GreaterThanOrEqualToBigIntValidator.decode(obj);
     return result.success;
 }
@@ -570,6 +572,7 @@ static is(obj: unknown): obj is LessThanBigIntValidator {
     if (!LessThanBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = LessThanBigIntValidator.decode(obj);
     return result.success;
 }
@@ -764,6 +767,7 @@ static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator {
     if (!LessThanOrEqualToBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = LessThanOrEqualToBigIntValidator.decode(obj);
     return result.success;
 }
@@ -958,6 +962,7 @@ static is(obj: unknown): obj is BetweenBigIntValidator {
     if (!BetweenBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = BetweenBigIntValidator.decode(obj);
     return result.success;
 }
@@ -1152,6 +1157,7 @@ static is(obj: unknown): obj is PositiveBigIntValidator {
     if (!PositiveBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = PositiveBigIntValidator.decode(obj);
     return result.success;
 }
@@ -1346,6 +1352,7 @@ static is(obj: unknown): obj is NonNegativeBigIntValidator {
     if (!NonNegativeBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NonNegativeBigIntValidator.decode(obj);
     return result.success;
 }
@@ -1540,6 +1547,7 @@ static is(obj: unknown): obj is NegativeBigIntValidator {
     if (!NegativeBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NegativeBigIntValidator.decode(obj);
     return result.success;
 }
@@ -1734,6 +1742,7 @@ static is(obj: unknown): obj is NonPositiveBigIntValidator {
     if (!NonPositiveBigIntValidator.hasShape(obj)) {
         return false;
     }
+
     const result = NonPositiveBigIntValidator.decode(obj);
     return result.success;
 }
@@ -2245,43 +2254,43 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 ## Mapping
 
 original 0..261 -> expanded 439..700
-original 261..262 -> expanded 7713..7714
-original 262..464 -> expanded 9766..9968
-original 464..465 -> expanded 17266..17267
-original 465..634 -> expanded 19454..19623
-original 634..635 -> expanded 26561..26562
-original 635..831 -> expanded 28569..28765
-original 831..832 -> expanded 35988..35989
-original 832..1001 -> expanded 38131..38300
-original 1001..1002 -> expanded 45270..45271
-original 1002..1165 -> expanded 47263..47426
-original 1165..1166 -> expanded 54337..54338
-original 1166..1338 -> expanded 56345..56517
-original 1338..1339 -> expanded 63521..63522
-original 1339..1502 -> expanded 65574..65737
-original 1502..1503 -> expanded 72648..72649
-original 1503..1675 -> expanded 74656..74828
-original 1675..1676 -> expanded 81832..81833
-original 1676..1677 -> expanded 83885..83886
+original 261..262 -> expanded 7714..7715
+original 262..464 -> expanded 9767..9969
+original 464..465 -> expanded 17268..17269
+original 465..634 -> expanded 19456..19625
+original 634..635 -> expanded 26564..26565
+original 635..831 -> expanded 28572..28768
+original 831..832 -> expanded 35992..35993
+original 832..1001 -> expanded 38135..38304
+original 1001..1002 -> expanded 45275..45276
+original 1002..1165 -> expanded 47268..47431
+original 1165..1166 -> expanded 54343..54344
+original 1166..1338 -> expanded 56351..56523
+original 1338..1339 -> expanded 63528..63529
+original 1339..1502 -> expanded 65581..65744
+original 1502..1503 -> expanded 72656..72657
+original 1503..1675 -> expanded 74664..74836
+original 1675..1676 -> expanded 81841..81842
+original 1676..1677 -> expanded 83894..83895
 generated 0..439 <- imports
-generated 700..7713 <- Decode
-generated 7714..9766 <- Decode
-generated 9968..17266 <- Decode
-generated 17267..19454 <- Decode
-generated 19623..26561 <- Decode
-generated 26562..28569 <- Decode
-generated 28765..35988 <- Decode
-generated 35989..38131 <- Decode
-generated 38300..45270 <- Decode
-generated 45271..47263 <- Decode
-generated 47426..54337 <- Decode
-generated 54338..56345 <- Decode
-generated 56517..63521 <- Decode
-generated 63522..65574 <- Decode
-generated 65737..72648 <- Decode
-generated 72649..74656 <- Decode
-generated 74828..81832 <- Decode
-generated 81833..83885 <- Decode
+generated 700..7714 <- Decode
+generated 7715..9767 <- Decode
+generated 9969..17268 <- Decode
+generated 17269..19456 <- Decode
+generated 19625..26564 <- Decode
+generated 26565..28572 <- Decode
+generated 28768..35992 <- Decode
+generated 35993..38135 <- Decode
+generated 38304..45275 <- Decode
+generated 45276..47268 <- Decode
+generated 47431..54343 <- Decode
+generated 54344..56351 <- Decode
+generated 56523..63528 <- Decode
+generated 63529..65581 <- Decode
+generated 65744..72656 <- Decode
+generated 72657..74664 <- Decode
+generated 74836..81841 <- Decode
+generated 81842..83894 <- Decode
 
 ## Metadata
 

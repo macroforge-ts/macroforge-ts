@@ -226,6 +226,7 @@ static is(obj: unknown): obj is Config {
     if (!Config.hasShape(obj)) {
         return false;
     }
+
     const result = Config.decode(obj);
     return result.success;
 }
@@ -348,14 +349,14 @@ export {};
 ## Mapping
 
 original 30..82 -> expanded 685..737
-original 82..83 -> expanded 8913..8914
-original 83..84 -> expanded 11986..11987
+original 82..83 -> expanded 8914..8915
+original 83..84 -> expanded 11987..11988
 generated 0..685 <- imports
 generated 737..2611 <- Encode
 generated 2611..2930 <- Encode
-generated 2930..8913 <- Decode
-generated 8914..10234 <- Encode
-generated 10234..11986 <- Decode
+generated 2930..8914 <- Decode
+generated 8915..10235 <- Encode
+generated 10235..11987 <- Decode
 
 ## Metadata
 

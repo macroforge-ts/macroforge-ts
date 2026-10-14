@@ -51,7 +51,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, guardedDecoder as __mf_guardedDecoder, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Nested values encoded and decoded through an interface and an object type
@@ -1000,8 +1000,8 @@ export function boxHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["label", "value"]);
 }
 
-export function boxIs<T>(obj: unknown): obj is Box<T> {
-    return boxHasShape(obj) && boxDecode(obj).success;
+export function boxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Box<T> {
+    return boxHasShape(obj) && boxDecode(obj, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const Box: {
@@ -1250,8 +1250,8 @@ export function pairHasShape(obj: unknown): boolean {
     return __mf_holdsAll(obj, ["first", "second"]);
 }
 
-export function pairIs<A, B>(obj: unknown): obj is Pair<A, B> {
-    return pairHasShape(obj) && pairDecode(obj).success;
+export function pairIs<A, B>(obj: unknown, __isA: (value: unknown) => value is A, __isB: (value: unknown) => value is B): obj is Pair<A, B> {
+    return pairHasShape(obj) && pairDecode(obj, undefined, __mf_guardedDecoder(__isA, "A"), __mf_guardedDecoder(__isB, "B")).success;
 }
 
 export const Pair: {
@@ -1427,8 +1427,8 @@ export function outcomeHasShape(value: unknown): boolean {
                 }
                 return false;
 }
-export function outcomeIs<T>(value: unknown): value is Outcome<T> {
-    return outcomeHasShape(value);
+export function outcomeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Outcome<T> {
+    return outcomeHasShape(value) && outcomeDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
 }
 
 export const Outcome: {
@@ -1639,7 +1639,7 @@ export declare function boxValidateFields<T>(partial: { readonly [K in keyof Box
 	message: string;
 }>;
 export declare function boxHasShape(obj: unknown): boolean;
-export declare function boxIs<T>(obj: unknown): obj is Box<T>;
+export declare function boxIs<T>(obj: unknown, __isT: (value: unknown) => value is T): obj is Box<T>;
 export declare const Box: {
 	readonly encode: typeof boxEncode;
 	readonly encodeWithContext: typeof boxEncodeWithContext;
@@ -1722,7 +1722,7 @@ export declare function pairHasShape(obj: unknown): boolean;
 export declare function pairIs<
 	A,
 	B
->(obj: unknown): obj is Pair<A, B>;
+>(obj: unknown, __isA: (value: unknown) => value is A, __isB: (value: unknown) => value is B): obj is Pair<A, B>;
 export declare const Pair: {
 	readonly encode: typeof pairEncode;
 	readonly encodeWithContext: typeof pairEncodeWithContext;
@@ -1754,7 +1754,7 @@ export declare function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptio
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Outcome<T> | __mf_PendingRef;
 export declare function outcomeHasShape(value: unknown): boolean;
-export declare function outcomeIs<T>(value: unknown): value is Outcome<T>;
+export declare function outcomeIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is Outcome<T>;
 export declare const Outcome: {
 	readonly encode: typeof outcomeEncode;
 	readonly encodeWithContext: typeof outcomeEncodeWithContext;
@@ -1770,40 +1770,40 @@ export declare const Outcome: {
 
 ## Mapping
 
-original 0..152 -> expanded 1032..1184
-original 182..212 -> expanded 1184..1214
-original 238..255 -> expanded 1214..1231
-original 255..257 -> expanded 10396..10398
-original 287..400 -> expanded 10398..10511
-original 400..402 -> expanded 23551..23553
-original 432..483 -> expanded 23553..23604
-original 505..526 -> expanded 23604..23625
-original 526..528 -> expanded 33696..33698
-original 558..619 -> expanded 33698..33759
-original 619..621 -> expanded 44234..44236
-original 651..710 -> expanded 44236..44295
-original 710..712 -> expanded 55956..55958
-original 742..784 -> expanded 55958..56000
-original 784..785 -> expanded 63246..63247
-generated 0..1032 <- imports
-generated 1231..3303 <- Encode
-generated 3303..9461 <- Decode
-generated 9461..10396 <- __convenience_const
-generated 10511..13404 <- Encode
-generated 13404..22616 <- Decode
-generated 22616..23551 <- __convenience_const
-generated 23625..26292 <- Encode
-generated 26292..32719 <- Decode
-generated 32719..33696 <- __convenience_const
-generated 33759..36417 <- Encode
-generated 36417..43341 <- Decode
-generated 43341..44234 <- __convenience_const
-generated 44295..47219 <- Encode
-generated 47219..55042 <- Decode
-generated 55042..55956 <- __convenience_const
-generated 56000..57973 <- Encode
-generated 57973..62737 <- Decode
-generated 62737..63246 <- __convenience_const
+original 0..152 -> expanded 1071..1223
+original 182..212 -> expanded 1223..1253
+original 238..255 -> expanded 1253..1270
+original 255..257 -> expanded 10435..10437
+original 287..400 -> expanded 10437..10550
+original 400..402 -> expanded 23590..23592
+original 432..483 -> expanded 23592..23643
+original 505..526 -> expanded 23643..23664
+original 526..528 -> expanded 33735..33737
+original 558..619 -> expanded 33737..33798
+original 619..621 -> expanded 44356..44358
+original 651..710 -> expanded 44358..44417
+original 710..712 -> expanded 56233..56235
+original 742..784 -> expanded 56235..56277
+original 784..785 -> expanded 63638..63639
+generated 0..1071 <- imports
+generated 1270..3342 <- Encode
+generated 3342..9500 <- Decode
+generated 9500..10435 <- __convenience_const
+generated 10550..13443 <- Encode
+generated 13443..22655 <- Decode
+generated 22655..23590 <- __convenience_const
+generated 23664..26331 <- Encode
+generated 26331..32758 <- Decode
+generated 32758..33735 <- __convenience_const
+generated 33798..36456 <- Encode
+generated 36456..43463 <- Decode
+generated 43463..44356 <- __convenience_const
+generated 44417..47341 <- Encode
+generated 47341..55319 <- Decode
+generated 55319..56233 <- __convenience_const
+generated 56277..58250 <- Encode
+generated 58250..63129 <- Decode
+generated 63129..63638 <- __convenience_const
 
 ## Metadata
 

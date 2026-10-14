@@ -192,6 +192,7 @@ static is(obj: unknown): obj is MaxItemsValidator {
     if (!MaxItemsValidator.hasShape(obj)) {
         return false;
     }
+
     const result = MaxItemsValidator.decode(obj);
     return result.success;
 }
@@ -396,6 +397,7 @@ static is(obj: unknown): obj is MinItemsValidator {
     if (!MinItemsValidator.hasShape(obj)) {
         return false;
     }
+
     const result = MinItemsValidator.decode(obj);
     return result.success;
 }
@@ -600,6 +602,7 @@ static is(obj: unknown): obj is ItemsCountValidator {
     if (!ItemsCountValidator.hasShape(obj)) {
         return false;
     }
+
     const result = ItemsCountValidator.decode(obj);
     return result.success;
 }
@@ -799,19 +802,19 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 ## Mapping
 
 original 0..240 -> expanded 507..747
-original 240..241 -> expanded 7841..7842
-original 241..396 -> expanded 9759..9914
-original 396..397 -> expanded 17011..17012
-original 397..558 -> expanded 18929..19090
-original 558..559 -> expanded 26248..26249
-original 559..560 -> expanded 28196..28197
+original 240..241 -> expanded 7842..7843
+original 241..396 -> expanded 9760..9915
+original 396..397 -> expanded 17013..17014
+original 397..558 -> expanded 18931..19092
+original 558..559 -> expanded 26251..26252
+original 559..560 -> expanded 28199..28200
 generated 0..507 <- imports
-generated 747..7841 <- Decode
-generated 7842..9759 <- Decode
-generated 9914..17011 <- Decode
-generated 17012..18929 <- Decode
-generated 19090..26248 <- Decode
-generated 26249..28196 <- Decode
+generated 747..7842 <- Decode
+generated 7843..9760 <- Decode
+generated 9915..17013 <- Decode
+generated 17014..18931 <- Decode
+generated 19092..26251 <- Decode
+generated 26252..28199 <- Decode
 
 ## Metadata
 

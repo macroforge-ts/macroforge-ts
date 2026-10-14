@@ -293,6 +293,7 @@ static is(obj: unknown): obj is Point {
     if (!Point.hasShape(obj)) {
         return false;
     }
+
     const result = Point.decode(obj);
     return result.success;
 }
@@ -443,8 +444,8 @@ export {};
 ## Mapping
 
 original 70..206 -> expanded 900..1036
-original 206..207 -> expanded 11593..11594
-original 207..208 -> expanded 15081..15082
+original 206..207 -> expanded 11594..11595
+original 207..208 -> expanded 15082..15083
 generated 0..900 <- imports
 generated 1036..1389 <- Debug
 generated 1389..1566 <- Clone
@@ -453,14 +454,14 @@ generated 1971..2588 <- Hash
 generated 2588..2829 <- Default
 generated 2829..4898 <- Encode
 generated 4898..5215 <- Encode
-generated 5215..11593 <- Decode
-generated 11594..11685 <- Debug
-generated 11685..11769 <- Clone
-generated 11769..11862 <- PartialEq
-generated 11862..11953 <- Hash
-generated 11953..12034 <- Default
-generated 12034..13344 <- Encode
-generated 13344..15081 <- Decode
+generated 5215..11594 <- Decode
+generated 11595..11686 <- Debug
+generated 11686..11770 <- Clone
+generated 11770..11863 <- PartialEq
+generated 11863..11954 <- Hash
+generated 11954..12035 <- Default
+generated 12035..13345 <- Encode
+generated 13345..15082 <- Decode
 
 ## Metadata
 
