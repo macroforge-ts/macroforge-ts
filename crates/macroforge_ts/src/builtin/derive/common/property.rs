@@ -2,6 +2,7 @@
 //! identifier, such as `first-name` or `0`, still names the property.
 
 use crate::ts_syn::ToTsString;
+use crate::ts_syn::scan::{Token, tokens};
 
 use super::js_string;
 
@@ -56,20 +57,33 @@ pub fn property_key(name: &str) -> String {
 }
 
 /// Whether `source` reads the binding `name`: the word on its own, not as a
-/// property of something else, as part of a longer name, or as the text of a
-/// string that names a field. A spread (`...name`) reads it.
+/// property of something else, a key of an object, or text in a string. A
+/// spread (`...name`) and a template's `${name}` read it.
 pub fn mentions(source: &str, name: &str) -> bool {
-    let is_name_char = |letter: char| letter.is_alphanumeric() || matches!(letter, '_' | '$');
-    source.match_indices(name).any(|(start, _)| {
-        let before = &source[..start];
-        let after = source[start + name.len()..].chars().next();
-        let is_property = before.ends_with('.') && !before.ends_with("...");
-        !is_property
-            && !before
-                .chars()
-                .next_back()
-                .is_some_and(|letter| is_name_char(letter) || letter == '"')
-            && !after.is_some_and(is_name_char)
+    let tokens = tokens(source);
+    let significant = |token: &&Token<'_>| !token.text().trim().is_empty();
+    tokens.iter().enumerate().any(|(index, token)| {
+        if *token != Token::Ident(name) {
+            return false;
+        }
+        let before: Vec<&str> = tokens
+            .get(..index)
+            .unwrap_or_default()
+            .iter()
+            .rev()
+            .filter(significant)
+            .take(3)
+            .map(Token::text)
+            .collect();
+        let after = tokens
+            .get(index + 1..)
+            .unwrap_or_default()
+            .iter()
+            .find(significant)
+            .map(Token::text);
+        let property = before.first() == Some(&".") && before != [".", ".", "."];
+        let key = after == Some(":") && matches!(before.first().copied(), Some("{" | ","));
+        !property && !key
     })
 }
 
@@ -117,6 +131,10 @@ mod tests {
         assert!(mentions("return [...value];", "value"));
         assert!(mentions("f(...ctx)", "ctx"));
         assert!(!mentions("other?.value", "value"));
+        assert!(!mentions("['value', `value`, { value: 1 }]", "value"));
+        assert!(mentions("`${value}`", "value"));
+        assert!(mentions("{ value }", "value"));
+        assert!(mentions("ok ? value : other", "value"));
     }
 
     #[test]
@@ -124,5 +142,64 @@ mod tests {
         assert_eq!(parameter_name("value", "return [value];"), "value");
         assert_eq!(parameter_name("value", "return [];"), "_value");
         assert_eq!(parameter_name("value", "[...value]"), "value");
+    }
+
+    mod properties {
+        use oxc::allocator::Allocator;
+        use oxc::ast::ast::IdentifierReference;
+        use oxc::ast_visit::Visit;
+        use oxc::parser::Parser;
+        use oxc::span::SourceType;
+        use proptest::collection::vec;
+        use proptest::sample::select;
+        use proptest::{prop_assert_eq, prop_assume, proptest};
+
+        use super::super::mentions;
+        use crate::ts_syn::strategies::property_config;
+
+        /// Whether `source` reads the binding `name`, as oxc reads it.
+        struct Reads<'name> {
+            name: &'name str,
+            found: bool,
+        }
+
+        impl<'a> Visit<'a> for Reads<'_> {
+            fn visit_identifier_reference(&mut self, reference: &IdentifierReference<'a>) {
+                self.found |= reference.name == self.name;
+            }
+        }
+
+        fn read_by_oxc(source: &str, name: &str) -> Option<bool> {
+            let allocator = Allocator::default();
+            let parsed = Parser::new(&allocator, source, SourceType::ts()).parse();
+            if !parsed.diagnostics.is_empty() {
+                return None;
+            }
+            let mut reads = Reads { name, found: false };
+            reads.visit_program(&parsed.program);
+            Some(reads.found)
+        }
+
+        proptest! {
+            #![proptest_config(property_config())]
+
+            #[test]
+            fn a_binding_is_mentioned_where_the_code_reads_it(
+                elements in vec(
+                    select(&[
+                        "value", "valueX", "xvalue", "_value", "$value", "value2", "a.value", "a?.value",
+                        "...value", "value.x", "value[0]", "\"value\"", "'value'", "`value`", "`${value}`",
+                        "{ value }", "{ value: 1 }", "{ a: value }", "{ 'value': 1 }", "{ ...value }",
+                        "f(value)", "x.value.y", "a['value']", "other", "1",
+                    ][..]),
+                    0..5,
+                ),
+            ) {
+                let source = format!("const read = [{}];", elements.join(", "));
+                let read = read_by_oxc(&source, "value");
+                prop_assume!(read.is_some());
+                prop_assert_eq!(Some(mentions(&source, "value")), read, "{}", source);
+            }
+        }
     }
 }
