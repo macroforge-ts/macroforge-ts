@@ -652,6 +652,62 @@ fn cache_with_explicit_root_keeps_state_in_that_project() {
     );
 }
 
+/// A file whose expansion fails fails `cache` on every run, and the cache
+/// keeps no expansion of it for a plugin to serve without the error.
+#[test]
+fn cache_fails_on_a_file_that_fails_to_expand_and_keeps_none_of_it() {
+    let temp = TempDir::new().unwrap();
+    let root = temp.path();
+    std::fs::create_dir_all(root.join("src")).unwrap();
+    std::fs::write(root.join("macroforge.config.ts"), "export default {};\n").unwrap();
+    std::fs::write(
+        root.join("src").join("point.ts"),
+        "/** @derive(Debug) */\nexport class Point {\n  x: number;\n}\n",
+    )
+    .unwrap();
+    let shade = root.join("src").join("shade.ts");
+    std::fs::write(
+        &shade,
+        "/** @derive(Default) */\nexport enum Shade {\n  /** @default */\n  Light = 'light',\n}\n",
+    )
+    .unwrap();
+    let cache = |expect_success: bool| {
+        let output = macroforge_bin()
+            .arg("cache")
+            .arg(root)
+            .output()
+            .expect("failed to run macroforge");
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        assert_eq!(output.status.success(), expect_success, "{stderr}");
+        stderr
+    };
+    let cache_dir = root.join(".macroforge").join("cache");
+    let manifest = || std::fs::read_to_string(cache_dir.join("manifest.json")).unwrap();
+
+    cache(true);
+    assert!(cache_dir.join("src/shade.ts.cache").is_file());
+
+    std::fs::write(
+        &shade,
+        "/** @derive(Default) */\nexport enum Shade {\n  Light = 'light',\n}\n",
+    )
+    .unwrap();
+    for _run in 0..2 {
+        let stderr = cache(false);
+        assert!(
+            stderr.contains("src/shade.ts: @derive(Default) on enum requires"),
+            "{stderr}"
+        );
+        assert!(
+            stderr.contains("macro expansion failed for 1 file(s)"),
+            "{stderr}"
+        );
+        assert!(!cache_dir.join("src/shade.ts.cache").exists());
+        assert!(!manifest().contains("src/shade.ts"), "{}", manifest());
+        assert!(manifest().contains("src/point.ts"), "{}", manifest());
+    }
+}
+
 #[test]
 fn svelte_package_accepts_full_rebuild() {
     // Packaging is incremental by default, so the escape hatch has to exist and

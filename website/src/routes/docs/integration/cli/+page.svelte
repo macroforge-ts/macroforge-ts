@@ -371,7 +371,9 @@ cargo install --path macroforge_ts
 
 <p>
     Builds the <code>.macroforge/cache</code> directory once for all source files.
-    Useful for CI or pre-build steps.
+    Useful for CI or pre-build steps. A file whose expansion fails is reported and left out of
+    the cache, so a plugin reading the cache expands it and reports the same errors, and the
+    command exits with an error. <code>macroforge refresh</code> does the same.
 </p>
 
 <CodeBlock code={`macroforge cache [root] [options]`} lang="bash" />
