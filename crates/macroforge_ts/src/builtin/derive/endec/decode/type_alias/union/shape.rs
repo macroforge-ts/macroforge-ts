@@ -230,12 +230,11 @@ pub(super) fn has_shape(u: &Union) -> TsStream {
     }
 }
 
-/// Narrows to the union: the shape check, and a decode as well when an arm
-/// carries validators or the union has type parameters, whose values the
-/// guards handed in for them check.
+/// Narrows to the union: a value it says yes to decodes, as the shape check
+/// alone would let through a value its decoder refuses. A type parameter's
+/// values are checked by the guards handed in for them.
 pub(super) fn is_guard(u: &Union) -> TsStream {
     let Union {
-        has_arm_validators,
         type_name,
         generic_decl,
         full_type_ident,
@@ -248,14 +247,9 @@ pub(super) fn is_guard(u: &Union) -> TsStream {
     let fn_decode_expr: Expr = ts_ident!("{}Decode", camel).into();
     let guards = declared_param_guards(param_names);
     let guarded = guarded_param_decoders(param_names);
-    let decodes = *has_arm_validators || !param_names.is_empty();
     ts_template! {
         export function @{fn_is_ident}(value: unknown@{&guards}): value is @{full_type_ident} {
-            {#if decodes}
-                return @{fn_has_shape_expr}(value) && @{fn_decode_expr}(value@{&guarded}).success;
-            {:else}
-                return @{fn_has_shape_expr}(value);
-            {/if}
+            return @{fn_has_shape_expr}(value) && @{fn_decode_expr}(value@{&guarded}).success;
         }
     }
 }

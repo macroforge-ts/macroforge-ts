@@ -95,7 +95,6 @@ pub(super) struct Union<'a> {
     pub(super) literals: Vec<String>,
     pub(super) primitive_types: Vec<String>,
     pub(super) primitive_arms: Vec<(String, Vec<ValidatorSpec>)>,
-    pub(super) has_arm_validators: bool,
     pub(super) encodable_types: Vec<EncodableTypeRef>,
     pub(super) has_primitives: bool,
     pub(super) has_encodables: bool,
@@ -237,9 +236,6 @@ impl<'a> Union<'a> {
         if arm_diagnostics.has_errors() {
             return Err(MacroforgeErrors::new(arm_diagnostics.into_vec()).into());
         }
-        let has_arm_validators = primitive_arms
-            .iter()
-            .any(|(_, validators)| !validators.is_empty());
 
         // Generic type parameters (like T, U) - these are passed through as-is
         let generic_type_params: Vec<String> = type_refs
@@ -527,7 +523,6 @@ impl<'a> Union<'a> {
             literals,
             primitive_types,
             primitive_arms,
-            has_arm_validators,
             param_decoder,
             regular_encodables: regular_encodables.into_iter().cloned().collect(),
             foreign_encodables: foreign_encodables.into_iter().cloned().collect(),

@@ -42,8 +42,8 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
     let fn_is_ident = ts_ident!("{}Is{}", function_prefix(type_name), generic_decl);
     let fn_has_shape_expr: Expr = ts_ident!("{}HasShape", function_prefix(type_name)).into();
     let full_type_ident = ts_ident!(full_type_name);
-    // A value of a type parameter is checked by the guard handed in for it,
-    // through the alias's decoder.
+    // A value `is` says yes to decodes, its type parameters' values checked
+    // by the guards handed in for them.
     let param_names: Vec<String> = type_alias
         .type_params()
         .iter()
@@ -123,11 +123,7 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
         }
 
         export function @{fn_is_ident}(value: unknown@{&guards}): value is @{full_type_ident} {
-            {#if param_names.is_empty()}
-                return @{fn_has_shape_expr}(value);
-            {:else}
-                return @{fn_has_shape_expr}(value) && @{fn_decode_ident_expr}(value@{&guarded}).success;
-            {/if}
+            return @{fn_has_shape_expr}(value) && @{fn_decode_ident_expr}(value@{&guarded}).success;
         }
     };
     // The object, union and intersection bodies have decoders of their own.

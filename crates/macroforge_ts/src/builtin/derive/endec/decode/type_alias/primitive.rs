@@ -166,12 +166,9 @@ pub(super) fn handle_primitive_type_alias(
             {/if}
         }
 
+        // A value `is` says yes to decodes.
         export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
-            {#if has_validators}
-                return @{&value_is_primitive} && @{fn_decode_expr}(value).success;
-            {:else}
-                return @{&value_is_primitive};
-            {/if}
+            return @{&value_is_primitive} && @{fn_decode_expr}(value).success;
         }
     };
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);

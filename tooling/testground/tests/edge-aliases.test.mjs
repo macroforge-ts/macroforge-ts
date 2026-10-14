@@ -528,3 +528,10 @@ Deno.test('a tagged union refuses input that is no member, in every tagging mode
     }
     assertEquals(accepted, []);
 });
+
+Deno.test('is says yes only to a value its decoder takes', () => {
+    assert(mod.aliasDateIs(NEW_YEAR));
+    assert(!mod.aliasDateIs('not a date'));
+    assert(mod.aliasDateOrNullIs(null));
+    assert(!mod.aliasDateOrNullIs('not a date'));
+});
