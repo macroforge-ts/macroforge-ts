@@ -85,9 +85,43 @@ fn after_directive(text: &str) -> Option<&str> {
         .trim_start_matches([' ', '\t']);
     match after.strip_prefix(';') {
         Some(ended) => Some(ended),
-        None if after.is_empty() || after.starts_with(['\n', '\r']) => Some(after),
+        None if after.is_empty() => Some(after),
+        // A line break ends the statement only where what follows cannot go
+        // on with it: `"a"\n(f)()` calls the string.
+        None if after.starts_with(['\n', '\r']) && !continues_expression(after) => Some(after),
         None => None,
     }
+}
+
+/// Whether the code `text` holds, past blanks and comments, goes on with an
+/// expression written before it.
+fn continues_expression(text: &str) -> bool {
+    let mut rest = text;
+    loop {
+        rest = rest.trim_start();
+        if rest.starts_with("//") {
+            rest = after_line(rest);
+        } else if let Some(comment) = rest.strip_prefix("/*") {
+            let Some((_, after)) = comment.split_once("*/") else {
+                return false;
+            };
+            rest = after;
+        } else {
+            break;
+        }
+    }
+    // `++` and `--` after a line break start the next statement.
+    if rest.starts_with("++") || rest.starts_with("--") {
+        return false;
+    }
+    let operator = rest.starts_with([
+        '(', '[', '`', '.', ',', '?', '+', '-', '*', '/', '%', '=', '<', '>', '&', '|', '^',
+    ]) || rest.starts_with("!=");
+    let word = rest
+        .split(|letter: char| !(letter.is_alphanumeric() || matches!(letter, '_' | '$')))
+        .next()
+        .unwrap_or_default();
+    operator || matches!(word, "in" | "instanceof" | "as" | "satisfies")
 }
 
 #[cfg(test)]
@@ -143,6 +177,10 @@ mod tests {
         assert_eq!(body("'a' + b;\n"), "'a' + b;\n");
         assert_eq!(body("'open\n"), "'open\n");
         assert_eq!(body("'it\\'s';\nexport {};\n"), "export {};\n");
+        // A line that goes on with the string makes it an expression.
+        assert_eq!(body("'a'\n(f)();\n"), "'a'\n(f)();\n");
+        assert_eq!(body("'a'\n// note\n.length;\n"), "'a'\n// note\n.length;\n");
+        assert_eq!(body("'a'\n++b;\n"), "++b;\n");
     }
 
     #[test]
@@ -165,5 +203,119 @@ mod tests {
             "// @ts-ignore\nexport {};\n"
         );
         assert_eq!(body("/* open\nexport {};\n"), "/* open\nexport {};\n");
+    }
+
+    mod properties {
+        use oxc::allocator::Allocator;
+        use oxc::parser::Parser;
+        use oxc::span::{GetSpan, SourceType};
+        use proptest::collection::vec;
+        use proptest::option::of;
+        use proptest::sample::select;
+        use proptest::strategy::{Just, Strategy};
+        use proptest::{prop_assert, prop_assume, prop_oneof, proptest};
+
+        use super::super::preamble_end;
+        use crate::strategies::{hostile_text, property_config, quoted};
+
+        /// A line that may open a file: a comment, a pragma, a directive.
+        /// Hostile text on one line.
+        fn comment_text() -> impl Strategy<Value = String> {
+            hostile_text().prop_map(|text| text.replace(['\n', '\r'], " "))
+        }
+
+        fn opening_line() -> impl Strategy<Value = String> {
+            prop_oneof![
+                Just(String::new()),
+                comment_text().prop_map(|text| format!("// {text}")),
+                Just("/// <reference types=\"node\" />".to_string()),
+                select(&["// @ts-nocheck", "// @ts-check", "/** @jsx h */"][..])
+                    .prop_map(str::to_string),
+                comment_text().prop_map(|text| format!("/* {} */", text.replace("*/", "* /"))),
+                (
+                    hostile_text(),
+                    select(&['"', '\''][..]),
+                    select(&["", ";", " ;"][..])
+                )
+                    .prop_map(|(text, quote, end)| format!("{}{end}", quoted(&text, quote))),
+            ]
+        }
+
+        /// What a file holds after its opening lines.
+        fn body() -> impl Strategy<Value = &'static str> {
+            select(
+                &[
+                    "",
+                    "export const after = 1;\n",
+                    "'not' + 1;\n",
+                    "'tail'.length;\n",
+                    "(function () {})();\n",
+                    "/** Docs. */\nexport class Held {}\n",
+                ][..],
+            )
+        }
+
+        fn source() -> impl Strategy<Value = String> {
+            (
+                of(Just("\u{feff}")),
+                of(Just("#!/usr/bin/env node\n")),
+                vec(opening_line(), 0..6),
+                select(&["\n", "\r\n"][..]),
+                body(),
+            )
+                .prop_map(|(mark, hashbang, lines, line_end, body)| {
+                    let mut source = String::new();
+                    source.push_str(mark.unwrap_or_default());
+                    source.push_str(hashbang.unwrap_or_default());
+                    for line in lines {
+                        source.push_str(&line);
+                        source.push_str(line_end);
+                    }
+                    source.push_str(body);
+                    source
+                })
+        }
+
+        proptest! {
+            #![proptest_config(property_config())]
+
+            /// The preamble holds every directive, the hashbang and each
+            /// comment TypeScript reads only at the top of a file, and no
+            /// statement.
+            #[test]
+            fn the_preamble_holds_what_has_to_stay_first_and_no_code(source in source()) {
+                let end = preamble_end(&source);
+                prop_assert!(source.get(..end).is_some(), "{} is no character boundary", end);
+                let allocator = Allocator::default();
+                let parsed = Parser::new(&allocator, &source, SourceType::ts()).parse();
+                prop_assume!(parsed.diagnostics.is_empty());
+                let end = u32::try_from(end).unwrap_or(u32::MAX);
+                let program = &parsed.program;
+                let first_statement = program.body.first().map_or(u32::MAX, |statement| statement.span().start);
+                prop_assert!(first_statement >= end, "{:?}: code before {}", source, end);
+                for directive in &program.directives {
+                    prop_assert!(directive.span.end <= end, "{:?}: a directive after {}", source, end);
+                }
+                if let Some(hashbang) = &program.hashbang {
+                    prop_assert!(hashbang.span.end <= end, "{:?}: the hashbang after {}", source, end);
+                }
+                for comment in program.comments.iter().filter(|comment| comment.span.end <= first_statement) {
+                    let written = source
+                        .get(comment.span.start as usize..comment.span.end as usize)
+                        .unwrap_or_default();
+                    let pragma = written.strip_prefix("//").and_then(|rest| rest.split_whitespace().next());
+                    let read_at_the_top = written.starts_with("///")
+                        || matches!(pragma, Some("@ts-check" | "@ts-nocheck"))
+                        || (written.starts_with("/*") && written.contains("@jsx"));
+                    prop_assert!(
+                        !read_at_the_top || comment.span.end <= end,
+                        "{:?}: {} after {}",
+                        source,
+                        written,
+                        end
+                    );
+                }
+            }
+        }
     }
 }
