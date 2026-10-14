@@ -1498,40 +1498,6 @@ export async function macroforge() {
         },
 
         /**
-         * Phase 17: HMR invalidation for the native scan cache.
-         *
-         * Vite fires `handleHotUpdate` on every file that changed on
-         * disk. We forward the path to the Rust scanner's singleton
-         * cache so the next scan sees fresh IR. For configuration
-         * files we clear the whole cache since any cached entry may now
-         * be stale.
-         *
-         * The hook returns `undefined` so Vite uses its default module-
-         * graph invalidation logic: we're only piggy-backing on the
-         * notification, not trying to control what reloads.
-         *
-         * @param {{ file: string, modules: any[] }} ctx
-         */
-        handleHotUpdate(ctx) {
-            const file = ctx.file;
-            // Config files invalidate the entire cache (matches the
-            // `clear_cache` path in the Rust singleton).
-            if (
-                file.endsWith('macroforge.config.ts') ||
-                file.endsWith('macroforge.config.js') ||
-                file.endsWith('macroforge.config.mjs') ||
-                file.endsWith('tsconfig.json')
-            ) {
-                engine.clearScanCache();
-                return;
-            }
-            // Source file change: drop the single entry. The next
-            // `scanProjectSync` call (either from buildStart or a future
-            // HMR refresh) will re-parse it.
-            engine.invalidateScanCacheEntry(file);
-        },
-
-        /**
          * Flush the cache manifest on server close.
          */
         buildEnd() {
