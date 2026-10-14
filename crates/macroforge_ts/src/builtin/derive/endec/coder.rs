@@ -24,7 +24,7 @@ use crate::ts_syn::abi::ir::{
 use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::ts_ident;
 
-use super::decode::helpers::{primitive_accepts, structural_accepts};
+use super::decode::helpers::{extract_base_type, primitive_accepts, structural_accepts};
 use super::nested::NestedType;
 use super::type_arguments::param_coder;
 use super::uncodable::uncodable;
@@ -59,6 +59,25 @@ impl TypeScope<'_> {
         let Some(mut nested) = NestedType::of(ts_type, &|name| self.is_param(name))? else {
             return Ok(None);
         };
+        // A name the file neither declares nor imports, and the project
+        // declares nowhere, is a type with no functions to code it. The
+        // `$Newtype` brand is the expander's own.
+        let base = extract_base_type(&nested.name);
+        if base != crate::ts_syn::abi::ir::type_alias::NEWTYPE_MACRO
+            && self.registry.knows_declarations_of(self.file_path)
+            && !self
+                .file_imports
+                .iter()
+                .any(|import| import.local_name == base)
+            && self
+                .registry
+                .resolve_in_file(&base, self.file_path, self.file_imports)
+                .is_none()
+        {
+            return Err(format!(
+                "`{base}` is a type this file neither declares nor imports, so no function codes its values; a type parameter of a Svelte component's `generics` attribute is one: code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`"
+            ));
+        }
         let mut arguments = Vec::new();
         for argument in nested.type_arguments() {
             arguments.push(match direction {

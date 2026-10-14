@@ -934,6 +934,15 @@ impl TypeRegistry {
         }
     }
 
+    /// Whether the registry was told what the file at `file_path` declares:
+    /// then a name the file neither declares nor resolves through an import
+    /// or the project is none of the project's types.
+    pub fn knows_declarations_of(&self, file_path: &str) -> bool {
+        self.declaring
+            .as_ref()
+            .is_some_and(|declaring| same_file(&declaring.file_path, file_path))
+    }
+
     /// This registry's generation: what a host installs it under in a macro
     /// guest, and what a reference to it names.
     pub fn generation(&self) -> RegistryGeneration {

@@ -1077,6 +1077,16 @@ describe('Foreign types in union type alias decoding', () => {
       import type { DateTime } from 'effect';
 
       /** @derive(Decode) */
+      interface SuccessData {
+        value: number;
+      }
+
+      /** @derive(Decode) */
+      interface FailureData {
+        reason: string;
+      }
+
+      /** @derive(Decode) */
       type EventPayload = SuccessData | FailureData | DateTime.DateTime;
     `,
             'test.ts',
@@ -1120,6 +1130,11 @@ describe('Foreign types in union type alias decoding', () => {
         const result = expandSync(
             `
       import type { DateTime } from 'effect';
+
+      /** @derive(Decode) */
+      interface RegularType {
+        name: string;
+      }
 
       /** @derive(Decode) */
       type Value = DateTime.DateTime | RegularType;

@@ -21,6 +21,12 @@ export interface Holder {
     refs: Set<WeakRef<object>>;
 }
 
+/** A type of the project's that only shares a utility type's name. */
+/** @derive(Encode, Decode) */
+export interface Parameters {
+    count: number;
+}
+
 /** A branded primitive, `unknown` and a type that only shares a utility type's name are read. */
 /** @derive(Encode, Decode) */
 export interface Read {

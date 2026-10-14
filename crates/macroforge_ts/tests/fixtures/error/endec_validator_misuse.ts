@@ -31,3 +31,8 @@ export interface Misused {
 /** @derive(Decode) */
 /** @endec(email) */
 export type Meters = number;
+
+/** @derive(Decode) */
+export interface Address {
+    street: string;
+}

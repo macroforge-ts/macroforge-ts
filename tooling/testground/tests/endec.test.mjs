@@ -238,6 +238,11 @@ describe('Encode macro expansion', () => {
     test('handles Array encoding with nested objects', () => {
         const code = `
       /** @derive(Encode) */
+      class Item {
+        name: string;
+      }
+
+      /** @derive(Encode) */
       class Container {
         items: Item[];
       }
@@ -385,6 +390,11 @@ describe('Decode macro expansion', () => {
 
     test('handles Array decoding', () => {
         const code = `
+      /** @derive(Decode) */
+      class Item {
+        name: string;
+      }
+
       /** @derive(Decode) */
       class Container {
         items: Item[];
@@ -705,6 +715,16 @@ describe('Type alias encoding', () => {
 
     test('generates prefixed functions for union type alias', () => {
         const code = `
+      /** @derive(Encode) */
+      interface Success {
+        value: number;
+      }
+
+      /** @derive(Encode) */
+      interface Failure {
+        reason: string;
+      }
+
       /** @derive(Encode) */
       type Result = Success | Failure;
     `;

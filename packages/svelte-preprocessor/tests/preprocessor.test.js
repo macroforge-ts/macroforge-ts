@@ -1,6 +1,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import { originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
+import { compile, preprocess } from 'svelte/compiler';
 import { macroforgePreprocess } from '../src/index.ts';
 
 describe('macroforgePreprocess', () => {
@@ -250,5 +251,23 @@ interface Account {
                 `${field} maps to its own line`
             );
         }
+    });
+});
+
+describe('type parameters of a component', () => {
+    test('a field typed by a type parameter of the component is refused, naming it', async () => {
+        const source = `<script lang="ts" generics="T">
+/** @derive(Encode) */
+interface Held { value: T; }
+let { held }: { held: Held } = $props();
+</script>`;
+        await assert.rejects(
+            preprocess(source, [macroforgePreprocess()], { filename: 'Generic.svelte' }),
+            (error) => {
+                assert.match(error.message, /`T` is a type this file neither declares nor imports/);
+                assert.match(error.message, /generics/);
+                return true;
+            }
+        );
     });
 });

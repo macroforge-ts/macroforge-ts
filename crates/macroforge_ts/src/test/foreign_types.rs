@@ -333,6 +333,11 @@ fn test_derive_decode_union_with_foreign_type_uses_has_shape() {
 import type { DateTime } from 'effect';
 
 /** @derive(Decode) */
+interface RegularType {
+    id: string;
+}
+
+/** @derive(Decode) */
 type FlexibleValue = DateTime.DateTime | RegularType;
 "#;
 
@@ -390,6 +395,11 @@ fn test_derive_decode_union_keeps_a_string_its_foreign_has_shape_accepts() {
 import type { DateTime } from 'effect';
 
 /** @derive(Decode) */
+interface RegularType {
+    id: string;
+}
+
+/** @derive(Decode) */
 type FlexibleValue = DateTime.DateTime | RegularType;
 "#;
     for has_shape in ["isIsoString", "(v) => typeof v === \"number\""] {
@@ -418,6 +428,11 @@ type FlexibleValue = DateTime.DateTime | RegularType;
 fn test_derive_decode_union_without_has_shape_parses_strings() {
     let source = r#"
 import type { DateTime } from 'effect';
+
+/** @derive(Decode) */
+interface RegularType {
+    id: string;
+}
 
 /** @derive(Decode) */
 type FlexibleValue = DateTime.DateTime | RegularType;
@@ -525,6 +540,11 @@ fn test_derive_decode_union_foreign_without_has_shape() {
     // but won't participate in shape matching
     let source = r#"
 import type { DateTime } from 'effect';
+
+/** @derive(Decode) */
+interface RegularType {
+    id: string;
+}
 
 /** @derive(Decode) */
 type Value = DateTime.DateTime | RegularType;
