@@ -185,6 +185,28 @@ const unattached = 1;
         );
     });
 
+    test('a macro error names its line and column in the component', async () => {
+        const content = `
+/** @derive(Default) */
+interface Chain {
+    next: Chain;
+}
+`;
+        const markup = `<h1>Title</h1>\n<script lang="ts">${content}</script>\n`;
+        await assert.rejects(
+            macroforgePreprocess().script({
+                content,
+                markup,
+                filename: 'chain.svelte',
+                attributes: { lang: 'ts' }
+            }),
+            (error) => {
+                assert.match(error.message, /chain\.svelte:5:5: @derive\(Default\)/);
+                return true;
+            }
+        );
+    });
+
     test('a script the engine cannot read fails the block', async () => {
         await assert.rejects(
             macroforgePreprocess().script({

@@ -27,7 +27,12 @@
  */
 
 import type { Preprocessor, PreprocessorGroup } from 'svelte/compiler';
-import { type ExpandOptions, sourceMapOf, type SourceMapping } from '@macroforge/shared';
+import {
+    type ExpandOptions,
+    lineAndColumn,
+    sourceMapOf,
+    type SourceMapping
+} from '@macroforge/shared';
 
 /**
  * Result returned from the native macro expansion engine.
@@ -287,6 +292,7 @@ export function macroforgePreprocess(
      */
     const scriptPreprocessor: Preprocessor = async ({
         content,
+        markup,
         filename,
         attributes
     }) => {
@@ -360,10 +366,20 @@ export function macroforgePreprocess(
          * built without the code its macros generate is broken where it is
          * used, with nothing to say why. Warnings are logged.
          */
+        // Where the script starts in the component, so a message names the
+        // place in the file that holds it.
+        const scriptStart = typeof markup === 'string' && content.length > 0
+            ? markup.indexOf(content)
+            : -1;
+        const place = (start: number | undefined) => {
+            if (start === undefined || scriptStart < 0 || typeof markup !== 'string') return '';
+            const { line, column } = lineAndColumn(markup, scriptStart + start);
+            return `${component}:${line}:${column}: `;
+        };
         const errors = [];
         for (const diag of result.diagnostics) {
             if (diag.level === 'error') {
-                errors.push(diag.message);
+                errors.push(place(diag.start) + diag.message);
             } else if (diag.level === 'warning') {
                 console.warn(
                     `[@macroforge/svelte-preprocessor] Warning in ${component}: ${diag.message}`
