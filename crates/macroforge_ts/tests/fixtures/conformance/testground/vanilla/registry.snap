@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (438)
+## Types (441)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -375,6 +375,9 @@ Release 3550b2642a2f6145
 Route d842c3764989a8d3
 Run d2d61a9324ec3ac5
 RunesTestResults e9117c97d94d7aec
+ScannedHandlers d1491d5879650425
+ScannedKey 3ea12740e1cc16d1
+ScannedText 85914e26d88b5e10
 Scores 64257904cae6d774
 ServerStatus cfce776f0ee07718
 Settings 1347e315bb09e091
@@ -442,7 +445,7 @@ WideRecord c9bd8ffc061d4d25
 WideShape 5c00c985b1a5c6b3
 point2D 9c3236f9adc43b41
 
-## Qualified types (441)
+## Qualified types (444)
 
 checks/repeated-error.ts::Holder e348868fb978f545
 checks/repeated-error.ts::Plain d98534e25d4536f1
@@ -660,6 +663,9 @@ src/edge-cases/partial-shapes.ts::EdgeOptional 5e40d329f43db492
 src/edge-cases/partial-shapes.ts::EdgePartials d625058f9bc429ee
 src/edge-cases/partial-shapes.ts::EdgeRenamedPartials d17207a1b044a165
 src/edge-cases/partial-shapes.ts::EdgeRequired 2f797e96eb17229b
+src/edge-cases/scanned-text.ts::ScannedHandlers d1491d5879650425
+src/edge-cases/scanned-text.ts::ScannedKey 3ea12740e1cc16d1
+src/edge-cases/scanned-text.ts::ScannedText 85914e26d88b5e10
 src/edge-cases/special-shapes.ts::SpecialCarried ef845798678ece7a
 src/edge-cases/special-shapes.ts::SpecialCollections 166cfe617c885552
 src/edge-cases/special-shapes.ts::SpecialEither 76754322ebbf28dd
