@@ -6,6 +6,7 @@ use crate::ts_syn::abi::ir::split_top_level_commas;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMember, TypeMemberKind};
 use crate::ts_syn::abi::{DecoratorIR, Diagnostic, DiagnosticLevel, InterfaceFieldIR, SpanIR};
 use crate::ts_syn::import_registry::SourceImportEntry;
+use crate::ts_syn::scan::Quoting;
 
 use super::DERIVE_MODULE_PATH;
 use super::derive_targets::{DeriveTarget, DeriveTargetIR, diagnostic_span_for_derive};
@@ -697,39 +698,68 @@ pub(super) fn check_merged_declarations(
         .collect()
 }
 
-/// How deep `ts_type` nests at its deepest: the brackets of every kind that
-/// are open there, and the `[]` suffixes of an array of arrays.
+/// How deep `ts_type` nests at its deepest: a level for each bracket of any
+/// kind open there, and one for each `[]` around the type it follows.
 pub(super) fn type_depth(ts_type: &str) -> usize {
-    let (mut open, mut suffixes, mut deepest) = (0usize, 0usize, 0usize);
-    let mut quote = None;
+    // For each bracket open, how deep its contents reach, and how deep the
+    // type last written in it is, which a `[]` after it wraps.
+    let mut frames = vec![Frame::default()];
+    let mut quoting = Quoting::default();
     let mut previous = ' ';
     let mut letters = ts_type.chars().peekable();
     while let Some(letter) = letters.next() {
-        match (quote, letter) {
-            (Some(opened), _) => {
-                if letter == opened && previous != '\\' {
-                    quote = None;
+        let follows = std::mem::replace(&mut previous, letter);
+        let opens_string = !quoting.in_string();
+        let in_string = quoting.feed(letter);
+        match (in_string, letter) {
+            (true, _) if opens_string => frames.last_mut().map_or((), Frame::start_type),
+            (true, _) => {}
+            (false, '[') if letters.peek() == Some(&']') => {
+                letters.next();
+                previous = ']';
+                if let Some(frame) = frames.last_mut() {
+                    frame.wrap(frame.last + 1);
                 }
             }
-            (None, '"' | '\'' | '`') => quote = Some(letter),
-            (None, '[') if letters.peek() == Some(&']') => {
-                letters.next();
-                suffixes += 1;
-            }
-            (None, '(' | '[' | '{' | '<') => {
-                open += 1;
-                suffixes = 0;
-            }
-            (None, ')' | ']' | '}') => open = open.saturating_sub(1),
+            (false, '(' | '[' | '{' | '<') => frames.push(Frame::default()),
             // The `>` of an arrow closes nothing.
-            (None, '>') if previous != '=' => open = open.saturating_sub(1),
-            (None, _) if letter.is_whitespace() || letter == '>' => {}
-            (None, _) => suffixes = 0,
+            (false, '>') if follows == '=' => frames.last_mut().map_or((), Frame::start_type),
+            (false, ')' | ']' | '}' | '>') if frames.len() > 1 => {
+                let group = frames.pop().map_or(0, |inner| inner.deepest) + 1;
+                if let Some(frame) = frames.last_mut() {
+                    // An index (`T['key']`) is as deep as what it indexes.
+                    frame.wrap(frame.last.max(group));
+                }
+            }
+            (false, _) if letter.is_whitespace() => {}
+            (false, _) => frames.last_mut().map_or((), Frame::start_type),
         }
-        deepest = deepest.max(open + suffixes);
-        previous = letter;
     }
-    deepest
+    // A bracket left open nests what is in it as a closed one does.
+    frames
+        .iter()
+        .enumerate()
+        .map(|(open, frame)| open + frame.deepest)
+        .max()
+        .unwrap_or_default()
+}
+
+/// What [`type_depth`] knows of the text in one bracket.
+#[derive(Debug, Default, Clone, Copy)]
+struct Frame {
+    deepest: usize,
+    last: usize,
+}
+
+impl Frame {
+    fn start_type(&mut self) {
+        self.last = 0;
+    }
+
+    fn wrap(&mut self, depth: usize) {
+        self.last = depth;
+        self.deepest = self.deepest.max(depth);
+    }
 }
 
 /// A tuple written in `ts_type` whose rest element is not its last, as
@@ -739,22 +769,18 @@ pub(super) fn tuple_with_early_rest(ts_type: &str) -> Option<&str> {
     // The `[` of each tuple still open: an index (`T['key']`) and an array's
     // `[]` follow what they belong to, and a tuple follows nothing.
     let mut open: Vec<Option<usize>> = Vec::new();
-    let mut quote = None;
+    let mut quoting = Quoting::default();
     let mut previous = ' ';
     for (at, letter) in ts_type.char_indices() {
-        match (quote, letter) {
-            (Some(opened), _) => {
-                if letter == opened && previous != '\\' {
-                    quote = None;
-                }
-            }
-            (None, '"' | '\'' | '`') => quote = Some(letter),
-            (None, '[') => {
+        let in_string = quoting.feed(letter);
+        match (in_string, letter) {
+            (true, _) => {}
+            (false, '[') => {
                 let follows = previous.is_alphanumeric()
                     || matches!(previous, '_' | '$' | ']' | ')' | '>' | '"' | '\'' | '`');
                 open.push((!follows).then_some(at));
             }
-            (None, ']') => {
+            (false, ']') => {
                 let tuple = open
                     .pop()
                     .flatten()
@@ -772,7 +798,7 @@ pub(super) fn tuple_with_early_rest(ts_type: &str) -> Option<&str> {
                     return tuple;
                 }
             }
-            (None, _) => {}
+            (false, _) => {}
         }
         previous = letter;
     }

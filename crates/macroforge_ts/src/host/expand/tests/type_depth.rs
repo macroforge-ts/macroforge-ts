@@ -10,11 +10,15 @@ fn a_type_nests_by_its_brackets_and_its_array_suffixes() {
     assert_eq!(type_depth("Array<Array<number>>"), 2);
     assert_eq!(type_depth("Map<string, Set<number[]>>"), 3);
     assert_eq!(type_depth("{ a: { b: [number, string] } }"), 3);
-    assert_eq!(type_depth("((number | null) | null)[]"), 2);
+    assert_eq!(type_depth("((number | null) | null)[]"), 3);
+    // A `[]` wraps all of the bracket it follows.
+    assert_eq!(type_depth("{ a: { b: string[] }[] }[]"), 5);
+    assert_eq!(type_depth("Lookup['key'][]"), 2);
     // Side by side is not deeper.
     assert_eq!(type_depth("[number[], string[], Date[]]"), 2);
     // A bracket in a literal's text is text, and an arrow's `>` closes nothing.
     assert_eq!(type_depth("'[[[[' | \"((((\""), 0);
+    assert_eq!(type_depth(r#""\\" | Array<"(\\">"#), 1);
     assert_eq!(type_depth("(a: string) => Array<number>"), 1);
 }
 
@@ -52,5 +56,28 @@ fn a_tuple_whose_rest_is_not_its_last_is_found() {
         "Lookup[Key][]",
     ] {
         assert_eq!(tuple_with_early_rest(ts_type), None, "{ts_type}");
+    }
+}
+
+mod properties {
+    use proptest::{prop_assert_eq, proptest};
+
+    use crate::host::expand::derive_scope::{tuple_with_early_rest, type_depth};
+    use crate::ts_syn::strategies::{property_config, ts_type};
+
+    proptest! {
+        #![proptest_config(property_config())]
+
+        #[test]
+        fn a_type_nests_as_deep_as_it_is_written(ts_type in ts_type()) {
+            let written = ts_type.written();
+            prop_assert_eq!(type_depth(&written.text), written.depth, "{}", written.text);
+        }
+
+        #[test]
+        fn a_tuple_with_an_early_rest_is_found_wherever_it_is(ts_type in ts_type()) {
+            let text = ts_type.written().text;
+            prop_assert_eq!(tuple_with_early_rest(&text).is_some(), ts_type.has_early_rest(), "{}", text);
+        }
     }
 }
