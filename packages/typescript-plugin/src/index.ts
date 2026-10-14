@@ -1166,7 +1166,17 @@ function init(
 
                 // Update virtual .d.ts files
                 const virtualDtsFileName = fileName + '.macroforge.d.ts';
-                if (result.types) {
+                // The declarations of a file that is no module are global, and
+                // a companion holding them again would declare each twice.
+                const declaresModule = result.types !== undefined && result.types !== null &&
+                    tsModule.isExternalModule(
+                        tsModule.createSourceFile(
+                            virtualDtsFileName,
+                            result.types,
+                            tsModule.ScriptTarget.Latest
+                        )
+                    );
+                if (result.types && declaresModule) {
                     virtualDtsFiles.set(
                         virtualDtsFileName,
                         textSnapshot(result.types)

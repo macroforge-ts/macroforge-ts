@@ -718,6 +718,22 @@ class Second {
     }
 });
 
+test('a failed derive in a file that is no module adds no error of its own', () => {
+    const source = `/** @derive(Bogus) */\nclass A { id: string = ''; }\n`;
+    const env = createEnv({
+        '/virtual/script.ts': source,
+        '/virtual/macros.ts': MACROS_DTS,
+        '/virtual/lib.d.ts': LIB_DTS
+    });
+    const diagnostics = env.pluginService.getSemanticDiagnostics('/virtual/script.ts');
+    assert(diagnostics.some((d) => d.source === 'macroforge'), 'the derive is refused');
+    assert.deepEqual(
+        diagnostics.filter((d) => d.source !== 'macroforge').map((d) => d.messageText),
+        [],
+        'no declaration is made twice'
+    );
+});
+
 test('a subclass overrides the statics a base in its file derives', () => {
     const source = `/** @derive(Clone, PartialEq, Hash, Default) */
 export class Base { id: string = ''; }
