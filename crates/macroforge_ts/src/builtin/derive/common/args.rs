@@ -322,8 +322,12 @@ pub fn bigint_literal(digits: &str) -> String {
 
 /// `pattern` as the text between the slashes of a JavaScript regex literal:
 /// each unescaped `/` is escaped, a line break is written as its escape, and
-/// everything already escaped is kept as written.
+/// everything already escaped is kept as written. An empty pattern is `(?:)`.
 fn regex_body(pattern: &str) -> String {
+    // `//` opens a comment; this matches what an empty pattern does.
+    if pattern.is_empty() {
+        return "(?:)".to_string();
+    }
     let mut body = String::with_capacity(pattern.len());
     let mut escaped = false;
     for letter in pattern.chars() {
@@ -387,6 +391,7 @@ mod tests {
         assert_eq!(regex_literal("a\nb\r", ""), r"/a\nb\r/");
         assert_eq!(regex_literal("a\\\nb", ""), r"/a\nb/");
         assert_eq!(regex_literal("\u{2028}", ""), ["/", "u2028/"].join("\\"));
+        assert_eq!(regex_literal("", ""), "/(?:)/");
         assert_eq!(regex_error("^[A-Z]{3}$"), None);
         assert_eq!(regex_error("a/b\nc"), None);
         assert!(regex_error("(").is_some());
