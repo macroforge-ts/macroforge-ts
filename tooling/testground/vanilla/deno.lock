@@ -157,9 +157,6 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@jridgewell/sourcemap-codec@1.6.0": {
-      "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
-    },
     "@jsr/gigatypes__decorators@0.1.4": {
       "integrity": "sha512-FEQPPJmzmEnYZRr22jXIvNohvbs3HgftQ9a+Is4nnvLnu4Ymik1ZrHX9HcoMcPwUl/s/WA3e/ilI+4zwtcbctg==",
       "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__decorators/0.1.4.tgz"
@@ -354,7 +351,6 @@
     "@macroforge/shared@0.5.0": {},
     "@macroforge/vite-plugin@0.5.0_typescript@6.0.3_vite@7.3.6__@types+node@22.20.4": {
       "dependencies": [
-        "@jridgewell/sourcemap-codec",
         "@macroforge/core",
         "@macroforge/shared",
         "typescript",
@@ -694,7 +690,6 @@
       "npm:@macroforge/shared@0.5.0": {},
       "npm:@macroforge/vite-plugin@0.5.0": {
         "dependencies": [
-          "npm:@jridgewell/sourcemap-codec@^1.6.0",
           "npm:@macroforge/core@0.5.0",
           "npm:@macroforge/shared@0.5.0"
         ],

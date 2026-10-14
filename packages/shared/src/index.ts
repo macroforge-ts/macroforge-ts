@@ -35,3 +35,11 @@ export {
     type NonExhaustiveConfig,
     type VitePluginConfig
 } from './config.ts';
+
+export {
+    lineAndColumn,
+    sourceMapOf,
+    type SourceMapping,
+    type SourceMappingSegment,
+    type SourceMapV3
+} from './source-map.ts';

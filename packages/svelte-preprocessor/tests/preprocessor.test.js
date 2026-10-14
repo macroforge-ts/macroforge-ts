@@ -1,5 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
+import { originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
 import { macroforgePreprocess } from '../src/index.ts';
 
 describe('macroforgePreprocess', () => {
@@ -194,5 +195,38 @@ class Broken {`,
             }),
             /broken\.svelte/
         );
+    });
+});
+
+describe('source map', () => {
+    test('every line the expansion keeps maps back to its own line', async () => {
+        const content = `
+/** @derive(Debug) */
+interface Account {
+    id: string;
+    name: string;
+    owner: string;
+}
+`;
+        const result = await macroforgePreprocess().script({
+            content,
+            markup: `<script lang="ts">${content}</script>`,
+            filename: 'account.svelte',
+            attributes: { lang: 'ts' }
+        });
+        assert.ok(result?.map, 'the expanded script has a map');
+        const tracer = new TraceMap(result.map);
+        const generated = result.code.split('\n');
+        const original = content.split('\n');
+        for (const field of ['    name: string;', '    owner: string;']) {
+            const line = generated.indexOf(field);
+            assert.ok(line >= 0, `${field} is kept`);
+            const position = originalPositionFor(tracer, { line: line + 1, column: 4 });
+            assert.equal(
+                position.line,
+                original.indexOf(field) + 1,
+                `${field} maps to its own line`
+            );
+        }
     });
 });

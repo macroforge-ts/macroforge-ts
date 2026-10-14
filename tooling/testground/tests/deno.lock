@@ -152,9 +152,6 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@jridgewell/sourcemap-codec@1.6.0": {
-      "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
-    },
     "@macroforge/core@0.5.0": {},
     "@macroforge/shared@0.5.0": {},
     "@macroforge/typescript-plugin@0.5.0_typescript@6.0.3": {
@@ -169,7 +166,6 @@
     },
     "@macroforge/vite-plugin@0.5.0_typescript@6.0.3_vite@7.2.7": {
       "dependencies": [
-        "@jridgewell/sourcemap-codec",
         "@macroforge/core",
         "@macroforge/shared",
         "typescript",
@@ -489,7 +485,6 @@
       },
       "npm:@macroforge/vite-plugin@0.5.0": {
         "dependencies": [
-          "npm:@jridgewell/sourcemap-codec@^1.6.0",
           "npm:@macroforge/core@0.5.0",
           "npm:@macroforge/shared@0.5.0"
         ],
