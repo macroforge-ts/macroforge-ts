@@ -377,7 +377,7 @@ export function taggedHasShape(value: unknown): boolean {
 }
 
 export function taggedIs(value: unknown): value is Tagged {
-    return (typeof value === "number" && globalThis.Number.isFinite(value));
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && taggedDecode(value).success;
 }
 
 export function taggedHashCode(value: Tagged): number {
@@ -491,7 +491,7 @@ export function centsHasShape(value: unknown): boolean {
 }
 
 export function centsIs(value: unknown): value is Cents {
-    return typeof value === "bigint";
+    return typeof value === "bigint" && centsDecode(value).success;
 }
 
 export function centsHashCode(value: Cents): number {
@@ -663,9 +663,9 @@ export {};
 original 0..373 -> expanded 632..1005
 original 389..428 -> expanded 1049..1088
 original 428..535 -> expanded 13947..14054
-original 535..601 -> expanded 17611..17677
-original 617..618 -> expanded 17721..17722
-original 618..619 -> expanded 21710..21711
+original 535..601 -> expanded 17642..17708
+original 617..618 -> expanded 17752..17753
+original 618..619 -> expanded 21771..21772
 generated 0..542 <- imports
 generated 542..587 <- $Newtype
 generated 587..632 <- $Newtype
@@ -673,16 +673,16 @@ generated 1005..1049 <- $Newtype
 generated 1088..13284 <- Decode
 generated 13284..13947 <- __convenience_const
 generated 14054..14762 <- Encode
-generated 14762..16674 <- Decode
-generated 16674..16868 <- Hash
-generated 16868..16971 <- Debug
-generated 16971..17611 <- __convenience_const
-generated 17677..17721 <- $Newtype
-generated 17722..18462 <- Encode
-generated 18462..20833 <- Decode
-generated 20833..20987 <- Hash
-generated 20987..21087 <- Debug
-generated 21087..21710 <- __convenience_const
+generated 14762..16705 <- Decode
+generated 16705..16899 <- Hash
+generated 16899..17002 <- Debug
+generated 17002..17642 <- __convenience_const
+generated 17708..17752 <- $Newtype
+generated 17753..18493 <- Encode
+generated 18493..20894 <- Decode
+generated 20894..21048 <- Hash
+generated 21048..21148 <- Debug
+generated 21148..21771 <- __convenience_const
 
 ## Metadata
 

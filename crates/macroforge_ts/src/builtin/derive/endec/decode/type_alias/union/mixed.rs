@@ -272,12 +272,8 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             (value: object): unknown => __typeName === "@{ov.tag_value}" ? { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } : @{endec_helper("notTheMember")},
                                         {/for}
                                         {#for iv in intersection_variants}
-                                            {#if iv.is_encodable}
-                                                {$let iv_deser_fn: Expr = iv.decoder.clone()}
-                                                (value: object): unknown => __typeName === "@{iv.tag_value}" ? { ...@{iv_deser_fn}(value, ctx), "@{tag_field}": "@{iv.tag_value}" } : @{endec_helper("notTheMember")},
-                                            {:else}
-                                                (value: object): unknown => __typeName === "@{iv.tag_value}" ? { ...value, "@{tag_field}": "@{iv.tag_value}" } : @{endec_helper("notTheMember")},
-                                            {/if}
+                                            {$let iv_deser_fn: Expr = iv.decoder.clone()}
+                                            (value: object): unknown => __typeName === "@{iv.tag_value}" ? { ...@{iv_deser_fn}(value, ctx), "@{tag_field}": "@{iv.tag_value}" } : @{endec_helper("notTheMember")},
                                         {/for}
                                         ]);
                                         if (__tagged !== @{endec_helper("notTheMember")}) {

@@ -286,7 +286,7 @@ export function flagHasShape(value: unknown): boolean {
 }
 
 export function flagIs(value: unknown): value is Flag {
-    return typeof value === "boolean";
+    return typeof value === "boolean" && flagDecode(value).success;
 }
 
 export const Flag: {
@@ -566,11 +566,11 @@ original 249..250 -> expanded 4095..4096
 original 250..252 -> expanded 7697..7699
 original 274..294 -> expanded 7699..7719
 original 311..312 -> expanded 7764..7765
-original 312..335 -> expanded 9846..9869
-original 360..363 -> expanded 9924..9927
-original 439..460 -> expanded 9927..9948
-original 476..477 -> expanded 9992..9993
-original 477..478 -> expanded 14204..14205
+original 312..335 -> expanded 9875..9898
+original 360..363 -> expanded 9953..9956
+original 439..460 -> expanded 9956..9977
+original 476..477 -> expanded 10021..10022
+original 477..478 -> expanded 14233..14234
 generated 0..328 <- imports
 generated 328..373 <- $Newtype
 generated 373..418 <- $Newtype
@@ -587,15 +587,15 @@ generated 4820..6997 <- Decode
 generated 6997..7083 <- Default
 generated 7083..7697 <- __convenience_const
 generated 7719..7764 <- $Newtype
-generated 7765..9540 <- Decode
-generated 9540..9846 <- __convenience_const
-generated 9869..9924 <- $Newtype
-generated 9948..9992 <- $Newtype
-generated 9993..10733 <- Encode
-generated 10733..13327 <- Decode
-generated 13327..13481 <- Hash
-generated 13481..13581 <- Debug
-generated 13581..14204 <- __convenience_const
+generated 7765..9569 <- Decode
+generated 9569..9875 <- __convenience_const
+generated 9898..9953 <- $Newtype
+generated 9977..10021 <- $Newtype
+generated 10022..10762 <- Encode
+generated 10762..13356 <- Decode
+generated 13356..13510 <- Hash
+generated 13510..13610 <- Debug
+generated 13610..14233 <- __convenience_const
 
 ## Metadata
 

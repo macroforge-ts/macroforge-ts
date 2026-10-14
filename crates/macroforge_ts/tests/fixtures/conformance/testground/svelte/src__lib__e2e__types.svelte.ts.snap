@@ -4849,7 +4849,7 @@ export function momentHasShape(value: unknown): boolean {
                 return false;
 }
 export function momentIs(value: unknown): value is Moment {
-    return momentHasShape(value);
+    return momentHasShape(value) && momentDecode(value).success;
 }
 
 export const Moment: {
@@ -5819,7 +5819,7 @@ original 3718..3760 -> expanded 205676..205718
 original 3790..3837 -> expanded 205718..205765
 original 3837..3892 -> expanded 214294..214349
 original 3914..3964 -> expanded 214349..214399
-original 3964..3965 -> expanded 219614..219615
+original 3964..3965 -> expanded 219645..219646
 generated 0..908 <- imports
 generated 2386..5543 <- Encode
 generated 5543..13524 <- Decode
@@ -5872,8 +5872,8 @@ generated 204531..205676 <- __convenience_const
 generated 205765..207879 <- Encode
 generated 207879..213317 <- Decode
 generated 213317..214294 <- __convenience_const
-generated 214399..219290 <- Decode
-generated 219290..219614 <- __convenience_const
+generated 214399..219321 <- Decode
+generated 219321..219645 <- __convenience_const
 
 ## Metadata
 

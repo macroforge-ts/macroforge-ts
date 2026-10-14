@@ -199,7 +199,7 @@ export function taggingHasShape(value: unknown): boolean {
                 return false;
 }
 export function taggingIs(value: unknown): value is Tagging {
-    return taggingHasShape(value);
+    return taggingHasShape(value) && taggingDecode(value).success;
 }
 
 const Tagging: {
@@ -270,11 +270,11 @@ original 357..381 -> expanded 947..971
 original 411..437 -> expanded 971..997
 original 475..497 -> expanded 997..1019
 original 563..609 -> expanded 1019..1065
-original 609..610 -> expanded 6833..6834
+original 609..610 -> expanded 6865..6866
 generated 0..748 <- imports
 generated 1065..3053 <- Encode
-generated 3053..6331 <- Decode
-generated 6331..6833 <- __convenience_const
+generated 3053..6363 <- Decode
+generated 6363..6865 <- __convenience_const
 
 ## Metadata
 

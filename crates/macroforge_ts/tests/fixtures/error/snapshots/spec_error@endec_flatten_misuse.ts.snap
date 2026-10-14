@@ -382,7 +382,7 @@ export function shapeHasShape(value: unknown): boolean {
                 return false;
 }
 export function shapeIs(value: unknown): value is Shape {
-    return shapeHasShape(value);
+    return shapeHasShape(value) && shapeDecode(value).success;
 }
 
 export const Shape: {
@@ -541,24 +541,24 @@ Error [533..541]: @derive(Decode): field 'held': `flatten` holds a value's field
 original 30..73 -> expanded 1052..1095
 original 73..75 -> expanded 9446..9448
 original 105..178 -> expanded 9448..9521
-original 178..180 -> expanded 16204..16206
-original 210..247 -> expanded 16206..16243
-original 269..292 -> expanded 16243..16266
-original 314..338 -> expanded 16266..16290
-original 360..395 -> expanded 16290..16325
-original 417..451 -> expanded 16325..16359
-original 473..505 -> expanded 16359..16391
-original 527..545 -> expanded 16391..16409
-original 567..590 -> expanded 16409..16432
-original 612..642 -> expanded 16432..16462
-original 664..701 -> expanded 16462..16499
+original 178..180 -> expanded 16234..16236
+original 210..247 -> expanded 16236..16273
+original 269..292 -> expanded 16273..16296
+original 314..338 -> expanded 16296..16320
+original 360..395 -> expanded 16320..16355
+original 417..451 -> expanded 16355..16389
+original 473..505 -> expanded 16389..16421
+original 527..545 -> expanded 16421..16439
+original 567..590 -> expanded 16439..16462
+original 612..642 -> expanded 16462..16492
+original 664..701 -> expanded 16492..16529
 generated 0..1052 <- imports
 generated 1095..3171 <- Encode
 generated 3171..8511 <- Decode
 generated 8511..9446 <- __convenience_const
 generated 9521..12047 <- Encode
-generated 12047..15721 <- Decode
-generated 15721..16204 <- __convenience_const
+generated 12047..15751 <- Decode
+generated 15751..16234 <- __convenience_const
 
 ## Metadata
 

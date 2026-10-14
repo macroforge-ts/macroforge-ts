@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (432)
+## Types (433)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -213,6 +213,7 @@ GenericOutcome 2c954791238f9aae
 GenericPair a0b1203d22ff9b40
 GenericResult 8675c103e7788c27
 GenericStack 9cc9a4cef5e0af7f
+GenericTagged 5ed7551b1eb85d45
 GenericUses 9ede082750e91fd6
 GenericWrapper 19f87cbfe3f38bed
 GraphLoop 1e5323be9840dd94
@@ -436,7 +437,7 @@ WideRecord c9bd8ffc061d4d25
 WideShape 5c00c985b1a5c6b3
 point2D 9c3236f9adc43b41
 
-## Qualified types (435)
+## Qualified types (436)
 
 checks/repeated-error.ts::Holder e348868fb978f545
 checks/repeated-error.ts::Plain d98534e25d4536f1
@@ -561,6 +562,7 @@ src/edge-cases/generic-shapes.ts::GenericOutcome 2c954791238f9aae
 src/edge-cases/generic-shapes.ts::GenericPair a0b1203d22ff9b40
 src/edge-cases/generic-shapes.ts::GenericResult 8675c103e7788c27
 src/edge-cases/generic-shapes.ts::GenericStack 9cc9a4cef5e0af7f
+src/edge-cases/generic-shapes.ts::GenericTagged 5ed7551b1eb85d45
 src/edge-cases/generic-shapes.ts::GenericUses 9ede082750e91fd6
 src/edge-cases/generic-shapes.ts::GenericWrapper 19f87cbfe3f38bed
 src/edge-cases/graph-shapes.ts::GraphLoop 1e5323be9840dd94

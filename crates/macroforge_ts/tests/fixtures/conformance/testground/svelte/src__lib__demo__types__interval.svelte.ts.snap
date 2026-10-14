@@ -226,7 +226,7 @@ export function intervalHasShape(value: unknown): boolean {
                 return false;
 }
 export function intervalIs(value: unknown): value is Interval {
-    return intervalHasShape(value);
+    return intervalHasShape(value) && intervalDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -536,13 +536,13 @@ export declare const Interval: {
 
 original 0..367 -> expanded 1477..1844
 original 416..564 -> expanded 1844..1992
-original 564..565 -> expanded 19195..19196
+original 564..565 -> expanded 19228..19229
 generated 0..1477 <- imports
 generated 1992..2092 <- Default
 generated 2092..5280 <- Encode
-generated 5280..11785 <- Decode
-generated 11785..18405 <- Gigaform
-generated 18405..19195 <- __convenience_const
+generated 5280..11818 <- Decode
+generated 11818..18438 <- Gigaform
+generated 18438..19228 <- __convenience_const
 
 ## Metadata
 

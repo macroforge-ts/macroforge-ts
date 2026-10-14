@@ -437,3 +437,16 @@ Deno.test('a generic type is what the guards handed in say of each value of its 
     assert(mod.genericStackIs({ items: [1], top: 1, depth: 1 }, isNumber));
     assert(!mod.genericStackIs({ items: ['x'], top: null, depth: 1 }, isNumber));
 });
+
+Deno.test('a member tagged in place over a type parameter is coded by the coders handed in for it', () => {
+    const at = '2024-01-01T00:00:00.000Z';
+    const encodeAt = (value) => ({ at: value.at.toISOString() });
+    const decodeAt = (raw) => ({ at: new Date(raw.at) });
+    const held = { kind: 'Held', at: new Date(at) };
+    assertEquals(JSON.parse(mod.genericTaggedEncode(held, false, encodeAt)), { kind: 'Held', at });
+    const decoded = mod.genericTaggedDecode({ kind: 'Held', at }, undefined, decodeAt);
+    assert(decoded.success, JSON.stringify(decoded));
+    assert(decoded.value.at instanceof Date);
+    assert(mod.genericTaggedHeldIs(held));
+    assert(!mod.genericTaggedHeldIs({ kind: 'Empty', size: 1 }));
+});

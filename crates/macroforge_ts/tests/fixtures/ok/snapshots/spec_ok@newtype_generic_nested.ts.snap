@@ -91,7 +91,7 @@ export function idHasShape(value: unknown): boolean {
 }
 
 export function idIs<T>(value: unknown): value is Id<T> {
-    return typeof value === "string";
+    return typeof value === "string" && idDecode(value).success;
 }
 
 export const Id: {
@@ -162,17 +162,17 @@ export {};
 
 original 30..51 -> expanded 482..503
 original 67..68 -> expanded 547..548
-original 68..89 -> expanded 3536..3557
-original 115..117 -> expanded 3639..3641
+original 68..89 -> expanded 3563..3584
+original 115..117 -> expanded 3666..3668
 generated 0..347 <- imports
 generated 347..392 <- $Newtype
 generated 392..437 <- $Newtype
 generated 437..482 <- $Newtype
 generated 503..547 <- $Newtype
 generated 548..1277 <- Encode
-generated 1277..3092 <- Decode
-generated 3092..3536 <- __convenience_const
-generated 3557..3639 <- $Newtype
+generated 1277..3119 <- Decode
+generated 3119..3563 <- __convenience_const
+generated 3584..3666 <- $Newtype
 
 ## Metadata
 

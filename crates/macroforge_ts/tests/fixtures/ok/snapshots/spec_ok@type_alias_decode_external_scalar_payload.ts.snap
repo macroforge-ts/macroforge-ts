@@ -152,7 +152,7 @@ export function refHasShape(value: unknown): boolean {
                 return false;
 }
 export function refIs(value: unknown): value is Ref {
-    return refHasShape(value);
+    return refHasShape(value) && refDecode(value).success;
 }
 
 export const Ref: {
@@ -299,7 +299,7 @@ export function stageHasShape(value: unknown): boolean {
                 return false;
 }
 export function stageIs(value: unknown): value is Stage {
-    return stageHasShape(value);
+    return stageHasShape(value) && stageDecode(value).success;
 }
 export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: unknown }> {
     return __v !== null
@@ -400,16 +400,16 @@ export declare const Stage: {
 
 original 0..278 -> expanded 715..993
 original 308..351 -> expanded 993..1036
-original 351..353 -> expanded 6126..6128
-original 425..474 -> expanded 6128..6177
-original 474..475 -> expanded 11820..11821
+original 351..353 -> expanded 6154..6156
+original 425..474 -> expanded 6156..6205
+original 474..475 -> expanded 11878..11879
 generated 0..715 <- imports
 generated 1036..2666 <- Encode
-generated 2666..5669 <- Decode
-generated 5669..6126 <- __convenience_const
-generated 6177..7766 <- Encode
-generated 7766..11263 <- Decode
-generated 11263..11820 <- __convenience_const
+generated 2666..5697 <- Decode
+generated 5697..6154 <- __convenience_const
+generated 6205..7794 <- Encode
+generated 7794..11321 <- Decode
+generated 11321..11878 <- __convenience_const
 
 ## Metadata
 

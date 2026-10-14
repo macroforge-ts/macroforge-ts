@@ -194,13 +194,9 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                         {#for iv in intersection_variants}
                                             if (__typeName === "@{iv.tag_value}") {
                                                 // Intersection variant: decode the type ref and merge with tag
-                                                {#if iv.is_encodable}
-                                                    {$let iv_deser_fn: Expr = iv.decoder.clone()}
-                                                    const __inner = @{iv_deser_fn}(value, ctx);
-                                                    return { ...__inner, "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {:else}
-                                                    return { ...value, "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
-                                                {/if}
+                                                {$let iv_deser_fn: Expr = iv.decoder.clone()}
+                                                const __inner = @{iv_deser_fn}(value, ctx);
+                                                return { ...__inner, "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
                                             }
                                         {/for}
 

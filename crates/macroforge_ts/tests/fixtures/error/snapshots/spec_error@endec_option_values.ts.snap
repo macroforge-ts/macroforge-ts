@@ -1022,7 +1022,7 @@ export function bothHasShape(value: unknown): boolean {
                 return false;
 }
 export function bothIs(value: unknown): value is Both {
-    return bothHasShape(value);
+    return bothHasShape(value) && bothDecode(value).success;
 }
 
 export const Both: {
@@ -1169,7 +1169,7 @@ export function contentHasShape(value: unknown): boolean {
                 return false;
 }
 export function contentIs(value: unknown): value is Content {
-    return contentHasShape(value);
+    return contentHasShape(value) && contentDecode(value).success;
 }
 
 export const Content: {
@@ -1313,7 +1313,7 @@ export function sameHasShape(value: unknown): boolean {
                 return false;
 }
 export function sameIs(value: unknown): value is Same {
-    return sameHasShape(value);
+    return sameHasShape(value) && sameDecode(value).success;
 }
 
 export const Same: {
@@ -2003,15 +2003,15 @@ original 1253..1255 -> expanded 27447..27449
 original 1285..1372 -> expanded 27449..27536
 original 1372..1374 -> expanded 36234..36236
 original 1451..1501 -> expanded 36236..36286
-original 1501..1503 -> expanded 42255..42257
-original 1569..1622 -> expanded 42257..42310
-original 1622..1624 -> expanded 48423..48425
-original 1696..1733 -> expanded 48425..48462
-original 1733..1735 -> expanded 54222..54224
-original 1765..1901 -> expanded 54224..54360
-original 1901..1903 -> expanded 62859..62861
-original 1933..2036 -> expanded 62861..62964
-original 2036..2037 -> expanded 64523..64524
+original 1501..1503 -> expanded 42284..42286
+original 1569..1622 -> expanded 42286..42339
+original 1622..1624 -> expanded 48484..48486
+original 1696..1733 -> expanded 48486..48523
+original 1733..1735 -> expanded 54312..54314
+original 1765..1901 -> expanded 54314..54450
+original 1901..1903 -> expanded 62949..62951
+original 1933..2036 -> expanded 62951..63054
+original 2036..2037 -> expanded 64613..64614
 generated 0..1015 <- imports
 generated 1438..3542 <- Encode
 generated 3542..8994 <- Decode
@@ -2026,20 +2026,20 @@ generated 27536..29685 <- Encode
 generated 29685..35236 <- Decode
 generated 35236..36234 <- __convenience_const
 generated 36286..38273 <- Encode
-generated 38273..41785 <- Decode
-generated 41785..42255 <- __convenience_const
-generated 42310..44360 <- Encode
-generated 44360..47914 <- Decode
-generated 47914..48423 <- __convenience_const
-generated 48462..50324 <- Encode
-generated 50324..53752 <- Decode
-generated 53752..54222 <- __convenience_const
-generated 54360..56465 <- Encode
-generated 56465..61924 <- Decode
-generated 61924..62859 <- __convenience_const
-generated 62964..63362 <- Encode
-generated 63362..64167 <- Decode
-generated 64167..64523 <- __convenience_const
+generated 38273..41814 <- Decode
+generated 41814..42284 <- __convenience_const
+generated 42339..44389 <- Encode
+generated 44389..47975 <- Decode
+generated 47975..48484 <- __convenience_const
+generated 48523..50385 <- Encode
+generated 50385..53842 <- Decode
+generated 53842..54312 <- __convenience_const
+generated 54450..56555 <- Encode
+generated 56555..62014 <- Decode
+generated 62014..62949 <- __convenience_const
+generated 63054..63452 <- Encode
+generated 63452..64257 <- Decode
+generated 64257..64613 <- __convenience_const
 
 ## Metadata
 

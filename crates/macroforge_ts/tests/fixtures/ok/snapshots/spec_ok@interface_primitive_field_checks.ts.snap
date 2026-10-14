@@ -391,7 +391,7 @@ export function taggedHasShape(value: unknown): boolean {
 }
 
 export function taggedIs(value: unknown): value is Tagged {
-    return (typeof value === "number" && globalThis.Number.isFinite(value));
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && taggedDecode(value).success;
 }
 
 export function taggedHashCode(value: Tagged): number {
@@ -480,7 +480,7 @@ export function looseHasShape(value: unknown): boolean {
 }
 
 export function looseIs(value: unknown): value is Loose {
-    return typeof value === "string";
+    return typeof value === "string" && looseDecode(value).success;
 }
 
 const Loose: {
@@ -592,21 +592,21 @@ original 22..216 -> expanded 587..781
 original 232..267 -> expanded 825..860
 original 267..269 -> expanded 13718..13720
 original 312..367 -> expanded 13720..13775
-original 367..369 -> expanded 17325..17327
-original 391..417 -> expanded 17327..17353
-original 417..418 -> expanded 19453..19454
+original 367..369 -> expanded 17356..17358
+original 391..417 -> expanded 17358..17384
+original 417..418 -> expanded 19514..19515
 generated 0..542 <- imports
 generated 542..587 <- $Newtype
 generated 781..825 <- $Newtype
 generated 860..13062 <- Decode
 generated 13062..13718 <- __convenience_const
 generated 13775..14483 <- Encode
-generated 14483..16395 <- Decode
-generated 16395..16589 <- Hash
-generated 16589..16692 <- Debug
-generated 16692..17325 <- __convenience_const
-generated 17353..19145 <- Decode
-generated 19145..19453 <- __convenience_const
+generated 14483..16426 <- Decode
+generated 16426..16620 <- Hash
+generated 16620..16723 <- Debug
+generated 16723..17356 <- __convenience_const
+generated 17384..19206 <- Decode
+generated 19206..19514 <- __convenience_const
 
 ## Metadata
 

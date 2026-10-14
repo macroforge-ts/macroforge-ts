@@ -380,7 +380,7 @@ export function shapeHasShape(value: unknown): boolean {
                 return false;
 }
 export function shapeIs(value: unknown): value is Shape {
-    return shapeHasShape(value);
+    return shapeHasShape(value) && shapeDecode(value).success;
 }
 
 const Shape: {
@@ -649,20 +649,20 @@ Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JS
 original 30..71 -> expanded 1112..1153
 original 71..73 -> expanded 9690..9692
 original 103..133 -> expanded 9692..9722
-original 133..135 -> expanded 16008..16010
-original 165..192 -> expanded 16010..16037
-original 192..194 -> expanded 21803..21805
-original 224..511 -> expanded 21805..22092
+original 133..135 -> expanded 16038..16040
+original 165..192 -> expanded 16040..16067
+original 192..194 -> expanded 21833..21835
+original 224..511 -> expanded 21835..22122
 generated 0..1112 <- imports
 generated 1153..3260 <- Encode
 generated 3260..8741 <- Decode
 generated 8741..9690 <- __convenience_const
 generated 9722..11326 <- Encode
-generated 11326..15532 <- Decode
-generated 15532..16008 <- __convenience_const
-generated 16037..17873 <- Encode
-generated 17873..21340 <- Decode
-generated 21340..21803 <- __convenience_const
+generated 11326..15562 <- Decode
+generated 15562..16038 <- __convenience_const
+generated 16067..17903 <- Encode
+generated 17903..21370 <- Decode
+generated 21370..21833 <- __convenience_const
 
 ## Metadata
 

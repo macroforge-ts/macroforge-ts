@@ -103,3 +103,8 @@ export interface GenericDefaulted {
     counted: GenericDefaults<number>;
     explicit: GenericDefaults<string, string[]>;
 }
+
+/** A member tagged in place over a type parameter, coded by the coders handed in for it. */
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "kind" }) */
+export type GenericTagged<T> = ({ kind: 'Held' } & T) | { kind: 'Empty'; size: number };

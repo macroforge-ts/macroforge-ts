@@ -148,7 +148,7 @@ export function rowDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
 }
 
 export function rowIs(value: unknown): value is Row {
-    return rowHasShape(value);
+    return rowHasShape(value) && rowDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function rowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Row {
@@ -1124,13 +1124,13 @@ export declare const Holder: {
 
 original 0..98 -> expanded 1029..1127
 original 168..240 -> expanded 1127..1199
-original 240..242 -> expanded 9596..9598
-original 272..317 -> expanded 9598..9643
-original 317..319 -> expanded 18034..18036
-original 349..390 -> expanded 18036..18077
-original 390..392 -> expanded 26659..26661
-original 422..521 -> expanded 26661..26760
-original 521..522 -> expanded 38677..38678
+original 240..242 -> expanded 9624..9626
+original 272..317 -> expanded 9626..9671
+original 317..319 -> expanded 18062..18064
+original 349..390 -> expanded 18064..18105
+original 390..392 -> expanded 26687..26689
+original 422..521 -> expanded 26689..26788
+original 521..522 -> expanded 38705..38706
 generated 0..1029 <- imports
 generated 1199..1307 <- Debug
 generated 1307..1394 <- Clone
@@ -1138,17 +1138,17 @@ generated 1394..1520 <- PartialEq
 generated 1520..1612 <- Hash
 generated 1612..1738 <- Default
 generated 1738..3551 <- Encode
-generated 3551..8813 <- Decode
-generated 8813..9596 <- __convenience_const
-generated 9643..11727 <- Encode
-generated 11727..17099 <- Decode
-generated 17099..18034 <- __convenience_const
-generated 18077..20167 <- Encode
-generated 20167..25724 <- Decode
-generated 25724..26659 <- __convenience_const
-generated 26760..29603 <- Encode
-generated 29603..37721 <- Decode
-generated 37721..38677 <- __convenience_const
+generated 3551..8841 <- Decode
+generated 8841..9624 <- __convenience_const
+generated 9671..11755 <- Encode
+generated 11755..17127 <- Decode
+generated 17127..18062 <- __convenience_const
+generated 18105..20195 <- Encode
+generated 20195..25752 <- Decode
+generated 25752..26687 <- __convenience_const
+generated 26788..29631 <- Encode
+generated 29631..37749 <- Decode
+generated 37749..38705 <- __convenience_const
 
 ## Metadata
 

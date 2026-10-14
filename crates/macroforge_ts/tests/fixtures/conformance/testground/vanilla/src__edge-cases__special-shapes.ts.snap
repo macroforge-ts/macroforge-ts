@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/special-shapes.ts
-sha256 1726c2b70697a7c52832fcab9de720069f484d5f1596013e496582fbf216e77e
+sha256 90dbb37049776765a722076743c7e2e23f75c4173691a412c21f628a64ff434b
 
 ## Changed
 
@@ -553,7 +553,7 @@ export function specialNumberHasShape(value: unknown): boolean {
 }
 
 export function specialNumberIs(value: unknown): value is SpecialNumber {
-    return (typeof value === "number" && globalThis.Number.isFinite(value));
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && specialNumberDecode(value).success;
 }
 
 export const SpecialNumber: {
@@ -720,7 +720,7 @@ export function specialEitherHasShape(value: unknown): boolean {
                 return false;
 }
 export function specialEitherIs(value: unknown): value is SpecialEither {
-    return specialEitherHasShape(value);
+    return specialEitherHasShape(value) && specialEitherDecode(value).success;
 }
 
 export const SpecialEither: {
@@ -1487,7 +1487,7 @@ export interface SpecialHoles {
     held: Map<string, number | undefined>;
     either: (number | null | undefined)[];
     plain: string | undefined;
-    grouped: (string | undefined);
+    grouped: string | undefined;
 }
 
 export function specialHolesToString(value: SpecialHoles): string {
@@ -1501,7 +1501,7 @@ export function specialHolesToString(value: SpecialHoles): string {
     parts.push("held: " + __mf_structuralDebug(value.held));
     parts.push("either: " + __mf_structuralDebug(value.either));
     parts.push("plain: " + String(value.plain));
-    parts.push("grouped: " + __mf_structuralDebug(value.grouped));
+    parts.push("grouped: " + String(value.grouped));
         return "SpecialHoles { " + parts.join(", ") + " }";
     });
 }
@@ -1516,7 +1516,7 @@ export function specialHolesClone(value: SpecialHoles): SpecialHoles {
 	held: new Map(value.held),
 	either: [...value.either],
 	plain: value.plain,
-	grouped: __mf_structuralClone(value.grouped)
+	grouped: value.grouped
 }));
 }
 
@@ -1541,7 +1541,7 @@ export function specialHolesEquals(a: SpecialHoles, b: SpecialHoles): boolean {
             	return __other0 === undefined ? __item0 === undefined : __item0 === __other0 || __item0 !== __item0 && __other0 !== __other0;
             }),
             () => a.plain === b.plain,
-            () => __mf_structuralEquals(a.grouped, b.grouped),
+            () => a.grouped === b.grouped,
         ].every((same) => same());
     });
 }
@@ -1557,7 +1557,7 @@ export function specialHolesHashCode(value: SpecialHoles): number {
     hash = (hash * 31 + (Array.from(value.held).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.either.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
     hash = (hash * 31 + (value.plain == null ? 0 : (value.plain ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (__mf_structuralHash(value.grouped))) | 0;
+    hash = (hash * 31 + (value.grouped == null ? 0 : (value.grouped ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         return hash;
     });
 }
@@ -1741,7 +1741,7 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         }
     }
 
-    const instance: { "list"?: (number | undefined)[] | undefined; "pair"?: [number | undefined, string?] | undefined; "record"?: Record<string, number | undefined> | undefined; "finite"?: Record<'a' | 'b', Date | undefined> | undefined; "set"?: Set<number | undefined> | undefined; "held"?: Map<string, number | undefined> | undefined; "either"?: (number | null | undefined)[] | undefined; "plain"?: string | undefined | undefined; "grouped"?: (string | undefined) | undefined } = {};
+    const instance: { "list"?: (number | undefined)[] | undefined; "pair"?: [number | undefined, string?] | undefined; "record"?: Record<string, number | undefined> | undefined; "finite"?: Record<'a' | 'b', Date | undefined> | undefined; "set"?: Set<number | undefined> | undefined; "held"?: Map<string, number | undefined> | undefined; "either"?: (number | null | undefined)[] | undefined; "plain"?: string | undefined | undefined; "grouped"?: string | undefined | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "SpecialHoles");
@@ -1968,7 +1968,11 @@ export function specialHolesDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             if ((__fields === undefined || __fields.requires("grouped")) || (__fields.keeps("grouped") && obj["grouped"] !== undefined)) {
                 const __raw_grouped = obj["grouped"] as string | undefined;
 
-                instance.grouped = __raw_grouped;
+                if (!(typeof __raw_grouped === "string" || __raw_grouped === undefined)) {
+                    errors.push({ field: "grouped", message: "expected string | undefined" });
+                } else {
+                    instance.grouped = __raw_grouped;
+                }
             }
         },
     ]) {
@@ -2295,7 +2299,7 @@ export interface SpecialHoles {
 	held: Map<string, number | undefined>;
 	either: (number | null | undefined)[];
 	plain: string | undefined;
-	grouped: (string | undefined);
+	grouped: string | undefined;
 }
 export declare function specialHolesToString(value: SpecialHoles): string;
 export declare function specialHolesClone(value: SpecialHoles): SpecialHoles;
@@ -2359,11 +2363,11 @@ export declare const SpecialHoles: {
 
 original 0..456 -> expanded 1546..2002
 original 456..524 -> expanded 23384..23452
-original 524..609 -> expanded 26785..26870
-original 609..789 -> expanded 33674..33854
-original 789..1079 -> expanded 47172..47462
-original 1079..1534 -> expanded 70176..70631
-original 1534..1535 -> expanded 99376..99377
+original 524..609 -> expanded 26823..26908
+original 609..789 -> expanded 33750..33930
+original 789..1079 -> expanded 47248..47538
+original 1079..1532 -> expanded 70252..70705
+original 1532..1533 -> expanded 99708..99709
 generated 0..1546 <- imports
 generated 2002..2521 <- Debug
 generated 2521..2799 <- Clone
@@ -2376,36 +2380,36 @@ generated 8063..11555 <- Encode
 generated 11555..21628 <- Decode
 generated 21628..23384 <- __convenience_const
 generated 23452..24216 <- Encode
-generated 24216..26198 <- Decode
-generated 26198..26785 <- __convenience_const
-generated 26870..28703 <- Encode
-generated 28703..33087 <- Decode
-generated 33087..33674 <- __convenience_const
-generated 33854..36888 <- Encode
-generated 36888..46048 <- Decode
-generated 46048..47172 <- __convenience_const
-generated 47462..48059 <- Debug
-generated 48059..48706 <- Clone
-generated 48706..50389 <- PartialEq
-generated 50389..52087 <- Hash
-generated 52087..52302 <- Default
-generated 52302..56114 <- Encode
-generated 56114..68492 <- Decode
-generated 68492..70176 <- __convenience_const
-generated 70631..71405 <- Debug
-generated 71405..71845 <- Clone
-generated 71845..73480 <- PartialEq
-generated 73480..75201 <- Hash
-generated 75201..79816 <- Encode
-generated 79816..97978 <- Decode
-generated 97978..99376 <- __convenience_const
+generated 24216..26236 <- Decode
+generated 26236..26823 <- __convenience_const
+generated 26908..28741 <- Encode
+generated 28741..33163 <- Decode
+generated 33163..33750 <- __convenience_const
+generated 33930..36964 <- Encode
+generated 36964..46124 <- Decode
+generated 46124..47248 <- __convenience_const
+generated 47538..48135 <- Debug
+generated 48135..48782 <- Clone
+generated 48782..50465 <- PartialEq
+generated 50465..52163 <- Hash
+generated 52163..52378 <- Default
+generated 52378..56190 <- Encode
+generated 56190..68568 <- Decode
+generated 68568..70252 <- __convenience_const
+generated 70705..71465 <- Debug
+generated 71465..71883 <- Clone
+generated 71883..73498 <- PartialEq
+generated 73498..75302 <- Hash
+generated 75302..79917 <- Encode
+generated 79917..98310 <- Decode
+generated 98310..99708 <- __convenience_const
 
 ## Metadata
 
 interface SpecialScalars: {"body_span":{"end":457,"start":347},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":314,"start":223}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":367,"start":353},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":381,"start":372},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":398,"start":386},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":416,"start":403},"ts_type":"string"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":435,"start":421},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":455,"start":440},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"SpecialScalars","span":{"end":457,"start":322},"type_params":[]}
 interface SpecialCarried: {"body_span":{"end":790,"start":675},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":642,"start":612}}],"fields":[{"decorators":[],"key":"Named","name":"data","optional":false,"readonly":false,"span":{"end":695,"start":681},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"amounts","optional":false,"readonly":false,"span":{"end":732,"start":700},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":760,"start":737},"ts_type":"[number, string]"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":788,"start":765},"ts_type":"string | number"}],"heritage":[],"methods":[],"name":"SpecialCarried","span":{"end":790,"start":650},"type_params":[]}
 interface SpecialCollections: {"body_span":{"end":1080,"start":899},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":862,"start":792}}],"fields":[{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":922,"start":905},"ts_type":"Set<number>"},{"decorators":[],"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":954,"start":927},"ts_type":"Map<string, number[]>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":988,"start":959},"ts_type":"Record<string, Date>"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":1026,"start":993},"ts_type":"Map<string, Set<string>>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1049,"start":1031},"ts_type":"number"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1078,"start":1054},"ts_type":"number | null"}],"heritage":[],"methods":[],"name":"SpecialCollections","span":{"end":1080,"start":870},"type_params":[]}
-interface SpecialHoles: {"body_span":{"end":1535,"start":1174},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1143,"start":1082}}],"fields":[{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1209,"start":1180},"ts_type":"(number | undefined)[]"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1250,"start":1214},"ts_type":"[number | undefined, string?]"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":1298,"start":1255},"ts_type":"Record<string, number | undefined>"},{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1347,"start":1303},"ts_type":"Record<'a' | 'b', Date | undefined>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":1381,"start":1352},"ts_type":"Set<number | undefined>"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":1424,"start":1386},"ts_type":"Map<string, number | undefined>"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1467,"start":1429},"ts_type":"(number | null | undefined)[]"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1498,"start":1472},"ts_type":"string | undefined"},{"decorators":[],"key":"Named","name":"grouped","optional":false,"readonly":false,"span":{"end":1533,"start":1503},"ts_type":"(string | undefined)"}],"heritage":[],"methods":[],"name":"SpecialHoles","span":{"end":1535,"start":1151},"type_params":[]}
+interface SpecialHoles: {"body_span":{"end":1533,"start":1174},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1143,"start":1082}}],"fields":[{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1209,"start":1180},"ts_type":"(number | undefined)[]"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1250,"start":1214},"ts_type":"[number | undefined, string?]"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":1298,"start":1255},"ts_type":"Record<string, number | undefined>"},{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1347,"start":1303},"ts_type":"Record<'a' | 'b', Date | undefined>"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":1381,"start":1352},"ts_type":"Set<number | undefined>"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":1424,"start":1386},"ts_type":"Map<string, number | undefined>"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1467,"start":1429},"ts_type":"(number | null | undefined)[]"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1498,"start":1472},"ts_type":"string | undefined"},{"decorators":[],"key":"Named","name":"grouped","optional":false,"readonly":false,"span":{"end":1531,"start":1503},"ts_type":"string | undefined"}],"heritage":[],"methods":[],"name":"SpecialHoles","span":{"end":1533,"start":1151},"type_params":[]}
 type SpecialNumber: {"body":{"Alias":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":489,"start":459}}],"name":"SpecialNumber","span":{"end":525,"start":497},"type_params":[]}
 type SpecialEither: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"SpecialCarried"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":557,"start":527}}],"name":"SpecialEither","span":{"end":610,"start":565},"type_params":[]}
 
@@ -2414,7 +2418,6 @@ type SpecialEither: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"number
 Name("'a' | 'b'")
 Name("(number | null | undefined)")
 Name("(number | undefined)")
-Name("(string | undefined)")
 Name("Date")
 Name("Map")
 Name("Record")

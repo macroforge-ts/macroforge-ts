@@ -125,6 +125,13 @@ pub(crate) fn required_param_coders(params: &[String]) -> String {
 /// `(value, ctx)`: the type's own decoder, or, for a generic type written
 /// with arguments that have decoders, a function handing those on.
 pub(crate) fn member_decoder(ts_type: &str, scope: &TypeScope<'_>) -> Result<String, String> {
+    // A type parameter's values are decoded by the coder handed in for it.
+    if scope.is_param(ts_type.trim()) {
+        let coder = param_coder(Direction::Decode, ts_type.trim());
+        return Ok(rendered(ts_template! {
+            ((__member: unknown, ctx: @{DECODE_CONTEXT}) => (@{&coder} === undefined ? __member as @{ts_type} : @{&coder}(__member, ctx)))
+        }));
+    }
     match scope.nested(ts_type, Direction::Decode, 0)? {
         Some(nested) if nested.arguments.iter().any(Option::is_some) => {
             let decoded = nested.decode_call("__member");
@@ -139,6 +146,13 @@ pub(crate) fn member_decoder(ts_type: &str, scope: &TypeScope<'_>) -> Result<Str
 /// A callee encoding one value of the type `ts_type`, called as
 /// `(value, ctx)`, like [`member_decoder`].
 pub(crate) fn member_encoder(ts_type: &str, scope: &TypeScope<'_>) -> Result<String, String> {
+    // A type parameter's values are encoded by the coder handed in for it.
+    if scope.is_param(ts_type.trim()) {
+        let coder = param_coder(Direction::Encode, ts_type.trim());
+        return Ok(rendered(ts_template! {
+            ((__member: @{ts_type}, ctx: @{ENCODE_CONTEXT}) => (@{&coder} === undefined ? __member : @{&coder}(__member, ctx)))
+        }));
+    }
     match scope.nested(ts_type, Direction::Encode, 0)? {
         Some(nested) if nested.arguments.iter().any(Option::is_some) => {
             let encoded = nested.encode_call("__member");

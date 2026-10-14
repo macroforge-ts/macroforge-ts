@@ -11185,607 +11185,367 @@ export function wideEventHasShape(value: unknown): boolean {
                 return false;
 }
 export function wideEventIs(value: unknown): value is WideEvent {
-    return wideEventHasShape(value);
+    return wideEventHasShape(value) && wideEventDecode(value).success;
 }
 export function wideEventK0Is(__v: unknown): __v is Extract<WideEvent, { kind: "k0" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k0";
+    return __mf_member(__v, "kind") === "k0";
 }
 export function wideEventK1Is(__v: unknown): __v is Extract<WideEvent, { kind: "k1" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k1";
+    return __mf_member(__v, "kind") === "k1";
 }
 export function wideEventK2Is(__v: unknown): __v is Extract<WideEvent, { kind: "k2" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k2";
+    return __mf_member(__v, "kind") === "k2";
 }
 export function wideEventK3Is(__v: unknown): __v is Extract<WideEvent, { kind: "k3" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k3";
+    return __mf_member(__v, "kind") === "k3";
 }
 export function wideEventK4Is(__v: unknown): __v is Extract<WideEvent, { kind: "k4" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k4";
+    return __mf_member(__v, "kind") === "k4";
 }
 export function wideEventK5Is(__v: unknown): __v is Extract<WideEvent, { kind: "k5" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k5";
+    return __mf_member(__v, "kind") === "k5";
 }
 export function wideEventK6Is(__v: unknown): __v is Extract<WideEvent, { kind: "k6" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k6";
+    return __mf_member(__v, "kind") === "k6";
 }
 export function wideEventK7Is(__v: unknown): __v is Extract<WideEvent, { kind: "k7" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k7";
+    return __mf_member(__v, "kind") === "k7";
 }
 export function wideEventK8Is(__v: unknown): __v is Extract<WideEvent, { kind: "k8" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k8";
+    return __mf_member(__v, "kind") === "k8";
 }
 export function wideEventK9Is(__v: unknown): __v is Extract<WideEvent, { kind: "k9" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k9";
+    return __mf_member(__v, "kind") === "k9";
 }
 export function wideEventK10Is(__v: unknown): __v is Extract<WideEvent, { kind: "k10" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k10";
+    return __mf_member(__v, "kind") === "k10";
 }
 export function wideEventK11Is(__v: unknown): __v is Extract<WideEvent, { kind: "k11" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k11";
+    return __mf_member(__v, "kind") === "k11";
 }
 export function wideEventK12Is(__v: unknown): __v is Extract<WideEvent, { kind: "k12" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k12";
+    return __mf_member(__v, "kind") === "k12";
 }
 export function wideEventK13Is(__v: unknown): __v is Extract<WideEvent, { kind: "k13" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k13";
+    return __mf_member(__v, "kind") === "k13";
 }
 export function wideEventK14Is(__v: unknown): __v is Extract<WideEvent, { kind: "k14" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k14";
+    return __mf_member(__v, "kind") === "k14";
 }
 export function wideEventK15Is(__v: unknown): __v is Extract<WideEvent, { kind: "k15" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k15";
+    return __mf_member(__v, "kind") === "k15";
 }
 export function wideEventK16Is(__v: unknown): __v is Extract<WideEvent, { kind: "k16" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k16";
+    return __mf_member(__v, "kind") === "k16";
 }
 export function wideEventK17Is(__v: unknown): __v is Extract<WideEvent, { kind: "k17" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k17";
+    return __mf_member(__v, "kind") === "k17";
 }
 export function wideEventK18Is(__v: unknown): __v is Extract<WideEvent, { kind: "k18" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k18";
+    return __mf_member(__v, "kind") === "k18";
 }
 export function wideEventK19Is(__v: unknown): __v is Extract<WideEvent, { kind: "k19" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k19";
+    return __mf_member(__v, "kind") === "k19";
 }
 export function wideEventK20Is(__v: unknown): __v is Extract<WideEvent, { kind: "k20" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k20";
+    return __mf_member(__v, "kind") === "k20";
 }
 export function wideEventK21Is(__v: unknown): __v is Extract<WideEvent, { kind: "k21" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k21";
+    return __mf_member(__v, "kind") === "k21";
 }
 export function wideEventK22Is(__v: unknown): __v is Extract<WideEvent, { kind: "k22" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k22";
+    return __mf_member(__v, "kind") === "k22";
 }
 export function wideEventK23Is(__v: unknown): __v is Extract<WideEvent, { kind: "k23" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k23";
+    return __mf_member(__v, "kind") === "k23";
 }
 export function wideEventK24Is(__v: unknown): __v is Extract<WideEvent, { kind: "k24" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k24";
+    return __mf_member(__v, "kind") === "k24";
 }
 export function wideEventK25Is(__v: unknown): __v is Extract<WideEvent, { kind: "k25" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k25";
+    return __mf_member(__v, "kind") === "k25";
 }
 export function wideEventK26Is(__v: unknown): __v is Extract<WideEvent, { kind: "k26" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k26";
+    return __mf_member(__v, "kind") === "k26";
 }
 export function wideEventK27Is(__v: unknown): __v is Extract<WideEvent, { kind: "k27" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k27";
+    return __mf_member(__v, "kind") === "k27";
 }
 export function wideEventK28Is(__v: unknown): __v is Extract<WideEvent, { kind: "k28" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k28";
+    return __mf_member(__v, "kind") === "k28";
 }
 export function wideEventK29Is(__v: unknown): __v is Extract<WideEvent, { kind: "k29" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k29";
+    return __mf_member(__v, "kind") === "k29";
 }
 export function wideEventK30Is(__v: unknown): __v is Extract<WideEvent, { kind: "k30" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k30";
+    return __mf_member(__v, "kind") === "k30";
 }
 export function wideEventK31Is(__v: unknown): __v is Extract<WideEvent, { kind: "k31" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k31";
+    return __mf_member(__v, "kind") === "k31";
 }
 export function wideEventK32Is(__v: unknown): __v is Extract<WideEvent, { kind: "k32" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k32";
+    return __mf_member(__v, "kind") === "k32";
 }
 export function wideEventK33Is(__v: unknown): __v is Extract<WideEvent, { kind: "k33" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k33";
+    return __mf_member(__v, "kind") === "k33";
 }
 export function wideEventK34Is(__v: unknown): __v is Extract<WideEvent, { kind: "k34" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k34";
+    return __mf_member(__v, "kind") === "k34";
 }
 export function wideEventK35Is(__v: unknown): __v is Extract<WideEvent, { kind: "k35" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k35";
+    return __mf_member(__v, "kind") === "k35";
 }
 export function wideEventK36Is(__v: unknown): __v is Extract<WideEvent, { kind: "k36" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k36";
+    return __mf_member(__v, "kind") === "k36";
 }
 export function wideEventK37Is(__v: unknown): __v is Extract<WideEvent, { kind: "k37" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k37";
+    return __mf_member(__v, "kind") === "k37";
 }
 export function wideEventK38Is(__v: unknown): __v is Extract<WideEvent, { kind: "k38" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k38";
+    return __mf_member(__v, "kind") === "k38";
 }
 export function wideEventK39Is(__v: unknown): __v is Extract<WideEvent, { kind: "k39" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k39";
+    return __mf_member(__v, "kind") === "k39";
 }
 export function wideEventK40Is(__v: unknown): __v is Extract<WideEvent, { kind: "k40" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k40";
+    return __mf_member(__v, "kind") === "k40";
 }
 export function wideEventK41Is(__v: unknown): __v is Extract<WideEvent, { kind: "k41" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k41";
+    return __mf_member(__v, "kind") === "k41";
 }
 export function wideEventK42Is(__v: unknown): __v is Extract<WideEvent, { kind: "k42" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k42";
+    return __mf_member(__v, "kind") === "k42";
 }
 export function wideEventK43Is(__v: unknown): __v is Extract<WideEvent, { kind: "k43" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k43";
+    return __mf_member(__v, "kind") === "k43";
 }
 export function wideEventK44Is(__v: unknown): __v is Extract<WideEvent, { kind: "k44" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k44";
+    return __mf_member(__v, "kind") === "k44";
 }
 export function wideEventK45Is(__v: unknown): __v is Extract<WideEvent, { kind: "k45" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k45";
+    return __mf_member(__v, "kind") === "k45";
 }
 export function wideEventK46Is(__v: unknown): __v is Extract<WideEvent, { kind: "k46" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k46";
+    return __mf_member(__v, "kind") === "k46";
 }
 export function wideEventK47Is(__v: unknown): __v is Extract<WideEvent, { kind: "k47" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k47";
+    return __mf_member(__v, "kind") === "k47";
 }
 export function wideEventK48Is(__v: unknown): __v is Extract<WideEvent, { kind: "k48" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k48";
+    return __mf_member(__v, "kind") === "k48";
 }
 export function wideEventK49Is(__v: unknown): __v is Extract<WideEvent, { kind: "k49" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k49";
+    return __mf_member(__v, "kind") === "k49";
 }
 export function wideEventK50Is(__v: unknown): __v is Extract<WideEvent, { kind: "k50" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k50";
+    return __mf_member(__v, "kind") === "k50";
 }
 export function wideEventK51Is(__v: unknown): __v is Extract<WideEvent, { kind: "k51" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k51";
+    return __mf_member(__v, "kind") === "k51";
 }
 export function wideEventK52Is(__v: unknown): __v is Extract<WideEvent, { kind: "k52" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k52";
+    return __mf_member(__v, "kind") === "k52";
 }
 export function wideEventK53Is(__v: unknown): __v is Extract<WideEvent, { kind: "k53" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k53";
+    return __mf_member(__v, "kind") === "k53";
 }
 export function wideEventK54Is(__v: unknown): __v is Extract<WideEvent, { kind: "k54" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k54";
+    return __mf_member(__v, "kind") === "k54";
 }
 export function wideEventK55Is(__v: unknown): __v is Extract<WideEvent, { kind: "k55" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k55";
+    return __mf_member(__v, "kind") === "k55";
 }
 export function wideEventK56Is(__v: unknown): __v is Extract<WideEvent, { kind: "k56" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k56";
+    return __mf_member(__v, "kind") === "k56";
 }
 export function wideEventK57Is(__v: unknown): __v is Extract<WideEvent, { kind: "k57" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k57";
+    return __mf_member(__v, "kind") === "k57";
 }
 export function wideEventK58Is(__v: unknown): __v is Extract<WideEvent, { kind: "k58" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k58";
+    return __mf_member(__v, "kind") === "k58";
 }
 export function wideEventK59Is(__v: unknown): __v is Extract<WideEvent, { kind: "k59" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k59";
+    return __mf_member(__v, "kind") === "k59";
 }
 export function wideEventK60Is(__v: unknown): __v is Extract<WideEvent, { kind: "k60" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k60";
+    return __mf_member(__v, "kind") === "k60";
 }
 export function wideEventK61Is(__v: unknown): __v is Extract<WideEvent, { kind: "k61" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k61";
+    return __mf_member(__v, "kind") === "k61";
 }
 export function wideEventK62Is(__v: unknown): __v is Extract<WideEvent, { kind: "k62" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k62";
+    return __mf_member(__v, "kind") === "k62";
 }
 export function wideEventK63Is(__v: unknown): __v is Extract<WideEvent, { kind: "k63" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k63";
+    return __mf_member(__v, "kind") === "k63";
 }
 export function wideEventK64Is(__v: unknown): __v is Extract<WideEvent, { kind: "k64" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k64";
+    return __mf_member(__v, "kind") === "k64";
 }
 export function wideEventK65Is(__v: unknown): __v is Extract<WideEvent, { kind: "k65" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k65";
+    return __mf_member(__v, "kind") === "k65";
 }
 export function wideEventK66Is(__v: unknown): __v is Extract<WideEvent, { kind: "k66" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k66";
+    return __mf_member(__v, "kind") === "k66";
 }
 export function wideEventK67Is(__v: unknown): __v is Extract<WideEvent, { kind: "k67" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k67";
+    return __mf_member(__v, "kind") === "k67";
 }
 export function wideEventK68Is(__v: unknown): __v is Extract<WideEvent, { kind: "k68" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k68";
+    return __mf_member(__v, "kind") === "k68";
 }
 export function wideEventK69Is(__v: unknown): __v is Extract<WideEvent, { kind: "k69" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k69";
+    return __mf_member(__v, "kind") === "k69";
 }
 export function wideEventK70Is(__v: unknown): __v is Extract<WideEvent, { kind: "k70" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k70";
+    return __mf_member(__v, "kind") === "k70";
 }
 export function wideEventK71Is(__v: unknown): __v is Extract<WideEvent, { kind: "k71" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k71";
+    return __mf_member(__v, "kind") === "k71";
 }
 export function wideEventK72Is(__v: unknown): __v is Extract<WideEvent, { kind: "k72" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k72";
+    return __mf_member(__v, "kind") === "k72";
 }
 export function wideEventK73Is(__v: unknown): __v is Extract<WideEvent, { kind: "k73" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k73";
+    return __mf_member(__v, "kind") === "k73";
 }
 export function wideEventK74Is(__v: unknown): __v is Extract<WideEvent, { kind: "k74" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k74";
+    return __mf_member(__v, "kind") === "k74";
 }
 export function wideEventK75Is(__v: unknown): __v is Extract<WideEvent, { kind: "k75" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k75";
+    return __mf_member(__v, "kind") === "k75";
 }
 export function wideEventK76Is(__v: unknown): __v is Extract<WideEvent, { kind: "k76" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k76";
+    return __mf_member(__v, "kind") === "k76";
 }
 export function wideEventK77Is(__v: unknown): __v is Extract<WideEvent, { kind: "k77" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k77";
+    return __mf_member(__v, "kind") === "k77";
 }
 export function wideEventK78Is(__v: unknown): __v is Extract<WideEvent, { kind: "k78" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k78";
+    return __mf_member(__v, "kind") === "k78";
 }
 export function wideEventK79Is(__v: unknown): __v is Extract<WideEvent, { kind: "k79" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k79";
+    return __mf_member(__v, "kind") === "k79";
 }
 export function wideEventK80Is(__v: unknown): __v is Extract<WideEvent, { kind: "k80" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k80";
+    return __mf_member(__v, "kind") === "k80";
 }
 export function wideEventK81Is(__v: unknown): __v is Extract<WideEvent, { kind: "k81" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k81";
+    return __mf_member(__v, "kind") === "k81";
 }
 export function wideEventK82Is(__v: unknown): __v is Extract<WideEvent, { kind: "k82" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k82";
+    return __mf_member(__v, "kind") === "k82";
 }
 export function wideEventK83Is(__v: unknown): __v is Extract<WideEvent, { kind: "k83" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k83";
+    return __mf_member(__v, "kind") === "k83";
 }
 export function wideEventK84Is(__v: unknown): __v is Extract<WideEvent, { kind: "k84" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k84";
+    return __mf_member(__v, "kind") === "k84";
 }
 export function wideEventK85Is(__v: unknown): __v is Extract<WideEvent, { kind: "k85" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k85";
+    return __mf_member(__v, "kind") === "k85";
 }
 export function wideEventK86Is(__v: unknown): __v is Extract<WideEvent, { kind: "k86" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k86";
+    return __mf_member(__v, "kind") === "k86";
 }
 export function wideEventK87Is(__v: unknown): __v is Extract<WideEvent, { kind: "k87" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k87";
+    return __mf_member(__v, "kind") === "k87";
 }
 export function wideEventK88Is(__v: unknown): __v is Extract<WideEvent, { kind: "k88" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k88";
+    return __mf_member(__v, "kind") === "k88";
 }
 export function wideEventK89Is(__v: unknown): __v is Extract<WideEvent, { kind: "k89" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k89";
+    return __mf_member(__v, "kind") === "k89";
 }
 export function wideEventK90Is(__v: unknown): __v is Extract<WideEvent, { kind: "k90" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k90";
+    return __mf_member(__v, "kind") === "k90";
 }
 export function wideEventK91Is(__v: unknown): __v is Extract<WideEvent, { kind: "k91" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k91";
+    return __mf_member(__v, "kind") === "k91";
 }
 export function wideEventK92Is(__v: unknown): __v is Extract<WideEvent, { kind: "k92" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k92";
+    return __mf_member(__v, "kind") === "k92";
 }
 export function wideEventK93Is(__v: unknown): __v is Extract<WideEvent, { kind: "k93" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k93";
+    return __mf_member(__v, "kind") === "k93";
 }
 export function wideEventK94Is(__v: unknown): __v is Extract<WideEvent, { kind: "k94" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k94";
+    return __mf_member(__v, "kind") === "k94";
 }
 export function wideEventK95Is(__v: unknown): __v is Extract<WideEvent, { kind: "k95" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k95";
+    return __mf_member(__v, "kind") === "k95";
 }
 export function wideEventK96Is(__v: unknown): __v is Extract<WideEvent, { kind: "k96" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k96";
+    return __mf_member(__v, "kind") === "k96";
 }
 export function wideEventK97Is(__v: unknown): __v is Extract<WideEvent, { kind: "k97" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k97";
+    return __mf_member(__v, "kind") === "k97";
 }
 export function wideEventK98Is(__v: unknown): __v is Extract<WideEvent, { kind: "k98" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k98";
+    return __mf_member(__v, "kind") === "k98";
 }
 export function wideEventK99Is(__v: unknown): __v is Extract<WideEvent, { kind: "k99" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k99";
+    return __mf_member(__v, "kind") === "k99";
 }
 export function wideEventK100Is(__v: unknown): __v is Extract<WideEvent, { kind: "k100" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k100";
+    return __mf_member(__v, "kind") === "k100";
 }
 export function wideEventK101Is(__v: unknown): __v is Extract<WideEvent, { kind: "k101" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k101";
+    return __mf_member(__v, "kind") === "k101";
 }
 export function wideEventK102Is(__v: unknown): __v is Extract<WideEvent, { kind: "k102" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k102";
+    return __mf_member(__v, "kind") === "k102";
 }
 export function wideEventK103Is(__v: unknown): __v is Extract<WideEvent, { kind: "k103" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k103";
+    return __mf_member(__v, "kind") === "k103";
 }
 export function wideEventK104Is(__v: unknown): __v is Extract<WideEvent, { kind: "k104" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k104";
+    return __mf_member(__v, "kind") === "k104";
 }
 export function wideEventK105Is(__v: unknown): __v is Extract<WideEvent, { kind: "k105" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k105";
+    return __mf_member(__v, "kind") === "k105";
 }
 export function wideEventK106Is(__v: unknown): __v is Extract<WideEvent, { kind: "k106" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k106";
+    return __mf_member(__v, "kind") === "k106";
 }
 export function wideEventK107Is(__v: unknown): __v is Extract<WideEvent, { kind: "k107" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k107";
+    return __mf_member(__v, "kind") === "k107";
 }
 export function wideEventK108Is(__v: unknown): __v is Extract<WideEvent, { kind: "k108" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k108";
+    return __mf_member(__v, "kind") === "k108";
 }
 export function wideEventK109Is(__v: unknown): __v is Extract<WideEvent, { kind: "k109" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k109";
+    return __mf_member(__v, "kind") === "k109";
 }
 export function wideEventK110Is(__v: unknown): __v is Extract<WideEvent, { kind: "k110" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k110";
+    return __mf_member(__v, "kind") === "k110";
 }
 export function wideEventK111Is(__v: unknown): __v is Extract<WideEvent, { kind: "k111" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k111";
+    return __mf_member(__v, "kind") === "k111";
 }
 export function wideEventK112Is(__v: unknown): __v is Extract<WideEvent, { kind: "k112" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k112";
+    return __mf_member(__v, "kind") === "k112";
 }
 export function wideEventK113Is(__v: unknown): __v is Extract<WideEvent, { kind: "k113" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k113";
+    return __mf_member(__v, "kind") === "k113";
 }
 export function wideEventK114Is(__v: unknown): __v is Extract<WideEvent, { kind: "k114" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k114";
+    return __mf_member(__v, "kind") === "k114";
 }
 export function wideEventK115Is(__v: unknown): __v is Extract<WideEvent, { kind: "k115" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k115";
+    return __mf_member(__v, "kind") === "k115";
 }
 export function wideEventK116Is(__v: unknown): __v is Extract<WideEvent, { kind: "k116" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k116";
+    return __mf_member(__v, "kind") === "k116";
 }
 export function wideEventK117Is(__v: unknown): __v is Extract<WideEvent, { kind: "k117" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k117";
+    return __mf_member(__v, "kind") === "k117";
 }
 export function wideEventK118Is(__v: unknown): __v is Extract<WideEvent, { kind: "k118" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k118";
+    return __mf_member(__v, "kind") === "k118";
 }
 export function wideEventK119Is(__v: unknown): __v is Extract<WideEvent, { kind: "k119" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "k119";
+    return __mf_member(__v, "kind") === "k119";
 }
 
 export const WideEvent: {
@@ -14937,7 +14697,7 @@ export function wideShapeHasShape(value: unknown): boolean {
                 return false;
 }
 export function wideShapeIs(value: unknown): value is WideShape {
-    return wideShapeHasShape(value);
+    return wideShapeHasShape(value) && wideShapeDecode(value).success;
 }
 
 export const WideShape: {
@@ -16853,8 +16613,8 @@ export declare const WideShape: {
 
 original 0..6475 -> expanded 1464..7939
 original 6475..12244 -> expanded 398866..404635
-original 12244..17982 -> expanded 549246..554984
-original 17982..17983 -> expanded 727002..727003
+original 12244..17982 -> expanded 540280..546018
+original 17982..17983 -> expanded 718070..718071
 generated 0..1464 <- imports
 generated 7939..22636 <- Debug
 generated 22636..31660 <- Clone
@@ -16869,15 +16629,15 @@ generated 404761..404866 <- Clone
 generated 404866..405010 <- PartialEq
 generated 405010..405114 <- Hash
 generated 405114..488410 <- Encode
-generated 488410..540459 <- Decode
-generated 540459..549246 <- __convenience_const
-generated 554984..555110 <- Debug
-generated 555110..555215 <- Clone
-generated 555215..555359 <- PartialEq
-generated 555359..555463 <- Hash
-generated 555463..646323 <- Encode
-generated 646323..726175 <- Decode
-generated 726175..727002 <- __convenience_const
+generated 488410..531493 <- Decode
+generated 531493..540280 <- __convenience_const
+generated 546018..546144 <- Debug
+generated 546144..546249 <- Clone
+generated 546249..546393 <- PartialEq
+generated 546393..546497 <- Hash
+generated 546497..637357 <- Encode
+generated 637357..717243 <- Decode
+generated 717243..718070 <- __convenience_const
 
 ## Metadata
 

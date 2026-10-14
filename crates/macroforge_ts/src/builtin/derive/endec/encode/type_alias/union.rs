@@ -25,6 +25,7 @@ use crate::builtin::derive::endec::union_guard::{Direction, tagged_member};
 use crate::builtin::derive::endec::{
     EndecContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
 };
+use crate::builtin::return_types::ENCODE_CONTEXT;
 
 /// Encodes whichever member the value is, tagged as the union's tagging mode
 /// says.
@@ -115,7 +116,12 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                         js_string(&tag_value)
                     );
                     let test = format!("{} === {}", member(&tag_field), js_string(&tag_value));
-                    tagged_coders.push(coder(&member_type, &test, &member_encoder_of(type_ref)?));
+                    // The member's own encoder writes no tag of the union's.
+                    let encoder = member_encoder_of(type_ref)?;
+                    let tagged = Expr::Source(rendered(ts_template! {
+                        ((__member: @{type_ref}, ctx: @{ENCODE_CONTEXT}) => @{endec_helper("withTag")}(@{encoder}(__member, ctx), @{js_string(&tag_field)}, @{js_string(&tag_value)}))
+                    }));
+                    tagged_coders.push(coder(&member_type, &test, &tagged));
                 }
                 TypeMemberKind::TypeRef(t) => {
                     if let TypeCategory::Encodable(name) = TypeCategory::from_ts_type(t)

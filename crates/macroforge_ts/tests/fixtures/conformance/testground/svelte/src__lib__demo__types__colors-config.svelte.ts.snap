@@ -226,7 +226,7 @@ export function colorsConfigHasShape(value: unknown): boolean {
                 return false;
 }
 export function colorsConfigIs(value: unknown): value is ColorsConfig {
-    return colorsConfigHasShape(value);
+    return colorsConfigHasShape(value) && colorsConfigDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -536,13 +536,13 @@ export declare const ColorsConfig: {
 
 original 0..257 -> expanded 1214..1471
 original 306..407 -> expanded 1471..1572
-original 407..408 -> expanded 17492..17493
+original 407..408 -> expanded 17529..17530
 generated 0..1214 <- imports
 generated 1572..1669 <- Default
 generated 1669..4779 <- Encode
-generated 4779..10780 <- Decode
-generated 10780..16626 <- Gigaform
-generated 16626..17492 <- __convenience_const
+generated 4779..10817 <- Decode
+generated 10817..16663 <- Gigaform
+generated 16663..17529 <- __convenience_const
 
 ## Metadata
 

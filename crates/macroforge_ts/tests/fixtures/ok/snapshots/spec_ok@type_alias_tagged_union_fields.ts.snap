@@ -177,17 +177,13 @@ export function shapeHasShape(value: unknown): boolean {
                 return false;
 }
 export function shapeIs(value: unknown): value is Shape {
-    return shapeHasShape(value);
+    return shapeHasShape(value) && shapeDecode(value).success;
 }
 export function shapeCircleIs(__v: unknown): __v is Extract<Shape, { kind: "circle" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "circle";
+    return __mf_member(__v, "kind") === "circle";
 }
 export function shapeEventIs(__v: unknown): __v is Extract<Shape, { kind: "event" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "event";
+    return __mf_member(__v, "kind") === "event";
 }
 
 const Shape: {
@@ -254,11 +250,11 @@ export {};
 ## Mapping
 
 original 61..165 -> expanded 758..862
-original 165..166 -> expanded 7793..7794
+original 165..166 -> expanded 7673..7674
 generated 0..758 <- imports
 generated 862..3507 <- Encode
-generated 3507..7181 <- Decode
-generated 7181..7793 <- __convenience_const
+generated 3507..7061 <- Decode
+generated 7061..7673 <- __convenience_const
 
 ## Metadata
 

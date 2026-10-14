@@ -460,7 +460,7 @@ export function targetHasShape(value: unknown): boolean {
                 return false;
 }
 export function targetIs(value: unknown): value is Target {
-    return targetHasShape(value);
+    return targetHasShape(value) && targetDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -1147,13 +1147,13 @@ export declare const Target: {
 
 original 0..887 -> expanded 2820..3707
 original 936..1209 -> expanded 3707..3980
-original 1209..1210 -> expanded 45096..45097
+original 1209..1210 -> expanded 45127..45128
 generated 0..2820 <- imports
 generated 3980..4064 <- Default
 generated 4064..16915 <- Encode
-generated 16915..30714 <- Decode
-generated 30714..44344 <- Gigaform
-generated 44344..45096 <- __convenience_const
+generated 16915..30745 <- Decode
+generated 30745..44375 <- Gigaform
+generated 44375..45127 <- __convenience_const
 
 ## Metadata
 

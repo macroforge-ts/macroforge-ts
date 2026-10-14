@@ -126,7 +126,7 @@ export function recurrenceEndHasShape(value: unknown): boolean {
                 return (typeof value === "number" && globalThis.Number.isFinite(value)) || typeof value === "string";
 }
 export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
-    return recurrenceEndHasShape(value);
+    return recurrenceEndHasShape(value) && recurrenceEndDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -376,13 +376,13 @@ export declare const RecurrenceEnd: {
 
 original 0..58 -> expanded 711..769
 original 107..171 -> expanded 769..833
-original 171..172 -> expanded 10190..10191
+original 171..172 -> expanded 10228..10229
 generated 0..711 <- imports
 generated 833..911 <- Default
 generated 911..2231 <- Encode
-generated 2231..4896 <- Decode
-generated 4896..9305 <- Gigaform
-generated 9305..10190 <- __convenience_const
+generated 2231..4934 <- Decode
+generated 4934..9343 <- Gigaform
+generated 9343..10228 <- __convenience_const
 
 ## Metadata
 

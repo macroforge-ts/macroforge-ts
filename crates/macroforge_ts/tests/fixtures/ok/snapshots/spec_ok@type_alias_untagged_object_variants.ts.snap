@@ -169,7 +169,7 @@ export function outcomeHasShape(value: unknown): boolean {
                 return false;
 }
 export function outcomeIs(value: unknown): value is Outcome {
-    return outcomeHasShape(value);
+    return outcomeHasShape(value) && outcomeDecode(value).success;
 }
 
 const Outcome: {
@@ -338,7 +338,7 @@ export function looseHasShape(value: unknown): boolean {
                 return false;
 }
 export function looseIs(value: unknown): value is Loose {
-    return looseHasShape(value);
+    return looseHasShape(value) && looseDecode(value).success;
 }
 
 const Loose: {
@@ -422,16 +422,16 @@ export {};
 ## Mapping
 
 original 30..120 -> expanded 845..935
-original 120..122 -> expanded 7956..7958
-original 186..272 -> expanded 7958..8044
-original 272..273 -> expanded 14937..14938
+original 120..122 -> expanded 7988..7990
+original 186..272 -> expanded 7990..8076
+original 272..273 -> expanded 14999..15000
 generated 0..845 <- imports
 generated 935..3617 <- Encode
-generated 3617..7454 <- Decode
-generated 7454..7956 <- __convenience_const
-generated 8044..10733 <- Encode
-generated 10733..14461 <- Decode
-generated 14461..14937 <- __convenience_const
+generated 3617..7486 <- Decode
+generated 7486..7988 <- __convenience_const
+generated 8076..10765 <- Encode
+generated 10765..14523 <- Decode
+generated 14523..14999 <- __convenience_const
 
 ## Metadata
 

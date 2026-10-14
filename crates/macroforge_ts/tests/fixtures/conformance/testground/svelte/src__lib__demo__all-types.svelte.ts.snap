@@ -38248,7 +38248,7 @@ export function intervalHasShape(value: unknown): boolean {
                 return false;
 }
 export function intervalIs(value: unknown): value is Interval {
-    return intervalHasShape(value);
+    return intervalHasShape(value) && intervalDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -39797,7 +39797,7 @@ export function targetHasShape(value: unknown): boolean {
                 return false;
 }
 export function targetIs(value: unknown): value is Target {
-    return targetHasShape(value);
+    return targetHasShape(value) && targetDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -40295,7 +40295,7 @@ export function recurrenceEndHasShape(value: unknown): boolean {
                 return (typeof value === "number" && globalThis.Number.isFinite(value)) || typeof value === "string";
 }
 export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
-    return recurrenceEndHasShape(value);
+    return recurrenceEndHasShape(value) && recurrenceEndDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -42399,7 +42399,7 @@ export function accountNameHasShape(value: unknown): boolean {
                 return false;
 }
 export function accountNameIs(value: unknown): value is AccountName {
-    return accountNameHasShape(value);
+    return accountNameHasShape(value) && accountNameDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -43565,7 +43565,7 @@ export function colorsConfigHasShape(value: unknown): boolean {
                 return false;
 }
 export function colorsConfigIs(value: unknown): value is ColorsConfig {
-    return colorsConfigHasShape(value);
+    return colorsConfigHasShape(value) && colorsConfigDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -44258,7 +44258,7 @@ export function activityTypeHasShape(value: unknown): boolean {
                 return false;
 }
 export function activityTypeIs(value: unknown): value is ActivityType {
-    return activityTypeHasShape(value);
+    return activityTypeHasShape(value) && activityTypeDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -45674,7 +45674,7 @@ export function itemHasShape(value: unknown): boolean {
                 return false;
 }
 export function itemIs(value: unknown): value is Item {
-    return itemHasShape(value);
+    return itemHasShape(value) && itemDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -46128,7 +46128,7 @@ export function actorHasShape(value: unknown): boolean {
                 return false;
 }
 export function actorIs(value: unknown): value is Actor {
-    return actorHasShape(value);
+    return actorHasShape(value) && actorDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -56136,55 +56136,55 @@ original 28068..28070 -> expanded 1617879..1617881
 original 28119..28223 -> expanded 1617881..1617985
 original 28223..28225 -> expanded 1636977..1636979
 original 28274..28422 -> expanded 1636979..1637127
-original 28422..28424 -> expanded 1654330..1654332
-original 28473..29237 -> expanded 1654332..1655096
-original 29237..29239 -> expanded 1687909..1687911
-original 29288..29450 -> expanded 1687911..1688073
-original 29450..29452 -> expanded 1699571..1699573
-original 29501..29774 -> expanded 1699573..1699846
-original 29774..29776 -> expanded 1740910..1740912
-original 29825..29889 -> expanded 1740912..1740976
-original 29889..29891 -> expanded 1750333..1750335
-original 29940..30004 -> expanded 1750335..1750399
-original 30004..30006 -> expanded 1759034..1759036
-original 30055..30133 -> expanded 1759036..1759114
-original 30133..30135 -> expanded 1768854..1768856
-original 30184..30251 -> expanded 1768856..1768923
-original 30251..30253 -> expanded 1777081..1777083
-original 30302..30454 -> expanded 1777083..1777235
-original 30454..30456 -> expanded 1789012..1789014
-original 30505..30578 -> expanded 1789014..1789087
-original 30578..30580 -> expanded 1797815..1797817
-original 30629..30747 -> expanded 1797817..1797935
-original 30747..30749 -> expanded 1807960..1807962
-original 30798..30930 -> expanded 1807962..1808094
-original 30930..30932 -> expanded 1818873..1818875
-original 31114..31182 -> expanded 1818875..1818943
-original 31182..31184 -> expanded 1831396..1831398
-original 31233..31299 -> expanded 1831398..1831464
-original 31299..31301 -> expanded 1840145..1840147
-original 31350..31517 -> expanded 1840147..1840314
-original 31517..31519 -> expanded 1852998..1853000
-original 31568..31708 -> expanded 1853000..1853140
-original 31708..31710 -> expanded 1863725..1863727
-original 31759..31860 -> expanded 1863727..1863828
-original 31860..31862 -> expanded 1879748..1879750
-original 31911..32025 -> expanded 1879750..1879864
-original 32025..32027 -> expanded 1890354..1890356
-original 32076..32198 -> expanded 1890356..1890478
-original 32198..32200 -> expanded 1909505..1909507
-original 32249..32352 -> expanded 1909507..1909610
-original 32352..32354 -> expanded 1919309..1919311
-original 32403..32479 -> expanded 1919311..1919387
-original 32479..32481 -> expanded 1928478..1928480
-original 32530..32848 -> expanded 1928480..1928798
-original 32848..32850 -> expanded 1948074..1948076
-original 32899..32977 -> expanded 1948076..1948154
-original 32977..32979 -> expanded 1961479..1961481
-original 33018..33074 -> expanded 1961481..1961537
-original 33074..33076 -> expanded 1966299..1966301
-original 33125..33188 -> expanded 1966301..1966364
-original 33188..33189 -> expanded 1980679..1980680
+original 28422..28424 -> expanded 1654363..1654365
+original 28473..29237 -> expanded 1654365..1655129
+original 29237..29239 -> expanded 1687942..1687944
+original 29288..29450 -> expanded 1687944..1688106
+original 29450..29452 -> expanded 1699604..1699606
+original 29501..29774 -> expanded 1699606..1699879
+original 29774..29776 -> expanded 1740974..1740976
+original 29825..29889 -> expanded 1740976..1741040
+original 29889..29891 -> expanded 1750435..1750437
+original 29940..30004 -> expanded 1750437..1750501
+original 30004..30006 -> expanded 1759136..1759138
+original 30055..30133 -> expanded 1759138..1759216
+original 30133..30135 -> expanded 1768956..1768958
+original 30184..30251 -> expanded 1768958..1769025
+original 30251..30253 -> expanded 1777183..1777185
+original 30302..30454 -> expanded 1777185..1777337
+original 30454..30456 -> expanded 1789114..1789116
+original 30505..30578 -> expanded 1789116..1789189
+original 30578..30580 -> expanded 1797917..1797919
+original 30629..30747 -> expanded 1797919..1798037
+original 30747..30749 -> expanded 1808062..1808064
+original 30798..30930 -> expanded 1808064..1808196
+original 30930..30932 -> expanded 1818975..1818977
+original 31114..31182 -> expanded 1818977..1819045
+original 31182..31184 -> expanded 1831534..1831536
+original 31233..31299 -> expanded 1831536..1831602
+original 31299..31301 -> expanded 1840283..1840285
+original 31350..31517 -> expanded 1840285..1840452
+original 31517..31519 -> expanded 1853136..1853138
+original 31568..31708 -> expanded 1853138..1853278
+original 31708..31710 -> expanded 1863863..1863865
+original 31759..31860 -> expanded 1863865..1863966
+original 31860..31862 -> expanded 1879923..1879925
+original 31911..32025 -> expanded 1879925..1880039
+original 32025..32027 -> expanded 1890529..1890531
+original 32076..32198 -> expanded 1890531..1890653
+original 32198..32200 -> expanded 1909717..1909719
+original 32249..32352 -> expanded 1909719..1909822
+original 32352..32354 -> expanded 1919521..1919523
+original 32403..32479 -> expanded 1919523..1919599
+original 32479..32481 -> expanded 1928690..1928692
+original 32530..32848 -> expanded 1928692..1929010
+original 32848..32850 -> expanded 1948286..1948288
+original 32899..32977 -> expanded 1948288..1948366
+original 32977..32979 -> expanded 1961720..1961722
+original 33018..33074 -> expanded 1961722..1961778
+original 33074..33076 -> expanded 1966540..1966542
+original 33125..33188 -> expanded 1966542..1966605
+original 33188..33189 -> expanded 1980950..1980951
 generated 0..1330 <- imports
 generated 1839..2327 <- Default
 generated 2327..7977 <- Encode
@@ -56488,128 +56488,128 @@ generated 1628626..1635711 <- Gigaform
 generated 1635711..1636977 <- __convenience_const
 generated 1637127..1637227 <- Default
 generated 1637227..1640415 <- Encode
-generated 1640415..1646920 <- Decode
-generated 1646920..1653540 <- Gigaform
-generated 1653540..1654330 <- __convenience_const
-generated 1655096..1655175 <- Default
-generated 1655175..1656450 <- Encode
-generated 1656450..1661922 <- Decode
-generated 1661922..1687195 <- Gigaform
-generated 1687195..1687909 <- __convenience_const
-generated 1688073..1688155 <- Default
-generated 1688155..1689450 <- Encode
-generated 1689450..1691664 <- Decode
-generated 1691664..1698781 <- Gigaform
-generated 1698781..1699571 <- __convenience_const
-generated 1699846..1699930 <- Default
-generated 1699930..1712729 <- Encode
-generated 1712729..1726528 <- Decode
-generated 1726528..1740158 <- Gigaform
-generated 1740158..1740910 <- __convenience_const
-generated 1740976..1741054 <- Default
-generated 1741054..1742374 <- Encode
-generated 1742374..1745039 <- Decode
-generated 1745039..1749448 <- Gigaform
-generated 1749448..1750333 <- __convenience_const
-generated 1750399..1750486 <- Default
-generated 1750486..1751816 <- Encode
-generated 1751816..1753604 <- Decode
-generated 1753604..1758111 <- Gigaform
-generated 1758111..1759034 <- __convenience_const
-generated 1759114..1759194 <- Default
-generated 1759194..1760509 <- Encode
-generated 1760509..1762411 <- Decode
-generated 1762411..1767988 <- Gigaform
-generated 1767988..1768854 <- __convenience_const
-generated 1768923..1768999 <- Default
-generated 1768999..1770284 <- Encode
-generated 1770284..1772015 <- Decode
-generated 1772015..1776329 <- Gigaform
-generated 1776329..1777081 <- __convenience_const
-generated 1777235..1777308 <- Default
-generated 1777308..1778598 <- Encode
-generated 1778598..1780782 <- Decode
-generated 1780782..1788241 <- Gigaform
-generated 1788241..1789012 <- __convenience_const
-generated 1789087..1789161 <- Default
-generated 1789161..1790446 <- Encode
-generated 1790446..1792241 <- Decode
-generated 1792241..1797063 <- Gigaform
-generated 1797063..1797815 <- __convenience_const
-generated 1797935..1798018 <- Default
-generated 1798018..1799313 <- Encode
-generated 1799313..1801293 <- Decode
-generated 1801293..1807170 <- Gigaform
-generated 1807170..1807960 <- __convenience_const
-generated 1808094..1808169 <- Default
-generated 1808169..1809469 <- Encode
-generated 1809469..1811541 <- Decode
-generated 1811541..1818064 <- Gigaform
-generated 1818064..1818873 <- __convenience_const
-generated 1818943..1819041 <- Default
-generated 1819041..1821212 <- Encode
-generated 1821212..1825996 <- Decode
-generated 1825996..1830549 <- Gigaform
-generated 1830549..1831396 <- __convenience_const
-generated 1831464..1831539 <- Default
-generated 1831539..1832834 <- Encode
-generated 1832834..1834610 <- Decode
-generated 1834610..1839355 <- Gigaform
-generated 1839355..1840145 <- __convenience_const
-generated 1840314..1840396 <- Default
-generated 1840396..1841711 <- Encode
-generated 1841711..1844010 <- Decode
-generated 1844010..1852132 <- Gigaform
-generated 1852132..1852998 <- __convenience_const
-generated 1853140..1853219 <- Default
-generated 1853219..1854514 <- Encode
-generated 1854514..1856604 <- Decode
-generated 1856604..1862935 <- Gigaform
-generated 1862935..1863725 <- __convenience_const
-generated 1863828..1863925 <- Default
-generated 1863925..1867035 <- Encode
-generated 1867035..1873036 <- Decode
-generated 1873036..1878882 <- Gigaform
-generated 1878882..1879748 <- __convenience_const
-generated 1879864..1879944 <- Default
-generated 1879944..1881254 <- Encode
-generated 1881254..1883252 <- Decode
-generated 1883252..1889507 <- Gigaform
-generated 1889507..1890354 <- __convenience_const
-generated 1890478..1890574 <- Default
-generated 1890574..1894382 <- Encode
-generated 1894382..1901567 <- Decode
-generated 1901567..1908639 <- Gigaform
-generated 1908639..1909505 <- __convenience_const
-generated 1909610..1909687 <- Default
-generated 1909687..1910987 <- Encode
-generated 1910987..1912900 <- Decode
-generated 1912900..1918500 <- Gigaform
-generated 1918500..1919309 <- __convenience_const
-generated 1919387..1919468 <- Default
-generated 1919468..1920773 <- Encode
-generated 1920773..1922615 <- Decode
-generated 1922615..1927650 <- Gigaform
-generated 1927650..1928478 <- __convenience_const
-generated 1928798..1928868 <- Default
-generated 1928868..1930148 <- Encode
-generated 1930148..1933300 <- Decode
-generated 1933300..1947341 <- Gigaform
-generated 1947341..1948074 <- __convenience_const
-generated 1948154..1948215 <- Default
-generated 1948215..1950736 <- Encode
-generated 1950736..1956237 <- Decode
-generated 1956237..1960765 <- Gigaform
-generated 1960765..1961479 <- __convenience_const
-generated 1961537..1961616 <- Default
-generated 1961616..1963002 <- Encode
-generated 1963002..1965655 <- Decode
-generated 1965655..1966299 <- __convenience_const
-generated 1966364..1966443 <- Default
-generated 1966443..1970102 <- Encode
-generated 1970102..1975265 <- Decode
-generated 1975265..1979946 <- Gigaform
-generated 1979946..1980679 <- __convenience_const
+generated 1640415..1646953 <- Decode
+generated 1646953..1653573 <- Gigaform
+generated 1653573..1654363 <- __convenience_const
+generated 1655129..1655208 <- Default
+generated 1655208..1656483 <- Encode
+generated 1656483..1661955 <- Decode
+generated 1661955..1687228 <- Gigaform
+generated 1687228..1687942 <- __convenience_const
+generated 1688106..1688188 <- Default
+generated 1688188..1689483 <- Encode
+generated 1689483..1691697 <- Decode
+generated 1691697..1698814 <- Gigaform
+generated 1698814..1699604 <- __convenience_const
+generated 1699879..1699963 <- Default
+generated 1699963..1712762 <- Encode
+generated 1712762..1726592 <- Decode
+generated 1726592..1740222 <- Gigaform
+generated 1740222..1740974 <- __convenience_const
+generated 1741040..1741118 <- Default
+generated 1741118..1742438 <- Encode
+generated 1742438..1745141 <- Decode
+generated 1745141..1749550 <- Gigaform
+generated 1749550..1750435 <- __convenience_const
+generated 1750501..1750588 <- Default
+generated 1750588..1751918 <- Encode
+generated 1751918..1753706 <- Decode
+generated 1753706..1758213 <- Gigaform
+generated 1758213..1759136 <- __convenience_const
+generated 1759216..1759296 <- Default
+generated 1759296..1760611 <- Encode
+generated 1760611..1762513 <- Decode
+generated 1762513..1768090 <- Gigaform
+generated 1768090..1768956 <- __convenience_const
+generated 1769025..1769101 <- Default
+generated 1769101..1770386 <- Encode
+generated 1770386..1772117 <- Decode
+generated 1772117..1776431 <- Gigaform
+generated 1776431..1777183 <- __convenience_const
+generated 1777337..1777410 <- Default
+generated 1777410..1778700 <- Encode
+generated 1778700..1780884 <- Decode
+generated 1780884..1788343 <- Gigaform
+generated 1788343..1789114 <- __convenience_const
+generated 1789189..1789263 <- Default
+generated 1789263..1790548 <- Encode
+generated 1790548..1792343 <- Decode
+generated 1792343..1797165 <- Gigaform
+generated 1797165..1797917 <- __convenience_const
+generated 1798037..1798120 <- Default
+generated 1798120..1799415 <- Encode
+generated 1799415..1801395 <- Decode
+generated 1801395..1807272 <- Gigaform
+generated 1807272..1808062 <- __convenience_const
+generated 1808196..1808271 <- Default
+generated 1808271..1809571 <- Encode
+generated 1809571..1811643 <- Decode
+generated 1811643..1818166 <- Gigaform
+generated 1818166..1818975 <- __convenience_const
+generated 1819045..1819143 <- Default
+generated 1819143..1821314 <- Encode
+generated 1821314..1826134 <- Decode
+generated 1826134..1830687 <- Gigaform
+generated 1830687..1831534 <- __convenience_const
+generated 1831602..1831677 <- Default
+generated 1831677..1832972 <- Encode
+generated 1832972..1834748 <- Decode
+generated 1834748..1839493 <- Gigaform
+generated 1839493..1840283 <- __convenience_const
+generated 1840452..1840534 <- Default
+generated 1840534..1841849 <- Encode
+generated 1841849..1844148 <- Decode
+generated 1844148..1852270 <- Gigaform
+generated 1852270..1853136 <- __convenience_const
+generated 1853278..1853357 <- Default
+generated 1853357..1854652 <- Encode
+generated 1854652..1856742 <- Decode
+generated 1856742..1863073 <- Gigaform
+generated 1863073..1863863 <- __convenience_const
+generated 1863966..1864063 <- Default
+generated 1864063..1867173 <- Encode
+generated 1867173..1873211 <- Decode
+generated 1873211..1879057 <- Gigaform
+generated 1879057..1879923 <- __convenience_const
+generated 1880039..1880119 <- Default
+generated 1880119..1881429 <- Encode
+generated 1881429..1883427 <- Decode
+generated 1883427..1889682 <- Gigaform
+generated 1889682..1890529 <- __convenience_const
+generated 1890653..1890749 <- Default
+generated 1890749..1894557 <- Encode
+generated 1894557..1901779 <- Decode
+generated 1901779..1908851 <- Gigaform
+generated 1908851..1909717 <- __convenience_const
+generated 1909822..1909899 <- Default
+generated 1909899..1911199 <- Encode
+generated 1911199..1913112 <- Decode
+generated 1913112..1918712 <- Gigaform
+generated 1918712..1919521 <- __convenience_const
+generated 1919599..1919680 <- Default
+generated 1919680..1920985 <- Encode
+generated 1920985..1922827 <- Decode
+generated 1922827..1927862 <- Gigaform
+generated 1927862..1928690 <- __convenience_const
+generated 1929010..1929080 <- Default
+generated 1929080..1930360 <- Encode
+generated 1930360..1933512 <- Decode
+generated 1933512..1947553 <- Gigaform
+generated 1947553..1948286 <- __convenience_const
+generated 1948366..1948427 <- Default
+generated 1948427..1950948 <- Encode
+generated 1950948..1956478 <- Decode
+generated 1956478..1961006 <- Gigaform
+generated 1961006..1961720 <- __convenience_const
+generated 1961778..1961857 <- Default
+generated 1961857..1963243 <- Encode
+generated 1963243..1965896 <- Decode
+generated 1965896..1966540 <- __convenience_const
+generated 1966605..1966684 <- Default
+generated 1966684..1970343 <- Encode
+generated 1970343..1975536 <- Decode
+generated 1975536..1980217 <- Gigaform
+generated 1980217..1980950 <- __convenience_const
 
 ## Metadata
 

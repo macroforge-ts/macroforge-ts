@@ -62,7 +62,7 @@ export function pairDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 }
 
 export function pairIs(value: unknown): value is Pair {
-    return pairHasShape(value);
+    return pairHasShape(value) && pairDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Pair {
@@ -147,10 +147,10 @@ Error [36..60]: $Newtype takes exactly one type argument, got 2
 ## Mapping
 
 original 22..60 -> expanded 295..333
-original 60..61 -> expanded 3639..3640
+original 60..61 -> expanded 3668..3669
 generated 0..295 <- imports
-generated 333..3340 <- Decode
-generated 3340..3639 <- __convenience_const
+generated 333..3369 <- Decode
+generated 3369..3668 <- __convenience_const
 
 ## Metadata
 

@@ -1069,6 +1069,16 @@ export function decodedMember<Raw>(
 }
 
 /**
+ * `encoded` with `tag` naming the member of a union it encodes, as a member
+ * tagged in place (`{ tag: 'name' } & Type`) carries it: the encoder of the
+ * type it names writes no tag of the union's.
+ */
+export function withTag(encoded: unknown, tag: string, name: string): unknown {
+  if (typeof encoded !== "object" || encoded === null || Array.isArray(encoded)) return encoded;
+  return { [tag]: name, ...encoded };
+}
+
+/**
  * `value` as the first of `coders` whose member it is encodes it, or as it
  * is when it is of none of them.
  */

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/generic-shapes.ts
-sha256 5e7d1761a453b874b54285be2de69649211ec8d4af58a7a7923c82d509a696fd
+sha256 1b8bf0b3561a170e4fc36b440e9d0852bc9906a0bd289c3fae1040ec9e2e72d5
 
 ## Changed
 
@@ -15,7 +15,7 @@ true
 import { edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeItemDecodeWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue, withTag as __mf_withTag } from "@macroforge/core/endec";
 /**
  * Generic types: parameters with constraints and defaults, parameters used
  * in every position a field can hold one, and fields that instantiate
@@ -4651,6 +4651,172 @@ export const GenericDefaulted: {
   is: genericDefaultedIs
 };
 
+/** A member tagged in place over a type parameter, coded by the coders handed in for it. */
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "kind" }) */
+export type GenericTagged<T> = ({ kind: 'Held' } & T) | { kind: 'Empty'; size: number };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericTaggedEncode<T>(value: GenericTagged<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericTaggedEncodeWithContext(value, ctx, __encodeT);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericTaggedEncodeWithContext<T>(value: GenericTagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
+    const __encoder = __mf_derivedEncoder(value);
+
+    const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
+        __mf_memberCoder((member: GenericTagged<T>): member is { "kind": "Held" } & T => __mf_member(member, "kind") === "Held", (member) => ((__member: T, ctx: __mf_EncodeContext) => __mf_withTag(((__member: T, ctx: __mf_EncodeContext) => (__encodeT === undefined ? __member : __encodeT(__member, ctx)))(__member, ctx), "kind", "Held"))(member, ctx)),
+        (value: GenericTagged<T>): unknown => {
+            if (!(typeof value === "object" && value !== null && "kind" in value && value["kind"] === "Empty")) {
+                return __mf_notTheMember;
+            }
+            const result: Record<string, unknown> = {};
+            for (const __part of [
+                () => {
+                    result["kind"] = value.kind;
+                },
+                () => {
+                    result["size"] = value.size;
+                },
+            ]) {
+                __part();
+            }
+            return result;
+        },
+    ]);
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
+        const { __type: __typeName, ...fields } = __variant as Record<string, unknown>;
+        const __tagged = { "kind": __mf_member(value, "kind") ?? __typeName, ...fields };
+
+        const __idVal = fields["__id"];
+        return typeof __idVal === "number" ? __mf_encodedAs(ctx, __idVal, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericTaggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericTagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericTaggedDecodeWithContext<T>(data, ctx, __decodeT);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericTagged.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericTaggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericTagged<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericTagged.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as GenericTagged<T> | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = __mf_member(value, "kind");
+        if (typeof __typeName === "string") {
+
+            const __tagged = __mf_decodedMember(value, [
+            (value: object): unknown => __typeName === "Empty" ? { "kind": "Empty", ...__mf_decodeObject(value, ctx, { size: __mf_decodeNumber }) } : __mf_notTheMember,
+            (value: object): unknown => __typeName === "Held" ? { ...((__member: unknown, ctx: __mf_DecodeContext) => (__decodeT === undefined ? __member as T : __decodeT(__member, ctx)))(value, ctx), "kind": "Held" } : __mf_notTheMember,
+            ]);
+            if (__tagged !== __mf_notTheMember) {
+                return __tagged as GenericTagged<T>;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "GenericTagged.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function genericTaggedHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = __mf_member(value, "kind");
+                    if (["Empty", "Held"].some((tag) => tag === __typeName)) return true;
+                }
+                return false;
+}
+export function genericTaggedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericTagged<T> {
+    return genericTaggedHasShape(value) && genericTaggedDecode(value, undefined, __mf_guardedDecoder(__isT, "T")).success;
+}
+export function genericTaggedEmptyIs<T>(__v: GenericTagged<T>): __v is Extract<GenericTagged<T>, { kind: "Empty" }> {
+    return __mf_member(__v, "kind") === "Empty";
+}
+export function genericTaggedHeldIs<T>(__v: GenericTagged<T>): __v is Extract<GenericTagged<T>, { kind: "Held" }> {
+    return __mf_member(__v, "kind") === "Held";
+}
+
+export const GenericTagged: {
+  readonly encode: typeof genericTaggedEncode;
+  readonly encodeWithContext: typeof genericTaggedEncodeWithContext;
+  readonly decode: typeof genericTaggedDecode;
+  readonly decodeWithContext: typeof genericTaggedDecodeWithContext;
+  readonly hasShape: typeof genericTaggedHasShape;
+  readonly is: typeof genericTaggedIs;
+  readonly emptyIs: typeof genericTaggedEmptyIs;
+  readonly heldIs: typeof genericTaggedHeldIs;
+} = {
+  encode: genericTaggedEncode,
+  encodeWithContext: genericTaggedEncodeWithContext,
+  decode: genericTaggedDecode,
+  decodeWithContext: genericTaggedDecodeWithContext,
+  hasShape: genericTaggedHasShape,
+  is: genericTaggedIs,
+  emptyIs: genericTaggedEmptyIs,
+  heldIs: genericTaggedHeldIs
+};
+
 ## DTS
 
 /**
@@ -5616,6 +5782,50 @@ export declare const GenericDefaulted: {
 	readonly hasShape: typeof genericDefaultedHasShape;
 	readonly is: typeof genericDefaultedIs;
 };
+/** A member tagged in place over a type parameter, coded by the coders handed in for it. */
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "kind" }) */
+export type GenericTagged<T> = ({
+	kind: "Held";
+} & T) | {
+	kind: "Empty";
+	size: number;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericTaggedEncode<T>(value: GenericTagged<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericTaggedEncodeWithContext<T>(value: GenericTagged<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericTaggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
+	success: true;
+	value: GenericTagged<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericTaggedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): GenericTagged<T> | __mf_PendingRef;
+export declare function genericTaggedHasShape(value: unknown): boolean;
+export declare function genericTaggedIs<T>(value: unknown, __isT: (value: unknown) => value is T): value is GenericTagged<T>;
+export declare function genericTaggedEmptyIs<T>(__v: GenericTagged<T>): __v is Extract<GenericTagged<T>, {
+	kind: "Empty";
+}>;
+export declare function genericTaggedHeldIs<T>(__v: GenericTagged<T>): __v is Extract<GenericTagged<T>, {
+	kind: "Held";
+}>;
+export declare const GenericTagged: {
+	readonly encode: typeof genericTaggedEncode;
+	readonly encodeWithContext: typeof genericTaggedEncodeWithContext;
+	readonly decode: typeof genericTaggedDecode;
+	readonly decodeWithContext: typeof genericTaggedDecodeWithContext;
+	readonly hasShape: typeof genericTaggedHasShape;
+	readonly is: typeof genericTaggedIs;
+	readonly emptyIs: typeof genericTaggedEmptyIs;
+	readonly heldIs: typeof genericTaggedHeldIs;
+};
 
 ## Diagnostics
 
@@ -5623,130 +5833,134 @@ export declare const GenericDefaulted: {
 
 ## Mapping
 
-original 0..519 -> expanded 1882..2401
-original 519..669 -> expanded 28848..28998
-original 669..876 -> expanded 43478..43685
-original 876..1050 -> expanded 61479..61653
-original 1050..1051 -> expanded 75303..75304
-original 1051..1230 -> expanded 79488..79667
-original 1230..1327 -> expanded 88806..88903
-original 1327..1430 -> expanded 95055..95158
-original 1430..1885 -> expanded 100865..101320
-original 1885..2047 -> expanded 130143..130305
-original 2047..2172 -> expanded 144923..145048
-original 2172..2817 -> expanded 154469..155114
-original 2817..3053 -> expanded 193932..194168
-original 3053..3054 -> expanded 209938..209939
-original 3054..3269 -> expanded 215120..215335
-original 3269..3270 -> expanded 230654..230655
-generated 0..1882 <- imports
-generated 2401..3126 <- Debug
-generated 3126..3851 <- Clone
-generated 3851..5131 <- PartialEq
-generated 5131..6144 <- Hash
-generated 6144..11014 <- Encode
-generated 11014..27508 <- Decode
-generated 27508..28848 <- __convenience_const
-generated 28998..29373 <- Debug
-generated 29373..29647 <- Clone
-generated 29647..30021 <- PartialEq
-generated 30021..30348 <- Hash
-generated 30348..33577 <- Encode
-generated 33577..42109 <- Decode
-generated 42109..43478 <- __convenience_const
-generated 43685..44174 <- Debug
-generated 44174..44573 <- Clone
-generated 44573..45267 <- PartialEq
-generated 45267..45772 <- Hash
-generated 45772..49525 <- Encode
-generated 49525..59907 <- Decode
-generated 59907..61479 <- __convenience_const
-generated 61653..62066 <- Debug
-generated 62066..62348 <- Clone
-generated 62348..63049 <- PartialEq
-generated 63049..63606 <- Hash
-generated 63606..63875 <- Default
-generated 63875..66333 <- Encode
-generated 66333..66710 <- Encode
-generated 66710..75303 <- Decode
-generated 75304..75425 <- Debug
-generated 75425..75549 <- Clone
-generated 75549..75682 <- PartialEq
-generated 75682..75803 <- Hash
-generated 75803..75914 <- Default
-generated 75914..77441 <- Encode
-generated 77441..79488 <- Decode
-generated 79667..79837 <- Debug
-generated 79837..80002 <- Clone
-generated 80002..80206 <- PartialEq
-generated 80206..80350 <- Hash
-generated 80350..83371 <- Encode
-generated 83371..87895 <- Decode
-generated 87895..88806 <- __convenience_const
-generated 88903..89041 <- Debug
-generated 89041..89187 <- Clone
-generated 89187..89509 <- PartialEq
-generated 89509..89691 <- Hash
-generated 89691..90780 <- Encode
-generated 90780..94186 <- Decode
-generated 94186..95055 <- __convenience_const
-generated 95158..95299 <- Debug
-generated 95299..95422 <- Clone
-generated 95422..95584 <- PartialEq
-generated 95584..95700 <- Hash
-generated 95700..97286 <- Encode
-generated 97286..99975 <- Decode
-generated 99975..100865 <- __convenience_const
-generated 101320..102180 <- Debug
-generated 102180..102858 <- Clone
-generated 102858..104072 <- PartialEq
-generated 104072..105132 <- Hash
-generated 105132..110293 <- Encode
-generated 110293..128774 <- Decode
-generated 128774..130143 <- __convenience_const
-generated 130305..130688 <- Debug
-generated 130688..130946 <- Clone
-generated 130946..131496 <- PartialEq
-generated 131496..131870 <- Hash
-generated 131870..134987 <- Encode
-generated 134987..143467 <- Decode
-generated 143467..144923 <- __convenience_const
-generated 145048..145195 <- Debug
-generated 145195..145324 <- Clone
-generated 145324..145492 <- PartialEq
-generated 145492..145612 <- Hash
-generated 145612..148013 <- Encode
-generated 148013..153537 <- Decode
-generated 153537..154469 <- __convenience_const
-generated 155114..156386 <- Debug
-generated 156386..157279 <- Clone
-generated 157279..158681 <- PartialEq
-generated 158681..159914 <- Hash
-generated 159914..167052 <- Encode
-generated 167052..192418 <- Decode
-generated 192418..193932 <- __convenience_const
-generated 194168..194646 <- Debug
-generated 194646..194978 <- Clone
-generated 194978..195472 <- PartialEq
-generated 195472..195901 <- Hash
-generated 195901..196238 <- Default
-generated 196238..199158 <- Encode
-generated 199158..199626 <- Encode
-generated 199626..209938 <- Decode
-generated 209939..210117 <- Debug
-generated 210117..210304 <- Clone
-generated 210304..210500 <- PartialEq
-generated 210500..210678 <- Hash
-generated 210678..210846 <- Default
-generated 210846..212667 <- Encode
-generated 212667..215120 <- Decode
-generated 215335..215774 <- Debug
-generated 215774..216062 <- Clone
-generated 216062..216474 <- PartialEq
-generated 216474..216860 <- Hash
-generated 216860..219828 <- Encode
-generated 219828..229140 <- Decode
-generated 229140..230654 <- __convenience_const
+original 0..519 -> expanded 1907..2426
+original 519..669 -> expanded 28873..29023
+original 669..876 -> expanded 43503..43710
+original 876..1050 -> expanded 61504..61678
+original 1050..1051 -> expanded 75328..75329
+original 1051..1230 -> expanded 79513..79692
+original 1230..1327 -> expanded 88831..88928
+original 1327..1430 -> expanded 95080..95183
+original 1430..1885 -> expanded 100890..101345
+original 1885..2047 -> expanded 130168..130330
+original 2047..2172 -> expanded 144948..145073
+original 2172..2817 -> expanded 154494..155139
+original 2817..3053 -> expanded 193957..194193
+original 3053..3054 -> expanded 209963..209964
+original 3054..3269 -> expanded 215145..215360
+original 3269..3514 -> expanded 230679..230924
+original 3514..3515 -> expanded 237981..237982
+generated 0..1907 <- imports
+generated 2426..3151 <- Debug
+generated 3151..3876 <- Clone
+generated 3876..5156 <- PartialEq
+generated 5156..6169 <- Hash
+generated 6169..11039 <- Encode
+generated 11039..27533 <- Decode
+generated 27533..28873 <- __convenience_const
+generated 29023..29398 <- Debug
+generated 29398..29672 <- Clone
+generated 29672..30046 <- PartialEq
+generated 30046..30373 <- Hash
+generated 30373..33602 <- Encode
+generated 33602..42134 <- Decode
+generated 42134..43503 <- __convenience_const
+generated 43710..44199 <- Debug
+generated 44199..44598 <- Clone
+generated 44598..45292 <- PartialEq
+generated 45292..45797 <- Hash
+generated 45797..49550 <- Encode
+generated 49550..59932 <- Decode
+generated 59932..61504 <- __convenience_const
+generated 61678..62091 <- Debug
+generated 62091..62373 <- Clone
+generated 62373..63074 <- PartialEq
+generated 63074..63631 <- Hash
+generated 63631..63900 <- Default
+generated 63900..66358 <- Encode
+generated 66358..66735 <- Encode
+generated 66735..75328 <- Decode
+generated 75329..75450 <- Debug
+generated 75450..75574 <- Clone
+generated 75574..75707 <- PartialEq
+generated 75707..75828 <- Hash
+generated 75828..75939 <- Default
+generated 75939..77466 <- Encode
+generated 77466..79513 <- Decode
+generated 79692..79862 <- Debug
+generated 79862..80027 <- Clone
+generated 80027..80231 <- PartialEq
+generated 80231..80375 <- Hash
+generated 80375..83396 <- Encode
+generated 83396..87920 <- Decode
+generated 87920..88831 <- __convenience_const
+generated 88928..89066 <- Debug
+generated 89066..89212 <- Clone
+generated 89212..89534 <- PartialEq
+generated 89534..89716 <- Hash
+generated 89716..90805 <- Encode
+generated 90805..94211 <- Decode
+generated 94211..95080 <- __convenience_const
+generated 95183..95324 <- Debug
+generated 95324..95447 <- Clone
+generated 95447..95609 <- PartialEq
+generated 95609..95725 <- Hash
+generated 95725..97311 <- Encode
+generated 97311..100000 <- Decode
+generated 100000..100890 <- __convenience_const
+generated 101345..102205 <- Debug
+generated 102205..102883 <- Clone
+generated 102883..104097 <- PartialEq
+generated 104097..105157 <- Hash
+generated 105157..110318 <- Encode
+generated 110318..128799 <- Decode
+generated 128799..130168 <- __convenience_const
+generated 130330..130713 <- Debug
+generated 130713..130971 <- Clone
+generated 130971..131521 <- PartialEq
+generated 131521..131895 <- Hash
+generated 131895..135012 <- Encode
+generated 135012..143492 <- Decode
+generated 143492..144948 <- __convenience_const
+generated 145073..145220 <- Debug
+generated 145220..145349 <- Clone
+generated 145349..145517 <- PartialEq
+generated 145517..145637 <- Hash
+generated 145637..148038 <- Encode
+generated 148038..153562 <- Decode
+generated 153562..154494 <- __convenience_const
+generated 155139..156411 <- Debug
+generated 156411..157304 <- Clone
+generated 157304..158706 <- PartialEq
+generated 158706..159939 <- Hash
+generated 159939..167077 <- Encode
+generated 167077..192443 <- Decode
+generated 192443..193957 <- __convenience_const
+generated 194193..194671 <- Debug
+generated 194671..195003 <- Clone
+generated 195003..195497 <- PartialEq
+generated 195497..195926 <- Hash
+generated 195926..196263 <- Default
+generated 196263..199183 <- Encode
+generated 199183..199651 <- Encode
+generated 199651..209963 <- Decode
+generated 209964..210142 <- Debug
+generated 210142..210329 <- Clone
+generated 210329..210525 <- PartialEq
+generated 210525..210703 <- Hash
+generated 210703..210871 <- Default
+generated 210871..212692 <- Encode
+generated 212692..215145 <- Decode
+generated 215360..215799 <- Debug
+generated 215799..216087 <- Clone
+generated 216087..216499 <- PartialEq
+generated 216499..216885 <- Hash
+generated 216885..219853 <- Encode
+generated 219853..229165 <- Decode
+generated 229165..230679 <- __convenience_const
+generated 230924..233292 <- Encode
+generated 233292..237234 <- Decode
+generated 237234..237981 <- __convenience_const
 
 ## Metadata
 
@@ -5763,6 +5977,7 @@ type GenericResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields
 type GenericList: {"body":{"Alias":"T[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1294,"start":1233}}],"name":"GenericList","span":{"end":1328,"start":1302},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 type GenericMaybe: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"T"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1391,"start":1330}}],"name":"GenericMaybe","span":{"end":1431,"start":1399},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 type GenericOutcome: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"GenericPair<T, T[]>"}},{"decorators":[],"kind":{"Literal":"'none'"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2111,"start":2050}}],"name":"GenericOutcome","span":{"end":2173,"start":2119},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type GenericTagged: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3473,"start":3461},"ts_type":"'Held'"}]}}},{"decorators":[],"kind":{"TypeRef":"T"}}]}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3499,"start":3485},"ts_type":"'Empty'"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":3512,"start":3500},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":3426,"start":3396}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3395,"start":3365}}],"name":"GenericTagged","span":{"end":3515,"start":3434},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads
 
@@ -5779,6 +5994,7 @@ Name("GenericPair")
 Name("GenericPair<T, T[]>")
 Name("GenericResult")
 Name("GenericStack")
+Name("GenericTagged")
 Name("GenericWrapper")
 Name("Item")
 Name("Left")

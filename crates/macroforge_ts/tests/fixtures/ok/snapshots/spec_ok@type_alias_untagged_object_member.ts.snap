@@ -157,7 +157,7 @@ export function linkHasShape(value: unknown): boolean {
                 return false;
 }
 export function linkIs(value: unknown): value is Link {
-    return linkHasShape(value);
+    return linkHasShape(value) && linkDecode(value).success;
 }
 
 export const Link: {
@@ -218,11 +218,11 @@ export declare const Link: {
 
 original 0..185 -> expanded 715..900
 original 215..275 -> expanded 900..960
-original 275..276 -> expanded 6438..6439
+original 275..276 -> expanded 6467..6468
 generated 0..715 <- imports
 generated 960..2912 <- Encode
-generated 2912..5968 <- Decode
-generated 5968..6438 <- __convenience_const
+generated 2912..5997 <- Decode
+generated 5997..6467 <- __convenience_const
 
 ## Metadata
 

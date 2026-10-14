@@ -188,7 +188,7 @@ export function accountNameHasShape(value: unknown): boolean {
                 return false;
 }
 export function accountNameIs(value: unknown): value is AccountName {
-    return accountNameHasShape(value);
+    return accountNameHasShape(value) && accountNameDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -440,13 +440,13 @@ export declare const AccountName: {
 
 original 0..173 -> expanded 996..1169
 original 355..423 -> expanded 1169..1237
-original 423..424 -> expanded 13690..13691
+original 423..424 -> expanded 13726..13727
 generated 0..996 <- imports
 generated 1237..1335 <- Default
 generated 1335..3506 <- Encode
-generated 3506..8290 <- Decode
-generated 8290..12843 <- Gigaform
-generated 12843..13690 <- __convenience_const
+generated 3506..8326 <- Decode
+generated 8326..12879 <- Gigaform
+generated 12879..13726 <- __convenience_const
 
 ## Metadata
 

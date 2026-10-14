@@ -90,7 +90,7 @@ export function portHasShape(value: unknown): boolean {
 }
 
 export function portIs(value: unknown): value is Port {
-    return (typeof value === "number" && globalThis.Number.isFinite(value));
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && portDecode(value).success;
 }
 
 const Port: {
@@ -232,15 +232,15 @@ export {};
 ## Mapping
 
 original 30..50 -> expanded 328..348
-original 50..52 -> expanded 3395..3397
-original 94..119 -> expanded 3397..3422
-original 119..120 -> expanded 5897..5898
+original 50..52 -> expanded 3424..3426
+original 94..119 -> expanded 3426..3451
+original 119..120 -> expanded 5926..5927
 generated 0..328 <- imports
 generated 348..1040 <- Encode
-generated 1040..2932 <- Decode
-generated 2932..3395 <- __convenience_const
-generated 3422..5553 <- Decode
-generated 5553..5897 <- __convenience_const
+generated 1040..2961 <- Decode
+generated 2961..3424 <- __convenience_const
+generated 3451..5582 <- Decode
+generated 5582..5926 <- __convenience_const
 
 ## Metadata
 

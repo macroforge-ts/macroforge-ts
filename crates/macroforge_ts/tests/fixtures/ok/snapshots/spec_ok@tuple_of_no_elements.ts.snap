@@ -451,7 +451,7 @@ export function nothingDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 }
 
 export function nothingIs(value: unknown): value is Nothing {
-    return nothingHasShape(value);
+    return nothingHasShape(value) && nothingDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function nothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Nothing {
@@ -624,7 +624,7 @@ original 0..95 -> expanded 1066..1161
 original 165..255 -> expanded 1161..1251
 original 255..257 -> expanded 15823..15825
 original 327..353 -> expanded 15825..15851
-original 353..354 -> expanded 20613..20614
+original 353..354 -> expanded 20645..20646
 generated 0..1066 <- imports
 generated 1251..1641 <- Debug
 generated 1641..1879 <- Clone
@@ -640,8 +640,8 @@ generated 16046..16133 <- PartialEq
 generated 16133..16230 <- Hash
 generated 16230..16316 <- Default
 generated 16316..17115 <- Encode
-generated 17115..19738 <- Decode
-generated 19738..20613 <- __convenience_const
+generated 17115..19770 <- Decode
+generated 19770..20645 <- __convenience_const
 
 ## Metadata
 

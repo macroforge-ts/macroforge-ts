@@ -37,7 +37,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, memberCoder as __mf_memberCoder, member as __mf_member, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, memberCoder as __mf_memberCoder, member as __mf_member, withTag as __mf_withTag, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /** The members of a union that derives only `Encode` are told by their tag, or by their own fields. */
 
@@ -205,7 +205,7 @@ export function petEncodeWithContext(value: Pet, ctx: __mf_EncodeContext): unkno
     const __encoder = __mf_derivedEncoder(value);
 
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
-        __mf_memberCoder((member: Pet): member is { "__type": "Mouse" } & Fish => __mf_member(member, "__type") === "Mouse", (member) => fishEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is { "__type": "Mouse" } & Fish => __mf_member(member, "__type") === "Mouse", (member) => ((__member: Fish, ctx: __mf_EncodeContext) => __mf_withTag(fishEncodeWithContext(__member, ctx), "__type", "Mouse"))(member, ctx)),
         __mf_memberCoder((member: Pet): member is Cat => __mf_member(member, "__type") === "Cat", (member) => catEncodeWithContext(member, ctx)),
         __mf_memberCoder((member: Pet): member is Fish => __mf_member(member, "__type") === "Fish", (member) => fishEncodeWithContext(member, ctx)),
         __mf_memberCoder((member: Pet): member is Mood => __mf_member(member, "__type") === "Mood", (member) => moodEncodeWithContext(member, ctx)),
@@ -368,28 +368,28 @@ export declare const Sighting: {
 
 ## Mapping
 
-original 0..104 -> expanded 625..729
-original 126..184 -> expanded 729..787
-original 184..186 -> expanded 3525..3527
-original 208..268 -> expanded 3527..3587
-original 268..270 -> expanded 6347..6349
-original 292..351 -> expanded 6349..6408
-original 351..353 -> expanded 6976..6978
-original 375..472 -> expanded 6978..7075
-original 472..474 -> expanded 10192..10194
-original 538..606 -> expanded 10194..10262
-original 606..607 -> expanded 12083..12084
-generated 0..625 <- imports
-generated 787..3206 <- Encode
-generated 3206..3525 <- __convenience_const
-generated 3587..6021 <- Encode
-generated 6021..6347 <- __convenience_const
-generated 6408..6806 <- Encode
-generated 6806..6976 <- __convenience_const
-generated 7075..10003 <- Encode
-generated 10003..10192 <- __convenience_const
-generated 10262..11869 <- Encode
-generated 11869..12083 <- __convenience_const
+original 0..104 -> expanded 650..754
+original 126..184 -> expanded 754..812
+original 184..186 -> expanded 3550..3552
+original 208..268 -> expanded 3552..3612
+original 268..270 -> expanded 6372..6374
+original 292..351 -> expanded 6374..6433
+original 351..353 -> expanded 7001..7003
+original 375..472 -> expanded 7003..7100
+original 472..474 -> expanded 10312..10314
+original 538..606 -> expanded 10314..10382
+original 606..607 -> expanded 12203..12204
+generated 0..650 <- imports
+generated 812..3231 <- Encode
+generated 3231..3550 <- __convenience_const
+generated 3612..6046 <- Encode
+generated 6046..6372 <- __convenience_const
+generated 6433..6831 <- Encode
+generated 6831..7001 <- __convenience_const
+generated 7100..10123 <- Encode
+generated 10123..10312 <- __convenience_const
+generated 10382..11989 <- Encode
+generated 11989..12203 <- __convenience_const
 
 ## Metadata
 

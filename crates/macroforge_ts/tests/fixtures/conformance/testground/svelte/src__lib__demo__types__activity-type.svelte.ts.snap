@@ -262,7 +262,7 @@ export function activityTypeHasShape(value: unknown): boolean {
                 return false;
 }
 export function activityTypeIs(value: unknown): value is ActivityType {
-    return activityTypeHasShape(value);
+    return activityTypeHasShape(value) && activityTypeDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -630,13 +630,13 @@ export declare const ActivityType: {
 
 original 0..341 -> expanded 1429..1770
 original 390..512 -> expanded 1770..1892
-original 512..513 -> expanded 20919..20920
+original 512..513 -> expanded 20956..20957
 generated 0..1429 <- imports
 generated 1892..1988 <- Default
 generated 1988..5796 <- Encode
-generated 5796..12981 <- Decode
-generated 12981..20053 <- Gigaform
-generated 20053..20919 <- __convenience_const
+generated 5796..13018 <- Decode
+generated 13018..20090 <- Gigaform
+generated 20090..20956 <- __convenience_const
 
 ## Metadata
 

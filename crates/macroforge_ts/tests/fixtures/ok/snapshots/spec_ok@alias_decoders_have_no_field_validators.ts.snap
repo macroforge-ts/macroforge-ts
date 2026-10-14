@@ -142,7 +142,7 @@ export function spanDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 }
 
 export function spanIs(value: unknown): value is Span {
-    return spanHasShape(value);
+    return spanHasShape(value) && spanDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Span {
@@ -278,12 +278,12 @@ export {};
 original 49..71 -> expanded 225..247
 original 71..73 -> expanded 2700..2702
 original 95..125 -> expanded 2702..2732
-original 125..126 -> expanded 7131..7132
+original 125..126 -> expanded 7160..7161
 generated 0..225 <- imports
 generated 247..2383 <- Decode
 generated 2383..2700 <- __convenience_const
-generated 2732..6832 <- Decode
-generated 6832..7131 <- __convenience_const
+generated 2732..6861 <- Decode
+generated 6861..7160 <- __convenience_const
 
 ## Metadata
 

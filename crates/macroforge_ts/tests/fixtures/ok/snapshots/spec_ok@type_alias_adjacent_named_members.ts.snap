@@ -538,7 +538,7 @@ export function shapeHasShape(value: unknown): boolean {
                 return false;
 }
 export function shapeIs(value: unknown): value is Shape {
-    return shapeHasShape(value);
+    return shapeHasShape(value) && shapeDecode(value).success;
 }
 
 const Shape: {
@@ -664,7 +664,7 @@ original 71..73 -> expanded 9395..9397
 original 103..142 -> expanded 9397..9436
 original 142..144 -> expanded 17931..17933
 original 222..252 -> expanded 17933..17963
-original 252..253 -> expanded 23774..23775
+original 252..253 -> expanded 23804..23805
 generated 0..817 <- imports
 generated 858..2965 <- Encode
 generated 2965..8446 <- Decode
@@ -673,8 +673,8 @@ generated 9436..11535 <- Encode
 generated 11535..16982 <- Decode
 generated 16982..17931 <- __convenience_const
 generated 17963..19840 <- Encode
-generated 19840..23298 <- Decode
-generated 23298..23774 <- __convenience_const
+generated 19840..23328 <- Decode
+generated 23328..23804 <- __convenience_const
 
 ## Metadata
 

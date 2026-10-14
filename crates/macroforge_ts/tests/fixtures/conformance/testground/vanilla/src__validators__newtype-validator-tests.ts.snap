@@ -323,7 +323,7 @@ export function portHasShape(value: unknown): boolean {
 }
 
 export function portIs(value: unknown): value is Port {
-    return (typeof value === "number" && globalThis.Number.isFinite(value));
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && portDecode(value).success;
 }
 
 export const Port: {
@@ -983,10 +983,10 @@ original 324..325 -> expanded 1238..1239
 original 325..420 -> expanded 6002..6097
 original 436..437 -> expanded 6141..6142
 original 437..496 -> expanded 9565..9624
-original 496..582 -> expanded 12678..12764
-original 598..599 -> expanded 12808..12809
-original 599..741 -> expanded 16626..16768
-original 741..742 -> expanded 30590..30591
+original 496..582 -> expanded 12707..12793
+original 598..599 -> expanded 12837..12838
+original 599..741 -> expanded 16655..16797
+original 741..742 -> expanded 30619..30620
 generated 0..751 <- imports
 generated 751..796 <- $Newtype
 generated 796..841 <- $Newtype
@@ -1007,15 +1007,15 @@ generated 6142..6866 <- Encode
 generated 6866..9043 <- Decode
 generated 9043..9565 <- __convenience_const
 generated 9624..10316 <- Encode
-generated 10316..12208 <- Decode
-generated 12208..12678 <- __convenience_const
-generated 12764..12808 <- $Newtype
-generated 12809..13549 <- Encode
-generated 13549..16143 <- Decode
-generated 16143..16626 <- __convenience_const
-generated 16768..19800 <- Encode
-generated 19800..29697 <- Decode
-generated 29697..30590 <- __convenience_const
+generated 10316..12237 <- Decode
+generated 12237..12707 <- __convenience_const
+generated 12793..12837 <- $Newtype
+generated 12838..13578 <- Encode
+generated 13578..16172 <- Decode
+generated 16172..16655 <- __convenience_const
+generated 16797..19829 <- Encode
+generated 19829..29726 <- Decode
+generated 29726..30619 <- __convenience_const
 
 ## Metadata
 

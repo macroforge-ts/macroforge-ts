@@ -37,7 +37,6 @@ pub(super) struct ObjectVariant {
 pub(super) struct IntersectionVariant {
     pub(super) tag_value: String,
     pub(super) type_ref: String,
-    pub(super) is_encodable: bool,
     /// What decodes the referenced type's value, called as `(value, ctx)`.
     pub(super) decoder: Expr,
 }
@@ -394,7 +393,7 @@ impl<'a> Union<'a> {
                     }
                 }
                 TypeMemberKind::Intersection(sub_members) => {
-                    let (tv, rt) = tagged_member(sub_members, &tag_field)
+                    let (tag_value, type_ref) = tagged_member(sub_members, tag_field)
                         .map(|(tag_value, type_ref)| (tag_value, type_ref.to_string()))
                         .map_err(|message| {
                             MacroforgeError::new(
@@ -406,19 +405,16 @@ impl<'a> Union<'a> {
                             )
                         })?;
                     // The member's fields are decoded through its type's own
-                    // decoder, which a type parameter has only when one is
-                    // handed in for it.
-                    let is_encodable = !type_param_set.contains(rt.as_str());
-                    let decoder = member_decoder(&rt, &scope).map_err(|message| {
+                    // decoder, or a type parameter's coder handed in.
+                    let decoder = member_decoder(&type_ref, &scope).map_err(|message| {
                         MacroforgeError::new(
                             type_alias.inner.span,
                             format!("@derive(Decode): {message}"),
                         )
                     })?;
                     intersection_variants.push(IntersectionVariant {
-                        tag_value: tv,
-                        type_ref: rt,
-                        is_encodable,
+                        tag_value,
+                        type_ref,
                         decoder: Expr::Source(decoder),
                     });
                 }

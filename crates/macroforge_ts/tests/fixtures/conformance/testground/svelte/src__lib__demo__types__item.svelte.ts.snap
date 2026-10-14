@@ -190,7 +190,7 @@ export function itemHasShape(value: unknown): boolean {
                 return false;
 }
 export function itemIs(value: unknown): value is Item {
-    return itemHasShape(value);
+    return itemHasShape(value) && itemDecode(value).success;
 }
 
 /** Per-variant error types  */
@@ -443,13 +443,13 @@ export declare const Item: {
 
 original 0..213 -> expanded 1024..1237
 original 262..340 -> expanded 1237..1315
-original 340..341 -> expanded 14640..14641
+original 340..341 -> expanded 14669..14670
 generated 0..1024 <- imports
 generated 1315..1376 <- Default
 generated 1376..3897 <- Encode
-generated 3897..9398 <- Decode
-generated 9398..13926 <- Gigaform
-generated 13926..14640 <- __convenience_const
+generated 3897..9427 <- Decode
+generated 9427..13955 <- Gigaform
+generated 13955..14669 <- __convenience_const
 
 ## Metadata
 

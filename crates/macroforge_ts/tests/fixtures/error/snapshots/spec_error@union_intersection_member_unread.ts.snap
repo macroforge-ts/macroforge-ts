@@ -49,7 +49,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, member as __mf_member, withTag as __mf_withTag, encodedMember as __mf_encodedMember, derivedEncoder as __mf_derivedEncoder, decodedMember as __mf_decodedMember, notTheMember as __mf_notTheMember } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** A union member that is an intersection no coder reads is an error, not a member left out. */
 
@@ -473,8 +473,8 @@ export function readEncodeWithContext(value: Read, ctx: __mf_EncodeContext): unk
     const __encoder = __mf_derivedEncoder(value);
 
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
-        __mf_memberCoder((member: Read): member is { "kind": "account" } & Account => __mf_member(member, "kind") === "account", (member) => accountEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Read): member is { "kind": "owner" } & Owner => __mf_member(member, "kind") === "owner", (member) => ownerEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Read): member is { "kind": "account" } & Account => __mf_member(member, "kind") === "account", (member) => ((__member: Account, ctx: __mf_EncodeContext) => __mf_withTag(accountEncodeWithContext(__member, ctx), "kind", "account"))(member, ctx)),
+        __mf_memberCoder((member: Read): member is { "kind": "owner" } & Owner => __mf_member(member, "kind") === "owner", (member) => ((__member: Owner, ctx: __mf_EncodeContext) => __mf_withTag(ownerEncodeWithContext(__member, ctx), "kind", "owner"))(member, ctx)),
     ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
@@ -577,17 +577,13 @@ export function readHasShape(value: unknown): boolean {
                 return false;
 }
 export function readIs(value: unknown): value is Read {
-    return readHasShape(value);
+    return readHasShape(value) && readDecode(value).success;
 }
 export function readAccountIs(__v: unknown): __v is Extract<Read, { kind: "account" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "account";
+    return __mf_member(__v, "kind") === "account";
 }
 export function readOwnerIs(__v: unknown): __v is Extract<Read, { kind: "owner" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "owner";
+    return __mf_member(__v, "kind") === "owner";
 }
 
 export const Read: {
@@ -793,29 +789,29 @@ Error [984..1089]: @derive(Decode) on 'NoFields': a member of the union is an in
 
 ## Mapping
 
-original 0..97 -> expanded 889..986
-original 127..172 -> expanded 986..1031
-original 172..174 -> expanded 9520..9522
-original 204..249 -> expanded 9522..9567
-original 249..328 -> expanded 17958..18037
-original 358..446 -> expanded 18037..18125
-original 468..532 -> expanded 18125..18189
-original 554..628 -> expanded 18189..18263
-original 681..785 -> expanded 18263..18367
-original 838..922 -> expanded 18367..18451
-original 975..1154 -> expanded 18451..18630
-original 1215..1297 -> expanded 18630..18712
-original 1297..1298 -> expanded 24556..24557
-generated 0..889 <- imports
-generated 1031..3137 <- Encode
-generated 3137..8543 <- Decode
-generated 8543..9520 <- __convenience_const
-generated 9567..11651 <- Encode
-generated 11651..17023 <- Decode
-generated 17023..17958 <- __convenience_const
-generated 18712..20367 <- Encode
-generated 20367..23950 <- Decode
-generated 23950..24556 <- __convenience_const
+original 0..97 -> expanded 914..1011
+original 127..172 -> expanded 1011..1056
+original 172..174 -> expanded 9545..9547
+original 204..249 -> expanded 9547..9592
+original 249..328 -> expanded 17983..18062
+original 358..446 -> expanded 18062..18150
+original 468..532 -> expanded 18150..18214
+original 554..628 -> expanded 18214..18288
+original 681..785 -> expanded 18288..18392
+original 838..922 -> expanded 18392..18476
+original 975..1154 -> expanded 18476..18655
+original 1215..1297 -> expanded 18655..18737
+original 1297..1298 -> expanded 24652..24653
+generated 0..914 <- imports
+generated 1056..3162 <- Encode
+generated 3162..8568 <- Decode
+generated 8568..9545 <- __convenience_const
+generated 9592..11676 <- Encode
+generated 11676..17048 <- Decode
+generated 17048..17983 <- __convenience_const
+generated 18737..20584 <- Encode
+generated 20584..24046 <- Decode
+generated 24046..24652 <- __convenience_const
 
 ## Metadata
 

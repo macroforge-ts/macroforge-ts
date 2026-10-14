@@ -473,7 +473,7 @@ export function aliasTupleDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 }
 
 export function aliasTupleIs(value: unknown): value is AliasTuple {
-    return aliasTupleHasShape(value);
+    return aliasTupleHasShape(value) && aliasTupleDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasTuple {
@@ -692,7 +692,7 @@ export function aliasArrayDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 }
 
 export function aliasArrayIs(value: unknown): value is AliasArray {
-    return aliasArrayHasShape(value);
+    return aliasArrayHasShape(value) && aliasArrayDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasArrayDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasArray {
@@ -847,7 +847,7 @@ export function aliasReadonlyStringsDecode(input: unknown, opts?: __mf_DecodeOpt
 }
 
 export function aliasReadonlyStringsIs(value: unknown): value is AliasReadonlyStrings {
-    return aliasReadonlyStringsHasShape(value);
+    return aliasReadonlyStringsHasShape(value) && aliasReadonlyStringsDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasReadonlyStringsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasReadonlyStrings {
@@ -1033,7 +1033,7 @@ export function aliasRowDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 }
 
 export function aliasRowIs(value: unknown): value is AliasRow {
-    return aliasRowHasShape(value);
+    return aliasRowHasShape(value) && aliasRowDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasRowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRow {
@@ -1248,7 +1248,7 @@ export function aliasDatesDecode(input: unknown, opts?: __mf_DecodeOptions): { s
 }
 
 export function aliasDatesIs(value: unknown): value is AliasDates {
-    return aliasDatesHasShape(value);
+    return aliasDatesHasShape(value) && aliasDatesDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasDatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasDates {
@@ -1398,7 +1398,7 @@ export function aliasRecordDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 }
 
 export function aliasRecordIs(value: unknown): value is AliasRecord {
-    return aliasRecordHasShape(value);
+    return aliasRecordHasShape(value) && aliasRecordDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasRecordDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRecord {
@@ -1552,7 +1552,7 @@ export function aliasMapDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 }
 
 export function aliasMapIs(value: unknown): value is AliasMap {
-    return aliasMapHasShape(value);
+    return aliasMapHasShape(value) && aliasMapDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasMapDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasMap {
@@ -1702,7 +1702,7 @@ export function aliasSetDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 }
 
 export function aliasSetIs(value: unknown): value is AliasSet {
-    return aliasSetHasShape(value);
+    return aliasSetHasShape(value) && aliasSetDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasSetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasSet {
@@ -2577,7 +2577,7 @@ export function aliasMixedLiteralsHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasMixedLiteralsIs(value: unknown): value is AliasMixedLiterals {
-    return aliasMixedLiteralsHasShape(value);
+    return aliasMixedLiteralsHasShape(value) && aliasMixedLiteralsDecode(value).success;
 }
 
 export const AliasMixedLiterals: {
@@ -2771,7 +2771,7 @@ export function aliasNullableHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasNullableIs(value: unknown): value is AliasNullable {
-    return aliasNullableHasShape(value);
+    return aliasNullableHasShape(value) && aliasNullableDecode(value).success;
 }
 
 export const AliasNullable: {
@@ -2963,7 +2963,7 @@ export function aliasOptionalHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasOptionalIs(value: unknown): value is AliasOptional {
-    return aliasOptionalHasShape(value);
+    return aliasOptionalHasShape(value) && aliasOptionalDecode(value).success;
 }
 
 export const AliasOptional: {
@@ -3070,7 +3070,7 @@ export function aliasDateDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 }
 
 export function aliasDateIs(value: unknown): value is AliasDate {
-    return aliasDateHasShape(value);
+    return aliasDateHasShape(value) && aliasDateDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasDateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasDate {
@@ -3257,7 +3257,7 @@ export function aliasDateOrNullHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasDateOrNullIs(value: unknown): value is AliasDateOrNull {
-    return aliasDateOrNullHasShape(value);
+    return aliasDateOrNullHasShape(value) && aliasDateOrNullDecode(value).success;
 }
 
 export const AliasDateOrNull: {
@@ -3461,7 +3461,7 @@ export function aliasMembersHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasMembersIs(value: unknown): value is AliasMembers {
-    return aliasMembersHasShape(value);
+    return aliasMembersHasShape(value) && aliasMembersDecode(value).success;
 }
 
 export const AliasMembers: {
@@ -3681,22 +3681,16 @@ export function aliasTaggedHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasTaggedIs(value: unknown): value is AliasTagged {
-    return aliasTaggedHasShape(value);
+    return aliasTaggedHasShape(value) && aliasTaggedDecode(value).success;
 }
 export function aliasTaggedCircleIs(__v: unknown): __v is Extract<AliasTagged, { kind: "circle" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "circle";
+    return __mf_member(__v, "kind") === "circle";
 }
 export function aliasTaggedSquareIs(__v: unknown): __v is Extract<AliasTagged, { kind: "square" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "square";
+    return __mf_member(__v, "kind") === "square";
 }
 export function aliasTaggedGroupIs(__v: unknown): __v is Extract<AliasTagged, { kind: "group" }> {
-    return __v !== null
-        && typeof __v === "object"
-        && (__v as Record<string, unknown>)["kind"] === "group";
+    return __mf_member(__v, "kind") === "group";
 }
 
 export const AliasTagged: {
@@ -3872,7 +3866,7 @@ export function aliasAdjacentHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasAdjacentIs(value: unknown): value is AliasAdjacent {
-    return aliasAdjacentHasShape(value);
+    return aliasAdjacentHasShape(value) && aliasAdjacentDecode(value).success;
 }
 
 export const AliasAdjacent: {
@@ -4056,7 +4050,7 @@ export function aliasExternalHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasExternalIs(value: unknown): value is AliasExternal {
-    return aliasExternalHasShape(value);
+    return aliasExternalHasShape(value) && aliasExternalDecode(value).success;
 }
 
 export const AliasExternal: {
@@ -4219,7 +4213,7 @@ export function aliasUntaggedHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasUntaggedIs(value: unknown): value is AliasUntagged {
-    return aliasUntaggedHasShape(value);
+    return aliasUntaggedHasShape(value) && aliasUntaggedDecode(value).success;
 }
 
 export const AliasUntagged: {
@@ -4448,7 +4442,7 @@ export function aliasDeepHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasDeepIs(value: unknown): value is AliasDeep {
-    return aliasDeepHasShape(value);
+    return aliasDeepHasShape(value) && aliasDeepDecode(value).success;
 }
 
 export const AliasDeep: {
@@ -5831,7 +5825,7 @@ export function aliasOutcomeHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasOutcomeIs(value: unknown): value is AliasOutcome {
-    return aliasOutcomeHasShape(value);
+    return aliasOutcomeHasShape(value) && aliasOutcomeDecode(value).success;
 }
 
 export const AliasOutcome: {
@@ -6021,7 +6015,7 @@ export function aliasLooseHasShape(value: unknown): boolean {
                 return false;
 }
 export function aliasLooseIs(value: unknown): value is AliasLoose {
-    return aliasLooseHasShape(value);
+    return aliasLooseHasShape(value) && aliasLooseDecode(value).success;
 }
 
 export const AliasLoose: {
@@ -6118,7 +6112,7 @@ export function aliasNameHasShape(value: unknown): boolean {
 }
 
 export function aliasNameIs(value: unknown): value is AliasName {
-    return typeof value === "string";
+    return typeof value === "string" && aliasNameDecode(value).success;
 }
 
 export const AliasName: {
@@ -6574,7 +6568,7 @@ export function aliasPickedDecode(input: unknown, opts?: __mf_DecodeOptions): { 
 }
 
 export function aliasPickedIs(value: unknown): value is AliasPicked {
-    return aliasPickedHasShape(value);
+    return aliasPickedHasShape(value) && aliasPickedDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasPickedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasPicked {
@@ -6704,7 +6698,7 @@ export function aliasRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): 
 }
 
 export function aliasRequiredIs(value: unknown): value is AliasRequired {
-    return aliasRequiredHasShape(value);
+    return aliasRequiredHasShape(value) && aliasRequiredDecode(value).success;
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function aliasRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRequired {
@@ -8437,37 +8431,37 @@ export declare const AliasInline: {
 
 original 0..469 -> expanded 2048..2517
 original 469..590 -> expanded 17409..17530
-original 590..690 -> expanded 26567..26667
-original 690..816 -> expanded 32423..32549
-original 816..965 -> expanded 39083..39232
-original 965..1061 -> expanded 47924..48020
-original 1061..1176 -> expanded 53879..53994
-original 1176..1285 -> expanded 59789..59898
-original 1285..1386 -> expanded 65988..66089
-original 1386..1511 -> expanded 71748..71873
-original 1511..1653 -> expanded 84932..85074
-original 1653..1820 -> expanded 97940..98107
-original 1820..1971 -> expanded 103277..103428
-original 1971..2079 -> expanded 109379..109487
-original 2079..2192 -> expanded 116885..116998
-original 2192..2285 -> expanded 124406..124499
-original 2285..2391 -> expanded 129598..129704
-original 2391..2502 -> expanded 135384..135495
-original 2502..2761 -> expanded 143802..144061
-original 2761..2922 -> expanded 153196..153357
-original 2922..3076 -> expanded 160545..160699
-original 3076..3231 -> expanded 168385..168540
-original 3231..3383 -> expanded 175072..175224
-original 3383..3884 -> expanded 184286..184787
-original 3884..4278 -> expanded 213162..213556
-original 4278..4471 -> expanded 240918..241111
-original 4471..4665 -> expanded 249357..249551
-original 4665..4729 -> expanded 257303..257367
-original 4729..4984 -> expanded 260466..260721
-original 4984..5073 -> expanded 277784..277873
-original 5073..5162 -> expanded 282712..282801
-original 5162..5270 -> expanded 287664..287772
-original 5270..5271 -> expanded 298846..298847
+original 590..690 -> expanded 26602..26702
+original 690..816 -> expanded 32493..32619
+original 816..965 -> expanded 39198..39347
+original 965..1061 -> expanded 48072..48168
+original 1061..1176 -> expanded 54062..54177
+original 1176..1285 -> expanded 60008..60117
+original 1285..1386 -> expanded 66240..66341
+original 1386..1511 -> expanded 72033..72158
+original 1511..1653 -> expanded 85217..85359
+original 1653..1820 -> expanded 98225..98392
+original 1820..1971 -> expanded 103562..103713
+original 1971..2079 -> expanded 109707..109815
+original 2079..2192 -> expanded 117251..117364
+original 2192..2285 -> expanded 124810..124903
+original 2285..2391 -> expanded 130036..130142
+original 2391..2502 -> expanded 135862..135973
+original 2502..2761 -> expanded 144317..144576
+original 2761..2922 -> expanded 153522..153683
+original 2922..3076 -> expanded 160909..161063
+original 3076..3231 -> expanded 168787..168942
+original 3231..3383 -> expanded 175512..175664
+original 3383..3884 -> expanded 184760..185261
+original 3884..4278 -> expanded 213636..214030
+original 4278..4471 -> expanded 241392..241585
+original 4471..4665 -> expanded 249868..250062
+original 4665..4729 -> expanded 257849..257913
+original 4729..4984 -> expanded 261046..261301
+original 4984..5073 -> expanded 278364..278453
+original 5073..5162 -> expanded 283328..283417
+original 5162..5270 -> expanded 288318..288426
+original 5270..5271 -> expanded 299500..299501
 generated 0..2048 <- imports
 generated 2517..2874 <- Debug
 generated 2874..3138 <- Clone
@@ -8484,212 +8478,212 @@ generated 17659..17817 <- Clone
 generated 17817..18179 <- PartialEq
 generated 18179..18544 <- Hash
 generated 18544..20112 <- Encode
-generated 20112..25719 <- Decode
-generated 25719..26567 <- __convenience_const
-generated 26667..26796 <- Debug
-generated 26796..26930 <- Clone
-generated 26930..27240 <- PartialEq
-generated 27240..27414 <- Hash
-generated 27414..28402 <- Encode
-generated 28402..31575 <- Decode
-generated 31575..32423 <- __convenience_const
-generated 32549..32708 <- Debug
-generated 32708..32829 <- Clone
-generated 32829..33149 <- PartialEq
-generated 33149..33398 <- Hash
-generated 33398..33538 <- Default
-generated 33538..34618 <- Encode
-generated 34618..37909 <- Decode
-generated 37909..39083 <- __convenience_const
-generated 39232..39355 <- Debug
-generated 39355..39457 <- Clone
-generated 39457..39598 <- PartialEq
-generated 39598..39700 <- Hash
-generated 39700..39841 <- Default
-generated 39841..41689 <- Encode
-generated 41689..47026 <- Decode
-generated 47026..47924 <- __convenience_const
-generated 48020..48149 <- Debug
-generated 48149..48281 <- Clone
-generated 48281..48683 <- PartialEq
-generated 48683..48852 <- Hash
-generated 48852..49891 <- Encode
-generated 49891..53031 <- Decode
-generated 53031..53879 <- __convenience_const
-generated 53994..54126 <- Debug
-generated 54126..54237 <- Clone
-generated 54237..54387 <- PartialEq
-generated 54387..54495 <- Hash
-generated 54495..55584 <- Encode
-generated 55584..58920 <- Decode
-generated 58920..59789 <- __convenience_const
-generated 59898..60021 <- Debug
-generated 60021..60251 <- Clone
-generated 60251..60584 <- PartialEq
-generated 60584..60867 <- Hash
-generated 60867..61904 <- Encode
-generated 61904..65182 <- Decode
-generated 65182..65988 <- __convenience_const
-generated 66089..66212 <- Debug
-generated 66212..66357 <- Clone
-generated 66357..66620 <- PartialEq
-generated 66620..66797 <- Hash
-generated 66797..67786 <- Encode
-generated 67786..70942 <- Decode
-generated 70942..71748 <- __convenience_const
-generated 71873..72250 <- Debug
-generated 72250..72462 <- Clone
-generated 72462..72825 <- PartialEq
-generated 72825..73412 <- Hash
-generated 73412..76251 <- Encode
-generated 76251..83389 <- Decode
-generated 83389..84932 <- __convenience_const
-generated 85074..85433 <- Debug
-generated 85433..85664 <- Clone
-generated 85664..86023 <- PartialEq
-generated 86023..86510 <- Hash
-generated 86510..89264 <- Encode
-generated 89264..96136 <- Decode
-generated 96136..97940 <- __convenience_const
-generated 98107..98231 <- Debug
-generated 98231..98326 <- Clone
-generated 98326..98432 <- PartialEq
-generated 98432..98544 <- Hash
-generated 98544..98685 <- PartialOrd
-generated 98685..98812 <- Ord
-generated 98812..98896 <- Default
-generated 98896..100216 <- Encode
-generated 100216..102072 <- Decode
-generated 102072..103277 <- __convenience_const
-generated 103428..103567 <- Debug
-generated 103567..103677 <- Clone
-generated 103677..103798 <- PartialEq
-generated 103798..103920 <- Hash
-generated 103920..104013 <- Default
-generated 104013..105358 <- Encode
-generated 105358..108251 <- Decode
-generated 108251..109379 <- __convenience_const
-generated 109487..109625 <- Debug
-generated 109625..109742 <- Clone
-generated 109742..109898 <- PartialEq
-generated 109898..110010 <- Hash
-generated 110010..111768 <- Encode
-generated 111768..115974 <- Decode
-generated 115974..116885 <- __convenience_const
-generated 116998..117136 <- Debug
-generated 117136..117253 <- Clone
-generated 117253..117409 <- PartialEq
-generated 117409..117521 <- Hash
-generated 117521..119279 <- Encode
-generated 119279..123495 <- Decode
-generated 123495..124406 <- __convenience_const
-generated 124499..124611 <- Debug
-generated 124611..124714 <- Clone
-generated 124714..124924 <- PartialEq
-generated 124924..125021 <- Hash
-generated 125021..126025 <- Encode
-generated 126025..128771 <- Decode
-generated 128771..129598 <- __convenience_const
-generated 129704..129848 <- Debug
-generated 129848..129971 <- Clone
-generated 129971..130133 <- PartialEq
-generated 130133..130249 <- Hash
-generated 130249..131579 <- Encode
-generated 131579..134431 <- Decode
-generated 134431..135384 <- __convenience_const
-generated 135495..135630 <- Debug
-generated 135630..135744 <- Clone
-generated 135744..135897 <- PartialEq
-generated 135897..136007 <- Hash
-generated 136007..138167 <- Encode
-generated 138167..142912 <- Decode
-generated 142912..143802 <- __convenience_const
-generated 144061..144193 <- Debug
-generated 144193..144304 <- Clone
-generated 144304..144454 <- PartialEq
-generated 144454..144562 <- Hash
-generated 144562..147822 <- Encode
-generated 147822..152085 <- Decode
-generated 152085..153196 <- __convenience_const
-generated 153357..153495 <- Debug
-generated 153495..153612 <- Clone
-generated 153612..153768 <- PartialEq
-generated 153768..153880 <- Hash
-generated 153880..156029 <- Encode
-generated 156029..159634 <- Decode
-generated 159634..160545 <- __convenience_const
-generated 160699..160837 <- Debug
-generated 160837..160954 <- Clone
-generated 160954..161110 <- PartialEq
-generated 161110..161222 <- Hash
-generated 161222..163360 <- Encode
-generated 163360..167474 <- Decode
-generated 167474..168385 <- __convenience_const
-generated 168540..168678 <- Debug
-generated 168678..168795 <- Clone
-generated 168795..168951 <- PartialEq
-generated 168951..169063 <- Hash
-generated 169063..171190 <- Encode
-generated 171190..174161 <- Decode
-generated 174161..175072 <- __convenience_const
-generated 175224..175350 <- Debug
-generated 175350..175455 <- Clone
-generated 175455..175599 <- PartialEq
-generated 175599..175703 <- Hash
-generated 175703..177759 <- Encode
-generated 177759..183459 <- Decode
-generated 183459..184286 <- __convenience_const
-generated 184787..185837 <- Debug
-generated 185837..186537 <- Clone
-generated 186537..187768 <- PartialEq
-generated 187768..189091 <- Hash
-generated 189091..194548 <- Encode
-generated 194548..211706 <- Decode
-generated 211706..213162 <- __convenience_const
-generated 213556..214512 <- Debug
-generated 214512..215151 <- Clone
-generated 215151..216622 <- PartialEq
-generated 216622..217633 <- Hash
-generated 217633..217940 <- Default
-generated 217940..222532 <- Encode
-generated 222532..239451 <- Decode
-generated 239451..240918 <- __convenience_const
-generated 241111..241246 <- Debug
-generated 241246..241360 <- Clone
-generated 241360..241513 <- PartialEq
-generated 241513..241623 <- Hash
-generated 241623..244519 <- Encode
-generated 244519..248467 <- Decode
-generated 248467..249357 <- __convenience_const
-generated 249551..249680 <- Debug
-generated 249680..249788 <- Clone
-generated 249788..249935 <- PartialEq
-generated 249935..250041 <- Hash
-generated 250041..252628 <- Encode
-generated 252628..256455 <- Decode
-generated 256455..257303 <- __convenience_const
-generated 257367..258099 <- Encode
-generated 258099..259931 <- Decode
-generated 259931..260466 <- __convenience_const
-generated 260721..261259 <- Debug
-generated 261259..261611 <- Clone
-generated 261611..262123 <- PartialEq
-generated 262123..262616 <- Hash
-generated 262616..265852 <- Encode
-generated 265852..276386 <- Decode
-generated 276386..277784 <- __convenience_const
-generated 277873..277997 <- Default
-generated 277997..278999 <- Encode
-generated 278999..282053 <- Decode
-generated 282053..282712 <- __convenience_const
-generated 282801..282941 <- Default
-generated 282941..283926 <- Encode
-generated 283926..286975 <- Decode
-generated 286975..287664 <- __convenience_const
-generated 287772..287890 <- Default
-generated 287890..290637 <- Encode
-generated 290637..297687 <- Decode
-generated 297687..298846 <- __convenience_const
+generated 20112..25754 <- Decode
+generated 25754..26602 <- __convenience_const
+generated 26702..26831 <- Debug
+generated 26831..26965 <- Clone
+generated 26965..27275 <- PartialEq
+generated 27275..27449 <- Hash
+generated 27449..28437 <- Encode
+generated 28437..31645 <- Decode
+generated 31645..32493 <- __convenience_const
+generated 32619..32778 <- Debug
+generated 32778..32899 <- Clone
+generated 32899..33219 <- PartialEq
+generated 33219..33468 <- Hash
+generated 33468..33608 <- Default
+generated 33608..34688 <- Encode
+generated 34688..38024 <- Decode
+generated 38024..39198 <- __convenience_const
+generated 39347..39470 <- Debug
+generated 39470..39572 <- Clone
+generated 39572..39713 <- PartialEq
+generated 39713..39815 <- Hash
+generated 39815..39956 <- Default
+generated 39956..41804 <- Encode
+generated 41804..47174 <- Decode
+generated 47174..48072 <- __convenience_const
+generated 48168..48297 <- Debug
+generated 48297..48429 <- Clone
+generated 48429..48831 <- PartialEq
+generated 48831..49000 <- Hash
+generated 49000..50039 <- Encode
+generated 50039..53214 <- Decode
+generated 53214..54062 <- __convenience_const
+generated 54177..54309 <- Debug
+generated 54309..54420 <- Clone
+generated 54420..54570 <- PartialEq
+generated 54570..54678 <- Hash
+generated 54678..55767 <- Encode
+generated 55767..59139 <- Decode
+generated 59139..60008 <- __convenience_const
+generated 60117..60240 <- Debug
+generated 60240..60470 <- Clone
+generated 60470..60803 <- PartialEq
+generated 60803..61086 <- Hash
+generated 61086..62123 <- Encode
+generated 62123..65434 <- Decode
+generated 65434..66240 <- __convenience_const
+generated 66341..66464 <- Debug
+generated 66464..66609 <- Clone
+generated 66609..66872 <- PartialEq
+generated 66872..67049 <- Hash
+generated 67049..68038 <- Encode
+generated 68038..71227 <- Decode
+generated 71227..72033 <- __convenience_const
+generated 72158..72535 <- Debug
+generated 72535..72747 <- Clone
+generated 72747..73110 <- PartialEq
+generated 73110..73697 <- Hash
+generated 73697..76536 <- Encode
+generated 76536..83674 <- Decode
+generated 83674..85217 <- __convenience_const
+generated 85359..85718 <- Debug
+generated 85718..85949 <- Clone
+generated 85949..86308 <- PartialEq
+generated 86308..86795 <- Hash
+generated 86795..89549 <- Encode
+generated 89549..96421 <- Decode
+generated 96421..98225 <- __convenience_const
+generated 98392..98516 <- Debug
+generated 98516..98611 <- Clone
+generated 98611..98717 <- PartialEq
+generated 98717..98829 <- Hash
+generated 98829..98970 <- PartialOrd
+generated 98970..99097 <- Ord
+generated 99097..99181 <- Default
+generated 99181..100501 <- Encode
+generated 100501..102357 <- Decode
+generated 102357..103562 <- __convenience_const
+generated 103713..103852 <- Debug
+generated 103852..103962 <- Clone
+generated 103962..104083 <- PartialEq
+generated 104083..104205 <- Hash
+generated 104205..104298 <- Default
+generated 104298..105643 <- Encode
+generated 105643..108579 <- Decode
+generated 108579..109707 <- __convenience_const
+generated 109815..109953 <- Debug
+generated 109953..110070 <- Clone
+generated 110070..110226 <- PartialEq
+generated 110226..110338 <- Hash
+generated 110338..112096 <- Encode
+generated 112096..116340 <- Decode
+generated 116340..117251 <- __convenience_const
+generated 117364..117502 <- Debug
+generated 117502..117619 <- Clone
+generated 117619..117775 <- PartialEq
+generated 117775..117887 <- Hash
+generated 117887..119645 <- Encode
+generated 119645..123899 <- Decode
+generated 123899..124810 <- __convenience_const
+generated 124903..125015 <- Debug
+generated 125015..125118 <- Clone
+generated 125118..125328 <- PartialEq
+generated 125328..125425 <- Hash
+generated 125425..126429 <- Encode
+generated 126429..129209 <- Decode
+generated 129209..130036 <- __convenience_const
+generated 130142..130286 <- Debug
+generated 130286..130409 <- Clone
+generated 130409..130571 <- PartialEq
+generated 130571..130687 <- Hash
+generated 130687..132017 <- Encode
+generated 132017..134909 <- Decode
+generated 134909..135862 <- __convenience_const
+generated 135973..136108 <- Debug
+generated 136108..136222 <- Clone
+generated 136222..136375 <- PartialEq
+generated 136375..136485 <- Hash
+generated 136485..138645 <- Encode
+generated 138645..143427 <- Decode
+generated 143427..144317 <- __convenience_const
+generated 144576..144708 <- Debug
+generated 144708..144819 <- Clone
+generated 144819..144969 <- PartialEq
+generated 144969..145077 <- Hash
+generated 145077..148337 <- Encode
+generated 148337..152411 <- Decode
+generated 152411..153522 <- __convenience_const
+generated 153683..153821 <- Debug
+generated 153821..153938 <- Clone
+generated 153938..154094 <- PartialEq
+generated 154094..154206 <- Hash
+generated 154206..156355 <- Encode
+generated 156355..159998 <- Decode
+generated 159998..160909 <- __convenience_const
+generated 161063..161201 <- Debug
+generated 161201..161318 <- Clone
+generated 161318..161474 <- PartialEq
+generated 161474..161586 <- Hash
+generated 161586..163724 <- Encode
+generated 163724..167876 <- Decode
+generated 167876..168787 <- __convenience_const
+generated 168942..169080 <- Debug
+generated 169080..169197 <- Clone
+generated 169197..169353 <- PartialEq
+generated 169353..169465 <- Hash
+generated 169465..171592 <- Encode
+generated 171592..174601 <- Decode
+generated 174601..175512 <- __convenience_const
+generated 175664..175790 <- Debug
+generated 175790..175895 <- Clone
+generated 175895..176039 <- PartialEq
+generated 176039..176143 <- Hash
+generated 176143..178199 <- Encode
+generated 178199..183933 <- Decode
+generated 183933..184760 <- __convenience_const
+generated 185261..186311 <- Debug
+generated 186311..187011 <- Clone
+generated 187011..188242 <- PartialEq
+generated 188242..189565 <- Hash
+generated 189565..195022 <- Encode
+generated 195022..212180 <- Decode
+generated 212180..213636 <- __convenience_const
+generated 214030..214986 <- Debug
+generated 214986..215625 <- Clone
+generated 215625..217096 <- PartialEq
+generated 217096..218107 <- Hash
+generated 218107..218414 <- Default
+generated 218414..223006 <- Encode
+generated 223006..239925 <- Decode
+generated 239925..241392 <- __convenience_const
+generated 241585..241720 <- Debug
+generated 241720..241834 <- Clone
+generated 241834..241987 <- PartialEq
+generated 241987..242097 <- Hash
+generated 242097..244993 <- Encode
+generated 244993..248978 <- Decode
+generated 248978..249868 <- __convenience_const
+generated 250062..250191 <- Debug
+generated 250191..250299 <- Clone
+generated 250299..250446 <- PartialEq
+generated 250446..250552 <- Hash
+generated 250552..253139 <- Encode
+generated 253139..257001 <- Decode
+generated 257001..257849 <- __convenience_const
+generated 257913..258645 <- Encode
+generated 258645..260511 <- Decode
+generated 260511..261046 <- __convenience_const
+generated 261301..261839 <- Debug
+generated 261839..262191 <- Clone
+generated 262191..262703 <- PartialEq
+generated 262703..263196 <- Hash
+generated 263196..266432 <- Encode
+generated 266432..276966 <- Decode
+generated 276966..278364 <- __convenience_const
+generated 278453..278577 <- Default
+generated 278577..279579 <- Encode
+generated 279579..282669 <- Decode
+generated 282669..283328 <- __convenience_const
+generated 283417..283557 <- Default
+generated 283557..284542 <- Encode
+generated 284542..287629 <- Decode
+generated 287629..288318 <- __convenience_const
+generated 288426..288544 <- Default
+generated 288544..291291 <- Encode
+generated 291291..298341 <- Decode
+generated 298341..299500 <- __convenience_const
 
 ## Metadata
 
