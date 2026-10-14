@@ -1,0 +1,1121 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/tuple_optional_and_rest.ts
+---
+## Input
+
+/** Each element of a tuple is coded as its own type, an optional one and the rest among them. */
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type Row = [label: string, count?: number, ...flags: boolean[]];
+
+/** @derive(Encode, Decode) */
+export interface Named {
+    name: string;
+}
+
+/** @derive(Encode, Decode) */
+export interface Dated {
+    at: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Holder {
+    mixed: [Named, ...Dated[]];
+    later: [Named, Dated?, ...Date[]];
+}
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, decodeBoolean as __mf_decodeBoolean, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeTuple as __mf_decodeTuple, decodeDate as __mf_decodeDate } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+/** Each element of a tuple is coded as its own type, an optional one and the rest among them. */
+
+export type Row = [label: string, count?: number, ...flags: boolean[]];
+
+export function rowToString(value: Row): string {
+    return "Row(" + __mf_structuralDebug(value) + ")";
+}
+
+export function rowClone(value: Row): Row {
+    return __mf_structuralClone(value);
+}
+
+export function rowEquals(a: Row, b: Row): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function rowHashCode(value: Row): number {
+    return __mf_structuralHash(value);
+}
+
+export function rowDefaultValue(): Row {
+    return ([""] as [label: string, count?: number, ...flags: boolean[]]) as Row;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function rowEncode(value: Row, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = rowEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function rowEncodeWithContext(value: Row, ctx: __mf_EncodeContext): unknown;
+export function rowEncodeWithContext(value: Row): unknown {
+    const __view: { e0: string; e1?: number | undefined; rest: boolean[] } = {
+        e0: value[0],
+        rest: (([, , ...__rest0]) => __rest0)(value),
+    };
+    if (1 < value.length) {
+        __view.e1 = value[1];
+    }
+    return ((value: { e0: string; e1?: number | undefined; rest: boolean[] }): unknown[] => {
+        const result: Record<string, unknown> = {};
+        result["e0"] = value.e0;
+        if (value.e1 !== undefined) {
+            result["e1"] = value.e1;
+        }
+        result["rest"] = value.rest;
+        const __tuple: unknown[] = [];
+        __tuple.push(result["e0"] ?? null);
+        if ("e1" in value) {
+            __tuple.push(result["e1"] ?? null);
+        }
+        if (Array.isArray(result["rest"])) {
+            __tuple.push(...result["rest"]);
+        }
+        return __tuple;
+    })(__view);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function rowDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Row } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = rowDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function rowIs(value: unknown): value is Row {
+    return rowHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function rowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Row {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Row.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Row;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Row.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length <= 0) {
+        errors.push({ field: "0", message: "missing required element" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 2); __index++) {
+        obj[__index] = value[__index];
+    }
+    if (obj["1"] === null) {
+        obj["1"] = undefined;
+    }
+    obj["rest"] = value.slice(2);
+
+    const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
+    const instance: any = {};
+    Object.defineProperty(instance, "e0", {
+        get: () => tuple[0],
+        set: (item: unknown) => {
+            tuple[0] = item;
+        }
+    });
+    Object.defineProperty(instance, "e1", {
+        get: () => tuple[1],
+        set: (item: unknown) => {
+            tuple[1] = item;
+        }
+    });
+    Object.defineProperty(instance, "rest", {
+        get: () => tuple.slice(2),
+        set: (items: unknown[]) => {
+            tuple.splice(2, tuple.length, ...items);
+        }
+    });
+    ctx.trackForFreeze(tuple);
+
+    if ("0" in obj) {
+        const __raw_e0 = obj["0"] as string;
+
+        if (!(typeof __raw_e0 === "string")) {
+            errors.push({ field: "0", message: __raw_e0 == null ? "Row.0 is required" : "expected string" });
+        } else {
+            instance.e0 = __raw_e0;
+        }
+    }
+    if (("1" in obj && obj["1"] !== undefined)) {
+        const __raw_e1 = obj["1"] as number;
+
+        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
+            errors.push({ field: "1", message: "expected number" });
+        } else {
+            instance.e1 = __raw_e1;
+        }
+    }
+    if ("rest" in obj) {
+        const __raw_rest = obj["rest"] as boolean[];
+        if (Array.isArray(__raw_rest)) {
+            ctx.pushScope("rest");
+            try {
+                instance.rest = __mf_decodeArray(__raw_rest, ctx, __mf_decodeBoolean);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "rest", message: __raw_rest == null ? "Row.rest is required" : "expected boolean[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return tuple as Row;
+}
+
+export function rowHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 1;
+}
+
+export const Row: {
+  readonly toString: typeof rowToString;
+  readonly clone: typeof rowClone;
+  readonly equals: typeof rowEquals;
+  readonly hashCode: typeof rowHashCode;
+  readonly defaultValue: typeof rowDefaultValue;
+  readonly encode: typeof rowEncode;
+  readonly encodeWithContext: typeof rowEncodeWithContext;
+  readonly decode: typeof rowDecode;
+  readonly is: typeof rowIs;
+  readonly decodeWithContext: typeof rowDecodeWithContext;
+  readonly hasShape: typeof rowHasShape;
+} = {
+  toString: rowToString,
+  clone: rowClone,
+  equals: rowEquals,
+  hashCode: rowHashCode,
+  defaultValue: rowDefaultValue,
+  encode: rowEncode,
+  encodeWithContext: rowEncodeWithContext,
+  decode: rowDecode,
+  is: rowIs,
+  decodeWithContext: rowDecodeWithContext,
+  hasShape: rowHasShape
+};
+
+
+export interface Named {
+    name: string;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function namedEncode(value: Named, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = namedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function namedEncodeWithContext(value: Named, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Named" });
+    namedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function namedEncodePartialWithContext(value: Partial<Named>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Named>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Named" };
+        namedEncodeFields(value as Named, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function namedEncodeFields(value: Named, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result["name"] = value.name;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function namedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Named } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = namedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Named.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Named | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Named> | __mf_PendingRef;
+export function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Named> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Named.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Named.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Named") as Named | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Named.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Named");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "Named.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Named;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function namedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Named>): Partial<Named> | __mf_PendingRef {
+    return namedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function namedValidateField<K extends keyof Named>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function namedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function namedValidateFields(partial: { readonly [K in keyof Named]?: unknown }): Array<{ field: string; message: string }>;
+export function namedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function namedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "name");
+}
+
+export function namedIs(obj: unknown): obj is Named {
+    return namedHasShape(obj) && namedDecode(obj).success;
+}
+
+export const Named: {
+  readonly encode: typeof namedEncode;
+  readonly encodeWithContext: typeof namedEncodeWithContext;
+  readonly encodePartialWithContext: typeof namedEncodePartialWithContext;
+  readonly decode: typeof namedDecode;
+  readonly decodeWithContext: typeof namedDecodeWithContext;
+  readonly decodePartialWithContext: typeof namedDecodePartialWithContext;
+  readonly validateField: typeof namedValidateField;
+  readonly validateFields: typeof namedValidateFields;
+  readonly hasShape: typeof namedHasShape;
+  readonly is: typeof namedIs;
+} = {
+  encode: namedEncode,
+  encodeWithContext: namedEncodeWithContext,
+  encodePartialWithContext: namedEncodePartialWithContext,
+  decode: namedDecode,
+  decodeWithContext: namedDecodeWithContext,
+  decodePartialWithContext: namedDecodePartialWithContext,
+  validateField: namedValidateField,
+  validateFields: namedValidateFields,
+  hasShape: namedHasShape,
+  is: namedIs
+};
+
+
+export interface Dated {
+    at: Date;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function datedEncode(value: Dated, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = datedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function datedEncodeWithContext(value: Dated, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Dated" });
+    datedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function datedEncodePartialWithContext(value: Partial<Dated>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Dated>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Dated" };
+        datedEncodeFields(value as Dated, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function datedEncodeFields(value: Dated, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result["at"] = value.at.toISOString();
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function datedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Dated } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = datedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Dated.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Dated | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Dated> | __mf_PendingRef;
+export function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Dated> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Dated.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Dated.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Dated") as Dated | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Dated.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Dated");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "Dated.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Dated;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function datedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Dated>): Partial<Dated> | __mf_PendingRef {
+    return datedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function datedValidateField<K extends keyof Dated>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function datedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function datedValidateFields(partial: { readonly [K in keyof Dated]?: unknown }): Array<{ field: string; message: string }>;
+export function datedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function datedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "at");
+}
+
+export function datedIs(obj: unknown): obj is Dated {
+    return datedHasShape(obj) && datedDecode(obj).success;
+}
+
+export const Dated: {
+  readonly encode: typeof datedEncode;
+  readonly encodeWithContext: typeof datedEncodeWithContext;
+  readonly encodePartialWithContext: typeof datedEncodePartialWithContext;
+  readonly decode: typeof datedDecode;
+  readonly decodeWithContext: typeof datedDecodeWithContext;
+  readonly decodePartialWithContext: typeof datedDecodePartialWithContext;
+  readonly validateField: typeof datedValidateField;
+  readonly validateFields: typeof datedValidateFields;
+  readonly hasShape: typeof datedHasShape;
+  readonly is: typeof datedIs;
+} = {
+  encode: datedEncode,
+  encodeWithContext: datedEncodeWithContext,
+  encodePartialWithContext: datedEncodePartialWithContext,
+  decode: datedDecode,
+  decodeWithContext: datedDecodeWithContext,
+  decodePartialWithContext: datedDecodePartialWithContext,
+  validateField: datedValidateField,
+  validateFields: datedValidateFields,
+  hasShape: datedHasShape,
+  is: datedIs
+};
+
+
+export interface Holder {
+    mixed: [Named, ...Dated[]];
+    later: [Named, Dated?, ...Date[]];
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function holderEncode(value: Holder, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = holderEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function holderEncodeWithContext(value: Holder, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Holder" });
+    holderEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Holder>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Holder" };
+        holderEncodeFields(value as Holder, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function holderEncodeFields(value: Holder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("mixed")) {
+        if (value.mixed !== undefined) {
+            result["mixed"] = [namedEncodeWithContext(value.mixed[0], ctx), ...(([, ...__rest0]) => __rest0)(value.mixed).map((__item0) => datedEncodeWithContext(__item0, ctx))];
+        }
+    }
+    if (__fields === undefined || __fields.keeps("later")) {
+        if (value.later !== undefined) {
+            result["later"] = [namedEncodeWithContext(value.later[0], ctx), ...(1 < value.later.length ? [(value.later[1] === undefined ? undefined : datedEncodeWithContext(value.later[1], ctx))] : []), ...(([, , ...__rest0]) => __rest0)(value.later).map((__item0) => __item0.toISOString())];
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function holderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Holder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = holderDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Holder.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef;
+export function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Holder.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Holder.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Holder") as Holder | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Holder.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("mixed")) && !("mixed" in obj)) {
+        errors.push({ field: "mixed", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("later")) && !("later" in obj)) {
+        errors.push({ field: "later", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Holder");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+        const __raw_mixed = obj["mixed"] as [Named, ...Dated[]];
+        if (Array.isArray(__raw_mixed)) {
+            ctx.pushScope("mixed");
+            try {
+                instance.mixed = (__mf_decodeTuple(__raw_mixed, ctx, [(__raw0) => namedDecodeWithContext(__raw0, ctx)], 1, (__raw0) => datedDecodeWithContext(__raw0, ctx)) as [Named, ...Dated[]]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "mixed" : "mixed." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "mixed", message: __raw_mixed == null ? "Holder.mixed is required" : "expected [Named, ...Dated[]]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("later")) ? "later" in obj : (__fields.keeps("later") && obj["later"] !== undefined)) {
+        const __raw_later = obj["later"] as [Named, Dated?, ...Date[]];
+        if (Array.isArray(__raw_later)) {
+            ctx.pushScope("later");
+            try {
+                instance.later = (__mf_decodeTuple(__raw_later, ctx, [(__raw0) => namedDecodeWithContext(__raw0, ctx), (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__read0 === undefined ? undefined : datedDecodeWithContext(__read0, ctx));
+        }], 1, __mf_decodeDate) as [Named, Dated?, ...Date[]]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "later" : "later." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "later", message: __raw_later == null ? "Holder.later is required" : "expected [Named, Dated?, ...Date[]]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Holder;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function holderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Holder>): Partial<Holder> | __mf_PendingRef {
+    return holderDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function holderValidateField<K extends keyof Holder>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function holderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function holderValidateFields(partial: { readonly [K in keyof Holder]?: unknown }): Array<{ field: string; message: string }>;
+export function holderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function holderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "mixed") && __mf_holds(obj, "later");
+}
+
+export function holderIs(obj: unknown): obj is Holder {
+    return holderHasShape(obj) && holderDecode(obj).success;
+}
+
+export const Holder: {
+  readonly encode: typeof holderEncode;
+  readonly encodeWithContext: typeof holderEncodeWithContext;
+  readonly encodePartialWithContext: typeof holderEncodePartialWithContext;
+  readonly decode: typeof holderDecode;
+  readonly decodeWithContext: typeof holderDecodeWithContext;
+  readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
+  readonly validateField: typeof holderValidateField;
+  readonly validateFields: typeof holderValidateFields;
+  readonly hasShape: typeof holderHasShape;
+  readonly is: typeof holderIs;
+} = {
+  encode: holderEncode,
+  encodeWithContext: holderEncodeWithContext,
+  encodePartialWithContext: holderEncodePartialWithContext,
+  decode: holderDecode,
+  decodeWithContext: holderDecodeWithContext,
+  decodePartialWithContext: holderDecodePartialWithContext,
+  validateField: holderValidateField,
+  validateFields: holderValidateFields,
+  hasShape: holderHasShape,
+  is: holderIs
+};
+
+## DTS
+
+/** Each element of a tuple is coded as its own type, an optional one and the rest among them. */
+export type Row = [label: string, count?: number, ...flags: boolean[]];
+export declare function rowToString(value: Row): string;
+export declare function rowClone(value: Row): Row;
+export declare function rowEquals(a: Row, b: Row): boolean;
+export declare function rowHashCode(value: Row): number;
+export declare function rowDefaultValue(): Row;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function rowEncode(value: Row, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function rowEncodeWithContext(value: Row, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function rowDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Row;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function rowIs(value: unknown): value is Row;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function rowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Row;
+export declare function rowHasShape(value: unknown): boolean;
+export declare const Row: {
+	readonly toString: typeof rowToString;
+	readonly clone: typeof rowClone;
+	readonly equals: typeof rowEquals;
+	readonly hashCode: typeof rowHashCode;
+	readonly defaultValue: typeof rowDefaultValue;
+	readonly encode: typeof rowEncode;
+	readonly encodeWithContext: typeof rowEncodeWithContext;
+	readonly decode: typeof rowDecode;
+	readonly is: typeof rowIs;
+	readonly decodeWithContext: typeof rowDecodeWithContext;
+	readonly hasShape: typeof rowHasShape;
+};
+export interface Named {
+	name: string;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function namedEncode(value: Named, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function namedEncodeWithContext(value: Named, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function namedEncodePartialWithContext(value: Partial<Named>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Named>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function namedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Named;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Named | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function namedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Named> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function namedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Named>): Partial<Named> | __mf_PendingRef;
+export declare function namedValidateField<K extends keyof Named>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function namedValidateFields(partial: { readonly [K in keyof Named]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function namedHasShape(obj: unknown): boolean;
+export declare function namedIs(obj: unknown): obj is Named;
+export declare const Named: {
+	readonly encode: typeof namedEncode;
+	readonly encodeWithContext: typeof namedEncodeWithContext;
+	readonly encodePartialWithContext: typeof namedEncodePartialWithContext;
+	readonly decode: typeof namedDecode;
+	readonly decodeWithContext: typeof namedDecodeWithContext;
+	readonly decodePartialWithContext: typeof namedDecodePartialWithContext;
+	readonly validateField: typeof namedValidateField;
+	readonly validateFields: typeof namedValidateFields;
+	readonly hasShape: typeof namedHasShape;
+	readonly is: typeof namedIs;
+};
+export interface Dated {
+	at: Date;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function datedEncode(value: Dated, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function datedEncodeWithContext(value: Dated, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function datedEncodePartialWithContext(value: Partial<Dated>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Dated>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function datedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Dated;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Dated | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function datedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Dated> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function datedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Dated>): Partial<Dated> | __mf_PendingRef;
+export declare function datedValidateField<K extends keyof Dated>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function datedValidateFields(partial: { readonly [K in keyof Dated]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function datedHasShape(obj: unknown): boolean;
+export declare function datedIs(obj: unknown): obj is Dated;
+export declare const Dated: {
+	readonly encode: typeof datedEncode;
+	readonly encodeWithContext: typeof datedEncodeWithContext;
+	readonly encodePartialWithContext: typeof datedEncodePartialWithContext;
+	readonly decode: typeof datedDecode;
+	readonly decodeWithContext: typeof datedDecodeWithContext;
+	readonly decodePartialWithContext: typeof datedDecodePartialWithContext;
+	readonly validateField: typeof datedValidateField;
+	readonly validateFields: typeof datedValidateFields;
+	readonly hasShape: typeof datedHasShape;
+	readonly is: typeof datedIs;
+};
+export interface Holder {
+	mixed: [Named, ...Dated[]];
+	later: [Named, Dated?, ...Date[]];
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function holderEncode(value: Holder, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function holderEncodeWithContext(value: Holder, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function holderEncodePartialWithContext(value: Partial<Holder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Holder>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function holderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Holder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Holder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function holderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Holder> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function holderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Holder>): Partial<Holder> | __mf_PendingRef;
+export declare function holderValidateField<K extends keyof Holder>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function holderValidateFields(partial: { readonly [K in keyof Holder]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function holderHasShape(obj: unknown): boolean;
+export declare function holderIs(obj: unknown): obj is Holder;
+export declare const Holder: {
+	readonly encode: typeof holderEncode;
+	readonly encodeWithContext: typeof holderEncodeWithContext;
+	readonly encodePartialWithContext: typeof holderEncodePartialWithContext;
+	readonly decode: typeof holderDecode;
+	readonly decodeWithContext: typeof holderDecodeWithContext;
+	readonly decodePartialWithContext: typeof holderDecodePartialWithContext;
+	readonly validateField: typeof holderValidateField;
+	readonly validateFields: typeof holderValidateFields;
+	readonly hasShape: typeof holderHasShape;
+	readonly is: typeof holderIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..98 -> expanded 1023..1121
+original 168..240 -> expanded 1121..1193
+original 240..242 -> expanded 8823..8825
+original 272..317 -> expanded 8825..8870
+original 317..319 -> expanded 17070..17072
+original 349..390 -> expanded 17072..17113
+original 390..392 -> expanded 25506..25508
+original 422..521 -> expanded 25508..25607
+original 521..522 -> expanded 36722..36723
+generated 0..1023 <- imports
+generated 1193..1301 <- Debug
+generated 1301..1388 <- Clone
+generated 1388..1514 <- PartialEq
+generated 1514..1606 <- Hash
+generated 1606..1732 <- Default
+generated 1732..3324 <- Encode
+generated 3324..8040 <- Decode
+generated 8040..8823 <- __convenience_const
+generated 8870..10954 <- Encode
+generated 10954..16135 <- Decode
+generated 16135..17070 <- __convenience_const
+generated 17113..19203 <- Encode
+generated 19203..24571 <- Decode
+generated 24571..25506 <- __convenience_const
+generated 25607..28256 <- Encode
+generated 28256..35766 <- Decode
+generated 35766..36722 <- __convenience_const
+
+## Metadata
+
+interface Named: {"body_span":{"end":318,"start":297},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":273,"start":243}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":316,"start":303},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Named","span":{"end":318,"start":281},"type_params":[]}
+interface Dated: {"body_span":{"end":391,"start":374},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":350,"start":320}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":389,"start":380},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Dated","span":{"end":391,"start":358},"type_params":[]}
+interface Holder: {"body_span":{"end":522,"start":448},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":423,"start":393}}],"fields":[{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":481,"start":454},"ts_type":"[Named, ...Dated[]]"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":520,"start":486},"ts_type":"[Named, Dated?, ...Date[]]"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":522,"start":431},"type_params":[]}
+type Row: {"body":{"Tuple":["label: string","count?: number","...flags: boolean[]"]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":169,"start":99}}],"name":"Row","span":{"end":241,"start":177},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

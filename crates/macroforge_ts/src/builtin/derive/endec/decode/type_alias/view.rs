@@ -10,7 +10,7 @@ use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
 use super::AliasDecode;
-use crate::builtin::derive::common::{TypeNames, tuple_element};
+use crate::builtin::derive::common::{TypeNames, tuple_element, undefined_as_null};
 use crate::builtin::derive::endec::decode::field::prepare::to_decode_field;
 use crate::builtin::derive::endec::decode::field::statements::{Required, decode_fields};
 use crate::builtin::derive::endec::decode::reference::decode_reference;
@@ -26,6 +26,8 @@ struct TupleLayout {
     /// Elements other than a rest element.
     fixed: usize,
     rest: bool,
+    /// Optional elements whose `null` is the `undefined` they were written from.
+    null_as_undefined: Vec<usize>,
 }
 
 /// The view functions for a tuple alias, decoding each element by its type.
@@ -53,6 +55,11 @@ pub(super) fn tuple_view(
     let slots: Vec<(String, Expr)> = (0..layout.fixed)
         .map(|index| (format!("e{index}"), number(index)))
         .collect();
+    let null_as_undefined: Vec<String> = layout
+        .null_as_undefined
+        .iter()
+        .map(usize::to_string)
+        .collect();
     let field_statements = decode_fields(&layout.fields, type_name, "__type", Required::All);
     let reference = decode_reference(type_name, &alias.full_type_name);
     Ok(ts_template! {
@@ -77,12 +84,18 @@ pub(super) fn tuple_view(
             for (let __index = 0; __index < Math.min(value.length, @{fixed.clone()}); __index++) {
                 obj[__index] = value[__index];
             }
+            {#for key in &null_as_undefined}
+                if (obj["@{key}"] === null) {
+                    obj["@{key}"] = undefined;
+                }
+            {/for}
             {#if has_rest}
-                obj.rest = value.slice(@{fixed.clone()});
+                obj["rest"] = value.slice(@{fixed.clone()});
             {/if}
             // Each element decodes onto `instance`, whose properties write
             // through to the tuple: a reference resolved later lands there too.
-            const tuple: unknown[] = [];
+            // An element left `undefined` keeps its place before the rest.
+            const tuple: unknown[] = new Array<unknown>(Math.min(value.length, @{fixed.clone()})).fill(undefined);
             {#if !slots.is_empty() || has_rest}
                 const instance: any = {};
             {/if}
@@ -185,6 +198,7 @@ fn tuple_layout(alias: &AliasDecode, elements: &[String]) -> Result<TupleLayout,
         required: 0,
         fixed: 0,
         rest: false,
+        null_as_undefined: Vec::new(),
     };
     for (index, source) in elements.iter().enumerate() {
         let element = tuple_element(source);
@@ -195,6 +209,10 @@ fn tuple_layout(alias: &AliasDecode, elements: &[String]) -> Result<TupleLayout,
             layout.fixed += 1;
             if !element.optional && layout.required == index {
                 layout.required += 1;
+            }
+            // An optional element that is there and `undefined` is written as `null`.
+            if element.optional && undefined_as_null(&format!("{} | undefined", element.ts_type)) {
+                layout.null_as_undefined.push(index);
             }
             (format!("e{index}"), index.to_string())
         };

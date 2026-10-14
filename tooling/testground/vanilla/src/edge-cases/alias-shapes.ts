@@ -22,6 +22,9 @@ export type AliasArray = EdgeItem[];
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export type AliasReadonlyStrings = readonly string[];
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type AliasRow = [label: string, count?: number, ...flags: boolean[]];
+
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasDates = Date[];
 

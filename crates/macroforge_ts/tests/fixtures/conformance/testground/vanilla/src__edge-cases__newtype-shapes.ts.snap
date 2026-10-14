@@ -2642,12 +2642,8 @@ export function newPairEncodeWithContext(value: NewPair): unknown {
         result["e0"] = value.e0;
         result["e1"] = value.e1.toISOString();
         const __tuple: unknown[] = [];
-        if ("e0" in result) {
-            __tuple.push(result["e0"]);
-        }
-        if ("e1" in result) {
-            __tuple.push(result["e1"]);
-        }
+        __tuple.push(result["e0"] ?? null);
+        __tuple.push(result["e1"] ?? null);
         return __tuple;
     })(__view);
 }
@@ -2723,7 +2719,7 @@ export function newPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         obj[__index] = value[__index];
     }
 
-    const tuple: unknown[] = [];
+    const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
     const instance: any = {};
     Object.defineProperty(instance, "e0", {
         get: () => tuple[0],
@@ -3494,7 +3490,7 @@ original 2302..2441 -> expanded 94976..95115
 original 2474..2475 -> expanded 95177..95178
 original 2475..2561 -> expanded 105492..105578
 original 2585..2586 -> expanded 105631..105632
-original 2586..2587 -> expanded 112158..112159
+original 2586..2587 -> expanded 112145..112146
 generated 0..1293 <- imports
 generated 1293..1338 <- $Newtype
 generated 1338..1383 <- $Newtype
@@ -3636,9 +3632,9 @@ generated 105632..105752 <- Debug
 generated 105752..105851 <- Clone
 generated 105851..105989 <- PartialEq
 generated 105989..106089 <- Hash
-generated 106089..107403 <- Encode
-generated 107403..111373 <- Decode
-generated 111373..112158 <- __convenience_const
+generated 106089..107331 <- Encode
+generated 107331..111360 <- Decode
+generated 111360..112145 <- __convenience_const
 
 ## Metadata
 

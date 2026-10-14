@@ -392,6 +392,14 @@ fn told_apart(ts_type: &str, scope: &TypeScope<'_>) -> Result<(), String> {
     }
 }
 
+/// The elements of the tuple `value` from `index` on, as the type its rest
+/// element gives them: `slice` would hand back a union of every element's.
+pub(crate) fn tuple_rest(value: &str, index: usize, depth: usize) -> String {
+    let skipped = ", ".repeat(index);
+    let rest = format!("__rest{depth}");
+    format!("(([{skipped}...{rest}]) => {rest})({value})")
+}
+
 /// The element sources of a tuple type, `readonly` or not.
 fn tuple_elements(ts_type: &str) -> Option<Vec<&str>> {
     Some(
@@ -914,7 +922,7 @@ fn encode_tuple(
     for (index, source) in elements.iter().enumerate() {
         let element = tuple_element(source);
         if element.rest {
-            let rest = rendered(ts_template! { @{value}.slice(@{index}) });
+            let rest = tuple_rest(value, index, depth);
             let encoded = encode_expr(element.ts_type, &rest, scope, depth)?;
             any_encoded |= encoded.is_some();
             let encoded = encoded.unwrap_or(rest);
@@ -924,12 +932,18 @@ fn encode_tuple(
         let at = rendered(ts_template! { @{value}[@{index}] });
         let encoded = encode_expr(element.ts_type, &at, scope, depth)?;
         any_encoded |= encoded.is_some();
-        encoded_elements.push(match encoded {
+        let encoded = match encoded {
             Some(encoded) if element.optional => {
                 rendered(ts_template! { (@{&at} === undefined ? undefined : @{encoded}) })
             }
             Some(encoded) => encoded,
             None => at,
+        };
+        // An optional element is there only when the tuple reaches it.
+        encoded_elements.push(if element.optional {
+            rendered(ts_template! { ...(@{index} < @{value}.length ? [@{encoded}] : []) })
+        } else {
+            encoded
         });
     }
     let encoded_elements = encoded_elements.join(", ");

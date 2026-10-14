@@ -13,10 +13,11 @@ use super::super::types::EncodeField;
 use super::AliasEncode;
 use crate::builtin::derive::common::{Member, TypeNames, rendered, tuple_element};
 use crate::builtin::derive::endec::EndecContainerOptions;
+use crate::builtin::derive::endec::coder::tuple_rest;
 use crate::builtin::derive::endec::source_field::SourceField;
 
-/// Statements returning the encoded tuple, each element encoded by its type
-/// and an absent optional element left out.
+/// Statements returning the encoded tuple, each element encoded by its type,
+/// an absent optional element left out and an `undefined` one written as `null`.
 pub(super) fn tuple_body(
     alias: &AliasEncode,
     elements: &[String],
@@ -30,16 +31,16 @@ pub(super) fn tuple_body(
     let mut slots: Vec<(String, Expr)> = Vec::new();
     let mut optional_slots: Vec<(String, Expr)> = Vec::new();
     let mut view_members: Vec<String> = Vec::new();
-    let mut slot_names: Vec<String> = Vec::new();
-    let mut rest_start: Option<Expr> = None;
+    let mut tuple_slots: Vec<(String, bool)> = Vec::new();
+    let mut rest: Option<Expr> = None;
     for (index, source) in elements.iter().enumerate() {
         let element = tuple_element(source);
         let slot = if element.rest {
-            rest_start = Some(number(index));
+            rest = Some(Expr::Source(tuple_rest("value", index, 0)));
             "rest".to_string()
         } else {
             let slot = format!("e{index}");
-            slot_names.push(slot.clone());
+            tuple_slots.push((slot.clone(), element.optional));
             if element.optional {
                 optional_slots.push((slot.clone(), number(index)));
             } else {
@@ -48,8 +49,9 @@ pub(super) fn tuple_body(
             slot
         };
         let slot_ident = ts_ident!(slot.as_str());
+        // An optional element that is there may be `undefined` all the same.
         view_members.push(rendered(if element.optional {
-            ts_template! { @{&slot_ident}?: @{element.ts_type} }
+            ts_template! { @{&slot_ident}?: @{element.ts_type} | undefined }
         } else {
             ts_template! { @{&slot_ident}: @{element.ts_type} }
         }));
@@ -74,8 +76,8 @@ pub(super) fn tuple_body(
             {#for (slot, index) in &slots}
                 @{ts_ident!(slot.as_str())}: value[@{index.clone()}],
             {/for}
-            {#if let Some(start) = &rest_start}
-                rest: value.slice(@{start.clone()}),
+            {#if let Some(rest) = &rest}
+                rest: @{rest.clone()},
             {/if}
         };
         {#for (slot, index) in &optional_slots}
@@ -87,12 +89,16 @@ pub(super) fn tuple_body(
             const result: Record<string, unknown> = {};
             {$typescript statements}
             const __tuple: unknown[] = [];
-            {#for slot in slot_names}
-                if ("@{slot}" in result) {
-                    __tuple.push(result["@{slot}"]);
-                }
+            {#for (slot, optional) in &tuple_slots}
+                {#if *optional}
+                    if ("@{slot}" in value) {
+                        __tuple.push(result["@{slot}"] ?? null);
+                    }
+                {:else}
+                    __tuple.push(result["@{slot}"] ?? null);
+                {/if}
             {/for}
-            {#if rest_start.is_some()}
+            {#if rest.is_some()}
                 if (Array.isArray(result["rest"])) {
                     __tuple.push(...result["rest"]);
                 }

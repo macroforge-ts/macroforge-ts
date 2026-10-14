@@ -276,7 +276,7 @@ fn a_tuple_is_coded_element_by_element() {
     assert_eq!(
         encoded.as_deref(),
         Some(
-            "[userEncodeWithContext(v[0],ctx),(v[1]===undefined?undefined:v[1].toISOString()),...v.slice(2)]"
+            "[userEncodeWithContext(v[0],ctx),...(1<v.length?[(v[1]===undefined?undefined:v[1].toISOString())]:[]),...(([,,...__rest0])=>__rest0)(v)]"
         )
     );
     assert_eq!(

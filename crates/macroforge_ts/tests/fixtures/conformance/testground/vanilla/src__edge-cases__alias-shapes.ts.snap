@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/alias-shapes.ts
-sha256 22a2aab515209597347881bbb15c41ba2d0d67b60edb1727ed94afd408253512
+sha256 102b53dd73b55c6199e2ecd1e84105ebf0c4563c7ea20f5f222566b4da2dc7f0
 
 ## Changed
 
@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemDecodePartialWithContext, edgeItemEncodePartialWithContext, edgeItemHasShape, edgeCardDecodeWithContext, edgeCardHasShape, edgeCardEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeBoolean as __mf_decodeBoolean, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, member as __mf_member, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, spellsTemplate as __mf_spellsTemplate, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Type aliases of every body a derive has to dispatch on: objects, tuples,
@@ -382,15 +382,9 @@ export function aliasTupleEncodeWithContext(value: AliasTuple, ctx: __mf_EncodeC
         result["e1"] = value.e1.toISOString();
         result["e2"] = value.e2;
         const __tuple: unknown[] = [];
-        if ("e0" in result) {
-            __tuple.push(result["e0"]);
-        }
-        if ("e1" in result) {
-            __tuple.push(result["e1"]);
-        }
-        if ("e2" in result) {
-            __tuple.push(result["e2"]);
-        }
+        __tuple.push(result["e0"] ?? null);
+        __tuple.push(result["e1"] ?? null);
+        __tuple.push(result["e2"] ?? null);
         return __tuple;
     })(__view);
 }
@@ -469,7 +463,7 @@ export function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         obj[__index] = value[__index];
     }
 
-    const tuple: unknown[] = [];
+    const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 3)).fill(undefined);
     const instance: any = {};
     Object.defineProperty(instance, "e0", {
         get: () => tuple[0],
@@ -716,6 +710,391 @@ export const AliasArray: {
   is: aliasArrayIs,
   decodeWithContext: aliasArrayDecodeWithContext,
   hasShape: aliasArrayHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type AliasReadonlyStrings = readonly string[];
+
+export function aliasReadonlyStringsToString(value: AliasReadonlyStrings): string {
+    return "AliasReadonlyStrings(" + __mf_structuralDebug(value) + ")";
+}
+
+export function aliasReadonlyStringsClone(value: AliasReadonlyStrings): AliasReadonlyStrings {
+    return [...value];
+}
+
+export function aliasReadonlyStringsEquals(a: AliasReadonlyStrings, b: AliasReadonlyStrings): boolean {
+    if (a === b) return true;
+    return (a.length === b.length && a.every((__item0, __index0) => { const __other0 = b[__index0]; return __other0 === undefined ? __item0 === undefined : __item0 === __other0; }));
+}
+
+export function aliasReadonlyStringsHashCode(value: AliasReadonlyStrings): number {
+    return value.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 1);
+}
+
+export function aliasReadonlyStringsDefaultValue(): AliasReadonlyStrings {
+    return ([] as readonly string[]) as AliasReadonlyStrings;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasReadonlyStringsEncode(value: AliasReadonlyStrings, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasReadonlyStringsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasReadonlyStringsEncodeWithContext(value: AliasReadonlyStrings, ctx: __mf_EncodeContext): unknown;
+export function aliasReadonlyStringsEncodeWithContext(value: AliasReadonlyStrings): unknown {
+    return ((value: { value: readonly string[] }): unknown => {
+        const result: Record<string, unknown> = {};
+        result["value"] = value.value;
+        return result["value"];
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasReadonlyStringsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasReadonlyStrings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = aliasReadonlyStringsDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function aliasReadonlyStringsIs(value: unknown): value is AliasReadonlyStrings {
+    return aliasReadonlyStringsHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasReadonlyStringsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasReadonlyStrings {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasReadonlyStrings.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AliasReadonlyStrings;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as readonly string[];
+        if (Array.isArray(__raw__root)) {
+            ctx.pushScope("_root");
+            try {
+                instance._root = __mf_decodeArray(__raw__root, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "_root", message: __raw__root == null ? "AliasReadonlyStrings._root is required" : "expected readonly string[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as AliasReadonlyStrings;
+}
+
+export function aliasReadonlyStringsHasShape(value: unknown): boolean {
+    return Array.isArray(value);
+}
+
+export const AliasReadonlyStrings: {
+  readonly toString: typeof aliasReadonlyStringsToString;
+  readonly clone: typeof aliasReadonlyStringsClone;
+  readonly equals: typeof aliasReadonlyStringsEquals;
+  readonly hashCode: typeof aliasReadonlyStringsHashCode;
+  readonly defaultValue: typeof aliasReadonlyStringsDefaultValue;
+  readonly encode: typeof aliasReadonlyStringsEncode;
+  readonly encodeWithContext: typeof aliasReadonlyStringsEncodeWithContext;
+  readonly decode: typeof aliasReadonlyStringsDecode;
+  readonly is: typeof aliasReadonlyStringsIs;
+  readonly decodeWithContext: typeof aliasReadonlyStringsDecodeWithContext;
+  readonly hasShape: typeof aliasReadonlyStringsHasShape;
+} = {
+  toString: aliasReadonlyStringsToString,
+  clone: aliasReadonlyStringsClone,
+  equals: aliasReadonlyStringsEquals,
+  hashCode: aliasReadonlyStringsHashCode,
+  defaultValue: aliasReadonlyStringsDefaultValue,
+  encode: aliasReadonlyStringsEncode,
+  encodeWithContext: aliasReadonlyStringsEncodeWithContext,
+  decode: aliasReadonlyStringsDecode,
+  is: aliasReadonlyStringsIs,
+  decodeWithContext: aliasReadonlyStringsDecodeWithContext,
+  hasShape: aliasReadonlyStringsHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type AliasRow = [label: string, count?: number, ...flags: boolean[]];
+
+export function aliasRowToString(value: AliasRow): string {
+    return "AliasRow(" + __mf_structuralDebug(value) + ")";
+}
+
+export function aliasRowClone(value: AliasRow): AliasRow {
+    return __mf_structuralClone(value);
+}
+
+export function aliasRowEquals(a: AliasRow, b: AliasRow): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function aliasRowHashCode(value: AliasRow): number {
+    return __mf_structuralHash(value);
+}
+
+export function aliasRowDefaultValue(): AliasRow {
+    return ([""] as [label: string, count?: number, ...flags: boolean[]]) as AliasRow;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasRowEncode(value: AliasRow, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasRowEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasRowEncodeWithContext(value: AliasRow, ctx: __mf_EncodeContext): unknown;
+export function aliasRowEncodeWithContext(value: AliasRow): unknown {
+    const __view: { e0: string; e1?: number | undefined; rest: boolean[] } = {
+        e0: value[0],
+        rest: (([, , ...__rest0]) => __rest0)(value),
+    };
+    if (1 < value.length) {
+        __view.e1 = value[1];
+    }
+    return ((value: { e0: string; e1?: number | undefined; rest: boolean[] }): unknown[] => {
+        const result: Record<string, unknown> = {};
+        result["e0"] = value.e0;
+        if (value.e1 !== undefined) {
+            result["e1"] = value.e1;
+        }
+        result["rest"] = value.rest;
+        const __tuple: unknown[] = [];
+        __tuple.push(result["e0"] ?? null);
+        if ("e1" in value) {
+            __tuple.push(result["e1"] ?? null);
+        }
+        if (Array.isArray(result["rest"])) {
+            __tuple.push(...result["rest"]);
+        }
+        return __tuple;
+    })(__view);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasRowDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasRow } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = aliasRowDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function aliasRowIs(value: unknown): value is AliasRow {
+    return aliasRowHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasRowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRow {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasRow.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AliasRow;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AliasRow.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length <= 0) {
+        errors.push({ field: "0", message: "missing required element" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 2); __index++) {
+        obj[__index] = value[__index];
+    }
+    if (obj["1"] === null) {
+        obj["1"] = undefined;
+    }
+    obj["rest"] = value.slice(2);
+
+    const tuple: unknown[] = new Array<unknown>(Math.min(value.length, 2)).fill(undefined);
+    const instance: any = {};
+    Object.defineProperty(instance, "e0", {
+        get: () => tuple[0],
+        set: (item: unknown) => {
+            tuple[0] = item;
+        }
+    });
+    Object.defineProperty(instance, "e1", {
+        get: () => tuple[1],
+        set: (item: unknown) => {
+            tuple[1] = item;
+        }
+    });
+    Object.defineProperty(instance, "rest", {
+        get: () => tuple.slice(2),
+        set: (items: unknown[]) => {
+            tuple.splice(2, tuple.length, ...items);
+        }
+    });
+    ctx.trackForFreeze(tuple);
+
+    if ("0" in obj) {
+        const __raw_e0 = obj["0"] as string;
+
+        if (!(typeof __raw_e0 === "string")) {
+            errors.push({ field: "0", message: __raw_e0 == null ? "AliasRow.0 is required" : "expected string" });
+        } else {
+            instance.e0 = __raw_e0;
+        }
+    }
+    if (("1" in obj && obj["1"] !== undefined)) {
+        const __raw_e1 = obj["1"] as number;
+
+        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
+            errors.push({ field: "1", message: "expected number" });
+        } else {
+            instance.e1 = __raw_e1;
+        }
+    }
+    if ("rest" in obj) {
+        const __raw_rest = obj["rest"] as boolean[];
+        if (Array.isArray(__raw_rest)) {
+            ctx.pushScope("rest");
+            try {
+                instance.rest = __mf_decodeArray(__raw_rest, ctx, __mf_decodeBoolean);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "rest", message: __raw_rest == null ? "AliasRow.rest is required" : "expected boolean[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return tuple as AliasRow;
+}
+
+export function aliasRowHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 1;
+}
+
+export const AliasRow: {
+  readonly toString: typeof aliasRowToString;
+  readonly clone: typeof aliasRowClone;
+  readonly equals: typeof aliasRowEquals;
+  readonly hashCode: typeof aliasRowHashCode;
+  readonly defaultValue: typeof aliasRowDefaultValue;
+  readonly encode: typeof aliasRowEncode;
+  readonly encodeWithContext: typeof aliasRowEncodeWithContext;
+  readonly decode: typeof aliasRowDecode;
+  readonly is: typeof aliasRowIs;
+  readonly decodeWithContext: typeof aliasRowDecodeWithContext;
+  readonly hasShape: typeof aliasRowHasShape;
+} = {
+  toString: aliasRowToString,
+  clone: aliasRowClone,
+  equals: aliasRowEquals,
+  hashCode: aliasRowHashCode,
+  defaultValue: aliasRowDefaultValue,
+  encode: aliasRowEncode,
+  encodeWithContext: aliasRowEncodeWithContext,
+  decode: aliasRowDecode,
+  is: aliasRowIs,
+  decodeWithContext: aliasRowDecodeWithContext,
+  hasShape: aliasRowHasShape
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -6572,6 +6951,84 @@ export declare const AliasArray: {
 	readonly decodeWithContext: typeof aliasArrayDecodeWithContext;
 	readonly hasShape: typeof aliasArrayHasShape;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type AliasReadonlyStrings = readonly string[];
+export declare function aliasReadonlyStringsToString(value: AliasReadonlyStrings): string;
+export declare function aliasReadonlyStringsClone(value: AliasReadonlyStrings): AliasReadonlyStrings;
+export declare function aliasReadonlyStringsEquals(a: AliasReadonlyStrings, b: AliasReadonlyStrings): boolean;
+export declare function aliasReadonlyStringsHashCode(value: AliasReadonlyStrings): number;
+export declare function aliasReadonlyStringsDefaultValue(): AliasReadonlyStrings;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasReadonlyStringsEncode(value: AliasReadonlyStrings, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasReadonlyStringsEncodeWithContext(value: AliasReadonlyStrings, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasReadonlyStringsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasReadonlyStrings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function aliasReadonlyStringsIs(value: unknown): value is AliasReadonlyStrings;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasReadonlyStringsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasReadonlyStrings;
+export declare function aliasReadonlyStringsHasShape(value: unknown): boolean;
+export declare const AliasReadonlyStrings: {
+	readonly toString: typeof aliasReadonlyStringsToString;
+	readonly clone: typeof aliasReadonlyStringsClone;
+	readonly equals: typeof aliasReadonlyStringsEquals;
+	readonly hashCode: typeof aliasReadonlyStringsHashCode;
+	readonly defaultValue: typeof aliasReadonlyStringsDefaultValue;
+	readonly encode: typeof aliasReadonlyStringsEncode;
+	readonly encodeWithContext: typeof aliasReadonlyStringsEncodeWithContext;
+	readonly decode: typeof aliasReadonlyStringsDecode;
+	readonly is: typeof aliasReadonlyStringsIs;
+	readonly decodeWithContext: typeof aliasReadonlyStringsDecodeWithContext;
+	readonly hasShape: typeof aliasReadonlyStringsHasShape;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type AliasRow = [label: string, count?: number, ...flags: boolean[]];
+export declare function aliasRowToString(value: AliasRow): string;
+export declare function aliasRowClone(value: AliasRow): AliasRow;
+export declare function aliasRowEquals(a: AliasRow, b: AliasRow): boolean;
+export declare function aliasRowHashCode(value: AliasRow): number;
+export declare function aliasRowDefaultValue(): AliasRow;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasRowEncode(value: AliasRow, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasRowEncodeWithContext(value: AliasRow, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasRowDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasRow;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function aliasRowIs(value: unknown): value is AliasRow;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasRowDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRow;
+export declare function aliasRowHasShape(value: unknown): boolean;
+export declare const AliasRow: {
+	readonly toString: typeof aliasRowToString;
+	readonly clone: typeof aliasRowClone;
+	readonly equals: typeof aliasRowEquals;
+	readonly hashCode: typeof aliasRowHashCode;
+	readonly defaultValue: typeof aliasRowDefaultValue;
+	readonly encode: typeof aliasRowEncode;
+	readonly encodeWithContext: typeof aliasRowEncodeWithContext;
+	readonly decode: typeof aliasRowDecode;
+	readonly is: typeof aliasRowIs;
+	readonly decodeWithContext: typeof aliasRowDecodeWithContext;
+	readonly hasShape: typeof aliasRowHasShape;
+};
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type AliasDates = Date[];
 export declare function aliasDatesToString(value: AliasDates): string;
@@ -7761,276 +8218,296 @@ export declare const AliasInline: {
 
 ## Mapping
 
-original 0..469 -> expanded 1842..2311
-original 469..590 -> expanded 16492..16613
-original 590..690 -> expanded 24869..24969
-original 690..786 -> expanded 30692..30788
-original 786..901 -> expanded 36618..36733
-original 901..1010 -> expanded 42481..42590
-original 1010..1111 -> expanded 48636..48737
-original 1111..1236 -> expanded 54360..54485
-original 1236..1378 -> expanded 66950..67092
-original 1378..1545 -> expanded 79396..79563
-original 1545..1696 -> expanded 84856..85007
-original 1696..1804 -> expanded 91081..91189
-original 1804..1917 -> expanded 98664..98777
-original 1917..2010 -> expanded 106262..106355
-original 2010..2116 -> expanded 111427..111533
-original 2116..2227 -> expanded 117336..117447
-original 2227..2486 -> expanded 125686..125945
-original 2486..2647 -> expanded 134114..134275
-original 2647..2801 -> expanded 141393..141547
-original 2801..2956 -> expanded 149161..149316
-original 2956..3108 -> expanded 155776..155928
-original 3108..3609 -> expanded 165019..165520
-original 3609..4003 -> expanded 192248..192642
-original 4003..4196 -> expanded 217924..218117
-original 4196..4390 -> expanded 225431..225625
-original 4390..4454 -> expanded 232581..232645
-original 4454..4709 -> expanded 235744..235999
-original 4709..4798 -> expanded 252028..252117
-original 4798..4887 -> expanded 256913..257002
-original 4887..4995 -> expanded 261824..261932
-original 4995..4996 -> expanded 272291..272292
-generated 0..1842 <- imports
-generated 2311..2668 <- Debug
-generated 2668..2932 <- Clone
-generated 2932..3333 <- PartialEq
-generated 3333..3868 <- Hash
-generated 3868..4770 <- PartialOrd
-generated 4770..5546 <- Ord
-generated 5546..5662 <- Default
-generated 5662..8160 <- Encode
-generated 8160..14841 <- Decode
-generated 14841..16492 <- __convenience_const
-generated 16613..16742 <- Debug
-generated 16742..16900 <- Clone
-generated 16900..17185 <- PartialEq
-generated 17185..17550 <- Hash
-generated 17550..19021 <- Encode
-generated 19021..24021 <- Decode
-generated 24021..24869 <- __convenience_const
-generated 24969..25098 <- Debug
-generated 25098..25232 <- Clone
-generated 25232..25542 <- PartialEq
-generated 25542..25716 <- Hash
-generated 25716..26704 <- Encode
-generated 26704..29844 <- Decode
-generated 29844..30692 <- __convenience_const
-generated 30788..30917 <- Debug
-generated 30917..31049 <- Clone
-generated 31049..31451 <- PartialEq
-generated 31451..31620 <- Hash
-generated 31620..32659 <- Encode
-generated 32659..35770 <- Decode
-generated 35770..36618 <- __convenience_const
-generated 36733..36865 <- Debug
-generated 36865..36976 <- Clone
-generated 36976..37126 <- PartialEq
-generated 37126..37234 <- Hash
-generated 37234..38323 <- Encode
-generated 38323..41612 <- Decode
-generated 41612..42481 <- __convenience_const
-generated 42590..42713 <- Debug
-generated 42713..42943 <- Clone
-generated 42943..43276 <- PartialEq
-generated 43276..43559 <- Hash
-generated 43559..44596 <- Encode
-generated 44596..47830 <- Decode
-generated 47830..48636 <- __convenience_const
-generated 48737..48860 <- Debug
-generated 48860..49005 <- Clone
-generated 49005..49268 <- PartialEq
-generated 49268..49445 <- Hash
-generated 49445..50434 <- Encode
-generated 50434..53554 <- Decode
-generated 53554..54360 <- __convenience_const
-generated 54485..54862 <- Debug
-generated 54862..55074 <- Clone
-generated 55074..55352 <- PartialEq
-generated 55352..55939 <- Hash
-generated 55939..58517 <- Encode
-generated 58517..65407 <- Decode
-generated 65407..66950 <- __convenience_const
-generated 67092..67451 <- Debug
-generated 67451..67682 <- Clone
-generated 67682..67968 <- PartialEq
-generated 67968..68455 <- Hash
-generated 68455..71015 <- Encode
-generated 71015..77592 <- Decode
-generated 77592..79396 <- __convenience_const
-generated 79563..79687 <- Debug
-generated 79687..79782 <- Clone
-generated 79782..79888 <- PartialEq
-generated 79888..80000 <- Hash
-generated 80000..80141 <- PartialOrd
-generated 80141..80268 <- Ord
-generated 80268..80352 <- Default
-generated 80352..81795 <- Encode
-generated 81795..83651 <- Decode
-generated 83651..84856 <- __convenience_const
-generated 85007..85146 <- Debug
-generated 85146..85256 <- Clone
-generated 85256..85377 <- PartialEq
-generated 85377..85499 <- Hash
-generated 85499..85592 <- Default
-generated 85592..87060 <- Encode
-generated 87060..89953 <- Decode
-generated 89953..91081 <- __convenience_const
-generated 91189..91327 <- Debug
-generated 91327..91444 <- Clone
-generated 91444..91600 <- PartialEq
-generated 91600..91712 <- Hash
-generated 91712..93547 <- Encode
-generated 93547..97753 <- Decode
-generated 97753..98664 <- __convenience_const
-generated 98777..98915 <- Debug
-generated 98915..99032 <- Clone
-generated 99032..99188 <- PartialEq
-generated 99188..99300 <- Hash
-generated 99300..101135 <- Encode
-generated 101135..105351 <- Decode
-generated 105351..106262 <- __convenience_const
-generated 106355..106467 <- Debug
-generated 106467..106570 <- Clone
-generated 106570..106780 <- PartialEq
-generated 106780..106877 <- Hash
-generated 106877..107881 <- Encode
-generated 107881..110600 <- Decode
-generated 110600..111427 <- __convenience_const
-generated 111533..111677 <- Debug
-generated 111677..111800 <- Clone
-generated 111800..111962 <- PartialEq
-generated 111962..112078 <- Hash
-generated 112078..113531 <- Encode
-generated 113531..116383 <- Decode
-generated 116383..117336 <- __convenience_const
-generated 117447..117582 <- Debug
-generated 117582..117696 <- Clone
-generated 117696..117849 <- PartialEq
-generated 117849..117959 <- Hash
-generated 117959..120051 <- Encode
-generated 120051..124796 <- Decode
-generated 124796..125686 <- __convenience_const
-generated 125945..126077 <- Debug
-generated 126077..126188 <- Clone
-generated 126188..126338 <- PartialEq
-generated 126338..126446 <- Hash
-generated 126446..128899 <- Encode
-generated 128899..133003 <- Decode
-generated 133003..134114 <- __convenience_const
-generated 134275..134413 <- Debug
-generated 134413..134530 <- Clone
-generated 134530..134686 <- PartialEq
-generated 134686..134798 <- Hash
-generated 134798..136877 <- Encode
-generated 136877..140482 <- Decode
-generated 140482..141393 <- __convenience_const
-generated 141547..141685 <- Debug
-generated 141685..141802 <- Clone
-generated 141802..141958 <- PartialEq
-generated 141958..142070 <- Hash
-generated 142070..144136 <- Encode
-generated 144136..148250 <- Decode
-generated 148250..149161 <- __convenience_const
-generated 149316..149454 <- Debug
-generated 149454..149571 <- Clone
-generated 149571..149727 <- PartialEq
-generated 149727..149839 <- Hash
-generated 149839..151894 <- Encode
-generated 151894..154865 <- Decode
-generated 154865..155776 <- __convenience_const
-generated 155928..156054 <- Debug
-generated 156054..156159 <- Clone
-generated 156159..156303 <- PartialEq
-generated 156303..156407 <- Hash
-generated 156407..158492 <- Encode
-generated 158492..164192 <- Decode
-generated 164192..165019 <- __convenience_const
-generated 165520..166570 <- Debug
-generated 166570..167270 <- Clone
-generated 167270..168196 <- PartialEq
-generated 168196..169519 <- Hash
-generated 169519..174045 <- Encode
-generated 174045..190792 <- Decode
-generated 190792..192248 <- __convenience_const
-generated 192642..193598 <- Debug
-generated 193598..194237 <- Clone
-generated 194237..195397 <- PartialEq
-generated 195397..196408 <- Hash
-generated 196408..196715 <- Default
-generated 196715..200644 <- Encode
-generated 200644..216457 <- Decode
-generated 216457..217924 <- __convenience_const
-generated 218117..218252 <- Debug
-generated 218252..218366 <- Clone
-generated 218366..218519 <- PartialEq
-generated 218519..218629 <- Hash
-generated 218629..220917 <- Encode
-generated 220917..224541 <- Decode
-generated 224541..225431 <- __convenience_const
-generated 225625..225754 <- Debug
-generated 225754..225862 <- Clone
-generated 225862..226009 <- PartialEq
-generated 226009..226115 <- Hash
-generated 226115..228232 <- Encode
-generated 228232..231733 <- Decode
-generated 231733..232581 <- __convenience_const
-generated 232645..233377 <- Encode
-generated 233377..235209 <- Decode
-generated 235209..235744 <- __convenience_const
-generated 235999..236537 <- Debug
-generated 236537..236889 <- Clone
-generated 236889..237258 <- PartialEq
-generated 237258..237751 <- Hash
-generated 237751..240592 <- Encode
-generated 240592..250630 <- Decode
-generated 250630..252028 <- __convenience_const
-generated 252117..252241 <- Default
-generated 252241..253243 <- Encode
-generated 253243..256254 <- Decode
-generated 256254..256913 <- __convenience_const
-generated 257002..257142 <- Default
-generated 257142..258127 <- Encode
-generated 258127..261135 <- Decode
-generated 261135..261824 <- __convenience_const
-generated 261932..262050 <- Default
-generated 262050..264536 <- Encode
-generated 264536..271132 <- Decode
-generated 271132..272291 <- __convenience_const
+original 0..469 -> expanded 1879..2348
+original 469..590 -> expanded 16529..16650
+original 590..690 -> expanded 24857..24957
+original 690..816 -> expanded 30680..30806
+original 816..965 -> expanded 37300..37449
+original 965..1061 -> expanded 45374..45470
+original 1061..1176 -> expanded 51300..51415
+original 1176..1285 -> expanded 57163..57272
+original 1285..1386 -> expanded 63318..63419
+original 1386..1511 -> expanded 69042..69167
+original 1511..1653 -> expanded 81632..81774
+original 1653..1820 -> expanded 94078..94245
+original 1820..1971 -> expanded 99538..99689
+original 1971..2079 -> expanded 105763..105871
+original 2079..2192 -> expanded 113346..113459
+original 2192..2285 -> expanded 120944..121037
+original 2285..2391 -> expanded 126109..126215
+original 2391..2502 -> expanded 132018..132129
+original 2502..2761 -> expanded 140368..140627
+original 2761..2922 -> expanded 148796..148957
+original 2922..3076 -> expanded 156075..156229
+original 3076..3231 -> expanded 163843..163998
+original 3231..3383 -> expanded 170458..170610
+original 3383..3884 -> expanded 179701..180202
+original 3884..4278 -> expanded 206930..207324
+original 4278..4471 -> expanded 232606..232799
+original 4471..4665 -> expanded 240113..240307
+original 4665..4729 -> expanded 247263..247327
+original 4729..4984 -> expanded 250426..250681
+original 4984..5073 -> expanded 266710..266799
+original 5073..5162 -> expanded 271595..271684
+original 5162..5270 -> expanded 276506..276614
+original 5270..5271 -> expanded 286973..286974
+generated 0..1879 <- imports
+generated 2348..2705 <- Debug
+generated 2705..2969 <- Clone
+generated 2969..3370 <- PartialEq
+generated 3370..3905 <- Hash
+generated 3905..4807 <- PartialOrd
+generated 4807..5583 <- Ord
+generated 5583..5699 <- Default
+generated 5699..8197 <- Encode
+generated 8197..14878 <- Decode
+generated 14878..16529 <- __convenience_const
+generated 16650..16779 <- Debug
+generated 16779..16937 <- Clone
+generated 16937..17222 <- PartialEq
+generated 17222..17587 <- Hash
+generated 17587..18950 <- Encode
+generated 18950..24009 <- Decode
+generated 24009..24857 <- __convenience_const
+generated 24957..25086 <- Debug
+generated 25086..25220 <- Clone
+generated 25220..25530 <- PartialEq
+generated 25530..25704 <- Hash
+generated 25704..26692 <- Encode
+generated 26692..29832 <- Decode
+generated 29832..30680 <- __convenience_const
+generated 30806..30965 <- Debug
+generated 30965..31086 <- Clone
+generated 31086..31406 <- PartialEq
+generated 31406..31655 <- Hash
+generated 31655..31795 <- Default
+generated 31795..32875 <- Encode
+generated 32875..36126 <- Decode
+generated 36126..37300 <- __convenience_const
+generated 37449..37572 <- Debug
+generated 37572..37674 <- Clone
+generated 37674..37815 <- PartialEq
+generated 37815..37917 <- Hash
+generated 37917..38058 <- Default
+generated 38058..39685 <- Encode
+generated 39685..44476 <- Decode
+generated 44476..45374 <- __convenience_const
+generated 45470..45599 <- Debug
+generated 45599..45731 <- Clone
+generated 45731..46133 <- PartialEq
+generated 46133..46302 <- Hash
+generated 46302..47341 <- Encode
+generated 47341..50452 <- Decode
+generated 50452..51300 <- __convenience_const
+generated 51415..51547 <- Debug
+generated 51547..51658 <- Clone
+generated 51658..51808 <- PartialEq
+generated 51808..51916 <- Hash
+generated 51916..53005 <- Encode
+generated 53005..56294 <- Decode
+generated 56294..57163 <- __convenience_const
+generated 57272..57395 <- Debug
+generated 57395..57625 <- Clone
+generated 57625..57958 <- PartialEq
+generated 57958..58241 <- Hash
+generated 58241..59278 <- Encode
+generated 59278..62512 <- Decode
+generated 62512..63318 <- __convenience_const
+generated 63419..63542 <- Debug
+generated 63542..63687 <- Clone
+generated 63687..63950 <- PartialEq
+generated 63950..64127 <- Hash
+generated 64127..65116 <- Encode
+generated 65116..68236 <- Decode
+generated 68236..69042 <- __convenience_const
+generated 69167..69544 <- Debug
+generated 69544..69756 <- Clone
+generated 69756..70034 <- PartialEq
+generated 70034..70621 <- Hash
+generated 70621..73199 <- Encode
+generated 73199..80089 <- Decode
+generated 80089..81632 <- __convenience_const
+generated 81774..82133 <- Debug
+generated 82133..82364 <- Clone
+generated 82364..82650 <- PartialEq
+generated 82650..83137 <- Hash
+generated 83137..85697 <- Encode
+generated 85697..92274 <- Decode
+generated 92274..94078 <- __convenience_const
+generated 94245..94369 <- Debug
+generated 94369..94464 <- Clone
+generated 94464..94570 <- PartialEq
+generated 94570..94682 <- Hash
+generated 94682..94823 <- PartialOrd
+generated 94823..94950 <- Ord
+generated 94950..95034 <- Default
+generated 95034..96477 <- Encode
+generated 96477..98333 <- Decode
+generated 98333..99538 <- __convenience_const
+generated 99689..99828 <- Debug
+generated 99828..99938 <- Clone
+generated 99938..100059 <- PartialEq
+generated 100059..100181 <- Hash
+generated 100181..100274 <- Default
+generated 100274..101742 <- Encode
+generated 101742..104635 <- Decode
+generated 104635..105763 <- __convenience_const
+generated 105871..106009 <- Debug
+generated 106009..106126 <- Clone
+generated 106126..106282 <- PartialEq
+generated 106282..106394 <- Hash
+generated 106394..108229 <- Encode
+generated 108229..112435 <- Decode
+generated 112435..113346 <- __convenience_const
+generated 113459..113597 <- Debug
+generated 113597..113714 <- Clone
+generated 113714..113870 <- PartialEq
+generated 113870..113982 <- Hash
+generated 113982..115817 <- Encode
+generated 115817..120033 <- Decode
+generated 120033..120944 <- __convenience_const
+generated 121037..121149 <- Debug
+generated 121149..121252 <- Clone
+generated 121252..121462 <- PartialEq
+generated 121462..121559 <- Hash
+generated 121559..122563 <- Encode
+generated 122563..125282 <- Decode
+generated 125282..126109 <- __convenience_const
+generated 126215..126359 <- Debug
+generated 126359..126482 <- Clone
+generated 126482..126644 <- PartialEq
+generated 126644..126760 <- Hash
+generated 126760..128213 <- Encode
+generated 128213..131065 <- Decode
+generated 131065..132018 <- __convenience_const
+generated 132129..132264 <- Debug
+generated 132264..132378 <- Clone
+generated 132378..132531 <- PartialEq
+generated 132531..132641 <- Hash
+generated 132641..134733 <- Encode
+generated 134733..139478 <- Decode
+generated 139478..140368 <- __convenience_const
+generated 140627..140759 <- Debug
+generated 140759..140870 <- Clone
+generated 140870..141020 <- PartialEq
+generated 141020..141128 <- Hash
+generated 141128..143581 <- Encode
+generated 143581..147685 <- Decode
+generated 147685..148796 <- __convenience_const
+generated 148957..149095 <- Debug
+generated 149095..149212 <- Clone
+generated 149212..149368 <- PartialEq
+generated 149368..149480 <- Hash
+generated 149480..151559 <- Encode
+generated 151559..155164 <- Decode
+generated 155164..156075 <- __convenience_const
+generated 156229..156367 <- Debug
+generated 156367..156484 <- Clone
+generated 156484..156640 <- PartialEq
+generated 156640..156752 <- Hash
+generated 156752..158818 <- Encode
+generated 158818..162932 <- Decode
+generated 162932..163843 <- __convenience_const
+generated 163998..164136 <- Debug
+generated 164136..164253 <- Clone
+generated 164253..164409 <- PartialEq
+generated 164409..164521 <- Hash
+generated 164521..166576 <- Encode
+generated 166576..169547 <- Decode
+generated 169547..170458 <- __convenience_const
+generated 170610..170736 <- Debug
+generated 170736..170841 <- Clone
+generated 170841..170985 <- PartialEq
+generated 170985..171089 <- Hash
+generated 171089..173174 <- Encode
+generated 173174..178874 <- Decode
+generated 178874..179701 <- __convenience_const
+generated 180202..181252 <- Debug
+generated 181252..181952 <- Clone
+generated 181952..182878 <- PartialEq
+generated 182878..184201 <- Hash
+generated 184201..188727 <- Encode
+generated 188727..205474 <- Decode
+generated 205474..206930 <- __convenience_const
+generated 207324..208280 <- Debug
+generated 208280..208919 <- Clone
+generated 208919..210079 <- PartialEq
+generated 210079..211090 <- Hash
+generated 211090..211397 <- Default
+generated 211397..215326 <- Encode
+generated 215326..231139 <- Decode
+generated 231139..232606 <- __convenience_const
+generated 232799..232934 <- Debug
+generated 232934..233048 <- Clone
+generated 233048..233201 <- PartialEq
+generated 233201..233311 <- Hash
+generated 233311..235599 <- Encode
+generated 235599..239223 <- Decode
+generated 239223..240113 <- __convenience_const
+generated 240307..240436 <- Debug
+generated 240436..240544 <- Clone
+generated 240544..240691 <- PartialEq
+generated 240691..240797 <- Hash
+generated 240797..242914 <- Encode
+generated 242914..246415 <- Decode
+generated 246415..247263 <- __convenience_const
+generated 247327..248059 <- Encode
+generated 248059..249891 <- Decode
+generated 249891..250426 <- __convenience_const
+generated 250681..251219 <- Debug
+generated 251219..251571 <- Clone
+generated 251571..251940 <- PartialEq
+generated 251940..252433 <- Hash
+generated 252433..255274 <- Encode
+generated 255274..265312 <- Decode
+generated 265312..266710 <- __convenience_const
+generated 266799..266923 <- Default
+generated 266923..267925 <- Encode
+generated 267925..270936 <- Decode
+generated 270936..271595 <- __convenience_const
+generated 271684..271824 <- Default
+generated 271824..272809 <- Encode
+generated 272809..275817 <- Decode
+generated 275817..276506 <- __convenience_const
+generated 276614..276732 <- Default
+generated 276732..279218 <- Encode
+generated 279218..285814 <- Decode
+generated 285814..286973 <- __convenience_const
 
 ## Metadata
 
-interface AliasOperators: {"body_span":{"end":3610,"start":3205},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3172,"start":3111}}],"fields":[{"decorators":[],"key":"Named","name":"indexed","optional":false,"readonly":false,"span":{"end":3235,"start":3211},"ts_type":"EdgeItem['id']"},{"decorators":[],"key":"Named","name":"keys","optional":false,"readonly":false,"span":{"end":3261,"start":3240},"ts_type":"keyof EdgeItem"},{"decorators":[],"key":"Named","name":"template","optional":false,"readonly":false,"span":{"end":3293,"start":3266},"ts_type":"`item-${number}`"},{"decorators":[],"key":"Named","name":"literal","optional":false,"readonly":false,"span":{"end":3315,"start":3298},"ts_type":"'fixed'"},{"decorators":[],"key":"Named","name":"truth","optional":false,"readonly":false,"span":{"end":3332,"start":3320},"ts_type":"true"},{"decorators":[],"key":"Named","name":"zero","optional":false,"readonly":false,"span":{"end":3345,"start":3337},"ts_type":"0"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":3368,"start":3350},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"structure","optional":false,"readonly":false,"span":{"end":3391,"start":3373},"ts_type":"object"},{"decorators":[],"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":3428,"start":3396},"ts_type":"Required<AliasObject>"},{"decorators":[],"key":"Named","name":"readonlyItem","optional":false,"readonly":false,"span":{"end":3466,"start":3433},"ts_type":"Readonly<EdgeItem>"},{"decorators":[],"key":"Named","name":"nonNull","optional":false,"readonly":false,"span":{"end":3509,"start":3471},"ts_type":"NonNullable<EdgeItem | null>"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":3574,"start":3514},"ts_type":"{ x: number; nested: { at: Date; item: EdgeItem } }"},{"decorators":[],"key":"Named","name":"inlineList","optional":false,"readonly":false,"span":{"end":3608,"start":3579},"ts_type":"{ id: string }[]"}],"heritage":[],"methods":[],"name":"AliasOperators","span":{"end":3610,"start":3180},"type_params":[]}
-interface AliasHolder: {"body_span":{"end":4004,"start":3712},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3682,"start":3612}}],"fields":[{"decorators":[],"key":"Named","name":"object","optional":false,"readonly":false,"span":{"end":3738,"start":3718},"ts_type":"AliasObject"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":3763,"start":3743},"ts_type":"AliasLiterals"},{"decorators":[],"key":"Named","name":"sizes","optional":false,"readonly":false,"span":{"end":3791,"start":3768},"ts_type":"AliasLiterals[]"},{"decorators":[],"key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":3822,"start":3796},"ts_type":"AliasTagged | null"},{"decorators":[],"key":"Named","name":"shapes","optional":false,"readonly":false,"span":{"end":3849,"start":3827},"ts_type":"AliasTagged[]"},{"decorators":[],"key":"Named","name":"tuple","optional":false,"readonly":false,"span":{"end":3879,"start":3854},"ts_type":"AliasTuple | null"},{"decorators":[{"args_src":"[]","name":"default","span":{"end":3903,"start":3884}}],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":3925,"start":3908},"ts_type":"AliasArray"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":3949,"start":3930}}],"key":"Named","name":"table","optional":false,"readonly":false,"span":{"end":3973,"start":3954},"ts_type":"AliasRecord"},{"decorators":[],"key":"Named","name":"members","optional":false,"readonly":false,"span":{"end":4002,"start":3978},"ts_type":"AliasMembers[]"}],"heritage":[],"methods":[],"name":"AliasHolder","span":{"end":4004,"start":3690},"type_params":[]}
-interface AliasCarried: {"body_span":{"end":4710,"start":4549},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4518,"start":4457}}],"fields":[{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4579,"start":4555},"ts_type":"string | string[]"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":4613,"start":4584},"ts_type":"number | 'auto' | null"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":4638,"start":4618},"ts_type":"Date | string"},{"decorators":[],"key":"Named","name":"lookup","optional":false,"readonly":false,"span":{"end":4685,"start":4643},"ts_type":"Record<string, number> | number[]"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":4708,"start":4690},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"AliasCarried","span":{"end":4710,"start":4526},"type_params":[]}
+interface AliasOperators: {"body_span":{"end":3885,"start":3480},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3447,"start":3386}}],"fields":[{"decorators":[],"key":"Named","name":"indexed","optional":false,"readonly":false,"span":{"end":3510,"start":3486},"ts_type":"EdgeItem['id']"},{"decorators":[],"key":"Named","name":"keys","optional":false,"readonly":false,"span":{"end":3536,"start":3515},"ts_type":"keyof EdgeItem"},{"decorators":[],"key":"Named","name":"template","optional":false,"readonly":false,"span":{"end":3568,"start":3541},"ts_type":"`item-${number}`"},{"decorators":[],"key":"Named","name":"literal","optional":false,"readonly":false,"span":{"end":3590,"start":3573},"ts_type":"'fixed'"},{"decorators":[],"key":"Named","name":"truth","optional":false,"readonly":false,"span":{"end":3607,"start":3595},"ts_type":"true"},{"decorators":[],"key":"Named","name":"zero","optional":false,"readonly":false,"span":{"end":3620,"start":3612},"ts_type":"0"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":3643,"start":3625},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"structure","optional":false,"readonly":false,"span":{"end":3666,"start":3648},"ts_type":"object"},{"decorators":[],"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":3703,"start":3671},"ts_type":"Required<AliasObject>"},{"decorators":[],"key":"Named","name":"readonlyItem","optional":false,"readonly":false,"span":{"end":3741,"start":3708},"ts_type":"Readonly<EdgeItem>"},{"decorators":[],"key":"Named","name":"nonNull","optional":false,"readonly":false,"span":{"end":3784,"start":3746},"ts_type":"NonNullable<EdgeItem | null>"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":3849,"start":3789},"ts_type":"{ x: number; nested: { at: Date; item: EdgeItem } }"},{"decorators":[],"key":"Named","name":"inlineList","optional":false,"readonly":false,"span":{"end":3883,"start":3854},"ts_type":"{ id: string }[]"}],"heritage":[],"methods":[],"name":"AliasOperators","span":{"end":3885,"start":3455},"type_params":[]}
+interface AliasHolder: {"body_span":{"end":4279,"start":3987},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3957,"start":3887}}],"fields":[{"decorators":[],"key":"Named","name":"object","optional":false,"readonly":false,"span":{"end":4013,"start":3993},"ts_type":"AliasObject"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":4038,"start":4018},"ts_type":"AliasLiterals"},{"decorators":[],"key":"Named","name":"sizes","optional":false,"readonly":false,"span":{"end":4066,"start":4043},"ts_type":"AliasLiterals[]"},{"decorators":[],"key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":4097,"start":4071},"ts_type":"AliasTagged | null"},{"decorators":[],"key":"Named","name":"shapes","optional":false,"readonly":false,"span":{"end":4124,"start":4102},"ts_type":"AliasTagged[]"},{"decorators":[],"key":"Named","name":"tuple","optional":false,"readonly":false,"span":{"end":4154,"start":4129},"ts_type":"AliasTuple | null"},{"decorators":[{"args_src":"[]","name":"default","span":{"end":4178,"start":4159}}],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":4200,"start":4183},"ts_type":"AliasArray"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":4224,"start":4205}}],"key":"Named","name":"table","optional":false,"readonly":false,"span":{"end":4248,"start":4229},"ts_type":"AliasRecord"},{"decorators":[],"key":"Named","name":"members","optional":false,"readonly":false,"span":{"end":4277,"start":4253},"ts_type":"AliasMembers[]"}],"heritage":[],"methods":[],"name":"AliasHolder","span":{"end":4279,"start":3965},"type_params":[]}
+interface AliasCarried: {"body_span":{"end":4985,"start":4824},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4793,"start":4732}}],"fields":[{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4854,"start":4830},"ts_type":"string | string[]"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":4888,"start":4859},"ts_type":"number | 'auto' | null"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":4913,"start":4893},"ts_type":"Date | string"},{"decorators":[],"key":"Named","name":"lookup","optional":false,"readonly":false,"span":{"end":4960,"start":4918},"ts_type":"Record<string, number> | number[]"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":4983,"start":4965},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"AliasCarried","span":{"end":4985,"start":4801},"type_params":[]}
 type AliasObject: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":433,"start":420},"ts_type":"string"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":452,"start":438},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":true,"readonly":false,"span":{"end":467,"start":457},"ts_type":"Date"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":387,"start":296}}],"name":"AliasObject","span":{"end":470,"start":395},"type_params":[]}
 type AliasTuple: {"body":{"Tuple":["EdgeItem","Date","string | null"]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":533,"start":472}}],"name":"AliasTuple","span":{"end":591,"start":541},"type_params":[]}
 type AliasArray: {"body":{"Alias":"EdgeItem[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":654,"start":593}}],"name":"AliasArray","span":{"end":691,"start":662},"type_params":[]}
-type AliasDates: {"body":{"Alias":"Date[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":754,"start":693}}],"name":"AliasDates","span":{"end":787,"start":762},"type_params":[]}
-type AliasRecord: {"body":{"Alias":"Record<string, EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":850,"start":789}}],"name":"AliasRecord","span":{"end":902,"start":858},"type_params":[]}
-type AliasMap: {"body":{"Alias":"Map<string, EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":965,"start":904}}],"name":"AliasMap","span":{"end":1011,"start":973},"type_params":[]}
-type AliasSet: {"body":{"Alias":"Set<EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1074,"start":1013}}],"name":"AliasSet","span":{"end":1112,"start":1082},"type_params":[]}
-type AliasIntersection: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":1234,"start":1221},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1175,"start":1114}}],"name":"AliasIntersection","span":{"end":1237,"start":1183},"type_params":[]}
-type AliasIntersectionOfObjects: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":1356,"start":1344},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":1376,"start":1363},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1300,"start":1239}}],"name":"AliasIntersectionOfObjects","span":{"end":1379,"start":1308},"type_params":[]}
-type AliasLiterals: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":1516,"start":1501}}],"kind":{"Literal":"'small'"}},{"decorators":[],"kind":{"Literal":"'medium'"}},{"decorators":[],"kind":{"Literal":"'large'"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1472,"start":1381}}],"name":"AliasLiterals","span":{"end":1546,"start":1480},"type_params":[]}
-type AliasMixedLiterals: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":1667,"start":1652}}],"kind":{"Literal":"'auto'"}},{"decorators":[],"kind":{"Literal":"0"}},{"decorators":[],"kind":{"Literal":"1"}},{"decorators":[],"kind":{"Literal":"true"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1618,"start":1548}}],"name":"AliasMixedLiterals","span":{"end":1697,"start":1626},"type_params":[]}
-type AliasNullable: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1760,"start":1699}}],"name":"AliasNullable","span":{"end":1805,"start":1768},"type_params":[]}
-type AliasOptional: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"undefined"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1868,"start":1807}}],"name":"AliasOptional","span":{"end":1918,"start":1876},"type_params":[]}
-type AliasDate: {"body":{"Alias":"Date"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1981,"start":1920}}],"name":"AliasDate","span":{"end":2011,"start":1989},"type_params":[]}
-type AliasDateOrNull: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Date"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2074,"start":2013}}],"name":"AliasDateOrNull","span":{"end":2117,"start":2082},"type_params":[]}
-type AliasMembers: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2180,"start":2119}}],"name":"AliasMembers","span":{"end":2228,"start":2188},"type_params":[]}
-type AliasTagged: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2372,"start":2357},"ts_type":"'circle'"},{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":2387,"start":2373},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2413,"start":2398},"ts_type":"'square'"},{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":2427,"start":2414},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2436,"start":2428},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2461,"start":2447},"ts_type":"'group'"},{"decorators":[],"key":"Named","name":"members","optional":false,"readonly":false,"span":{"end":2484,"start":2462},"ts_type":"AliasTagged[]"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":2322,"start":2292}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2291,"start":2230}}],"name":"AliasTagged","span":{"end":2487,"start":2330},"type_params":[]}
-type AliasAdjacent: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"{ tag: \"type\", content: \"value\" }","name":"endec","span":{"end":2599,"start":2551}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2550,"start":2489}}],"name":"AliasAdjacent","span":{"end":2648,"start":2607},"type_params":[]}
-type AliasExternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":2753,"start":2712}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2711,"start":2650}}],"name":"AliasExternal","span":{"end":2802,"start":2761},"type_params":[]}
-type AliasUntagged: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":2899,"start":2866}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2865,"start":2804}}],"name":"AliasUntagged","span":{"end":2957,"start":2907},"type_params":[]}
-type AliasDeep: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"boolean"}},{"decorators":[],"kind":{"TypeRef":"null"}},{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"AliasArray"}},{"decorators":[],"kind":{"TypeRef":"Date"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3020,"start":2959}}],"name":"AliasDeep","span":{"end":3109,"start":3028},"type_params":[]}
-type AliasOutcome: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":4112,"start":4103},"ts_type":"true"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4122,"start":4113},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4140,"start":4123},"ts_type":"Set<string>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":4161,"start":4151},"ts_type":"false"},{"decorators":[],"key":"Named","name":"reason","optional":false,"readonly":false,"span":{"end":4177,"start":4162},"ts_type":"string"},{"decorators":[],"key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":4194,"start":4178},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4067,"start":4006}}],"name":"AliasOutcome","span":{"end":4197,"start":4075},"type_params":[]}
-type AliasLoose: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4332,"start":4322},"ts_type":"'a'"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":4343,"start":4333},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4360,"start":4350},"ts_type":"'b'"},{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":4388,"start":4361},"ts_type":"Map<string, number>"}]}}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":4294,"start":4261}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4260,"start":4199}}],"name":"AliasLoose","span":{"end":4391,"start":4302},"type_params":[]}
-type AliasName: {"body":{"Alias":"string"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":4423,"start":4393}}],"name":"AliasName","span":{"end":4455,"start":4431},"type_params":[]}
-type AliasPicked: {"body":{"Alias":"Pick<EdgeItem, 'id'>"},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":4751,"start":4712}}],"name":"AliasPicked","span":{"end":4799,"start":4759},"type_params":[]}
-type AliasRequired: {"body":{"Alias":"Required<EdgeItem>"},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":4840,"start":4801}}],"name":"AliasRequired","span":{"end":4888,"start":4848},"type_params":[]}
-type AliasInline: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":4968,"start":4958},"ts_type":"number"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":4984,"start":4969},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4993,"start":4985},"ts_type":"Date"}]}},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":4929,"start":4890}}],"name":"AliasInline","span":{"end":4996,"start":4937},"type_params":[]}
+type AliasReadonlyStrings: {"body":{"Alias":"readonly string[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":763,"start":693}}],"name":"AliasReadonlyStrings","span":{"end":817,"start":771},"type_params":[]}
+type AliasRow: {"body":{"Tuple":["label: string","count?: number","...flags: boolean[]"]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":889,"start":819}}],"name":"AliasRow","span":{"end":966,"start":897},"type_params":[]}
+type AliasDates: {"body":{"Alias":"Date[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1029,"start":968}}],"name":"AliasDates","span":{"end":1062,"start":1037},"type_params":[]}
+type AliasRecord: {"body":{"Alias":"Record<string, EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1125,"start":1064}}],"name":"AliasRecord","span":{"end":1177,"start":1133},"type_params":[]}
+type AliasMap: {"body":{"Alias":"Map<string, EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1240,"start":1179}}],"name":"AliasMap","span":{"end":1286,"start":1248},"type_params":[]}
+type AliasSet: {"body":{"Alias":"Set<EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1349,"start":1288}}],"name":"AliasSet","span":{"end":1387,"start":1357},"type_params":[]}
+type AliasIntersection: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":1509,"start":1496},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1450,"start":1389}}],"name":"AliasIntersection","span":{"end":1512,"start":1458},"type_params":[]}
+type AliasIntersectionOfObjects: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":1631,"start":1619},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":1651,"start":1638},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1575,"start":1514}}],"name":"AliasIntersectionOfObjects","span":{"end":1654,"start":1583},"type_params":[]}
+type AliasLiterals: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":1791,"start":1776}}],"kind":{"Literal":"'small'"}},{"decorators":[],"kind":{"Literal":"'medium'"}},{"decorators":[],"kind":{"Literal":"'large'"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1747,"start":1656}}],"name":"AliasLiterals","span":{"end":1821,"start":1755},"type_params":[]}
+type AliasMixedLiterals: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":1942,"start":1927}}],"kind":{"Literal":"'auto'"}},{"decorators":[],"kind":{"Literal":"0"}},{"decorators":[],"kind":{"Literal":"1"}},{"decorators":[],"kind":{"Literal":"true"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1893,"start":1823}}],"name":"AliasMixedLiterals","span":{"end":1972,"start":1901},"type_params":[]}
+type AliasNullable: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2035,"start":1974}}],"name":"AliasNullable","span":{"end":2080,"start":2043},"type_params":[]}
+type AliasOptional: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"undefined"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2143,"start":2082}}],"name":"AliasOptional","span":{"end":2193,"start":2151},"type_params":[]}
+type AliasDate: {"body":{"Alias":"Date"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2256,"start":2195}}],"name":"AliasDate","span":{"end":2286,"start":2264},"type_params":[]}
+type AliasDateOrNull: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Date"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2349,"start":2288}}],"name":"AliasDateOrNull","span":{"end":2392,"start":2357},"type_params":[]}
+type AliasMembers: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2455,"start":2394}}],"name":"AliasMembers","span":{"end":2503,"start":2463},"type_params":[]}
+type AliasTagged: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2647,"start":2632},"ts_type":"'circle'"},{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":2662,"start":2648},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2688,"start":2673},"ts_type":"'square'"},{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":2702,"start":2689},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2711,"start":2703},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2736,"start":2722},"ts_type":"'group'"},{"decorators":[],"key":"Named","name":"members","optional":false,"readonly":false,"span":{"end":2759,"start":2737},"ts_type":"AliasTagged[]"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":2597,"start":2567}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2566,"start":2505}}],"name":"AliasTagged","span":{"end":2762,"start":2605},"type_params":[]}
+type AliasAdjacent: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"{ tag: \"type\", content: \"value\" }","name":"endec","span":{"end":2874,"start":2826}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2825,"start":2764}}],"name":"AliasAdjacent","span":{"end":2923,"start":2882},"type_params":[]}
+type AliasExternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":3028,"start":2987}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2986,"start":2925}}],"name":"AliasExternal","span":{"end":3077,"start":3036},"type_params":[]}
+type AliasUntagged: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":3174,"start":3141}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3140,"start":3079}}],"name":"AliasUntagged","span":{"end":3232,"start":3182},"type_params":[]}
+type AliasDeep: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"boolean"}},{"decorators":[],"kind":{"TypeRef":"null"}},{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"AliasArray"}},{"decorators":[],"kind":{"TypeRef":"Date"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3295,"start":3234}}],"name":"AliasDeep","span":{"end":3384,"start":3303},"type_params":[]}
+type AliasOutcome: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":4387,"start":4378},"ts_type":"true"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4397,"start":4388},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4415,"start":4398},"ts_type":"Set<string>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":4436,"start":4426},"ts_type":"false"},{"decorators":[],"key":"Named","name":"reason","optional":false,"readonly":false,"span":{"end":4452,"start":4437},"ts_type":"string"},{"decorators":[],"key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":4469,"start":4453},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4342,"start":4281}}],"name":"AliasOutcome","span":{"end":4472,"start":4350},"type_params":[]}
+type AliasLoose: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4607,"start":4597},"ts_type":"'a'"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":4618,"start":4608},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4635,"start":4625},"ts_type":"'b'"},{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":4663,"start":4636},"ts_type":"Map<string, number>"}]}}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":4569,"start":4536}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4535,"start":4474}}],"name":"AliasLoose","span":{"end":4666,"start":4577},"type_params":[]}
+type AliasName: {"body":{"Alias":"string"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":4698,"start":4668}}],"name":"AliasName","span":{"end":4730,"start":4706},"type_params":[]}
+type AliasPicked: {"body":{"Alias":"Pick<EdgeItem, 'id'>"},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":5026,"start":4987}}],"name":"AliasPicked","span":{"end":5074,"start":5034},"type_params":[]}
+type AliasRequired: {"body":{"Alias":"Required<EdgeItem>"},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":5115,"start":5076}}],"name":"AliasRequired","span":{"end":5163,"start":5123},"type_params":[]}
+type AliasInline: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":5243,"start":5233},"ts_type":"number"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":5259,"start":5244},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":5268,"start":5260},"ts_type":"Date"}]}},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":5204,"start":5165}}],"name":"AliasInline","span":{"end":5271,"start":5212},"type_params":[]}
 
 ## Registry reads
 
@@ -8057,8 +8534,10 @@ Name("AliasObject")
 Name("AliasOptional")
 Name("AliasOutcome")
 Name("AliasPicked")
+Name("AliasReadonlyStrings")
 Name("AliasRecord")
 Name("AliasRequired")
+Name("AliasRow")
 Name("AliasSet")
 Name("AliasTagged")
 Name("AliasTuple")
@@ -8083,6 +8562,7 @@ Name("Required")
 Name("Required<EdgeItem>")
 Name("Set")
 Name("Set<EdgeItem>")
+Name("[label: string, count?: number, ...flags: boolean[]]")
 Name("`item-${number}`")
 Name("boolean")
 Name("false")
@@ -8091,6 +8571,7 @@ Name("null")
 Name("number")
 Name("number | 'auto'")
 Name("object")
+Name("readonly string[]")
 Name("string")
 Name("string | string")
 Name("true")
