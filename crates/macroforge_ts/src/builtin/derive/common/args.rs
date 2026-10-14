@@ -2,7 +2,7 @@
 //! `skip, rename: "id"` in `@endec(skip, rename: "id")`, and writing string
 //! values back out as JavaScript.
 
-use crate::ts_syn::scan::Nesting;
+use crate::ts_syn::scan::{Nesting, string_literal_len};
 
 /// The pieces of `text` between its top-level commas, trimmed, the empty
 /// ones left out. A comma inside a bracket or a string literal separates
@@ -70,11 +70,12 @@ impl<'a> DecoratorOption<'a> {
             name: "",
             value: OptionValue::Bare,
         };
+        // A quoted key, as written between its quotes, and what follows it.
         let quoted = text
-            .chars()
-            .next()
-            .filter(|first| matches!(first, '"' | '\''))
-            .and_then(|quote| text.get(1..)?.split_once(quote));
+            .starts_with(['"', '\''])
+            .then(|| text.split_at_checked(string_literal_len(text)?))
+            .flatten()
+            .and_then(|(literal, after)| Some((literal.get(1..literal.len() - 1)?, after)));
         let (name, after) = quoted.unwrap_or_else(|| {
             text.split_at(
                 text.find(|letter: char| !is_identifier_char(letter))
@@ -239,8 +240,10 @@ fn leading_string_literal(input: &str) -> Option<(String, &str)> {
     None
 }
 
-/// Decodes the escape after a backslash. `Some(None)` is a line
-/// continuation, which contributes nothing; `None` is a malformed escape.
+/// Decodes the escape after a backslash, as strict-mode JavaScript reads it.
+/// `Some(None)` is a line continuation, which contributes nothing; `None` is
+/// a malformed escape, an octal one among them, or a lone surrogate, which
+/// no text holds.
 fn decode_escape(chars: &mut std::str::Chars<'_>) -> Option<Option<char>> {
     let decoded = match chars.next()? {
         'n' => '\n',
@@ -249,24 +252,41 @@ fn decode_escape(chars: &mut std::str::Chars<'_>) -> Option<Option<char>> {
         'b' => '\u{8}',
         'f' => '\u{c}',
         'v' => '\u{b}',
-        '0' => '\0',
-        'x' => hex_char(&chars.by_ref().take(2).collect::<String>(), 2)?,
-        'u' => {
-            let rest = chars.as_str();
-            if let Some(braced) = rest.strip_prefix('{') {
-                let close = braced.find('}')?;
-                let digits = &braced[..close];
-                let decoded = (1..=6)
-                    .contains(&digits.len())
-                    .then(|| u32::from_str_radix(digits, 16).ok())
-                    .flatten()
-                    .and_then(char::from_u32)?;
-                *chars = braced[close + 1..].chars();
-                decoded
-            } else {
-                hex_char(&chars.by_ref().take(4).collect::<String>(), 4)?
-            }
+        '0' if !chars
+            .as_str()
+            .starts_with(|next: char| next.is_ascii_digit()) =>
+        {
+            '\0'
         }
+        '0'..='9' => return None,
+        'x' => char::from_u32(hex_digits(chars, 2)?)?,
+        'u' => match chars.as_str().strip_prefix('{') {
+            Some(braced) => {
+                let (digits, after) = braced.split_once('}')?;
+                let code = digits.chars().try_fold(0u32, |code, digit| {
+                    let value = code.checked_mul(16)?.checked_add(digit.to_digit(16)?)?;
+                    (value <= 0x10FFFF).then_some(value)
+                });
+                *chars = after.chars();
+                char::from_u32(code.filter(|_| !digits.is_empty())?)?
+            }
+            None => {
+                let unit = hex_digits(chars, 4)?;
+                // A high surrogate and the low one after it are one character.
+                let low = chars
+                    .as_str()
+                    .strip_prefix("\\u")
+                    .and_then(|rest| hex_digits(&mut rest.chars(), 4))
+                    .filter(|low| (0xDC00..=0xDFFF).contains(low));
+                match low {
+                    Some(low) if (0xD800..=0xDBFF).contains(&unit) => {
+                        chars.nth(5);
+                        char::from_u32(0x10000 + ((unit - 0xD800) << 10) + (low - 0xDC00))?
+                    }
+                    _ => char::from_u32(unit)?,
+                }
+            }
+        },
         '\r' => {
             if chars.as_str().starts_with('\n') {
                 chars.next();
@@ -279,13 +299,11 @@ fn decode_escape(chars: &mut std::str::Chars<'_>) -> Option<Option<char>> {
     Some(Some(decoded))
 }
 
-fn hex_char(digits: &str, len: usize) -> Option<char> {
-    if digits.len() != len {
-        return None;
-    }
-    u32::from_str_radix(digits, 16)
-        .ok()
-        .and_then(char::from_u32)
+/// The value of the `len` hex digits `chars` goes on with, taken from it.
+fn hex_digits(chars: &mut std::str::Chars<'_>, len: usize) -> Option<u32> {
+    (0..len).try_fold(0u32, |code, _| {
+        Some(code * 16 + chars.next()?.to_digit(16)?)
+    })
 }
 
 /// `text` as a double-quoted JavaScript string literal.
@@ -433,6 +451,15 @@ mod tests {
         );
         assert_eq!(unwrapped("{ a }, { b }", '{', '}'), None);
         assert_eq!(unwrapped(r#"[ "]", 1 ]"#, '[', ']'), Some(r#" "]", 1 "#));
+        // A quoted key ends at its closing quote, not at an escaped one.
+        let option = |text, name, value| DecoratorOption { text, name, value };
+        assert_eq!(
+            decorator_options(r#""a\\": 1, "\"=""#),
+            vec![
+                option(r#""a\\": 1"#, r"a\\", OptionValue::Assigned("1")),
+                option(r#""\"=""#, "", OptionValue::Bare),
+            ]
+        );
     }
 
     #[test]
@@ -507,6 +534,8 @@ mod tests {
             (r#""back\\slash""#, "back\\slash"),
             ("\"line\\\ncontinued\"", "linecontinued"),
             (r#""\q""#, "q"),
+            (r#""\u{0000041}\uD83D\uDE00""#, "A\u{1F600}"),
+            (r#""\0""#, "\0"),
         ];
         for (input, expected) in cases {
             assert_eq!(
@@ -523,6 +552,11 @@ mod tests {
             r#""open"#,
             r#""\x4""#,
             r#""\u{110000}""#,
+            r#""\x+4""#,
+            r#""\u{+41}""#,
+            r#""\01""#,
+            r#""\8""#,
+            r#""\uD83D""#,
             "\"raw\nnewline\"",
             "bare",
         ] {
@@ -559,5 +593,246 @@ mod tests {
             parse_string_literal(&js_string(text)).as_deref(),
             Some(text)
         );
+    }
+
+    mod properties {
+        use oxc::allocator::Allocator;
+        use oxc::ast::ast::{Expression, Statement};
+        use oxc::parser::{ParseOptions, Parser};
+        use oxc::semantic::SemanticBuilder;
+        use oxc::span::SourceType;
+        use proptest::arbitrary::any;
+        use proptest::collection::vec;
+        use proptest::sample::select;
+        use proptest::strategy::Strategy;
+        use proptest::{prop_assert_eq, prop_assume, prop_oneof, proptest};
+
+        use super::super::{
+            OptionValue, decorator_options, js_string, regex_error, regex_literal,
+            whole_string_literal,
+        };
+        use crate::ts_syn::strategies::{hostile_text, js_value, property_config, quoted};
+
+        /// What oxc reads the expression `expression` as, given to `read`,
+        /// or `None` when it is no expression.
+        fn read_by_oxc<T>(expression: &str, read: impl FnOnce(&Expression<'_>) -> T) -> Option<T> {
+            let allocator = Allocator::default();
+            let source = format!("const read = {expression};");
+            let options = ParseOptions {
+                parse_regular_expression: true,
+                ..ParseOptions::default()
+            };
+            let parsed = Parser::new(&allocator, &source, SourceType::ts())
+                .with_options(options)
+                .parse();
+            // Some of strict mode's refusals are semantic checks.
+            let checked = SemanticBuilder::new()
+                .with_check_syntax_error(true)
+                .build(&parsed.program);
+            if !parsed.diagnostics.is_empty() || !checked.diagnostics.is_empty() {
+                return None;
+            }
+            let Some(Statement::VariableDeclaration(declaration)) = parsed.program.body.first()
+            else {
+                return None;
+            };
+            declaration.declarations.first()?.init.as_ref().map(read)
+        }
+
+        fn string_value(expression: &Expression<'_>) -> Option<String> {
+            match expression {
+                Expression::StringLiteral(literal) if !literal.lone_surrogates => {
+                    Some(literal.value.to_string())
+                }
+                _ => None,
+            }
+        }
+
+        /// A double-quoted string literal of plain letters and escapes, the
+        /// malformed ones among them.
+        fn escaped_literal() -> impl Strategy<Value = String> {
+            let plain = proptest::char::any()
+                .prop_map(|letter| {
+                    if matches!(letter, '"' | '\\' | '\n' | '\r') {
+                        'x'
+                    } else {
+                        letter
+                    }
+                })
+                .prop_map(String::from);
+            let escape = select(
+                &[
+                    "\\n",
+                    "\\t",
+                    "\\'",
+                    "\\\"",
+                    "\\\\",
+                    "\\x41",
+                    "\\u0041",
+                    "\\u{1F600}",
+                    "\\0",
+                    "\\b",
+                    "\\f",
+                    "\\v",
+                    "\\r",
+                    "\\\n",
+                    "\\\r\n",
+                    "\\\u{2028}",
+                    "\\a",
+                    "\\x4",
+                    "\\u{110000}",
+                    "\\8",
+                    "\\01",
+                    "\\u{}",
+                    "\\u00e9",
+                    "\\u{0}",
+                    "1",
+                    "\\u{0000041}",
+                    "\\x+4",
+                    "\\u{+41}",
+                    "\\uD83D\\uDE00",
+                    "\\uD83D",
+                    "\\uDE00",
+                    "\\u{D800}",
+                    "\\x4g",
+                ][..],
+            )
+            .prop_map(str::to_string);
+            vec(prop_oneof![2 => plain, 1 => escape], 0..8)
+                .prop_map(|pieces| format!("\"{}\"", pieces.concat()))
+        }
+
+        /// Whether `literal` holds an escape strict mode refuses: an octal one
+        /// (`\1`, `\01`), `\8` or `\9`.
+        fn has_octal_escape(literal: &str) -> bool {
+            let mut letters = literal.chars().peekable();
+            while let Some(letter) = letters.next() {
+                if letter != '\\' {
+                    continue;
+                }
+                match letters.next() {
+                    Some('1'..='9') => return true,
+                    Some('0') if letters.peek().is_some_and(char::is_ascii_digit) => return true,
+                    _ => {}
+                }
+            }
+            false
+        }
+
+        /// A pattern of the letters that mean something to a regex literal.
+        fn pattern() -> impl Strategy<Value = String> {
+            let letters = &[
+                'a', '0', '\\', '/', '[', ']', '(', ')', '{', '}', '*', '+', '?', '.', '^', '$',
+                '|', '-', '\n', '\r', '\u{2028}', 'é',
+            ][..];
+            vec(select(letters), 0..10).prop_map(|letters| letters.into_iter().collect())
+        }
+
+        /// An option as written, with the name and value it is read as.
+        fn option() -> impl Strategy<Value = (String, String, OptionValue<'static>, String)> {
+            let name = select(&["skip", "rename", "minLength", "$ref", "_x", "a1"][..]);
+            prop_oneof![
+                name.clone().prop_map(|name| (
+                    name.to_string(),
+                    name.to_string(),
+                    OptionValue::Bare,
+                    String::new()
+                )),
+                (name.clone(), select(&[":", " =", ": "][..]), js_value()).prop_map(
+                    |(name, operator, value)| {
+                        (
+                            format!("{name}{operator} {value}"),
+                            name.to_string(),
+                            OptionValue::Assigned(""),
+                            value,
+                        )
+                    }
+                ),
+                (name.clone(), js_value()).prop_map(|(name, value)| {
+                    (
+                        format!("{name}({value})"),
+                        name.to_string(),
+                        OptionValue::Called(""),
+                        value,
+                    )
+                }),
+                (name, js_value()).prop_map(|(name, value)| {
+                    (
+                        format!("\"{name}\": {value}"),
+                        name.to_string(),
+                        OptionValue::Assigned(""),
+                        value,
+                    )
+                }),
+                hostile_text().prop_map(|text| (
+                    quoted(&text, '"'),
+                    String::new(),
+                    OptionValue::Bare,
+                    String::new()
+                )),
+            ]
+        }
+
+        /// What an option holds, its value's text set apart from its kind.
+        fn kind_and_value(value: OptionValue<'_>) -> (OptionValue<'static>, String) {
+            match value {
+                OptionValue::Bare => (OptionValue::Bare, String::new()),
+                OptionValue::Assigned(value) => (OptionValue::Assigned(""), value.to_string()),
+                OptionValue::Called(value) => (OptionValue::Called(""), value.to_string()),
+            }
+        }
+
+        proptest! {
+            #![proptest_config(property_config())]
+
+            #[test]
+            fn options_are_read_as_written(options in vec(option(), 1..5), braced in any::<bool>()) {
+                let listed = options.iter().map(|(text, ..)| text.as_str()).collect::<Vec<_>>().join(", ");
+                let args = if braced { format!("{{ {listed} }}") } else { listed };
+                let read: Vec<(String, String, OptionValue<'static>, String)> = decorator_options(&args)
+                    .into_iter()
+                    .map(|option| {
+                        let (kind, value) = kind_and_value(option.value);
+                        (option.text.to_string(), option.name.to_string(), kind, value)
+                    })
+                    .collect();
+                prop_assert_eq!(read, options, "{}", args);
+            }
+
+            #[test]
+            fn a_string_is_written_as_a_literal_of_its_text(text in hostile_text()) {
+                prop_assert_eq!(read_by_oxc(&js_string(&text), string_value), Some(Some(text)));
+            }
+
+            #[test]
+            fn a_string_literal_is_read_as_javascript_reads_it(literal in escaped_literal()) {
+                // Strict mode refuses octal escapes, `\8` and `\9`, as V8 and
+                // tsc do, where oxc reads them.
+                let read = read_by_oxc(&literal, string_value)
+                    .flatten()
+                    .filter(|_| !has_octal_escape(&literal));
+                prop_assert_eq!(
+                    whole_string_literal(&literal),
+                    read,
+                    "{:?}",
+                    literal
+                );
+            }
+
+            #[test]
+            fn a_pattern_that_is_a_regular_expression_is_written_as_a_literal_that_parses(
+                pattern in pattern(),
+                flags in select(&["", "i"][..]),
+            ) {
+                prop_assume!(regex_error(&pattern).is_none());
+                let literal = regex_literal(&pattern, flags);
+                prop_assert_eq!(
+                    read_by_oxc(&literal, |expression| matches!(expression, Expression::RegExpLiteral(_))),
+                    Some(true),
+                    "{:?}",
+                    literal
+                );
+            }
+        }
     }
 }
