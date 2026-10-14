@@ -212,6 +212,58 @@ Deno.test('tuples round-trip element by element', () => {
     assertEquals(longer.rest, ['head']);
 });
 
+const lengths = () => ({
+    none: [],
+    nested: [[]],
+    loose: [1, 'two'],
+    mixedRest: [item('a', 1), at(NEW_YEAR), at(MIDSUMMER)],
+    laterRest: ['head', item('b', 2), at(NEW_YEAR)]
+});
+
+Deno.test('a tuple is held to its length when it has no element or none that is checked', () => {
+    const encoded = JSON.parse(mod.collectionLengthsEncode(lengths()));
+    assertEquals(encoded.mixedRest, [item('a', 1), NEW_YEAR, MIDSUMMER]);
+    assertEquals(encoded.laterRest, ['head', item('b', 2), NEW_YEAR]);
+
+    const value = decoded(mod.collectionLengthsDecode(encoded));
+    assertEquals(value, lengths());
+    assert(value.mixedRest[2] instanceof Date);
+    assert(value.laterRest[2] instanceof Date);
+
+    // An optional element is written only where the tuple reaches it.
+    const shortened = { ...lengths(), laterRest: ['head'] };
+    assertEquals(JSON.parse(mod.collectionLengthsEncode(shortened)).laterRest, ['head']);
+    assertEquals(
+        decoded(mod.collectionLengthsDecode(mod.collectionLengthsEncode(shortened))),
+        shortened
+    );
+    const skipped = { ...lengths(), laterRest: ['head', undefined, at(NEW_YEAR)] };
+    assertEquals(JSON.parse(mod.collectionLengthsEncode(skipped)).laterRest, [
+        'head',
+        null,
+        NEW_YEAR
+    ]);
+    assertEquals(
+        decoded(mod.collectionLengthsDecode(mod.collectionLengthsEncode(skipped))),
+        skipped
+    );
+
+    const copy = mod.collectionLengthsClone(lengths());
+    assertEquals(copy, lengths());
+    assertNotStrictEquals(copy.nested[0], lengths().nested[0]);
+    assertEquals(mod.collectionLengthsDefaultValue().none, []);
+    assertEquals(mod.collectionLengthsDefaultValue().nested, [[]]);
+
+    const fieldsOf = (change) =>
+        errorFields(mod.collectionLengthsDecode({ ...encoded, ...change }));
+    assertEquals(fieldsOf({ none: [1] }), ['none']);
+    assertEquals(fieldsOf({ nested: [[1]] }), ['nested[0]']);
+    assertEquals(fieldsOf({ nested: [] }), ['nested']);
+    assertEquals(fieldsOf({ loose: [1] }), ['loose']);
+    assertEquals(fieldsOf({ loose: [1, 2, 3] }), ['loose']);
+    assertEquals(fieldsOf({ mixedRest: [item('a', 1), 5] }), ['mixedRest[1]']);
+});
+
 Deno.test('a tuple of the wrong length or with a wrong element fails to decode', () => {
     const encoded = JSON.parse(mod.collectionTuplesEncode(tuples()));
     const fieldsOf = (change) => errorFields(mod.collectionTuplesDecode({ ...encoded, ...change }));

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/collection-shapes.ts
-sha256 523054b055c76eb6855934fe06c32e3f1b7362d976b75dfafab2c900f1f295d2
+sha256 52d42815929e65574eff8082c55b89244b44fed4898504431a0e57a642eb0163
 
 ## Changed
 
@@ -2404,6 +2404,404 @@ export const CollectionTuples: {
   is: collectionTuplesIs
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface CollectionLengths {
+    none: [];
+    nested: [[]];
+    loose: [unknown, unknown];
+    mixedRest: [EdgeItem, ...Date[]];
+    laterRest: [string, EdgeItem?, ...Date[]];
+}
+
+export function collectionLengthsToString(value: CollectionLengths): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("none: " + __mf_structuralDebug(value.none));
+    parts.push("nested: " + __mf_structuralDebug(value.nested));
+    parts.push("loose: " + __mf_structuralDebug(value.loose));
+    parts.push("mixedRest: " + __mf_structuralDebug(value.mixedRest));
+    parts.push("laterRest: " + __mf_structuralDebug(value.laterRest));
+        return "CollectionLengths { " + parts.join(", ") + " }";
+    });
+}
+
+export function collectionLengthsClone(value: CollectionLengths): CollectionLengths {
+    return __mf_clonedWith(value, (): CollectionLengths => ({
+	none: __mf_structuralClone(value.none),
+	nested: __mf_structuralClone(value.nested),
+	loose: __mf_structuralClone(value.loose),
+	mixedRest: __mf_structuralClone(value.mixedRest),
+	laterRest: __mf_structuralClone(value.laterRest)
+}));
+}
+
+export function collectionLengthsEquals(a: CollectionLengths, b: CollectionLengths): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.none, b.none) && __mf_structuralEquals(a.nested, b.nested) && __mf_structuralEquals(a.loose, b.loose) && __mf_structuralEquals(a.mixedRest, b.mixedRest) && __mf_structuralEquals(a.laterRest, b.laterRest));
+}
+
+export function collectionLengthsHashCode(value: CollectionLengths): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.none))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.nested))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.loose))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.mixedRest))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.laterRest))) | 0;
+        return hash;
+    });
+}
+
+export function collectionLengthsDefaultValue(): CollectionLengths {
+    return {
+        none: [],
+        nested: [[]],
+        loose: [undefined, undefined],
+        mixedRest: [edgeItemDefaultValue()],
+        laterRest: [""],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function collectionLengthsEncode(value: CollectionLengths, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = collectionLengthsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function collectionLengthsEncodeWithContext(value: CollectionLengths, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CollectionLengths" });
+    collectionLengthsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function collectionLengthsEncodePartialWithContext(value: Partial<CollectionLengths>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionLengths>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "CollectionLengths" };
+        collectionLengthsEncodeFields(value as CollectionLengths, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function collectionLengthsEncodeFields(value: CollectionLengths, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("none")) {
+        if (value.none !== undefined) {
+            result["none"] = value.none;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nested")) {
+        if (value.nested !== undefined) {
+            result["nested"] = value.nested;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("loose")) {
+        if (value.loose !== undefined) {
+            result["loose"] = value.loose;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("mixedRest")) {
+        if (value.mixedRest !== undefined) {
+            result["mixedRest"] = [edgeItemEncodeWithContext(value.mixedRest[0], ctx), ...(([, ...__rest0]) => __rest0)(value.mixedRest).map((__item0) => __item0.toISOString())];
+        }
+    }
+    if (__fields === undefined || __fields.keeps("laterRest")) {
+        if (value.laterRest !== undefined) {
+            result["laterRest"] = [value.laterRest[0], ...(1 < value.laterRest.length ? [(value.laterRest[1] === undefined ? undefined : edgeItemEncodeWithContext(value.laterRest[1], ctx))] : []), ...(([, , ...__rest0]) => __rest0)(value.laterRest).map((__item0) => __item0.toISOString())];
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function collectionLengthsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionLengths } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = collectionLengthsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "CollectionLengths.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionLengths | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<CollectionLengths> | __mf_PendingRef;
+export function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<CollectionLengths> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "CollectionLengths.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "CollectionLengths.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "CollectionLengths") as CollectionLengths | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "CollectionLengths.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("none")) && !("none" in obj)) {
+        errors.push({ field: "none", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
+        errors.push({ field: "nested", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("loose")) && !("loose" in obj)) {
+        errors.push({ field: "loose", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("mixedRest")) && !("mixedRest" in obj)) {
+        errors.push({ field: "mixedRest", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("laterRest")) && !("laterRest" in obj)) {
+        errors.push({ field: "laterRest", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CollectionLengths");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("none")) ? "none" in obj : (__fields.keeps("none") && obj["none"] !== undefined)) {
+        const __raw_none = obj["none"] as [];
+        if (Array.isArray(__raw_none)) {
+            ctx.pushScope("none");
+            try {
+                instance.none = (__mf_decodeTuple(__raw_none, ctx, [], 0) as []);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "none" : "none." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "none", message: __raw_none == null ? "CollectionLengths.none is required" : "expected []" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+        const __raw_nested = obj["nested"] as [[]];
+        if (Array.isArray(__raw_nested)) {
+            ctx.pushScope("nested");
+            try {
+                instance.nested = (__mf_decodeTuple(__raw_nested, ctx, [(__raw0) => (__mf_decodeTuple(__raw0, ctx, [], 0) as [])], 1) as [[]]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "nested", message: __raw_nested == null ? "CollectionLengths.nested is required" : "expected [[]]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("loose")) ? "loose" in obj : (__fields.keeps("loose") && obj["loose"] !== undefined)) {
+        const __raw_loose = obj["loose"] as [unknown, unknown];
+        if (Array.isArray(__raw_loose)) {
+            ctx.pushScope("loose");
+            try {
+                instance.loose = (__mf_decodeTuple(__raw_loose, ctx, [(__raw0) => __raw0 as unknown, (__raw0) => __raw0 as unknown], 2) as [unknown, unknown]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "loose" : "loose." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "loose", message: __raw_loose == null ? "CollectionLengths.loose is required" : "expected [unknown, unknown]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("mixedRest")) ? "mixedRest" in obj : (__fields.keeps("mixedRest") && obj["mixedRest"] !== undefined)) {
+        const __raw_mixedRest = obj["mixedRest"] as [EdgeItem, ...Date[]];
+        if (Array.isArray(__raw_mixedRest)) {
+            ctx.pushScope("mixedRest");
+            try {
+                instance.mixedRest = (__mf_decodeTuple(__raw_mixedRest, ctx, [(__raw0) => edgeItemDecodeWithContext(__raw0, ctx)], 1, __mf_decodeDate) as [EdgeItem, ...Date[]]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "mixedRest" : "mixedRest." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "mixedRest", message: __raw_mixedRest == null ? "CollectionLengths.mixedRest is required" : "expected [EdgeItem, ...Date[]]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("laterRest")) ? "laterRest" in obj : (__fields.keeps("laterRest") && obj["laterRest"] !== undefined)) {
+        const __raw_laterRest = obj["laterRest"] as [string, EdgeItem?, ...Date[]];
+        if (Array.isArray(__raw_laterRest)) {
+            ctx.pushScope("laterRest");
+            try {
+                instance.laterRest = (__mf_decodeTuple(__raw_laterRest, ctx, [__mf_decodeString, (__raw0) => {
+            const __read0 = __raw0 ?? undefined;
+            return (__read0 === undefined ? undefined : edgeItemDecodeWithContext(__read0, ctx));
+        }], 1, __mf_decodeDate) as [string, EdgeItem?, ...Date[]]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "laterRest" : "laterRest." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "laterRest", message: __raw_laterRest == null ? "CollectionLengths.laterRest is required" : "expected [string, EdgeItem?, ...Date[]]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as CollectionLengths;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function collectionLengthsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof CollectionLengths>): Partial<CollectionLengths> | __mf_PendingRef {
+    return collectionLengthsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function collectionLengthsValidateField<K extends keyof CollectionLengths>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function collectionLengthsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function collectionLengthsValidateFields(partial: { readonly [K in keyof CollectionLengths]?: unknown }): Array<{ field: string; message: string }>;
+export function collectionLengthsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function collectionLengthsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "none") && __mf_holds(obj, "nested") && __mf_holds(obj, "loose") && __mf_holds(obj, "mixedRest") && __mf_holds(obj, "laterRest");
+}
+
+export function collectionLengthsIs(obj: unknown): obj is CollectionLengths {
+    return collectionLengthsHasShape(obj) && collectionLengthsDecode(obj).success;
+}
+
+export const CollectionLengths: {
+  readonly toString: typeof collectionLengthsToString;
+  readonly clone: typeof collectionLengthsClone;
+  readonly equals: typeof collectionLengthsEquals;
+  readonly hashCode: typeof collectionLengthsHashCode;
+  readonly defaultValue: typeof collectionLengthsDefaultValue;
+  readonly encode: typeof collectionLengthsEncode;
+  readonly encodeWithContext: typeof collectionLengthsEncodeWithContext;
+  readonly encodePartialWithContext: typeof collectionLengthsEncodePartialWithContext;
+  readonly decode: typeof collectionLengthsDecode;
+  readonly decodeWithContext: typeof collectionLengthsDecodeWithContext;
+  readonly decodePartialWithContext: typeof collectionLengthsDecodePartialWithContext;
+  readonly validateField: typeof collectionLengthsValidateField;
+  readonly validateFields: typeof collectionLengthsValidateFields;
+  readonly hasShape: typeof collectionLengthsHasShape;
+  readonly is: typeof collectionLengthsIs;
+} = {
+  toString: collectionLengthsToString,
+  clone: collectionLengthsClone,
+  equals: collectionLengthsEquals,
+  hashCode: collectionLengthsHashCode,
+  defaultValue: collectionLengthsDefaultValue,
+  encode: collectionLengthsEncode,
+  encodeWithContext: collectionLengthsEncodeWithContext,
+  encodePartialWithContext: collectionLengthsEncodePartialWithContext,
+  decode: collectionLengthsDecode,
+  decodeWithContext: collectionLengthsDecodeWithContext,
+  decodePartialWithContext: collectionLengthsDecodePartialWithContext,
+  validateField: collectionLengthsValidateField,
+  validateFields: collectionLengthsValidateFields,
+  hasShape: collectionLengthsHasShape,
+  is: collectionLengthsIs
+};
+
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface CollectionBig {
     total: bigint;
@@ -3061,6 +3459,69 @@ export declare const CollectionTuples: {
 	readonly hasShape: typeof collectionTuplesHasShape;
 	readonly is: typeof collectionTuplesIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface CollectionLengths {
+	none: [];
+	nested: [[]];
+	loose: [unknown, unknown];
+	mixedRest: [EdgeItem, ...Date[]];
+	laterRest: [string, EdgeItem?, ...Date[]];
+}
+export declare function collectionLengthsToString(value: CollectionLengths): string;
+export declare function collectionLengthsClone(value: CollectionLengths): CollectionLengths;
+export declare function collectionLengthsEquals(a: CollectionLengths, b: CollectionLengths): boolean;
+export declare function collectionLengthsHashCode(value: CollectionLengths): number;
+export declare function collectionLengthsDefaultValue(): CollectionLengths;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function collectionLengthsEncode(value: CollectionLengths, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function collectionLengthsEncodeWithContext(value: CollectionLengths, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function collectionLengthsEncodePartialWithContext(value: Partial<CollectionLengths>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CollectionLengths>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function collectionLengthsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CollectionLengths;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CollectionLengths | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function collectionLengthsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<CollectionLengths> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function collectionLengthsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof CollectionLengths>): Partial<CollectionLengths> | __mf_PendingRef;
+export declare function collectionLengthsValidateField<K extends keyof CollectionLengths>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function collectionLengthsValidateFields(partial: { readonly [K in keyof CollectionLengths]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function collectionLengthsHasShape(obj: unknown): boolean;
+export declare function collectionLengthsIs(obj: unknown): obj is CollectionLengths;
+export declare const CollectionLengths: {
+	readonly toString: typeof collectionLengthsToString;
+	readonly clone: typeof collectionLengthsClone;
+	readonly equals: typeof collectionLengthsEquals;
+	readonly hashCode: typeof collectionLengthsHashCode;
+	readonly defaultValue: typeof collectionLengthsDefaultValue;
+	readonly encode: typeof collectionLengthsEncode;
+	readonly encodeWithContext: typeof collectionLengthsEncodeWithContext;
+	readonly encodePartialWithContext: typeof collectionLengthsEncodePartialWithContext;
+	readonly decode: typeof collectionLengthsDecode;
+	readonly decodeWithContext: typeof collectionLengthsDecodeWithContext;
+	readonly decodePartialWithContext: typeof collectionLengthsDecodePartialWithContext;
+	readonly validateField: typeof collectionLengthsValidateField;
+	readonly validateFields: typeof collectionLengthsValidateFields;
+	readonly hasShape: typeof collectionLengthsHasShape;
+	readonly is: typeof collectionLengthsIs;
+};
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface CollectionBig {
 	total: bigint;
@@ -3133,8 +3594,9 @@ original 433..948 -> expanded 5980..6495
 original 948..1410 -> expanded 44346..44808
 original 1410..1804 -> expanded 76035..76429
 original 1804..2219 -> expanded 102006..102421
-original 2219..2422 -> expanded 127471..127674
-original 2422..2423 -> expanded 144704..144705
+original 2219..2478 -> expanded 127471..127730
+original 2478..2681 -> expanded 146699..146902
+original 2681..2682 -> expanded 163932..163933
 generated 0..1675 <- imports
 generated 2108..2447 <- Debug
 generated 2447..2545 <- Clone
@@ -3178,13 +3640,21 @@ generated 105237..105574 <- Default
 generated 105574..109314 <- Encode
 generated 109314..125849 <- Decode
 generated 125849..127471 <- __convenience_const
-generated 127674..128136 <- Debug
-generated 128136..128387 <- Clone
-generated 128387..129038 <- PartialEq
-generated 129038..129986 <- Hash
-generated 129986..132920 <- Encode
-generated 132920..143277 <- Decode
-generated 143277..144704 <- __convenience_const
+generated 127730..128297 <- Debug
+generated 128297..128683 <- Clone
+generated 128683..129081 <- PartialEq
+generated 129081..129591 <- Hash
+generated 129591..129832 <- Default
+generated 129832..133143 <- Encode
+generated 133143..145046 <- Decode
+generated 145046..146699 <- __convenience_const
+generated 146902..147364 <- Debug
+generated 147364..147615 <- Clone
+generated 147615..148266 <- PartialEq
+generated 148266..149214 <- Hash
+generated 149214..152148 <- Encode
+generated 152148..162505 <- Decode
+generated 162505..163932 <- __convenience_const
 
 ## Metadata
 
@@ -3192,11 +3662,13 @@ interface CollectionNested: {"body_span":{"end":949,"start":541},"decorators":[{
 interface CollectionKeys: {"body_span":{"end":1411,"start":1054},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1021,"start":951}}],"fields":[{"decorators":[],"key":"Named","name":"byNumber","optional":false,"readonly":false,"span":{"end":1090,"start":1060},"ts_type":"Map<number, string>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":1131,"start":1095},"ts_type":"Map<CollectionKind, number>"},{"decorators":[],"key":"Named","name":"byDate","optional":false,"readonly":false,"span":{"end":1162,"start":1136},"ts_type":"Map<Date, string>"},{"decorators":[],"key":"Named","name":"kindLabels","optional":false,"readonly":false,"span":{"end":1210,"start":1167},"ts_type":"Record<CollectionKind, string>"},{"decorators":[],"key":"Named","name":"numbered","optional":false,"readonly":false,"span":{"end":1250,"start":1215},"ts_type":"Record<number, EdgeItem>"},{"decorators":[],"key":"Named","name":"kinds","optional":false,"readonly":false,"span":{"end":1282,"start":1255},"ts_type":"Set<CollectionKind>"},{"decorators":[],"key":"Named","name":"dates","optional":false,"readonly":false,"span":{"end":1304,"start":1287},"ts_type":"Set<Date>"},{"decorators":[],"key":"Named","name":"nullableDates","optional":false,"readonly":false,"span":{"end":1340,"start":1309},"ts_type":"(Date | null)[]"},{"decorators":[],"key":"Named","name":"dateSet","optional":false,"readonly":false,"span":{"end":1371,"start":1345},"ts_type":"Set<Date | null>"},{"decorators":[],"key":"Named","name":"dateRecord","optional":false,"readonly":false,"span":{"end":1409,"start":1376},"ts_type":"Record<string, Date>"}],"heritage":[],"methods":[],"name":"CollectionKeys","span":{"end":1411,"start":1029},"type_params":[]}
 interface CollectionUnions: {"body_span":{"end":1805,"start":1518},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1483,"start":1413}}],"fields":[{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":1551,"start":1524},"ts_type":"(string | number)[]"},{"decorators":[],"key":"Named","name":"itemOrText","optional":false,"readonly":false,"span":{"end":1593,"start":1556},"ts_type":"Array<EdgeItem | string>"},{"decorators":[],"key":"Named","name":"itemOrNull","optional":false,"readonly":false,"span":{"end":1631,"start":1598},"ts_type":"Set<EdgeItem | null>"},{"decorators":[],"key":"Named","name":"valueOrNull","optional":false,"readonly":false,"span":{"end":1678,"start":1636},"ts_type":"Map<string, EdgeItem | null>"},{"decorators":[],"key":"Named","name":"recordOrNull","optional":false,"readonly":false,"span":{"end":1729,"start":1683},"ts_type":"Record<string, EdgeItem | null>"},{"decorators":[],"key":"Named","name":"literal","optional":false,"readonly":false,"span":{"end":1760,"start":1734},"ts_type":"('on' | 'off')[]"},{"decorators":[],"key":"Named","name":"kindOrNull","optional":false,"readonly":false,"span":{"end":1803,"start":1765},"ts_type":"(CollectionKind | null)[]"}],"heritage":[],"methods":[],"name":"CollectionUnions","span":{"end":1805,"start":1491},"type_params":[]}
 interface CollectionTuples: {"body_span":{"end":2220,"start":1912},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1877,"start":1807}}],"fields":[{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1941,"start":1918},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"named","optional":false,"readonly":false,"span":{"end":1979,"start":1946},"ts_type":"[label: string, at: Date]"},{"decorators":[],"key":"Named","name":"itemPair","optional":false,"readonly":false,"span":{"end":2022,"start":1984},"ts_type":"[EdgeItem, EdgeItem | null]"},{"decorators":[],"key":"Named","name":"readonlyPair","optional":false,"readonly":false,"span":{"end":2067,"start":2027},"ts_type":"readonly [number, number]"},{"decorators":[],"key":"Named","name":"optionalTail","optional":false,"readonly":false,"span":{"end":2104,"start":2072},"ts_type":"[string, number?]"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":2137,"start":2109},"ts_type":"[string, ...number[]]"},{"decorators":[],"key":"Named","name":"pairs","optional":false,"readonly":false,"span":{"end":2170,"start":2142},"ts_type":"[string, EdgeItem][]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":2218,"start":2175},"ts_type":"[[number, number], [string, Date]]"}],"heritage":[],"methods":[],"name":"CollectionTuples","span":{"end":2220,"start":1885},"type_params":[]}
-interface CollectionBig: {"body_span":{"end":2423,"start":2315},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2283,"start":2222}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2321},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2357,"start":2340},"ts_type":"bigint[]"},{"decorators":[],"key":"Named","name":"maybeTotal","optional":false,"readonly":false,"span":{"end":2388,"start":2362},"ts_type":"bigint | null"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2421,"start":2393},"ts_type":"Map<string, bigint>"}],"heritage":[],"methods":[],"name":"CollectionBig","span":{"end":2423,"start":2291},"type_params":[]}
+interface CollectionLengths: {"body_span":{"end":2479,"start":2328},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2292,"start":2222}}],"fields":[{"decorators":[],"key":"Named","name":"none","optional":false,"readonly":false,"span":{"end":2343,"start":2334},"ts_type":"[]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":2361,"start":2348},"ts_type":"[[]]"},{"decorators":[],"key":"Named","name":"loose","optional":false,"readonly":false,"span":{"end":2392,"start":2366},"ts_type":"[unknown, unknown]"},{"decorators":[],"key":"Named","name":"mixedRest","optional":false,"readonly":false,"span":{"end":2430,"start":2397},"ts_type":"[EdgeItem, ...Date[]]"},{"decorators":[],"key":"Named","name":"laterRest","optional":false,"readonly":false,"span":{"end":2477,"start":2435},"ts_type":"[string, EdgeItem?, ...Date[]]"}],"heritage":[],"methods":[],"name":"CollectionLengths","span":{"end":2479,"start":2300},"type_params":[]}
+interface CollectionBig: {"body_span":{"end":2682,"start":2574},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2542,"start":2481}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2594,"start":2580},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2616,"start":2599},"ts_type":"bigint[]"},{"decorators":[],"key":"Named","name":"maybeTotal","optional":false,"readonly":false,"span":{"end":2647,"start":2621},"ts_type":"bigint | null"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2680,"start":2652},"ts_type":"Map<string, bigint>"}],"heritage":[],"methods":[],"name":"CollectionBig","span":{"end":2682,"start":2550},"type_params":[]}
 enum CollectionKind: {"body_span":{"end":434,"start":370},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":342,"start":251}}],"is_const":false,"is_declare":false,"name":"CollectionKind","span":{"end":434,"start":350},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":391,"start":376}}],"name":"Plain","span":{"end":411,"start":396},"value":{"String":"plain"}},{"decorators":[],"name":"Fancy","span":{"end":432,"start":417},"value":{"String":"fancy"}}]}
 
 ## Registry reads
 
+Name("")
 Name("('on' | 'off')")
 Name("(CollectionKind | null)")
 Name("(Date | null)")
@@ -3209,13 +3681,17 @@ Name("EdgeItem | string")
 Name("Map")
 Name("Record")
 Name("Set")
+Name("[EdgeItem, ...Date[]]")
 Name("[EdgeItem, EdgeItem | null]")
+Name("[[]]")
 Name("[[number, number], [string, Date]]")
 Name("[label: string, at: Date]")
 Name("[string, ...number[]]")
+Name("[string, EdgeItem?, ...Date[]]")
 Name("[string, EdgeItem]")
 Name("[string, number?]")
 Name("[string, number]")
+Name("[unknown, unknown]")
 Name("bigint")
 Name("number")
 Name("readonly [number, number]")

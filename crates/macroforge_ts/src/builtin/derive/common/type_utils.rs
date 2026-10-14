@@ -269,7 +269,8 @@ pub fn parse_generic_type(type_name: &str) -> Option<(&str, &str)> {
 
 /// The element type of an array type: `T[]`, `readonly T[]`, `Array<T>` or
 /// `ReadonlyArray<T>`. `None` for anything else, including a union such as
-/// `string | number[]`, which merely ends with an array member.
+/// `string | number[]`, which merely ends with an array member, and `[]`,
+/// the tuple of no elements.
 pub fn array_element_type(ts_type: &str) -> Option<&str> {
     let trimmed = ts_type.trim();
     if split_top_level_union(trimmed).is_some() {
@@ -280,6 +281,9 @@ pub fn array_element_type(ts_type: &str) -> Option<&str> {
         .map_or(trimmed, str::trim_start);
     if let Some(element) = trimmed.strip_suffix("[]") {
         let element = element.trim();
+        if element.is_empty() {
+            return None;
+        }
         return Some(
             element
                 .strip_prefix('(')

@@ -1299,7 +1299,6 @@ fn decode_tuple(
     scope: &TypeScope<'_>,
     depth: usize,
 ) -> Result<Option<String>, String> {
-    let mut any_decoded = false;
     let mut items = Vec::with_capacity(elements.len());
     let mut required = 0usize;
     let mut rest = None;
@@ -1322,9 +1321,7 @@ fn decode_tuple(
         } else {
             item_type
         };
-        let own = own_decoder(item_type, scope, depth)?;
-        any_decoded |= own.is_some();
-        let item = own.unwrap_or_else(|| kept_as(item_type, depth));
+        let item = decoder(item_type, scope, depth)?;
         if element.rest {
             rest = Some(item);
         } else {
@@ -1334,9 +1331,7 @@ fn decode_tuple(
             items.push(item);
         }
     }
-    if !any_decoded {
-        return Ok(None);
-    }
+    // A tuple of elements that decode as themselves still has a length.
     let decode_tuple = endec_helper("decodeTuple");
     let items = items.join(", ");
     // The decoded array is a new one, so it is cast to the tuple's mutable

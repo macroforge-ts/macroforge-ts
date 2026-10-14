@@ -65,6 +65,15 @@ export interface CollectionTuples {
     nested: [[number, number], [string, Date]];
 }
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface CollectionLengths {
+    none: [];
+    nested: [[]];
+    loose: [unknown, unknown];
+    mixedRest: [EdgeItem, ...Date[]];
+    laterRest: [string, EdgeItem?, ...Date[]];
+}
+
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface CollectionBig {
     total: bigint;

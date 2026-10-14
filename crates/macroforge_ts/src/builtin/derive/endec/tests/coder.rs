@@ -285,7 +285,19 @@ fn a_tuple_is_coded_element_by_element() {
             "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),(__raw0)=>{const__read0=__raw0??undefined;return(__read0===undefined?undefined:__mf_decodeDate(__read0));}],1,__mf_decodeString)as[User,Date?,...string[]])"
         )
     );
-    assert_eq!(coded("[unknown, unknown]"), (None, None));
+    // A tuple whose elements decode as themselves is still held to its length.
+    let (encoded, decoded) = coded("[unknown, unknown]");
+    assert_eq!(encoded, None);
+    assert_eq!(
+        decoded.as_deref(),
+        Some(
+            "(__mf_decodeTuple(raw,ctx,[(__raw0)=>__raw0asunknown,(__raw0)=>__raw0asunknown],2)as[unknown,unknown])"
+        )
+    );
+    assert_eq!(
+        coded("[]").1.as_deref(),
+        Some("(__mf_decodeTuple(raw,ctx,[],0)as[])")
+    );
 }
 
 #[test]
