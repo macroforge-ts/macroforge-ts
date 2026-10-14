@@ -250,6 +250,48 @@ fn split_top_level_union_skips_arrow_types() {
     );
 }
 
+/// A string ending in an escaped backslash ends there, and a function's or
+/// conditional's last part takes a `|` or `&` in it as its own.
+#[test]
+fn a_type_splits_only_where_typescript_reads_an_operator() {
+    assert_eq!(
+        split_top_level_union(r#""\\" | "/""#),
+        Some(vec![r#""\\""#, r#""/""#])
+    );
+    assert_eq!(split_top_level_union("() => string | number"), None);
+    assert_eq!(
+        split_top_level_union("T extends string ? 'a' | 'b' : never"),
+        None
+    );
+    assert_eq!(split_top_level_intersection("A | B & C"), None);
+    assert_eq!(split_top_level_intersection("(a: A) => B & C"), None);
+}
+
+/// A parameter is substituted where it names a type: in a template's `${}`,
+/// and not as a key, a label, a parameter's name or a qualified member.
+#[test]
+fn a_parameter_is_substituted_only_where_it_names_a_type() {
+    let subs = HashMap::from([("T", "Sub")]);
+    assert_eq!(substitute_tokens("`id-${T}`", &subs), "`id-${Sub}`");
+    assert_eq!(
+        substitute_tokens("{ T: T; T?: T[] }", &subs),
+        "{ T: Sub; T?: Sub[] }"
+    );
+    assert_eq!(
+        substitute_tokens("[T: T, ...rest: T[]]", &subs),
+        "[T: Sub, ...rest: Sub[]]"
+    );
+    assert_eq!(
+        substitute_tokens("(T: T) => NS.T", &subs),
+        "(T: Sub) => NS.T"
+    );
+    assert_eq!(
+        substitute_tokens("A extends B ? T : T", &subs),
+        "A extends B ? Sub : Sub"
+    );
+    assert_eq!(substitute_tokens("ÜT | TÜ", &subs), "ÜT | TÜ");
+}
+
 #[test]
 fn split_top_level_commas_respects_nesting() {
     assert_eq!(
@@ -290,4 +332,73 @@ fn an_alias_the_caller_keeps_is_left_by_name_with_its_arguments_resolved() {
         "string | Note"
     );
     assert_eq!(expansions.into_inner(), ["RecordLink = string | Note"]);
+}
+
+/// The splitters and the substitution, against the type their text was
+/// written from.
+mod properties {
+    use proptest::{prop_assert_eq, proptest};
+
+    use super::{
+        HashMap, split_top_level_commas, split_top_level_intersection, split_top_level_union,
+        substitute_tokens,
+    };
+    use crate::abi::ir::type_alias_resolve::identifiers;
+    use crate::strategies::{
+        TsType, TupleElement, intersection_type, property_config, ts_type, tuple_type, union_type,
+    };
+
+    fn owned(parts: Option<Vec<&str>>) -> Option<Vec<String>> {
+        parts.map(|parts| parts.into_iter().map(str::to_string).collect())
+    }
+
+    proptest! {
+        #![proptest_config(property_config())]
+
+        #[test]
+        fn a_union_splits_into_its_members(union in union_type()) {
+            prop_assert_eq!(owned(split_top_level_union(&union.written().text)), union.union_members());
+        }
+
+        #[test]
+        fn an_intersection_splits_into_its_members(intersection in intersection_type()) {
+            prop_assert_eq!(
+                owned(split_top_level_intersection(&intersection.written().text)),
+                intersection.intersection_members()
+            );
+        }
+
+        #[test]
+        fn a_type_splits_only_where_it_is_a_union_or_an_intersection(ts_type in ts_type()) {
+            let text = ts_type.written().text;
+            prop_assert_eq!(owned(split_top_level_union(&text)), ts_type.union_members());
+            prop_assert_eq!(owned(split_top_level_intersection(&text)), ts_type.intersection_members());
+        }
+
+        #[test]
+        fn a_tuple_splits_into_its_elements(tuple in tuple_type()) {
+            let TsType::Tuple(elements) = &tuple else {
+                unreachable!("tuple_type makes tuples");
+            };
+            let text = tuple.written().text;
+            let body = text.get(1..text.len() - 1).unwrap_or_default();
+            let expected: Vec<String> = elements.iter().map(|element| TupleElement::written(element).text).collect();
+            prop_assert_eq!(split_top_level_commas(body), expected);
+        }
+
+        #[test]
+        fn the_names_of_a_type_are_the_words_where_a_type_stands(ts_type in ts_type()) {
+            let text = ts_type.written().text;
+            prop_assert_eq!(identifiers(&text), ts_type.named(), "{}", text);
+        }
+
+        #[test]
+        fn substitution_replaces_the_parameter_where_it_names_a_type(ts_type in ts_type()) {
+            let substitutions = HashMap::from([("T", "Sub")]);
+            prop_assert_eq!(
+                substitute_tokens(&ts_type.written().text, &substitutions),
+                ts_type.substituted("T", "Sub").written().text
+            );
+        }
+    }
 }

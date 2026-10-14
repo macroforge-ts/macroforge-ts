@@ -60,6 +60,7 @@ oxc = { version = "0.152.0", features = ["codegen", "ast_visit", "transformer", 
 pathdiff = "0.2.3"
 postcard = { version = "1.1.3", default-features = false, features = ["use-std"] }
 predicates = "3.1.4"
+proptest = "1.12.0"
 proc-macro2 = { version = "1.0.107", features = ["proc-macro", "span-locations"] }
 quote = "1.0.47"
 rayon = "1.12.0"

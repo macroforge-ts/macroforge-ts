@@ -6,6 +6,8 @@
 
 use std::collections::HashSet;
 
+use crate::scan::Nesting;
+
 /// Modifiers that may sit between a declaration's JSDoc and the start of the
 /// declaration's own span.
 const DECLARATION_MODIFIERS: &[&str] = &["export", "declare", "abstract", "default", "async"];
@@ -99,67 +101,6 @@ pub fn stacked_jsdoc_above(source: &str, floor: usize, block: JsDocBlock) -> Opt
         start,
         end: close + 2,
     })
-}
-
-/// Where a scan of a directive's arguments stands: how many brackets of each
-/// kind are open, and the quote of the string literal it is inside. A bracket
-/// or a comma in a string is text, as the `(` of `@default(":(")` is.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct Nesting {
-    parens: u32,
-    braces: u32,
-    brackets: u32,
-    quote: Option<char>,
-    escaped: bool,
-}
-
-impl Nesting {
-    /// Takes the next character of the text scanned.
-    pub fn feed(&mut self, letter: char) {
-        if let Some(quote) = self.quote {
-            if self.escaped {
-                self.escaped = false;
-            } else if letter == '\\' {
-                self.escaped = true;
-            } else if letter == quote {
-                self.quote = None;
-            }
-            return;
-        }
-        match letter {
-            '"' | '\'' | '`' => self.quote = Some(letter),
-            '(' => self.parens += 1,
-            ')' => self.parens = self.parens.saturating_sub(1),
-            '{' => self.braces += 1,
-            '}' => self.braces = self.braces.saturating_sub(1),
-            '[' => self.brackets += 1,
-            ']' => self.brackets = self.brackets.saturating_sub(1),
-            _ => {}
-        }
-    }
-
-    /// Takes a whole line. A `"` or `'` string does not run past its line.
-    fn feed_line(&mut self, line: &str) {
-        line.chars().for_each(|letter| self.feed(letter));
-        if self.quote != Some('`') {
-            self.quote = None;
-        }
-        self.escaped = false;
-    }
-
-    /// Whether the scan stands outside every bracket and string.
-    pub fn is_top_level(&self) -> bool {
-        self.quote.is_none() && !self.has_open_bracket()
-    }
-
-    /// Whether the scan stands inside a string literal.
-    pub fn in_string(&self) -> bool {
-        self.quote.is_some()
-    }
-
-    fn has_open_bracket(&self) -> bool {
-        self.parens > 0 || self.braces > 0 || self.brackets > 0
-    }
 }
 
 /// Parse the macro directives of a JSDoc comment body as `(name, args)` pairs.
@@ -321,7 +262,10 @@ fn closing_paren(args: &str) -> Option<usize> {
 
 #[cfg(test)]
 mod adjacency_tests {
-    use super::*;
+    use super::{
+        HashSet, adjacent_jsdoc, adjacent_jsdoc_after, is_macro_import_comment,
+        parse_all_macro_directives, stacked_jsdoc_above, unclosed_directives,
+    };
 
     #[test]
     fn finds_the_comment_directly_above_a_declaration() {
@@ -495,5 +439,35 @@ mod adjacency_tests {
         assert!(!is_macro_import_comment(
             "\n * Parses import macro comments like `import macro { A } from \"pkg\"`.\n "
         ));
+    }
+}
+
+#[cfg(test)]
+mod properties {
+    use proptest::collection::vec;
+    use proptest::{prop_assert_eq, proptest};
+
+    use super::{parse_all_macro_directives, unclosed_directives};
+    use crate::strategies::{js_value, property_config};
+
+    proptest! {
+        #![proptest_config(property_config())]
+
+        /// A directive's arguments are read whole, over as many lines as they
+        /// are written on, and ones that never close are named.
+        #[test]
+        fn a_directive_is_given_its_arguments_as_written(items in vec(js_value(), 1..4)) {
+            let written = items.join(", ");
+            let over_lines = format!(" * @default({})\n ", items.join(",\n * "));
+            prop_assert_eq!(
+                parse_all_macro_directives(&over_lines, None),
+                vec![("default".to_string(), written)]
+            );
+            prop_assert_eq!(unclosed_directives(&over_lines, None), Vec::<String>::new());
+
+            let unclosed = format!(" * @default({}\n ", items.join(",\n * "));
+            prop_assert_eq!(parse_all_macro_directives(&unclosed, None), Vec::new());
+            prop_assert_eq!(unclosed_directives(&unclosed, None), vec!["default".to_string()]);
+        }
     }
 }

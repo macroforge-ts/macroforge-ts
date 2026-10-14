@@ -594,4 +594,68 @@ mod tests {
             assert_eq!(number_literal(written), None, "{written}");
         }
     }
+
+    mod properties {
+        use oxc::allocator::Allocator;
+        use oxc::ast::ast::{Expression, Statement, TSLiteral, TSType};
+        use oxc::parser::Parser;
+        use oxc::span::SourceType;
+        use oxc::syntax::operator::UnaryOperator;
+        use proptest::strategy::Strategy;
+        use proptest::{prop_assert_eq, prop_assume, prop_oneof, proptest};
+
+        use super::super::{NumberLiteral, number_literal};
+        use crate::strategies::property_config;
+
+        /// Text that is a number literal, or nearly one.
+        fn numeric_text() -> impl Strategy<Value = String> {
+            prop_oneof![
+                "-?[ ]?(0|[1-9][0-9_]{0,4})?(\\.[0-9_]{0,3})?([eE][+-]?[0-9_]{1,3})?n?",
+                "-?[ ]?0[xXbBoO][0-9a-fA-F_]{0,4}n?",
+                "[-0-9a-zA-Z._+ ]{1,6}",
+            ]
+        }
+
+        /// The kind of number oxc reads `text` as, as a type, or `None` for a
+        /// type of another kind. Text that is no type at all is skipped.
+        fn read_by_oxc(text: &str) -> Option<Option<NumberLiteral>> {
+            let allocator = Allocator::default();
+            let source = format!("type Read = {text};");
+            let parsed = Parser::new(&allocator, &source, SourceType::ts()).parse();
+            if !parsed.diagnostics.is_empty() || parsed.program.body.len() != 1 {
+                return None;
+            }
+            let Some(Statement::TSTypeAliasDeclaration(alias)) = parsed.program.body.first() else {
+                return None;
+            };
+            let TSType::TSLiteralType(literal) = &alias.type_annotation else {
+                return Some(None);
+            };
+            Some(match &literal.literal {
+                TSLiteral::NumericLiteral(_) => Some(NumberLiteral::Number),
+                TSLiteral::BigIntLiteral(_) => Some(NumberLiteral::BigInt),
+                TSLiteral::UnaryExpression(unary)
+                    if unary.operator == UnaryOperator::UnaryNegation =>
+                {
+                    match &unary.argument {
+                        Expression::NumericLiteral(_) => Some(NumberLiteral::Number),
+                        Expression::BigIntLiteral(_) => Some(NumberLiteral::BigInt),
+                        _ => None,
+                    }
+                }
+                _ => None,
+            })
+        }
+
+        proptest! {
+            #![proptest_config(property_config())]
+
+            #[test]
+            fn a_number_literal_is_read_as_typescript_reads_it(text in numeric_text()) {
+                let read = read_by_oxc(&text);
+                prop_assume!(read.is_some());
+                prop_assert_eq!(Some(number_literal(&text)), read, "{}", text);
+            }
+        }
+    }
 }

@@ -117,6 +117,8 @@ test-macros = []
 [dev-dependencies]
 trybuild = { workspace = true }
 insta = { workspace = true }
+proptest = { workspace = true }
+macroforge_ts_syn = { workspace = true, features = ["proptest"] }
 
 # Criterion for microbenchmarking the declarative macro hot paths
 # (PR 16). The `html_reports` feature generates an HTML report with

@@ -2,7 +2,7 @@
 //! `skip, rename: "id"` in `@endec(skip, rename: "id")`, and writing string
 //! values back out as JavaScript.
 
-use crate::ts_syn::jsdoc::Nesting;
+use crate::ts_syn::scan::Nesting;
 
 /// The pieces of `text` between its top-level commas, trimmed, the empty
 /// ones left out. A comma inside a bracket or a string literal separates

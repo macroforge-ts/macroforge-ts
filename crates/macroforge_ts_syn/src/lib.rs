@@ -101,6 +101,9 @@ pub mod jsdoc;
 pub mod lower;
 pub mod preamble;
 mod quote_helpers;
+pub mod scan;
+#[cfg(any(test, feature = "proptest"))]
+pub mod strategies;
 pub mod stream;
 
 pub use abi::*;

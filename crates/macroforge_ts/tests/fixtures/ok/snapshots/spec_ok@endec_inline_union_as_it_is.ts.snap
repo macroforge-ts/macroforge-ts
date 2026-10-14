@@ -641,7 +641,7 @@ export {};
 
 ## Diagnostics
 
-Error [397..427]: @derive(Encode): `() => Circle` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [397..427]: @derive(Encode): `() => Circle | null` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 
 ## Mapping
