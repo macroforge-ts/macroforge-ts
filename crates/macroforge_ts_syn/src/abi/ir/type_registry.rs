@@ -467,7 +467,9 @@ pub struct TypeRegistry {
 #[derive(Debug)]
 struct DeclaringFile {
     file_path: String,
-    names: std::collections::HashSet<String>,
+    /// What the file declares, by name: what answers for a name where the
+    /// scan has not read the file.
+    own: HashMap<String, TypeRegistryEntry>,
 }
 
 /// `path` with the separators Windows writes as the `/` every comparison of
@@ -911,20 +913,22 @@ impl TypeRegistry {
     }
 
     /// This registry as the file at `file_path` reads it while it is being
-    /// expanded: a name among `names`, which the file declares, is the
-    /// file's own type and none another file declares under it. A file the
-    /// scan has not read, a component or one newer than the scan, has no
-    /// entry for what it declares, and its names would else be answered for
-    /// by whatever the project declares under them.
+    /// expanded: a name of `own`, what the file declares, is the file's own
+    /// type and none another file declares under it, its scanned entry where
+    /// the scan read the file and the declaration in `own` where it did not,
+    /// as a component or a file newer than the scan.
     pub fn declaring(
         &self,
         file_path: &str,
-        names: impl IntoIterator<Item = String>,
+        own: impl IntoIterator<Item = TypeRegistryEntry>,
     ) -> TypeRegistry {
         TypeRegistry {
             declaring: Some(Arc::new(DeclaringFile {
                 file_path: file_path.to_string(),
-                names: names.into_iter().collect(),
+                own: own
+                    .into_iter()
+                    .map(|entry| (entry.name.clone(), entry))
+                    .collect(),
             })),
             ..self.clone()
         }
@@ -1139,13 +1143,14 @@ impl TypeRegistry {
         // A name the calling file declares itself is that file's type,
         // whether the scan has read the file or not.
         if let Some(declaring) = &self.declaring
-            && declaring.names.contains(name)
+            && let Some(own) = declaring.own.get(name)
             && same_file(&declaring.file_path, caller_file_path)
         {
             return self
                 .candidates(name)
                 .into_iter()
-                .find(|entry| same_file(&entry.file_path, caller_file_path));
+                .find(|entry| same_file(&entry.file_path, caller_file_path))
+                .or(Some(own));
         }
         let import = file_imports.iter().find(|import| import.local_name == name);
         // What the module a name is imported from exports it as: the name
@@ -1772,8 +1777,9 @@ mod tests {
         assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
     }
 
-    /// A name a file declares is that file's type: its own entry where the
-    /// scan read the file, and no other file's where it did not.
+    /// A name a file declares is that file's type: its scanned entry where
+    /// the scan read the file, and the declaration the file holds where it
+    /// did not.
     #[test]
     fn a_name_a_file_declares_is_not_another_files_type() {
         let mut registry = TypeRegistry::default();
@@ -1799,8 +1805,12 @@ mod tests {
         );
 
         // A component the scan did not read declares a `User` of its own.
-        let unscanned = registry.declaring(component, ["User".to_string()]);
-        assert_eq!(resolve(&unscanned, "User", component), None);
+        let unscanned =
+            registry.declaring(component, [make_interface_entry("User", component, vec![])]);
+        assert_eq!(
+            resolve(&unscanned, "User", component).as_deref(),
+            Some(component)
+        );
         assert_eq!(
             resolve(&unscanned, "Page", component).as_deref(),
             Some("/project/src/page.ts")
@@ -1812,7 +1822,10 @@ mod tests {
         );
 
         // A scanned file's own entry is found by either spelling of its path.
-        let scanned = registry.declaring("src/page.ts", ["Page".to_string()]);
+        let scanned = registry.declaring(
+            "src/page.ts",
+            [make_interface_entry("Page", "src/page.ts", vec![])],
+        );
         assert_eq!(
             resolve(&scanned, "Page", "src/page.ts").as_deref(),
             Some("/project/src/page.ts")

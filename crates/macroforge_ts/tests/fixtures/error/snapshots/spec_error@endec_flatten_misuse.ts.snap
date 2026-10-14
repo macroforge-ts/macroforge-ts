@@ -523,12 +523,14 @@ export interface Flattened<T> {
 
 ## Diagnostics
 
+Error [618..638]: @derive(Encode): fields 'whole' and 'maybe' are both written under the key `id`, so one would overwrite the other; give one another key with `@endec({ rename: "..." })`
 Error [275..288]: @derive(Encode): field 'text': `flatten` holds a value's fields as the enclosing object's own, and `string` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [320..334]: @derive(Encode): field 'list': `flatten` holds a value's fields as the enclosing object's own, and `Inner[]` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [366..391]: @derive(Encode): field 'map': `flatten` holds a value's fields as the enclosing object's own, and `Map<string, number>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [423..447]: @derive(Encode): field 'partial': `flatten` holds a value's fields as the enclosing object's own, and `Partial<Inner>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [479..501]: @derive(Encode): field 'inline': `flatten` holds a value's fields as the enclosing object's own, and `{ x: number }` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [533..541]: @derive(Encode): field 'held': `flatten` holds a value's fields as the enclosing object's own, and `T` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [618..638]: @derive(Decode): fields 'whole' and 'maybe' are both read from the key `id`, so one would overwrite the other; give one another key with `@endec({ rename: "..." })`
 Error [275..288]: @derive(Decode): field 'text': `flatten` holds a value's fields as the enclosing object's own, and `string` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [320..334]: @derive(Decode): field 'list': `flatten` holds a value's fields as the enclosing object's own, and `Inner[]` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
 Error [366..391]: @derive(Decode): field 'map': `flatten` holds a value's fields as the enclosing object's own, and `Map<string, number>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened

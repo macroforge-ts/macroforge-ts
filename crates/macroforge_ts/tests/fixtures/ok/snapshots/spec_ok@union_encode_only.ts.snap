@@ -208,10 +208,8 @@ export function petEncodeWithContext(value: Pet, ctx: __mf_EncodeContext): unkno
         __mf_memberCoder((member: Pet): member is { "__type": "Mouse" } & Fish => __mf_member(member, "__type") === "Mouse", (member) => ((__member: Fish, ctx: __mf_EncodeContext) => __mf_withTag(fishEncodeWithContext(__member, ctx), "__type", "Mouse"))(member, ctx)),
         __mf_memberCoder((member: Pet): member is Cat => __mf_member(member, "__type") === "Cat", (member) => catEncodeWithContext(member, ctx)),
         __mf_memberCoder((member: Pet): member is Fish => __mf_member(member, "__type") === "Fish", (member) => fishEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Pet): member is Mood => __mf_member(member, "__type") === "Mood", (member) => moodEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Pet): member is Cat => catHasShape(member), (member) => catEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Pet): member is Fish => fishHasShape(member), (member) => fishEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Pet): member is Mood => moodHasShape(member), (member) => moodEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Cat => typeof member === "object" && member !== null && !Array.isArray(member) && "kind" in member && member["kind"] === 'cat' && "born" in member, (member) => catEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Pet): member is Fish => typeof member === "object" && member !== null && !Array.isArray(member) && "fins" in member && "seen" in member, (member) => fishEncodeWithContext(member, ctx)),
         (value: Pet): unknown => {
             if (!(typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'bird' && "at" in value)) {
                 return __mf_notTheMember;
@@ -376,9 +374,9 @@ original 268..270 -> expanded 6372..6374
 original 292..351 -> expanded 6374..6433
 original 351..353 -> expanded 7001..7003
 original 375..472 -> expanded 7003..7100
-original 472..474 -> expanded 10312..10314
-original 538..606 -> expanded 10314..10382
-original 606..607 -> expanded 12203..12204
+original 472..474 -> expanded 10245..10247
+original 538..606 -> expanded 10247..10315
+original 606..607 -> expanded 12136..12137
 generated 0..650 <- imports
 generated 812..3231 <- Encode
 generated 3231..3550 <- __convenience_const
@@ -386,10 +384,10 @@ generated 3612..6046 <- Encode
 generated 6046..6372 <- __convenience_const
 generated 6433..6831 <- Encode
 generated 6831..7001 <- __convenience_const
-generated 7100..10123 <- Encode
-generated 10123..10312 <- __convenience_const
-generated 10382..11989 <- Encode
-generated 11989..12203 <- __convenience_const
+generated 7100..10056 <- Encode
+generated 10056..10245 <- __convenience_const
+generated 10315..11922 <- Encode
+generated 11922..12136 <- __convenience_const
 
 ## Metadata
 

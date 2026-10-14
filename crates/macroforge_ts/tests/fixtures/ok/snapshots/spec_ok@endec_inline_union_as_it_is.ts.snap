@@ -246,7 +246,7 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
 
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
         __mf_memberCoder((member: Shape): member is Circle => __mf_member(member, "__type") === "Circle", (member) => circleEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Shape): member is Circle => circleHasShape(member), (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => circleEncodeWithContext(member, ctx)),
     ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
@@ -415,7 +415,7 @@ export function slotEncodeWithContext<T>(value: Slot<T>, ctx: __mf_EncodeContext
 
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
         __mf_memberCoder((member: Slot<T>): member is Circle => __mf_member(member, "__type") === "Circle", (member) => circleEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Slot<T>): member is Circle => circleHasShape(member), (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Slot<T>): member is Circle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => circleEncodeWithContext(member, ctx)),
         (value: Slot<T>): unknown => __encodeT !== undefined && value !== null && value !== undefined ? __encodeT(value as T, ctx) : __mf_notTheMember,
     ]);
 
@@ -649,20 +649,20 @@ Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JS
 original 30..71 -> expanded 1112..1153
 original 71..73 -> expanded 9690..9692
 original 103..133 -> expanded 9692..9722
-original 133..135 -> expanded 16038..16040
-original 165..192 -> expanded 16040..16067
-original 192..194 -> expanded 21833..21835
-original 224..511 -> expanded 21835..22122
+original 133..135 -> expanded 16109..16111
+original 165..192 -> expanded 16111..16138
+original 192..194 -> expanded 21975..21977
+original 224..511 -> expanded 21977..22264
 generated 0..1112 <- imports
 generated 1153..3260 <- Encode
 generated 3260..8741 <- Decode
 generated 8741..9690 <- __convenience_const
-generated 9722..11326 <- Encode
-generated 11326..15562 <- Decode
-generated 15562..16038 <- __convenience_const
-generated 16067..17903 <- Encode
-generated 17903..21370 <- Decode
-generated 21370..21833 <- __convenience_const
+generated 9722..11397 <- Encode
+generated 11397..15633 <- Decode
+generated 15633..16109 <- __convenience_const
+generated 16138..18045 <- Encode
+generated 18045..21512 <- Decode
+generated 21512..21975 <- __convenience_const
 
 ## Metadata
 

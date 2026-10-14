@@ -1205,8 +1205,8 @@ export function sameEncodeWithContext(value: Same, ctx: __mf_EncodeContext): unk
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
         __mf_memberCoder((member: Same): member is Cased => __mf_member(member, "t") === "Cased", (member) => casedEncodeWithContext(member, ctx)),
         __mf_memberCoder((member: Same): member is Numbered => __mf_member(member, "t") === "Numbered", (member) => numberedEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Same): member is Cased => casedHasShape(member), (member) => casedEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Same): member is Numbered => numberedHasShape(member), (member) => numberedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Same): member is Cased => typeof member === "object" && member !== null && !Array.isArray(member) && "firstName" in member, (member) => casedEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Same): member is Numbered => typeof member === "object" && member !== null && !Array.isArray(member) && "firstName" in member, (member) => numberedEncodeWithContext(member, ctx)),
     ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
@@ -2007,11 +2007,11 @@ original 1501..1503 -> expanded 42284..42286
 original 1569..1622 -> expanded 42286..42339
 original 1622..1624 -> expanded 48484..48486
 original 1696..1733 -> expanded 48486..48523
-original 1733..1735 -> expanded 54312..54314
-original 1765..1901 -> expanded 54314..54450
-original 1901..1903 -> expanded 62949..62951
-original 1933..2036 -> expanded 62951..63054
-original 2036..2037 -> expanded 64613..64614
+original 1733..1735 -> expanded 54459..54461
+original 1765..1901 -> expanded 54461..54597
+original 1901..1903 -> expanded 63096..63098
+original 1933..2036 -> expanded 63098..63201
+original 2036..2037 -> expanded 64760..64761
 generated 0..1015 <- imports
 generated 1438..3542 <- Encode
 generated 3542..8994 <- Decode
@@ -2031,15 +2031,15 @@ generated 41814..42284 <- __convenience_const
 generated 42339..44389 <- Encode
 generated 44389..47975 <- Decode
 generated 47975..48484 <- __convenience_const
-generated 48523..50385 <- Encode
-generated 50385..53842 <- Decode
-generated 53842..54312 <- __convenience_const
-generated 54450..56555 <- Encode
-generated 56555..62014 <- Decode
-generated 62014..62949 <- __convenience_const
-generated 63054..63452 <- Encode
-generated 63452..64257 <- Decode
-generated 64257..64613 <- __convenience_const
+generated 48523..50532 <- Encode
+generated 50532..53989 <- Decode
+generated 53989..54459 <- __convenience_const
+generated 54597..56702 <- Encode
+generated 56702..62161 <- Decode
+generated 62161..63096 <- __convenience_const
+generated 63201..63599 <- Encode
+generated 63599..64404 <- Decode
+generated 64404..64760 <- __convenience_const
 
 ## Metadata
 

@@ -51,7 +51,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, guardedDecoder as __mf_guardedDecoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, memberCoder as __mf_memberCoder, notTheMember as __mf_notTheMember, encodedMember as __mf_encodedMember, member as __mf_member, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, holds as __mf_holds, decodedMember as __mf_decodedMember, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -1366,14 +1366,14 @@ function shelfEncodeFields(value: Shelf, ctx: __mf_EncodeContext, result: Record
         () => {
             if (__fields === undefined || __fields.keeps("maybe")) {
                 if (value.maybe !== undefined) {
-                    result["maybe"] = maybeEncodeWithContext<Date>(value.maybe, ctx, (__arg0) => __arg0.toISOString());
+                    result["maybe"] = value.maybe === null ? null : value.maybe.toISOString();
                 }
             }
         },
         () => {
             if (__fields === undefined || __fields.keeps("pair")) {
                 if (value.pair !== undefined) {
-                    result["pair"] = pairEncodeWithContext<Date, bigint>(value.pair, ctx, (__arg0) => __arg0.toISOString(), (__arg0) => ((v) => String(v))(__arg0));
+                    result["pair"] = [value.pair[0].toISOString(), ((v) => String(v))(value.pair[1])];
                 }
             }
         },
@@ -1485,7 +1485,7 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         }
     }
 
-    const instance: { "dated"?: Box<Date> | undefined; "stack"?: Stack<Box<Date>> | undefined; "outcome"?: Outcome<Date, string> | undefined; "maybe"?: Maybe<Date> | undefined; "pair"?: Pair<Date, bigint> | undefined; "partial"?: Partial<Box<Date>> | undefined; "wrapper"?: Wrapper<Date> | null | undefined; "plain"?: Box<string> | undefined } = {};
+    const instance: { "dated"?: Box<Date> | undefined; "stack"?: Stack<Box<Date>> | undefined; "outcome"?: Outcome<Date, string> | undefined; "maybe"?: Date | null | undefined; "pair"?: [Date, bigint] | undefined; "partial"?: Partial<Box<Date>> | undefined; "wrapper"?: Wrapper<Date> | null | undefined; "plain"?: Box<string> | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "Shelf");
@@ -1571,58 +1571,50 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         },
         () => {
             if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
-                const __raw_maybe = obj["maybe"] as Maybe<Date>;
+                const __raw_maybe = obj["maybe"] as string | Date | null;
 
-                ctx.pushScope("maybe");
-                try {
-                    const __result = maybeDecodeWithContext<Date>(__raw_maybe, ctx, __mf_decodeDate);
-                    ctx.assignOrDefer(instance, "maybe", __result);
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
-                                message: __err.message
-                            });
-                        }
+                if (__raw_maybe === null) {
+                    instance.maybe = null;
+                } else {
+                    const __dateVal = (__raw_maybe instanceof Date ? __raw_maybe : typeof __raw_maybe === "string" ? new Date(__raw_maybe) : undefined);
+                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                        errors.push({ field: "maybe", message: "expected Date | null" });
                     } else {
-
-                        errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                        instance.maybe = __dateVal;
                     }
-                } finally {
-                    ctx.popScope();
                 }
             }
         },
         () => {
             if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
-                const __raw_pair = obj["pair"] as Pair<Date, bigint>;
-
-                ctx.pushScope("pair");
-                try {
-                    const __result = pairDecodeWithContext<Date, bigint>(__raw_pair, ctx, __mf_decodeDate, (__raw0) => (((v) => {
+                const __raw_pair = obj["pair"] as [Date, bigint];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeDate, (__raw0) => (((v) => {
                                 const raw: unknown = v;
                                 if (typeof raw === "bigint") return raw;
                                 // A number past the safe integers has lost digits already.
                                 if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                                 if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                                 return BigInt(raw);
-                            })(__raw0) as bigint));
-                    ctx.assignOrDefer(instance, "pair", __result);
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                                message: __err.message
-                            });
+                            })(__raw0) as bigint)], 2) as [Date, bigint]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
                         }
-                    } else {
-
-                        errors.push({ field: "pair", message: __e instanceof Error ? __e.message : String(__e) });
+                    } finally {
+                        ctx.popScope();
                     }
-                } finally {
-                    ctx.popScope();
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "Shelf.pair is required" : "expected [Date, bigint]" });
                 }
             }
         },
@@ -2065,45 +2057,45 @@ export {};
 
 ## Mapping
 
-original 30..115 -> expanded 1170..1255
-original 115..117 -> expanded 15891..15893
-original 147..186 -> expanded 15893..15932
-original 186..187 -> expanded 24082..24083
-original 187..189 -> expanded 27482..27484
-original 219..312 -> expanded 27484..27577
-original 312..314 -> expanded 35492..35494
-original 344..370 -> expanded 35494..35520
-original 370..372 -> expanded 40117..40119
-original 402..442 -> expanded 40119..40159
-original 442..444 -> expanded 48032..48034
-original 474..518 -> expanded 48034..48078
-original 518..520 -> expanded 57806..57808
-original 550..803 -> expanded 57808..58061
-original 803..804 -> expanded 79148..79149
-generated 0..1170 <- imports
-generated 1255..4586 <- Encode
-generated 4586..15005 <- Decode
-generated 15005..15891 <- __convenience_const
-generated 15932..17668 <- Encode
-generated 17668..18031 <- Encode
-generated 18031..24082 <- Decode
-generated 24083..25540 <- Encode
-generated 25540..27482 <- Decode
-generated 27577..30556 <- Encode
-generated 30556..34990 <- Decode
-generated 34990..35492 <- __convenience_const
-generated 35520..37064 <- Encode
-generated 37064..39641 <- Decode
-generated 39641..40117 <- __convenience_const
-generated 40159..41814 <- Encode
-generated 41814..47569 <- Decode
-generated 47569..48032 <- __convenience_const
-generated 48078..50486 <- Encode
-generated 50486..56836 <- Decode
-generated 56836..57806 <- __convenience_const
-generated 58061..62564 <- Encode
-generated 62564..78220 <- Decode
-generated 78220..79148 <- __convenience_const
+original 30..115 -> expanded 1203..1288
+original 115..117 -> expanded 15924..15926
+original 147..186 -> expanded 15926..15965
+original 186..187 -> expanded 24115..24116
+original 187..189 -> expanded 27515..27517
+original 219..312 -> expanded 27517..27610
+original 312..314 -> expanded 35525..35527
+original 344..370 -> expanded 35527..35553
+original 370..372 -> expanded 40150..40152
+original 402..442 -> expanded 40152..40192
+original 442..444 -> expanded 48065..48067
+original 474..518 -> expanded 48067..48111
+original 518..520 -> expanded 57839..57841
+original 550..803 -> expanded 57841..58094
+original 803..804 -> expanded 78937..78938
+generated 0..1203 <- imports
+generated 1288..4619 <- Encode
+generated 4619..15038 <- Decode
+generated 15038..15924 <- __convenience_const
+generated 15965..17701 <- Encode
+generated 17701..18064 <- Encode
+generated 18064..24115 <- Decode
+generated 24116..25573 <- Encode
+generated 25573..27515 <- Decode
+generated 27610..30589 <- Encode
+generated 30589..35023 <- Decode
+generated 35023..35525 <- __convenience_const
+generated 35553..37097 <- Encode
+generated 37097..39674 <- Decode
+generated 39674..40150 <- __convenience_const
+generated 40192..41847 <- Encode
+generated 41847..47602 <- Decode
+generated 47602..48065 <- __convenience_const
+generated 48111..50519 <- Encode
+generated 50519..56869 <- Decode
+generated 56869..57839 <- __convenience_const
+generated 58094..62510 <- Encode
+generated 62510..78009 <- Decode
+generated 78009..78937 <- __convenience_const
 
 ## Metadata
 

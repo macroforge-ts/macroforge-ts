@@ -1294,7 +1294,7 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
 
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
         __mf_memberCoder((member: Outcome<T>): member is Box<T> => __mf_member(member, "__type") === "Box", (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
-        __mf_memberCoder((member: Outcome<T>): member is Box<T> => boxHasShape(member), (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
+        __mf_memberCoder((member: Outcome<T>): member is Box<T> => typeof member === "object" && member !== null && !Array.isArray(member) && "label" in member && "value" in member, (member) => ((__member: Box<T>, ctx: __mf_EncodeContext) => boxEncodeWithContext<T>(__member, ctx, (__arg0) => (__encodeT === undefined ? __arg0 : __encodeT(__arg0, ctx))))(member, ctx)),
     ]);
 
     if (__variant !== null && typeof __variant === "object" && "__type" in __variant) {
@@ -1784,7 +1784,7 @@ original 619..621 -> expanded 44356..44358
 original 651..710 -> expanded 44358..44417
 original 710..712 -> expanded 56233..56235
 original 742..784 -> expanded 56235..56277
-original 784..785 -> expanded 63638..63639
+original 784..785 -> expanded 63732..63733
 generated 0..1071 <- imports
 generated 1270..3342 <- Encode
 generated 3342..9500 <- Decode
@@ -1801,9 +1801,9 @@ generated 43463..44356 <- __convenience_const
 generated 44417..47341 <- Encode
 generated 47341..55319 <- Decode
 generated 55319..56233 <- __convenience_const
-generated 56277..58250 <- Encode
-generated 58250..63129 <- Decode
-generated 63129..63638 <- __convenience_const
+generated 56277..58344 <- Encode
+generated 58344..63223 <- Decode
+generated 63223..63732 <- __convenience_const
 
 ## Metadata
 

@@ -102,7 +102,6 @@ interface Patterned {
 
 Error [55..89]: @derive(Encode): `(value: number) => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [94..107]: @derive(Encode): `symbol` is a symbol, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
-Error [112..131]: @derive(Encode): `keyof Holder` is a `keyof` type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [136..157]: @derive(Encode): `Config['mode']` is an indexed access type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [162..199]: @derive(Encode): `{ [K in 'a' | 'b']: boolean }` is a mapped type, whose members only the type checker can read; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [204..233]: @derive(Encode): `() => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
@@ -111,7 +110,6 @@ Error [372..399]: @derive(Encode): ``${number}${number}`` is a template literal 
 Error [238..257]: @derive(Encode): `() => string` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [55..89]: @derive(Decode): `(value: number) => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [94..107]: @derive(Decode): `symbol` is a symbol, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
-Error [112..131]: @derive(Decode): `keyof Holder` is a `keyof` type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [136..157]: @derive(Decode): `Config['mode']` is an indexed access type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [162..199]: @derive(Decode): `{ [K in 'a' | 'b']: boolean }` is a mapped type, whose members only the type checker can read; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 Error [204..233]: @derive(Decode): `() => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`

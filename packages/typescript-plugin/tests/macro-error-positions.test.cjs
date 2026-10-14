@@ -19,7 +19,7 @@ function findMarker(source, marker) {
     return { offset: index };
 }
 
-function createEnv(files) {
+function createEnv(files, options = {}) {
     const snapshots = new Map();
     const versions = new Map();
 
@@ -38,7 +38,8 @@ function createEnv(files) {
             strict: true,
             noEmit: true,
             experimentalDecorators: true,
-            emitDecoratorMetadata: false
+            emitDecoratorMetadata: false,
+            ...options
         }),
         getDefaultLibFileName: () => '/virtual/lib.d.ts',
         fileExists: (path) => snapshots.has(path),
@@ -715,4 +716,25 @@ class Second {
             `diagnostic length should be 5 (length of "Debug"), got ${diag.length}`
         );
     }
+});
+
+test('a subclass overrides the statics a base in its file derives', () => {
+    const source = `/** @derive(Clone, PartialEq, Hash, Default) */
+export class Base { id: string = ''; }
+/** @derive(Clone, PartialEq, Hash, Default) */
+export class Sub extends Base { name: string = ''; }
+`;
+    const env = createEnv(
+        {
+            '/virtual/classes.ts': source,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        },
+        { noImplicitOverride: true }
+    );
+    const diagnostics = env.pluginService.getSemanticDiagnostics('/virtual/classes.ts');
+    const overrides = diagnostics
+        .map((d) => (typeof d.messageText === 'string' ? d.messageText : d.messageText.messageText))
+        .filter((message) => message.includes('override'));
+    assert.deepEqual(overrides, []);
 });

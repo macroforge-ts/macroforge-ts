@@ -106,6 +106,7 @@ mod wasm_loader;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistryEntry};
 use crate::ts_syn::abi::ir::{module_gives_functions, relative_module_specifier};
 use crate::ts_syn::abi::{
     ClassIR, DecoratorIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR,
@@ -1132,19 +1133,36 @@ impl MacroExpander {
             .collect();
 
         // A name this file declares is this file's type, whether the scan
-        // read the file or not.
+        // read the file or not: where it did not, the declaration here
+        // answers for it.
+        let own_imports =
+            crate::host::import_registry::with_registry(|registry| registry.file_import_entries());
+        let own_entry = |name: &str, definition: TypeDefinitionIR| TypeRegistryEntry {
+            name: name.to_string(),
+            file_path: file_name.to_string(),
+            is_exported: false,
+            exported_as: Vec::new(),
+            re_exported: Vec::new(),
+            definition,
+            file_imports: own_imports.clone(),
+        };
         let type_registry = self.type_registry.declaring(
             file_name,
             class_map
                 .values()
-                .map(|class| class.name.clone())
-                .chain(
-                    interface_map
-                        .values()
-                        .map(|interface| interface.name.clone()),
-                )
-                .chain(enum_map.values().map(|declared| declared.name.clone()))
-                .chain(type_alias_map.values().map(|alias| alias.name.clone())),
+                .map(|class| own_entry(&class.name, TypeDefinitionIR::Class(class.clone())))
+                .chain(interface_map.values().map(|interface| {
+                    own_entry(
+                        &interface.name,
+                        TypeDefinitionIR::Interface(interface.clone()),
+                    )
+                }))
+                .chain(enum_map.values().map(|declared| {
+                    own_entry(&declared.name, TypeDefinitionIR::Enum(declared.clone()))
+                }))
+                .chain(type_alias_map.values().map(|alias| {
+                    own_entry(&alias.name, TypeDefinitionIR::TypeAlias(alias.clone()))
+                })),
         );
 
         let function_map: HashMap<SpanKey, FunctionIR> = functions

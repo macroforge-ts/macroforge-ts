@@ -430,8 +430,8 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
     const __variant: unknown = __encoder !== undefined ? __encoder(value, ctx) : __mf_encodedMember(value, [
         __mf_memberCoder((member: Shape): member is Circle => __mf_member(member, "kind") === "Circle", (member) => circleEncodeWithContext(member, ctx)),
         __mf_memberCoder((member: Shape): member is Square => __mf_member(member, "kind") === "Square", (member) => squareEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Shape): member is Circle => circleHasShape(member), (member) => circleEncodeWithContext(member, ctx)),
-        __mf_memberCoder((member: Shape): member is Square => squareHasShape(member), (member) => squareEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Circle => typeof member === "object" && member !== null && !Array.isArray(member) && "radius" in member, (member) => circleEncodeWithContext(member, ctx)),
+        __mf_memberCoder((member: Shape): member is Square => typeof member === "object" && member !== null && !Array.isArray(member) && "side" in member, (member) => squareEncodeWithContext(member, ctx)),
     ]);
 
     if (typeof __variant !== "object" || __variant === null) return __variant;
@@ -664,7 +664,7 @@ original 71..73 -> expanded 9395..9397
 original 103..142 -> expanded 9397..9436
 original 142..144 -> expanded 17931..17933
 original 222..252 -> expanded 17933..17963
-original 252..253 -> expanded 23804..23805
+original 252..253 -> expanded 23944..23945
 generated 0..817 <- imports
 generated 858..2965 <- Encode
 generated 2965..8446 <- Decode
@@ -672,9 +672,9 @@ generated 8446..9395 <- __convenience_const
 generated 9436..11535 <- Encode
 generated 11535..16982 <- Decode
 generated 16982..17931 <- __convenience_const
-generated 17963..19840 <- Encode
-generated 19840..23328 <- Decode
-generated 23328..23804 <- __convenience_const
+generated 17963..19980 <- Encode
+generated 19980..23468 <- Decode
+generated 23468..23944 <- __convenience_const
 
 ## Metadata
 
