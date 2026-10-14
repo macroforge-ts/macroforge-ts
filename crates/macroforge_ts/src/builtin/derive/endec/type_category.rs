@@ -239,22 +239,10 @@ impl TypeCategory {
             && !is_keyword_type(trimmed)
             && !matches!(
                 trimmed,
-                "String"
-                    | "Number"
-                    | "Boolean"
-                    | "Object"
-                    | "Function"
-                    | "Symbol"
-                    | "URL"
+                "URL"
                     | "URLSearchParams"
                     | "RegExp"
                     | "Error"
-                    | "EvalError"
-                    | "RangeError"
-                    | "ReferenceError"
-                    | "SyntaxError"
-                    | "TypeError"
-                    | "URIError"
                     | "Int8Array"
                     | "Uint8Array"
                     | "Uint8ClampedArray"
@@ -267,7 +255,6 @@ impl TypeCategory {
                     | "BigInt64Array"
                     | "BigUint64Array"
                     | "ArrayBuffer"
-                    | "DataView"
             )
         {
             // Extract base type name (handle generics like Foo<T>)
@@ -301,19 +288,8 @@ impl TypeCategory {
                 }
             }
 
-            // These utility types don't have a meaningful encoding strategy
-            // (they operate on function types, unions, or async types)
-            if matches!(
-                base_type,
-                "Exclude"
-                    | "Extract"
-                    | "ReturnType"
-                    | "Parameters"
-                    | "InstanceType"
-                    | "ThisType"
-                    | "Awaited"
-                    | "Promise"
-            ) {
+            // A built-in type with no coding is no type of the project's.
+            if super::uncodable::builtin_reason(base_type, trimmed.contains('<')).is_some() {
                 return Self::Unknown;
             }
 

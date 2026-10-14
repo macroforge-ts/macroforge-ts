@@ -1,0 +1,467 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_unchecked_types.ts
+---
+## Input
+
+import type { Named, Dated } from './elsewhere';
+
+/** A type no coder reads is refused, wherever in a field's type it stands. */
+/** @derive(Encode, Decode) */
+export interface Holder {
+    pending: Promise<string>;
+    both: Named & Dated;
+    widened: Named & { extra: number };
+    self: this;
+    inline: import('./elsewhere').Named;
+    weak: WeakMap<object, string>;
+    boxed: String;
+    anything: Object;
+    failed: TypeError;
+    left: Exclude<'a' | 'b', 'a'>;
+    result: ReturnType<() => string>;
+    shout: Uppercase<'a'>;
+    either: { a: string } | { b: number };
+    queue: Promise<string>[];
+    byKey: Record<string, Promise<number>>;
+    refs: Set<WeakRef<object>>;
+}
+
+/** A branded primitive, `unknown` and a type that only shares a utility type's name are read. */
+/** @derive(Encode, Decode) */
+export interface Read {
+    id: string & { readonly __brand: 'Id' };
+    carried: unknown;
+    parameters: Parameters;
+    at: URL;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { decodeSet as __mf_decodeSet, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { Named, Dated } from './elsewhere';
+
+/** A type no coder reads is refused, wherever in a field's type it stands. */
+
+export interface Holder {
+    pending: Promise<string>;
+    both: Named & Dated;
+    widened: Named & { extra: number };
+    self: this;
+    inline: import('./elsewhere').Named;
+    weak: WeakMap<object, string>;
+    boxed: String;
+    anything: Object;
+    failed: TypeError;
+    left: Exclude<'a' | 'b', 'a'>;
+    result: ReturnType<() => string>;
+    shout: Uppercase<'a'>;
+    either: { a: string } | { b: number };
+    queue: Promise<string>[];
+    byKey: Record<string, Promise<number>>;
+    refs: Set<WeakRef<object>>;
+}
+
+/** A branded primitive, `unknown` and a type that only shares a utility type's name are read. */
+
+export interface Read {
+    id: string & { readonly __brand: 'Id' };
+    carried: unknown;
+    parameters: Parameters;
+    at: URL;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function readEncode(value: Read, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = readEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function readEncodeWithContext(value: Read, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Read" });
+    readEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function readEncodePartialWithContext(value: Partial<Read>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Read>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Read" };
+        readEncodeFields(value as Read, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function readEncodeFields(value: Read, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("carried")) {
+        if (value.carried !== undefined) {
+            result["carried"] = value.carried;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("parameters")) {
+        if (value.parameters !== undefined) {
+            result["parameters"] = parametersEncodeWithContext(value.parameters, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result["at"] = ((v) => v.toString())(value.at);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function readDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Read } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = readDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Read.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Read | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Read> | __mf_PendingRef;
+export function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Read> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Read.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Read.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Read") as Read | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Read.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("carried")) && !("carried" in obj)) {
+        errors.push({ field: "carried", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("parameters")) && !("parameters" in obj)) {
+        errors.push({ field: "parameters", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Read");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string & { readonly __brand: 'Id' };
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Read.id is required" : "expected string & { readonly __brand: 'Id' }" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("carried")) ? "carried" in obj : (__fields.keeps("carried") && obj["carried"] !== undefined)) {
+        const __raw_carried = obj["carried"] as unknown;
+
+        instance.carried = __raw_carried;
+    }
+    if ((__fields === undefined || __fields.requires("parameters")) ? "parameters" in obj : (__fields.keeps("parameters") && obj["parameters"] !== undefined)) {
+        const __raw_parameters = obj["parameters"] as Parameters;
+
+        ctx.pushScope("parameters");
+        try {
+            const __result = parametersDecodeWithContext(__raw_parameters, ctx);
+            ctx.assignOrDefer(instance, "parameters", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "parameters" : "parameters." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "parameters", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        try {
+            instance.at = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+        	return new URL(raw);
+        })(obj["at"]);
+        } catch (__error) {
+            errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Read;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function readDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Read>): Partial<Read> | __mf_PendingRef {
+    return readDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function readValidateField<K extends keyof Read>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function readValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function readValidateFields(partial: { readonly [K in keyof Read]?: unknown }): Array<{ field: string; message: string }>;
+export function readValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function readHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id") && __mf_holds(obj, "carried") && __mf_holds(obj, "parameters") && __mf_holds(obj, "at");
+}
+
+export function readIs(obj: unknown): obj is Read {
+    return readHasShape(obj) && readDecode(obj).success;
+}
+
+export const Read: {
+  readonly encode: typeof readEncode;
+  readonly encodeWithContext: typeof readEncodeWithContext;
+  readonly encodePartialWithContext: typeof readEncodePartialWithContext;
+  readonly decode: typeof readDecode;
+  readonly decodeWithContext: typeof readDecodeWithContext;
+  readonly decodePartialWithContext: typeof readDecodePartialWithContext;
+  readonly validateField: typeof readValidateField;
+  readonly validateFields: typeof readValidateFields;
+  readonly hasShape: typeof readHasShape;
+  readonly is: typeof readIs;
+} = {
+  encode: readEncode,
+  encodeWithContext: readEncodeWithContext,
+  encodePartialWithContext: readEncodePartialWithContext,
+  decode: readDecode,
+  decodeWithContext: readDecodeWithContext,
+  decodePartialWithContext: readDecodePartialWithContext,
+  validateField: readValidateField,
+  validateFields: readValidateFields,
+  hasShape: readHasShape,
+  is: readIs
+};
+
+## DTS
+
+import type { Named, Dated } from "./elsewhere";
+/** A type no coder reads is refused, wherever in a field's type it stands. */
+export interface Holder {
+	pending: Promise<string>;
+	both: Named & Dated;
+	widened: Named & {
+		extra: number;
+	};
+	self: this;
+	inline: import("./elsewhere").Named;
+	weak: WeakMap<object, string>;
+	boxed: String;
+	anything: Object;
+	failed: TypeError;
+	left: Exclude<"a" | "b", "a">;
+	result: ReturnType<() => string>;
+	shout: Uppercase<"a">;
+	either: {
+		a: string;
+	} | {
+		b: number;
+	};
+	queue: Promise<string>[];
+	byKey: Record<string, Promise<number>>;
+	refs: Set<WeakRef<object>>;
+}
+/** A branded primitive, `unknown` and a type that only shares a utility type's name are read. */
+export interface Read {
+	id: string & {
+		readonly __brand: "Id";
+	};
+	carried: unknown;
+	parameters: Parameters;
+	at: URL;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function readEncode(value: Read, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function readEncodeWithContext(value: Read, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function readEncodePartialWithContext(value: Partial<Read>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Read>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function readDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Read;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Read | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function readDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Read> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function readDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Read>): Partial<Read> | __mf_PendingRef;
+export declare function readValidateField<K extends keyof Read>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function readValidateFields(partial: { readonly [K in keyof Read]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function readHasShape(obj: unknown): boolean;
+export declare function readIs(obj: unknown): obj is Read;
+export declare const Read: {
+	readonly encode: typeof readEncode;
+	readonly encodeWithContext: typeof readEncodeWithContext;
+	readonly encodePartialWithContext: typeof readEncodePartialWithContext;
+	readonly decode: typeof readDecode;
+	readonly decodeWithContext: typeof readDecodeWithContext;
+	readonly decodePartialWithContext: typeof readDecodePartialWithContext;
+	readonly validateField: typeof readValidateField;
+	readonly validateFields: typeof readValidateFields;
+	readonly hasShape: typeof readHasShape;
+	readonly is: typeof readIs;
+};
+
+## Diagnostics
+
+Error [191..216]: @derive(Encode): `Promise<string>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [221..241]: @derive(Encode): `Named & Dated` is an intersection, which is coded only as a type alias of its own that derives the coders; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [246..281]: @derive(Encode): `Named & { extra: number }` is an intersection, which is coded only as a type alias of its own that derives the coders; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [286..297]: @derive(Encode): `this` is the type of whatever value holds it, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [302..338]: @derive(Encode): `import('./elsewhere').Named` is a type written as an inline `import()`, which no import of the file names; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [343..373]: @derive(Encode): `WeakMap<object, string>` is a weak reference, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [378..392]: @derive(Encode): `String` is a boxed primitive, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [397..414]: @derive(Encode): `Object` is the type of every value but `null` and `undefined`, which asks nothing a decoder could check; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [419..437]: @derive(Encode): `TypeError` is a built-in class that has no coder; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [442..472]: @derive(Encode): `Exclude<'a' | 'b', 'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [477..510]: @derive(Encode): `ReturnType<() => string>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [515..537]: @derive(Encode): `Uppercase<'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [542..580]: @derive(Encode): `{ a: string } | { b: number }` is a type no coder reads; name it with an alias, `type Named = { a: string } | { b: number }`, and derive on that, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [585..610]: @derive(Encode): `Promise<string>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [615..654]: @derive(Encode): `Promise<number>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [659..686]: @derive(Encode): `WeakRef<object>` is a weak reference, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [191..216]: @derive(Decode): `Promise<string>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [221..241]: @derive(Decode): `Named & Dated` is an intersection, which is coded only as a type alias of its own that derives the coders; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [246..281]: @derive(Decode): `Named & { extra: number }` is an intersection, which is coded only as a type alias of its own that derives the coders; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [286..297]: @derive(Decode): `this` is the type of whatever value holds it, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [302..338]: @derive(Decode): `import('./elsewhere').Named` is a type written as an inline `import()`, which no import of the file names; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [343..373]: @derive(Decode): `WeakMap<object, string>` is a weak reference, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [378..392]: @derive(Decode): `String` is a boxed primitive, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [397..414]: @derive(Decode): `Object` is the type of every value but `null` and `undefined`, which asks nothing a decoder could check; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [419..437]: @derive(Decode): `TypeError` is a built-in class that has no coder; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [442..472]: @derive(Decode): `Exclude<'a' | 'b', 'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [477..510]: @derive(Decode): `ReturnType<() => string>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [515..537]: @derive(Decode): `Uppercase<'a'>` is a utility type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [542..580]: @derive(Decode): `{ a: string } | { b: number }` is a type no coder reads; name it with an alias, `type Named = { a: string } | { b: number }`, and derive on that, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [585..610]: @derive(Decode): `Promise<string>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [615..654]: @derive(Decode): `Promise<number>` is a promise, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [659..686]: @derive(Decode): `WeakRef<object>` is a weak reference, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+
+## Mapping
+
+original 0..129 -> expanded 708..837
+original 159..787 -> expanded 837..1465
+original 817..951 -> expanded 1465..1599
+original 951..952 -> expanded 12663..12664
+generated 0..708 <- imports
+generated 1599..4215 <- Encode
+generated 4215..11749 <- Decode
+generated 11749..12663 <- __convenience_const
+
+## Metadata
+
+interface Holder: {"body_span":{"end":688,"start":185},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":160,"start":130}}],"fields":[{"decorators":[],"key":"Named","name":"pending","optional":false,"readonly":false,"span":{"end":216,"start":191},"ts_type":"Promise<string>"},{"decorators":[],"key":"Named","name":"both","optional":false,"readonly":false,"span":{"end":241,"start":221},"ts_type":"Named & Dated"},{"decorators":[],"key":"Named","name":"widened","optional":false,"readonly":false,"span":{"end":281,"start":246},"ts_type":"Named & { extra: number }"},{"decorators":[],"key":"Named","name":"self","optional":false,"readonly":false,"span":{"end":297,"start":286},"ts_type":"this"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":338,"start":302},"ts_type":"import('./elsewhere').Named"},{"decorators":[],"key":"Named","name":"weak","optional":false,"readonly":false,"span":{"end":373,"start":343},"ts_type":"WeakMap<object, string>"},{"decorators":[],"key":"Named","name":"boxed","optional":false,"readonly":false,"span":{"end":392,"start":378},"ts_type":"String"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":414,"start":397},"ts_type":"Object"},{"decorators":[],"key":"Named","name":"failed","optional":false,"readonly":false,"span":{"end":437,"start":419},"ts_type":"TypeError"},{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":472,"start":442},"ts_type":"Exclude<'a' | 'b', 'a'>"},{"decorators":[],"key":"Named","name":"result","optional":false,"readonly":false,"span":{"end":510,"start":477},"ts_type":"ReturnType<() => string>"},{"decorators":[],"key":"Named","name":"shout","optional":false,"readonly":false,"span":{"end":537,"start":515},"ts_type":"Uppercase<'a'>"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":580,"start":542},"ts_type":"{ a: string } | { b: number }"},{"decorators":[],"key":"Named","name":"queue","optional":false,"readonly":false,"span":{"end":610,"start":585},"ts_type":"Promise<string>[]"},{"decorators":[],"key":"Named","name":"byKey","optional":false,"readonly":false,"span":{"end":654,"start":615},"ts_type":"Record<string, Promise<number>>"},{"decorators":[],"key":"Named","name":"refs","optional":false,"readonly":false,"span":{"end":686,"start":659},"ts_type":"Set<WeakRef<object>>"}],"heritage":[],"methods":[],"name":"Holder","span":{"end":688,"start":168},"type_params":[]}
+interface Read: {"body_span":{"end":952,"start":841},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":818,"start":788}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":887,"start":847},"ts_type":"string & { readonly __brand: 'Id' }"},{"decorators":[],"key":"Named","name":"carried","optional":false,"readonly":false,"span":{"end":909,"start":892},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"parameters","optional":false,"readonly":false,"span":{"end":937,"start":914},"ts_type":"Parameters"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":950,"start":942},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Read","span":{"end":952,"start":826},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

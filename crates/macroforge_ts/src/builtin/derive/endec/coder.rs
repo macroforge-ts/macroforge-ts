@@ -392,6 +392,22 @@ fn told_apart(ts_type: &str, scope: &TypeScope<'_>) -> Result<(), String> {
     }
 }
 
+/// An error for a type whose values would pass as they are with nothing
+/// saying they are of it. `any` and `unknown` ask nothing of a value, and a
+/// type told by looking at one is checked where it is decoded.
+fn carried(ts_type: &str) -> Result<(), String> {
+    let asks_nothing = split_top_level_union(ts_type)
+        .unwrap_or_else(|| vec![ts_type])
+        .iter()
+        .any(|member| matches!(member.trim(), "any" | "unknown"));
+    if asks_nothing || structural_accepts(ts_type, "value", 0).is_some() {
+        return Ok(());
+    }
+    Err(format!(
+        "`{ts_type}` is a type no coder reads; name it with an alias, `type Named = {ts_type}`, and derive on that, configure a type of another library under `foreignTypes`, code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`"
+    ))
+}
+
 /// The elements of the tuple `value` from `index` on, as the type its rest
 /// element gives them: `slice` would hand back a union of every element's.
 pub(crate) fn tuple_rest(value: &str, index: usize, depth: usize) -> String {
@@ -905,6 +921,7 @@ pub(crate) fn encode_expr(
             }
             None => {
                 told_apart(ts_type, scope)?;
+                carried(ts_type)?;
                 None
             }
         },
@@ -1278,15 +1295,21 @@ pub(crate) fn decode_expr(
             // their own encoding, which are still checked to be of it.
             None => {
                 told_apart(ts_type, scope)?;
-                split_top_level_union(ts_type)
-                    .and_then(|_| structural_accepts(ts_type, raw, depth))
-                    .map(|accepts| {
+                let accepts = split_top_level_union(ts_type)
+                    .and_then(|_| structural_accepts(ts_type, raw, depth));
+                match accepts {
+                    Some(accepts) => {
                         let checked = endec_helper("decodeChecked");
                         let expected = js_string(ts_type);
-                        rendered(ts_template! {
+                        Some(rendered(ts_template! {
                             (@{checked}(@{raw}, @{accepts}, @{expected}) as @{ts_type})
-                        })
-                    })
+                        }))
+                    }
+                    None => {
+                        carried(ts_type)?;
+                        None
+                    }
+                }
             }
         },
     })

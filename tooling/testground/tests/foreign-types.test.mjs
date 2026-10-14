@@ -433,9 +433,15 @@ describe('Foreign type import matching', () => {
             { configPath }
         );
 
-        // Falls back to generic handling and leaves the type to tsc.
-        assertNoErrors(result);
-        assertSkipsHandlers(result.code, '__foreign__', '#macroforge/config');
+        // Not the configured `DateTime`: a type no coder reads, which is refused.
+        const errors = (result.diagnostics ?? []).filter((d) => d.level === 'error');
+        assert.equal(errors.length, 1, JSON.stringify(result.diagnostics));
+        assert.ok(
+            errors[0].message.includes('`DateTime.DateTime` is a type no coder reads'),
+            errors[0].message
+        );
+        assert.ok(errors[0].message.includes('foreignTypes'), errors[0].message);
+        assertSkipsHandlers(result.code ?? '', '__foreign__', '#macroforge/config');
     });
 
     test('does not match local types with same name as foreign type', () => {

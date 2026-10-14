@@ -116,15 +116,64 @@ fn template_hole(hole: &str) -> Result<TemplateHole, String> {
     Ok(TemplateHole::OneOf(texts))
 }
 
-fn reason(ts_type: &TSType<'_>) -> Option<&'static str> {
-    const FUNCTION: &str = "a function, which JSON has no form for";
-    const SYMBOL: &str = "a symbol, which JSON has no form for";
-    match ts_type {
-        TSType::TSFunctionType(_) | TSType::TSConstructorType(_) => Some(FUNCTION),
-        TSType::TSSymbolKeyword(_) => Some(SYMBOL),
-        TSType::TSVoidKeyword(_) | TSType::TSNeverKeyword(_) => {
-            Some("a type with no value for JSON to hold")
+const FUNCTION: &str = "a function, which JSON has no form for";
+const SYMBOL: &str = "a symbol, which JSON has no form for";
+
+/// Why a value of the built-in type `name` cannot be coded, when it cannot.
+/// A type that takes type arguments is the built-in one only where it is
+/// given some: `Parameters` alone is a type of the project's.
+pub(crate) fn builtin_reason(name: &str, has_arguments: bool) -> Option<&'static str> {
+    match name {
+        "Function" => Some(FUNCTION),
+        "Symbol" => Some(SYMBOL),
+        "String" | "Number" | "Boolean" | "BigInt" => {
+            Some("a boxed primitive, which JSON has no form for")
         }
+        "Object" => Some(
+            "the type of every value but `null` and `undefined`, which asks nothing a decoder could check",
+        ),
+        "EvalError" | "RangeError" | "ReferenceError" | "SyntaxError" | "TypeError"
+        | "URIError" | "DataView" | "SharedArrayBuffer" => {
+            Some("a built-in class that has no coder")
+        }
+        "Promise" | "PromiseLike" if has_arguments => Some("a promise, which JSON has no form for"),
+        "WeakMap" | "WeakSet" | "WeakRef" if has_arguments => {
+            Some("a weak reference, which JSON has no form for")
+        }
+        _ => checker_only_utility(name, has_arguments),
+    }
+}
+
+/// Why the built-in utility type `name` names no value a derive can work
+/// out, when it is one given type arguments.
+fn checker_only_utility(name: &str, has_arguments: bool) -> Option<&'static str> {
+    (has_arguments
+        && matches!(
+            name,
+            "Exclude"
+                | "Extract"
+                | "ReturnType"
+                | "Parameters"
+                | "ConstructorParameters"
+                | "InstanceType"
+                | "ThisType"
+                | "ThisParameterType"
+                | "OmitThisParameter"
+                | "Awaited"
+                | "NoInfer"
+                | "Uppercase"
+                | "Lowercase"
+                | "Capitalize"
+                | "Uncapitalize"
+        ))
+    .then_some("a utility type, which only the type checker can resolve")
+}
+
+/// Why only the type checker knows what values `ts_type` has, when that is
+/// so: an operator, a mapped or conditional type, a utility type, `this`, or
+/// a type no import of the file names.
+pub(crate) fn checker_only(ts_type: &TSType<'_>) -> Option<&'static str> {
+    match ts_type {
         TSType::TSMappedType(_) => {
             Some("a mapped type, whose members only the type checker can read")
         }
@@ -135,17 +184,78 @@ fn reason(ts_type: &TSType<'_>) -> Option<&'static str> {
         TSType::TSIndexedAccessType(_) => {
             Some("an indexed access type, which only the type checker can resolve")
         }
-        TSType::TSTypeOperatorType(operator) => match operator.operator {
-            TSTypeOperatorOperator::Keyof => {
-                Some("a `keyof` type, which only the type checker can resolve")
+        TSType::TSThisType(_) => {
+            Some("the type of whatever value holds it, which only the type checker can resolve")
+        }
+        TSType::TSImportType(_) => {
+            Some("a type written as an inline `import()`, which no import of the file names")
+        }
+        TSType::TSTypeOperatorType(operator)
+            if operator.operator == TSTypeOperatorOperator::Keyof =>
+        {
+            Some("a `keyof` type, which only the type checker can resolve")
+        }
+        TSType::TSTypeReference(reference) => match &reference.type_name {
+            TSTypeName::IdentifierReference(name) => {
+                checker_only_utility(&name.name, reference.type_arguments.is_some())
             }
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// Whether an intersection is a branded primitive, such as
+/// `string & { readonly __brand: 'Id' }`: one primitive, and object types
+/// that only the type checker sees.
+fn is_brand(members: &[TSType<'_>]) -> bool {
+    let is_primitive = |member: &&TSType<'_>| {
+        matches!(
+            member,
+            TSType::TSStringKeyword(_)
+                | TSType::TSNumberKeyword(_)
+                | TSType::TSBigIntKeyword(_)
+                | TSType::TSBooleanKeyword(_)
+        )
+    };
+    let brands = members
+        .iter()
+        .filter(|member| matches!(member, TSType::TSTypeLiteral(_)))
+        .count();
+    members.iter().filter(is_primitive).count() == 1 && brands + 1 == members.len()
+}
+
+fn reason(ts_type: &TSType<'_>) -> Option<&'static str> {
+    if let Some(why) = checker_only(ts_type) {
+        return Some(why);
+    }
+    match ts_type {
+        TSType::TSFunctionType(_) | TSType::TSConstructorType(_) => Some(FUNCTION),
+        TSType::TSSymbolKeyword(_) => Some(SYMBOL),
+        TSType::TSVoidKeyword(_) | TSType::TSNeverKeyword(_) => {
+            Some("a type with no value for JSON to hold")
+        }
+        TSType::TSIntersectionType(intersection) if !is_brand(intersection.types.as_slice()) => {
+            Some(
+                "an intersection, which is coded only as a type alias of its own that derives the coders",
+            )
+        }
+        TSType::TSTypeOperatorType(operator) => match operator.operator {
             TSTypeOperatorOperator::Unique => Some(SYMBOL),
             TSTypeOperatorOperator::Readonly => reason(&operator.type_annotation),
+            TSTypeOperatorOperator::Keyof => None,
         },
         TSType::TSParenthesizedType(grouped) => reason(&grouped.type_annotation),
         TSType::TSUnionType(union) => union.types.iter().find_map(reason),
         TSType::TSTypeReference(reference) => match &reference.type_name {
-            TSTypeName::IdentifierReference(name) if name.name == "Function" => Some(FUNCTION),
+            // A foreign type configured under the name is coded by its handlers.
+            TSTypeName::IdentifierReference(name) => {
+                builtin_reason(&name.name, reference.type_arguments.is_some()).filter(|_| {
+                    super::TypeCategory::match_foreign_type(&name.name, &super::get_foreign_types())
+                        .config
+                        .is_none()
+                })
+            }
             _ => None,
         },
         _ => None,
@@ -217,6 +327,21 @@ mod tests {
             "keyof Config",
             "string | (() => void)",
             "readonly (() => void)[] | (() => void)",
+            "this",
+            "import('./other').Other",
+            "A & B",
+            "{ a: string } & { b: number }",
+            "string & number",
+            "Promise<string>",
+            "WeakMap<object, string>",
+            "WeakRef<object>",
+            "String",
+            "Object",
+            "TypeError",
+            "Exclude<'a' | 'b', 'a'>",
+            "ReturnType<() => string>",
+            "Uppercase<'a'>",
+            "string | Promise<string>",
         ] {
             assert!(uncodable(ts_type).is_some(), "{ts_type}");
         }
@@ -239,6 +364,13 @@ mod tests {
             "[number, string]",
             "`id-${number}`",
             "Record<'a' | 'b', number>",
+            "string & { readonly __brand: 'Id' }",
+            "{ readonly __brand: 'Id' } & number",
+            "Parameters",
+            "Promise",
+            "URL",
+            "Error",
+            "Uint8Array",
         ] {
             assert_eq!(uncodable(ts_type), None, "{ts_type}");
         }
