@@ -398,6 +398,32 @@ fn test_parse_pattern_with_special_chars() {
     ));
 }
 
+#[test]
+fn a_pattern_that_is_no_regular_expression_is_refused() {
+    use crate::builtin::derive::endec::validators::parse::parse_validator_string;
+    for unread in [
+        r#"pattern("(")"#,
+        r#"pattern("[a-")"#,
+        r#"pattern("a{2,1}")"#,
+        r#"pattern("*")"#,
+    ] {
+        let error = parse_validator_string(unread).expect_err(unread);
+        assert!(
+            error.message.contains("is no regular expression"),
+            "{}",
+            error.message
+        );
+    }
+    for read in [
+        r#"pattern("a/b")"#,
+        r#"pattern("[/]")"#,
+        r#"pattern("a\nb")"#,
+        r#"pattern("(?<year>\\d{4})")"#,
+    ] {
+        assert!(parse_validator_string(read).is_ok(), "{read}");
+    }
+}
+
 // ========================================================================
 // Edge case: validators with whitespace
 // ========================================================================

@@ -320,31 +320,78 @@ pub fn bigint_literal(digits: &str) -> String {
     literal
 }
 
-/// `pattern` as a JavaScript regex literal with `flags`: each unescaped `/` is
-/// escaped, and everything already escaped is kept as written.
-pub fn regex_literal(pattern: &str, flags: &str) -> String {
-    let mut literal = String::with_capacity(pattern.len() + flags.len() + 2);
-    literal.push('/');
+/// `pattern` as the text between the slashes of a JavaScript regex literal:
+/// each unescaped `/` is escaped, a line break is written as its escape, and
+/// everything already escaped is kept as written.
+fn regex_body(pattern: &str) -> String {
+    let mut body = String::with_capacity(pattern.len());
     let mut escaped = false;
-    for c in pattern.chars() {
-        if c == '/' && !escaped {
-            literal.push('\\');
+    for letter in pattern.chars() {
+        let line_break = match letter {
+            '\n' => Some("n"),
+            '\r' => Some("r"),
+            '\u{2028}' => Some("u2028"),
+            '\u{2029}' => Some("u2029"),
+            _ => None,
+        };
+        if let Some(escape) = line_break {
+            // A backslash before the break already escapes it.
+            if !escaped {
+                body.push('\\');
+            }
+            body.push_str(escape);
+            escaped = false;
+            continue;
         }
-        escaped = c == '\\' && !escaped;
-        literal.push(c);
+        if letter == '/' && !escaped {
+            body.push('\\');
+        }
+        escaped = letter == '\\' && !escaped;
+        body.push(letter);
     }
-    literal.push('/');
-    literal.push_str(flags);
-    literal
+    body
+}
+
+/// `pattern` as a JavaScript regex literal with `flags`.
+pub fn regex_literal(pattern: &str, flags: &str) -> String {
+    format!("/{}/{flags}", regex_body(pattern))
+}
+
+/// Why `pattern` is no regular expression, when it is none.
+pub fn regex_error(pattern: &str) -> Option<String> {
+    let allocator = oxc::allocator::Allocator::default();
+    let body = regex_body(pattern);
+    oxc::regular_expression::LiteralParser::new(
+        &allocator,
+        &body,
+        None,
+        oxc::regular_expression::Options::default(),
+    )
+    .parse()
+    .err()
+    .map(|error| error.to_string())
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
         DecoratorOption, OptionValue, Takes, decorator_options, extract_named_string,
-        find_named_value, flag_value, has_flag, js_string, parse_string_literal,
-        split_top_level_items, unwrapped, whole_string_literal,
+        find_named_value, flag_value, has_flag, js_string, parse_string_literal, regex_error,
+        regex_literal, split_top_level_items, unwrapped, whole_string_literal,
     };
+
+    #[test]
+    fn a_pattern_is_written_as_a_literal_that_parses() {
+        assert_eq!(regex_literal("a/b", "i"), r"/a\/b/i");
+        assert_eq!(regex_literal(r"a\/b", ""), r"/a\/b/");
+        assert_eq!(regex_literal("a\nb\r", ""), r"/a\nb\r/");
+        assert_eq!(regex_literal("a\\\nb", ""), r"/a\nb/");
+        assert_eq!(regex_literal("\u{2028}", ""), ["/", "u2028/"].join("\\"));
+        assert_eq!(regex_error("^[A-Z]{3}$"), None);
+        assert_eq!(regex_error("a/b\nc"), None);
+        assert!(regex_error("(").is_some());
+        assert!(regex_error("[a-").is_some());
+    }
 
     #[test]
     fn options_are_the_top_level_items_of_the_arguments() {

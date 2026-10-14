@@ -1,0 +1,68 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/validator_pattern_unparsed.ts
+---
+## Input
+
+/** A pattern that is no regular expression is refused where it is written. */
+/** @derive(Decode) */
+export interface Coded {
+    /** @endec(pattern("(")) */
+    open: string;
+    /** @endec({ validate: ["pattern(\"[a-\")"] }) */
+    range: string;
+    /** @endec(pattern("^[A-Z]{3}/\\d+$")) */
+    fine: string;
+}
+
+## Changed
+
+true
+
+## Output
+
+/** A pattern that is no regular expression is refused where it is written. */
+
+export interface Coded {
+    
+    open: string;
+    
+    range: string;
+    
+    fine: string;
+}
+
+## DTS
+
+/** A pattern that is no regular expression is refused where it is written. */
+export interface Coded {
+	open: string;
+	range: string;
+	fine: string;
+}
+
+## Diagnostics
+
+Error [132..159]: field 'open': invalid arguments for 'pattern': `(` is no regular expression: Invalid regular expression: Unterminated capturing group
+Error [182..231]: field 'range': invalid arguments for 'pattern': `[a-` is no regular expression: Invalid regular expression: Unterminated character class
+
+## Mapping
+
+original 0..79 -> expanded 0..79
+original 101..131 -> expanded 79..109
+original 158..181 -> expanded 109..132
+original 230..254 -> expanded 132..156
+original 295..316 -> expanded 156..177
+
+## Metadata
+
+interface Coded: {"body_span":{"end":316,"start":126},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":102,"start":80}}],"fields":[{"decorators":[{"args_src":"pattern(\"(\")","name":"endec","span":{"end":159,"start":132}}],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":177,"start":164},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"pattern(\\\"[a-\\\")\"] }","name":"endec","span":{"end":231,"start":182}}],"key":"Named","name":"range","optional":false,"readonly":false,"span":{"end":250,"start":236},"ts_type":"string"},{"decorators":[{"args_src":"pattern(\"^[A-Z]{3}/\\\\d+$\")","name":"endec","span":{"end":296,"start":255}}],"key":"Named","name":"fine","optional":false,"readonly":false,"span":{"end":314,"start":301},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Coded","span":{"end":316,"start":110},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

@@ -1,7 +1,9 @@
 //! Parsing one validator: its name, arguments and custom message.
 
 use super::{CustomValidator, Validator, ValidatorParseError, ValidatorSpec};
-use crate::builtin::derive::common::{is_identifier_name, parse_string_literal, unwrapped};
+use crate::builtin::derive::common::{
+    is_identifier_name, parse_string_literal, regex_error, unwrapped,
+};
 use crate::builtin::derive::endec::helpers::extract_named_value;
 
 /// Parse object form: { validate: "email", message: "Invalid email" }
@@ -113,9 +115,18 @@ pub(super) fn parse_validator_with_args(
                 )),
             }
         }
-        "pattern" => parse_validator_string_arg(args)
-            .map(Validator::Pattern)
-            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string pattern")),
+        "pattern" => {
+            let pattern = parse_validator_string_arg(args).ok_or_else(|| {
+                ValidatorParseError::invalid_args(name, "expected a string pattern")
+            })?;
+            match regex_error(&pattern) {
+                Some(why) => Err(ValidatorParseError::invalid_args(
+                    name,
+                    &format!("`{pattern}` is no regular expression: {why}"),
+                )),
+                None => Ok(Validator::Pattern(pattern)),
+            }
+        }
         "startswith" => parse_validator_string_arg(args)
             .map(Validator::StartsWith)
             .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string")),

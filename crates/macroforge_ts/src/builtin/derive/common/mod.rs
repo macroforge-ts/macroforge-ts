@@ -54,7 +54,8 @@ mod tests;
 
 pub use args::{
     DecoratorOption, OptionValue, bigint_literal, decorator_options, extract_named_string,
-    has_flag, js_string, js_string_text, parse_string_literal, regex_literal, whole_string_literal,
+    has_flag, js_string, js_string_text, parse_string_literal, regex_error, regex_literal,
+    whole_string_literal,
 };
 pub(crate) use args::{Takes, find_named_value, find_option, split_top_level_items, unwrapped};
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
