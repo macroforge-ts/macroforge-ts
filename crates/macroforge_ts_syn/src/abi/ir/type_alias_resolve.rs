@@ -24,7 +24,7 @@ use std::collections::HashMap;
 use super::type_alias::{TypeAliasIR, TypeBody, TypeMember, TypeMemberKind};
 use super::type_alias_scope::adopt_alias_scope;
 use super::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
-use crate::scan::{Quoting, Token, tokens};
+use crate::scan::{Token, tokens, top_level_letters};
 
 const MAX_DEPTH: u8 = 16;
 
@@ -403,32 +403,6 @@ fn split_on_top_level(s: &str, separator: char) -> Vec<&str> {
     }
     parts.push(s.get(start..).unwrap_or_default());
     parts
-}
-
-/// The letters of `s` outside its string literals and brackets, with their
-/// offsets. The `>` of an arrow closes nothing, and is one of them.
-fn top_level_letters(s: &str) -> impl Iterator<Item = (usize, char)> + '_ {
-    let mut quoting = Quoting::default();
-    let mut depth = 0usize;
-    let mut previous = ' ';
-    s.char_indices().filter(move |&(_, letter)| {
-        let follows = std::mem::replace(&mut previous, letter);
-        if quoting.feed(letter) {
-            return false;
-        }
-        match letter {
-            '<' | '(' | '[' | '{' => {
-                depth = depth.saturating_add(1);
-                false
-            }
-            '>' if follows == '=' => depth == 0,
-            '>' | ')' | ']' | '}' => {
-                depth = depth.saturating_sub(1);
-                false
-            }
-            _ => depth == 0,
-        }
-    })
 }
 
 #[cfg(test)]

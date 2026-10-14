@@ -1,10 +1,9 @@
 //! Parsing one validator: its name, arguments and custom message.
 
 use super::{CustomValidator, Validator, ValidatorParseError, ValidatorSpec};
-use crate::builtin::derive::common::{
-    is_identifier_name, parse_string_literal, regex_error, unwrapped,
-};
+use crate::builtin::derive::common::{is_identifier_name, parse_string_literal, regex_error};
 use crate::builtin::derive::endec::helpers::extract_named_value;
+use crate::ts_syn::scan::unwrapped;
 
 /// Parse object form: { validate: "email", message: "Invalid email" }
 pub(super) fn parse_validator_object(input: &str) -> Result<ValidatorSpec, ValidatorParseError> {

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/scanned-text.ts
-sha256 00e0ec751ef0000916fb3141eaf646325d85f16e4bbf549dc06b0a143b36738f
+sha256 06c8a6670b364ff8905feb7ec959555cf911df00da58b7e7ded198689537d500
 
 ## Changed
 
@@ -13,12 +13,13 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, spellsTemplate as __mf_spellsTemplate, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Type text a derive reads by scanning it: a literal ending in an escaped
  * backslash, a function whose return type is a union, a template literal
- * alias whose parameter is substituted where it is used, and an empty pattern.
+ * alias whose parameter is substituted where it is used, an empty pattern, and
+ * types in parentheses or holding brackets in their strings.
  */
 
 export type ScannedKey<T extends string> = `key-${T}`;
@@ -371,12 +372,418 @@ export const ScannedHandlers: {
   equals: scannedHandlersEquals
 };
 
+/** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
+export enum ScannedShade {
+    /** @default */
+    Light = 'light',
+    Dark = 'dark',
+}
+
+export function scannedShadeToString(value: ScannedShade): string {
+
+    const held: unknown = value;
+    if (held === ScannedShade["Light"]) {
+        return "ScannedShade.Light";
+    }
+    if (held === ScannedShade["Dark"]) {
+        return "ScannedShade.Dark";
+    }
+    return "ScannedShade(" + String(value) + ")";
+}
+
+export function scannedShadeClone(value: ScannedShade): ScannedShade {
+    return value;
+}
+
+export function scannedShadeEquals(a: ScannedShade, b: ScannedShade): boolean {
+    return a === b;
+}
+
+export function scannedShadeDefaultValue(): ScannedShade {
+    return ScannedShade.Light;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function scannedShadeEncode(value: ScannedShade): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function scannedShadeEncodeWithContext(value: ScannedShade, ctx: __mf_EncodeContext): string | number;
+export function scannedShadeEncodeWithContext(value: ScannedShade): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function scannedShadeDecode(input: unknown): ScannedShade {
+
+    return scannedShadeDecodeWithContext(__mf_textOrValue(input, scannedShadeIs));
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function scannedShadeDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ScannedShade;
+export function scannedShadeDecodeWithContext(data: unknown): ScannedShade {
+    if (ScannedShade["Light"] === data) {
+        return ScannedShade["Light"];
+    }
+    if (ScannedShade["Dark"] === data) {
+        return ScannedShade["Dark"];
+    }
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid ScannedShade value: " + JSON.stringify(data) }]);
+}
+
+export function scannedShadeIs(value: unknown): value is ScannedShade {
+    if (ScannedShade["Light"] === value) {
+        return true;
+    }
+    if (ScannedShade["Dark"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace ScannedShade {
+  export const toString: typeof scannedShadeToString = scannedShadeToString;
+  export const clone: typeof scannedShadeClone = scannedShadeClone;
+  export const equals: typeof scannedShadeEquals = scannedShadeEquals;
+  export const defaultValue: typeof scannedShadeDefaultValue = scannedShadeDefaultValue;
+  export const encode: typeof scannedShadeEncode = scannedShadeEncode;
+  export const encodeWithContext: typeof scannedShadeEncodeWithContext = scannedShadeEncodeWithContext;
+  export const decode: typeof scannedShadeDecode = scannedShadeDecode;
+  export const decodeWithContext: typeof scannedShadeDecodeWithContext = scannedShadeDecodeWithContext;
+  export const is: typeof scannedShadeIs = scannedShadeIs;
+}
+
+/** @derive(Debug, PartialEq, Default, Encode, Decode) */
+export interface ScannedGroups {
+    shade: (ScannedShade);
+    either: (string) | Record<string, ''>;
+    pair: [']?)', 4?];
+}
+
+export function scannedGroupsToString(value: ScannedGroups): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("shade: " + __mf_structuralDebug(value.shade));
+    parts.push("either: " + __mf_structuralDebug(value.either));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+        return "ScannedGroups { " + parts.join(", ") + " }";
+    });
+}
+
+export function scannedGroupsEquals(a: ScannedGroups, b: ScannedGroups): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.shade, b.shade),
+            () => __mf_structuralEquals(a.either, b.either),
+            () => __mf_structuralEquals(a.pair, b.pair),
+        ].every((same) => same());
+    });
+}
+
+export function scannedGroupsDefaultValue(): ScannedGroups {
+    return {
+        shade: scannedShadeDefaultValue(),
+        either: "",
+        pair: ["]?)"],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function scannedGroupsEncode(value: ScannedGroups, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = scannedGroupsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function scannedGroupsEncodeWithContext(value: ScannedGroups, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ScannedGroups" });
+    scannedGroupsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function scannedGroupsEncodePartialWithContext(value: Partial<ScannedGroups>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScannedGroups>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ScannedGroups" };
+        scannedGroupsEncodeFields(value as ScannedGroups, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function scannedGroupsEncodeFields(value: ScannedGroups, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("shade")) {
+                if (value.shade !== undefined) {
+                    result["shade"] = scannedShadeEncodeWithContext(value.shade, ctx);
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("either")) {
+                if (value.either !== undefined) {
+                    result["either"] = value.either;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("pair")) {
+                if (value.pair !== undefined) {
+                    result["pair"] = value.pair;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function scannedGroupsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScannedGroups } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = scannedGroupsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ScannedGroups.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ScannedGroups | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ScannedGroups> | __mf_PendingRef;
+export function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ScannedGroups> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ScannedGroups.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ScannedGroups.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ScannedGroups") as ScannedGroups | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ScannedGroups.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["shade", "shade"], ["either", "either"], ["pair", "pair"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "shade"?: (ScannedShade) | undefined; "either"?: (string) | Record<string, ''> | undefined; "pair"?: [']?)', 4?] | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ScannedGroups");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.requires("shade")) ? "shade" in obj : (__fields.keeps("shade") && obj["shade"] !== undefined)) {
+                const __raw_shade = obj["shade"] as (ScannedShade);
+
+                ctx.pushScope("shade");
+                try {
+                    const __result = scannedShadeDecodeWithContext(__raw_shade, ctx);
+                    ctx.assignOrDefer(instance, "shade", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "shade" : "shade." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "shade", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("either")) ? "either" in obj : (__fields.keeps("either") && obj["either"] !== undefined)) {
+                const __raw_either = obj["either"] as (string) | Record<string, ''>;
+                ctx.pushScope("either");
+                try {
+                    const __result = (__mf_decodeChecked(__raw_either, (typeof __raw_either === "string") || (typeof __raw_either === "object" && __raw_either !== null && !Array.isArray(__raw_either) && Object.values(__raw_either).every((__member0: unknown) => __member0 === '')), "(string) | Record<string, ''>") as (string) | Record<string, ''>);
+                    ctx.assignOrDefer(instance, "either", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "either" : "either." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+
+                        errors.push({ field: "either", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+                const __raw_pair = obj["pair"] as [']?)', 4?];
+                if (Array.isArray(__raw_pair)) {
+                    ctx.pushScope("pair");
+                    try {
+                        instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => (__mf_decodeChecked(__raw0, __raw0 === ']?)', "']?)'") as ']?)'), (__raw0) => {
+                    const __read0 = __raw0 ?? undefined;
+                    return (__mf_decodeChecked(__read0, __read0 === 4 || __read0 === undefined, "4 | undefined") as 4 | undefined);
+                }], 1) as [']?)', 4?]);
+                    } catch (__e) {
+                        if (__e instanceof __mf_DecodeError) {
+                            for (const __err of __e.errors) {
+                                errors.push({
+                                    field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                    message: __err.message
+                                });
+                            }
+                        } else {
+                            throw __e;
+                        }
+                    } finally {
+                        ctx.popScope();
+                    }
+                } else {
+                    errors.push({ field: "pair", message: __raw_pair == null ? "ScannedGroups.pair is required" : "expected [']?)', 4?]" });
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ScannedGroups;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function scannedGroupsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ScannedGroups>): Partial<ScannedGroups> | __mf_PendingRef {
+    return scannedGroupsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function scannedGroupsValidateField<K extends keyof ScannedGroups>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function scannedGroupsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function scannedGroupsValidateFields(partial: { readonly [K in keyof ScannedGroups]?: unknown }): Array<{ field: string; message: string }>;
+export function scannedGroupsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function scannedGroupsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["shade", "either", "pair"]);
+}
+
+export function scannedGroupsIs(obj: unknown): obj is ScannedGroups {
+    return scannedGroupsHasShape(obj) && scannedGroupsDecode(obj).success;
+}
+
+export const ScannedGroups: {
+  readonly toString: typeof scannedGroupsToString;
+  readonly equals: typeof scannedGroupsEquals;
+  readonly defaultValue: typeof scannedGroupsDefaultValue;
+  readonly encode: typeof scannedGroupsEncode;
+  readonly encodeWithContext: typeof scannedGroupsEncodeWithContext;
+  readonly encodePartialWithContext: typeof scannedGroupsEncodePartialWithContext;
+  readonly decode: typeof scannedGroupsDecode;
+  readonly decodeWithContext: typeof scannedGroupsDecodeWithContext;
+  readonly decodePartialWithContext: typeof scannedGroupsDecodePartialWithContext;
+  readonly validateField: typeof scannedGroupsValidateField;
+  readonly validateFields: typeof scannedGroupsValidateFields;
+  readonly hasShape: typeof scannedGroupsHasShape;
+  readonly is: typeof scannedGroupsIs;
+} = {
+  toString: scannedGroupsToString,
+  equals: scannedGroupsEquals,
+  defaultValue: scannedGroupsDefaultValue,
+  encode: scannedGroupsEncode,
+  encodeWithContext: scannedGroupsEncodeWithContext,
+  encodePartialWithContext: scannedGroupsEncodePartialWithContext,
+  decode: scannedGroupsDecode,
+  decodeWithContext: scannedGroupsDecodeWithContext,
+  decodePartialWithContext: scannedGroupsDecodePartialWithContext,
+  validateField: scannedGroupsValidateField,
+  validateFields: scannedGroupsValidateFields,
+  hasShape: scannedGroupsHasShape,
+  is: scannedGroupsIs
+};
+
 ## DTS
 
 /**
 * Type text a derive reads by scanning it: a literal ending in an escaped
 * backslash, a function whose return type is a union, a template literal
-* alias whose parameter is substituted where it is used, and an empty pattern.
+* alias whose parameter is substituted where it is used, an empty pattern, and
+* types in parentheses or holding brackets in their strings.
 */
 export type ScannedKey<T extends string> = `key-${T}`;
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -452,6 +859,93 @@ export declare const ScannedHandlers: {
 	readonly clone: typeof scannedHandlersClone;
 	readonly equals: typeof scannedHandlersEquals;
 };
+/** @derive(Debug, Clone, PartialEq, Default, Encode, Decode) */
+export declare enum ScannedShade {
+	/** @default */
+	Light = "light",
+	Dark = "dark"
+}
+export declare function scannedShadeToString(value: ScannedShade): string;
+export declare function scannedShadeClone(value: ScannedShade): ScannedShade;
+export declare function scannedShadeEquals(a: ScannedShade, b: ScannedShade): boolean;
+export declare function scannedShadeDefaultValue(): ScannedShade;
+/** Encodes this enum value to a JSON string.  */
+export declare function scannedShadeEncode(value: ScannedShade): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function scannedShadeEncodeWithContext(value: ScannedShade, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function scannedShadeDecode(input: unknown): ScannedShade;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function scannedShadeDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ScannedShade;
+export declare function scannedShadeIs(value: unknown): value is ScannedShade;
+export declare namespace ScannedShade {
+	const toString: typeof scannedShadeToString;
+	const clone: typeof scannedShadeClone;
+	const equals: typeof scannedShadeEquals;
+	const defaultValue: typeof scannedShadeDefaultValue;
+	const encode: typeof scannedShadeEncode;
+	const encodeWithContext: typeof scannedShadeEncodeWithContext;
+	const decode: typeof scannedShadeDecode;
+	const decodeWithContext: typeof scannedShadeDecodeWithContext;
+	const is: typeof scannedShadeIs;
+}
+/** @derive(Debug, PartialEq, Default, Encode, Decode) */
+export interface ScannedGroups {
+	shade: (ScannedShade);
+	either: (string) | Record<string, "">;
+	pair: ["]?)", 4?];
+}
+export declare function scannedGroupsToString(value: ScannedGroups): string;
+export declare function scannedGroupsEquals(a: ScannedGroups, b: ScannedGroups): boolean;
+export declare function scannedGroupsDefaultValue(): ScannedGroups;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function scannedGroupsEncode(value: ScannedGroups, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function scannedGroupsEncodeWithContext(value: ScannedGroups, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function scannedGroupsEncodePartialWithContext(value: Partial<ScannedGroups>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScannedGroups>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function scannedGroupsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ScannedGroups;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ScannedGroups | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ScannedGroups> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function scannedGroupsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ScannedGroups>): Partial<ScannedGroups> | __mf_PendingRef;
+export declare function scannedGroupsValidateField<K extends keyof ScannedGroups>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function scannedGroupsValidateFields(partial: { readonly [K in keyof ScannedGroups]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function scannedGroupsHasShape(obj: unknown): boolean;
+export declare function scannedGroupsIs(obj: unknown): obj is ScannedGroups;
+export declare const ScannedGroups: {
+	readonly toString: typeof scannedGroupsToString;
+	readonly equals: typeof scannedGroupsEquals;
+	readonly defaultValue: typeof scannedGroupsDefaultValue;
+	readonly encode: typeof scannedGroupsEncode;
+	readonly encodeWithContext: typeof scannedGroupsEncodeWithContext;
+	readonly encodePartialWithContext: typeof scannedGroupsEncodePartialWithContext;
+	readonly decode: typeof scannedGroupsDecode;
+	readonly decodeWithContext: typeof scannedGroupsDecodeWithContext;
+	readonly decodePartialWithContext: typeof scannedGroupsDecodePartialWithContext;
+	readonly validateField: typeof scannedGroupsValidateField;
+	readonly validateFields: typeof scannedGroupsValidateFields;
+	readonly hasShape: typeof scannedGroupsHasShape;
+	readonly is: typeof scannedGroupsIs;
+};
 
 ## Diagnostics
 
@@ -459,35 +953,58 @@ export declare const ScannedHandlers: {
 
 ## Mapping
 
-original 0..514 -> expanded 1072..1586
-original 514..677 -> expanded 15107..15270
-original 677..678 -> expanded 16368..16369
-generated 0..1072 <- imports
-generated 1586..1967 <- Debug
-generated 1967..2185 <- Clone
-generated 2185..2536 <- PartialEq
-generated 2536..3007 <- Hash
-generated 3007..5772 <- Encode
-generated 5772..13738 <- Decode
-generated 13738..15107 <- __convenience_const
-generated 15270..15594 <- Debug
-generated 15594..15779 <- Clone
-generated 15779..16077 <- PartialEq
-generated 16077..16368 <- __convenience_const
+original 0..576 -> expanded 1175..1751
+original 576..739 -> expanded 15272..15435
+original 739..894 -> expanded 16533..16688
+original 894..1081 -> expanded 19576..19763
+original 1081..1082 -> expanded 34469..34470
+generated 0..1175 <- imports
+generated 1751..2132 <- Debug
+generated 2132..2350 <- Clone
+generated 2350..2701 <- PartialEq
+generated 2701..3172 <- Hash
+generated 3172..5937 <- Encode
+generated 5937..13903 <- Decode
+generated 13903..15272 <- __convenience_const
+generated 15435..15759 <- Debug
+generated 15759..15944 <- Clone
+generated 15944..16242 <- PartialEq
+generated 16242..16533 <- __convenience_const
+generated 16688..17011 <- Debug
+generated 17011..17103 <- Clone
+generated 17103..17206 <- PartialEq
+generated 17206..17299 <- Default
+generated 17299..17745 <- Encode
+generated 17745..18827 <- Decode
+generated 18827..19576 <- __convenience_const
+generated 19763..20176 <- Debug
+generated 20176..20571 <- PartialEq
+generated 20571..20741 <- Default
+generated 20741..23567 <- Encode
+generated 23567..33100 <- Decode
+generated 33100..34469 <- __convenience_const
 
 ## Metadata
 
-interface ScannedText: {"body_span":{"end":515,"start":386},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":356,"start":295}}],"fields":[{"decorators":[],"key":"Named","name":"separator","optional":false,"readonly":false,"span":{"end":414,"start":392},"ts_type":"'\\\\' | '/'"},{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":446,"start":419},"ts_type":"ScannedKey<'a' | 'b'>"},{"decorators":[{"args_src":"{ validate: ['pattern(\"\")'] }","name":"endec","span":{"end":495,"start":451}}],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":513,"start":500},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ScannedText","span":{"end":515,"start":364},"type_params":[]}
-interface ScannedHandlers: {"body_span":{"end":678,"start":590},"decorators":[{"args_src":"Debug, Clone, PartialEq","name":"Derive","span":{"end":556,"start":517}}],"fields":[{"decorators":[],"key":"Named","name":"pick","optional":false,"readonly":false,"span":{"end":624,"start":596},"ts_type":"() => string | number"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":676,"start":629},"ts_type":"(value: string) => value is 'yes' | 'no'"}],"heritage":[],"methods":[],"name":"ScannedHandlers","span":{"end":678,"start":564},"type_params":[]}
-type ScannedKey: {"body":{"Other":"`key-${T}`"},"decorators":[],"name":"ScannedKey","span":{"end":293,"start":246},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"T"}]}
+interface ScannedText: {"body_span":{"end":577,"start":448},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":418,"start":357}}],"fields":[{"decorators":[],"key":"Named","name":"separator","optional":false,"readonly":false,"span":{"end":476,"start":454},"ts_type":"'\\\\' | '/'"},{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":508,"start":481},"ts_type":"ScannedKey<'a' | 'b'>"},{"decorators":[{"args_src":"{ validate: ['pattern(\"\")'] }","name":"endec","span":{"end":557,"start":513}}],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":575,"start":562},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ScannedText","span":{"end":577,"start":426},"type_params":[]}
+interface ScannedHandlers: {"body_span":{"end":740,"start":652},"decorators":[{"args_src":"Debug, Clone, PartialEq","name":"Derive","span":{"end":618,"start":579}}],"fields":[{"decorators":[],"key":"Named","name":"pick","optional":false,"readonly":false,"span":{"end":686,"start":658},"ts_type":"() => string | number"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":738,"start":691},"ts_type":"(value: string) => value is 'yes' | 'no'"}],"heritage":[],"methods":[],"name":"ScannedHandlers","span":{"end":740,"start":626},"type_params":[]}
+interface ScannedGroups: {"body_span":{"end":1082,"start":986},"decorators":[{"args_src":"Debug, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":954,"start":897}}],"fields":[{"decorators":[],"key":"Named","name":"shade","optional":false,"readonly":false,"span":{"end":1014,"start":992},"ts_type":"(ScannedShade)"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1057,"start":1019},"ts_type":"(string) | Record<string, ''>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1080,"start":1062},"ts_type":"[']?)', 4?]"}],"heritage":[],"methods":[],"name":"ScannedGroups","span":{"end":1082,"start":962},"type_params":[]}
+enum ScannedShade: {"body_span":{"end":895,"start":832},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":806,"start":742}}],"is_const":false,"is_declare":false,"name":"ScannedShade","span":{"end":895,"start":814},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":853,"start":838}}],"name":"Light","span":{"end":873,"start":858},"value":{"String":"light"}},{"decorators":[],"name":"Dark","span":{"end":892,"start":879},"value":{"String":"dark"}}]}
+type ScannedKey: {"body":{"Other":"`key-${T}`"},"decorators":[],"name":"ScannedKey","span":{"end":355,"start":308},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads
 
+Name("''")
 Name("'\\\\' | '/'")
 Name("'a' | 'b'")
 Name("() => string | number")
+Name("(ScannedShade)")
+Name("(string) | Record")
 Name("(value: string) => value is 'yes' | 'no'")
+Name("Record")
 Name("ScannedKey")
+Name("ScannedShade")
+Name("[']?)', 4?]")
 Name("string")
 
 ## Buildtime dependencies

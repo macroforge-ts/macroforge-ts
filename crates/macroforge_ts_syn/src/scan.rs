@@ -91,6 +91,47 @@ impl Nesting {
     }
 }
 
+/// What stands inside the brackets `open` and `close`, when they are around
+/// all of `text`: `[a], [b]` opens and ends with a bracket and is not this.
+pub fn unwrapped(text: &str, open: char, close: char) -> Option<&str> {
+    let inner = text.trim().strip_prefix(open)?.strip_suffix(close)?;
+    let mut nesting = Nesting::default();
+    inner
+        .chars()
+        .all(|letter| {
+            let closes_early = letter == close && nesting.is_top_level();
+            nesting.feed(letter);
+            !closes_early
+        })
+        .then_some(inner)
+}
+
+/// The letters of `s` outside its string literals and brackets, with their
+/// offsets. The `>` of an arrow closes nothing, and is one of them.
+pub fn top_level_letters(s: &str) -> impl Iterator<Item = (usize, char)> + '_ {
+    let mut quoting = Quoting::default();
+    let mut depth = 0usize;
+    let mut previous = ' ';
+    s.char_indices().filter(move |&(_, letter)| {
+        let follows = std::mem::replace(&mut previous, letter);
+        if quoting.feed(letter) {
+            return false;
+        }
+        match letter {
+            '<' | '(' | '[' | '{' => {
+                depth = depth.saturating_add(1);
+                false
+            }
+            '>' if follows == '=' => depth == 0,
+            '>' | ')' | ']' | '}' => {
+                depth = depth.saturating_sub(1);
+                false
+            }
+            _ => depth == 0,
+        }
+    })
+}
+
 /// A piece of TypeScript text, as [`tokens`] splits it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Token<'a> {

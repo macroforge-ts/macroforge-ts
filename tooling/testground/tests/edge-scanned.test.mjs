@@ -58,3 +58,17 @@ Deno.test('an empty pattern takes any text', () => {
         );
     }
 });
+
+Deno.test('a type in parentheses or holding brackets in a string is read as written', () => {
+    const groups = mod.scannedGroupsDefaultValue();
+    assertEquals(groups, { shade: 'light', either: '', pair: [']?)'] });
+    const decoded = mod.scannedGroupsDecode(
+        JSON.stringify({ shade: 'dark', either: { a: '' }, pair: [']?)', 4] })
+    );
+    assert(decoded.success, JSON.stringify(decoded));
+    assertEquals(decoded.value, { shade: 'dark', either: { a: '' }, pair: [']?)', 4] });
+    assert(
+        !mod.scannedGroupsDecode(JSON.stringify({ shade: 'dark', either: '', pair: [']'] })).success
+    );
+    assert(mod.scannedGroupsEquals(groups, mod.scannedGroupsDefaultValue()));
+});

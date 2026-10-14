@@ -2,7 +2,7 @@
 //! `skip, rename: "id"` in `@endec(skip, rename: "id")`, and writing string
 //! values back out as JavaScript.
 
-use crate::ts_syn::scan::{Nesting, string_literal_len};
+use crate::ts_syn::scan::{Nesting, string_literal_len, unwrapped};
 
 /// The pieces of `text` between its top-level commas, trimmed, the empty
 /// ones left out. A comma inside a bracket or a string literal separates
@@ -24,21 +24,6 @@ pub(crate) fn split_top_level_items(text: &str) -> Vec<&str> {
         .map(str::trim)
         .filter(|item| !item.is_empty())
         .collect()
-}
-
-/// What stands inside the brackets `open` and `close`, when they are around
-/// all of `text`: `[a], [b]` opens and ends with a bracket and is not this.
-pub(crate) fn unwrapped(text: &str, open: char, close: char) -> Option<&str> {
-    let inner = text.trim().strip_prefix(open)?.strip_suffix(close)?;
-    let mut nesting = Nesting::default();
-    inner
-        .chars()
-        .all(|letter| {
-            let closes_early = letter == close && nesting.is_top_level();
-            nesting.feed(letter);
-            !closes_early
-        })
-        .then_some(inner)
 }
 
 /// What an option of a decorator is given.

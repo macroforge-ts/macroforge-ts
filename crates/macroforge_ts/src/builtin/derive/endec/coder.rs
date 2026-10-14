@@ -54,6 +54,7 @@ impl TypeScope<'_> {
         direction: Direction,
         depth: usize,
     ) -> Result<Option<NestedType>, String> {
+        let ts_type = ungrouped(ts_type);
         let defaulted = self.with_default_arguments(ts_type);
         let ts_type = defaulted.as_deref().unwrap_or(ts_type);
         let Some(mut nested) = NestedType::of(ts_type, &|name| self.is_param(name))? else {

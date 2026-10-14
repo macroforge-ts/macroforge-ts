@@ -10,6 +10,7 @@ use crate::ts_syn::abi::ir::{
     EnumVariantIR, FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
     resolve_generic_aliases, split_top_level_commas, split_top_level_union,
 };
+use crate::ts_syn::scan::{top_level_letters, unwrapped};
 use crate::ts_syn::{TsStream, ts_ident};
 
 /// Check if a TypeScript type is a primitive or opaque built-in keyword, whose
@@ -59,19 +60,19 @@ pub fn tuple_element(source: &str) -> TupleElement<'_> {
         Some(inner) => (true, inner.trim_start()),
         None => (false, trimmed),
     };
-    let labeled_optional = unspread
-        .split_once(':')
-        .is_some_and(|(label, _)| label.trim().ends_with('?'));
-    let unlabeled = unspread
-        .split_once(':')
+    // A label is the name before the first `:` outside brackets and strings.
+    let label = top_level_letters(unspread)
+        .find(|(_, letter)| *letter == ':')
+        .and_then(|(at, _)| Some((unspread.get(..at)?.trim(), unspread.get(at + 1..)?.trim())))
         .filter(|(label, _)| {
-            let name = label.trim().trim_end_matches('?');
+            let name = label.trim_end_matches('?');
             !name.is_empty()
                 && name
                     .chars()
                     .all(|c| c.is_alphanumeric() || c == '_' || c == '$')
-        })
-        .map_or(unspread, |(_, ty)| ty.trim());
+        });
+    let labeled_optional = label.is_some_and(|(label, _)| label.ends_with('?'));
+    let unlabeled = label.map_or(unspread, |(_, ts_type)| ts_type);
     TupleElement {
         ts_type: unlabeled.strip_suffix('?').unwrap_or(unlabeled).trim(),
         rest,
@@ -161,33 +162,16 @@ fn has_union_member(ts_type: &str, member: &str) -> bool {
     })
 }
 
-/// `ts_type` without the parentheses that only group it.
+/// `ts_type` without the parentheses that only group it. A function's
+/// parentheses are kept, as `(() => A)` writes a function where it stands.
 pub fn ungrouped(ts_type: &str) -> &str {
     let trimmed = ts_type.trim();
-    match trimmed
-        .strip_prefix('(')
-        .and_then(|inner| inner.strip_suffix(')'))
-    {
-        Some(inner) if !inner.contains("=>") && balanced(inner) => ungrouped(inner),
+    match unwrapped(trimmed, '(', ')') {
+        Some(inner) if !top_level_letters(inner).any(|(_, letter)| letter == '>') => {
+            ungrouped(inner)
+        }
         _ => trimmed,
     }
-}
-
-/// Whether every `)` in `text` closes a `(` in it, so the pair stripped
-/// around it was one pair.
-fn balanced(text: &str) -> bool {
-    let mut depth = 0usize;
-    for byte in text.bytes() {
-        match byte {
-            b'(' => depth += 1,
-            b')' => match depth.checked_sub(1) {
-                Some(open) => depth = open,
-                None => return false,
-            },
-            _ => {}
-        }
-    }
-    depth == 0
 }
 
 /// Which kinds of value an enum's members have, so a generator emits only the
@@ -302,17 +286,8 @@ pub fn tuple_body(ts_type: &str) -> Option<&str> {
     let tuple = trimmed
         .strip_prefix("readonly ")
         .map_or(trimmed, str::trim_start);
-    let body = tuple.strip_prefix('[')?.strip_suffix(']')?;
     // The bracket that opens the type has to be the one that closes it.
-    let mut depth = 0usize;
-    for byte in body.bytes() {
-        match byte {
-            b'[' => depth += 1,
-            b']' => depth = depth.checked_sub(1)?,
-            _ => {}
-        }
-    }
-    (depth == 0).then_some(body)
+    unwrapped(tuple, '[', ']')
 }
 
 /// Returns whether a type can have a default value generated for it.

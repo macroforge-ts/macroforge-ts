@@ -9,7 +9,7 @@ use super::super::value_kind::is_ts_literal;
 use super::super::{EndecFieldOptions, Validator, ValidatorSpec};
 use super::types::DecodeField;
 use super::validation::Missing;
-use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered};
+use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered, ungrouped};
 use crate::host::ForeignTypeConfig;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
@@ -240,7 +240,7 @@ pub(crate) fn primitive_accepts_leaving(
 /// of them. `None` for any other type. `depth` numbers the locals of nested
 /// callbacks apart.
 pub(crate) fn structural_accepts(ts_type: &str, raw: &str, depth: usize) -> Option<String> {
-    let ts_type = ts_type.trim();
+    let ts_type = ungrouped(ts_type);
     if let Some(parts) = split_top_level_union(ts_type) {
         let accepts = parts
             .iter()

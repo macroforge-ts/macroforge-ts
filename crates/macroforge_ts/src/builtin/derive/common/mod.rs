@@ -57,7 +57,7 @@ pub use args::{
     has_flag, js_string, js_string_text, parse_string_literal, regex_error, regex_literal,
     whole_string_literal,
 };
-pub(crate) use args::{Takes, find_named_value, find_option, split_top_level_items, unwrapped};
+pub(crate) use args::{Takes, find_named_value, find_option, split_top_level_items};
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
 pub use ordering::{OrdField, Ordering, generate_field_order, generate_value_order};
 pub use property::{

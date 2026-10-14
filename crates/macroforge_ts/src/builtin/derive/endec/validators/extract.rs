@@ -4,11 +4,11 @@ use super::parse::{parse_validator_object, parse_validator_string};
 use super::suggest::KNOWN_VALIDATORS;
 use super::{ValidatorParseError, ValidatorSpec};
 use crate::builtin::derive::common::{
-    OptionValue, decorator_options, find_option, split_top_level_items, unwrapped,
-    whole_string_literal,
+    OptionValue, decorator_options, find_option, split_top_level_items, whole_string_literal,
 };
 use crate::builtin::derive::endec::options::endec_option;
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
+use crate::ts_syn::scan::unwrapped;
 
 /// Extract validators from decorator arguments with diagnostic collection
 /// Supports:
