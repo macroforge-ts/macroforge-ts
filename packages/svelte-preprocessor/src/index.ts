@@ -208,6 +208,90 @@ export interface MacroforgePreprocessorOptions {
     processJavaScript?: boolean;
 }
 
+/** Whether the script block is a component's module script. */
+function isModuleScript(attributes: Record<string, string | boolean>): boolean {
+    return attributes.module === true || attributes.context === 'module';
+}
+
+/** The content of the component's module script, when it has one. */
+function moduleScriptOf(markup: string): string | undefined {
+    for (const match of markup.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
+        const attributes = match[1] ?? '';
+        if (
+            /(^|\s)module(\s|=|$)/.test(attributes) ||
+            /context\s*=\s*["']module["']/.test(attributes)
+        ) {
+            return match[2];
+        }
+    }
+    return undefined;
+}
+
+/** The import declarations of `@macroforge` modules an expansion writes, one a line. */
+const RUNTIME_IMPORT =
+    /^import\s+(type\s+)?\{([^}]*)\}\s+from\s+(["']@macroforge\/[^"']+["']);?[ \t]*\r?\n?/gm;
+
+/** The local names the runtime imports of `code` bind. */
+function runtimeImports(code: string): Set<string> {
+    const names = new Set<string>();
+    for (const match of code.matchAll(RUNTIME_IMPORT)) {
+        for (const specifier of (match[2] ?? '').split(',')) {
+            const local = specifier.split(/\s+as\s+/).pop()?.trim();
+            if (local) names.add(local);
+        }
+    }
+    return names;
+}
+
+/** The functions an expansion declares at the top of a script. */
+function declaredFunctions(code: string): Set<string> {
+    return new Set(
+        Array.from(
+            code.matchAll(/^export\s+(?:declare\s+)?function\s+([A-Za-z_$][\w$]*)/gm),
+            (match) => match[1] ?? ''
+        )
+    );
+}
+
+/**
+ * `code` without the runtime imports binding `names`, which are in scope
+ * already, with its mapping moved to the text that stays.
+ */
+function withoutImports(
+    code: string,
+    mapping: SourceMapping | undefined,
+    names: Set<string>
+): { code: string; mapping: SourceMapping | undefined } {
+    const removed: Array<{ at: number; length: number }> = [];
+    const kept = code.replace(RUNTIME_IMPORT, (line, typeOnly, specifiers, module, at: number) => {
+        const left = String(specifiers)
+            .split(',')
+            .map((specifier) => specifier.trim())
+            .filter((specifier) =>
+                specifier && !names.has(specifier.split(/\s+as\s+/).pop()?.trim() ?? '')
+            );
+        const written = left.length === 0
+            ? ''
+            : `import ${typeOnly ?? ''}{ ${left.join(', ')} } from ${module};\n`;
+        removed.push({ at, length: line.length - written.length });
+        return written;
+    });
+    if (mapping === undefined) return { code: kept, mapping };
+    const moved = (offset: number) =>
+        offset -
+        removed.filter((edit) => edit.at < offset).reduce((sum, edit) => sum + edit.length, 0);
+    return {
+        code: kept,
+        mapping: {
+            segments: mapping.segments.map((segment) => ({
+                ...segment,
+                expandedStart: moved(segment.expandedStart),
+                expandedEnd: moved(segment.expandedEnd)
+            }))
+        }
+    };
+}
+
 /**
  * Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks.
  *
@@ -395,6 +479,39 @@ export function macroforgePreprocess(
         }
 
         /*
+         * STEP 4b: The Module Script's Scope
+         *
+         * A component's module script and its instance script are one scope:
+         * what the module script imports, the instance script has, and a
+         * function both declare is declared twice.
+         */
+        let code = result.code;
+        let sourceMapping = result.sourceMapping;
+        const moduleContent = !isModuleScript(attributes) && typeof markup === 'string'
+            ? moduleScriptOf(markup)
+            : undefined;
+        if (moduleContent !== undefined && loaded.hasMacroAnnotations(moduleContent, expandedAs)) {
+            const moduleExpansion = loaded.expandSync(moduleContent, expandedAs, {
+                keepDecorators,
+                emitMetadata: false
+            });
+            const moduleFunctions = declaredFunctions(moduleExpansion.code);
+            const twice = [...declaredFunctions(code)].filter((name) => moduleFunctions.has(name));
+            if (twice.length > 0) {
+                throw new Error(
+                    `[@macroforge/svelte-preprocessor] ${component}: the module script and the instance script are one scope, and both generate ${
+                        twice.map((name) => `\`${name}\``).join(', ')
+                    }; derive each type in one of them`
+                );
+            }
+            ({ code, mapping: sourceMapping } = withoutImports(
+                code,
+                sourceMapping,
+                runtimeImports(moduleExpansion.code)
+            ));
+        }
+
+        /*
          * STEP 5: Return Transformed Code
          *
          * Only return a result if the code was actually modified. Returning undefined
@@ -405,11 +522,11 @@ export function macroforgePreprocess(
          * - code: The transformed source code (required)
          * - map: v3 source map built from the engine's segment mapping (when available)
          */
-        if (result.code && result.code !== content) {
-            const map = result.sourceMapping && filename
-                ? sourceMapOf(result.sourceMapping, filename, content, result.code)
+        if (code && code !== content) {
+            const map = sourceMapping && filename
+                ? sourceMapOf(sourceMapping, filename, content, code)
                 : undefined;
-            return { code: result.code, map };
+            return { code, map };
         }
 
         // The expansion left the block as it was.

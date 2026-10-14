@@ -254,6 +254,43 @@ interface Account {
     });
 });
 
+describe('module and instance scripts', () => {
+    test('derives in both scripts of a component compile, sharing their imports', async () => {
+        const source = `<script lang="ts" module>
+/** @derive(Debug) */
+export interface Item { id: string; }
+</script>
+<script lang="ts">
+/** @derive(Debug) */
+interface Entry { name: string; }
+const entry: Entry = { name: 'x' };
+</script>
+<p>{entry.name}</p>`;
+        const processed = await preprocess(source, [macroforgePreprocess()], {
+            filename: 'Both.svelte'
+        });
+        compile(processed.code, { filename: 'Both.svelte' });
+    });
+
+    test('a type derived in both scripts fails, naming what both would declare', async () => {
+        const source = `<script lang="ts" module>
+/** @derive(Debug) */
+export interface Item { id: string; }
+</script>
+<script lang="ts">
+/** @derive(Debug) */
+interface Item { name: string; }
+</script>`;
+        await assert.rejects(
+            preprocess(source, [macroforgePreprocess()], { filename: 'Twice.svelte' }),
+            (error) => {
+                assert.match(error.message, /both generate `itemToString`/);
+                return true;
+            }
+        );
+    });
+});
+
 describe('type parameters of a component', () => {
     test('a field typed by a type parameter of the component is refused, naming it', async () => {
         const source = `<script lang="ts" generics="T">
