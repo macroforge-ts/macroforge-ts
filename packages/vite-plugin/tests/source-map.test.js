@@ -153,3 +153,37 @@ export { Account };
         assert.equal(position.line, original.indexOf(field) + 1, `${field} maps to its own line`);
     }
 });
+
+test('a directive prologue stays first, and the lines after it map back', async (t) => {
+    const tempDir = createTempDir();
+    t.after(() => cleanupTempDir(tempDir));
+
+    const source = `'use client';
+// The license header.
+/** @derive(Debug) */
+class Panel {
+  id: string;
+  title: string;
+}
+export { Panel };
+`;
+    writeTestFile(tempDir, 'src/panel.ts', source);
+
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
+
+    const id = path.join(tempDir, 'src/panel.ts');
+    const { result, error } = await invokeTransform(plugin, source, id);
+    assert.equal(error, null);
+    assert.ok(result?.code.startsWith(`'use client';`), 'the directive stays first');
+
+    const tracer = new TraceMap(result.map);
+    const generated = result.code.split('\n');
+    const original = source.split('\n');
+    for (const line of ['  title: string;', 'export { Panel };']) {
+        const at = generated.indexOf(line);
+        assert.ok(at >= 0, `${line} is kept`);
+        const position = originalPositionFor(tracer, { line: at + 1, column: 0 });
+        assert.equal(position.line, original.indexOf(line) + 1, `${line} maps to its own line`);
+    }
+});
