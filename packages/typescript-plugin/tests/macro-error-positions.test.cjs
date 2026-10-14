@@ -734,6 +734,23 @@ test('a failed derive in a file that is no module adds no error of its own', () 
     );
 });
 
+test('a derive in a JavaScript file reports the error that refuses it', () => {
+    const source = `/** @derive(Debug) */\nclass E { id = ''; }\n`;
+    const env = createEnv(
+        {
+            '/virtual/plain.js': source,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        },
+        { allowJs: true }
+    );
+    const diagnostics = env.pluginService.getSemanticDiagnostics('/virtual/plain.js');
+    const refused = diagnostics.find((d) => d.source === 'macroforge');
+    assert(refused, 'the derive is refused');
+    assert.match(refused.messageText, /JavaScript file/);
+    assert.equal(refused.start, source.indexOf('@derive'));
+});
+
 test('a subclass overrides the statics a base in its file derives', () => {
     const source = `/** @derive(Clone, PartialEq, Hash, Default) */
 export class Base { id: string = ''; }

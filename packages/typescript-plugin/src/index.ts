@@ -24,6 +24,7 @@
  * - `.ts` - TypeScript files
  * - `.tsx` - TypeScript JSX files
  * - `.svelte` - Svelte components (with `<script lang="ts">`)
+ * - `.js`, `.jsx` - JavaScript files, read so a derive in one reports the error that refuses it
  *
  * ## Hook Categories
  *
@@ -704,7 +705,8 @@ function getMacroHoverInfo(
  * File extensions that the plugin will process for macro expansion.
  * @internal
  */
-const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte'];
+// A JavaScript file is read so a derive in it reports the error that refuses it.
+const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte', '.js', '.jsx'];
 
 /**
  * Determines whether a file should be processed for macro expansion.
@@ -721,7 +723,7 @@ const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte'];
  * - Are in `node_modules` (dependencies should not be processed)
  * - Are in the `.macroforge` cache directory
  * - End with `.macroforge.d.ts` (generated type declaration files)
- * - Don't have a supported extension (`.ts`, `.tsx`, `.svelte`)
+ * - Don't have a supported extension (`.ts`, `.tsx`, `.svelte`, `.js`, `.jsx`)
  *
  * @example
  * ```typescript
