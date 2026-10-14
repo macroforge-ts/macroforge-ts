@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (433)
+## Types (438)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -250,6 +250,11 @@ KeyedLevel 2f4fd0e82100d668
 KeyedOptions 68a924f07eefbf72
 KeyedRecords c0db5f5ef3825a0b
 KeyedSelections 894f9e71728b0da2
+KindAged 9ed54dd1499da01a
+KindNamed 51a8e9a93ed4a8fe
+KindPerson 96ea604db05a0898
+KindPoint 49c54cd2e34eb446
+KindShade f0ebffd53750e41e
 Labeled 251ea4654280909b
 Ledger 5d68b48acd602911
 LedgerOrNote d7b4dd3fbf87f3a3
@@ -437,7 +442,7 @@ WideRecord c9bd8ffc061d4d25
 WideShape 5c00c985b1a5c6b3
 point2D 9c3236f9adc43b41
 
-## Qualified types (436)
+## Qualified types (441)
 
 checks/repeated-error.ts::Holder e348868fb978f545
 checks/repeated-error.ts::Plain d98534e25d4536f1
@@ -581,6 +586,11 @@ src/edge-cases/keyed-shapes.ts::KeyedLevel 2f4fd0e82100d668
 src/edge-cases/keyed-shapes.ts::KeyedOptions 68a924f07eefbf72
 src/edge-cases/keyed-shapes.ts::KeyedRecords c0db5f5ef3825a0b
 src/edge-cases/keyed-shapes.ts::KeyedSelections 894f9e71728b0da2
+src/edge-cases/kind-matrix.ts::KindAged 9ed54dd1499da01a
+src/edge-cases/kind-matrix.ts::KindNamed 51a8e9a93ed4a8fe
+src/edge-cases/kind-matrix.ts::KindPerson 96ea604db05a0898
+src/edge-cases/kind-matrix.ts::KindPoint 49c54cd2e34eb446
+src/edge-cases/kind-matrix.ts::KindShade f0ebffd53750e41e
 src/edge-cases/module-shapes.ts::ModuleAbstract cccb7714148a4d81
 src/edge-cases/module-shapes.ts::ModuleBase 2814446af4f66c68
 src/edge-cases/module-shapes.ts::ModuleExtendsPlain 17f53dd5b454fe53

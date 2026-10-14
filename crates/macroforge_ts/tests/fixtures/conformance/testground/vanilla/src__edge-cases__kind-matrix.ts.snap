@@ -1,0 +1,415 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/kind-matrix.ts
+sha256 d37be0134263358f2562cfaf275990a93835e7c0e658a1c8336339b739c7be41
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin, comparedWithin as __mf_comparedWithin, hashedWithin as __mf_hashedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
+/**
+ * Each built-in derive on the kinds of declaration no other edge case derives
+ * it on: Default on an enum, the orderings on an object alias, and the value
+ * traits on an intersection alias.
+ */
+
+/** @derive(Default) */
+export enum KindShade {
+    Dark = 'dark',
+    /** @default */
+    Light = 'light'
+}
+
+export function kindShadeDefaultValue(): KindShade {
+    return KindShade.Light;
+}
+
+export namespace KindShade {
+  export const defaultValue: typeof kindShadeDefaultValue = kindShadeDefaultValue;
+}
+
+/** @derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash) */
+export type KindPoint = { x: number; y: number };
+
+export function kindPointToString(value: KindPoint): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+    parts.push("y: " + String(value.y));
+        return "KindPoint { " + parts.join(", ") + " }";
+    });
+}
+
+export function kindPointEquals(a: KindPoint, b: KindPoint): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.x === b.x || a.x !== a.x && b.x !== b.x,
+        () => a.y === b.y || a.y !== a.y && b.y !== b.y,
+    ].every((same) => same());
+});
+}
+
+export function kindPointPartialCompare(a: KindPoint, b: KindPoint): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x || (a.x !== a.x && b.x !== b.x) ? 0 : null),
+        () => (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y || (a.y !== a.y && b.y !== b.y) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function kindPointCompare(a: KindPoint, b: KindPoint): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : a.x !== a.x ? b.x !== b.x ? 0 : 1 : -1,
+        () => a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : a.y !== a.y ? b.y !== b.y ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function kindPointHashCode(value: KindPoint): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export const KindPoint: {
+  readonly toString: typeof kindPointToString;
+  readonly equals: typeof kindPointEquals;
+  readonly partialCompare: typeof kindPointPartialCompare;
+  readonly compare: typeof kindPointCompare;
+  readonly hashCode: typeof kindPointHashCode;
+} = {
+  toString: kindPointToString,
+  equals: kindPointEquals,
+  partialCompare: kindPointPartialCompare,
+  compare: kindPointCompare,
+  hashCode: kindPointHashCode
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export interface KindNamed {
+    name: string;
+}
+
+export function kindNamedToString(value: KindNamed): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+        return "KindNamed { " + parts.join(", ") + " }";
+    });
+}
+
+export function kindNamedClone(value: KindNamed): KindNamed {
+    return __mf_clonedWith(value, (): KindNamed => ({ name: value.name }));
+}
+
+export function kindNamedEquals(a: KindNamed, b: KindNamed): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return a.name === b.name;
+    });
+}
+
+export function kindNamedHashCode(value: KindNamed): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export const KindNamed: {
+  readonly toString: typeof kindNamedToString;
+  readonly clone: typeof kindNamedClone;
+  readonly equals: typeof kindNamedEquals;
+  readonly hashCode: typeof kindNamedHashCode;
+} = {
+  toString: kindNamedToString,
+  clone: kindNamedClone,
+  equals: kindNamedEquals,
+  hashCode: kindNamedHashCode
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export interface KindAged {
+    age: number;
+}
+
+export function kindAgedToString(value: KindAged): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("age: " + String(value.age));
+        return "KindAged { " + parts.join(", ") + " }";
+    });
+}
+
+export function kindAgedClone(value: KindAged): KindAged {
+    return __mf_clonedWith(value, (): KindAged => ({ age: value.age }));
+}
+
+export function kindAgedEquals(a: KindAged, b: KindAged): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return a.age === b.age || a.age !== a.age && b.age !== b.age;
+    });
+}
+
+export function kindAgedHashCode(value: KindAged): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.age) ? value.age | 0 : value.age.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export const KindAged: {
+  readonly toString: typeof kindAgedToString;
+  readonly clone: typeof kindAgedClone;
+  readonly equals: typeof kindAgedEquals;
+  readonly hashCode: typeof kindAgedHashCode;
+} = {
+  toString: kindAgedToString,
+  clone: kindAgedClone,
+  equals: kindAgedEquals,
+  hashCode: kindAgedHashCode
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash) */
+export type KindPerson = KindNamed & KindAged;
+
+export function kindPersonToString(value: KindPerson): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    parts.push("age: " + String(value.age));
+        return "KindPerson { " + parts.join(", ") + " }";
+    });
+}
+
+export function kindPersonClone(value: KindPerson): KindPerson {
+    return __mf_clonedWith(value, (): KindPerson => ({
+	name: value.name,
+	age: value.age
+}));
+}
+
+export function kindPersonEquals(a: KindPerson, b: KindPerson): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+    return [
+        () => a.name === b.name,
+        () => a.age === b.age || a.age !== a.age && b.age !== b.age,
+    ].every((same) => same());
+});
+}
+
+export function kindPersonPartialCompare(a: KindPerson, b: KindPerson): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+        () => (a.age < b.age ? -1 : a.age > b.age ? 1 : a.age === b.age || (a.age !== a.age && b.age !== b.age) ? 0 : null),
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function kindPersonCompare(a: KindPerson, b: KindPerson): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    for (const __order of [
+        () => a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+        () => a.age < b.age ? -1 : a.age > b.age ? 1 : a.age === b.age ? 0 : a.age !== a.age ? b.age !== b.age ? 0 : 1 : -1,
+    ]) {
+        const __result = __order();
+        if (__result !== 0) return __result;
+    }
+    return 0;
+    });
+}
+
+export function kindPersonHashCode(value: KindPerson): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.age) ? value.age | 0 : value.age.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export const KindPerson: {
+  readonly toString: typeof kindPersonToString;
+  readonly clone: typeof kindPersonClone;
+  readonly equals: typeof kindPersonEquals;
+  readonly partialCompare: typeof kindPersonPartialCompare;
+  readonly compare: typeof kindPersonCompare;
+  readonly hashCode: typeof kindPersonHashCode;
+} = {
+  toString: kindPersonToString,
+  clone: kindPersonClone,
+  equals: kindPersonEquals,
+  partialCompare: kindPersonPartialCompare,
+  compare: kindPersonCompare,
+  hashCode: kindPersonHashCode
+};
+
+## DTS
+
+/**
+* Each built-in derive on the kinds of declaration no other edge case derives
+* it on: Default on an enum, the orderings on an object alias, and the value
+* traits on an intersection alias.
+*/
+/** @derive(Default) */
+export declare enum KindShade {
+	Dark = "dark",
+	/** @default */
+	Light = "light"
+}
+export declare function kindShadeDefaultValue(): KindShade;
+export declare namespace KindShade {
+	const defaultValue: typeof kindShadeDefaultValue;
+}
+/** @derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash) */
+export type KindPoint = {
+	x: number;
+	y: number;
+};
+export declare function kindPointToString(value: KindPoint): string;
+export declare function kindPointEquals(a: KindPoint, b: KindPoint): boolean;
+export declare function kindPointPartialCompare(a: KindPoint, b: KindPoint): number | null;
+export declare function kindPointCompare(a: KindPoint, b: KindPoint): number;
+export declare function kindPointHashCode(value: KindPoint): number;
+export declare const KindPoint: {
+	readonly toString: typeof kindPointToString;
+	readonly equals: typeof kindPointEquals;
+	readonly partialCompare: typeof kindPointPartialCompare;
+	readonly compare: typeof kindPointCompare;
+	readonly hashCode: typeof kindPointHashCode;
+};
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export interface KindNamed {
+	name: string;
+}
+export declare function kindNamedToString(value: KindNamed): string;
+export declare function kindNamedClone(value: KindNamed): KindNamed;
+export declare function kindNamedEquals(a: KindNamed, b: KindNamed): boolean;
+export declare function kindNamedHashCode(value: KindNamed): number;
+export declare const KindNamed: {
+	readonly toString: typeof kindNamedToString;
+	readonly clone: typeof kindNamedClone;
+	readonly equals: typeof kindNamedEquals;
+	readonly hashCode: typeof kindNamedHashCode;
+};
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export interface KindAged {
+	age: number;
+}
+export declare function kindAgedToString(value: KindAged): string;
+export declare function kindAgedClone(value: KindAged): KindAged;
+export declare function kindAgedEquals(a: KindAged, b: KindAged): boolean;
+export declare function kindAgedHashCode(value: KindAged): number;
+export declare const KindAged: {
+	readonly toString: typeof kindAgedToString;
+	readonly clone: typeof kindAgedClone;
+	readonly equals: typeof kindAgedEquals;
+	readonly hashCode: typeof kindAgedHashCode;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash) */
+export type KindPerson = KindNamed & KindAged;
+export declare function kindPersonToString(value: KindPerson): string;
+export declare function kindPersonClone(value: KindPerson): KindPerson;
+export declare function kindPersonEquals(a: KindPerson, b: KindPerson): boolean;
+export declare function kindPersonPartialCompare(a: KindPerson, b: KindPerson): number | null;
+export declare function kindPersonCompare(a: KindPerson, b: KindPerson): number;
+export declare function kindPersonHashCode(value: KindPerson): number;
+export declare const KindPerson: {
+	readonly toString: typeof kindPersonToString;
+	readonly clone: typeof kindPersonClone;
+	readonly equals: typeof kindPersonEquals;
+	readonly partialCompare: typeof kindPersonPartialCompare;
+	readonly compare: typeof kindPersonCompare;
+	readonly hashCode: typeof kindPersonHashCode;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..310 -> expanded 223..533
+original 310..421 -> expanded 732..843
+original 421..517 -> expanded 3383..3479
+original 517..611 -> expanded 4674..4768
+original 611..726 -> expanded 6022..6137
+original 726..727 -> expanded 8851..8852
+generated 0..223 <- imports
+generated 533..617 <- Default
+generated 617..732 <- __convenience_const
+generated 843..1137 <- Debug
+generated 1137..1445 <- PartialEq
+generated 1445..1961 <- PartialOrd
+generated 1961..2463 <- Ord
+generated 2463..2946 <- Hash
+generated 2946..3383 <- __convenience_const
+generated 3479..3738 <- Debug
+generated 3738..3879 <- Clone
+generated 3879..4067 <- PartialEq
+generated 4067..4347 <- Hash
+generated 4347..4674 <- __convenience_const
+generated 4768..5022 <- Debug
+generated 5022..5157 <- Clone
+generated 5157..5378 <- PartialEq
+generated 5378..5704 <- Hash
+generated 5704..6022 <- __convenience_const
+generated 6137..6444 <- Debug
+generated 6444..6607 <- Clone
+generated 6607..6906 <- PartialEq
+generated 6906..7404 <- PartialOrd
+generated 7404..7886 <- Ord
+generated 7886..8335 <- Hash
+generated 8335..8851 <- __convenience_const
+
+## Metadata
+
+interface KindNamed: {"body_span":{"end":518,"start":497},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":469,"start":424}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":516,"start":503},"ts_type":"string"}],"heritage":[],"methods":[],"name":"KindNamed","span":{"end":518,"start":477},"type_params":[]}
+interface KindAged: {"body_span":{"end":612,"start":592},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":565,"start":520}}],"fields":[{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":610,"start":598},"ts_type":"number"}],"heritage":[],"methods":[],"name":"KindAged","span":{"end":612,"start":573},"type_params":[]}
+enum KindShade: {"body_span":{"end":311,"start":249},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":226,"start":203}}],"is_const":false,"is_declare":false,"name":"KindShade","span":{"end":311,"start":234},"variants":[{"decorators":[],"name":"Dark","span":{"end":268,"start":255},"value":{"String":"dark"}},{"decorators":[{"args_src":"","name":"default","span":{"end":289,"start":274}}],"name":"Light","span":{"end":309,"start":294},"value":{"String":"light"}}]}
+type KindPoint: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":409,"start":399},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":419,"start":410},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, PartialEq, Eq, PartialOrd, Ord, Hash","name":"Derive","span":{"end":372,"start":313}}],"name":"KindPoint","span":{"end":422,"start":380},"type_params":[]}
+type KindPerson: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"KindNamed"}},{"decorators":[],"kind":{"TypeRef":"KindAged"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash","name":"Derive","span":{"end":680,"start":614}}],"name":"KindPerson","span":{"end":727,"start":688},"type_params":[]}
+
+## Registry reads
+
+Name("KindAged")
+Name("KindNamed")
+Name("KindPerson")
+Name("KindPoint")
+
+## Buildtime dependencies
+
+(none)
