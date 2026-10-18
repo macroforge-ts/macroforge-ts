@@ -21,7 +21,7 @@ export type ExoticCode = `code-${bigint}`;
 export type ExoticNone = [];
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
-export interface ExoticEmpty {}
+export type ExoticEmpty = {};
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export class ExoticBlank {}

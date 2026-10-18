@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/exotic-shapes.ts
-sha256 3b1c47a351e4d749e210f5c4c98e28d49d708a4b5622f064cb3acc82347c59be
+sha256 66f85f855ea3a811b9f53d6bcfb34f247bc5e0692f8062521b06290817095610
 
 ## Changed
 
@@ -652,7 +652,7 @@ export const ExoticNone: {
 };
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
-export interface ExoticEmpty {}
+export type ExoticEmpty = {};
 
 export function exoticEmptyToString(_value: ExoticEmpty): string {
     return "ExoticEmpty {}";
@@ -665,8 +665,8 @@ export function exoticEmptyClone(value: ExoticEmpty): ExoticEmpty {
 export function exoticEmptyEquals(a: ExoticEmpty, b: ExoticEmpty): boolean {
     if (a === b) return true;
     return __mf_equalWithin(a, b, () => {
-        return true;
-    });
+    return true;
+});
 }
 
 export function exoticEmptyHashCode(value: ExoticEmpty): number {
@@ -2445,7 +2445,33 @@ export const ExoticMethodAlias: {
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface ExoticDeep {
-    objects: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+    objects: {
+        held: {
+            held: {
+                held: {
+                    held: {
+                        held: {
+                            held: {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: { held: { held: { held: number } } };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
     lists: [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]];
 }
 
@@ -2621,7 +2647,33 @@ export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         }
     }
 
-    const instance: { "objects"?: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } } | undefined; "lists"?: [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]] | undefined } = {};
+    const instance: { "objects"?: {
+        held: {
+            held: {
+                held: {
+                    held: {
+                        held: {
+                            held: {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: { held: { held: { held: number } } };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    } | undefined; "lists"?: [[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ExoticDeep");
@@ -2632,11 +2684,219 @@ export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     for (const __part of [
         () => {
             if ((__fields === undefined || __fields.requires("objects")) ? "objects" in obj : (__fields.keeps("objects") && obj["objects"] !== undefined)) {
-                const __raw_objects = obj["objects"] as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } };
+                const __raw_objects = obj["objects"] as {
+                        held: {
+                            held: {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
                 if (typeof __raw_objects === "object" && __raw_objects !== null) {
                     ctx.pushScope("objects");
                     try {
-                        instance.objects = (__mf_decodeObject(__raw_objects, ctx, { held: (__raw0) => (__mf_decodeObject(__raw0, ctx, { held: (__raw1) => (__mf_decodeObject(__raw1, ctx, { held: (__raw2) => (__mf_decodeObject(__raw2, ctx, { held: (__raw3) => (__mf_decodeObject(__raw3, ctx, { held: (__raw4) => (__mf_decodeObject(__raw4, ctx, { held: (__raw5) => (__mf_decodeObject(__raw5, ctx, { held: (__raw6) => (__mf_decodeObject(__raw6, ctx, { held: (__raw7) => (__mf_decodeObject(__raw7, ctx, { held: (__raw8) => (__mf_decodeObject(__raw8, ctx, { held: (__raw9) => (__mf_decodeObject(__raw9, ctx, { held: (__raw10) => (__mf_decodeObject(__raw10, ctx, { held: (__raw11) => (__mf_decodeObject(__raw11, ctx, { held: (__raw12) => (__mf_decodeObject(__raw12, ctx, { held: (__raw13) => (__mf_decodeObject(__raw13, ctx, { held: (__raw14) => (__mf_decodeObject(__raw14, ctx, { held: __mf_decodeNumber }) as { held: number }) }) as { held: { held: number } }) }) as { held: { held: { held: number } } }) }) as { held: { held: { held: { held: number } } } }) }) as { held: { held: { held: { held: { held: number } } } } }) }) as { held: { held: { held: { held: { held: { held: number } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: number } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } }) }) as { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } });
+                        instance.objects = (__mf_decodeObject(__raw_objects, ctx, { held: (__raw0) => (__mf_decodeObject(__raw0, ctx, { held: (__raw1) => (__mf_decodeObject(__raw1, ctx, { held: (__raw2) => (__mf_decodeObject(__raw2, ctx, { held: (__raw3) => (__mf_decodeObject(__raw3, ctx, { held: (__raw4) => (__mf_decodeObject(__raw4, ctx, { held: (__raw5) => (__mf_decodeObject(__raw5, ctx, { held: (__raw6) => (__mf_decodeObject(__raw6, ctx, { held: (__raw7) => (__mf_decodeObject(__raw7, ctx, { held: (__raw8) => (__mf_decodeObject(__raw8, ctx, { held: (__raw9) => (__mf_decodeObject(__raw9, ctx, { held: (__raw10) => (__mf_decodeObject(__raw10, ctx, { held: (__raw11) => (__mf_decodeObject(__raw11, ctx, { held: (__raw12) => (__mf_decodeObject(__raw12, ctx, { held: (__raw13) => (__mf_decodeObject(__raw13, ctx, { held: (__raw14) => (__mf_decodeObject(__raw14, ctx, { held: __mf_decodeNumber }) as { held: number }) }) as { held: { held: number } }) }) as { held: { held: { held: number } } }) }) as {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    }) }) as {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                }) }) as {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            }) }) as {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        }) }) as {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    }) }) as {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                }) }) as {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            }) }) as {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        }) }) as {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    }) }) as {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                }) }) as {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            }) }) as {
+                            held: {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        }) }) as {
+                        held: {
+                            held: {
+                                held: {
+                                    held: {
+                                        held: {
+                                            held: {
+                                                held: {
+                                                    held: {
+                                                        held: {
+                                                            held: {
+                                                                held: {
+                                                                    held: {
+                                                                        held: { held: { held: { held: number } } };
+                                                                    };
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    });
                     } catch (__e) {
                         if (__e instanceof __mf_DecodeError) {
                             for (const __err of __e.errors) {
@@ -2652,7 +2912,7 @@ export function exoticDeepDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                         ctx.popScope();
                     }
                 } else {
-                    errors.push({ field: "objects", message: __raw_objects == null ? "ExoticDeep.objects is required" : "expected { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }" });
+                    errors.push({ field: "objects", message: __raw_objects == null ? "ExoticDeep.objects is required" : "expected {\n        held: {\n            held: {\n                held: {\n                    held: {\n                        held: {\n                            held: {\n                                held: {\n                                    held: {\n                                        held: {\n                                            held: {\n                                                held: {\n                                                    held: {\n                                                        held: { held: { held: { held: number } } };\n                                                    };\n                                                };\n                                            };\n                                        };\n                                    };\n                                };\n                            };\n                        };\n                    };\n                };\n            };\n        };\n    }" });
                 }
             }
         },
@@ -2897,7 +3157,7 @@ export declare const ExoticNone: {
 	readonly hasShape: typeof exoticNoneHasShape;
 };
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
-export interface ExoticEmpty {}
+export type ExoticEmpty = {};
 export declare function exoticEmptyToString(_value: ExoticEmpty): string;
 export declare function exoticEmptyClone(value: ExoticEmpty): ExoticEmpty;
 export declare function exoticEmptyEquals(a: ExoticEmpty, b: ExoticEmpty): boolean;
@@ -3379,17 +3639,17 @@ export declare const ExoticDeep: {
 original 0..533 -> expanded 1618..2151
 original 533..639 -> expanded 17366..17472
 original 639..740 -> expanded 22410..22511
-original 740..844 -> expanded 27479..27583
-original 844..943 -> expanded 36499..36598
-original 943..944 -> expanded 43504..43505
-original 944..1086 -> expanded 47246..47388
-original 1086..1221 -> expanded 49044..49179
-original 1221..1494 -> expanded 54977..55250
-original 1494..1756 -> expanded 72886..73148
-original 1756..1957 -> expanded 90865..91066
-original 1957..2076 -> expanded 104512..104631
-original 2076..2412 -> expanded 106147..106483
-original 2412..2413 -> expanded 123939..123940
+original 740..842 -> expanded 27479..27581
+original 842..941 -> expanded 36489..36588
+original 941..942 -> expanded 43494..43495
+original 942..1084 -> expanded 47236..47378
+original 1084..1219 -> expanded 49034..49169
+original 1219..1492 -> expanded 54967..55240
+original 1492..1754 -> expanded 72876..73138
+original 1754..1955 -> expanded 90855..91056
+original 1955..2074 -> expanded 104502..104621
+original 2074..3203 -> expanded 106137..107266
+original 3203..3204 -> expanded 137462..137463
 generated 0..1618 <- imports
 generated 2151..2642 <- Debug
 generated 2642..2924 <- Clone
@@ -3414,92 +3674,92 @@ generated 22923..23018 <- Default
 generated 23018..23838 <- Encode
 generated 23838..26535 <- Decode
 generated 26535..27479 <- __convenience_const
-generated 27583..27682 <- Debug
-generated 27682..27813 <- Clone
-generated 27813..27994 <- PartialEq
-generated 27994..28159 <- Hash
-generated 28159..28239 <- Default
-generated 28239..30260 <- Encode
-generated 30260..35032 <- Decode
-generated 35032..36499 <- __convenience_const
-generated 36598..36689 <- Debug
-generated 36689..36799 <- Clone
-generated 36799..36992 <- PartialEq
-generated 36992..37161 <- Hash
-generated 37161..37314 <- Default
-generated 37314..38733 <- Encode
-generated 38733..39062 <- Encode
-generated 39062..43504 <- Decode
-generated 43505..43616 <- Debug
-generated 43616..43724 <- Clone
-generated 43724..43841 <- PartialEq
-generated 43841..43950 <- Hash
-generated 43950..44049 <- Default
-generated 44049..45419 <- Encode
-generated 45419..47246 <- Decode
-generated 47388..47759 <- Debug
-generated 47759..47992 <- Clone
-generated 47992..48327 <- PartialEq
-generated 48327..48681 <- Hash
-generated 48681..49044 <- __convenience_const
-generated 49179..49314 <- Debug
-generated 49314..49428 <- Clone
-generated 49428..49581 <- PartialEq
-generated 49581..49691 <- Hash
-generated 49691..51006 <- Encode
-generated 51006..54087 <- Decode
-generated 54087..54977 <- __convenience_const
-generated 55250..55755 <- Debug
-generated 55755..56053 <- Clone
-generated 56053..56932 <- PartialEq
-generated 56932..58011 <- Hash
-generated 58011..61286 <- Encode
-generated 61286..71517 <- Decode
-generated 71517..72886 <- __convenience_const
-generated 73148..73630 <- Debug
-generated 73630..73945 <- Clone
-generated 73945..74405 <- PartialEq
-generated 74405..74836 <- Hash
-generated 74836..75024 <- Default
-generated 75024..78037 <- Encode
-generated 78037..89398 <- Decode
-generated 89398..90865 <- __convenience_const
-generated 91066..91435 <- Debug
-generated 91435..91657 <- Clone
-generated 91657..92138 <- PartialEq
-generated 92138..92656 <- Hash
-generated 92656..92804 <- Default
-generated 92804..95623 <- Encode
-generated 95623..102921 <- Decode
-generated 102921..104512 <- __convenience_const
-generated 104631..104955 <- Debug
-generated 104955..105142 <- Clone
-generated 105142..105420 <- PartialEq
-generated 105420..105748 <- Hash
-generated 105748..106147 <- __convenience_const
-generated 106483..106828 <- Debug
-generated 106828..107045 <- Clone
-generated 107045..107376 <- PartialEq
-generated 107376..107671 <- Hash
-generated 107671..107981 <- Default
-generated 107981..110507 <- Encode
-generated 110507..122503 <- Decode
-generated 122503..123939 <- __convenience_const
+generated 27581..27680 <- Debug
+generated 27680..27811 <- Clone
+generated 27811..27984 <- PartialEq
+generated 27984..28149 <- Hash
+generated 28149..28229 <- Default
+generated 28229..30250 <- Encode
+generated 30250..35022 <- Decode
+generated 35022..36489 <- __convenience_const
+generated 36588..36679 <- Debug
+generated 36679..36789 <- Clone
+generated 36789..36982 <- PartialEq
+generated 36982..37151 <- Hash
+generated 37151..37304 <- Default
+generated 37304..38723 <- Encode
+generated 38723..39052 <- Encode
+generated 39052..43494 <- Decode
+generated 43495..43606 <- Debug
+generated 43606..43714 <- Clone
+generated 43714..43831 <- PartialEq
+generated 43831..43940 <- Hash
+generated 43940..44039 <- Default
+generated 44039..45409 <- Encode
+generated 45409..47236 <- Decode
+generated 47378..47749 <- Debug
+generated 47749..47982 <- Clone
+generated 47982..48317 <- PartialEq
+generated 48317..48671 <- Hash
+generated 48671..49034 <- __convenience_const
+generated 49169..49304 <- Debug
+generated 49304..49418 <- Clone
+generated 49418..49571 <- PartialEq
+generated 49571..49681 <- Hash
+generated 49681..50996 <- Encode
+generated 50996..54077 <- Decode
+generated 54077..54967 <- __convenience_const
+generated 55240..55745 <- Debug
+generated 55745..56043 <- Clone
+generated 56043..56922 <- PartialEq
+generated 56922..58001 <- Hash
+generated 58001..61276 <- Encode
+generated 61276..71507 <- Decode
+generated 71507..72876 <- __convenience_const
+generated 73138..73620 <- Debug
+generated 73620..73935 <- Clone
+generated 73935..74395 <- PartialEq
+generated 74395..74826 <- Hash
+generated 74826..75014 <- Default
+generated 75014..78027 <- Encode
+generated 78027..89388 <- Decode
+generated 89388..90855 <- __convenience_const
+generated 91056..91425 <- Debug
+generated 91425..91647 <- Clone
+generated 91647..92128 <- PartialEq
+generated 92128..92646 <- Hash
+generated 92646..92794 <- Default
+generated 92794..95613 <- Encode
+generated 95613..102911 <- Decode
+generated 102911..104502 <- __convenience_const
+generated 104621..104945 <- Debug
+generated 104945..105132 <- Clone
+generated 105132..105410 <- PartialEq
+generated 105410..105738 <- Hash
+generated 105738..106137 <- __convenience_const
+generated 107266..107611 <- Debug
+generated 107611..107828 <- Clone
+generated 107828..108159 <- PartialEq
+generated 108159..108454 <- Hash
+generated 108454..108764 <- Default
+generated 108764..111290 <- Encode
+generated 111290..136026 <- Decode
+generated 136026..137462 <- __convenience_const
 
 ## Metadata
 
-class ExoticBlank: {"body_span":{"end":945,"start":943},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":917,"start":847}}],"fields":[],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ExoticBlank","span":{"end":945,"start":925},"superclass":null,"type_params":[]}
+class ExoticBlank: {"body_span":{"end":943,"start":941},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":915,"start":845}}],"fields":[],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"ExoticBlank","span":{"end":943,"start":923},"superclass":null,"type_params":[]}
 interface ExoticScalars: {"body_span":{"end":534,"start":403},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":371,"start":301}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":428,"start":409},"ts_type":"`id-${number}`"},{"decorators":[],"key":"Named","name":"tag","optional":false,"readonly":false,"span":{"end":461,"start":433},"ts_type":"`${string}-${boolean}`"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":479,"start":466},"ts_type":"object"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":498,"start":484},"ts_type":"null"},{"decorators":[],"key":"Named","name":"choice","optional":false,"readonly":false,"span":{"end":532,"start":503},"ts_type":"'a' | 'b' | 3 | true"}],"heritage":[],"methods":[],"name":"ExoticScalars","span":{"end":534,"start":379},"type_params":[]}
-interface ExoticEmpty: {"body_span":{"end":845,"start":843},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":813,"start":743}}],"fields":[],"heritage":[],"methods":[],"name":"ExoticEmpty","span":{"end":845,"start":821},"type_params":[]}
-interface ExoticMethods: {"body_span":{"end":1087,"start":1024},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":992,"start":947}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1041,"start":1030},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1065,"start":1046},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":1085,"start":1070},"type_params":[]}],"name":"ExoticMethods","span":{"end":1087,"start":1000},"type_params":[]}
-interface ExoticTexts: {"body_span":{"end":1495,"start":1315},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1285,"start":1224}}],"fields":[{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1359,"start":1321},"ts_type":"`a-${number}` | `b-${string}`"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1386,"start":1364},"ts_type":"`k-${number}`[]"},{"decorators":[],"key":"Named","name":"mapped","optional":false,"readonly":false,"span":{"end":1426,"start":1391},"ts_type":"Map<`m-${bigint}`, string>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1457,"start":1431},"ts_type":"`o-${boolean}`"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1493,"start":1462},"ts_type":"`n-${string}` | null"}],"heritage":[],"methods":[],"name":"ExoticTexts","span":{"end":1495,"start":1293},"type_params":[]}
-interface ExoticKeyed: {"body_span":{"end":1757,"start":1597},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1567,"start":1497}}],"fields":[{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1637,"start":1603},"ts_type":"Record<'a' | 'b', number>"},{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1674,"start":1642},"ts_type":"Record<number, string>"},{"decorators":[],"key":"Named","name":"patterned","optional":false,"readonly":false,"span":{"end":1721,"start":1679},"ts_type":"Record<`k-${number}`, boolean>"},{"decorators":[],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":1755,"start":1726},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"ExoticKeyed","span":{"end":1757,"start":1575},"type_params":[]}
-interface ExoticAccessors: {"body_span":{"end":1958,"start":1863},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1829,"start":1759}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1880,"start":1869},"ts_type":"string"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":1904,"start":1885},"ts_type":"number"},{"decorators":[],"key":"Named","name":"stamp","optional":false,"readonly":true,"span":{"end":1956,"start":1938},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ExoticAccessors","span":{"end":1958,"start":1837},"type_params":[]}
-interface ExoticDeep: {"body_span":{"end":2413,"start":2178},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2149,"start":2079}}],"fields":[{"decorators":[],"key":"Named","name":"objects","optional":false,"readonly":false,"span":{"end":2360,"start":2184},"ts_type":"{ held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }"},{"decorators":[],"key":"Named","name":"lists","optional":false,"readonly":false,"span":{"end":2411,"start":2365},"ts_type":"[[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]]"}],"heritage":[],"methods":[],"name":"ExoticDeep","span":{"end":2413,"start":2157},"type_params":[]}
+interface ExoticMethods: {"body_span":{"end":1085,"start":1022},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":990,"start":945}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1039,"start":1028},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":1063,"start":1044},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":1083,"start":1068},"type_params":[]}],"name":"ExoticMethods","span":{"end":1085,"start":998},"type_params":[]}
+interface ExoticTexts: {"body_span":{"end":1493,"start":1313},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1283,"start":1222}}],"fields":[{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1357,"start":1319},"ts_type":"`a-${number}` | `b-${string}`"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1384,"start":1362},"ts_type":"`k-${number}`[]"},{"decorators":[],"key":"Named","name":"mapped","optional":false,"readonly":false,"span":{"end":1424,"start":1389},"ts_type":"Map<`m-${bigint}`, string>"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1455,"start":1429},"ts_type":"`o-${boolean}`"},{"decorators":[],"key":"Named","name":"nullable","optional":false,"readonly":false,"span":{"end":1491,"start":1460},"ts_type":"`n-${string}` | null"}],"heritage":[],"methods":[],"name":"ExoticTexts","span":{"end":1493,"start":1291},"type_params":[]}
+interface ExoticKeyed: {"body_span":{"end":1755,"start":1595},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1565,"start":1495}}],"fields":[{"decorators":[],"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1635,"start":1601},"ts_type":"Record<'a' | 'b', number>"},{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1672,"start":1640},"ts_type":"Record<number, string>"},{"decorators":[],"key":"Named","name":"patterned","optional":false,"readonly":false,"span":{"end":1719,"start":1677},"ts_type":"Record<`k-${number}`, boolean>"},{"decorators":[],"key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":1753,"start":1724},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"ExoticKeyed","span":{"end":1755,"start":1573},"type_params":[]}
+interface ExoticAccessors: {"body_span":{"end":1956,"start":1861},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1827,"start":1757}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1878,"start":1867},"ts_type":"string"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":1902,"start":1883},"ts_type":"number"},{"decorators":[],"key":"Named","name":"stamp","optional":false,"readonly":true,"span":{"end":1954,"start":1936},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ExoticAccessors","span":{"end":1956,"start":1835},"type_params":[]}
+interface ExoticDeep: {"body_span":{"end":3204,"start":2176},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2147,"start":2077}}],"fields":[{"decorators":[],"key":"Named","name":"objects","optional":false,"readonly":false,"span":{"end":3151,"start":2182},"ts_type":"{\n        held: {\n            held: {\n                held: {\n                    held: {\n                        held: {\n                            held: {\n                                held: {\n                                    held: {\n                                        held: {\n                                            held: {\n                                                held: {\n                                                    held: {\n                                                        held: { held: { held: { held: number } } };\n                                                    };\n                                                };\n                                            };\n                                        };\n                                    };\n                                };\n                            };\n                        };\n                    };\n                };\n            };\n        };\n    }"},{"decorators":[],"key":"Named","name":"lists","optional":false,"readonly":false,"span":{"end":3202,"start":3156},"ts_type":"[[[[[[[[[[[[[[[[number]]]]]]]]]]]]]]]]"}],"heritage":[],"methods":[],"name":"ExoticDeep","span":{"end":3204,"start":2155},"type_params":[]}
 type ExoticCode: {"body":{"Other":"`code-${bigint}`"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":597,"start":536}}],"name":"ExoticCode","span":{"end":640,"start":605},"type_params":[]}
 type ExoticNone: {"body":{"Tuple":[]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":712,"start":642}}],"name":"ExoticNone","span":{"end":741,"start":720},"type_params":[]}
-type ExoticLabels: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"`a-${number}`"}},{"decorators":[],"kind":{"TypeRef":"`b-${string}`"}},{"decorators":[],"kind":{"Literal":"'plain'"}},{"decorators":[],"kind":{"Literal":"5"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1150,"start":1089}}],"name":"ExoticLabels","span":{"end":1222,"start":1158},"type_params":[]}
-type ExoticMethodAlias: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2055,"start":2044},"ts_type":"string"},{"decorators":[],"key":"Named","name":"run","optional":false,"readonly":false,"span":{"end":2074,"start":2060},"ts_type":"() => string"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":2005,"start":1960}}],"name":"ExoticMethodAlias","span":{"end":2077,"start":2013},"type_params":[]}
+type ExoticEmpty: {"body":{"Object":{"fields":[]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":813,"start":743}}],"name":"ExoticEmpty","span":{"end":843,"start":821},"type_params":[]}
+type ExoticLabels: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"`a-${number}`"}},{"decorators":[],"kind":{"TypeRef":"`b-${string}`"}},{"decorators":[],"kind":{"Literal":"'plain'"}},{"decorators":[],"kind":{"Literal":"5"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1148,"start":1087}}],"name":"ExoticLabels","span":{"end":1220,"start":1156},"type_params":[]}
+type ExoticMethodAlias: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2053,"start":2042},"ts_type":"string"},{"decorators":[],"key":"Named","name":"run","optional":false,"readonly":false,"span":{"end":2072,"start":2058},"ts_type":"() => string"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":2003,"start":1958}}],"name":"ExoticMethodAlias","span":{"end":2075,"start":2011},"type_params":[]}
 
 ## Registry reads
 
@@ -3508,6 +3768,7 @@ Name("'a' | 'b' | 3 | true")
 Name("() => string")
 Name("Date")
 Name("ExoticCode")
+Name("ExoticEmpty")
 Name("ExoticLabels")
 Name("ExoticMethodAlias")
 Name("ExoticNone")
@@ -3527,7 +3788,7 @@ Name("null")
 Name("number")
 Name("object")
 Name("string")
-Name("{ held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: { held: number } } } } } } } } } } } } } } } }")
+Name("{\n        held: {\n            held: {\n                held: {\n                    held: {\n                        held: {\n                            held: {\n                                held: {\n                                    held: {\n                                        held: {\n                                            held: {\n                                                held: {\n                                                    held: {\n                                                        held: { held: { held: { held: number } } };\n                                                    };\n                                                };\n                                            };\n                                        };\n                                    };\n                                };\n                            };\n                        };\n                    };\n                };\n            };\n        };\n    }")
 
 ## Buildtime dependencies
 
