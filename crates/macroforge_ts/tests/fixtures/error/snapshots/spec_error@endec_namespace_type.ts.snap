@@ -64,6 +64,7 @@ Error [161..184]: @derive(Encode): `shapes.Point` names a type through the names
 Error [189..215]: @derive(Encode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
 Error [138..156]: @derive(Decode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
 Error [161..184]: @derive(Decode): `shapes.Point` names a type through the namespace `shapes`, and a type's coders are found by its own name; import it by name, as in `import type { Point } from "./shapes"`
+Error [189..215]: @derive(Decode): `models.User` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { User } from "./models"`
 Error [333..358]: @derive(Encode): `models.Clock.Instant` names a type through the namespace `models`, and a type's coders are found by its own name; import it by name, as in `import type { Clock } from "./models"`, and write `Clock.Instant`
 
 ## Mapping

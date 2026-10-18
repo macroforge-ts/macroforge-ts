@@ -33,7 +33,6 @@ fn test_decode_field_has_validators() {
         wrapped: None,
         by_parameter: None,
         union_guard: None,
-        nullable_union_guard: None,
         union_string_validators: vec![],
     };
     assert!(field.has_validators());

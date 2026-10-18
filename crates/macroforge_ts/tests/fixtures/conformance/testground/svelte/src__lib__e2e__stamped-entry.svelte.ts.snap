@@ -665,33 +665,24 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         () => {
             if ((__fields === undefined || __fields.requires("previous")) ? "previous" in obj : (__fields.keeps("previous") && obj["previous"] !== undefined)) {
                 const __raw_previous = obj["previous"] as DateTime.DateTime | Note | null;
-
-                if (__raw_previous === null) {
-                    instance.previous = null;
-                } else {
-                    if (__foreign__dateTimeDateTimeHasShape(__raw_previous)) {
-                        instance.previous = __foreign__dateTimeDateTimeDecode(__raw_previous);
-                    } else {
-                        ctx.pushScope("previous");
-                        try {
-                            const __result = noteDecodeWithContext(__raw_previous, ctx);
-                            ctx.assignOrDefer(instance, "previous", __result);
-                        } catch (__e) {
-                            if (__e instanceof __mf_DecodeError) {
-                                for (const __err of __e.errors) {
-                                    errors.push({
-                                        field: __err.field === "_root" ? "previous" : "previous." + __err.field,
-                                        message: __err.message
-                                    });
-                                }
-                            } else {
-
-                                errors.push({ field: "previous", message: __e instanceof Error ? __e.message : String(__e) });
-                            }
-                        } finally {
-                            ctx.popScope();
+                ctx.pushScope("previous");
+                try {
+                    const __result = (__raw_previous === null ? null : (__foreign__dateTimeDateTimeHasShape(__raw_previous) ? __foreign__dateTimeDateTimeDecode(__raw_previous) : noteDecodeWithContext(__raw_previous, ctx)));
+                    ctx.assignOrDefer(instance, "previous", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "previous" : "previous." + __err.field,
+                                message: __err.message
+                            });
                         }
+                    } else {
+
+                        errors.push({ field: "previous", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
                 }
             }
         },
@@ -1039,7 +1030,7 @@ original 549..680 -> expanded 19088..19219
 original 703..724 -> expanded 19219..19240
 original 759..782 -> expanded 19240..19263
 original 825..853 -> expanded 19263..19291
-original 853..854 -> expanded 38684..38685
+original 853..854 -> expanded 38321..38322
 generated 0..1089 <- imports
 generated 1474..1558 <- Default
 generated 1558..3627 <- Encode
@@ -1051,8 +1042,8 @@ generated 12222..18065 <- Decode
 generated 18065..19086 <- __convenience_const
 generated 19291..19677 <- Default
 generated 19677..23768 <- Encode
-generated 23768..37502 <- Decode
-generated 37502..38684 <- __convenience_const
+generated 23768..37139 <- Decode
+generated 37139..38321 <- __convenience_const
 
 ## Metadata
 

@@ -3774,33 +3774,24 @@ export function genericArgumentsDecodeWithContext(value: unknown, ctx: __mf_Deco
         () => {
             if ((__fields === undefined || __fields.requires("linkOrNull")) ? "linkOrNull" in obj : (__fields.keeps("linkOrNull") && obj["linkOrNull"] !== undefined)) {
                 const __raw_linkOrNull = obj["linkOrNull"] as string | GenericBox<Date> | null;
-
-                if (__raw_linkOrNull === null) {
-                    instance.linkOrNull = null;
-                } else {
-                    if (typeof __raw_linkOrNull === "string") {
-                        instance.linkOrNull = __raw_linkOrNull;
-                    } else {
-                        ctx.pushScope("linkOrNull");
-                        try {
-                            const __result = genericBoxDecodeWithContext<Date>(__raw_linkOrNull, ctx, __mf_decodeDate);
-                            ctx.assignOrDefer(instance, "linkOrNull", __result);
-                        } catch (__e) {
-                            if (__e instanceof __mf_DecodeError) {
-                                for (const __err of __e.errors) {
-                                    errors.push({
-                                        field: __err.field === "_root" ? "linkOrNull" : "linkOrNull." + __err.field,
-                                        message: __err.message
-                                    });
-                                }
-                            } else {
-
-                                errors.push({ field: "linkOrNull", message: __e instanceof Error ? __e.message : String(__e) });
-                            }
-                        } finally {
-                            ctx.popScope();
+                ctx.pushScope("linkOrNull");
+                try {
+                    const __result = (__raw_linkOrNull === null ? null : (typeof __raw_linkOrNull === "string" ? __raw_linkOrNull : genericBoxDecodeWithContext<Date>(__raw_linkOrNull, ctx, __mf_decodeDate)));
+                    ctx.assignOrDefer(instance, "linkOrNull", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "linkOrNull" : "linkOrNull." + __err.field,
+                                message: __err.message
+                            });
                         }
+                    } else {
+
+                        errors.push({ field: "linkOrNull", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
                 }
             }
         },
@@ -4192,31 +4183,24 @@ static decodeWithContext<T extends string | number = string, U = T[]>(value: unk
         () => {
             if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
                 const __raw_pair = obj["pair"] as [T, T] | null;
-
-                if (__raw_pair === null) {
-                    instance.pair = null;
-                } else {
-                    if (Array.isArray(__raw_pair)) {
-                        ctx.pushScope("pair");
-                        try {
-                            instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx)), (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))], 2) as [T, T]);
-                        } catch (__e) {
-                            if (__e instanceof __mf_DecodeError) {
-                                for (const __err of __e.errors) {
-                                    errors.push({
-                                        field: __err.field === "_root" ? "pair" : "pair." + __err.field,
-                                        message: __err.message
-                                    });
-                                }
-                            } else {
-                                throw __e;
-                            }
-                        } finally {
-                            ctx.popScope();
+                ctx.pushScope("pair");
+                try {
+                    const __result = (__raw_pair === null ? null : (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx)), (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx))], 2) as [T, T]));
+                    ctx.assignOrDefer(instance, "pair", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                                message: __err.message
+                            });
                         }
                     } else {
-                        errors.push({ field: "pair", message: __raw_pair == null ? "GenericDefaults.pair is required" : "expected [T, T]" });
+
+                        errors.push({ field: "pair", message: __e instanceof Error ? __e.message : String(__e) });
                     }
+                } finally {
+                    ctx.popScope();
                 }
             }
         },
@@ -5845,11 +5829,11 @@ original 1430..1885 -> expanded 100890..101345
 original 1885..2047 -> expanded 130168..130330
 original 2047..2172 -> expanded 144948..145073
 original 2172..2817 -> expanded 154494..155139
-original 2817..3053 -> expanded 193957..194193
-original 3053..3054 -> expanded 209963..209964
-original 3054..3269 -> expanded 215145..215360
-original 3269..3514 -> expanded 230679..230924
-original 3514..3515 -> expanded 237981..237982
+original 2817..3053 -> expanded 193590..193826
+original 3053..3054 -> expanded 209265..209266
+original 3054..3269 -> expanded 214447..214662
+original 3269..3514 -> expanded 229981..230226
+original 3514..3515 -> expanded 237283..237284
 generated 0..1907 <- imports
 generated 2426..3151 <- Debug
 generated 3151..3876 <- Clone
@@ -5934,33 +5918,33 @@ generated 156411..157304 <- Clone
 generated 157304..158706 <- PartialEq
 generated 158706..159939 <- Hash
 generated 159939..167077 <- Encode
-generated 167077..192443 <- Decode
-generated 192443..193957 <- __convenience_const
-generated 194193..194671 <- Debug
-generated 194671..195003 <- Clone
-generated 195003..195497 <- PartialEq
-generated 195497..195926 <- Hash
-generated 195926..196263 <- Default
-generated 196263..199183 <- Encode
-generated 199183..199651 <- Encode
-generated 199651..209963 <- Decode
-generated 209964..210142 <- Debug
-generated 210142..210329 <- Clone
-generated 210329..210525 <- PartialEq
-generated 210525..210703 <- Hash
-generated 210703..210871 <- Default
-generated 210871..212692 <- Encode
-generated 212692..215145 <- Decode
-generated 215360..215799 <- Debug
-generated 215799..216087 <- Clone
-generated 216087..216499 <- PartialEq
-generated 216499..216885 <- Hash
-generated 216885..219853 <- Encode
-generated 219853..229165 <- Decode
-generated 229165..230679 <- __convenience_const
-generated 230924..233292 <- Encode
-generated 233292..237234 <- Decode
-generated 237234..237981 <- __convenience_const
+generated 167077..192076 <- Decode
+generated 192076..193590 <- __convenience_const
+generated 193826..194304 <- Debug
+generated 194304..194636 <- Clone
+generated 194636..195130 <- PartialEq
+generated 195130..195559 <- Hash
+generated 195559..195896 <- Default
+generated 195896..198816 <- Encode
+generated 198816..199284 <- Encode
+generated 199284..209265 <- Decode
+generated 209266..209444 <- Debug
+generated 209444..209631 <- Clone
+generated 209631..209827 <- PartialEq
+generated 209827..210005 <- Hash
+generated 210005..210173 <- Default
+generated 210173..211994 <- Encode
+generated 211994..214447 <- Decode
+generated 214662..215101 <- Debug
+generated 215101..215389 <- Clone
+generated 215389..215801 <- PartialEq
+generated 215801..216187 <- Hash
+generated 216187..219155 <- Encode
+generated 219155..228467 <- Decode
+generated 228467..229981 <- __convenience_const
+generated 230226..232594 <- Encode
+generated 232594..236536 <- Decode
+generated 236536..237283 <- __convenience_const
 
 ## Metadata
 

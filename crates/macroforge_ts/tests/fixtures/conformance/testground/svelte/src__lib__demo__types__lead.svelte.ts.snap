@@ -21,7 +21,7 @@ import { priorityDecodeWithContext, priorityEncodeWithContext } from "./priority
 import { representsDecodeWithContext, representsEncodeWithContext } from "./represents.svelte";
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
-import { taxRateEncodeWithContext } from "./tax-rate.svelte";
+import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -705,12 +705,25 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         },
         () => {
             if ((__fields === undefined || __fields.requires("taxRate")) ? "taxRate" in obj : (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
-                const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
+                const __raw_taxRate = obj["taxRate"] as string | TaxRate | null;
+                ctx.pushScope("taxRate");
+                try {
+                    const __result = (__raw_taxRate === null ? null : (typeof __raw_taxRate === "string" ? __raw_taxRate : taxRateDecodeWithContext(__raw_taxRate, ctx)));
+                    ctx.assignOrDefer(instance, "taxRate", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "taxRate" : "taxRate." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-                if (__raw_taxRate === null) {
-                    instance.taxRate = null;
-                } else {
-                    instance.taxRate = __raw_taxRate;
+                        errors.push({ field: "taxRate", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
             }
         },
@@ -2631,57 +2644,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1887..2459
-original 621..650 -> expanded 2459..2488
-original 678..699 -> expanded 2488..2509
-original 727..759 -> expanded 2509..2541
-original 787..815 -> expanded 2541..2569
-original 883..913 -> expanded 2569..2599
-original 1106..1111 -> expanded 2599..2604
-original 1136..1165 -> expanded 2604..2633
-original 1214..1247 -> expanded 2633..2666
-original 1298..1333 -> expanded 2666..2701
-original 1397..1421 -> expanded 2701..2725
-original 1718..1723 -> expanded 2725..2730
-original 1746..1773 -> expanded 2730..2757
-original 1816..1821 -> expanded 2757..2762
-original 1862..1887 -> expanded 2762..2787
-original 1939..1976 -> expanded 2787..2824
-original 2004..2009 -> expanded 2824..2829
-original 2042..2071 -> expanded 2829..2858
-original 2118..2146 -> expanded 2858..2886
-original 2174..2209 -> expanded 2886..2921
-original 2309..2354 -> expanded 2921..2966
-original 2535..2540 -> expanded 2966..2971
-original 2570..2595 -> expanded 2971..2996
-original 2727..2759 -> expanded 2996..3028
-original 2812..2849 -> expanded 3028..3065
-original 2897..2920 -> expanded 3065..3088
-original 2991..3027 -> expanded 3088..3124
-original 3076..3081 -> expanded 3124..3129
-original 3100..3130 -> expanded 3129..3159
-original 3175..3180 -> expanded 3159..3164
-original 3221..3244 -> expanded 3164..3187
-original 3295..3326 -> expanded 3187..3218
-original 3374..3402 -> expanded 3218..3246
-original 3491..3536 -> expanded 3246..3291
-original 3564..3595 -> expanded 3291..3322
-original 3667..3672 -> expanded 3322..3327
-original 3713..3743 -> expanded 3327..3357
-original 3810..3815 -> expanded 3357..3362
-original 3856..3882 -> expanded 3362..3388
-original 3931..3962 -> expanded 3388..3419
-original 4035..4040 -> expanded 3419..3424
-original 4081..4112 -> expanded 3424..3455
-original 4153..4183 -> expanded 3455..3485
-original 4243..4288 -> expanded 3485..3530
-original 4288..4289 -> expanded 101599..101600
-generated 0..1887 <- imports
-generated 3530..4392 <- Default
-generated 4392..14525 <- Encode
-generated 14525..52420 <- Decode
-generated 52420..100441 <- Gigaform
-generated 100441..101599 <- __convenience_const
+original 0..572 -> expanded 1913..2485
+original 621..650 -> expanded 2485..2514
+original 678..699 -> expanded 2514..2535
+original 727..759 -> expanded 2535..2567
+original 787..815 -> expanded 2567..2595
+original 883..913 -> expanded 2595..2625
+original 1106..1111 -> expanded 2625..2630
+original 1136..1165 -> expanded 2630..2659
+original 1214..1247 -> expanded 2659..2692
+original 1298..1333 -> expanded 2692..2727
+original 1397..1421 -> expanded 2727..2751
+original 1718..1723 -> expanded 2751..2756
+original 1746..1773 -> expanded 2756..2783
+original 1816..1821 -> expanded 2783..2788
+original 1862..1887 -> expanded 2788..2813
+original 1939..1976 -> expanded 2813..2850
+original 2004..2009 -> expanded 2850..2855
+original 2042..2071 -> expanded 2855..2884
+original 2118..2146 -> expanded 2884..2912
+original 2174..2209 -> expanded 2912..2947
+original 2309..2354 -> expanded 2947..2992
+original 2535..2540 -> expanded 2992..2997
+original 2570..2595 -> expanded 2997..3022
+original 2727..2759 -> expanded 3022..3054
+original 2812..2849 -> expanded 3054..3091
+original 2897..2920 -> expanded 3091..3114
+original 2991..3027 -> expanded 3114..3150
+original 3076..3081 -> expanded 3150..3155
+original 3100..3130 -> expanded 3155..3185
+original 3175..3180 -> expanded 3185..3190
+original 3221..3244 -> expanded 3190..3213
+original 3295..3326 -> expanded 3213..3244
+original 3374..3402 -> expanded 3244..3272
+original 3491..3536 -> expanded 3272..3317
+original 3564..3595 -> expanded 3317..3348
+original 3667..3672 -> expanded 3348..3353
+original 3713..3743 -> expanded 3353..3383
+original 3810..3815 -> expanded 3383..3388
+original 3856..3882 -> expanded 3388..3414
+original 3931..3962 -> expanded 3414..3445
+original 4035..4040 -> expanded 3445..3450
+original 4081..4112 -> expanded 3450..3481
+original 4153..4183 -> expanded 3481..3511
+original 4243..4288 -> expanded 3511..3556
+original 4288..4289 -> expanded 102398..102399
+generated 0..1913 <- imports
+generated 3556..4418 <- Default
+generated 4418..14551 <- Encode
+generated 14551..53219 <- Decode
+generated 53219..101240 <- Gigaform
+generated 101240..102398 <- __convenience_const
 
 ## Metadata
 

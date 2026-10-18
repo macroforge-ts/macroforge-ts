@@ -27,6 +27,8 @@ interface Canvas {
     exact: 1n | 'one';
     held: string | (number | undefined)[];
     paired: string | [number | undefined];
+    nested: Circle | null | (null | true)[];
+    grouped: (Circle | null) | (null | true)[];
 }
 
 ## Changed
@@ -435,6 +437,8 @@ interface Canvas {
     exact: 1n | 'one';
     held: string | (number | undefined)[];
     paired: string | [number | undefined];
+    nested: Circle | null | (null | true)[];
+    grouped: (Circle | null) | (null | true)[];
 }
 
 ## DTS
@@ -525,8 +529,11 @@ Error [384..407]: @derive(Encode): `bigint | string` holds `bigint`, whose value
 Error [412..430]: @derive(Encode): `1n | 'one'` holds `1n`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = 1n | 'one'`, and derive on that
 Error [435..473]: @derive(Encode): `string | (number | undefined)[]` holds `(number | undefined)[]`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = string | (number | undefined)[]`, and derive on that
 Error [478..516]: @derive(Encode): `string | [number | undefined]` holds `[number | undefined]`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = string | [number | undefined]`, and derive on that
+Error [521..561]: @derive(Encode): `Circle | (null | true)[]` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | (null | true)[]`, and derive on that
+Error [566..609]: @derive(Encode): `Circle | (null | true)[]` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | (null | true)[]`, and derive on that
 Error [199..222]: @derive(Decode): `Circle | Square` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | Square`, and derive on that
 Error [227..255]: @derive(Decode): `Circle | Square` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | Square`, and derive on that
+Error [260..290]: @derive(Decode): `Circle | Square` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | Square`, and derive on that
 Error [295..315]: @derive(Decode): `Date | number` holds `Date`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Date | number`, and derive on that
 Error [320..349]: @derive(Decode): `Set<string> | string[]` holds `Set<string>`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Set<string> | string[]`, and derive on that
 Error [354..379]: @derive(Decode): `bigint | number[]` holds `bigint`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = bigint | number[]`, and derive on that
@@ -534,6 +541,8 @@ Error [384..407]: @derive(Decode): `bigint | string` holds `bigint`, whose value
 Error [412..430]: @derive(Decode): `1n | 'one'` holds `1n`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = 1n | 'one'`, and derive on that
 Error [435..473]: @derive(Decode): `string | (number | undefined)[]` holds `(number | undefined)[]`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = string | (number | undefined)[]`, and derive on that
 Error [478..516]: @derive(Decode): `string | [number | undefined]` holds `[number | undefined]`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = string | [number | undefined]`, and derive on that
+Error [521..561]: @derive(Decode): `Circle | (null | true)[]` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | (null | true)[]`, and derive on that
+Error [566..609]: @derive(Decode): `Circle | (null | true)[]` holds `Circle`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = Circle | (null | true)[]`, and derive on that
 
 ## Mapping
 
@@ -541,7 +550,7 @@ original 30..71 -> expanded 685..726
 original 71..73 -> expanded 9263..9265
 original 103..142 -> expanded 9265..9304
 original 142..144 -> expanded 17799..17801
-original 174..518 -> expanded 17801..18145
+original 174..611 -> expanded 17801..18238
 generated 0..685 <- imports
 generated 726..2833 <- Encode
 generated 2833..8314 <- Decode
@@ -554,7 +563,7 @@ generated 16850..17799 <- __convenience_const
 
 interface Circle: {"body_span":{"end":72,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":70,"start":55},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Circle","span":{"end":72,"start":32},"type_params":[]}
 interface Square: {"body_span":{"end":143,"start":122},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":104,"start":74}}],"fields":[{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":141,"start":128},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Square","span":{"end":143,"start":105},"type_params":[]}
-interface Canvas: {"body_span":{"end":518,"start":193},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":175,"start":145}}],"fields":[{"decorators":[],"key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":222,"start":199},"ts_type":"Circle | Square"},{"decorators":[],"key":"Named","name":"shapes","optional":false,"readonly":false,"span":{"end":255,"start":227},"ts_type":"(Circle | Square)[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":290,"start":260},"ts_type":"Circle | Square | null"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":315,"start":295},"ts_type":"Date | number"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":349,"start":320},"ts_type":"Set<string> | string[]"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":379,"start":354},"ts_type":"bigint | number[]"},{"decorators":[],"key":"Named","name":"tally","optional":false,"readonly":false,"span":{"end":407,"start":384},"ts_type":"bigint | string"},{"decorators":[],"key":"Named","name":"exact","optional":false,"readonly":false,"span":{"end":430,"start":412},"ts_type":"1n | 'one'"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":473,"start":435},"ts_type":"string | (number | undefined)[]"},{"decorators":[],"key":"Named","name":"paired","optional":false,"readonly":false,"span":{"end":516,"start":478},"ts_type":"string | [number | undefined]"}],"heritage":[],"methods":[],"name":"Canvas","span":{"end":518,"start":176},"type_params":[]}
+interface Canvas: {"body_span":{"end":611,"start":193},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":175,"start":145}}],"fields":[{"decorators":[],"key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":222,"start":199},"ts_type":"Circle | Square"},{"decorators":[],"key":"Named","name":"shapes","optional":false,"readonly":false,"span":{"end":255,"start":227},"ts_type":"(Circle | Square)[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":290,"start":260},"ts_type":"Circle | Square | null"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":315,"start":295},"ts_type":"Date | number"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":349,"start":320},"ts_type":"Set<string> | string[]"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":379,"start":354},"ts_type":"bigint | number[]"},{"decorators":[],"key":"Named","name":"tally","optional":false,"readonly":false,"span":{"end":407,"start":384},"ts_type":"bigint | string"},{"decorators":[],"key":"Named","name":"exact","optional":false,"readonly":false,"span":{"end":430,"start":412},"ts_type":"1n | 'one'"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":473,"start":435},"ts_type":"string | (number | undefined)[]"},{"decorators":[],"key":"Named","name":"paired","optional":false,"readonly":false,"span":{"end":516,"start":478},"ts_type":"string | [number | undefined]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":561,"start":521},"ts_type":"Circle | null | (null | true)[]"},{"decorators":[],"key":"Named","name":"grouped","optional":false,"readonly":false,"span":{"end":609,"start":566},"ts_type":"(Circle | null) | (null | true)[]"}],"heritage":[],"methods":[],"name":"Canvas","span":{"end":611,"start":176},"type_params":[]}
 
 ## Registry reads
 

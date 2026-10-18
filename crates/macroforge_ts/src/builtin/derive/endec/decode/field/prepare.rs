@@ -191,10 +191,6 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     } else {
         None
     };
-    let nullable_union = match &type_cat {
-        TypeCategory::Nullable(inner) => guard_of(inner),
-        _ => None,
-    };
 
     // Pull the primitive arm's validators (e.g. `nonEmpty` on a record-link
     // alias's `string` arm) so the primitive form of the union is validated.
@@ -214,12 +210,9 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         _ => None,
     };
     let nullable_encodable_type = match &type_cat {
-        TypeCategory::Nullable(inner) => {
-            encodable(inner).or_else(|| nullable_union.as_ref().map(|(_, name)| name.clone()))
-        }
+        TypeCategory::Nullable(inner) => encodable(inner),
         _ => None,
     };
-    let nullable_union_guard = nullable_union.map(|(guard, _)| guard);
     let nullable_nested = match nullable_encodable_type
         .as_deref()
         .map(|name| scope.nested(name, Direction::Decode, 0))
@@ -329,7 +322,12 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     // A value of a type parameter is decoded by the coder handed in for it.
     // A union nothing else decodes is carried as it is, which only a union
     // of values that are their own coding can be, and is checked to be one.
-    let checked_union = matches!(type_cat, TypeCategory::Unknown)
+    // A union under a `null` or an `undefined` is as much one as a union alone.
+    let mut present = type_cat.clone();
+    while let TypeCategory::Optional(inner) | TypeCategory::Nullable(inner) = &present {
+        present = TypeCategory::from_ts_type(inner);
+    }
+    let checked_union = matches!(present, TypeCategory::Unknown)
         && raw_shape.is_none()
         && primitive_accepts(&resolved_ts_type, &raw_var_name).is_none();
     let by_parameter =
@@ -478,7 +476,6 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         wrapped,
         by_parameter,
         union_guard,
-        nullable_union_guard,
         union_string_validators,
     })
 }
@@ -515,7 +512,6 @@ fn never_read_field(
         wrapped: None,
         by_parameter: None,
         union_guard: None,
-        nullable_union_guard: None,
         union_string_validators: Vec::new(),
     }
 }

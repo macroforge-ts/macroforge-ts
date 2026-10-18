@@ -120,9 +120,6 @@ pub(super) struct DecodeField {
     /// when it matches, and through the type's decoder otherwise.
     pub union_guard: Option<UnionGuard>,
 
-    /// The same guard for the non-null member of a `T | null` field.
-    pub nullable_union_guard: Option<UnionGuard>,
-
     /// Validators declared on the *primitive arm* of the resolved
     /// `primitive | Encodable` union: e.g. the `nonEmpty` on the `string`
     /// arm of a record-link alias (`Alias<T> = string | T`). These don't appear

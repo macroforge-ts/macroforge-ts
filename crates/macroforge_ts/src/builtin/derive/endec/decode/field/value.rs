@@ -192,18 +192,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                                         decode_nested(field, &inner_type_expr, &raw_var_ident)
                                     }
                                 }}
-                                {#if let Some(guard) = &field.nullable_union_guard}
-                                    {$let raw_expr: Expr = raw_var_ident.clone().into()}
-                                    {$let is_member: Expr = guard.test(&raw_expr, Direction::Decode)}
-                                    {$let member_value: Expr = guard.convert(&raw_expr)}
-                                    if (@{is_member}) {
-                                        instance@{field.member} = @{member_value};
-                                    } else {
-                                        {$typescript nested}
-                                    }
-                                {:else}
-                                    {$typescript nested}
-                                {/if}
+                                {$typescript nested}
                             {:else}
                                 instance@{field.member} = @{raw_var_ident};
                             {/if}

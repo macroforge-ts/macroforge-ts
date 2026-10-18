@@ -20,4 +20,6 @@ interface Canvas {
     exact: 1n | 'one';
     held: string | (number | undefined)[];
     paired: string | [number | undefined];
+    nested: Circle | null | (null | true)[];
+    grouped: (Circle | null) | (null | true)[];
 }
