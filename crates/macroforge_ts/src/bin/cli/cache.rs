@@ -519,9 +519,11 @@ pub(crate) fn warm_cache(
         };
         let source_hash = content_hash(source.as_bytes());
 
-        // Skip if already cached with matching hash
+        // Skip if already cached with matching hash, and with its code there
+        // when it has some: an entry whose code is gone is expanded again.
         if let Some(entry) = manifest.entries.get(&rel_path)
             && entry.source_hash == source_hash
+            && (!entry.has_macros || cache_dir.join(format!("{rel_path}.cache")).is_file())
         {
             // Backfill normalized_hash for entries from older manifests
             if entry.normalized_hash.is_empty() {

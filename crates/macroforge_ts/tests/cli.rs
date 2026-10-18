@@ -708,6 +708,39 @@ fn cache_fails_on_a_file_that_fails_to_expand_and_keeps_none_of_it() {
     }
 }
 
+/// A file whose cached code is gone is expanded again, its source unchanged.
+#[test]
+fn cache_writes_again_the_code_of_a_file_it_lost() {
+    let temp = TempDir::new().unwrap();
+    let root = temp.path();
+    std::fs::create_dir_all(root.join("src")).unwrap();
+    std::fs::write(root.join("macroforge.config.ts"), "export default {};\n").unwrap();
+    std::fs::write(
+        root.join("src").join("point.ts"),
+        "/** @derive(Debug) */\nexport class Point {\n  x: number;\n}\n",
+    )
+    .unwrap();
+    let cached = root
+        .join(".macroforge")
+        .join("cache")
+        .join("src")
+        .join("point.ts.cache");
+    for _run in 0..2 {
+        let output = macroforge_bin()
+            .arg("cache")
+            .arg(root)
+            .output()
+            .expect("failed to run macroforge");
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(cached.is_file());
+        std::fs::remove_file(&cached).unwrap();
+    }
+}
+
 #[test]
 fn svelte_package_accepts_full_rebuild() {
     // Packaging is incremental by default, so the escape hatch has to exist and
