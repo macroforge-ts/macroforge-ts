@@ -47,3 +47,15 @@ export interface ScannedBigints {
     some: -1n | 1_000n;
     maybe: 2n | null;
 }
+
+/** @derive(Debug, PartialEq, Encode, Decode) */
+export interface ScannedNothing {
+    none?: undefined;
+    other: string;
+}
+
+/** @derive(Debug, Clone, PartialEq, Default) */
+export interface ScannedPicks {
+    pick: ((value: string) => string)[] | null;
+    picked: { 'key with space': undefined; b?: string } | ReadonlyArray<string>;
+}

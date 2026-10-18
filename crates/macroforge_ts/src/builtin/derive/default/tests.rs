@@ -108,9 +108,10 @@ fn a_union_defaulting_to_a_function_needs_a_default() {
         "/** @derive(Default) */\nexport interface Picker {\n  pick: ((value: bigint) => string) | string[];\n}\n",
     );
     assert!(
-        messages
-            .iter()
-            .any(|message| message.contains("function-typed fields") && message.contains("pick")),
+        messages.iter().any(
+            |message| message.contains("a function, which has no default")
+                && message.contains("pick")
+        ),
         "{messages:?}"
     );
     assert!(

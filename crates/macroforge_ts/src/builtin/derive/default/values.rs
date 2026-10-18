@@ -5,12 +5,12 @@ use std::cell::RefCell;
 use crate::builtin::derive::common::function_prefix;
 
 use super::literal::decode_literal_default;
-use crate::builtin::derive::common::undefaultable;
 use crate::builtin::derive::common::{
     Declared, DefaultFieldOptions, TypeNames, entry_derives, extract_named_string,
     fields_from_definition, get_type_default_with_registry, is_primitive_type, js_string, mentions,
     rendered, standalone_fn_name,
 };
+use crate::builtin::derive::common::{array_element_type, tuple_body, undefaultable};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
     FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry, TypeRegistryEntry,
@@ -406,8 +406,8 @@ pub(super) fn missing_default_derives<'f>(
             continue;
         }
         if is_primitive_type(ts_type)
-            || ts_type.ends_with("[]")
-            || ts_type.starts_with("Array<")
+            || array_element_type(ts_type).is_some()
+            || tuple_body(ts_type).is_some()
             || ts_type.starts_with("Map<")
             || ts_type.starts_with("Set<")
             || ts_type == "Date"

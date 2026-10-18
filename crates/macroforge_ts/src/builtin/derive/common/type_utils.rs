@@ -1,5 +1,6 @@
 use crate::builtin::derive::common::function_prefix;
 
+use super::property::is_identifier_name;
 use super::value_type::rendered;
 use crate::builtin::derive::endec::{TypeCategory, TypeScope, checker_only, get_foreign_types};
 use crate::macros::ts_template;
@@ -10,7 +11,7 @@ use crate::ts_syn::abi::ir::{
     EnumVariantIR, FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
     resolve_generic_aliases, split_top_level_commas, split_top_level_union,
 };
-use crate::ts_syn::scan::{top_level_letters, unwrapped};
+use crate::ts_syn::scan::{angle_unwrapped, ends_in_its_last_part, top_level_letters, unwrapped};
 use crate::ts_syn::{TsStream, ts_ident};
 
 /// Check if a TypeScript type is a primitive or opaque built-in keyword, whose
@@ -241,14 +242,13 @@ pub fn detect_primitive_encodable_union(ts_type: &str) -> Option<(String, String
 /// "User" -> None
 pub fn parse_generic_type(type_name: &str) -> Option<(&str, &str)> {
     let open = type_name.find('<')?;
-    let close = type_name.rfind('>')?;
-    if open < close {
-        let base = &type_name[..open];
-        let args = &type_name[open + 1..close];
-        Some((base.trim(), args.trim()))
-    } else {
-        None
+    let base = type_name.get(..open)?.trim();
+    // The name of a type, qualified or not, and a `<` that closes at the end.
+    if !base.split('.').all(is_identifier_name) {
+        return None;
     }
+    let arguments = angle_unwrapped(type_name.get(open..)?)?;
+    Some((base, arguments.trim()))
 }
 
 /// The element type of an array type: `T[]`, `readonly T[]`, `Array<T>` or
@@ -257,23 +257,15 @@ pub fn parse_generic_type(type_name: &str) -> Option<(&str, &str)> {
 /// the tuple of no elements.
 pub fn array_element_type(ts_type: &str) -> Option<&str> {
     let trimmed = ts_type.trim();
-    if split_top_level_union(trimmed).is_some() {
+    if split_top_level_union(trimmed).is_some() || ends_in_its_last_part(trimmed) {
         return None;
     }
     let trimmed = trimmed
         .strip_prefix("readonly ")
         .map_or(trimmed, str::trim_start);
     if let Some(element) = trimmed.strip_suffix("[]") {
-        let element = element.trim();
-        if element.is_empty() {
-            return None;
-        }
-        return Some(
-            element
-                .strip_prefix('(')
-                .and_then(|inner| inner.strip_suffix(')'))
-                .map_or(element, str::trim),
-        );
+        let element = ungrouped(element);
+        return (!element.is_empty()).then_some(element);
     }
     let (base, element) = parse_generic_type(trimmed)?;
     (trimmed.ends_with('>') && matches!(base, "Array" | "ReadonlyArray")).then_some(element)
@@ -529,9 +521,14 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         return rendered(ts_template! { [@{defaults}] });
     }
 
+    // A union defaults as the member it names, an object written in place
+    // among them.
+    if let Some(member) = split_top_level_union(t).and_then(|parts| defaulted_member(&parts)) {
+        return get_type_default_resolved(member, names);
+    }
+
     // An object type written in place: each member it has to have, by its
     // own default. An index signature names no member, so it adds none.
-    // Checked before union splitting since braces can contain pipes.
     if t.starts_with('{') {
         return match crate::builtin::derive::endec::inline_object_fields(t) {
             Some(fields) => object_default_literal(
@@ -542,19 +539,12 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         };
     }
 
-    // Handle union types (e.g., string | Account, "Estimate" | "Invoice")
-    // Nullable unions (T | null, T | undefined) are already handled above.
-    if let Some(member) = split_top_level_union(t).and_then(|parts| defaulted_member(&parts)) {
-        return get_type_default_resolved(member, names);
-    }
-
     match t {
         "string" => r#""""#.to_string(),
         "number" => "0".to_string(),
         "boolean" => "false".to_string(),
         "bigint" => "0n".to_string(),
-        t if t.ends_with("[]") => "[]".to_string(),
-        t if t.starts_with("Array<") => "[]".to_string(),
+        t if array_element_type(t).is_some() => "[]".to_string(),
         t if t.starts_with("Map<") || t.starts_with("ReadonlyMap<") => "new Map()".to_string(),
         t if t.starts_with("Set<") || t.starts_with("ReadonlySet<") => "new Set()".to_string(),
         // Builtin object types
@@ -754,6 +744,10 @@ pub fn undefaultable(ts_type: &str, declared: super::Declared<'_>) -> Option<Str
         file_imports: declared.file_imports,
     };
     let ts_type = ts_type.trim();
+    // A field typed by a function is refused by the derive with its others.
+    if is_function_type(ts_type) {
+        return None;
+    }
     if let Some(Err(hole)) = template_default(ts_type) {
         return Some(format!(
             "has type `{ts_type}`, whose `${{{hole}}}` names no text a default could hold"
@@ -872,6 +866,9 @@ fn default_refusal(ts_type: &oxc::ast::ast::TSType<'_>) -> Option<&'static str> 
     }
     match ts_type {
         TSType::TSNeverKeyword(_) => Some("a type with no value"),
+        TSType::TSFunctionType(_) | TSType::TSConstructorType(_) => {
+            Some("a function, which has no default of its own")
+        }
         TSType::TSIntersectionType(_) => Some("an intersection, which has no default of its own"),
         TSType::TSTypeOperatorType(operator) => match operator.operator {
             TSTypeOperatorOperator::Unique => Some("a symbol only its own declaration makes"),

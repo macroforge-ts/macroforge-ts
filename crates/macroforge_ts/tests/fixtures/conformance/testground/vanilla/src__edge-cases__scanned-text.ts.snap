@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/scanned-text.ts
-sha256 c84fccf609b2dee240edad47322324b0a0050d75fe4cfb7fe7cc863e3ed18f65
+sha256 d03e7a8dcd6263e6933d387273dbff462a22a18db0493dc22dc8ca03279840b5
 
 ## Changed
 
@@ -1362,6 +1362,309 @@ export const ScannedBigints: {
   is: scannedBigintsIs
 };
 
+/** @derive(Debug, PartialEq, Encode, Decode) */
+export interface ScannedNothing {
+    none?: undefined;
+    other: string;
+}
+
+export function scannedNothingToString(value: ScannedNothing): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("none: " + __mf_structuralDebug(value.none));
+    parts.push("other: " + String(value.other));
+        return "ScannedNothing { " + parts.join(", ") + " }";
+    });
+}
+
+export function scannedNothingEquals(a: ScannedNothing, b: ScannedNothing): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => __mf_structuralEquals(a.none, b.none),
+            () => a.other === b.other,
+        ].every((same) => same());
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function scannedNothingEncode(value: ScannedNothing, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = scannedNothingEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function scannedNothingEncodeWithContext(value: ScannedNothing, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ScannedNothing" });
+    scannedNothingEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function scannedNothingEncodePartialWithContext(value: Partial<ScannedNothing>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScannedNothing>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ScannedNothing" };
+        scannedNothingEncodeFields(value as ScannedNothing, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function scannedNothingEncodeFields(value: ScannedNothing, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    for (const __part of [
+        () => {
+            if (__fields === undefined || __fields.keeps("none")) {
+                if (value.none !== undefined) {
+                    result["none"] = value.none;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("other")) {
+                if (value.other !== undefined) {
+                    result["other"] = value.other;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function scannedNothingDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScannedNothing } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = scannedNothingDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ScannedNothing.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ScannedNothing | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ScannedNothing> | __mf_PendingRef;
+export function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ScannedNothing> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ScannedNothing.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ScannedNothing.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ScannedNothing") as ScannedNothing | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ScannedNothing.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["other", "other"]];
+    for (const [__name, __key] of __requiredKeys) {
+        if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
+            errors.push({ field: __key, message: "missing required field" });
+        }
+    }
+
+    const instance: { "none"?: undefined | undefined; "other"?: string | undefined } = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ScannedNothing");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    for (const __part of [
+        () => {
+            if ((__fields === undefined || __fields.keeps("none"))) {
+                if (("none" in obj && obj["none"] !== undefined)) {
+                    const __raw_none = obj["none"] as unknown;
+
+                    if (!(__raw_none === undefined)) {
+                        errors.push({ field: "none", message: "expected undefined" });
+                    } else {
+                        instance.none = __raw_none;
+                    }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("other")) ? "other" in obj : (__fields.keeps("other") && obj["other"] !== undefined)) {
+                const __raw_other = obj["other"] as string;
+
+                if (!(typeof __raw_other === "string")) {
+                    errors.push({ field: "other", message: __raw_other == null ? "ScannedNothing.other is required" : "expected string" });
+                } else {
+                    instance.other = __raw_other;
+                }
+            }
+        },
+    ]) {
+        __part();
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ScannedNothing;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function scannedNothingDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ScannedNothing>): Partial<ScannedNothing> | __mf_PendingRef {
+    return scannedNothingDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function scannedNothingValidateField<K extends keyof ScannedNothing>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function scannedNothingValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function scannedNothingValidateFields(partial: { readonly [K in keyof ScannedNothing]?: unknown }): Array<{ field: string; message: string }>;
+export function scannedNothingValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function scannedNothingHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holdsAll(obj, ["other"]);
+}
+
+export function scannedNothingIs(obj: unknown): obj is ScannedNothing {
+    return scannedNothingHasShape(obj) && scannedNothingDecode(obj).success;
+}
+
+export const ScannedNothing: {
+  readonly toString: typeof scannedNothingToString;
+  readonly equals: typeof scannedNothingEquals;
+  readonly encode: typeof scannedNothingEncode;
+  readonly encodeWithContext: typeof scannedNothingEncodeWithContext;
+  readonly encodePartialWithContext: typeof scannedNothingEncodePartialWithContext;
+  readonly decode: typeof scannedNothingDecode;
+  readonly decodeWithContext: typeof scannedNothingDecodeWithContext;
+  readonly decodePartialWithContext: typeof scannedNothingDecodePartialWithContext;
+  readonly validateField: typeof scannedNothingValidateField;
+  readonly validateFields: typeof scannedNothingValidateFields;
+  readonly hasShape: typeof scannedNothingHasShape;
+  readonly is: typeof scannedNothingIs;
+} = {
+  toString: scannedNothingToString,
+  equals: scannedNothingEquals,
+  encode: scannedNothingEncode,
+  encodeWithContext: scannedNothingEncodeWithContext,
+  encodePartialWithContext: scannedNothingEncodePartialWithContext,
+  decode: scannedNothingDecode,
+  decodeWithContext: scannedNothingDecodeWithContext,
+  decodePartialWithContext: scannedNothingDecodePartialWithContext,
+  validateField: scannedNothingValidateField,
+  validateFields: scannedNothingValidateFields,
+  hasShape: scannedNothingHasShape,
+  is: scannedNothingIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Default) */
+export interface ScannedPicks {
+    pick: ((value: string) => string)[] | null;
+    picked: { "key with space": undefined; b?: string } | ReadonlyArray<string>;
+}
+
+export function scannedPicksToString(value: ScannedPicks): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("pick: " + __mf_structuralDebug(value.pick));
+    parts.push("picked: " + __mf_structuralDebug(value.picked));
+        return "ScannedPicks { " + parts.join(", ") + " }";
+    });
+}
+
+export function scannedPicksClone(value: ScannedPicks): ScannedPicks {
+    return __mf_clonedWith(value, (): ScannedPicks => ({
+	pick: value.pick == null ? value.pick : [...value.pick],
+	picked: __mf_structuralClone(value.picked)
+}));
+}
+
+export function scannedPicksEquals(a: ScannedPicks, b: ScannedPicks): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return [
+            () => a.pick == null || b.pick == null ? a.pick === b.pick : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
+            	const __other0 = __right0[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+            }))(a.pick, b.pick),
+            () => __mf_structuralEquals(a.picked, b.picked),
+        ].every((same) => same());
+    });
+}
+
+export function scannedPicksDefaultValue(): ScannedPicks {
+    return {
+        pick: null,
+        picked: ({ "key with space": undefined }),
+    };
+}
+
+export const ScannedPicks: {
+  readonly toString: typeof scannedPicksToString;
+  readonly clone: typeof scannedPicksClone;
+  readonly equals: typeof scannedPicksEquals;
+  readonly defaultValue: typeof scannedPicksDefaultValue;
+} = {
+  toString: scannedPicksToString,
+  clone: scannedPicksClone,
+  equals: scannedPicksEquals,
+  defaultValue: scannedPicksDefaultValue
+};
+
 ## DTS
 
 /**
@@ -1640,6 +1943,78 @@ export declare const ScannedBigints: {
 	readonly hasShape: typeof scannedBigintsHasShape;
 	readonly is: typeof scannedBigintsIs;
 };
+/** @derive(Debug, PartialEq, Encode, Decode) */
+export interface ScannedNothing {
+	none?: undefined;
+	other: string;
+}
+export declare function scannedNothingToString(value: ScannedNothing): string;
+export declare function scannedNothingEquals(a: ScannedNothing, b: ScannedNothing): boolean;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function scannedNothingEncode(value: ScannedNothing, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function scannedNothingEncodeWithContext(value: ScannedNothing, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function scannedNothingEncodePartialWithContext(value: Partial<ScannedNothing>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ScannedNothing>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function scannedNothingDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ScannedNothing;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ScannedNothing | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ScannedNothing> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function scannedNothingDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ScannedNothing>): Partial<ScannedNothing> | __mf_PendingRef;
+export declare function scannedNothingValidateField<K extends keyof ScannedNothing>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function scannedNothingValidateFields(partial: { readonly [K in keyof ScannedNothing]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function scannedNothingHasShape(obj: unknown): boolean;
+export declare function scannedNothingIs(obj: unknown): obj is ScannedNothing;
+export declare const ScannedNothing: {
+	readonly toString: typeof scannedNothingToString;
+	readonly equals: typeof scannedNothingEquals;
+	readonly encode: typeof scannedNothingEncode;
+	readonly encodeWithContext: typeof scannedNothingEncodeWithContext;
+	readonly encodePartialWithContext: typeof scannedNothingEncodePartialWithContext;
+	readonly decode: typeof scannedNothingDecode;
+	readonly decodeWithContext: typeof scannedNothingDecodeWithContext;
+	readonly decodePartialWithContext: typeof scannedNothingDecodePartialWithContext;
+	readonly validateField: typeof scannedNothingValidateField;
+	readonly validateFields: typeof scannedNothingValidateFields;
+	readonly hasShape: typeof scannedNothingHasShape;
+	readonly is: typeof scannedNothingIs;
+};
+/** @derive(Debug, Clone, PartialEq, Default) */
+export interface ScannedPicks {
+	pick: ((value: string) => string)[] | null;
+	picked: {
+		"key with space": undefined;
+		b?: string;
+	} | ReadonlyArray<string>;
+}
+export declare function scannedPicksToString(value: ScannedPicks): string;
+export declare function scannedPicksClone(value: ScannedPicks): ScannedPicks;
+export declare function scannedPicksEquals(a: ScannedPicks, b: ScannedPicks): boolean;
+export declare function scannedPicksDefaultValue(): ScannedPicks;
+export declare const ScannedPicks: {
+	readonly toString: typeof scannedPicksToString;
+	readonly clone: typeof scannedPicksClone;
+	readonly equals: typeof scannedPicksEquals;
+	readonly defaultValue: typeof scannedPicksDefaultValue;
+};
 
 ## Diagnostics
 
@@ -1653,7 +2028,9 @@ original 739..894 -> expanded 16533..16688
 original 894..1081 -> expanded 19576..19763
 original 1081..1243 -> expanded 34469..34631
 original 1243..1388 -> expanded 47354..47499
-original 1388..1389 -> expanded 62262..62263
+original 1388..1515 -> expanded 62262..62389
+original 1515..1728 -> expanded 73283..73496
+original 1728..1729 -> expanded 75228..75229
 generated 0..1175 <- imports
 generated 1751..2132 <- Debug
 generated 2132..2350 <- Clone
@@ -1689,6 +2066,16 @@ generated 47867..48199 <- PartialEq
 generated 48199..51083 <- Encode
 generated 51083..60970 <- Decode
 generated 60970..62262 <- __convenience_const
+generated 62389..62726 <- Debug
+generated 62726..63043 <- PartialEq
+generated 63043..65617 <- Encode
+generated 65617..71991 <- Decode
+generated 71991..73283 <- __convenience_const
+generated 73496..73843 <- Debug
+generated 73843..74081 <- Clone
+generated 74081..74705 <- PartialEq
+generated 74705..74858 <- Default
+generated 74858..75228 <- __convenience_const
 
 ## Metadata
 
@@ -1697,6 +2084,8 @@ interface ScannedHandlers: {"body_span":{"end":740,"start":652},"decorators":[{"
 interface ScannedGroups: {"body_span":{"end":1082,"start":986},"decorators":[{"args_src":"Debug, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":954,"start":897}}],"fields":[{"decorators":[],"key":"Named","name":"shade","optional":false,"readonly":false,"span":{"end":1014,"start":992},"ts_type":"(ScannedShade)"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1057,"start":1019},"ts_type":"(string) | Record<string, ''>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1080,"start":1062},"ts_type":"[']?)', 4?]"}],"heritage":[],"methods":[],"name":"ScannedGroups","span":{"end":1082,"start":962},"type_params":[]}
 interface ScannedUnions: {"body_span":{"end":1244,"start":1164},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1132,"start":1084}}],"fields":[{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1203,"start":1170},"ts_type":"string | [number, string?]"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1242,"start":1208},"ts_type":"string | ['a', ...number[]]"}],"heritage":[],"methods":[],"name":"ScannedUnions","span":{"end":1244,"start":1140},"type_params":[]}
 interface ScannedBigints: {"body_span":{"end":1389,"start":1327},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1294,"start":1246}}],"fields":[{"decorators":[],"key":"Named","name":"one","optional":false,"readonly":false,"span":{"end":1341,"start":1333},"ts_type":"1n"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":1365,"start":1346},"ts_type":"-1n | 1_000n"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1387,"start":1370},"ts_type":"2n | null"}],"heritage":[],"methods":[],"name":"ScannedBigints","span":{"end":1389,"start":1302},"type_params":[]}
+interface ScannedNothing: {"body_span":{"end":1516,"start":1472},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1439,"start":1391}}],"fields":[{"decorators":[],"key":"Named","name":"none","optional":true,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"undefined"},{"decorators":[],"key":"Named","name":"other","optional":false,"readonly":false,"span":{"end":1514,"start":1500},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ScannedNothing","span":{"end":1516,"start":1447},"type_params":[]}
+interface ScannedPicks: {"body_span":{"end":1729,"start":1597},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default","name":"Derive","span":{"end":1566,"start":1518}}],"fields":[{"decorators":[],"key":"Named","name":"pick","optional":false,"readonly":false,"span":{"end":1646,"start":1603},"ts_type":"((value: string) => string)[] | null"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1727,"start":1651},"ts_type":"{ \"key with space\": undefined; b?: string } | ReadonlyArray<string>"}],"heritage":[],"methods":[],"name":"ScannedPicks","span":{"end":1729,"start":1574},"type_params":[]}
 enum ScannedShade: {"body_span":{"end":895,"start":832},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":806,"start":742}}],"is_const":false,"is_declare":false,"name":"ScannedShade","span":{"end":895,"start":814},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":853,"start":838}}],"name":"Light","span":{"end":873,"start":858},"value":{"String":"light"}},{"decorators":[],"name":"Dark","span":{"end":892,"start":879},"value":{"String":"dark"}}]}
 type ScannedKey: {"body":{"Other":"`key-${T}`"},"decorators":[],"name":"ScannedKey","span":{"end":355,"start":308},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"T"}]}
 
@@ -1705,6 +2094,7 @@ type ScannedKey: {"body":{"Other":"`key-${T}`"},"decorators":[],"name":"ScannedK
 Name("''")
 Name("'\\\\' | '/'")
 Name("'a' | 'b'")
+Name("((value: string) => string)")
 Name("() => string | number")
 Name("(ScannedShade)")
 Name("(string) | Record")
@@ -1712,6 +2102,7 @@ Name("(value: string) => value is 'yes' | 'no'")
 Name("-1n | 1_000n")
 Name("1n")
 Name("2n")
+Name("ReadonlyArray")
 Name("Record")
 Name("ScannedKey")
 Name("ScannedShade")
@@ -1719,6 +2110,8 @@ Name("[']?)', 4?]")
 Name("string")
 Name("string | ['a', ...number[]]")
 Name("string | [number, string?]")
+Name("undefined")
+Name("{ \"key with space\": undefined; b?: string } | ReadonlyArray")
 
 ## Buildtime dependencies
 

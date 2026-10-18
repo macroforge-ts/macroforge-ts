@@ -24,7 +24,10 @@ use std::collections::HashMap;
 use super::type_alias::{TypeAliasIR, TypeBody, TypeMember, TypeMemberKind};
 use super::type_alias_scope::adopt_alias_scope;
 use super::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
-use crate::scan::{Token, tokens, top_level_letters};
+use crate::scan::{
+    Token, angle_unwrapped, ends_in_its_last_part, is_ident_continue, is_ident_start, tokens,
+    top_level_letters,
+};
 
 const MAX_DEPTH: u8 = 16;
 
@@ -107,7 +110,10 @@ fn resolve_recursive(ts_type: &str, source: &AliasSource<'_>, depth: u8) -> Stri
     }
 
     // `T[]`: recurse into element type.
-    if let Some(inner) = trimmed.strip_suffix("[]") {
+    if let Some(inner) = trimmed
+        .strip_suffix("[]")
+        .filter(|_| !ends_in_its_last_part(trimmed))
+    {
         let element = resolve_recursive(inner, source, depth + 1);
         // `[]` binds tighter than `|` and `&`, so a compound element keeps
         // its parentheses.
@@ -344,19 +350,12 @@ fn names_type(tokens: &[Token<'_>], index: usize) -> bool {
 /// Parse a generic instantiation `Base<args>` into `("Base", "args")`.
 fn parse_generic(type_name: &str) -> Option<(&str, &str)> {
     let open = type_name.find('<')?;
-    if !type_name.ends_with('>') {
-        return None;
-    }
-    let close = type_name.len() - 1;
-    if open >= close {
-        return None;
-    }
-    let base = type_name[..open].trim();
-    let args = type_name[open + 1..close].trim();
-    if base.is_empty() || args.is_empty() {
-        return None;
-    }
-    Some((base, args))
+    let base = type_name.get(..open)?.trim();
+    let named = base
+        .split('.')
+        .all(|part| part.starts_with(is_ident_start) && part.chars().all(is_ident_continue));
+    let args = angle_unwrapped(type_name.get(open..)?)?.trim();
+    (named && !args.is_empty()).then_some((base, args))
 }
 
 /// Split a generic-argument list, or a tuple's elements, on top-level commas.
@@ -383,12 +382,9 @@ pub fn split_top_level_intersection(s: &str) -> Option<Vec<&str>> {
 
 fn split_type_operands(s: &str, operator: char) -> Option<Vec<&str>> {
     let parts = split_on_top_level(s, operator);
-    // The `>` of an arrow and a conditional's `?` are the only ones at the
-    // top level of a type.
     // A `&` binds tighter than a `|`.
-    let runs_to_the_end = top_level_letters(s)
-        .any(|(_, letter)| matches!(letter, '>' | '?') || (operator == '&' && letter == '|'));
-    if parts.len() < 2 || runs_to_the_end {
+    let looser = operator == '&' && top_level_letters(s).any(|(_, letter)| letter == '|');
+    if parts.len() < 2 || ends_in_its_last_part(s) || looser {
         return None;
     }
     Some(parts.into_iter().map(str::trim).collect())

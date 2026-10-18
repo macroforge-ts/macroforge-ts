@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::ts_syn::abi::TargetIR;
 use crate::ts_syn::abi::ir::type_registry::ResolvedTypeRef;
+use crate::ts_syn::scan::ends_in_its_last_part;
 
 use super::resolver::TypeResolver;
 
@@ -55,6 +56,9 @@ pub fn resolve_target_fields(
 
 /// Strip trailing `[]` from a type string, returning the inner type.
 pub(crate) fn strip_array_suffix(s: &str) -> Option<&str> {
+    if ends_in_its_last_part(s) {
+        return None;
+    }
     if let Some(inner) = s.strip_suffix("[]") {
         Some(inner.trim())
     } else if let Some(inner) = s.strip_prefix("Array<").and_then(|s| s.strip_suffix('>')) {

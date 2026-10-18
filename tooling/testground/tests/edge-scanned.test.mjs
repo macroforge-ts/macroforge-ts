@@ -110,3 +110,19 @@ Deno.test('a bigint literal is coded as its bigint, and checked to be the litera
     );
     assert(!mod.scannedBigintsDecode(JSON.stringify({ one: '1', some: '5', maybe: null })).success);
 });
+
+Deno.test('a field of nothing but undefined takes no value', () => {
+    assert(mod.scannedNothingDecode(JSON.stringify({ other: 'x' })).success);
+    assert(!mod.scannedNothingDecode(JSON.stringify({ none: 1, other: 'x' })).success);
+});
+
+Deno.test('an array of functions is copied as one, and a union defaults to its object', () => {
+    const pick = (value) => value;
+    const picks = { pick: [pick], picked: ['a'] };
+    const copy = mod.scannedPicksClone(picks);
+    assertStrictEquals(copy.pick[0], pick);
+    assert(mod.scannedPicksEquals(picks, copy));
+    const defaults = mod.scannedPicksDefaultValue();
+    assertEquals(defaults, { pick: null, picked: { 'key with space': undefined } });
+    assert('key with space' in defaults.picked);
+});

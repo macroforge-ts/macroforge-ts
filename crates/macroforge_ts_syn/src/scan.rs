@@ -132,6 +132,37 @@ pub fn top_level_letters(s: &str) -> impl Iterator<Item = (usize, char)> + '_ {
     })
 }
 
+/// What stands inside the `<` and `>` around all of `text`: the arguments of
+/// a generic, when its `<` closes at the end. The `>` of an arrow closes
+/// nothing, and a string is text.
+pub fn angle_unwrapped(text: &str) -> Option<&str> {
+    let inner = text.trim().strip_prefix('<')?.strip_suffix('>')?;
+    let mut depth = 0usize;
+    let mut quoting = Quoting::default();
+    let mut previous = ' ';
+    for letter in inner.chars() {
+        let follows = std::mem::replace(&mut previous, letter);
+        if quoting.feed(letter) {
+            continue;
+        }
+        match letter {
+            '<' | '(' | '[' | '{' => depth = depth.saturating_add(1),
+            '>' if follows == '=' => {}
+            '>' | ')' | ']' | '}' => depth = depth.checked_sub(1)?,
+            _ => {}
+        }
+    }
+    (depth == 0).then_some(inner)
+}
+
+/// Whether `ts_type` is a function or a conditional type, whose last part
+/// runs to the end of its text: a `|`, `&` or `[]` written after that part is
+/// the part's own. The `>` of an arrow and a conditional's `?` are the only
+/// ones at the top level of a type.
+pub fn ends_in_its_last_part(ts_type: &str) -> bool {
+    top_level_letters(ts_type).any(|(_, letter)| matches!(letter, '>' | '?'))
+}
+
 /// A piece of TypeScript text, as [`tokens`] splits it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Token<'a> {
@@ -235,10 +266,12 @@ pub fn string_literal_len(s: &str) -> Option<usize> {
     })
 }
 
-fn is_ident_start(c: char) -> bool {
+/// Whether `c` may open an identifier.
+pub fn is_ident_start(c: char) -> bool {
     c.is_alphabetic() || c == '_' || c == '$'
 }
 
-fn is_ident_continue(c: char) -> bool {
+/// Whether `c` may stand in an identifier after its first letter.
+pub fn is_ident_continue(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '$'
 }
