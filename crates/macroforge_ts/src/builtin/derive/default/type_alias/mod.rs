@@ -5,7 +5,7 @@ mod union;
 use crate::builtin::derive::common::function_prefix;
 
 use crate::ast::Expr;
-use crate::builtin::derive::common::{DefaultFieldOptions, rendered};
+use crate::builtin::derive::common::{DefaultFieldOptions, is_function_type, rendered};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::type_alias::TypeBody;
@@ -61,7 +61,7 @@ fn aliased_default(
         | TypeBody::Newtype(_) => return Ok(None),
     };
     // A function has no default, and a type parameter none the alias knows.
-    if aliased.contains("=>") {
+    if is_function_type(&aliased) {
         return Ok(None);
     }
     let mut diagnostics = DiagnosticCollector::new();

@@ -295,13 +295,17 @@ pub fn tuple_body(ts_type: &str) -> Option<&str> {
 /// Primitives and collections have built-in defaults, and custom types are
 /// assumed to provide a `{typeName}DefaultValue()` standalone function
 /// (following Rust's `derive(Default)` philosophy). A function or constructor
-/// type has none, as a Rust `fn` pointer does not implement `Default`.
+/// type has none, as a Rust `fn` pointer does not implement `Default`, and a
+/// union has the default of the member it defaults to.
 pub fn has_known_default(ts_type: &str) -> bool {
-    !is_function_type(ts_type)
+    match split_top_level_union(ungrouped(ts_type)).and_then(|parts| defaulted_member(&parts)) {
+        Some(member) => has_known_default(member),
+        None => !is_function_type(ts_type),
+    }
 }
 
 /// Whether `ts_type` is a function or constructor type, parenthesized or not.
-fn is_function_type(ts_type: &str) -> bool {
+pub(crate) fn is_function_type(ts_type: &str) -> bool {
     use oxc::allocator::Allocator;
     use oxc::ast::ast::{Statement, TSType};
 

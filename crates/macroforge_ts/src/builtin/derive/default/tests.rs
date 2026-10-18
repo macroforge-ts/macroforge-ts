@@ -100,6 +100,25 @@ fn a_function_initializer_keeps_its_own_this() {
     );
 }
 
+/// A union defaults to the member it names, and a function there has none,
+/// in parentheses or not.
+#[test]
+fn a_union_defaulting_to_a_function_needs_a_default() {
+    let messages = diagnostics(
+        "/** @derive(Default) */\nexport interface Picker {\n  pick: ((value: bigint) => string) | string[];\n}\n",
+    );
+    assert!(
+        messages
+            .iter()
+            .any(|message| message.contains("function-typed fields") && message.contains("pick")),
+        "{messages:?}"
+    );
+    assert!(
+        diagnostics("/** @derive(Default) */\nexport interface Picker {\n  pick: string[] | (() => string);\n  arrow: '=>';\n}\n")
+            .is_empty()
+    );
+}
+
 #[test]
 fn a_function_typed_field_needs_a_default() {
     let messages =

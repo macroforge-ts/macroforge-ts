@@ -364,10 +364,6 @@ impl TypeScope<'_> {
 /// value is. `None` for any other type, and for a union whose members are
 /// their own coding, which is carried as it is.
 fn untold_member<'a>(ts_type: &'a str, scope: &TypeScope<'_>) -> Option<&'a str> {
-    // A function type's `|` belongs to what it returns.
-    if ts_type.contains("=>") {
-        return None;
-    }
     // `null` and `undefined` are told by being themselves, which leaves a
     // union of one other member no union at all.
     let members: Vec<&str> = split_top_level_union(ts_type)?

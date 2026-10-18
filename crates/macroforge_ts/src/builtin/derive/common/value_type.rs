@@ -9,7 +9,7 @@ use crate::ts_syn::abi::ir::{
 use crate::ts_syn::TsStream;
 
 use super::registry_helpers::{resolved_type_has_derive, standalone_fn_name};
-use super::type_utils::{array_element_type, parse_generic_type, tuple_element};
+use super::type_utils::{array_element_type, is_function_type, parse_generic_type, tuple_element};
 
 /// How values of a type are compared, hashed and copied.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -129,7 +129,7 @@ fn value_kind(ts_type: &str) -> ValueType<'_> {
     {
         return ValueType::Structural;
     }
-    if ts_type.contains("=>") {
+    if is_function_type(ts_type) {
         return ValueType::Opaque;
     }
     match parse_generic_type(ts_type) {
