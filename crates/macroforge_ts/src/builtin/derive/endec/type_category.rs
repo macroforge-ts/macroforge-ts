@@ -216,18 +216,30 @@ impl TypeCategory {
         // Handle union types (T | undefined, T | null)
         // Only split on top-level `|`: pipes inside <>, (), [], or string
         // literals (e.g. Pick<User, 'a' | 'b'>) are ignored.
-        if let Some(parts) = split_top_level_union(trimmed) {
-            if parts.contains(&"undefined") {
-                let non_undefined: Vec<&str> = parts
-                    .iter()
-                    .filter(|p| *p != &"undefined")
-                    .copied()
-                    .collect();
-                return Self::Optional(non_undefined.join(" | "));
+        if split_top_level_union(trimmed).is_some() {
+            // A union grouped inside a union is of its members.
+            let parts = union_members(trimmed);
+            // The union without `absent`, as `category` holds it, or `absent`
+            // itself when the union holds nothing else, as `null | null` does.
+            let without = |absent: &str, category: fn(String) -> Self| {
+                parts.contains(&absent).then(|| {
+                    let present: Vec<&str> = parts
+                        .iter()
+                        .copied()
+                        .filter(|part| *part != absent)
+                        .collect();
+                    if present.is_empty() {
+                        Self::classify(absent)
+                    } else {
+                        category(present.join(" | "))
+                    }
+                })
+            };
+            if let Some(optional) = without("undefined", Self::Optional) {
+                return optional;
             }
-            if parts.contains(&"null") {
-                let non_null: Vec<&str> = parts.iter().filter(|p| *p != &"null").copied().collect();
-                return Self::Nullable(non_null.join(" | "));
+            if let Some(nullable) = without("null", Self::Nullable) {
+                return nullable;
             }
             // Remaining unions (e.g., Utc | number) are not a single encodable type
             return Self::Unknown;
@@ -538,4 +550,13 @@ fn imported_from_configured_source(actual: &str, configured: &[String]) -> bool 
     configured.iter().any(|source| {
         actual == source || actual.ends_with(source.as_str()) || source.ends_with(actual)
     })
+}
+
+/// The members of the union `ts_type`, those of a union grouped inside it
+/// included, each without its grouping.
+fn union_members(ts_type: &str) -> Vec<&str> {
+    match split_top_level_union(ungrouped(ts_type)) {
+        Some(parts) => parts.into_iter().flat_map(union_members).collect(),
+        None => vec![ungrouped(ts_type)],
+    }
 }

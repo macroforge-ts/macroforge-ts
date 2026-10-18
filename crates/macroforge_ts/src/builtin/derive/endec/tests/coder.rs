@@ -597,7 +597,11 @@ fn a_type_nested_to_the_limit_is_coded_a_level_at_a_time() {
             .count(),
         depth
     );
-    assert!(decoded(nested("(", " | null)")).contains("decodeChecked"));
+    // A union grouped in a union is of its members: `number | null`.
+    assert_eq!(
+        decoded(nested("(", " | null)")),
+        "(raw===null?null:__mf_decodeNumber(raw))"
+    );
 }
 
 /// JSON has no `undefined`: it writes one in an array as `null` and drops

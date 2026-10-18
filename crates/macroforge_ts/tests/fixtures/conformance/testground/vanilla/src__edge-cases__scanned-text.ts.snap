@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/scanned-text.ts
-sha256 d03e7a8dcd6263e6933d387273dbff462a22a18db0493dc22dc8ca03279840b5
+sha256 6e76165c9692358106d066add8db469c4760e2767a3f8e570ead5ac6343defb6
 
 ## Changed
 
@@ -376,7 +376,7 @@ export const ScannedHandlers: {
 export enum ScannedShade {
     /** @default */
     Light = 'light',
-    Dark = 'dark',
+    Dark = 'dark'
 }
 
 export function scannedShadeToString(value: ScannedShade): string {
@@ -456,7 +456,7 @@ export namespace ScannedShade {
 
 /** @derive(Debug, PartialEq, Default, Encode, Decode) */
 export interface ScannedGroups {
-    shade: (ScannedShade);
+    shade: ScannedShade;
     either: (string) | Record<string, ''>;
     pair: [']?)', 4?];
 }
@@ -464,7 +464,7 @@ export interface ScannedGroups {
 export function scannedGroupsToString(value: ScannedGroups): string {
     return __mf_debuggedWithin(value, () => {
         const parts: string[] = [];
-    parts.push("shade: " + __mf_structuralDebug(value.shade));
+    parts.push("shade: " + scannedShadeToString(value.shade));
     parts.push("either: " + __mf_structuralDebug(value.either));
     parts.push("pair: " + __mf_structuralDebug(value.pair));
         return "ScannedGroups { " + parts.join(", ") + " }";
@@ -475,7 +475,7 @@ export function scannedGroupsEquals(a: ScannedGroups, b: ScannedGroups): boolean
     if (a === b) return true;
     return __mf_equalWithin(a, b, () => {
         return [
-            () => __mf_structuralEquals(a.shade, b.shade),
+            () => scannedShadeEquals(a.shade, b.shade),
             () => __mf_structuralEquals(a.either, b.either),
             () => __mf_structuralEquals(a.pair, b.pair),
         ].every((same) => same());
@@ -627,7 +627,7 @@ export function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeC
         }
     }
 
-    const instance: { "shade"?: (ScannedShade) | undefined; "either"?: (string) | Record<string, ''> | undefined; "pair"?: [']?)', 4?] | undefined } = {};
+    const instance: { "shade"?: ScannedShade | undefined; "either"?: (string) | Record<string, ''> | undefined; "pair"?: [']?)', 4?] | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ScannedGroups");
@@ -638,7 +638,7 @@ export function scannedGroupsDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     for (const __part of [
         () => {
             if ((__fields === undefined || __fields.requires("shade")) ? "shade" in obj : (__fields.keeps("shade") && obj["shade"] !== undefined)) {
-                const __raw_shade = obj["shade"] as (ScannedShade);
+                const __raw_shade = obj["shade"] as ScannedShade;
 
                 ctx.pushScope("shade");
                 try {
@@ -1365,6 +1365,7 @@ export const ScannedBigints: {
 /** @derive(Debug, PartialEq, Encode, Decode) */
 export interface ScannedNothing {
     none?: undefined;
+    nothing: null | null;
     other: string;
 }
 
@@ -1372,6 +1373,7 @@ export function scannedNothingToString(value: ScannedNothing): string {
     return __mf_debuggedWithin(value, () => {
         const parts: string[] = [];
     parts.push("none: " + __mf_structuralDebug(value.none));
+    parts.push("nothing: " + __mf_structuralDebug(value.nothing));
     parts.push("other: " + String(value.other));
         return "ScannedNothing { " + parts.join(", ") + " }";
     });
@@ -1382,6 +1384,7 @@ export function scannedNothingEquals(a: ScannedNothing, b: ScannedNothing): bool
     return __mf_equalWithin(a, b, () => {
         return [
             () => __mf_structuralEquals(a.none, b.none),
+            () => __mf_structuralEquals(a.nothing, b.nothing),
             () => a.other === b.other,
         ].every((same) => same());
     });
@@ -1420,6 +1423,13 @@ function scannedNothingEncodeFields(value: ScannedNothing, _ctx: __mf_EncodeCont
             if (__fields === undefined || __fields.keeps("none")) {
                 if (value.none !== undefined) {
                     result["none"] = value.none;
+                }
+            }
+        },
+        () => {
+            if (__fields === undefined || __fields.keeps("nothing")) {
+                if (value.nothing !== undefined) {
+                    result["nothing"] = value.nothing;
                 }
             }
         },
@@ -1510,14 +1520,14 @@ export function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_Decode
     const obj = __mf_ownMembers(value);
     const errors: Array<{ field: string; message: string }> = [];
 
-    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["other", "other"]];
+    const __requiredKeys: ReadonlyArray<readonly [string, string]> = [["nothing", "nothing"], ["other", "other"]];
     for (const [__name, __key] of __requiredKeys) {
         if ((__fields === undefined || __fields.requires(__name)) && !(__key in obj)) {
             errors.push({ field: __key, message: "missing required field" });
         }
     }
 
-    const instance: { "none"?: undefined | undefined; "other"?: string | undefined } = {};
+    const instance: { "none"?: undefined | undefined; "nothing"?: null | null | undefined; "other"?: string | undefined } = {};
 
     if (__fields === undefined && obj["__id"] !== undefined) {
         ctx.register(obj["__id"] as number, instance, "ScannedNothing");
@@ -1536,6 +1546,17 @@ export function scannedNothingDecodeWithContext(value: unknown, ctx: __mf_Decode
                     } else {
                         instance.none = __raw_none;
                     }
+                }
+            }
+        },
+        () => {
+            if ((__fields === undefined || __fields.requires("nothing")) ? "nothing" in obj : (__fields.keeps("nothing") && obj["nothing"] !== undefined)) {
+                const __raw_nothing = obj["nothing"] as null | null;
+
+                if (!(__raw_nothing === null || __raw_nothing === null)) {
+                    errors.push({ field: "nothing", message: __raw_nothing == null ? "ScannedNothing.nothing is required" : "expected null | null" });
+                } else {
+                    instance.nothing = __raw_nothing;
                 }
             }
         },
@@ -1576,7 +1597,7 @@ export function scannedNothingHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holdsAll(obj, ["other"]);
+    return __mf_holdsAll(obj, ["nothing", "other"]);
 }
 
 export function scannedNothingIs(obj: unknown): obj is ScannedNothing {
@@ -1614,7 +1635,8 @@ export const ScannedNothing: {
 /** @derive(Debug, Clone, PartialEq, Default) */
 export interface ScannedPicks {
     pick: ((value: string) => string)[] | null;
-    picked: { "key with space": undefined; b?: string } | ReadonlyArray<string>;
+    picked: { 'key with space': undefined; b?: string } | ReadonlyArray<string>;
+    listed: { 'key with space'?: string }[];
 }
 
 export function scannedPicksToString(value: ScannedPicks): string {
@@ -1622,6 +1644,7 @@ export function scannedPicksToString(value: ScannedPicks): string {
         const parts: string[] = [];
     parts.push("pick: " + __mf_structuralDebug(value.pick));
     parts.push("picked: " + __mf_structuralDebug(value.picked));
+    parts.push("listed: " + __mf_structuralDebug(value.listed));
         return "ScannedPicks { " + parts.join(", ") + " }";
     });
 }
@@ -1629,7 +1652,8 @@ export function scannedPicksToString(value: ScannedPicks): string {
 export function scannedPicksClone(value: ScannedPicks): ScannedPicks {
     return __mf_clonedWith(value, (): ScannedPicks => ({
 	pick: value.pick == null ? value.pick : [...value.pick],
-	picked: __mf_structuralClone(value.picked)
+	picked: __mf_structuralClone(value.picked),
+	listed: value.listed.map((__item0) => __mf_structuralClone(__item0))
 }));
 }
 
@@ -1642,6 +1666,10 @@ export function scannedPicksEquals(a: ScannedPicks, b: ScannedPicks): boolean {
             	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
             }))(a.pick, b.pick),
             () => __mf_structuralEquals(a.picked, b.picked),
+            () => a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+            	const __other0 = b.listed[__index0];
+            	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+            }),
         ].every((same) => same());
     });
 }
@@ -1650,6 +1678,7 @@ export function scannedPicksDefaultValue(): ScannedPicks {
     return {
         pick: null,
         picked: ({ "key with space": undefined }),
+        listed: [],
     };
 }
 
@@ -1663,6 +1692,40 @@ export const ScannedPicks: {
   clone: scannedPicksClone,
   equals: scannedPicksEquals,
   defaultValue: scannedPicksDefaultValue
+};
+
+/** @derive(Debug, Clone, PartialEq) */
+export interface ScannedTagged {
+    tagged: { a: string } & bigint[];
+}
+
+export function scannedTaggedToString(value: ScannedTagged): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("tagged: " + __mf_structuralDebug(value.tagged));
+        return "ScannedTagged { " + parts.join(", ") + " }";
+    });
+}
+
+export function scannedTaggedClone(value: ScannedTagged): ScannedTagged {
+    return __mf_clonedWith(value, (): ScannedTagged => ({ tagged: __mf_structuralClone(value.tagged) }));
+}
+
+export function scannedTaggedEquals(a: ScannedTagged, b: ScannedTagged): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => {
+        return __mf_structuralEquals(a.tagged, b.tagged);
+    });
+}
+
+export const ScannedTagged: {
+  readonly toString: typeof scannedTaggedToString;
+  readonly clone: typeof scannedTaggedClone;
+  readonly equals: typeof scannedTaggedEquals;
+} = {
+  toString: scannedTaggedToString,
+  clone: scannedTaggedClone,
+  equals: scannedTaggedEquals
 };
 
 ## DTS
@@ -1779,7 +1842,7 @@ export declare namespace ScannedShade {
 }
 /** @derive(Debug, PartialEq, Default, Encode, Decode) */
 export interface ScannedGroups {
-	shade: (ScannedShade);
+	shade: ScannedShade;
 	either: (string) | Record<string, "">;
 	pair: ["]?)", 4?];
 }
@@ -1946,6 +2009,7 @@ export declare const ScannedBigints: {
 /** @derive(Debug, PartialEq, Encode, Decode) */
 export interface ScannedNothing {
 	none?: undefined;
+	nothing: null | null;
 	other: string;
 }
 export declare function scannedNothingToString(value: ScannedNothing): string;
@@ -2004,6 +2068,9 @@ export interface ScannedPicks {
 		"key with space": undefined;
 		b?: string;
 	} | ReadonlyArray<string>;
+	listed: {
+		"key with space"?: string;
+	}[];
 }
 export declare function scannedPicksToString(value: ScannedPicks): string;
 export declare function scannedPicksClone(value: ScannedPicks): ScannedPicks;
@@ -2015,6 +2082,20 @@ export declare const ScannedPicks: {
 	readonly equals: typeof scannedPicksEquals;
 	readonly defaultValue: typeof scannedPicksDefaultValue;
 };
+/** @derive(Debug, Clone, PartialEq) */
+export interface ScannedTagged {
+	tagged: {
+		a: string;
+	} & bigint[];
+}
+export declare function scannedTaggedToString(value: ScannedTagged): string;
+export declare function scannedTaggedClone(value: ScannedTagged): ScannedTagged;
+export declare function scannedTaggedEquals(a: ScannedTagged, b: ScannedTagged): boolean;
+export declare const ScannedTagged: {
+	readonly toString: typeof scannedTaggedToString;
+	readonly clone: typeof scannedTaggedClone;
+	readonly equals: typeof scannedTaggedEquals;
+};
 
 ## Diagnostics
 
@@ -2024,13 +2105,14 @@ export declare const ScannedPicks: {
 
 original 0..576 -> expanded 1175..1751
 original 576..739 -> expanded 15272..15435
-original 739..894 -> expanded 16533..16688
-original 894..1081 -> expanded 19576..19763
-original 1081..1243 -> expanded 34469..34631
-original 1243..1388 -> expanded 47354..47499
-original 1388..1515 -> expanded 62262..62389
-original 1515..1728 -> expanded 73283..73496
-original 1728..1729 -> expanded 75228..75229
+original 739..893 -> expanded 16533..16687
+original 893..1078 -> expanded 19575..19760
+original 1078..1240 -> expanded 34459..34621
+original 1240..1385 -> expanded 47344..47489
+original 1385..1538 -> expanded 62252..62405
+original 1538..1796 -> expanded 74328..74586
+original 1796..1910 -> expanded 76748..76862
+original 1910..1911 -> expanded 77835..77836
 generated 0..1175 <- imports
 generated 1751..2132 <- Debug
 generated 2132..2350 <- Clone
@@ -2043,50 +2125,55 @@ generated 15435..15759 <- Debug
 generated 15759..15944 <- Clone
 generated 15944..16242 <- PartialEq
 generated 16242..16533 <- __convenience_const
-generated 16688..17011 <- Debug
-generated 17011..17103 <- Clone
-generated 17103..17206 <- PartialEq
-generated 17206..17299 <- Default
-generated 17299..17745 <- Encode
-generated 17745..18827 <- Decode
-generated 18827..19576 <- __convenience_const
-generated 19763..20176 <- Debug
-generated 20176..20571 <- PartialEq
-generated 20571..20741 <- Default
-generated 20741..23567 <- Encode
-generated 23567..33100 <- Decode
-generated 33100..34469 <- __convenience_const
-generated 34631..34977 <- Debug
-generated 34977..35309 <- PartialEq
-generated 35309..37864 <- Encode
-generated 37864..46087 <- Decode
-generated 46087..47354 <- __convenience_const
-generated 47499..47867 <- Debug
-generated 47867..48199 <- PartialEq
-generated 48199..51083 <- Encode
-generated 51083..60970 <- Decode
-generated 60970..62262 <- __convenience_const
-generated 62389..62726 <- Debug
-generated 62726..63043 <- PartialEq
-generated 63043..65617 <- Encode
-generated 65617..71991 <- Decode
-generated 71991..73283 <- __convenience_const
-generated 73496..73843 <- Debug
-generated 73843..74081 <- Clone
-generated 74081..74705 <- PartialEq
-generated 74705..74858 <- Default
-generated 74858..75228 <- __convenience_const
+generated 16687..17010 <- Debug
+generated 17010..17102 <- Clone
+generated 17102..17205 <- PartialEq
+generated 17205..17298 <- Default
+generated 17298..17744 <- Encode
+generated 17744..18826 <- Decode
+generated 18826..19575 <- __convenience_const
+generated 19760..20173 <- Debug
+generated 20173..20565 <- PartialEq
+generated 20565..20735 <- Default
+generated 20735..23561 <- Encode
+generated 23561..33090 <- Decode
+generated 33090..34459 <- __convenience_const
+generated 34621..34967 <- Debug
+generated 34967..35299 <- PartialEq
+generated 35299..37854 <- Encode
+generated 37854..46077 <- Decode
+generated 46077..47344 <- __convenience_const
+generated 47489..47857 <- Debug
+generated 47857..48189 <- PartialEq
+generated 48189..51073 <- Encode
+generated 51073..60960 <- Decode
+generated 60960..62252 <- __convenience_const
+generated 62405..62809 <- Debug
+generated 62809..63189 <- PartialEq
+generated 63189..65999 <- Encode
+generated 65999..73036 <- Decode
+generated 73036..74328 <- __convenience_const
+generated 74586..74998 <- Debug
+generated 74998..75307 <- Clone
+generated 75307..76205 <- PartialEq
+generated 76205..76378 <- Default
+generated 76378..76748 <- __convenience_const
+generated 76862..77151 <- Debug
+generated 77151..77334 <- Clone
+generated 77334..77558 <- PartialEq
+generated 77558..77835 <- __convenience_const
 
 ## Metadata
 
 interface ScannedText: {"body_span":{"end":577,"start":448},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":418,"start":357}}],"fields":[{"decorators":[],"key":"Named","name":"separator","optional":false,"readonly":false,"span":{"end":476,"start":454},"ts_type":"'\\\\' | '/'"},{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":508,"start":481},"ts_type":"ScannedKey<'a' | 'b'>"},{"decorators":[{"args_src":"{ validate: ['pattern(\"\")'] }","name":"endec","span":{"end":557,"start":513}}],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":575,"start":562},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ScannedText","span":{"end":577,"start":426},"type_params":[]}
 interface ScannedHandlers: {"body_span":{"end":740,"start":652},"decorators":[{"args_src":"Debug, Clone, PartialEq","name":"Derive","span":{"end":618,"start":579}}],"fields":[{"decorators":[],"key":"Named","name":"pick","optional":false,"readonly":false,"span":{"end":686,"start":658},"ts_type":"() => string | number"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":738,"start":691},"ts_type":"(value: string) => value is 'yes' | 'no'"}],"heritage":[],"methods":[],"name":"ScannedHandlers","span":{"end":740,"start":626},"type_params":[]}
-interface ScannedGroups: {"body_span":{"end":1082,"start":986},"decorators":[{"args_src":"Debug, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":954,"start":897}}],"fields":[{"decorators":[],"key":"Named","name":"shade","optional":false,"readonly":false,"span":{"end":1014,"start":992},"ts_type":"(ScannedShade)"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1057,"start":1019},"ts_type":"(string) | Record<string, ''>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1080,"start":1062},"ts_type":"[']?)', 4?]"}],"heritage":[],"methods":[],"name":"ScannedGroups","span":{"end":1082,"start":962},"type_params":[]}
-interface ScannedUnions: {"body_span":{"end":1244,"start":1164},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1132,"start":1084}}],"fields":[{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1203,"start":1170},"ts_type":"string | [number, string?]"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1242,"start":1208},"ts_type":"string | ['a', ...number[]]"}],"heritage":[],"methods":[],"name":"ScannedUnions","span":{"end":1244,"start":1140},"type_params":[]}
-interface ScannedBigints: {"body_span":{"end":1389,"start":1327},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1294,"start":1246}}],"fields":[{"decorators":[],"key":"Named","name":"one","optional":false,"readonly":false,"span":{"end":1341,"start":1333},"ts_type":"1n"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":1365,"start":1346},"ts_type":"-1n | 1_000n"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1387,"start":1370},"ts_type":"2n | null"}],"heritage":[],"methods":[],"name":"ScannedBigints","span":{"end":1389,"start":1302},"type_params":[]}
-interface ScannedNothing: {"body_span":{"end":1516,"start":1472},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1439,"start":1391}}],"fields":[{"decorators":[],"key":"Named","name":"none","optional":true,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"undefined"},{"decorators":[],"key":"Named","name":"other","optional":false,"readonly":false,"span":{"end":1514,"start":1500},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ScannedNothing","span":{"end":1516,"start":1447},"type_params":[]}
-interface ScannedPicks: {"body_span":{"end":1729,"start":1597},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default","name":"Derive","span":{"end":1566,"start":1518}}],"fields":[{"decorators":[],"key":"Named","name":"pick","optional":false,"readonly":false,"span":{"end":1646,"start":1603},"ts_type":"((value: string) => string)[] | null"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1727,"start":1651},"ts_type":"{ \"key with space\": undefined; b?: string } | ReadonlyArray<string>"}],"heritage":[],"methods":[],"name":"ScannedPicks","span":{"end":1729,"start":1574},"type_params":[]}
-enum ScannedShade: {"body_span":{"end":895,"start":832},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":806,"start":742}}],"is_const":false,"is_declare":false,"name":"ScannedShade","span":{"end":895,"start":814},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":853,"start":838}}],"name":"Light","span":{"end":873,"start":858},"value":{"String":"light"}},{"decorators":[],"name":"Dark","span":{"end":892,"start":879},"value":{"String":"dark"}}]}
+interface ScannedGroups: {"body_span":{"end":1079,"start":985},"decorators":[{"args_src":"Debug, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":953,"start":896}}],"fields":[{"decorators":[],"key":"Named","name":"shade","optional":false,"readonly":false,"span":{"end":1011,"start":991},"ts_type":"ScannedShade"},{"decorators":[],"key":"Named","name":"either","optional":false,"readonly":false,"span":{"end":1054,"start":1016},"ts_type":"(string) | Record<string, ''>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1077,"start":1059},"ts_type":"[']?)', 4?]"}],"heritage":[],"methods":[],"name":"ScannedGroups","span":{"end":1079,"start":961},"type_params":[]}
+interface ScannedUnions: {"body_span":{"end":1241,"start":1161},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1129,"start":1081}}],"fields":[{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1200,"start":1167},"ts_type":"string | [number, string?]"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1239,"start":1205},"ts_type":"string | ['a', ...number[]]"}],"heritage":[],"methods":[],"name":"ScannedUnions","span":{"end":1241,"start":1137},"type_params":[]}
+interface ScannedBigints: {"body_span":{"end":1386,"start":1324},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1291,"start":1243}}],"fields":[{"decorators":[],"key":"Named","name":"one","optional":false,"readonly":false,"span":{"end":1338,"start":1330},"ts_type":"1n"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":1362,"start":1343},"ts_type":"-1n | 1_000n"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1384,"start":1367},"ts_type":"2n | null"}],"heritage":[],"methods":[],"name":"ScannedBigints","span":{"end":1386,"start":1299},"type_params":[]}
+interface ScannedNothing: {"body_span":{"end":1539,"start":1469},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":1436,"start":1388}}],"fields":[{"decorators":[],"key":"Named","name":"none","optional":true,"readonly":false,"span":{"end":1492,"start":1475},"ts_type":"undefined"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":1518,"start":1497},"ts_type":"null | null"},{"decorators":[],"key":"Named","name":"other","optional":false,"readonly":false,"span":{"end":1537,"start":1523},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ScannedNothing","span":{"end":1539,"start":1444},"type_params":[]}
+interface ScannedPicks: {"body_span":{"end":1797,"start":1620},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default","name":"Derive","span":{"end":1589,"start":1541}}],"fields":[{"decorators":[],"key":"Named","name":"pick","optional":false,"readonly":false,"span":{"end":1669,"start":1626},"ts_type":"((value: string) => string)[] | null"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1750,"start":1674},"ts_type":"{ 'key with space': undefined; b?: string } | ReadonlyArray<string>"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":1795,"start":1755},"ts_type":"{ 'key with space'?: string }[]"}],"heritage":[],"methods":[],"name":"ScannedPicks","span":{"end":1797,"start":1597},"type_params":[]}
+interface ScannedTagged: {"body_span":{"end":1911,"start":1870},"decorators":[{"args_src":"Debug, Clone, PartialEq","name":"Derive","span":{"end":1838,"start":1799}}],"fields":[{"decorators":[],"key":"Named","name":"tagged","optional":false,"readonly":false,"span":{"end":1909,"start":1876},"ts_type":"{ a: string } & bigint[]"}],"heritage":[],"methods":[],"name":"ScannedTagged","span":{"end":1911,"start":1846},"type_params":[]}
+enum ScannedShade: {"body_span":{"end":894,"start":832},"decorators":[{"args_src":"Debug, Clone, PartialEq, Default, Encode, Decode","name":"Derive","span":{"end":806,"start":742}}],"is_const":false,"is_declare":false,"name":"ScannedShade","span":{"end":894,"start":814},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":853,"start":838}}],"name":"Light","span":{"end":873,"start":858},"value":{"String":"light"}},{"decorators":[],"name":"Dark","span":{"end":892,"start":879},"value":{"String":"dark"}}]}
 type ScannedKey: {"body":{"Other":"`key-${T}`"},"decorators":[],"name":"ScannedKey","span":{"end":355,"start":308},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads
@@ -2096,7 +2183,6 @@ Name("'\\\\' | '/'")
 Name("'a' | 'b'")
 Name("((value: string) => string)")
 Name("() => string | number")
-Name("(ScannedShade)")
 Name("(string) | Record")
 Name("(value: string) => value is 'yes' | 'no'")
 Name("-1n | 1_000n")
@@ -2111,7 +2197,9 @@ Name("string")
 Name("string | ['a', ...number[]]")
 Name("string | [number, string?]")
 Name("undefined")
-Name("{ \"key with space\": undefined; b?: string } | ReadonlyArray")
+Name("{ 'key with space': undefined; b?: string } | ReadonlyArray")
+Name("{ 'key with space'?: string }")
+Name("{ a: string } & bigint")
 
 ## Buildtime dependencies
 

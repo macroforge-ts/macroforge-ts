@@ -51,6 +51,7 @@ export interface ScannedBigints {
 /** @derive(Debug, PartialEq, Encode, Decode) */
 export interface ScannedNothing {
     none?: undefined;
+    nothing: null | null;
     other: string;
 }
 
@@ -58,4 +59,10 @@ export interface ScannedNothing {
 export interface ScannedPicks {
     pick: ((value: string) => string)[] | null;
     picked: { 'key with space': undefined; b?: string } | ReadonlyArray<string>;
+    listed: { 'key with space'?: string }[];
+}
+
+/** @derive(Debug, Clone, PartialEq) */
+export interface ScannedTagged {
+    tagged: { a: string } & bigint[];
 }

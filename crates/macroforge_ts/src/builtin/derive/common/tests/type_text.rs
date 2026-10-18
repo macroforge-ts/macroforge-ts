@@ -46,6 +46,7 @@ fn a_type_is_an_array_or_a_generic_only_as_a_whole() {
     );
     assert_eq!(parse_generic_type("NS.Box<'>'>"), Some(("NS.Box", "'>'")));
     assert_eq!(parse_generic_type("Box<A>[]"), None);
+    assert_eq!(array_element_type("{ a: string } & bigint[]"), None);
 }
 
 /// A union whose first member is an object written in place defaults to that
@@ -56,4 +57,6 @@ fn a_union_of_an_object_defaults_to_the_object() {
         get_type_default("{ \"key with space\": undefined; b?: string } | ReadonlyArray<string>"),
         "({ \"key with space\": undefined })"
     );
+    // An array of objects is an array, its first `{` no object around it all.
+    assert_eq!(get_type_default("{ \"key with space\"?: string }[]"), "[]");
 }

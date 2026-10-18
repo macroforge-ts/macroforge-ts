@@ -9,7 +9,8 @@ use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_registry::TypeDefinitionIR;
 use crate::ts_syn::abi::ir::{
     EnumVariantIR, FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
-    resolve_generic_aliases, split_top_level_commas, split_top_level_union,
+    resolve_generic_aliases, split_top_level_commas, split_top_level_intersection,
+    split_top_level_union,
 };
 use crate::ts_syn::scan::{angle_unwrapped, ends_in_its_last_part, top_level_letters, unwrapped};
 use crate::ts_syn::{TsStream, ts_ident};
@@ -253,11 +254,14 @@ pub fn parse_generic_type(type_name: &str) -> Option<(&str, &str)> {
 
 /// The element type of an array type: `T[]`, `readonly T[]`, `Array<T>` or
 /// `ReadonlyArray<T>`. `None` for anything else, including a union such as
-/// `string | number[]`, which merely ends with an array member, and `[]`,
-/// the tuple of no elements.
+/// `string | number[]` or an intersection such as `Tag & number[]`, which
+/// merely end with an array member, and `[]`, the tuple of no elements.
 pub fn array_element_type(ts_type: &str) -> Option<&str> {
     let trimmed = ts_type.trim();
-    if split_top_level_union(trimmed).is_some() || ends_in_its_last_part(trimmed) {
+    if split_top_level_union(trimmed).is_some()
+        || split_top_level_intersection(trimmed).is_some()
+        || ends_in_its_last_part(trimmed)
+    {
         return None;
     }
     let trimmed = trimmed
@@ -529,7 +533,7 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
 
     // An object type written in place: each member it has to have, by its
     // own default. An index signature names no member, so it adds none.
-    if t.starts_with('{') {
+    if unwrapped(t, '{', '}').is_some() {
         return match crate::builtin::derive::endec::inline_object_fields(t) {
             Some(fields) => object_default_literal(
                 fields.iter().filter(|field| field.key == MemberKey::Named),

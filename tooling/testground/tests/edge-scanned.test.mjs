@@ -112,17 +112,27 @@ Deno.test('a bigint literal is coded as its bigint, and checked to be the litera
 });
 
 Deno.test('a field of nothing but undefined takes no value', () => {
-    assert(mod.scannedNothingDecode(JSON.stringify({ other: 'x' })).success);
-    assert(!mod.scannedNothingDecode(JSON.stringify({ none: 1, other: 'x' })).success);
+    assert(mod.scannedNothingDecode(JSON.stringify({ nothing: null, other: 'x' })).success);
+    assert(
+        !mod.scannedNothingDecode(JSON.stringify({ none: 1, nothing: null, other: 'x' })).success
+    );
 });
 
 Deno.test('an array of functions is copied as one, and a union defaults to its object', () => {
     const pick = (value) => value;
-    const picks = { pick: [pick], picked: ['a'] };
+    const picks = { pick: [pick], picked: ['a'], listed: [{ 'key with space': 'k' }] };
     const copy = mod.scannedPicksClone(picks);
     assertStrictEquals(copy.pick[0], pick);
     assert(mod.scannedPicksEquals(picks, copy));
     const defaults = mod.scannedPicksDefaultValue();
-    assertEquals(defaults, { pick: null, picked: { 'key with space': undefined } });
+    assertEquals(defaults.pick, null);
+    assertEquals(defaults.picked, { 'key with space': undefined });
+    assertEquals(defaults.listed, []);
     assert('key with space' in defaults.picked);
+});
+
+Deno.test('an intersection ending in an array is cloned and compared as it is written', () => {
+    const value = { tagged: Object.assign([1n], { a: 'tag' }) };
+    const copy = mod.scannedTaggedClone(value);
+    assert(mod.scannedTaggedEquals(value, copy));
 });

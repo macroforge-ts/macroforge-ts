@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (447)
+## Types (448)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -379,9 +379,10 @@ ScannedBigints 64401829536fc094
 ScannedGroups d01b48eb95f47c1c
 ScannedHandlers a07024a25629ad2d
 ScannedKey f2707094cc05c61f
-ScannedNothing d8a72c92d958de59
-ScannedPicks b35be8712249e799
+ScannedNothing bedb68d1cac4dc42
+ScannedPicks 89d58a3183b3cadf
 ScannedShade 0303e0c2665d5805
+ScannedTagged 6169296d4bd14121
 ScannedText 6414666f1c1c025a
 ScannedUnions 76525ef0d23ce88d
 Scores 64257904cae6d774
@@ -451,7 +452,7 @@ WideRecord c9bd8ffc061d4d25
 WideShape 5c00c985b1a5c6b3
 point2D 9c3236f9adc43b41
 
-## Qualified types (450)
+## Qualified types (451)
 
 checks/repeated-error.ts::Holder e348868fb978f545
 checks/repeated-error.ts::Plain d98534e25d4536f1
@@ -673,9 +674,10 @@ src/edge-cases/scanned-text.ts::ScannedBigints 64401829536fc094
 src/edge-cases/scanned-text.ts::ScannedGroups d01b48eb95f47c1c
 src/edge-cases/scanned-text.ts::ScannedHandlers a07024a25629ad2d
 src/edge-cases/scanned-text.ts::ScannedKey f2707094cc05c61f
-src/edge-cases/scanned-text.ts::ScannedNothing d8a72c92d958de59
-src/edge-cases/scanned-text.ts::ScannedPicks b35be8712249e799
+src/edge-cases/scanned-text.ts::ScannedNothing bedb68d1cac4dc42
+src/edge-cases/scanned-text.ts::ScannedPicks 89d58a3183b3cadf
 src/edge-cases/scanned-text.ts::ScannedShade 0303e0c2665d5805
+src/edge-cases/scanned-text.ts::ScannedTagged 6169296d4bd14121
 src/edge-cases/scanned-text.ts::ScannedText 6414666f1c1c025a
 src/edge-cases/scanned-text.ts::ScannedUnions 76525ef0d23ce88d
 src/edge-cases/special-shapes.ts::SpecialCarried ef845798678ece7a
