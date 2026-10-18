@@ -5,7 +5,9 @@ use super::super::union_guard::UnionGuard;
 use super::super::value_kind::EndecValueKind;
 use super::super::{TypeCategory, ValidatorSpec};
 use super::validation::Missing;
-use crate::builtin::derive::common::{Member, js_string_text, local_name_part, rendered};
+use crate::builtin::derive::common::{
+    Member, js_string_text, local_name_part, rendered, ungrouped,
+};
 use crate::macros::ts_template;
 
 /// What a collection's or a tuple's raw value has to be before its members
@@ -199,8 +201,13 @@ pub(super) fn raw_var_name(field_name: &str) -> String {
 /// - `T | null` -> `raw(T) | null` (recursive)
 /// - `T | undefined` -> `raw(T) | undefined` (recursive)
 /// - `Array<T>` -> `Array<raw(T)>` (recursive for element types)
+/// - `undefined` -> `unknown` (a field holding nothing but `undefined` is
+///   read only once something else stands there)
 /// - Everything else -> the original type unchanged
 pub(super) fn raw_cast_type(ts_type: &str, type_cat: &TypeCategory) -> String {
+    if ungrouped(ts_type) == "undefined" {
+        return "unknown".to_string();
+    }
     match type_cat {
         TypeCategory::Map(_, v) => {
             let inner_cat = TypeCategory::from_ts_type(v);
