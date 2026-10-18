@@ -204,13 +204,12 @@ impl TypeCategory {
         }
 
         // Handle Record<K, V>
-        if trimmed.starts_with("Record<") && trimmed.ends_with('>') {
-            let inner = &trimmed[7..trimmed.len() - 1];
-            if let Some(comma_pos) = find_top_level_comma(inner) {
-                let key = inner[..comma_pos].trim().to_string();
-                let value = inner[comma_pos + 1..].trim().to_string();
-                return Self::Record(key, value);
-            }
+        if let Some(("Record", inner)) = parse_generic_type(trimmed)
+            && let Some(comma_pos) = find_top_level_comma(inner)
+        {
+            let key = inner[..comma_pos].trim().to_string();
+            let value = inner[comma_pos + 1..].trim().to_string();
+            return Self::Record(key, value);
         }
 
         // Handle union types (T | undefined, T | null)
@@ -269,35 +268,22 @@ impl TypeCategory {
                     | "ArrayBuffer"
             )
         {
-            // Extract base type name (handle generics like Foo<T>)
-            let base_type = if let Some(idx) = trimmed.find('<') {
-                &trimmed[..idx]
-            } else {
-                trimmed
-            };
+            let generic = parse_generic_type(trimmed);
+            let base_type = generic.map_or(trimmed, |(base, _)| base);
 
-            // Handle TypeScript wrapper utility types that preserve the inner type's structure
-            // These don't change runtime values, so we encode based on the inner type
-            if matches!(
-                base_type,
-                "Partial" | "Required" | "Readonly" | "NonNullable"
-            ) {
-                // Single type argument: Partial<T>, Required<T>, Readonly<T>, NonNullable<T>
-                if let Some(start) = trimmed.find('<') {
-                    let inner = &trimmed[start + 1..trimmed.len() - 1];
+            // A utility type that keeps its argument's structure is coded as
+            // that type is: `Partial<T>` and the like, and the `T` of
+            // `Pick<T, K>` and `Omit<T, K>`.
+            match generic {
+                Some(("Partial" | "Required" | "Readonly" | "NonNullable", inner)) => {
                     return Self::Wrapper(inner.to_string());
                 }
-            }
-
-            if matches!(base_type, "Pick" | "Omit") {
-                // Two type arguments: Pick<T, K>, Omit<T, K> - we care about T
-                if let Some(start) = trimmed.find('<') {
-                    let inner = &trimmed[start + 1..trimmed.len() - 1];
+                Some(("Pick" | "Omit", inner)) => {
                     if let Some(comma_pos) = find_top_level_comma(inner) {
-                        let first_arg = inner[..comma_pos].trim();
-                        return Self::Wrapper(first_arg.to_string());
+                        return Self::Wrapper(inner[..comma_pos].trim().to_string());
                     }
                 }
+                _ => {}
             }
 
             // A built-in type with no coding is no type of the project's.

@@ -329,3 +329,29 @@ fn test_type_category_reads_a_grouped_type_as_the_type_in_it() {
         TypeCategory::Array(_)
     ));
 }
+
+/// A generic's arguments are split at the comma between them, past the
+/// arrows, brackets and strings an argument holds, and a union of generics
+/// is no one generic.
+#[test]
+fn a_generic_is_read_by_its_own_arguments() {
+    assert_eq!(
+        TypeCategory::from_ts_type("Map<(value: string) => (other: number) => 7, string | null>"),
+        TypeCategory::Map(
+            "(value: string) => (other: number) => 7".to_string(),
+            "string | null".to_string()
+        )
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("Record<'a, b', number>"),
+        TypeCategory::Record("'a, b'".to_string(), "number".to_string())
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("Record<string, A> | Record<string, B>"),
+        TypeCategory::Unknown
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("Pick<User, 'a' | 'b'>"),
+        TypeCategory::Wrapper("User".to_string())
+    );
+}
