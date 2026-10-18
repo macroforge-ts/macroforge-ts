@@ -9,13 +9,17 @@ use super::super::value_kind::is_ts_literal;
 use super::super::{EndecFieldOptions, Validator, ValidatorSpec};
 use super::types::DecodeField;
 use super::validation::Missing;
-use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered, ungrouped};
+use crate::builtin::derive::common::{
+    array_element_type, js_string, primitive_keyword_test, rendered, tuple_body, tuple_element,
+    undefined_as_null, ungrouped,
+};
 use crate::host::ForeignTypeConfig;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 use crate::ts_syn::abi::ir::{
-    is_primitive_keyword, split_top_level_intersection, split_top_level_union, typeof_primitive,
+    NumberLiteral, is_primitive_keyword, number_literal, split_top_level_commas,
+    split_top_level_intersection, split_top_level_union, typeof_primitive,
 };
 
 /// Determines whether a TypeScript type can accept a raw `string` value,
@@ -212,6 +216,16 @@ pub(crate) fn primitive_accepts_leaving(
 ) -> Option<String> {
     let ts_type = ts_type.trim();
     let parts = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
+    // A bigint among other members is coded as its text, which no test of
+    // the raw value tells from theirs.
+    let valued: Vec<&str> = parts
+        .iter()
+        .map(|part| branded_base(part.trim()))
+        .filter(|part| !matches!(*part, "null" | "undefined"))
+        .collect();
+    if valued.len() > 1 && valued.contains(&"bigint") {
+        return None;
+    }
     let accepts = parts
         .iter()
         .map(|part| {
@@ -224,6 +238,9 @@ pub(crate) fn primitive_accepts_leaving(
                 ))
             } else if let Some(spells) = template_test(part, raw) {
                 Some(spells)
+            } else if number_literal(part) == Some(NumberLiteral::BigInt) {
+                // A bigint literal is coded as its text, as a bigint is.
+                None
             } else if is_primitive_keyword(part) || is_ts_literal(part) {
                 Some(rendered(ts_template! { @{raw} === @{part} }))
             } else {
@@ -255,15 +272,23 @@ pub(crate) fn structural_accepts(ts_type: &str, raw: &str, depth: usize) -> Opti
         return Some(accepts);
     }
     let member = format!("__member{depth}");
+    // An `undefined` in a collection is `null` once encoded, which a value
+    // carried as it is would keep.
+    let carried = |element: &str| (!undefined_as_null(element)).then_some(());
+    if let Some(body) = tuple_body(ts_type) {
+        return tuple_accepts(body, raw, &member, depth);
+    }
     match TypeCategory::from_ts_type(ts_type) {
         TypeCategory::Date => Some(rendered(ts_template! { @{raw} instanceof Date })),
         TypeCategory::Array(element) => {
+            carried(&element)?;
             let accepts = structural_accepts(&element, &member, depth + 1)?;
             Some(rendered(ts_template! {
                 Array.isArray(@{raw}) && @{raw}.every((@{&member}: unknown) => @{accepts})
             }))
         }
         TypeCategory::Record(_, value) => {
+            carried(&value)?;
             let accepts = structural_accepts(&value, &member, depth + 1)?;
             Some(rendered(ts_template! {
                 typeof @{raw} === "object" && @{raw} !== null && !Array.isArray(@{raw}) && Object.values(@{raw}).every((@{&member}: unknown) => @{accepts})
@@ -271,6 +296,52 @@ pub(crate) fn structural_accepts(ts_type: &str, raw: &str, depth: usize) -> Opti
         }
         _ => matches!(ts_type, "unknown" | "any").then(|| "true".to_string()),
     }
+}
+
+/// The condition under which `raw` is a value of the tuple whose elements
+/// `body` writes, as [`structural_accepts`] tells one: its length within
+/// what the elements allow, and each element of its type.
+fn tuple_accepts(body: &str, raw: &str, member: &str, depth: usize) -> Option<String> {
+    let elements: Vec<_> = split_top_level_commas(body)
+        .into_iter()
+        .filter(|source| !source.is_empty())
+        .map(tuple_element)
+        .collect();
+    let fixed = elements.iter().filter(|element| !element.rest).count();
+    let required = elements
+        .iter()
+        .filter(|element| !element.rest && !element.optional)
+        .count();
+    let mut accepts = vec![
+        rendered(ts_template! { Array.isArray(@{raw}) }),
+        format!("{raw}.length >= {required}"),
+    ];
+    if elements
+        .iter()
+        .any(|element| undefined_as_null(element.ts_type))
+    {
+        return None;
+    }
+    for (index, element) in elements.iter().filter(|element| !element.rest).enumerate() {
+        let item = format!("{raw}[{index}]");
+        let accepted = structural_accepts(element.ts_type, &item, depth + 1)?;
+        accepts.push(if element.optional {
+            format!("({item} === undefined || ({accepted}))")
+        } else {
+            format!("({accepted})")
+        });
+    }
+    match elements.iter().find(|element| element.rest) {
+        Some(rest) => {
+            let accepted =
+                structural_accepts(array_element_type(rest.ts_type)?, member, depth + 1)?;
+            accepts.push(rendered(ts_template! {
+                @{raw}.slice(@{fixed.to_string()}).every((@{member}: unknown) => @{accepted})
+            }));
+        }
+        None => accepts.push(format!("{raw}.length <= {fixed}")),
+    }
+    Some(accepts.join(" && "))
 }
 
 /// The error for a raw value that is not of the field's type. A missing value

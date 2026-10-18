@@ -34,7 +34,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeChecked as __mf_decodeChecked, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holdsAll as __mf_holdsAll, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Literals {
@@ -164,7 +164,7 @@ function literalsEncodeFields(value: Literals, _ctx: __mf_EncodeContext, result:
         () => {
             if (__fields === undefined || __fields.keeps("big")) {
                 if (value.big !== undefined) {
-                    result["big"] = value.big;
+                    result["big"] = ((v) => String(v))(value.big);
                 }
             }
         },
@@ -314,11 +314,31 @@ export function literalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         () => {
             if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
                 const __raw_big = obj["big"] as 1n | -2n;
+                ctx.pushScope("big");
+                try {
+                    const __result = ((__bigint0: bigint) => __mf_decodeChecked(__bigint0, __bigint0 === 1n || __bigint0 === -2n, "1n | -2n") as 1n | -2n)((((v) => {
+                                const raw: unknown = v;
+                                if (typeof raw === "bigint") return raw;
+                                // A number past the safe integers has lost digits already.
+                                if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
+                                if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                                return BigInt(raw);
+                            })(__raw_big) as bigint));
+                    ctx.assignOrDefer(instance, "big", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "big" : "big." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
 
-                if (!(__raw_big === 1n || __raw_big === -2n)) {
-                    errors.push({ field: "big", message: __raw_big == null ? "Literals.big is required" : "expected 1n | -2n" });
-                } else {
-                    instance.big = __raw_big;
+                        errors.push({ field: "big", message: __e instanceof Error ? __e.message : String(__e) });
+                    }
+                } finally {
+                    ctx.popScope();
                 }
             }
         },
@@ -1109,32 +1129,32 @@ export declare const Holder: {
 ## Mapping
 
 original 70..251 -> expanded 1214..1395
-original 251..323 -> expanded 18541..18613
-original 376..420 -> expanded 18613..18657
-original 420..422 -> expanded 27619..27621
-original 475..534 -> expanded 27621..27680
-original 534..535 -> expanded 39485..39486
+original 251..323 -> expanded 19795..19867
+original 376..420 -> expanded 19867..19911
+original 420..422 -> expanded 28873..28875
+original 475..534 -> expanded 28875..28934
+original 534..535 -> expanded 40739..40740
 generated 0..1214 <- imports
 generated 1395..1908 <- Debug
 generated 1908..2171 <- Clone
 generated 2171..2796 <- PartialEq
 generated 2796..3827 <- Hash
 generated 3827..4033 <- Default
-generated 4033..7425 <- Encode
-generated 7425..17167 <- Decode
-generated 17167..18541 <- __convenience_const
-generated 18657..18900 <- Debug
-generated 18900..19019 <- Clone
-generated 19019..19101 <- Default
-generated 19101..21159 <- Encode
-generated 21159..26524 <- Decode
-generated 26524..27619 <- __convenience_const
-generated 27680..28003 <- Debug
-generated 28003..28220 <- Clone
-generated 28220..28340 <- Default
-generated 28340..30865 <- Encode
-generated 30865..38309 <- Decode
-generated 38309..39485 <- __convenience_const
+generated 4033..7445 <- Encode
+generated 7445..18421 <- Decode
+generated 18421..19795 <- __convenience_const
+generated 19911..20154 <- Debug
+generated 20154..20273 <- Clone
+generated 20273..20355 <- Default
+generated 20355..22413 <- Encode
+generated 22413..27778 <- Decode
+generated 27778..28873 <- __convenience_const
+generated 28934..29257 <- Debug
+generated 29257..29474 <- Clone
+generated 29474..29594 <- Default
+generated 29594..32119 <- Encode
+generated 32119..39563 <- Decode
+generated 39563..40739 <- __convenience_const
 
 ## Metadata
 

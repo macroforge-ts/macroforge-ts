@@ -18,8 +18,8 @@ use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_alias::TypeBody;
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 use crate::ts_syn::abi::ir::{
-    Unadopted, adopt_type_scope, resolve_generic_aliases_where, split_top_level_commas,
-    split_top_level_union, substitute_tokens, typeof_primitive,
+    NumberLiteral, Unadopted, adopt_type_scope, number_literal, resolve_generic_aliases_where,
+    split_top_level_commas, split_top_level_union, substitute_tokens, typeof_primitive,
 };
 use crate::ts_syn::config::ForeignHandler;
 use crate::ts_syn::ts_ident;
@@ -384,17 +384,38 @@ fn untold_member<'a>(ts_type: &'a str, scope: &TypeScope<'_>) -> Option<&'a str>
             TypeCategory::Set(_) | TypeCategory::Map(_, _) => true,
             // A date is its text once encoded, which a string member takes.
             TypeCategory::Date => !holds_text,
+            // An `undefined` in a collection comes back from its encoding a
+            // `null` for the decoder to turn back.
+            TypeCategory::Array(element) | TypeCategory::Record(_, element)
+                if undefined_as_null(&element) =>
+            {
+                true
+            }
             TypeCategory::Array(_) | TypeCategory::Record(_, _) | TypeCategory::Unknown => {
                 matches!(
                     encode_expr(member, "__probe", scope, 0),
                     Ok(Some(_)) | Err(_)
-                )
+                ) || tuple_elements(member).is_some_and(|elements| {
+                    elements
+                        .iter()
+                        .any(|element| undefined_as_null(tuple_element(element).ts_type))
+                })
             }
-            TypeCategory::Primitive | TypeCategory::Optional(_) | TypeCategory::Nullable(_) => {
-                false
-            }
+            // A bigint is its text once encoded.
+            TypeCategory::Primitive => member == "bigint" || bigint_literals(member).is_some(),
+            TypeCategory::Optional(_) | TypeCategory::Nullable(_) => false,
         }
     })
+}
+
+/// The bigint literals `ts_type` is a union of, when it is of nothing else. A
+/// bigint literal is coded as a bigint is: JSON has no form for one.
+fn bigint_literals(ts_type: &str) -> Option<Vec<&str>> {
+    let members = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
+    members
+        .iter()
+        .all(|member| number_literal(ungrouped(member)) == Some(NumberLiteral::BigInt))
+        .then(|| members.into_iter().map(ungrouped).collect())
 }
 
 /// An error for a union with a member a field cannot tell from the others.
@@ -554,7 +575,7 @@ fn encode_object(
 pub(crate) fn object_shape_test(members: &[InterfaceFieldIR], value: &str) -> String {
     let is_literal = |ts_type: &str| {
         ts_type.starts_with(['"', '\''])
-            || crate::ts_syn::abi::ir::number_literal(ts_type).is_some()
+            || number_literal(ts_type).is_some()
             || matches!(ts_type, "true" | "false")
     };
     std::iter::once(rendered(ts_template! {
@@ -583,7 +604,7 @@ pub(crate) fn object_shape_test(members: &[InterfaceFieldIR], value: &str) -> St
 pub(crate) fn raw_shape_test(members: &[InterfaceFieldIR], value: &str) -> String {
     let is_literal = |ts_type: &str| {
         ts_type.starts_with(['"', '\''])
-            || crate::ts_syn::abi::ir::number_literal(ts_type).is_some()
+            || number_literal(ts_type).is_some()
             || matches!(ts_type, "true" | "false")
     };
     let holds = endec_helper("holds");
@@ -737,7 +758,7 @@ fn map_key(key_type: &str, scope: &TypeScope<'_>) -> Result<MapKey, String> {
     let literal_base = |member: &str| {
         if member.starts_with(['"', '\'', '`']) {
             Some(KeyBase::Text)
-        } else if let Some(kind) = crate::ts_syn::abi::ir::number_literal(member) {
+        } else if let Some(kind) = number_literal(member) {
             Some(match kind {
                 crate::ts_syn::abi::ir::NumberLiteral::Number => KeyBase::Number,
                 crate::ts_syn::abi::ir::NumberLiteral::BigInt => KeyBase::BigInt,
@@ -843,6 +864,9 @@ pub(crate) fn encode_expr(
     }
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Encode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{value}) })));
+    }
+    if bigint_literals(ts_type).is_some() {
+        return encode_expr("bigint", value, scope, depth);
     }
     if let Some(reason) = scope.through_namespace(ts_type) {
         return Err(reason);
@@ -1080,8 +1104,8 @@ fn json_keys_visiting(
 }
 
 /// A function decoding the raw value of `ts_type` when that is a foreign
-/// type that may also be `null` or `undefined`, which its handler is not
-/// handed. `None` for any other type.
+/// type, or a bigint literal, that may also be `null` or `undefined`, which
+/// its handler is not handed. `None` for any other type.
 pub(crate) fn nullable_foreign_decoder(
     ts_type: &str,
     scope: &TypeScope<'_>,
@@ -1092,7 +1116,9 @@ pub(crate) fn nullable_foreign_decoder(
     {
         present = inner;
     }
-    if present == ungrouped(ts_type) || foreign_callee(&present, ForeignHandler::Decode).is_none() {
+    let coded = foreign_callee(&present, ForeignHandler::Decode).is_some()
+        || bigint_literals(&present).is_some();
+    if present == ungrouped(ts_type) || !coded {
         return Ok(None);
     }
     Ok(decode_expr(ts_type, "__raw", scope, 0)?
@@ -1205,6 +1231,22 @@ pub(crate) fn decode_expr(
         return Ok(Some(rendered(
             ts_template! { (@{callee}(@{raw}) as @{ts_type}) },
         )));
+    }
+    if let Some(literals) = bigint_literals(ts_type) {
+        let Some(decoded) = decode_expr("bigint", raw, scope, depth)? else {
+            return Ok(None);
+        };
+        let value = format!("__bigint{depth}");
+        let accepts = literals
+            .iter()
+            .map(|literal| format!("{value} === {literal}"))
+            .collect::<Vec<_>>()
+            .join(" || ");
+        let checked = endec_helper("decodeChecked");
+        let expected = js_string(ts_type);
+        return Ok(Some(rendered(ts_template! {
+            ((@{&value}: bigint) => @{checked}(@{&value}, @{accepts}, @{expected}) as @{ts_type})(@{decoded})
+        })));
     }
     if let Some(reason) = scope.through_namespace(ts_type) {
         return Err(reason);
@@ -1429,9 +1471,8 @@ pub(crate) fn wrapper_over_structure(ts_type: &str) -> Option<Result<String, Str
     ) {
         return None;
     }
-    let is_literal = |member: &str| {
-        member.starts_with(['"', '\'']) || crate::ts_syn::abi::ir::number_literal(member).is_some()
-    };
+    let is_literal =
+        |member: &str| member.starts_with(['"', '\'']) || number_literal(member).is_some();
     Some(match (base, category) {
         ("NonNullable", _) => Ok(split_top_level_union(inner)
             .unwrap_or_else(|| vec![inner])

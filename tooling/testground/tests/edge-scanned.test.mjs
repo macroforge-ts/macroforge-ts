@@ -72,3 +72,41 @@ Deno.test('a type in parentheses or holding brackets in a string is read as writ
     );
     assert(mod.scannedGroupsEquals(groups, mod.scannedGroupsDefaultValue()));
 });
+
+Deno.test('a union of a primitive and a tuple is coded as its values are', () => {
+    for (
+        const value of [
+            { pair: 'text', rest: 'r' },
+            { pair: [1, 'one'], rest: ['a', 1, 2] },
+            { pair: [2], rest: ['a'] }
+        ]
+    ) {
+        const decoded = mod.scannedUnionsDecode(mod.scannedUnionsEncode(value));
+        assert(decoded.success, JSON.stringify(decoded));
+        assert(
+            mod.scannedUnionsEquals(decoded.value, value),
+            mod.scannedUnionsToString(decoded.value)
+        );
+    }
+    for (const pair of [[1, 2], ['one'], [1, 'one', 'two']]) {
+        assert(
+            !mod.scannedUnionsDecode(JSON.stringify({ pair, rest: 'r' })).success,
+            JSON.stringify(pair)
+        );
+    }
+});
+
+Deno.test('a bigint literal is coded as its bigint, and checked to be the literal', () => {
+    for (
+        const value of [{ one: 1n, some: -1n, maybe: null }, { one: 1n, some: 1000n, maybe: 2n }]
+    ) {
+        const encoded = mod.scannedBigintsEncode(value);
+        const decoded = mod.scannedBigintsDecode(encoded);
+        assert(decoded.success, decoded.success ? '' : JSON.stringify(decoded.errors));
+        assert(mod.scannedBigintsEquals(decoded.value, value), encoded);
+    }
+    assert(
+        !mod.scannedBigintsDecode(JSON.stringify({ one: '2', some: '-1', maybe: null })).success
+    );
+    assert(!mod.scannedBigintsDecode(JSON.stringify({ one: '1', some: '5', maybe: null })).success);
+});

@@ -34,3 +34,16 @@ export interface ScannedGroups {
     either: (string) | Record<string, ''>;
     pair: [']?)', 4?];
 }
+
+/** @derive(Debug, PartialEq, Encode, Decode) */
+export interface ScannedUnions {
+    pair: string | [number, string?];
+    rest: string | ['a', ...number[]];
+}
+
+/** @derive(Debug, PartialEq, Encode, Decode) */
+export interface ScannedBigints {
+    one: 1n;
+    some: -1n | 1_000n;
+    maybe: 2n | null;
+}
