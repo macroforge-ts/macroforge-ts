@@ -35,6 +35,9 @@ function warmCache() {
 // Module cache for compiled files
 const moduleCache = new Map();
 
+/** The TypeScript sources a specifier's extension names, as TypeScript resolves it. */
+const COMPILED_FROM = { '.js': ['.ts', '.tsx'], '.mjs': ['.mts'], '.cjs': ['.cts'] };
+
 /**
  * Expand macros in a TypeScript file via the cache and compile it
  */
@@ -65,11 +68,18 @@ export async function expandAndCompile(filePath) {
     fs.writeFileSync(tempFile, expandedCode);
 
     // Sibling modules the expanded code imports, such as a `custom` validator's
-    // `source`, are compiled into the same directory so the import resolves.
+    // `source`, are compiled into the same directory so the import resolves: by
+    // the name written, the TypeScript source it compiles from, or with `.ts`.
     for (const [, specifier] of expandedCode.matchAll(/from\s+["'](\.\/[^"']+)["']/g)) {
         const sibling = path.resolve(path.dirname(filePath), specifier);
-        const siblingFile = existsSync(sibling) ? sibling : `${sibling}.ts`;
-        if (existsSync(siblingFile)) {
+        const extension = path.extname(sibling);
+        const sources = COMPILED_FROM[extension] ?? [];
+        const siblingFile = [
+            sibling,
+            ...sources.map((source) => sibling.slice(0, -extension.length) + source),
+            `${sibling}.ts`
+        ].find((candidate) => existsSync(candidate));
+        if (siblingFile !== undefined) {
             await expandAndCompile(siblingFile);
         }
     }

@@ -1,6 +1,6 @@
 //! Per-file scan cache with mtime+size invalidation.
 //!
-//! A scan lowers every `.ts/.tsx` file in the project. The cache keeps what
+//! A scan lowers every TypeScript module in the project. The cache keeps what
 //! each file lowered to, keyed on its absolute path and `(mtime_ns, size)`,
 //! so a rescan only parses the files that moved on disk.
 //!
@@ -25,7 +25,7 @@ use crate::host::declarative::project_registry::FileMacros;
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, ModuleReExport};
 use crate::ts_syn::abi::ir::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR};
 
-/// Everything the scanner produces for a single `.ts/.tsx` file, plus the
+/// Everything the scanner produces for a single TypeScript module, plus the
 /// `(mtime_ns, size)` tuple used to decide whether the entry is still current.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CacheEntry {

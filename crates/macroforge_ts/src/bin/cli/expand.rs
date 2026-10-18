@@ -4,6 +4,7 @@ use macroforge_ts::host::MacroExpansion;
 use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::line_index::LineIndex;
 use macroforge_ts::ts_syn::abi::{Diagnostic, DiagnosticLevel};
+use macroforge_ts::ts_syn::source_path::{declaration_path, is_typescript_source};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -120,12 +121,7 @@ pub fn scan_and_expand(
             continue;
         }
 
-        let is_ts_file = path
-            .extension()
-            .is_some_and(|ext| ext == "ts" || ext == "tsx")
-            && !filename.ends_with(".d.ts");
-
-        if is_ts_file {
+        if is_typescript_source(&filename) {
             ts_files.push(path.to_path_buf());
         } else if opts.out_dir.is_some() {
             passthrough_files.push(path.to_path_buf());
@@ -536,14 +532,10 @@ pub(crate) fn get_expanded_path(input: &Path) -> PathBuf {
 /// preserving directory structure and any middle extensions.
 ///
 /// Examples: `User.ts` → `User.d.ts`, `types/person-name.svelte.ts` →
-/// `types/person-name.svelte.d.ts`, `Button.tsx` → `Button.d.ts`.
+/// `types/person-name.svelte.d.ts`, `Button.tsx` → `Button.d.ts`,
+/// `User.mts` → `User.d.mts`.
 pub(crate) fn type_surface_rel_path(rel: &Path) -> PathBuf {
-    let filename = rel.file_name().unwrap_or_default().to_string_lossy();
-    let stem = filename
-        .strip_suffix(".ts")
-        .or_else(|| filename.strip_suffix(".tsx"))
-        .unwrap_or(&filename);
-    let new_name = format!("{stem}.d.ts");
+    let new_name = declaration_path(&rel.file_name().unwrap_or_default().to_string_lossy());
 
     match rel.parent() {
         Some(parent) if !parent.as_os_str().is_empty() => parent.join(new_name),

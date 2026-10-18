@@ -7,6 +7,7 @@ use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMember, TypeMemberKind};
 use crate::ts_syn::abi::{DecoratorIR, Diagnostic, DiagnosticLevel, InterfaceFieldIR, SpanIR};
 use crate::ts_syn::import_registry::SourceImportEntry;
 use crate::ts_syn::scan::Quoting;
+use crate::ts_syn::source_path::{ModuleKind, module_kind};
 
 use super::DERIVE_MODULE_PATH;
 use super::derive_targets::{DeriveTarget, DeriveTargetIR, diagnostic_span_for_derive};
@@ -1036,17 +1037,13 @@ pub(super) fn check_unattached_derives(
 /// What a file holds, by its name: TypeScript a derive can add code to, or
 /// something a derive's code cannot go into.
 fn unexpandable_file(file_name: &str) -> Option<&'static str> {
-    let name = file_name.to_ascii_lowercase();
-    if [".d.ts", ".d.mts", ".d.cts"]
-        .iter()
-        .any(|ending| name.ends_with(ending))
-    {
-        return Some("is a declaration file, which holds no code, and a derive generates code");
+    match module_kind(file_name)? {
+        ModuleKind::TypeScript => None,
+        ModuleKind::Declaration => {
+            Some("is a declaration file, which holds no code, and a derive generates code")
+        }
+        ModuleKind::JavaScript => Some("is a JavaScript file, and a derive generates TypeScript"),
     }
-    [".js", ".mjs", ".cjs", ".jsx"]
-        .iter()
-        .any(|ending| name.ends_with(ending))
-        .then_some("is a JavaScript file, and a derive generates TypeScript")
 }
 
 /// Takes out of `targets` each type with a built-in derive that the code a

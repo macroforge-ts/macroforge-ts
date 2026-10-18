@@ -2,15 +2,17 @@
  * svelte-package wrapper: spawned by the CLI's `run_svelte_package_wrapper`.
  *
  * Macro expansion has already happened by the time this runs. The CLI expands
- * the changed `.ts`/`.svelte.ts` modules in parallel, up front, into a tree
+ * the changed TypeScript modules in parallel, up front, into a tree
  * under `.macroforge/svelte-package/expanded/`; this script's only job is to
  * make @sveltejs/package read that tree instead of the raw sources, so the
  * published package ships the generated derive runtime and correct `.d.ts`.
  *
- * Two read paths are covered, both routed through `globalThis.__macroforgeExpanded`:
+ * Three paths are covered, each routed through `globalThis.__macroforgeExpanded`:
  *   - JS emit: svelte-package reads source via `import * as fs from 'node:fs'`.
  *     A resolve hook registered with `registerHooks` redirects `node:fs` to a
  *     shim whose `readFileSync` calls us.
+ *   - Copies: the `.tsx`, `.mts` and `.cts` modules it does not compile are
+ *     copied through the shim's `copyFileSync`, which writes the expanded source.
  *   - .d.ts emit: svelte2tsx reads `.ts` sources through `ts.sys.readFile`,
  *     which we monkeypatch directly (a writable property on the ts.sys object).
  *
@@ -169,15 +171,12 @@ globalThis.__macroforgeManifest = function (filePath) {
     return JSON.stringify(manifest);
 };
 
-// Every `.ts` module the CLI expanded is read at least once by the packager, so
-// one that was never served means the redirect never matched its path, and the
-// package being written right now contains its raw source. Failing here is what
-// keeps that from being discovered by whoever installs the published library.
-// `.tsx` is excluded: the packager copies those with `copyFileSync`, which never
-// reaches a read hook at all.
+// Every module the CLI expanded is read or copied at least once by the packager,
+// so one that was never served means the redirect never matched its path, and
+// the package being written right now contains its raw source. Failing here is
+// what keeps that from being discovered by whoever installs the published library.
 process.on('exit', () => {
-    const required = [...entries].filter((rel) => rel.endsWith('.ts'));
-    const missed = required.filter((rel) => !served.has(rel));
+    const missed = [...entries].filter((rel) => !served.has(rel));
     if (missed.length === 0) return;
 
     console.error(

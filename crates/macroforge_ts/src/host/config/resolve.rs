@@ -29,6 +29,7 @@ use macroforge_ts_syn::config::{
     BuildtimeConfig, CfgFlags, DeprecatedConfig, ForeignTypeConfig, ImportInfo, MacroforgeConfig,
     MustUseConfig, NonExhaustiveConfig,
 };
+use macroforge_ts_syn::source_path::sources_compiled_to;
 
 /// The fields one config source sets. A field left `None` is inherited from
 /// the layers beneath it, or takes its default.
@@ -663,15 +664,10 @@ fn resolve_file(candidate: &Path) -> io::Result<Option<PathBuf>> {
     if is_file(candidate)? {
         return Ok(Some(candidate.to_path_buf()));
     }
-    let compiled_from: &[&str] = match candidate
+    let compiled_from = candidate
         .extension()
         .and_then(|extension| extension.to_str())
-    {
-        Some("js") => &["ts", "tsx"],
-        Some("mjs") => &["mts"],
-        Some("cjs") => &["cts"],
-        _ => &[],
-    };
+        .map_or(&[][..], sources_compiled_to);
     for source in compiled_from {
         let source_path = candidate.with_extension(source);
         if is_file(&source_path)? {

@@ -32,6 +32,10 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use super::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR, TypeBody, TypeMemberKind};
+use crate::source_path::{
+    JAVASCRIPT_EXTENSIONS, TYPESCRIPT_EXTENSIONS, has_extension, sources_compiled_to,
+    strip_source_extension,
+};
 
 /// The kind of IR stored in a registry entry.
 ///
@@ -1393,14 +1397,6 @@ fn without_spans<'a>(
         .collect()
 }
 
-/// `path` without one trailing source extension.
-fn strip_source_extension(path: &str) -> &str {
-    [".ts", ".tsx", ".js", ".mjs", ".cjs"]
-        .iter()
-        .find_map(|extension| path.strip_suffix(extension))
-        .unwrap_or(path)
-}
-
 /// Extract the module-name portion of an import path, dropping leading
 /// relative prefixes (`./`, `../`, repeated `../../`) and any trailing
 /// source extension. `./record-link.svelte` → `record-link.svelte`,
@@ -1482,8 +1478,9 @@ pub fn module_gives_functions(
             .any(|again| again.whole && is_module(&again.file_path))
 }
 
-/// The extension-less path a relative specifier resolves to from the file at
-/// `caller_file_path`, or `None` for a bare or aliased specifier.
+/// The path a relative specifier resolves to from the file at
+/// `caller_file_path`, with the extension the specifier wrote, or `None` for
+/// a bare or aliased specifier.
 pub fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -> Option<String> {
     let specifier = module_specifier.trim();
     if caller_file_path.is_empty() || !(specifier.starts_with("./") || specifier.starts_with("../"))
@@ -1502,14 +1499,36 @@ pub fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -
             other => segments.push(other),
         }
     }
-    Some(strip_source_extension(&segments.join("/")).to_string())
+    Some(segments.join("/"))
 }
 
-/// Whether the file at `file_path` is the module at `module_path`, an
-/// extension-less path. A `.svelte` sub-extension still counts as the same
-/// module, and a directory import resolves to its `index`.
+/// Whether the file at `file_path` is the module at `module_path`, as
+/// TypeScript resolves it. A path with a JavaScript extension names that file
+/// or the sources it compiles from, and one with a TypeScript extension names
+/// that file. One without either names a `.ts`, `.tsx`, `.d.ts` or `.js`
+/// file, never a `.mts` or `.cts` one: a `.svelte` sub-extension still counts
+/// as the same module, and a directory import resolves to its `index`.
 pub fn file_path_is_module(file_path: &str, module_path: &str) -> bool {
     let file_path = slashed(file_path);
+    if has_extension(module_path, &TYPESCRIPT_EXTENSIONS) {
+        return file_path == module_path;
+    }
+    if has_extension(module_path, &JAVASCRIPT_EXTENSIONS) {
+        let stem = strip_source_extension(module_path);
+        let compiled_from = module_path
+            .rsplit_once('.')
+            .map_or(&[][..], |(_, extension)| sources_compiled_to(extension));
+        return file_path == module_path
+            || compiled_from.iter().any(|source| {
+                file_path
+                    .strip_prefix(stem)
+                    .and_then(|rest| rest.strip_prefix('.'))
+                    .is_some_and(|rest| rest == *source || rest == format!("d.{source}"))
+            });
+    }
+    if has_extension(&file_path, &[".mts", ".cts", ".mjs", ".cjs"]) {
+        return false;
+    }
     let trimmed = strip_source_extension(&file_path);
     trimmed == module_path
         || trimmed
@@ -2173,6 +2192,36 @@ mod tests {
         assert_eq!(
             nested.map(|entry| entry.file_path.as_str()),
             Some("/project/src/lib/idp/index.ts")
+        );
+    }
+
+    #[test]
+    fn resolve_in_file_follows_a_specifier_to_the_module_kind_it_compiles_from() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.mts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Order", "/project/src/order.cts", vec![]),
+            "/project",
+        );
+        let caller = "/project/src/app.mts";
+        let resolved =
+            registry.resolve_in_file("User", caller, &[import_from("User", "./user.mjs")]);
+        assert_eq!(
+            resolved.map(|entry| entry.file_path.as_str()),
+            Some("/project/src/user.mts")
+        );
+        let resolved =
+            registry.resolve_in_file("Order", caller, &[import_from("Order", "./order.cjs")]);
+        assert_eq!(
+            resolved.map(|entry| entry.file_path.as_str()),
+            Some("/project/src/order.cts")
         );
     }
 

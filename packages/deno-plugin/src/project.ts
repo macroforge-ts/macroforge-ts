@@ -1,8 +1,8 @@
 /**
  * @module @macroforge/deno-plugin/project
  *
- * Project-wide expansion: walk a directory tree, expand every `.ts`/`.tsx`
- * file containing macro annotations, and write the output to a mirror
+ * Project-wide expansion: walk a directory tree, expand every TypeScript
+ * module containing macro annotations, and write the output to a mirror
  * directory. This is the workflow that lets you run a Deno app without
  * Vite: point Deno at the mirror via an `imports` entry in `deno.json`.
  */
@@ -11,6 +11,7 @@ import * as path from '@std/path';
 import { ensureDir, walk } from '@std/fs';
 import { escape } from '@std/regexp';
 import { hasMacroAnnotations } from '@macroforge/core';
+import { TYPESCRIPT_EXTENSIONS } from '@macroforge/shared';
 import { expand, type ExpandOptions, residentRegistries } from './index.ts';
 
 /** Options for expanding a whole project tree into a mirror directory. */
@@ -19,7 +20,7 @@ export interface ExpandProjectOptions extends ExpandOptions {
     root?: string;
     /** Output directory (relative to `root`). Defaults to `.macroforge/cache`. */
     outDir?: string;
-    /** Glob-like extensions to include. Defaults to `['.ts', '.tsx']`. */
+    /** Glob-like extensions to include. Defaults to `['.ts', '.tsx', '.mts', '.cts']`. */
     extensions?: string[];
     /** Subpath substrings to skip. Defaults to common build/cache dirs. */
     exclude?: string[];
@@ -57,8 +58,6 @@ const DEFAULT_EXCLUDES = [
     '/build/',
     '/.git/'
 ];
-
-const DEFAULT_EXTENSIONS = ['.ts', '.tsx'];
 
 /**
  * A pattern for an excluded path segment. A segment that ends in `/` names a
@@ -252,7 +251,7 @@ function projectLayout(options: ExpandProjectOptions) {
         root,
         outDir,
         skip,
-        extensions: options.extensions ?? DEFAULT_EXTENSIONS,
+        extensions: options.extensions ?? [...TYPESCRIPT_EXTENSIONS],
         copyPassthrough: options.copyPassthrough ?? false
     };
 }

@@ -102,6 +102,7 @@ pub mod lower;
 pub mod preamble;
 mod quote_helpers;
 pub mod scan;
+pub mod source_path;
 #[cfg(any(test, feature = "proptest"))]
 pub mod strategies;
 pub mod stream;

@@ -5,7 +5,7 @@
  */
 
 import { assert, assertEquals } from '@std/assert';
-import { join } from '@std/path';
+import { basename, join } from '@std/path';
 import { type ExpandFileEvent, expandProject, watchProject } from '../src/project.ts';
 
 const GOOD = '/** @derive(Default) */\nexport interface Good {\n    count: number;\n}\n';
@@ -72,6 +72,44 @@ Deno.test('a file whose expansion reports an error is not written', async () => 
             written = false;
         }
         assertEquals(written, false, 'a failed file leaves nothing in the mirror');
+    } finally {
+        await Deno.remove(root, { recursive: true });
+    }
+});
+
+Deno.test('every kind of TypeScript module is expanded, and imported as it compiles', async () => {
+    const root = await Deno.makeTempDir({ prefix: 'macroforge-deno-plugin-' });
+    try {
+        await Deno.writeTextFile(join(root, 'deno.json'), '{}\n');
+        await Deno.writeTextFile(join(root, 'esm.mts'), GOOD.replaceAll('Good', 'Esm'));
+        await Deno.writeTextFile(join(root, 'common.cts'), GOOD.replaceAll('Good', 'Common'));
+        await Deno.writeTextFile(
+            join(root, 'holder.ts'),
+            "import type { Esm } from './esm.mjs';\n" +
+                "import type { Common } from './common.cjs';\n\n" +
+                '/** @derive(Default) */\nexport interface Holder {\n    esm: Esm;\n    common: Common;\n}\n'
+        );
+
+        const events = await expandProject({ root, outDir: 'out' });
+        assertEquals(
+            events.map((event) => [basename(event.source), event.expanded]).sort(),
+            [['common.cts', true], ['esm.mts', true], ['holder.ts', true]]
+        );
+        assert((await Deno.readTextFile(join(root, 'out', 'esm.mts'))).includes('esmDefaultValue'));
+        assert(
+            (await Deno.readTextFile(join(root, 'out', 'common.cts'))).includes(
+                'commonDefaultValue'
+            )
+        );
+        const holder = await Deno.readTextFile(join(root, 'out', 'holder.ts'));
+        assert(
+            /import \{[^}]*esmDefaultValue[^}]*\} from ['"]\.\/esm\.mjs['"]/.test(holder),
+            holder
+        );
+        assert(
+            /import \{[^}]*commonDefaultValue[^}]*\} from ['"]\.\/common\.cjs['"]/.test(holder),
+            holder
+        );
     } finally {
         await Deno.remove(root, { recursive: true });
     }

@@ -369,15 +369,18 @@ fn lower_files(
 fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntry> {
     use oxc::allocator::Allocator;
     use oxc::parser::Parser;
-    use oxc::span::SourceType;
 
     let file_name = path.to_string_lossy();
     let source = file_access::read_to_string(path)?;
     let uses_macros = crate::has_macro_annotations(&source, &file_name);
 
     let allocator = Allocator::default();
-    let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
-    let ret = Parser::new(&allocator, &source, source_type).parse();
+    let ret = Parser::new(
+        &allocator,
+        &source,
+        crate::source_type::for_path(&file_name),
+    )
+    .parse();
 
     if !ret.diagnostics.is_empty() {
         let messages: Vec<String> = ret.diagnostics.iter().map(ToString::to_string).collect();

@@ -9,7 +9,6 @@ use crate::cache::{
 use crate::expand::{format_diagnostic, get_expanded_path, type_surface_rel_path};
 use crate::hash_cache::HashCache;
 use crate::lock::{ProjectLock, resolve_project_root};
-use crate::package_expand::is_expandable;
 use crate::package_state::{
     FileStamp, PackageInputs, PackageState, Resolutions, ResolvedPackageConfig, declarative_hash,
     diff_files, output_fingerprint, project_hash, scan_input, state_dir,
@@ -95,6 +94,18 @@ fn test_type_surface_rel_path_tsx() {
     assert_eq!(
         type_surface_rel_path(rel),
         PathBuf::from("components/Button.d.ts")
+    );
+}
+
+#[test]
+fn test_type_surface_rel_path_module_kinds() {
+    assert_eq!(
+        type_surface_rel_path(Path::new("models/user.mts")),
+        PathBuf::from("models/user.d.mts")
+    );
+    assert_eq!(
+        type_surface_rel_path(Path::new("models/user.cts")),
+        PathBuf::from("models/user.d.cts")
     );
 }
 
@@ -1028,18 +1039,6 @@ fn test_external_macro_hash_ignores_packages_without_the_marker() {
         compute_external_macro_hash(&project, &mut HashCache::default()),
         "none"
     );
-}
-
-#[test]
-fn test_is_expandable_covers_sources_but_not_declarations() {
-    assert!(is_expandable("types/user.ts"));
-    assert!(is_expandable("types/order.svelte.ts"));
-    assert!(is_expandable("component.tsx"));
-
-    assert!(!is_expandable("types/user.d.ts"));
-    assert!(!is_expandable("index.js"));
-    assert!(!is_expandable("Card.svelte"));
-    assert!(!is_expandable("styles.css"));
 }
 
 // =========================================================================

@@ -4,6 +4,7 @@ use macroforge_ts::host::declarative::ProjectDeclarativeRegistry;
 use macroforge_ts::host::file_stamp::FileStamp;
 use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
+use macroforge_ts::ts_syn::source_path::is_typescript_source;
 use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -302,14 +303,10 @@ pub(crate) fn write_cache_file(
     )
 }
 
-/// Returns true if `path` is a `.ts` or `.tsx` file that should be processed.
+/// Returns true if `path` is a TypeScript module that should be processed.
 pub(crate) fn is_watchable_ts_file(path: &Path, root: &Path) -> bool {
-    let ext = path.extension().and_then(|e| e.to_str());
-    if !matches!(ext, Some("ts" | "tsx")) {
-        return false;
-    }
     let name = path.file_name().unwrap_or_default().to_string_lossy();
-    if name.ends_with(".d.ts") || name.contains(".expanded.") {
+    if !is_typescript_source(&name) || name.contains(".expanded.") {
         return false;
     }
     let rel = path.strip_prefix(root).unwrap_or(path).to_string_lossy();

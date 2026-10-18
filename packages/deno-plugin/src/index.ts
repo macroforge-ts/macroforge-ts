@@ -5,7 +5,7 @@
  *
  * Deno has no public loader-hook API equivalent to Node's `--loader` flag,
  * so this package takes the file-on-disk approach: walk the project, expand
- * `.ts` / `.tsx` files, and write the expanded output to a mirror directory
+ * its TypeScript modules, and write the expanded output to a mirror directory
  * (`.macroforge/cache/` by default). Point Deno at the mirror via an
  * `imports` / `scopes` entry in `deno.json`, or via path mapping in your
  * task script.

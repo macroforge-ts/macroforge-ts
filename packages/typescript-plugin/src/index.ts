@@ -97,7 +97,9 @@ import path from 'node:path';
 import {
     getExternalDecoratorInfo,
     getExternalMacroInfo,
-    loadMacroConfig
+    JAVASCRIPT_EXTENSIONS,
+    loadMacroConfig,
+    TYPESCRIPT_EXTENSIONS
 } from '@macroforge/shared';
 
 // Create require for external package loading
@@ -705,8 +707,9 @@ function getMacroHoverInfo(
  * File extensions that the plugin will process for macro expansion.
  * @internal
  */
-// A JavaScript file is read so a derive in it reports the error that refuses it.
-const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte', '.js', '.jsx'];
+// A JavaScript or declaration file is read so a derive in it reports the error
+// that refuses it.
+const FILE_EXTENSIONS = [...TYPESCRIPT_EXTENSIONS, '.svelte', ...JAVASCRIPT_EXTENSIONS];
 
 /**
  * Determines whether a file should be processed for macro expansion.
@@ -723,7 +726,7 @@ const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte', '.js', '.jsx'];
  * - Are in `node_modules` (dependencies should not be processed)
  * - Are in the `.macroforge` cache directory
  * - End with `.macroforge.d.ts` (generated type declaration files)
- * - Don't have a supported extension (`.ts`, `.tsx`, `.svelte`, `.js`, `.jsx`)
+ * - Don't have a supported extension: a TypeScript or JavaScript module, or `.svelte`
  *
  * @example
  * ```typescript
@@ -734,12 +737,11 @@ const FILE_EXTENSIONS = ['.ts', '.tsx', '.svelte', '.js', '.jsx'];
  * ```
  */
 function shouldProcess(fileName: string) {
-    const lower = fileName.toLowerCase();
-    if (lower.includes('node_modules')) return false;
+    if (fileName.toLowerCase().includes('node_modules')) return false;
     if (fileName.includes(`${path.sep}.macroforge${path.sep}`)) return false;
     // Skip generated .d.ts files
     if (fileName.endsWith('.macroforge.d.ts')) return false;
-    return FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
+    return FILE_EXTENSIONS.some((extension) => fileName.endsWith(extension));
 }
 
 /**

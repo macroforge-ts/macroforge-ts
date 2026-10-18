@@ -237,6 +237,85 @@ fn scan_with_out_dir_mirrors_expanded_tree() {
 }
 
 #[test]
+fn every_kind_of_typescript_module_is_expanded_cached_and_declared() {
+    let temp = TempDir::new().unwrap();
+    let root = temp.path();
+    std::fs::write(root.join("package.json"), "{ \"name\": \"kinds\" }").unwrap();
+    let src = root.join("src");
+    std::fs::create_dir_all(&src).unwrap();
+    for (name, type_name) in [("esm.mts", "Esm"), ("common.cts", "Common")] {
+        std::fs::write(
+            src.join(name),
+            format!(
+                "/** @derive(Default) */\nexport interface {type_name} {{\n  count: number;\n}}\n"
+            ),
+        )
+        .unwrap();
+    }
+    std::fs::write(
+        src.join("holder.ts"),
+        "import type { Esm } from './esm.mjs';\nimport type { Common } from './common.cjs';\n\n\
+         /** @derive(Default) */\nexport interface Holder {\n  esm: Esm;\n  common: Common;\n}\n",
+    )
+    .unwrap();
+
+    let output = macroforge_bin()
+        .current_dir(root)
+        .args([
+            "expand",
+            "--scan",
+            "src",
+            "--out",
+            "staging",
+            "--types-out",
+            "types",
+        ])
+        .output()
+        .expect("failed to run macroforge");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let staged = |name: &str| std::fs::read_to_string(root.join("staging").join(name)).unwrap();
+    assert!(staged("esm.mts").contains("esmDefaultValue"));
+    assert!(staged("common.cts").contains("commonDefaultValue"));
+    // Each type's functions are imported by the name its module compiles to.
+    let holder = staged("holder.ts");
+    let imports = |function: &str, module: &str| {
+        holder.lines().any(|line| {
+            line.starts_with("import") && line.contains(function) && line.contains(module)
+        })
+    };
+    assert!(imports("esmDefaultValue", "./esm.mjs"), "{holder}");
+    assert!(imports("commonDefaultValue", "./common.cjs"), "{holder}");
+    assert!(
+        root.join("types/esm.d.mts").is_file(),
+        "{:?}",
+        list_files(&root.join("types"))
+    );
+    assert!(root.join("types/common.d.cts").is_file());
+
+    let output = macroforge_bin()
+        .arg("cache")
+        .arg(root)
+        .output()
+        .expect("failed to run macroforge");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let cache = root.join(".macroforge/cache/src");
+    assert!(
+        cache.join("esm.mts.cache").is_file(),
+        "{:?}",
+        list_files(&cache)
+    );
+    assert!(cache.join("common.cts.cache").is_file());
+}
+
+#[test]
 fn scan_with_types_out_dir_writes_type_surfaces() {
     let temp = TempDir::new().unwrap();
     setup_scan_fixture(temp.path());

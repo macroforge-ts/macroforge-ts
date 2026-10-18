@@ -55,6 +55,7 @@ use std::collections::HashMap;
 use crate::abi::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::abi::{ClassIR, EnumIR, FunctionIR, InterfaceIR, SpanIR, TypeAliasIR};
 use crate::import_registry::ImportRegistry;
+use crate::source_path::import_specifier_path;
 use serde::{Deserialize, Serialize};
 
 /// The kind of macro being executed.
@@ -591,23 +592,14 @@ impl MacroContextIR {
 }
 
 /// Computes a TypeScript module specifier for `target_file` relative to the
-/// directory containing `current_file`. Strips `.svelte.ts` → `.svelte`,
-/// `.tsx` → empty, `.ts` → empty, and prepends `./` for sibling/descendant
-/// paths.
+/// directory containing `current_file`, named as [`import_specifier_path`]
+/// names it, with `./` before a sibling or descendant path.
 pub fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
     use std::path::Path;
     let from = Path::new(current_file).parent()?;
     let to = Path::new(target_file);
     let rel = pathdiff::diff_paths(to, from)?;
-    let mut s = rel.to_string_lossy().replace('\\', "/");
-
-    if let Some(stripped) = s.strip_suffix(".svelte.ts") {
-        s = format!("{stripped}.svelte");
-    } else if let Some(stripped) = s.strip_suffix(".tsx") {
-        s = stripped.to_string();
-    } else if let Some(stripped) = s.strip_suffix(".ts") {
-        s = stripped.to_string();
-    }
+    let mut s = import_specifier_path(&rel.to_string_lossy().replace('\\', "/"));
 
     if !s.starts_with('.') && !s.starts_with('/') {
         s = format!("./{s}");
@@ -774,6 +766,21 @@ mod import_specifier_tests {
         assert_eq!(
             ctx.import_specifier_for("Component"),
             Some("./component".to_string())
+        );
+    }
+
+    #[test]
+    fn module_kinds_are_named_by_what_they_compile_to() {
+        let mut ctx = make_ctx("/foo/order.ts");
+        ctx.type_registry = registry_with("Customer", "/foo/models/customer.mts");
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./models/customer.mjs".to_string())
+        );
+        ctx.type_registry = registry_with("Customer", "/foo/models/customer.cts");
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./models/customer.cjs".to_string())
         );
     }
 }

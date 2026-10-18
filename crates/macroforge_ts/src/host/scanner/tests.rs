@@ -9,7 +9,7 @@ use crate::ts_syn::{collect_exported_names, collect_file_imports, lower_interfac
 #[test]
 fn test_scan_config_defaults() {
     let config = ScanConfig::default();
-    assert_eq!(config.extensions, vec![".ts", ".tsx"]);
+    assert_eq!(config.extensions, vec![".ts", ".tsx", ".mts", ".cts"]);
     assert!(config.skip_dirs.contains("node_modules"));
     assert!(config.skip_dirs.contains("dist"));
     assert!(!config.exported_only);
@@ -56,6 +56,44 @@ fn skipped_directories_are_skipped_below_the_root_only() {
         .nth(2)
         .expect("the fixture root has a temp parent");
     std::fs::remove_dir_all(top).expect("remove fixture");
+}
+
+#[test]
+fn every_kind_of_typescript_module_is_scanned() {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    let root = std::env::temp_dir().join(format!("macroforge_kinds_{nanos}"));
+    std::fs::create_dir_all(&root).expect("create fixture dir");
+    // `export const` without a value is a declaration file's form only.
+    for (name, source) in [
+        ("plain.ts", "export interface Plain { id: string; }\n"),
+        ("esm.mts", "export interface Esm { id: string; }\n"),
+        ("common.cts", "export interface Common { id: string; }\n"),
+        (
+            "ambient.d.ts",
+            "export const LIMIT: number;\nexport interface Ambient { id: string; }\n",
+        ),
+        (
+            "esm-ambient.d.mts",
+            "export const LIMIT: number;\nexport interface EsmAmbient { id: string; }\n",
+        ),
+    ] {
+        std::fs::write(root.join(name), source).expect("write source");
+    }
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    std::fs::remove_dir_all(&root).expect("remove fixture");
+    assert_eq!(output.files_scanned, 5, "{:?}", output.warnings);
+    for name in ["Plain", "Esm", "Common", "Ambient", "EsmAmbient"] {
+        assert!(
+            output.registry.get(name).is_some(),
+            "{name} was not scanned"
+        );
+    }
 }
 
 fn parse<'a>(allocator: &'a Allocator, source: &'a str, file_name: &str) -> Program<'a> {

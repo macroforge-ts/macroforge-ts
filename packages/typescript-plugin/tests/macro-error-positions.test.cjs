@@ -751,6 +751,43 @@ test('a derive in a JavaScript file reports the error that refuses it', () => {
     assert.equal(refused.start, source.indexOf('@derive'));
 });
 
+test('a derive in a .mts or .cts module is expanded, and one in a .mjs file refused', () => {
+    // Unexpanded, `E.clone` would be no member of `E`.
+    const source =
+        `/** @derive(Clone) */\nexport class E { id: string = ''; }\nexport const copy: E = E.clone(new E());\n`;
+    const messagesOf = (file) =>
+        createEnv({
+            [file]: source,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        })
+            .pluginService.getSemanticDiagnostics(file)
+            .map((d) => d.messageText);
+    const asTypeScript = messagesOf('/virtual/plain.ts');
+    assert(
+        !asTypeScript.some((message) => String(message).includes("'clone'")),
+        asTypeScript.join('\n')
+    );
+    for (const file of ['/virtual/esm.mts', '/virtual/common.cts']) {
+        assert.deepEqual(messagesOf(file), asTypeScript, `${file} is expanded as a .ts module is`);
+    }
+
+    const script = `/** @derive(Debug) */\nclass E { id = ''; }\n`;
+    const env = createEnv(
+        {
+            '/virtual/plain.mjs': script,
+            '/virtual/macros.ts': MACROS_DTS,
+            '/virtual/lib.d.ts': LIB_DTS
+        },
+        { allowJs: true }
+    );
+    const refused = env.pluginService
+        .getSemanticDiagnostics('/virtual/plain.mjs')
+        .find((d) => d.source === 'macroforge');
+    assert(refused, 'the derive is refused');
+    assert.match(refused.messageText, /JavaScript file/);
+});
+
 test('a subclass overrides the statics a base in its file derives', () => {
     const source = `/** @derive(Clone, PartialEq, Hash, Default) */
 export class Base { id: string = ''; }

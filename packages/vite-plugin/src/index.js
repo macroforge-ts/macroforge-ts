@@ -47,7 +47,13 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as engine from '@macroforge/core';
-import { loadMacroConfig, sourceMapOf } from '@macroforge/shared';
+import {
+    DECLARATION_ENDINGS,
+    declarationFileOf,
+    loadMacroConfig,
+    sourceMapOf,
+    TYPESCRIPT_EXTENSIONS
+} from '@macroforge/shared';
 
 /** @type {typeof import('typescript') | undefined} */
 let tsModule;
@@ -270,7 +276,7 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
         /** @type {string} */ outputName,
         /** @type {string} */ text
     ) => {
-        if (outputName.endsWith('.d.ts')) {
+        if (DECLARATION_ENDINGS.some((ending) => outputName.endsWith(ending))) {
             output = text;
         }
     };
@@ -1032,8 +1038,11 @@ export async function macroforge() {
      * @returns {string}
      */
     function typesPathFor(id) {
-        const parsed = path.parse(containedPath(path.relative(projectRoot, id)));
-        return path.join(projectRoot, typesOutputDir, parsed.dir, `${parsed.name}.d.ts`);
+        return path.join(
+            projectRoot,
+            typesOutputDir,
+            declarationFileOf(containedPath(path.relative(projectRoot, id)))
+        );
     }
 
     /**
@@ -1316,8 +1325,9 @@ export async function macroforge() {
          * @param {string} id
          */
         async transform(code, id) {
-            // Only transform TypeScript files
-            if (!id.endsWith('.ts') && !id.endsWith('.tsx')) {
+            // Only transform TypeScript files: a declaration file among them, so
+            // a derive in one reports the error that refuses it.
+            if (!TYPESCRIPT_EXTENSIONS.some((extension) => id.endsWith(extension))) {
                 return null;
             }
 

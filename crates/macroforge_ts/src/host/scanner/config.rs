@@ -1,3 +1,4 @@
+use crate::ts_syn::source_path::TYPESCRIPT_EXTENSIONS;
 use std::collections::HashSet;
 use std::path::PathBuf;
 
@@ -6,7 +7,7 @@ pub struct ScanConfig {
     /// Project root directory.
     pub root_dir: PathBuf,
 
-    /// File extensions to scan (default: `[".ts", ".tsx"]`).
+    /// File extensions to scan (default: `[".ts", ".tsx", ".mts", ".cts"]`).
     pub extensions: Vec<String>,
 
     /// Directories to skip (default: common non-source dirs).
@@ -23,7 +24,7 @@ impl Default for ScanConfig {
     fn default() -> Self {
         Self {
             root_dir: PathBuf::from("."),
-            extensions: vec![".ts".into(), ".tsx".into()],
+            extensions: TYPESCRIPT_EXTENSIONS.map(String::from).to_vec(),
             skip_dirs: [
                 "node_modules",
                 ".git",
