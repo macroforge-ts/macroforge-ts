@@ -2,12 +2,14 @@
 //!
 //! Every package carries one version. `mf bump` writes it into every
 //! manifest, the Zed extensions' pinned npm versions, the Cargo locks and the
-//! Deno lock, then regenerates the docs, which record it: the API data, and
-//! the READMEs and MCP docs derived from it. Rerunning with `--version`
+//! Deno lock, rebuilds the packages so the testground apps' locks record it,
+//! then regenerates the docs, which record it: the API data, and the READMEs
+//! and MCP docs derived from it. Rerunning with `--version`
 //! finishes an interrupted bump.
 
 use crate::cli::args::BumpArgs;
 use crate::cli::commands::docs::{extract_api_docs, extract_derived_docs};
+use crate::cli::commands::verify::build_packages;
 use crate::core::config::Config;
 use crate::core::manifests;
 use crate::core::shell;
@@ -43,6 +45,9 @@ pub fn run(args: BumpArgs) -> Result<()> {
     }
     // The Deno lock records each workspace package at its version.
     shell::deno::install(&config.root).context("failed to update deno.lock")?;
+
+    println!("\n{}", "Rebuilding the packages".bold());
+    build_packages(&config)?;
 
     println!("\n{}", "Regenerating the docs".bold());
     extract_api_docs(&config.root)?;

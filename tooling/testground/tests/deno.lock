@@ -3,9 +3,9 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.13",
-    "npm:@macroforge/core@*": "0.5.0",
-    "npm:@macroforge/typescript-plugin@*": "0.5.0_typescript@6.0.3",
-    "npm:@macroforge/vite-plugin@*": "0.5.0_typescript@6.0.3_vite@7.2.7",
+    "npm:@macroforge/core@*": "0.6.0",
+    "npm:@macroforge/typescript-plugin@*": "0.6.0_typescript@6.0.3",
+    "npm:@macroforge/vite-plugin@*": "0.6.0_typescript@6.0.3_vite@7.2.7",
     "npm:@playwright/test@^1.63.0": "1.63.0",
     "npm:typescript@^6.0.3": "6.0.3",
     "npm:vite@~7.2.6": "7.2.7"
@@ -152,9 +152,9 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@macroforge/core@0.5.0": {},
-    "@macroforge/shared@0.5.0": {},
-    "@macroforge/typescript-plugin@0.5.0_typescript@6.0.3": {
+    "@macroforge/core@0.6.0": {},
+    "@macroforge/shared@0.6.0": {},
+    "@macroforge/typescript-plugin@0.6.0_typescript@6.0.3": {
       "dependencies": [
         "@macroforge/core",
         "@macroforge/shared",
@@ -164,7 +164,7 @@
         "typescript"
       ]
     },
-    "@macroforge/vite-plugin@0.5.0_typescript@6.0.3_vite@7.2.7": {
+    "@macroforge/vite-plugin@0.6.0_typescript@6.0.3_vite@7.2.7": {
       "dependencies": [
         "@macroforge/core",
         "@macroforge/shared",
@@ -467,12 +467,12 @@
       ]
     },
     "links": {
-      "npm:@macroforge/core@0.5.0": {},
-      "npm:@macroforge/shared@0.5.0": {},
-      "npm:@macroforge/typescript-plugin@0.5.0": {
+      "npm:@macroforge/core@0.6.0": {},
+      "npm:@macroforge/shared@0.6.0": {},
+      "npm:@macroforge/typescript-plugin@0.6.0": {
         "dependencies": [
-          "npm:@macroforge/core@0.5.0",
-          "npm:@macroforge/shared@0.5.0"
+          "npm:@macroforge/core@0.6.0",
+          "npm:@macroforge/shared@0.6.0"
         ],
         "peerDependencies": [
           "npm:typescript@>=5.0.0"
@@ -483,10 +483,10 @@
           }
         }
       },
-      "npm:@macroforge/vite-plugin@0.5.0": {
+      "npm:@macroforge/vite-plugin@0.6.0": {
         "dependencies": [
-          "npm:@macroforge/core@0.5.0",
-          "npm:@macroforge/shared@0.5.0"
+          "npm:@macroforge/core@0.6.0",
+          "npm:@macroforge/shared@0.6.0"
         ],
         "peerDependencies": [
           "npm:typescript@>=5.0.0",

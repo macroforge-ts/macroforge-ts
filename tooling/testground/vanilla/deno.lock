@@ -19,8 +19,8 @@
     "npm:@jsr/gigatypes__esnext@0.1.4": "0.1.4",
     "npm:@jsr/gigatypes__scripthost@0.1.4": "0.1.4",
     "npm:@jsr/gigatypes__webworker@0.1.4": "0.1.4",
-    "npm:@macroforge/core@*": "0.5.0",
-    "npm:@macroforge/vite-plugin@*": "0.5.0_typescript@6.0.3_vite@7.3.6__@types+node@22.20.4",
+    "npm:@macroforge/core@*": "0.6.0",
+    "npm:@macroforge/vite-plugin@*": "0.6.0_typescript@6.0.3_vite@7.3.6__@types+node@22.20.4",
     "npm:@types/node@^22.10.2": "22.20.4",
     "npm:effect@^3.19.4": "3.22.2",
     "npm:typescript@^6.0.3": "6.0.3",
@@ -347,9 +347,9 @@
       ],
       "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__webworker/0.1.4.tgz"
     },
-    "@macroforge/core@0.5.0": {},
-    "@macroforge/shared@0.5.0": {},
-    "@macroforge/vite-plugin@0.5.0_typescript@6.0.3_vite@7.3.6__@types+node@22.20.4": {
+    "@macroforge/core@0.6.0": {},
+    "@macroforge/shared@0.6.0": {},
+    "@macroforge/vite-plugin@0.6.0_typescript@6.0.3_vite@7.3.6__@types+node@22.20.4": {
       "dependencies": [
         "@macroforge/core",
         "@macroforge/shared",
@@ -686,15 +686,15 @@
       ]
     },
     "links": {
-      "npm:@macroforge/core@0.5.0": {},
-      "npm:@macroforge/shared@0.5.0": {},
-      "npm:@macroforge/vite-plugin@0.5.0": {
+      "npm:@macroforge/core@0.6.0": {},
+      "npm:@macroforge/shared@0.6.0": {},
+      "npm:@macroforge/vite-plugin@0.6.0": {
         "dependencies": [
-          "npm:@macroforge/core@0.5.0",
-          "npm:@macroforge/shared@0.5.0"
+          "npm:@macroforge/core@0.6.0",
+          "npm:@macroforge/shared@0.6.0"
         ],
         "peerDependencies": [
-          "npm:typescript@>=5.0.0",
+          "npm:typescript@5 || 6",
           "npm:vite@5 || 6 || 7 || 8"
         ],
         "peerDependenciesMeta": {
