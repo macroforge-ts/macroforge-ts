@@ -17,8 +17,8 @@ import { commissionsDecodeWithContext, commissionsEncodeWithContext } from "./co
 import { overviewSettingsDecodeWithContext, overviewSettingsEncodeWithContext, overviewSettingsDefaultValue } from "./overview-settings.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { scheduleSettingsDecodeWithContext, scheduleSettingsEncodeWithContext, scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -68,46 +68,112 @@ export function settingsDefaultValue(): Settings {
 export function settingsEncode(value: Settings, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = settingsEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return settingsEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Settings>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Settings",
         __id,
     };
 
-    
-    if (value.appointmentNotifications !== null) {
-        result.appointmentNotifications = appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
-    } else {
-        result.appointmentNotifications = null;
+    if (__fields === undefined || __fields.keeps("appointmentNotifications")) {
+        if (value.appointmentNotifications !== undefined) {
+
+            if (value.appointmentNotifications !== null) {
+                result.appointmentNotifications = appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
+            } else {
+                result.appointmentNotifications = null;
+            }
+        }
     }
-    if (value.commissions !== null) {
-        result.commissions = commissionsEncodeWithContext(value.commissions, ctx);
-    } else {
-        result.commissions = null;
+    if (__fields === undefined || __fields.keeps("commissions")) {
+        if (value.commissions !== undefined) {
+
+            if (value.commissions !== null) {
+                result.commissions = commissionsEncodeWithContext(value.commissions, ctx);
+            } else {
+                result.commissions = null;
+            }
+        }
     }
-    result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
-    result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
-    result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
-    result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
-    result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
-    result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
-    result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
-    result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
-    result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
-    result.homePage = pageEncodeWithContext(value.homePage, ctx);
+    if (__fields === undefined || __fields.keeps("scheduleSettings")) {
+
+        if (value.scheduleSettings !== undefined) {
+            result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("accountOverviewSettings")) {
+
+        if (value.accountOverviewSettings !== undefined) {
+            result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("serviceOverviewSettings")) {
+
+        if (value.serviceOverviewSettings !== undefined) {
+            result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("appointmentOverviewSettings")) {
+
+        if (value.appointmentOverviewSettings !== undefined) {
+            result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("leadOverviewSettings")) {
+
+        if (value.leadOverviewSettings !== undefined) {
+            result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("packageOverviewSettings")) {
+
+        if (value.packageOverviewSettings !== undefined) {
+            result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("productOverviewSettings")) {
+
+        if (value.productOverviewSettings !== undefined) {
+            result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("orderOverviewSettings")) {
+
+        if (value.orderOverviewSettings !== undefined) {
+            result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("taxRateOverviewSettings")) {
+
+        if (value.taxRateOverviewSettings !== undefined) {
+            result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("homePage")) {
+
+        if (value.homePage !== undefined) {
+            result.homePage = pageEncodeWithContext(value.homePage, ctx);
+        }
+    }
 
     return result;
 }
@@ -166,7 +232,13 @@ export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
@@ -180,52 +252,52 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("appointmentNotifications" in obj)) {
+    if ((__fields === undefined || __fields.requires("appointmentNotifications")) && !("appointmentNotifications" in obj)) {
         errors.push({ field: "appointmentNotifications", message: "missing required field" });
     }
-    if (!("commissions" in obj)) {
+    if ((__fields === undefined || __fields.requires("commissions")) && !("commissions" in obj)) {
         errors.push({ field: "commissions", message: "missing required field" });
     }
-    if (!("scheduleSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("scheduleSettings")) && !("scheduleSettings" in obj)) {
         errors.push({ field: "scheduleSettings", message: "missing required field" });
     }
-    if (!("accountOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("accountOverviewSettings")) && !("accountOverviewSettings" in obj)) {
         errors.push({ field: "accountOverviewSettings", message: "missing required field" });
     }
-    if (!("serviceOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) && !("serviceOverviewSettings" in obj)) {
         errors.push({ field: "serviceOverviewSettings", message: "missing required field" });
     }
-    if (!("appointmentOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) && !("appointmentOverviewSettings" in obj)) {
         errors.push({ field: "appointmentOverviewSettings", message: "missing required field" });
     }
-    if (!("leadOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("leadOverviewSettings")) && !("leadOverviewSettings" in obj)) {
         errors.push({ field: "leadOverviewSettings", message: "missing required field" });
     }
-    if (!("packageOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("packageOverviewSettings")) && !("packageOverviewSettings" in obj)) {
         errors.push({ field: "packageOverviewSettings", message: "missing required field" });
     }
-    if (!("productOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("productOverviewSettings")) && !("productOverviewSettings" in obj)) {
         errors.push({ field: "productOverviewSettings", message: "missing required field" });
     }
-    if (!("orderOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("orderOverviewSettings")) && !("orderOverviewSettings" in obj)) {
         errors.push({ field: "orderOverviewSettings", message: "missing required field" });
     }
-    if (!("taxRateOverviewSettings" in obj)) {
+    if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) && !("taxRateOverviewSettings" in obj)) {
         errors.push({ field: "taxRateOverviewSettings", message: "missing required field" });
     }
-    if (!("homePage" in obj)) {
+    if ((__fields === undefined || __fields.requires("homePage")) && !("homePage" in obj)) {
         errors.push({ field: "homePage", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("appointmentNotifications")) || (__fields.keeps("appointmentNotifications") && obj["appointmentNotifications"] !== undefined)) {
         const __raw_appointmentNotifications = obj["appointmentNotifications"] as AppointmentNotifications | null;
 
         if (__raw_appointmentNotifications === null) {
@@ -251,7 +323,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("commissions")) || (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
         const __raw_commissions = obj["commissions"] as Commissions | null;
 
         if (__raw_commissions === null) {
@@ -277,7 +349,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("scheduleSettings")) || (__fields.keeps("scheduleSettings") && obj["scheduleSettings"] !== undefined)) {
         const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;
 
         ctx.pushScope("scheduleSettings");
@@ -299,7 +371,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("accountOverviewSettings")) || (__fields.keeps("accountOverviewSettings") && obj["accountOverviewSettings"] !== undefined)) {
         const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("accountOverviewSettings");
@@ -321,7 +393,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) || (__fields.keeps("serviceOverviewSettings") && obj["serviceOverviewSettings"] !== undefined)) {
         const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("serviceOverviewSettings");
@@ -343,7 +415,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) || (__fields.keeps("appointmentOverviewSettings") && obj["appointmentOverviewSettings"] !== undefined)) {
         const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("appointmentOverviewSettings");
@@ -365,7 +437,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("leadOverviewSettings")) || (__fields.keeps("leadOverviewSettings") && obj["leadOverviewSettings"] !== undefined)) {
         const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("leadOverviewSettings");
@@ -387,7 +459,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("packageOverviewSettings")) || (__fields.keeps("packageOverviewSettings") && obj["packageOverviewSettings"] !== undefined)) {
         const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("packageOverviewSettings");
@@ -409,7 +481,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("productOverviewSettings")) || (__fields.keeps("productOverviewSettings") && obj["productOverviewSettings"] !== undefined)) {
         const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("productOverviewSettings");
@@ -431,7 +503,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("orderOverviewSettings")) || (__fields.keeps("orderOverviewSettings") && obj["orderOverviewSettings"] !== undefined)) {
         const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("orderOverviewSettings");
@@ -453,7 +525,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) || (__fields.keeps("taxRateOverviewSettings") && obj["taxRateOverviewSettings"] !== undefined)) {
         const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("taxRateOverviewSettings");
@@ -475,7 +547,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("homePage")) || (__fields.keeps("homePage") && obj["homePage"] !== undefined)) {
         const __raw_homePage = obj["homePage"] as Page;
 
         ctx.pushScope("homePage");
@@ -501,6 +573,11 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     ctx.pushErrors(errors);
 
     return instance as Settings;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef {
+    return settingsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function settingsValidateField(): Array<{ field: string; message: string }> {
@@ -1182,8 +1259,10 @@ export const Settings: {
   readonly defaultValue: typeof settingsDefaultValue;
   readonly encode: typeof settingsEncode;
   readonly encodeWithContext: typeof settingsEncodeWithContext;
+  readonly encodePartialWithContext: typeof settingsEncodePartialWithContext;
   readonly decode: typeof settingsDecode;
   readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
   readonly validateField: typeof settingsValidateField;
   readonly validateFields: typeof settingsValidateFields;
   readonly hasShape: typeof settingsHasShape;
@@ -1194,8 +1273,10 @@ export const Settings: {
   defaultValue: settingsDefaultValue,
   encode: settingsEncode,
   encodeWithContext: settingsEncodeWithContext,
+  encodePartialWithContext: settingsEncodePartialWithContext,
   decode: settingsDecode,
   decodeWithContext: settingsDecodeWithContext,
+  decodePartialWithContext: settingsDecodePartialWithContext,
   validateField: settingsValidateField,
   validateFields: settingsValidateFields,
   hasShape: settingsHasShape,
@@ -1231,6 +1312,8 @@ export declare function settingsDefaultValue(): Settings;
 export declare function settingsEncode(value: Settings, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function settingsEncodePartialWithContext(value: Partial<Settings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Settings>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -1244,6 +1327,10 @@ export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef;
 export declare function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -1323,8 +1410,10 @@ export declare const Settings: {
 	readonly defaultValue: typeof settingsDefaultValue;
 	readonly encode: typeof settingsEncode;
 	readonly encodeWithContext: typeof settingsEncodeWithContext;
+	readonly encodePartialWithContext: typeof settingsEncodePartialWithContext;
 	readonly decode: typeof settingsDecode;
 	readonly decodeWithContext: typeof settingsDecodeWithContext;
+	readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
 	readonly validateField: typeof settingsValidateField;
 	readonly validateFields: typeof settingsValidateFields;
 	readonly hasShape: typeof settingsHasShape;
@@ -1339,16 +1428,16 @@ export declare const Settings: {
 
 ## Mapping
 
-original 0..379 -> expanded 1027..1406
-original 428..976 -> expanded 1406..1954
-original 1003..1025 -> expanded 1954..1976
-original 1025..1026 -> expanded 50392..50393
-generated 0..1027 <- imports
-generated 1976..2724 <- Default
-generated 2724..5235 <- Encode
-generated 5235..21031 <- Decode
-generated 21031..49406 <- Gigaform
-generated 49406..50392 <- __convenience_const
+original 0..379 -> expanded 1248..1627
+original 428..976 -> expanded 1627..2175
+original 1003..1025 -> expanded 2175..2197
+original 1025..1026 -> expanded 57542..57543
+generated 0..1248 <- imports
+generated 2197..2945 <- Default
+generated 2945..7980 <- Encode
+generated 7980..27901 <- Decode
+generated 27901..56276 <- Gigaform
+generated 56276..57542 <- __convenience_const
 
 ## Metadata
 

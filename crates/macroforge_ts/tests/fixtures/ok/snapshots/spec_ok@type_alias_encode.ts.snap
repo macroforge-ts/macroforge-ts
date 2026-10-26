@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
 
 type User = {
     name: string;
@@ -28,28 +29,44 @@ type User = {
 export function userEncode(value: User, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = userEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return userEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "User",
         __id,
     };
 
-    
-    result.name = value.name;
-    result.age = value.age;
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("age")) {
+
+        if (value.age !== undefined) {
+            result.age = value.age;
+        }
+    }
 
     return result;
 }
@@ -57,9 +74,11 @@ export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Rec
 const User: {
   readonly encode: typeof userEncode;
   readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly encodePartialWithContext: typeof userEncodePartialWithContext;
 } = {
   encode: userEncode,
-  encodeWithContext: userEncodeWithContext
+  encodeWithContext: userEncodeWithContext,
+  encodePartialWithContext: userEncodePartialWithContext
 };
 
 ## DTS
@@ -72,6 +91,8 @@ type User = {
 export declare function userEncode(value: User, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown>;
 export {};
 
 ## Diagnostics
@@ -80,11 +101,11 @@ export {};
 
 ## Mapping
 
-original 22..74 -> expanded 78..130
-original 74..75 -> expanded 1425..1426
-generated 0..78 <- imports
-generated 130..1238 <- Encode
-generated 1238..1425 <- __convenience_const
+original 22..74 -> expanded 302..354
+original 74..75 -> expanded 2585..2586
+generated 0..302 <- imports
+generated 354..2266 <- Encode
+generated 2266..2585 <- __convenience_const
 
 ## Metadata
 

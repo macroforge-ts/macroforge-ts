@@ -33,7 +33,7 @@ let testResults: {
     clone?: object;
     equals?: boolean;
     hashCode?: number;
-    encode?: object;
+    encode?: unknown;
     decode?: object;
 } = $state({});
 

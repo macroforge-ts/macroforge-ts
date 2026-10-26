@@ -32,6 +32,7 @@ true
 
 ## Output
 
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -58,13 +59,11 @@ class EventEmitter {
 }
 
 export function eventEmitterClone(value: EventEmitter): EventEmitter {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.listeners = (() => {
-        const __copy0 = new Map(value.listeners);
-        for (const [__key0, __item0] of value.listeners) __copy0.set(__key0, [...__item0]);
-        return __copy0;
-    })();
-    return cloned;
+    return __mf_instanceWith(value, ({ listeners: (() => {
+	const __copy0 = new Map(value.listeners);
+	for (const [__key0, __item0] of value.listeners) __copy0.set(__key0, [...__item0]);
+	return __copy0;
+})() }));
 }
 
 ## DTS
@@ -85,12 +84,13 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 62..555 -> expanded 41..534
-original 555..556 -> expanded 636..637
-original 556..557 -> expanded 1002..1003
-generated 534..636 <- Clone
-generated 637..1002 <- Clone
+original 0..41 -> expanded 81..122
+original 62..555 -> expanded 122..615
+original 555..556 -> expanded 717..718
+original 556..557 -> expanded 1006..1007
+generated 0..81 <- imports
+generated 615..717 <- Clone
+generated 718..1006 <- Clone
 
 ## Metadata
 

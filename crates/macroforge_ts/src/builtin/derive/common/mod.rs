@@ -63,10 +63,10 @@ pub use registry_helpers::{
 };
 pub(crate) use type_names::TypeNames;
 pub use type_utils::{
-    array_element_type, detect_primitive_encodable_union, get_type_default,
+    EnumValueKinds, array_element_type, detect_primitive_encodable_union, get_type_default,
     get_type_default_with_registry, has_known_default, is_generic_type, is_nullable_type,
     is_numeric_type, is_primitive_type, parse_generic_type, primitive_compare_statements,
-    tuple_compare_statements, tuple_element,
+    primitive_keyword_test, tuple_compare_statements, tuple_element,
 };
 pub use value_type::{
     Builtin, ClassifiedType, ValueType, classify_value_type, derived_function, field_value_type,

@@ -127,13 +127,8 @@ function startVtsls(cwd) {
 }
 
 test('vtsls + typescript-plugin survives file switching', async (t) => {
-    // Skip if vtsls is not installed
-    if (!fs.existsSync(VTSLS_BIN)) {
-        t.skip('vtsls binary missing - run npm install');
-        return;
-    }
-
     const { root, files } = makeFixtureDir();
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
     const server = startVtsls(root);
 
     // Initialize

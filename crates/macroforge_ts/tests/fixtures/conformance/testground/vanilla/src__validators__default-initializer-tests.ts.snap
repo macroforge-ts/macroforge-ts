@@ -12,8 +12,9 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
 // Default on classes whose fields have initializers, derived beside Decode,
 // whose constructor takes arguments.
 
@@ -39,115 +40,121 @@ export class Settings {
         return instance;
     }
 
-    constructor(props: { theme: string; retries?: number; label?: string; tags: string[]; limit: number; createdAt: number }) {
-        this.theme = props.theme;
-        this.retries = props.retries;
-        this.label = props.label;
-        this.tags = props.tags;
-        this.limit = props.limit;
-        this.createdAt = props.createdAt;
+constructor(props: { theme: string; retries?: number; label?: string; tags: string[]; limit: number; createdAt: number }) {
+    this.theme = props.theme;
+    this.retries = props.retries;
+    this.label = props.label;
+    this.tags = props.tags;
+    this.limit = props.limit;
+    this.createdAt = props.createdAt;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = Settings.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Settings.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
     }
 
-    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
-        try {
-
-            const data = typeof input === "string" ? JSON.parse(input) : input;
-
-            const ctx = __mf_DecodeContext.create();
-            const resultOrRef = Settings.decodeWithContext(data, ctx);
-
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message: "Settings.decode: root cannot be a forward reference"
-    	}]
-    });
-            }
-
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return ({
-    	success: false,
-    	errors: __errors
-    });
-            }
-
-            return ({
-    	success: true,
-    	value: resultOrRef
-    });
-        } catch (e) {
-            if (e instanceof __mf_DecodeError) {
-                return ({
-    	success: false,
-    	errors: e.errors
-    });
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message
-    	}]
-    });
-        }
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
     }
 
-    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
-        if (typeof value === "object" && value !== null && "__ref" in value) {
-            if (typeof value.__ref !== "number") {
-                throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
-            }
-            return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
-        }
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
+        errors.push({ field: "theme", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
+        errors.push({ field: "tags", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("limit")) && !("limit" in obj)) {
+        errors.push({ field: "limit", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
+        errors.push({ field: "createdAt", message: "missing required field" });
+    }
+    const instance = Object.create(Settings.prototype) as Settings;
 
-        if (typeof value !== "object" || value === null || Array.isArray(value)) {
-            throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
-        }
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
 
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{ field: string; message: string }> = [];
-        if (!("theme" in obj)) {
-            errors.push({ field: "theme", message: "missing required field" });
-        }
-        if (!("tags" in obj)) {
-            errors.push({ field: "tags", message: "missing required field" });
-        }
-        if (!("limit" in obj)) {
-            errors.push({ field: "limit", message: "missing required field" });
-        }
-        if (!("createdAt" in obj)) {
-            errors.push({ field: "createdAt", message: "missing required field" });
-        }
+    ctx.trackForFreeze(instance);
 
-        const instance = Object.create(Settings.prototype) as Settings;
+    if ((__fields === undefined || __fields.requires("theme")) || (__fields.keeps("theme") && obj["theme"] !== undefined)) {
+        const __raw_theme = obj["theme"] as string;
 
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
+        if (!(typeof __raw_theme === "string")) {
+            errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+        } else {
+            instance.theme = __raw_theme;
         }
-
-        ctx.trackForFreeze(instance);
-
-        {
-            const __raw_theme = obj["theme"] as string;
-
-            if (!(typeof __raw_theme === "string")) {
-                errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
-            } else {
-                instance.theme = __raw_theme;
-            }
-        }
-        if ("retries" in obj && obj["retries"] !== undefined) {
+    }
+    if ((__fields === undefined || __fields.keeps("retries"))) {
+        if (("retries" in obj && obj["retries"] !== undefined)) {
             const __raw_retries = obj["retries"] as number;
 
             if (!(typeof __raw_retries === "number")) {
@@ -156,7 +163,9 @@ export class Settings {
                 instance.retries = __raw_retries;
             }
         }
-        if ("label" in obj && obj["label"] !== undefined) {
+    }
+    if ((__fields === undefined || __fields.keeps("label"))) {
+        if (("label" in obj && obj["label"] !== undefined)) {
             const __raw_label = obj["label"] as string;
 
             if (!(typeof __raw_label === "string")) {
@@ -165,66 +174,67 @@ export class Settings {
                 instance.label = __raw_label;
             }
         }
-        {
-            const __raw_tags = obj["tags"] as string[];
-
-            if (Array.isArray(__raw_tags)) {
-                instance.tags = __raw_tags as string[];
-            } else {
-                errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
-            }
-        }
-        {
-            const __raw_limit = obj["limit"] as number;
-
-            if (!(typeof __raw_limit === "number")) {
-                errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
-            } else {
-                instance.limit = __raw_limit;
-            }
-        }
-        {
-            const __raw_createdAt = obj["createdAt"] as number;
-
-            if (!(typeof __raw_createdAt === "number")) {
-                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
-            } else {
-                instance.createdAt = __raw_createdAt;
-            }
-        }
-
-        ctx.pushErrors(errors);
-
-        return instance;
     }
-    static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
-    static validateField(): Array<{ field: string; message: string }> {
-        return [];
+    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+        const __raw_tags = obj["tags"] as string[];
+
+        if (Array.isArray(__raw_tags)) {
+            instance.tags = __raw_tags as string[];
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("limit")) || (__fields.keeps("limit") && obj["limit"] !== undefined)) {
+        const __raw_limit = obj["limit"] as number;
+
+        if (!(typeof __raw_limit === "number")) {
+            errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
+        } else {
+            instance.limit = __raw_limit;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+        const __raw_createdAt = obj["createdAt"] as number;
+
+        if (!(typeof __raw_createdAt === "number")) {
+            errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
+        } else {
+            instance.createdAt = __raw_createdAt;
+        }
     }
 
-    static validateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{ field: string; message: string }>;
-    static validateFields(): Array<{ field: string; message: string }> {
-        return [];
-    }
+    ctx.pushErrors(errors);
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return "theme" in o && "tags" in o && "limit" in o && "createdAt" in o;
-    }
+    return instance;
+}
+static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-    static is(obj: unknown): obj is Settings {
-        if (obj instanceof Settings) {
-            return true;
-        }
-        if (!Settings.hasShape(obj)) {
-            return false;
-        }
-        const result = Settings.decode(obj);
-        return result.success;
+static validateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
     }
+    const o = obj as Record<string, unknown>;
+    return "theme" in o && "tags" in o && "limit" in o && "createdAt" in o;
+}
+
+static is(obj: unknown): obj is Settings {
+    if (obj instanceof Settings) {
+        return true;
+    }
+    if (!Settings.hasShape(obj)) {
+        return false;
+    }
+    const result = Settings.decode(obj);
+    return result.success;
+}
 }
 
 export function settingsDefaultValue(): Settings {
@@ -239,6 +249,16 @@ export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
     return Settings.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function settingsHasShape(value: unknown): boolean {
+    return Settings.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef {
+    return Settings.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
@@ -307,133 +327,138 @@ export class Counter {
         return counterEncodeWithContext(value, ctx);
     }
 
-    constructor(props: { count: number }) {
-        this.count = props.count;
-    }
+constructor(props: { count: number }) {
+    this.count = props.count;
+}
 
-    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
-        try {
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
-            const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-            const ctx = __mf_DecodeContext.create();
-            const resultOrRef = Counter.decodeWithContext(data, ctx);
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = Counter.decodeWithContext(data, ctx);
 
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message: "Counter.decode: root cannot be a forward reference"
-    	}]
-    });
-            }
-
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return ({
-    	success: false,
-    	errors: __errors
-    });
-            }
-
+        if (__mf_PendingRef.is(resultOrRef)) {
             return ({
-    	success: true,
-    	value: resultOrRef
-    });
-        } catch (e) {
-            if (e instanceof __mf_DecodeError) {
-                return ({
-    	success: false,
-    	errors: e.errors
-    });
-            }
-            const message = e instanceof Error ? e.message : String(e);
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Counter.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
             return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message
-    	}]
-    });
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Counter> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Counter> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Counter.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Counter.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Counter | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Counter.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
+        errors.push({ field: "count", message: "missing required field" });
+    }
+    const instance = Object.create(Counter.prototype) as Counter;
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+        const __raw_count = obj["count"] as number;
+
+        if (!(typeof __raw_count === "number")) {
+            errors.push({ field: "count", message: __raw_count == null ? "Counter.count is required" : "expected number" });
+        } else {
+            instance.count = __raw_count;
         }
     }
 
-    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef {
-        if (typeof value === "object" && value !== null && "__ref" in value) {
-            if (typeof value.__ref !== "number") {
-                throw new __mf_DecodeError([{ field: "__ref", message: "Counter.decodeWithContext: __ref must be a number" }]);
-            }
-            return ctx.getOrDefer(value.__ref) as Counter | __mf_PendingRef;
-        }
+    ctx.pushErrors(errors);
 
-        if (typeof value !== "object" || value === null || Array.isArray(value)) {
-            throw new __mf_DecodeError([{ field: "_root", message: "Counter.decodeWithContext: expected an object" }]);
-        }
+    return instance;
+}
+static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{ field: string; message: string }> = [];
-        if (!("count" in obj)) {
-            errors.push({ field: "count", message: "missing required field" });
-        }
+static validateFields(partial: { readonly [K in keyof Counter]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-        const instance = Object.create(Counter.prototype) as Counter;
-
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-
-        ctx.trackForFreeze(instance);
-
-        {
-            const __raw_count = obj["count"] as number;
-
-            if (!(typeof __raw_count === "number")) {
-                errors.push({ field: "count", message: __raw_count == null ? "Counter.count is required" : "expected number" });
-            } else {
-                instance.count = __raw_count;
-            }
-        }
-
-        ctx.pushErrors(errors);
-
-        return instance;
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
     }
-    static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{ field: string; message: string }>;
-    static validateField(): Array<{ field: string; message: string }> {
-        return [];
-    }
+    const o = obj as Record<string, unknown>;
+    return "count" in o;
+}
 
-    static validateFields(partial: { readonly [K in keyof Counter]?: unknown }): Array<{ field: string; message: string }>;
-    static validateFields(): Array<{ field: string; message: string }> {
-        return [];
+static is(obj: unknown): obj is Counter {
+    if (obj instanceof Counter) {
+        return true;
     }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return "count" in o;
+    if (!Counter.hasShape(obj)) {
+        return false;
     }
-
-    static is(obj: unknown): obj is Counter {
-        if (obj instanceof Counter) {
-            return true;
-        }
-        if (!Counter.hasShape(obj)) {
-            return false;
-        }
-        const result = Counter.decode(obj);
-        return result.success;
-    }
+    const result = Counter.decode(obj);
+    return result.success;
+}
 
     static defaultValue(): Counter {
 
@@ -450,9 +475,7 @@ export function counterToString(value: Counter): string {
 }
 
 export function counterClone(value: Counter): Counter {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.count = value.count;
-    return cloned;
+    return __mf_instanceWith(value, ({ count: value.count }));
 }
 
 export function counterEquals(a: Counter, b: Counter): boolean {
@@ -485,27 +508,38 @@ export function counterCompare(a: Counter, b: Counter): number {
 export function counterEncode(value: Counter, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = counterEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function counterEncodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return counterEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function counterEncodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Counter>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Counter",
         __id,
     };
 
-    
-    result.count = value.count;
+    if (__fields === undefined || __fields.keeps("count")) {
+
+        if (value.count !== undefined) {
+            result.count = value.count;
+        }
+    }
 
     return result;
 }
@@ -518,6 +552,16 @@ export function counterDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function counterDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef {
     return Counter.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function counterHasShape(value: unknown): boolean {
+    return Counter.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function counterDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Counter>): Partial<Counter> | __mf_PendingRef {
+    return Counter.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
@@ -563,6 +607,8 @@ export declare class Settings {
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
 	static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
@@ -588,6 +634,10 @@ export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function settingsHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function settingsIs(value: unknown): value is Settings;
 /** @derive(Default) */
@@ -627,6 +677,8 @@ export declare class Counter {
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Counter> | __mf_PendingRef;
 	static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
@@ -647,8 +699,10 @@ export declare function counterPartialCompare(a: Counter, b: Counter): number | 
 export declare function counterCompare(a: Counter, b: Counter): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function counterEncode(value: Counter, keepMetadata?: boolean): string;
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function counterEncodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function counterEncodePartialWithContext(value: Partial<Counter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Counter>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function counterDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -662,6 +716,10 @@ export declare function counterDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function counterDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function counterHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function counterDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Counter>): Partial<Counter> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function counterIs(value: unknown): value is Counter;
 export declare function counterDefaultValue(): Counter;
@@ -672,38 +730,38 @@ export declare function counterDefaultValue(): Counter;
 
 ## Mapping
 
-original 0..396 -> expanded 262..658
-original 396..397 -> expanded 7790..7791
-original 397..579 -> expanded 8935..9117
-original 579..580 -> expanded 9358..9359
-original 580..752 -> expanded 9446..9618
-original 752..753 -> expanded 15365..15366
-original 753..754 -> expanded 18870..18871
-generated 0..262 <- imports
-generated 658..968 <- Default
-generated 968..7790 <- Decode
-generated 7791..7881 <- Default
-generated 7881..8935 <- Decode
-generated 9117..9358 <- Default
-generated 9359..9446 <- Default
-generated 9618..9710 <- Debug
-generated 9710..9797 <- Clone
-generated 9797..9893 <- PartialEq
-generated 9893..9985 <- Hash
-generated 9985..10103 <- PartialOrd
-generated 10103..10200 <- Ord
-generated 10200..10835 <- Encode
-generated 10835..15199 <- Decode
-generated 15199..15365 <- Default
-generated 15366..15559 <- Debug
-generated 15559..15733 <- Clone
-generated 15733..15863 <- PartialEq
-generated 15863..16125 <- Hash
-generated 16125..16417 <- PartialOrd
-generated 16417..16628 <- Ord
-generated 16628..17738 <- Encode
-generated 17738..18783 <- Decode
-generated 18783..18870 <- Default
+original 0..396 -> expanded 564..960
+original 396..397 -> expanded 9128..9129
+original 397..579 -> expanded 11001..11183
+original 579..580 -> expanded 11424..11425
+original 580..752 -> expanded 11512..11684
+original 752..753 -> expanded 17929..17930
+original 753..754 -> expanded 22789..22790
+generated 0..564 <- imports
+generated 960..1270 <- Default
+generated 1270..9128 <- Decode
+generated 9129..9219 <- Default
+generated 9219..11001 <- Decode
+generated 11183..11424 <- Default
+generated 11425..11512 <- Default
+generated 11684..11776 <- Debug
+generated 11776..11863 <- Clone
+generated 11863..11959 <- PartialEq
+generated 11959..12051 <- Hash
+generated 12051..12169 <- PartialOrd
+generated 12169..12266 <- Ord
+generated 12266..12901 <- Encode
+generated 12901..17763 <- Decode
+generated 17763..17929 <- Default
+generated 17930..18123 <- Debug
+generated 18123..18245 <- Clone
+generated 18245..18375 <- PartialEq
+generated 18375..18637 <- Hash
+generated 18637..18929 <- PartialOrd
+generated 18929..19140 <- Ord
+generated 19140..20935 <- Encode
+generated 20935..22702 <- Decode
+generated 22702..22789 <- Default
 
 ## Metadata
 

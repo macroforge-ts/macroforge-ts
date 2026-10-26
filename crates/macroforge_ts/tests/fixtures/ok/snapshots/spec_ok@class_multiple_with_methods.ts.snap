@@ -36,6 +36,7 @@ true
 
 ## Output
 
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -87,12 +88,12 @@ export function productToString(value: Product): string {
 }
 
 export function productClone(value: Product): Product {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.id = value.id;
-    cloned.name = value.name;
-    cloned.price = value.price;
-    cloned.secret = value.secret;
-    return cloned;
+    return __mf_instanceWith(value, ({
+	id: value.id,
+	name: value.name,
+	price: value.price,
+	secret: value.secret
+}));
 }
 
 export function productEquals(a: Product, b: Product): boolean {
@@ -136,18 +137,19 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 86..580 -> expanded 41..535
-original 580..581 -> expanded 902..903
-original 581..582 -> expanded 2289..2290
-generated 535..627 <- Debug
-generated 627..714 <- Clone
-generated 714..810 <- PartialEq
-generated 810..902 <- Hash
-generated 903..1237 <- Debug
-generated 1237..1501 <- Clone
-generated 1501..1694 <- PartialEq
-generated 1694..2289 <- Hash
+original 0..41 -> expanded 81..122
+original 86..580 -> expanded 122..616
+original 580..581 -> expanded 983..984
+original 581..582 -> expanded 2286..2287
+generated 0..81 <- imports
+generated 616..708 <- Debug
+generated 708..795 <- Clone
+generated 795..891 <- PartialEq
+generated 891..983 <- Hash
+generated 984..1318 <- Debug
+generated 1318..1498 <- Clone
+generated 1498..1691 <- PartialEq
+generated 1691..2286 <- Hash
 
 ## Metadata
 

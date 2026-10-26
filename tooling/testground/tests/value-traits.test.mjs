@@ -3,7 +3,13 @@
  * cache like the validator suites.
  */
 
-import { assert, assertEquals, assertNotStrictEquals, assertStrictEquals } from '@std/assert';
+import {
+    assert,
+    assertEquals,
+    assertNotStrictEquals,
+    assertStrictEquals,
+    assertThrows
+} from '@std/assert';
 import { join } from 'node:path';
 import { expandAndCompile } from './validators/helpers.mjs';
 import { vanillaRoot } from './test-utils.mjs';
@@ -232,4 +238,33 @@ Deno.test('constrained generic aliases encode and decode', () => {
     const boxed = mod.boxedDecode(mod.boxedEncode([{ id: 1 }]));
     assert(boxed.success, JSON.stringify(boxed.errors));
     assertEquals(boxed.value, [{ id: 1 }]);
+});
+
+Deno.test('a class clone has its class without running the constructor', () => {
+    const slot = new mod.Slot({ held: { id: 1 }, index: 2 });
+    const copy = mod.Slot.clone(slot);
+    assert(copy instanceof mod.Slot);
+    assertNotStrictEquals(copy, slot);
+    assertEquals(Object.keys(copy), ['held', 'index']);
+    assertEquals(copy.held, { id: 1 });
+    assertNotStrictEquals(copy.held, slot.held);
+
+    class Stamped extends mod.Badge {}
+    assert(mod.Badge.clone(Object.assign(new Stamped(), { label: 'gold' })) instanceof Stamped);
+});
+
+Deno.test('encode leaves out the tag and __id unless asked to keep them', () => {
+    const ledger = new mod.Ledger({ entries: new Map([['rent', 900]]) });
+    assertEquals(mod.Ledger.encode(ledger), '{"entries":{"rent":900}}');
+    assertEquals(
+        mod.Ledger.encode(ledger, true),
+        '{"__type":"Ledger","__id":0,"entries":{"rent":900}}'
+    );
+    assertEquals(mod.ledgerOrNoteEncode('due'), '"due"');
+});
+
+Deno.test('encode throws for a value JSON cannot represent', () => {
+    assertEquals(mod.optionalNoteEncode('due'), '"due"');
+    assertThrows(() => mod.optionalNoteEncode(undefined), TypeError, 'no JSON text');
+    assertThrows(() => mod.optionalNoteEncode(undefined, true), TypeError, 'no JSON text');
 });

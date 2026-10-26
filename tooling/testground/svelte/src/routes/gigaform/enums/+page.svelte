@@ -225,7 +225,8 @@ let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday'])
         data-testid="set-invalid-status"
         onclick={() => {
           // A status the field's type forbids, to exercise runtime validation.
-          Reflect.apply(appointmentForm.fields.status.set, appointmentForm.fields.status, ["InvalidStatus"]);
+          const untyped: { set(value: unknown): void } = appointmentForm.fields.status;
+          untyped.set("InvalidStatus");
         }}
       >
         Set Invalid Status

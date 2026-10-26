@@ -22,8 +22,8 @@ import { representsDecode, representsEncodeWithContext } from "./represents.svel
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -125,65 +125,181 @@ export function accountDefaultValue(): Account {
 export function accountEncode(value: Account, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = accountEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return accountEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Account",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.taxRate = typeof value.taxRate === "string"
-        ? value.taxRate
-        : taxRateEncodeWithContext(value.taxRate, ctx);
-    result.site = typeof value.site === "string"
-        ? value.site
-        : siteEncodeWithContext(value.site, ctx);
-    if (value.salesRep !== null) {
+    if (__fields === undefined || __fields.keeps("id")) {
 
-        result.salesRep = value.salesRep.map(
-            (item) => representsEncodeWithContext(item, ctx)
-        );
-    } else {
-        result.salesRep = null;
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
     }
-    result.orders = value.orders.map(
-        (item) => orderedEncodeWithContext(item, ctx)
-    );
-    result.activity = value.activity.map(
-        (item) => didEncodeWithContext(item, ctx)
-    );
-    result.customFields = value.customFields;
-    result.accountName = accountNameEncodeWithContext(value.accountName, ctx);
-    result.sector = sectorEncodeWithContext(value.sector, ctx);
-    result.memo = value.memo;
-    result.phones = value.phones.map(
-        (item) => phoneNumberEncodeWithContext(item, ctx)
-    );
-    result.email = emailEncodeWithContext(value.email, ctx);
-    result.leadSource = value.leadSource;
-    result.colors = colorsEncodeWithContext(value.colors, ctx);
-    result.needsReview = value.needsReview;
-    result.hasAlert = value.hasAlert;
-    result.accountType = value.accountType;
-    result.subtype = value.subtype;
-    result.isTaxExempt = value.isTaxExempt;
-    result.paymentTerms = value.paymentTerms;
-    result.tags = value.tags;
-    result.dateAdded = value.dateAdded;
+    if (__fields === undefined || __fields.keeps("taxRate")) {
+
+        if (value.taxRate !== undefined) {
+            result.taxRate = typeof value.taxRate === "string"
+                ? value.taxRate
+                : taxRateEncodeWithContext(value.taxRate, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("site")) {
+
+        if (value.site !== undefined) {
+            result.site = typeof value.site === "string"
+                ? value.site
+                : siteEncodeWithContext(value.site, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("salesRep")) {
+        if (value.salesRep !== undefined) {
+
+            if (value.salesRep !== null) {
+
+                result.salesRep = value.salesRep.map(
+                    (item) => representsEncodeWithContext(item, ctx)
+                );
+            } else {
+                result.salesRep = null;
+            }
+        }
+    }
+    if (__fields === undefined || __fields.keeps("orders")) {
+
+        if (value.orders !== undefined) {
+            result.orders = value.orders.map(
+                (item) => orderedEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("activity")) {
+
+        if (value.activity !== undefined) {
+            result.activity = value.activity.map(
+                (item) => didEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("customFields")) {
+
+        if (value.customFields !== undefined) {
+            result.customFields = value.customFields;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("accountName")) {
+
+        if (value.accountName !== undefined) {
+            result.accountName = accountNameEncodeWithContext(value.accountName, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("sector")) {
+
+        if (value.sector !== undefined) {
+            result.sector = sectorEncodeWithContext(value.sector, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("memo")) {
+        if (value.memo !== undefined) {
+
+            result.memo = value.memo;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("phones")) {
+
+        if (value.phones !== undefined) {
+            result.phones = value.phones.map(
+                (item) => phoneNumberEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("email")) {
+
+        if (value.email !== undefined) {
+            result.email = emailEncodeWithContext(value.email, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("leadSource")) {
+
+        if (value.leadSource !== undefined) {
+            result.leadSource = value.leadSource;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("colors")) {
+
+        if (value.colors !== undefined) {
+            result.colors = colorsEncodeWithContext(value.colors, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("needsReview")) {
+
+        if (value.needsReview !== undefined) {
+            result.needsReview = value.needsReview;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasAlert")) {
+
+        if (value.hasAlert !== undefined) {
+            result.hasAlert = value.hasAlert;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("accountType")) {
+
+        if (value.accountType !== undefined) {
+            result.accountType = value.accountType;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("subtype")) {
+
+        if (value.subtype !== undefined) {
+            result.subtype = value.subtype;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("isTaxExempt")) {
+
+        if (value.isTaxExempt !== undefined) {
+            result.isTaxExempt = value.isTaxExempt;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("paymentTerms")) {
+
+        if (value.paymentTerms !== undefined) {
+            result.paymentTerms = value.paymentTerms;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tags")) {
+
+        if (value.tags !== undefined) {
+            result.tags = value.tags;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("dateAdded")) {
+
+        if (value.dateAdded !== undefined) {
+            result.dateAdded = value.dateAdded;
+        }
+    }
 
     return result;
 }
@@ -242,7 +358,13 @@ export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
+export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Account> | __mf_PendingRef;
+export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Account> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Account.decodeWithContext: __ref must be a number" }]);
@@ -256,82 +378,82 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("taxRate" in obj)) {
+    if ((__fields === undefined || __fields.requires("taxRate")) && !("taxRate" in obj)) {
         errors.push({ field: "taxRate", message: "missing required field" });
     }
-    if (!("site" in obj)) {
+    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
         errors.push({ field: "site", message: "missing required field" });
     }
-    if (!("salesRep" in obj)) {
+    if ((__fields === undefined || __fields.requires("salesRep")) && !("salesRep" in obj)) {
         errors.push({ field: "salesRep", message: "missing required field" });
     }
-    if (!("orders" in obj)) {
+    if ((__fields === undefined || __fields.requires("orders")) && !("orders" in obj)) {
         errors.push({ field: "orders", message: "missing required field" });
     }
-    if (!("activity" in obj)) {
+    if ((__fields === undefined || __fields.requires("activity")) && !("activity" in obj)) {
         errors.push({ field: "activity", message: "missing required field" });
     }
-    if (!("customFields" in obj)) {
+    if ((__fields === undefined || __fields.requires("customFields")) && !("customFields" in obj)) {
         errors.push({ field: "customFields", message: "missing required field" });
     }
-    if (!("accountName" in obj)) {
+    if ((__fields === undefined || __fields.requires("accountName")) && !("accountName" in obj)) {
         errors.push({ field: "accountName", message: "missing required field" });
     }
-    if (!("sector" in obj)) {
+    if ((__fields === undefined || __fields.requires("sector")) && !("sector" in obj)) {
         errors.push({ field: "sector", message: "missing required field" });
     }
-    if (!("memo" in obj)) {
+    if ((__fields === undefined || __fields.requires("memo")) && !("memo" in obj)) {
         errors.push({ field: "memo", message: "missing required field" });
     }
-    if (!("phones" in obj)) {
+    if ((__fields === undefined || __fields.requires("phones")) && !("phones" in obj)) {
         errors.push({ field: "phones", message: "missing required field" });
     }
-    if (!("email" in obj)) {
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    if (!("leadSource" in obj)) {
+    if ((__fields === undefined || __fields.requires("leadSource")) && !("leadSource" in obj)) {
         errors.push({ field: "leadSource", message: "missing required field" });
     }
-    if (!("colors" in obj)) {
+    if ((__fields === undefined || __fields.requires("colors")) && !("colors" in obj)) {
         errors.push({ field: "colors", message: "missing required field" });
     }
-    if (!("needsReview" in obj)) {
+    if ((__fields === undefined || __fields.requires("needsReview")) && !("needsReview" in obj)) {
         errors.push({ field: "needsReview", message: "missing required field" });
     }
-    if (!("hasAlert" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasAlert")) && !("hasAlert" in obj)) {
         errors.push({ field: "hasAlert", message: "missing required field" });
     }
-    if (!("accountType" in obj)) {
+    if ((__fields === undefined || __fields.requires("accountType")) && !("accountType" in obj)) {
         errors.push({ field: "accountType", message: "missing required field" });
     }
-    if (!("subtype" in obj)) {
+    if ((__fields === undefined || __fields.requires("subtype")) && !("subtype" in obj)) {
         errors.push({ field: "subtype", message: "missing required field" });
     }
-    if (!("isTaxExempt" in obj)) {
+    if ((__fields === undefined || __fields.requires("isTaxExempt")) && !("isTaxExempt" in obj)) {
         errors.push({ field: "isTaxExempt", message: "missing required field" });
     }
-    if (!("paymentTerms" in obj)) {
+    if ((__fields === undefined || __fields.requires("paymentTerms")) && !("paymentTerms" in obj)) {
         errors.push({ field: "paymentTerms", message: "missing required field" });
     }
-    if (!("tags" in obj)) {
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
         errors.push({ field: "tags", message: "missing required field" });
     }
-    if (!("dateAdded" in obj)) {
+    if ((__fields === undefined || __fields.requires("dateAdded")) && !("dateAdded" in obj)) {
         errors.push({ field: "dateAdded", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -340,7 +462,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("taxRate")) || (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
         const __raw_taxRate = obj["taxRate"] as string | TaxRate;
 
         if (typeof __raw_taxRate === "string") {
@@ -366,7 +488,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
         const __raw_site = obj["site"] as string | Site;
 
         if (typeof __raw_site === "string") {
@@ -392,7 +514,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("salesRep")) || (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
         const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
 
         if (__raw_salesRep === null) {
@@ -432,7 +554,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("orders")) || (__fields.keeps("orders") && obj["orders"] !== undefined)) {
         const __raw_orders = obj["orders"] as Array<Ordered>;
 
         if (Array.isArray(__raw_orders)) {
@@ -467,7 +589,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "orders", message: __raw_orders == null ? "Account.orders is required" : "expected Array<Ordered>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("activity")) || (__fields.keeps("activity") && obj["activity"] !== undefined)) {
         const __raw_activity = obj["activity"] as Array<Did>;
 
         if (Array.isArray(__raw_activity)) {
@@ -502,7 +624,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "activity", message: __raw_activity == null ? "Account.activity is required" : "expected Array<Did>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("customFields")) || (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
         const __raw_customFields = obj["customFields"] as Array<[string, string]>;
 
         if (Array.isArray(__raw_customFields)) {
@@ -526,7 +648,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "customFields", message: __raw_customFields == null ? "Account.customFields is required" : "expected Array<[string, string]>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("accountName")) || (__fields.keeps("accountName") && obj["accountName"] !== undefined)) {
         const __raw_accountName = obj["accountName"] as AccountName;
 
         ctx.pushScope("accountName");
@@ -548,7 +670,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("sector")) || (__fields.keeps("sector") && obj["sector"] !== undefined)) {
         const __raw_sector = obj["sector"] as Sector;
 
         ctx.pushScope("sector");
@@ -570,7 +692,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("memo")) || (__fields.keeps("memo") && obj["memo"] !== undefined)) {
         const __raw_memo = obj["memo"] as string | null;
 
         if (!(typeof __raw_memo === "string" || __raw_memo === null)) {
@@ -579,7 +701,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.memo = __raw_memo;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
 
         if (Array.isArray(__raw_phones)) {
@@ -614,7 +736,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "phones", message: __raw_phones == null ? "Account.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as Email;
 
         ctx.pushScope("email");
@@ -636,7 +758,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("leadSource")) || (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
         const __raw_leadSource = obj["leadSource"] as string;
 
         if (!(typeof __raw_leadSource === "string")) {
@@ -648,7 +770,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.leadSource = __raw_leadSource;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("colors")) || (__fields.keeps("colors") && obj["colors"] !== undefined)) {
         const __raw_colors = obj["colors"] as Colors;
 
         ctx.pushScope("colors");
@@ -670,7 +792,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("needsReview")) || (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
         const __raw_needsReview = obj["needsReview"] as boolean;
 
         if (!(typeof __raw_needsReview === "boolean")) {
@@ -679,7 +801,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.needsReview = __raw_needsReview;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasAlert")) || (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
         const __raw_hasAlert = obj["hasAlert"] as boolean;
 
         if (!(typeof __raw_hasAlert === "boolean")) {
@@ -688,7 +810,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasAlert = __raw_hasAlert;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("accountType")) || (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
         const __raw_accountType = obj["accountType"] as string;
 
         if (!(typeof __raw_accountType === "string")) {
@@ -700,7 +822,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.accountType = __raw_accountType;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("subtype")) || (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
         const __raw_subtype = obj["subtype"] as string;
 
         if (!(typeof __raw_subtype === "string")) {
@@ -712,7 +834,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.subtype = __raw_subtype;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("isTaxExempt")) || (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
         const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
 
         if (!(typeof __raw_isTaxExempt === "boolean")) {
@@ -721,7 +843,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.isTaxExempt = __raw_isTaxExempt;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("paymentTerms")) || (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
         const __raw_paymentTerms = obj["paymentTerms"] as string;
 
         if (!(typeof __raw_paymentTerms === "string")) {
@@ -733,7 +855,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.paymentTerms = __raw_paymentTerms;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
 
         if (Array.isArray(__raw_tags)) {
@@ -742,7 +864,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "tags", message: __raw_tags == null ? "Account.tags is required" : "expected Array<string>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("dateAdded")) || (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
         const __raw_dateAdded = obj["dateAdded"] as string;
 
         if (!(typeof __raw_dateAdded === "string")) {
@@ -755,6 +877,11 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     ctx.pushErrors(errors);
 
     return instance as Account;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function accountDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Account>): Partial<Account> | __mf_PendingRef {
+    return accountDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function accountValidateField<K extends keyof Account>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1791,8 +1918,10 @@ export const Account: {
   readonly defaultValue: typeof accountDefaultValue;
   readonly encode: typeof accountEncode;
   readonly encodeWithContext: typeof accountEncodeWithContext;
+  readonly encodePartialWithContext: typeof accountEncodePartialWithContext;
   readonly decode: typeof accountDecode;
   readonly decodeWithContext: typeof accountDecodeWithContext;
+  readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
   readonly validateField: typeof accountValidateField;
   readonly validateFields: typeof accountValidateFields;
   readonly hasShape: typeof accountHasShape;
@@ -1803,8 +1932,10 @@ export const Account: {
   defaultValue: accountDefaultValue,
   encode: accountEncode,
   encodeWithContext: accountEncodeWithContext,
+  encodePartialWithContext: accountEncodePartialWithContext,
   decode: accountDecode,
   decodeWithContext: accountDecodeWithContext,
+  decodePartialWithContext: accountDecodePartialWithContext,
   validateField: accountValidateField,
   validateFields: accountValidateFields,
   hasShape: accountHasShape,
@@ -1855,6 +1986,8 @@ export declare function accountDefaultValue(): Account;
 export declare function accountEncode(value: Account, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -1868,6 +2001,10 @@ export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Account> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function accountDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Account>): Partial<Account> | __mf_PendingRef;
 export declare function accountValidateField<K extends keyof Account>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -1977,8 +2114,10 @@ export declare const Account: {
 	readonly defaultValue: typeof accountDefaultValue;
 	readonly encode: typeof accountEncode;
 	readonly encodeWithContext: typeof accountEncodeWithContext;
+	readonly encodePartialWithContext: typeof accountEncodePartialWithContext;
 	readonly decode: typeof accountDecode;
 	readonly decodeWithContext: typeof accountDecodeWithContext;
+	readonly decodePartialWithContext: typeof accountDecodePartialWithContext;
 	readonly validateField: typeof accountValidateField;
 	readonly validateFields: typeof accountValidateFields;
 	readonly hasShape: typeof accountHasShape;
@@ -1993,44 +2132,44 @@ export declare const Account: {
 
 ## Mapping
 
-original 0..551 -> expanded 1336..1887
-original 600..632 -> expanded 1887..1919
-original 660..681 -> expanded 1919..1940
-original 781..786 -> expanded 1940..1945
-original 805..841 -> expanded 1945..1981
-original 890..895 -> expanded 1981..1986
-original 914..944 -> expanded 1986..2016
-original 1033..1078 -> expanded 2016..2061
-original 1106..1139 -> expanded 2061..2094
-original 1167..1198 -> expanded 2094..2125
-original 1258..1306 -> expanded 2125..2173
-original 1438..1473 -> expanded 2173..2208
-original 1654..1659 -> expanded 2208..2213
-original 1689..1714 -> expanded 2213..2238
-original 1759..1789 -> expanded 2238..2268
-original 1842..1879 -> expanded 2268..2305
-original 1927..1950 -> expanded 2305..2328
-original 2021..2026 -> expanded 2328..2333
-original 2067..2096 -> expanded 2333..2362
-original 2124..2149 -> expanded 2362..2387
-original 2200..2231 -> expanded 2387..2418
-original 2279..2307 -> expanded 2418..2446
-original 2379..2384 -> expanded 2446..2451
-original 2425..2455 -> expanded 2451..2481
-original 2522..2527 -> expanded 2481..2486
-original 2568..2594 -> expanded 2486..2512
-original 2643..2674 -> expanded 2512..2543
-original 2747..2752 -> expanded 2543..2548
-original 2793..2824 -> expanded 2548..2579
-original 2865..2895 -> expanded 2579..2609
-original 2923..2948 -> expanded 2609..2634
-original 2948..2949 -> expanded 71043..71044
-generated 0..1336 <- imports
-generated 2634..3264 <- Default
-generated 3264..5827 <- Encode
-generated 5827..32361 <- Decode
-generated 32361..70080 <- Gigaform
-generated 70080..71043 <- __convenience_const
+original 0..551 -> expanded 1557..2108
+original 600..632 -> expanded 2108..2140
+original 660..681 -> expanded 2140..2161
+original 781..786 -> expanded 2161..2166
+original 805..841 -> expanded 2166..2202
+original 890..895 -> expanded 2202..2207
+original 914..944 -> expanded 2207..2237
+original 1033..1078 -> expanded 2237..2282
+original 1106..1139 -> expanded 2282..2315
+original 1167..1198 -> expanded 2315..2346
+original 1258..1306 -> expanded 2346..2394
+original 1438..1473 -> expanded 2394..2429
+original 1654..1659 -> expanded 2429..2434
+original 1689..1714 -> expanded 2434..2459
+original 1759..1789 -> expanded 2459..2489
+original 1842..1879 -> expanded 2489..2526
+original 1927..1950 -> expanded 2526..2549
+original 2021..2026 -> expanded 2549..2554
+original 2067..2096 -> expanded 2554..2583
+original 2124..2149 -> expanded 2583..2608
+original 2200..2231 -> expanded 2608..2639
+original 2279..2307 -> expanded 2639..2667
+original 2379..2384 -> expanded 2667..2672
+original 2425..2455 -> expanded 2672..2702
+original 2522..2527 -> expanded 2702..2707
+original 2568..2594 -> expanded 2707..2733
+original 2643..2674 -> expanded 2733..2764
+original 2747..2752 -> expanded 2764..2769
+original 2793..2824 -> expanded 2769..2800
+original 2865..2895 -> expanded 2800..2830
+original 2923..2948 -> expanded 2830..2855
+original 2948..2949 -> expanded 80536..80537
+generated 0..1557 <- imports
+generated 2855..3485 <- Default
+generated 3485..9654 <- Encode
+generated 9654..41578 <- Decode
+generated 41578..79297 <- Gigaform
+generated 79297..80536 <- __convenience_const
 
 ## Metadata
 

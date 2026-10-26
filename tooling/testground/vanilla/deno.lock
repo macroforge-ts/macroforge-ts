@@ -1,11 +1,29 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@jsr/gigatypes__decorators@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__dom@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2015@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2016@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2017@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2018@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2019@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2020@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2021@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2022@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2023@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2024@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2025@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es5@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es6@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__esnext@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__scripthost@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__webworker@0.1.4": "0.1.4",
     "npm:@macroforge/core@*": "0.5.0",
-    "npm:@macroforge/vite-plugin@*": "0.5.0_typescript@5.9.3_vite@7.3.6__@types+node@22.20.4",
+    "npm:@macroforge/vite-plugin@*": "0.5.0_typescript@6.0.3_vite@7.3.6",
     "npm:@types/node@^22.10.2": "22.20.4",
     "npm:effect@^3.19.4": "3.22.2",
-    "npm:typescript@^5.9.3": "5.9.3",
+    "npm:typescript@^6.0.3": "6.0.3",
     "npm:vite@^7.2.4": "7.3.6_@types+node@22.20.4"
   },
   "npm": {
@@ -142,9 +160,199 @@
     "@jridgewell/sourcemap-codec@1.6.0": {
       "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
     },
+    "@jsr/gigatypes__decorators@0.1.4": {
+      "integrity": "sha512-FEQPPJmzmEnYZRr22jXIvNohvbs3HgftQ9a+Is4nnvLnu4Ymik1ZrHX9HcoMcPwUl/s/WA3e/ilI+4zwtcbctg==",
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__decorators/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__dom@0.1.4": {
+      "integrity": "sha512-Ezde5Zbj2p5lGY70IXT7oWfMUz5awpBkgJqgfauG2ycE32lul8A0UEz7kfJ6/VcidK56DOmwfjkY4hffES62tg==",
+      "dependencies": [
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__shared-es2018-asynciterable"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__dom/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2015@0.1.4": {
+      "integrity": "sha512-8C9AMf2AoWvYqGQANEWzl8Qe6OOgb8GQs8Fmqb/HI4eSddQXGxLn99xgHzr0KyQs2naLuizs5CvedNUK03/0tA==",
+      "dependencies": [
+        "@jsr/gigatypes__es5"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2015/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2016@0.1.4": {
+      "integrity": "sha512-smFtcx7/zyy0LAyolnkDDPswaPimx/AMAF2PjY/m2xPWAUKEqge38oAcixRmwSZi3HmLHMdjOjdUWvzu8FpwoA==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2016/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2017@0.1.4": {
+      "integrity": "sha512-eqCIA9W/7EEmlNt4QFUW/hD7rexYcllURYejUYnwOx9zHyVsl6eDKXScgN9CuDGCWG+SuX03FcmSH3RdGDXI+g==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2016",
+        "@jsr/gigatypes__es5",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2017/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2018@0.1.4": {
+      "integrity": "sha512-8wI1ZlEyW0HXQmyT5OPwVXBPxZjk2wfTLEZYMwIfF4Sc2V39U4bqaRu13+EaPI02ZZHuyK4fmCGpEK7kkLcTDw==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__shared-es2018-asynciterable",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2018/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2019@0.1.4": {
+      "integrity": "sha512-5KG6od1sJZo8Z4tf0yFRJ61dg+1Qhzy9BEF5/eHH1FrugyfJdW1p27qkY+gvOBupMEsLWc7Mbf3VHlSGzpGNJA==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2019/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2020@0.1.4": {
+      "integrity": "sha512-8VS83BUiPh6EpeqFsWW04KXNyAO9UIEzu+axT6ifRqzqSjTl/xzACwrgYR5e8CMTi8MzG+UL8EtjcScbkcv9fw==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__es2019",
+        "@jsr/gigatypes__es5",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2020/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2021@0.1.4": {
+      "integrity": "sha512-AAxqKY+usx+aCgpf4SmeeTJI8KF+Op4IVR0ss/sPbiWjgJWX5NLZROyZGck9gFdUF2qLHqI72HbiOOt3Fo9TEw==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2021/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2022@0.1.4": {
+      "integrity": "sha512-0rxjEmOpNoDWwp4cZfl4Ofewsg9qPj2dbEKQwNwro5u/BEaGQrTXOYjZjl48TDIUS0/GmQ4uV/r3Cxc9JPWSTQ==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2021",
+        "@jsr/gigatypes__es5",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2022/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2023@0.1.4": {
+      "integrity": "sha512-Skl6pknedd9A8DhWsYk2d6vtO7Z5zVuRhGGzVoDSG1udMRafSoIKLPHUdGCiVwULXthvCmS/GHXUkocSR74Ssg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__es2022",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2023/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2024@0.1.4": {
+      "integrity": "sha512-IIvKITDjie/RZs/+7CTY5xCRtSwCApOd1jKAYJ6Am6lLW1NgR+V2ONFAt07dSRkQLJh4RWHpnu7EOrIpns52rg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__es2023",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2024/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2025@0.1.4": {
+      "integrity": "sha512-72lv96LtP47pYBJkiktDlvOa1HUXWasaKKR27BdwkCjMxPXeSUb7NLbNFHMBntLT3f/A0uwglTNTiMjSVLX6Dg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__es2024",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2025/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es5@0.1.4": {
+      "integrity": "sha512-iv/ER+ML5wJP50oS1qOPWhiB2/vo6DU9tqiSewT/TTdIyBK4QSDp0hI+ekqF+q2ux1fiPMUfq6d734+f0CgSnQ==",
+      "dependencies": [
+        "@jsr/gigatypes__decorators"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es5/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es6@0.1.4": {
+      "integrity": "sha512-r/mxKF29C6OsOafS33adnWY6fF6mm2xNSBqbIlBdjwcBCkiCnUUoZD3Mdcv5iXf2CrQq8enA5+WnMcQpKy08Vg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es6/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__esnext@0.1.4": {
+      "integrity": "sha512-eit3eWpyXjHayDFrHaF7sNhnbKOB+nP0T4UuqXkqGOrUaBv8RMm4IVFvlj/6Jq5Erdk0MDgYDyXwet8+J/uwXQ==",
+      "dependencies": [
+        "@jsr/gigatypes__decorators",
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__es2021",
+        "@jsr/gigatypes__es2025",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__shared-es2018-asynciterable",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__esnext/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__scripthost@0.1.4": {
+      "integrity": "sha512-peU622W9yfEAl+rmFQY5lfM1OFau28KXMBl6hkUpUwwUd/3KlOdyb7SWiAUxsQdpw3RGf0US97ioEQeXB97YLw==",
+      "dependencies": [
+        "@jsr/gigatypes__es5"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__scripthost/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__shared-es2018-asynciterable@0.1.4": {
+      "integrity": "sha512-AAwE1HUYD8ytlPAECeP2BTLkylMQ5E/fOoh5Fe4UNEo7OTUwTwfG072sb2JZRw822Q3c3GjreqDKKgp5nx/gMQ==",
+      "dependencies": [
+        "@jsr/gigatypes__es2015"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__shared-es2018-asynciterable/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__webworker@0.1.4": {
+      "integrity": "sha512-ihjBGBxqVp7FUPNFCA192NAo3nMlnPw09HU/ptyEvdPOxC0D7INdXW79YGEliCdg7mNYm0iKGv2eLm6+v60jAA==",
+      "dependencies": [
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__shared-es2018-asynciterable"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__webworker/0.1.4.tgz"
+    },
     "@macroforge/core@0.5.0": {},
     "@macroforge/shared@0.5.0": {},
-    "@macroforge/vite-plugin@0.5.0_typescript@5.9.3_vite@7.3.6__@types+node@22.20.4": {
+    "@macroforge/vite-plugin@0.5.0_typescript@6.0.3_vite@7.3.6": {
       "dependencies": [
         "@jridgewell/sourcemap-codec",
         "@macroforge/core",
@@ -425,8 +633,8 @@
         "picomatch"
       ]
     },
-    "typescript@5.9.3": {
-      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+    "typescript@6.0.3": {
+      "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
       "bin": true
     },
     "undici-types@6.21.0": {
@@ -455,11 +663,29 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@jsr/gigatypes__decorators@0.1.4",
+        "npm:@jsr/gigatypes__dom@0.1.4",
+        "npm:@jsr/gigatypes__es2015@0.1.4",
+        "npm:@jsr/gigatypes__es2016@0.1.4",
+        "npm:@jsr/gigatypes__es2017@0.1.4",
+        "npm:@jsr/gigatypes__es2018@0.1.4",
+        "npm:@jsr/gigatypes__es2019@0.1.4",
+        "npm:@jsr/gigatypes__es2020@0.1.4",
+        "npm:@jsr/gigatypes__es2021@0.1.4",
+        "npm:@jsr/gigatypes__es2022@0.1.4",
+        "npm:@jsr/gigatypes__es2023@0.1.4",
+        "npm:@jsr/gigatypes__es2024@0.1.4",
+        "npm:@jsr/gigatypes__es2025@0.1.4",
+        "npm:@jsr/gigatypes__es5@0.1.4",
+        "npm:@jsr/gigatypes__es6@0.1.4",
+        "npm:@jsr/gigatypes__esnext@0.1.4",
+        "npm:@jsr/gigatypes__scripthost@0.1.4",
+        "npm:@jsr/gigatypes__webworker@0.1.4",
         "npm:@macroforge/core@*",
         "npm:@macroforge/vite-plugin@*",
         "npm:@types/node@^22.10.2",
         "npm:effect@^3.19.4",
-        "npm:typescript@^5.9.3",
+        "npm:typescript@^6.0.3",
         "npm:vite@^7.2.4"
       ]
     },
@@ -473,7 +699,7 @@
           "npm:@macroforge/shared@0.5.0"
         ],
         "peerDependencies": [
-          "npm:typescript@>=5.0.0",
+          "npm:typescript@5 || 6",
           "npm:vite@5 || 6 || 7 || 8"
         ],
         "peerDependenciesMeta": {

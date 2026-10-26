@@ -477,6 +477,93 @@ export function derivedEncoder(
 }
 
 /**
+ * The fields of a type a value has to have: only those named, or every one
+ * but those named. A `Pick` and an `Omit` of the type, as values.
+ */
+export type FieldSelection<Field extends PropertyKey = string> =
+  | { readonly only: ReadonlyArray<Field> }
+  | { readonly except: ReadonlyArray<Field> };
+
+/**
+ * What a selection of a type's fields means for one of them: whether a value
+ * of that shape has the field at all, and whether it has to.
+ */
+export interface FieldRequirement {
+  /** Whether the shape has the field. One it lacks is neither read nor written. */
+  keeps(field: string): boolean;
+  /** Whether a value has to have the field, where its type requires it. */
+  requires(field: string): boolean;
+}
+
+/**
+ * The requirement `fields` makes. Without `fields` every field is kept and
+ * none is required, which is how a `Partial` of a type is coded.
+ */
+export function fieldRequirement(
+  fields: FieldSelection<PropertyKey> | undefined,
+): FieldRequirement {
+  if (fields === undefined) return { keeps: () => true, requires: () => false };
+  if ("only" in fields) {
+    const only = new Set(fields.only);
+    const selected = (field: string) => only.has(field);
+    return { keeps: selected, requires: selected };
+  }
+  const except = new Set(fields.except);
+  const selected = (field: string) => !except.has(field);
+  return { keeps: selected, requires: selected };
+}
+
+/**
+ * The JSON text of an encoded value.
+ * @throws {TypeError} If the value has no JSON text, as `undefined` has none.
+ */
+export function encodedText(encoded: unknown): string {
+  return jsonText(JSON.stringify(encoded));
+}
+
+/**
+ * The JSON text of an encoded value without its `tagField` and `__id`
+ * members, at every depth.
+ * @throws {TypeError} If the value has no JSON text, as `undefined` has none.
+ */
+export function encodedTextWithoutMetadata(encoded: unknown, tagField: string): string {
+  return jsonText(
+    JSON.stringify(
+      encoded,
+      (key, member: unknown) =>
+        key === tagField || key === "__id" ? undefined : replacerMember(member),
+    ),
+  );
+}
+
+function jsonText(text: string | undefined): string {
+  if (text === undefined) {
+    throw new TypeError("the encoded value has no JSON text: JSON cannot represent it");
+  }
+  return text;
+}
+
+/**
+ * `member` as a `JSON.stringify` replacer hands it on. A function, a symbol
+ * or `undefined` is left out, as JSON leaves it out.
+ * @throws {TypeError} For a `bigint`, which JSON cannot represent.
+ */
+function replacerMember(
+  member: unknown,
+): string | number | boolean | null | Record<string, unknown> | unknown[] | undefined {
+  if (typeof member === "string" || typeof member === "number" || typeof member === "boolean") {
+    return member;
+  }
+  if (Array.isArray(member) || isJsonObject(member)) return member;
+  if (typeof member === "bigint") throw new TypeError("Do not know how to serialize a BigInt");
+  return member === null ? null : undefined;
+}
+
+function isJsonObject(member: unknown): member is Record<string, unknown> {
+  return typeof member === "object" && member !== null;
+}
+
+/**
  * Whether `value` is a multiple of `divisor`, the `multipleOf(n)` validator's
  * check. Decimal operands are compared exactly, so `0.3` is a multiple of
  * `0.1`; a value that is not finite is never a multiple. Matches Effect's

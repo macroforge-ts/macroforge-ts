@@ -104,7 +104,8 @@ After (Generated)
 
 ```
 import { structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
 
 class User {
   
@@ -146,29 +147,50 @@ export function userToString(value: User): string {
 export function userEncode(value: User, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = userEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return userEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "User",
         __id,
     };
 
-    
-    result.user_id = value.id;
-    result.name = value.name;
-    result.metadata = value.metadata;
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.user_id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("metadata")) {
+
+        if (value.metadata !== undefined) {
+            result.metadata = value.metadata;
+        }
+    }
 
     return result;
 }

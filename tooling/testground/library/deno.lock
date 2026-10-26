@@ -3,10 +3,10 @@
   "specifiers": {
     "npm:@macroforge/core@*": "0.5.0",
     "npm:@macroforge/svelte-preprocessor@*": "0.5.0_svelte@5.56.4",
-    "npm:@sveltejs/package@^2.5.4": "2.5.8_svelte@5.56.4_typescript@5.9.3",
+    "npm:@sveltejs/package@^2.5.4": "2.5.8_svelte@5.56.4_typescript@6.0.3",
     "npm:@sveltejs/vite-plugin-svelte@^6.2.1": "6.2.4_svelte@5.56.4_vite@7.3.6",
     "npm:svelte@^5.43.8": "5.56.4",
-    "npm:typescript@^5.9.3": "5.9.3",
+    "npm:typescript@^6.0.3": "6.0.3",
     "npm:vite@^7.2.2": "7.3.6"
   },
   "npm": {
@@ -307,7 +307,7 @@
         "acorn"
       ]
     },
-    "@sveltejs/package@2.5.8_svelte@5.56.4_typescript@5.9.3": {
+    "@sveltejs/package@2.5.8_svelte@5.56.4_typescript@6.0.3": {
       "integrity": "sha512-zeBbsXYvHiBu56v4gJaGQoEHzg96w0E1j3dOMX8vo56s6vI5eQ57ZEZhudjwjnegnVitRRu5MrmhO0eNvaonIw==",
       "dependencies": [
         "chokidar",
@@ -319,7 +319,7 @@
       ],
       "bin": true
     },
-    "@sveltejs/vite-plugin-svelte-inspector@5.0.1_@sveltejs+vite-plugin-svelte@6.2.4__svelte@5.56.4__vite@7.3.6_svelte@5.56.4_vite@7.3.6": {
+    "@sveltejs/vite-plugin-svelte-inspector@5.0.1_@sveltejs+vite-plugin-svelte@6.2.4_svelte@5.56.4_vite@7.3.6": {
       "integrity": "sha512-ubWshlMk4bc8mkwWbg6vNvCeT7lGQojE3ijDh3QTR6Zr/R+GXxsGbyH4PExEPpiFmqPhYiVSVmHBjUcVc1JIrA==",
       "dependencies": [
         "@sveltejs/vite-plugin-svelte",
@@ -535,7 +535,7 @@
     "source-map-js@1.2.1": {
       "integrity": "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="
     },
-    "svelte2tsx@0.7.57_svelte@5.56.4_typescript@5.9.3": {
+    "svelte2tsx@0.7.57_svelte@5.56.4_typescript@6.0.3": {
       "integrity": "sha512-nQo0xEfUpSVjfkxan2UmC6Wl9UZVe9+/pglUiyBNMJ7KDQ9DDooucmXdToBOvzSfgYjj/kMYwf6CTTDz/z048w==",
       "dependencies": [
         "dedent-js",
@@ -572,8 +572,8 @@
         "picomatch"
       ]
     },
-    "typescript@5.9.3": {
-      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+    "typescript@6.0.3": {
+      "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
       "bin": true
     },
     "vite@7.3.6": {
@@ -612,7 +612,7 @@
         "npm:@sveltejs/package@^2.5.4",
         "npm:@sveltejs/vite-plugin-svelte@^6.2.1",
         "npm:svelte@^5.43.8",
-        "npm:typescript@^5.9.3",
+        "npm:typescript@^6.0.3",
         "npm:vite@^7.2.2"
       ]
     },

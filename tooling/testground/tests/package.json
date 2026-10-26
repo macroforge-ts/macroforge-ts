@@ -10,8 +10,7 @@
         "@macroforge/vite-plugin": "*",
         "@testground/macro": "file:../macro",
         "@playwright/test": "^1.63.0",
-        "@vtsls/language-server": "^0.2.9",
-        "typescript": "^5",
+        "typescript": "^6.0.3",
         "vite": "~7.2.6"
     }
 }

@@ -1,7 +1,8 @@
-/** The element with `id`, which the page renders before asking for it. */
+/** The HTML element with `id`, which the page renders before asking for it. */
 export function requireElement(id: string): HTMLElement {
     const element = document.getElementById(id);
     if (!element) throw new Error(`#${id} is missing from the page`);
+    if (!(element instanceof HTMLElement)) throw new Error(`#${id} is not an HTML element`);
     return element;
 }
 

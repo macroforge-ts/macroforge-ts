@@ -1,7 +1,7 @@
 //! `decode` and `decodeWithContext` for a union alias that is not literals only.
 
 use crate::ast::Expr;
-use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::common::{primitive_keyword_test, rendered};
 use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
@@ -181,7 +181,8 @@ fn primitive_only(u: &Union) -> TsStream {
     } = u;
     ts_template! {
                             {#for (prim, arm_validators) in primitive_arms}
-                                if (typeof value === "@{prim}") {
+                                {$let is_primitive: Expr = primitive_keyword_test(prim, "value").into()}
+                                if (@{is_primitive}) {
                                     {#if !arm_validators.is_empty()}
                                         const errors: Array<{ field: string; message: string }> = [];
                                         {$let arm_validation = generate_field_validations(arm_validators, "value", "_root", type_name, Missing::Excluded)}

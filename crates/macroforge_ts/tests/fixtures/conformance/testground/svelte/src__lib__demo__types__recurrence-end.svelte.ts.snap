@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -30,8 +30,7 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 export function recurrenceEndEncode(value: RecurrenceEnd, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = recurrenceEndEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -381,15 +380,15 @@ export declare const RecurrenceEnd: {
 
 ## Mapping
 
-original 0..58 -> expanded 460..518
-original 107..171 -> expanded 518..582
-original 171..172 -> expanded 9833..9834
-generated 0..460 <- imports
-generated 582..660 <- Default
-generated 660..1993 <- Encode
-generated 1993..4539 <- Decode
-generated 4539..8948 <- Gigaform
-generated 8948..9833 <- __convenience_const
+original 0..58 -> expanded 556..614
+original 107..171 -> expanded 614..678
+original 171..172 -> expanded 9877..9878
+generated 0..556 <- imports
+generated 678..756 <- Default
+generated 756..2037 <- Encode
+generated 2037..4583 <- Decode
+generated 4583..8992 <- Gigaform
+generated 8992..9877 <- __convenience_const
 
 ## Metadata
 

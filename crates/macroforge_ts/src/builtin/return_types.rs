@@ -37,6 +37,12 @@ pub const DECODE_OPTIONS: &str = "__mf_DecodeOptions";
 pub const PENDING_REF: &str = "__mf_PendingRef";
 /// Aliased name for EncodeContext
 pub const ENCODE_CONTEXT: &str = "__mf_EncodeContext";
+/// Aliased name for FieldSelection
+pub const FIELD_SELECTION: &str = "__mf_FieldSelection";
+/// Aliased name for fieldRequirement
+pub const FIELD_REQUIREMENT: &str = "__mf_fieldRequirement";
+/// Aliased name for FieldRequirement
+pub const FIELD_REQUIREMENT_TYPE: &str = "__mf_FieldRequirement";
 
 // ============================================================================
 // Decode Return Type Helpers

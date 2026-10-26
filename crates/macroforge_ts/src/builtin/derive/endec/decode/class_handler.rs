@@ -5,14 +5,15 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 
 use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
-use super::field::statements::decode_fields;
-use super::reference::decode_reference;
+use super::field::statements::{Required, decode_fields, requires};
+use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{TypeNames, js_string, rendered};
 use crate::builtin::return_types::{
-    DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, PENDING_REF, decode_return_type, is_ok_check,
-    root_forward_reference_error, wrap_error, wrap_success,
+    DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE,
+    FIELD_SELECTION, PENDING_REF, decode_return_type, is_ok_check, root_forward_reference_error,
+    wrap_error, wrap_success,
 };
 
 pub(super) fn handle_class(
@@ -22,6 +23,11 @@ pub(super) fn handle_class(
     let class_name = input.name();
     let class_names = TypeNames::new(class_name, class.type_params());
     let class_ident = class_names.full_type_ident();
+    let writable_instance_ident = class
+        .fields()
+        .iter()
+        .any(|field| field.readonly)
+        .then(|| class_names.fillable_type_ident(true));
     let class_expr: Expr = ts_ident!(class_name).into();
     let generic_args = class_names.generic_args.as_str();
     let key_param = class_names.key_param();
@@ -38,6 +44,11 @@ pub(super) fn handle_class(
     let fn_decode_ident = class_names.generic_function("Decode");
     let fn_decode_internal_ident = class_names.generic_function("DecodeWithContext");
     let fn_is_ident = class_names.generic_function("Is");
+    let fn_has_shape_ident = ts_ident!(class_names.function("HasShape"));
+    let fn_decode_partial_ident = class_names.generic_function("DecodePartialWithContext");
+    let field_selection_ident = ts_ident!(FIELD_SELECTION);
+    let field_requirement_ident = ts_ident!(FIELD_REQUIREMENT_TYPE);
+    let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
 
     // Check for user-defined constructor with parameters
     if let Some(ctor) = class.method("constructor")
@@ -84,7 +95,7 @@ pub(super) fn handle_class(
     // Separate required vs optional fields
     let required_fields: Vec<_> = fields
         .iter()
-        .filter(|f| !f.optional && !f.flatten)
+        .filter(|field| field.key_required())
         .cloned()
         .collect();
 
@@ -156,8 +167,8 @@ pub(super) fn handle_class(
     let props_type = rendered(ts_template! { { @{props_type_parts} } });
     let props_type_ident = ts_ident!(props_type.as_str());
 
-    let field_statements = decode_fields(&fields, class_name);
-    let reference = decode_reference(
+    let field_statements = decode_fields(&fields, class_name, Required::Selected);
+    let reference = decode_selectable_reference(
         class_name,
         &rendered(ts_template! { @{&class_names.full_type} | @{PENDING_REF} }),
     );
@@ -203,7 +214,10 @@ pub(super) fn handle_class(
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{decode_context_ident}): @{class_ident} | @{pending_ref_ident} {
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}): @{&class_ident} | @{&pending_ref_ident};
+        /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have */
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}, fields: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident};
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}, __fields?: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
             {$typescript reference}
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -224,17 +238,23 @@ pub(super) fn handle_class(
 
             {#if !required_fields.is_empty()}
                 {#for field in &required_fields}
-                    if (!("@{field.json_key}" in obj)) {
+                    {$let is_required: Expr = requires(field)}
+                    if (@{is_required} && !("@{field.json_key}" in obj)) {
                         errors.push({ field: "@{field.json_key}", message: "missing required field" });
                     }
                 {/for}
             {/if}
 
             // Create instance using Object.create to avoid constructor
-            const instance = Object.create(@{&class_expr}.prototype) as @{class_ident};
+            {#if let Some(writable_ident) = &writable_instance_ident}
+                const instance: @{writable_ident} = Object.create(@{&class_expr}.prototype);
+            {:else}
+                const instance = Object.create(@{&class_expr}.prototype) as @{class_ident};
+            {/if}
 
-            // Register with context if __id is present
-            if (obj.__id !== undefined) {
+            // Register with context if __id is present. Only a whole value
+            // can be referred to.
+            if (__fields === undefined && obj.__id !== undefined) {
                 ctx.register(obj.__id as number, instance);
             }
 
@@ -320,12 +340,25 @@ pub(super) fn handle_class(
             return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx);
         }
 
+        /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check */
+        export function @{fn_has_shape_ident}(value: unknown): boolean {
+            return @{&class_expr}.hasShape(value);
+        }
+
+        /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out */
+        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&class_ident}>): Partial<@{&class_ident}> | @{&pending_ref_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx, @{field_requirement_expr}(fields));
+        }
+
         /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type */
         export function @{fn_is_ident}(value: unknown): value is @{class_ident} {
             return @{&class_expr}.@{ts_ident!(format!("is{generic_args}"))}(value);
         }
     };
     standalone.add_aliased_import("DecodeContext", crate::package::ENDEC);
+    standalone.add_aliased_type_import("FieldSelection", crate::package::ENDEC);
+    standalone.add_aliased_type_import("FieldRequirement", crate::package::ENDEC);
+    standalone.add_aliased_import("fieldRequirement", crate::package::ENDEC);
     standalone.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     standalone.add_aliased_import("PendingRef", crate::package::ENDEC);
 

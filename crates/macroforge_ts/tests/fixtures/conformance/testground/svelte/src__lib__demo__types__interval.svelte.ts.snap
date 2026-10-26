@@ -16,7 +16,7 @@ import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dail
 import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,8 +43,7 @@ export function intervalDefaultValue(): Interval {
 export function intervalEncode(value: Interval, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = intervalEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -533,15 +532,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1072..1439
-original 416..564 -> expanded 1439..1587
-original 564..565 -> expanded 16960..16961
-generated 0..1072 <- imports
-generated 1587..1687 <- Default
-generated 1687..2995 <- Encode
-generated 2995..9550 <- Decode
-generated 9550..16170 <- Gigaform
-generated 16170..16960 <- __convenience_const
+original 0..367 -> expanded 1168..1535
+original 416..564 -> expanded 1535..1683
+original 564..565 -> expanded 17004..17005
+generated 0..1168 <- imports
+generated 1683..1783 <- Default
+generated 1783..3039 <- Encode
+generated 3039..9594 <- Decode
+generated 9594..16214 <- Gigaform
+generated 16214..17004 <- __convenience_const
 
 ## Metadata
 

@@ -3,14 +3,14 @@
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
-        "@macroforge/core": "0.5.0",
-        "@macroforge/shared": "0.5.0"
+        "@macroforge/core": "0.6.0",
+        "@macroforge/shared": "0.6.0"
     },
     "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
     "devDependencies": {
         "@types/node": "^26.6.2",
         "svelte": "^5.57.1",
-        "typescript": "^5.9.3"
+        "typescript": "^6.0.3"
     },
     "exports": {
         ".": "./src/index.ts"
@@ -39,5 +39,5 @@
         "test": "deno test --allow-read --allow-env --allow-write --unstable-detect-cjs tests/"
     },
     "type": "module",
-    "version": "0.5.0"
+    "version": "0.6.0"
 }

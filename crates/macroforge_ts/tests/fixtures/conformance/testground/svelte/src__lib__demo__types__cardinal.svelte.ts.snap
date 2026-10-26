@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -40,30 +40,56 @@ export function cardinalDefaultValue(): Cardinal {
 export function cardinalEncode(value: Cardinal, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = cardinalEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function cardinalEncodeWithContext(value: Cardinal, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return cardinalEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function cardinalEncodePartialWithContext(value: Partial<Cardinal>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Cardinal>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Cardinal",
         __id,
     };
 
-    
-    result.north = value.north;
-    result.east = value.east;
-    result.south = value.south;
-    result.west = value.west;
+    if (__fields === undefined || __fields.keeps("north")) {
+
+        if (value.north !== undefined) {
+            result.north = value.north;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("east")) {
+
+        if (value.east !== undefined) {
+            result.east = value.east;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("south")) {
+
+        if (value.south !== undefined) {
+            result.south = value.south;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("west")) {
+
+        if (value.west !== undefined) {
+            result.west = value.west;
+        }
+    }
 
     return result;
 }
@@ -122,7 +148,13 @@ export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cardinal | __mf_PendingRef {
+export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cardinal | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Cardinal> | __mf_PendingRef;
+export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Cardinal> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Cardinal.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Cardinal.decodeWithContext: __ref must be a number" }]);
@@ -136,28 +168,28 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("north" in obj)) {
+    if ((__fields === undefined || __fields.requires("north")) && !("north" in obj)) {
         errors.push({ field: "north", message: "missing required field" });
     }
-    if (!("east" in obj)) {
+    if ((__fields === undefined || __fields.requires("east")) && !("east" in obj)) {
         errors.push({ field: "east", message: "missing required field" });
     }
-    if (!("south" in obj)) {
+    if ((__fields === undefined || __fields.requires("south")) && !("south" in obj)) {
         errors.push({ field: "south", message: "missing required field" });
     }
-    if (!("west" in obj)) {
+    if ((__fields === undefined || __fields.requires("west")) && !("west" in obj)) {
         errors.push({ field: "west", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("north")) || (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
         if (!(typeof __raw_north === "number")) {
@@ -166,7 +198,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.north = __raw_north;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("east")) || (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
         if (!(typeof __raw_east === "number")) {
@@ -175,7 +207,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.east = __raw_east;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("south")) || (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
         if (!(typeof __raw_south === "number")) {
@@ -184,7 +216,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.south = __raw_south;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("west")) || (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
         if (!(typeof __raw_west === "number")) {
@@ -197,6 +229,11 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     ctx.pushErrors(errors);
 
     return instance as Cardinal;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function cardinalDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Cardinal>): Partial<Cardinal> | __mf_PendingRef {
+    return cardinalDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function cardinalValidateField<K extends keyof Cardinal>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function cardinalValidateField(): Array<{ field: string; message: string }> {
@@ -422,8 +459,10 @@ export const Cardinal: {
   readonly defaultValue: typeof cardinalDefaultValue;
   readonly encode: typeof cardinalEncode;
   readonly encodeWithContext: typeof cardinalEncodeWithContext;
+  readonly encodePartialWithContext: typeof cardinalEncodePartialWithContext;
   readonly decode: typeof cardinalDecode;
   readonly decodeWithContext: typeof cardinalDecodeWithContext;
+  readonly decodePartialWithContext: typeof cardinalDecodePartialWithContext;
   readonly validateField: typeof cardinalValidateField;
   readonly validateFields: typeof cardinalValidateFields;
   readonly hasShape: typeof cardinalHasShape;
@@ -434,8 +473,10 @@ export const Cardinal: {
   defaultValue: cardinalDefaultValue,
   encode: cardinalEncode,
   encodeWithContext: cardinalEncodeWithContext,
+  encodePartialWithContext: cardinalEncodePartialWithContext,
   decode: cardinalDecode,
   decodeWithContext: cardinalDecodeWithContext,
+  decodePartialWithContext: cardinalDecodePartialWithContext,
   validateField: cardinalValidateField,
   validateFields: cardinalValidateFields,
   hasShape: cardinalHasShape,
@@ -458,6 +499,8 @@ export declare function cardinalDefaultValue(): Cardinal;
 export declare function cardinalEncode(value: Cardinal, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function cardinalEncodeWithContext(value: Cardinal, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function cardinalEncodePartialWithContext(value: Partial<Cardinal>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Cardinal>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -471,6 +514,10 @@ export declare function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cardinal | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Cardinal> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function cardinalDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Cardinal>): Partial<Cardinal> | __mf_PendingRef;
 export declare function cardinalValidateField<K extends keyof Cardinal>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -526,8 +573,10 @@ export declare const Cardinal: {
 	readonly defaultValue: typeof cardinalDefaultValue;
 	readonly encode: typeof cardinalEncode;
 	readonly encodeWithContext: typeof cardinalEncodeWithContext;
+	readonly encodePartialWithContext: typeof cardinalEncodePartialWithContext;
 	readonly decode: typeof cardinalDecode;
 	readonly decodeWithContext: typeof cardinalDecodeWithContext;
+	readonly decodePartialWithContext: typeof cardinalDecodePartialWithContext;
 	readonly validateField: typeof cardinalValidateField;
 	readonly validateFields: typeof cardinalValidateFields;
 	readonly hasShape: typeof cardinalHasShape;
@@ -542,15 +591,15 @@ export declare const Cardinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..211 -> expanded 479..583
-original 211..212 -> expanded 15124..15125
-generated 0..421 <- imports
-generated 583..727 <- Default
-generated 727..1925 <- Encode
-generated 1925..7053 <- Decode
-generated 7053..14138 <- Gigaform
-generated 14138..15124 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..211 -> expanded 700..804
+original 211..212 -> expanded 18674..18675
+generated 0..642 <- imports
+generated 804..948 <- Default
+generated 948..3222 <- Encode
+generated 3222..10323 <- Decode
+generated 10323..17408 <- Gigaform
+generated 17408..18674 <- __convenience_const
 
 ## Metadata
 

@@ -13,8 +13,8 @@ true
 ## Output
 
 import { employeeDecode, employeeEncodeWithContext } from "./employee.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -60,46 +60,107 @@ export function routeDefaultValue(): Route {
 export function routeEncode(value: Route, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = routeEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return routeEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Route>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Route",
         __id,
     };
 
-    
-    result.id = value.id;
-    if (value.techs !== null) {
+    if (__fields === undefined || __fields.keeps("id")) {
 
-        result.techs = value.techs.map(
-            (item) => typeof item === "string"
-                ? item
-                : employeeEncodeWithContext(item, ctx)
-        );
-    } else {
-        result.techs = null;
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
     }
-    result.active = value.active;
-    result.name = value.name;
-    result.phone = value.phone;
-    result.position = value.position;
-    result.serviceRoute = value.serviceRoute;
-    result.defaultDurationHours = value.defaultDurationHours;
-    result.tags = value.tags;
-    result.icon = value.icon;
-    result.color = value.color;
+    if (__fields === undefined || __fields.keeps("techs")) {
+        if (value.techs !== undefined) {
+
+            if (value.techs !== null) {
+
+                result.techs = value.techs.map(
+                    (item) => typeof item === "string"
+                        ? item
+                        : employeeEncodeWithContext(item, ctx)
+                );
+            } else {
+                result.techs = null;
+            }
+        }
+    }
+    if (__fields === undefined || __fields.keeps("active")) {
+
+        if (value.active !== undefined) {
+            result.active = value.active;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("phone")) {
+
+        if (value.phone !== undefined) {
+            result.phone = value.phone;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("position")) {
+
+        if (value.position !== undefined) {
+            result.position = value.position;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("serviceRoute")) {
+
+        if (value.serviceRoute !== undefined) {
+            result.serviceRoute = value.serviceRoute;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("defaultDurationHours")) {
+
+        if (value.defaultDurationHours !== undefined) {
+            result.defaultDurationHours = value.defaultDurationHours;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tags")) {
+
+        if (value.tags !== undefined) {
+            result.tags = value.tags;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("icon")) {
+        if (value.icon !== undefined) {
+
+            result.icon = value.icon;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("color")) {
+        if (value.color !== undefined) {
+
+            result.color = value.color;
+        }
+    }
 
     return result;
 }
@@ -158,7 +219,13 @@ export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Route | __mf_PendingRef {
+export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Route | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Route> | __mf_PendingRef;
+export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Route> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Route.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Route.decodeWithContext: __ref must be a number" }]);
@@ -172,49 +239,49 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("techs" in obj)) {
+    if ((__fields === undefined || __fields.requires("techs")) && !("techs" in obj)) {
         errors.push({ field: "techs", message: "missing required field" });
     }
-    if (!("active" in obj)) {
+    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
         errors.push({ field: "active", message: "missing required field" });
     }
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
-    if (!("phone" in obj)) {
+    if ((__fields === undefined || __fields.requires("phone")) && !("phone" in obj)) {
         errors.push({ field: "phone", message: "missing required field" });
     }
-    if (!("position" in obj)) {
+    if ((__fields === undefined || __fields.requires("position")) && !("position" in obj)) {
         errors.push({ field: "position", message: "missing required field" });
     }
-    if (!("serviceRoute" in obj)) {
+    if ((__fields === undefined || __fields.requires("serviceRoute")) && !("serviceRoute" in obj)) {
         errors.push({ field: "serviceRoute", message: "missing required field" });
     }
-    if (!("defaultDurationHours" in obj)) {
+    if ((__fields === undefined || __fields.requires("defaultDurationHours")) && !("defaultDurationHours" in obj)) {
         errors.push({ field: "defaultDurationHours", message: "missing required field" });
     }
-    if (!("tags" in obj)) {
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
         errors.push({ field: "tags", message: "missing required field" });
     }
-    if (!("icon" in obj)) {
+    if ((__fields === undefined || __fields.requires("icon")) && !("icon" in obj)) {
         errors.push({ field: "icon", message: "missing required field" });
     }
-    if (!("color" in obj)) {
+    if ((__fields === undefined || __fields.requires("color")) && !("color" in obj)) {
         errors.push({ field: "color", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -223,7 +290,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("techs")) || (__fields.keeps("techs") && obj["techs"] !== undefined)) {
         const __raw_techs = obj["techs"] as Array<string | Employee> | null;
 
         if (__raw_techs === null) {
@@ -266,7 +333,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
         const __raw_active = obj["active"] as boolean;
 
         if (!(typeof __raw_active === "boolean")) {
@@ -275,7 +342,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.active = __raw_active;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -287,7 +354,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.name = __raw_name;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("phone")) || (__fields.keeps("phone") && obj["phone"] !== undefined)) {
         const __raw_phone = obj["phone"] as string;
 
         if (!(typeof __raw_phone === "string")) {
@@ -299,7 +366,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.phone = __raw_phone;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("position")) || (__fields.keeps("position") && obj["position"] !== undefined)) {
         const __raw_position = obj["position"] as string;
 
         if (!(typeof __raw_position === "string")) {
@@ -311,7 +378,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.position = __raw_position;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("serviceRoute")) || (__fields.keeps("serviceRoute") && obj["serviceRoute"] !== undefined)) {
         const __raw_serviceRoute = obj["serviceRoute"] as boolean;
 
         if (!(typeof __raw_serviceRoute === "boolean")) {
@@ -320,7 +387,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.serviceRoute = __raw_serviceRoute;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("defaultDurationHours")) || (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
         const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
 
         if (!(typeof __raw_defaultDurationHours === "number")) {
@@ -329,7 +396,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.defaultDurationHours = __raw_defaultDurationHours;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
 
         if (Array.isArray(__raw_tags)) {
@@ -338,7 +405,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             errors.push({ field: "tags", message: __raw_tags == null ? "Route.tags is required" : "expected Array<string>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("icon")) || (__fields.keeps("icon") && obj["icon"] !== undefined)) {
         const __raw_icon = obj["icon"] as string | null;
 
         if (!(typeof __raw_icon === "string" || __raw_icon === null)) {
@@ -347,7 +414,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.icon = __raw_icon;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("color")) || (__fields.keeps("color") && obj["color"] !== undefined)) {
         const __raw_color = obj["color"] as string | null;
 
         if (!(typeof __raw_color === "string" || __raw_color === null)) {
@@ -360,6 +427,11 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     ctx.pushErrors(errors);
 
     return instance as Route;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function routeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Route>): Partial<Route> | __mf_PendingRef {
+    return routeDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function routeValidateField<K extends keyof Route>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -830,8 +902,10 @@ export const Route: {
   readonly defaultValue: typeof routeDefaultValue;
   readonly encode: typeof routeEncode;
   readonly encodeWithContext: typeof routeEncodeWithContext;
+  readonly encodePartialWithContext: typeof routeEncodePartialWithContext;
   readonly decode: typeof routeDecode;
   readonly decodeWithContext: typeof routeDecodeWithContext;
+  readonly decodePartialWithContext: typeof routeDecodePartialWithContext;
   readonly validateField: typeof routeValidateField;
   readonly validateFields: typeof routeValidateFields;
   readonly hasShape: typeof routeHasShape;
@@ -842,8 +916,10 @@ export const Route: {
   defaultValue: routeDefaultValue,
   encode: routeEncode,
   encodeWithContext: routeEncodeWithContext,
+  encodePartialWithContext: routeEncodePartialWithContext,
   decode: routeDecode,
   decodeWithContext: routeDecodeWithContext,
+  decodePartialWithContext: routeDecodePartialWithContext,
   validateField: routeValidateField,
   validateFields: routeValidateFields,
   hasShape: routeHasShape,
@@ -874,6 +950,8 @@ export declare function routeDefaultValue(): Route;
 export declare function routeEncode(value: Route, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Route>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function routeDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -887,6 +965,10 @@ export declare function routeDecode(input: unknown, opts?: __mf_DecodeOptions): 
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Route | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Route> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function routeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Route>): Partial<Route> | __mf_PendingRef;
 export declare function routeValidateField<K extends keyof Route>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -963,8 +1045,10 @@ export declare const Route: {
 	readonly defaultValue: typeof routeDefaultValue;
 	readonly encode: typeof routeEncode;
 	readonly encodeWithContext: typeof routeEncodeWithContext;
+	readonly encodePartialWithContext: typeof routeEncodePartialWithContext;
 	readonly decode: typeof routeDecode;
 	readonly decodeWithContext: typeof routeDecodeWithContext;
+	readonly decodePartialWithContext: typeof routeDecodePartialWithContext;
 	readonly validateField: typeof routeValidateField;
 	readonly validateFields: typeof routeValidateFields;
 	readonly hasShape: typeof routeHasShape;
@@ -979,18 +1063,18 @@ export declare const Route: {
 
 ## Mapping
 
-original 0..110 -> expanded 522..632
-original 159..270 -> expanded 632..743
-original 311..334 -> expanded 743..766
-original 375..399 -> expanded 766..790
-original 440..601 -> expanded 790..951
-original 601..602 -> expanded 32050..32051
-generated 0..522 <- imports
-generated 951..1259 <- Default
-generated 1259..2932 <- Encode
-generated 2932..15649 <- Decode
-generated 15649..31133 <- Gigaform
-generated 31133..32050 <- __convenience_const
+original 0..110 -> expanded 743..853
+original 159..270 -> expanded 853..964
+original 311..334 -> expanded 964..987
+original 375..399 -> expanded 987..1011
+original 440..601 -> expanded 1011..1172
+original 601..602 -> expanded 37873..37874
+generated 0..743 <- imports
+generated 1172..1480 <- Default
+generated 1480..5214 <- Encode
+generated 5214..21204 <- Decode
+generated 21204..36688 <- Gigaform
+generated 36688..37873 <- __convenience_const
 
 ## Metadata
 

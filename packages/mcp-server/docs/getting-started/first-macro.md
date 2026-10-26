@@ -27,6 +27,8 @@ export class User {
 After (Generated)
 
 ```
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+
 export class User {
   name: string;
   age: number;
@@ -60,11 +62,11 @@ export function userToString(value: User): string {
 }
 
 export function userClone(value: User): User {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.name = value.name;
-    cloned.age = value.age;
-    cloned.email = value.email;
-    return cloned;
+    return __mf_instanceWith(value, ({
+	name: value.name,
+	age: value.age,
+	email: value.email
+}));
 }
 
 export function userEquals(a: User, b: User): boolean {

@@ -48,6 +48,16 @@
 //! Alias-level validators on any other alias shape are an expansion error; put
 //! them on the fields instead.
 //!
+//! A class, an interface and an object-shaped alias also get
+//! `{name}DecodePartialWithContext(value, ctx, fields?)`, which a field typed
+//! `Partial<T>`, `Pick<T, K>` or `Omit<T, K>` decodes through. `fields` is the
+//! shape: `{ only: [...] }` for a `Pick`, `{ except: [...] }` for an `Omit`,
+//! and left out for a `Partial`. A field the shape lacks is not read, even
+//! when the input has it; one it keeps is required as `T` requires it, except
+//! under `Partial`, where none is. Such a value is not registered for
+//! references and may not be one, since a reference stands for a whole `T`.
+//! The keys of a `Pick` or `Omit` have to be string literals.
+//!
 //! Validation (see `validation`) runs during decoding and reports failures
 //! through the `errors` array of the result union. Field-level options are parsed by
 //! `field`; see the parent endec module for the option and validator

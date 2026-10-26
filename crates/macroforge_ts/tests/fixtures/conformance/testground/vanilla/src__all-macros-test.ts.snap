@@ -12,8 +12,9 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, DecodeOptions as __mf_DecodeOptions, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
@@ -61,198 +62,203 @@ export class AllMacrosTestClass {
         return allMacrosTestClassEncodeWithContext(value, ctx);
     }
 
-    constructor(props: { id: number; name: string; email: string; secretToken: string; isActive: boolean; score: number }) {
-        this.id = props.id;
-        this.name = props.name;
-        this.email = props.email;
-        this.secretToken = props.secretToken;
-        this.isActive = props.isActive;
-        this.score = props.score;
-    }
+constructor(props: { id: number; name: string; email: string; secretToken: string; isActive: boolean; score: number }) {
+    this.id = props.id;
+    this.name = props.name;
+    this.email = props.email;
+    this.secretToken = props.secretToken;
+    this.isActive = props.isActive;
+    this.score = props.score;
+}
 
-    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
-        try {
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
-            const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-            const ctx = __mf_DecodeContext.create();
-            const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
 
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message: "AllMacrosTestClass.decode: root cannot be a forward reference"
-    	}]
-    });
-            }
-
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return ({
-    	success: false,
-    	errors: __errors
-    });
-            }
-
+        if (__mf_PendingRef.is(resultOrRef)) {
             return ({
-    	success: true,
-    	value: resultOrRef
-    });
-        } catch (e) {
-            if (e instanceof __mf_DecodeError) {
-                return ({
-    	success: false,
-    	errors: e.errors
-    });
-            }
-            const message = e instanceof Error ? e.message : String(e);
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AllMacrosTestClass.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
             return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message
-    	}]
-    });
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AllMacrosTestClass> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<AllMacrosTestClass> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AllMacrosTestClass.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AllMacrosTestClass | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
+        errors.push({ field: "email", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("secretToken")) && !("secretToken" in obj)) {
+        errors.push({ field: "secretToken", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("isActive")) && !("isActive" in obj)) {
+        errors.push({ field: "isActive", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
+        errors.push({ field: "score", message: "missing required field" });
+    }
+    const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as number;
+
+        if (!(typeof __raw_id === "number")) {
+            errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+        const __raw_email = obj["email"] as string;
+
+        if (!(typeof __raw_email === "string")) {
+            errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
+        } else {
+            instance.email = __raw_email;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("secretToken")) || (__fields.keeps("secretToken") && obj["secretToken"] !== undefined)) {
+        const __raw_secretToken = obj["secretToken"] as string;
+
+        if (!(typeof __raw_secretToken === "string")) {
+            errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
+        } else {
+            instance.secretToken = __raw_secretToken;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+        const __raw_isActive = obj["isActive"] as boolean;
+
+        if (!(typeof __raw_isActive === "boolean")) {
+            errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
+        } else {
+            instance.isActive = __raw_isActive;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+        const __raw_score = obj["score"] as number;
+
+        if (!(typeof __raw_score === "number")) {
+            errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
+        } else {
+            instance.score = __raw_score;
         }
     }
 
-    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
-        if (typeof value === "object" && value !== null && "__ref" in value) {
-            if (typeof value.__ref !== "number") {
-                throw new __mf_DecodeError([{ field: "__ref", message: "AllMacrosTestClass.decodeWithContext: __ref must be a number" }]);
-            }
-            return ctx.getOrDefer(value.__ref) as AllMacrosTestClass | __mf_PendingRef;
-        }
+    ctx.pushErrors(errors);
 
-        if (typeof value !== "object" || value === null || Array.isArray(value)) {
-            throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: expected an object" }]);
-        }
+    return instance;
+}
+static validateField<K extends keyof AllMacrosTestClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{ field: string; message: string }> = [];
-        if (!("id" in obj)) {
-            errors.push({ field: "id", message: "missing required field" });
-        }
-        if (!("name" in obj)) {
-            errors.push({ field: "name", message: "missing required field" });
-        }
-        if (!("email" in obj)) {
-            errors.push({ field: "email", message: "missing required field" });
-        }
-        if (!("secretToken" in obj)) {
-            errors.push({ field: "secretToken", message: "missing required field" });
-        }
-        if (!("isActive" in obj)) {
-            errors.push({ field: "isActive", message: "missing required field" });
-        }
-        if (!("score" in obj)) {
-            errors.push({ field: "score", message: "missing required field" });
-        }
+static validateFields(partial: { readonly [K in keyof AllMacrosTestClass]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-        const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
-
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-
-        ctx.trackForFreeze(instance);
-
-        {
-            const __raw_id = obj["id"] as number;
-
-            if (!(typeof __raw_id === "number")) {
-                errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
-            } else {
-                instance.id = __raw_id;
-            }
-        }
-        {
-            const __raw_name = obj["name"] as string;
-
-            if (!(typeof __raw_name === "string")) {
-                errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
-            } else {
-                instance.name = __raw_name;
-            }
-        }
-        {
-            const __raw_email = obj["email"] as string;
-
-            if (!(typeof __raw_email === "string")) {
-                errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
-            } else {
-                instance.email = __raw_email;
-            }
-        }
-        {
-            const __raw_secretToken = obj["secretToken"] as string;
-
-            if (!(typeof __raw_secretToken === "string")) {
-                errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
-            } else {
-                instance.secretToken = __raw_secretToken;
-            }
-        }
-        {
-            const __raw_isActive = obj["isActive"] as boolean;
-
-            if (!(typeof __raw_isActive === "boolean")) {
-                errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
-            } else {
-                instance.isActive = __raw_isActive;
-            }
-        }
-        {
-            const __raw_score = obj["score"] as number;
-
-            if (!(typeof __raw_score === "number")) {
-                errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
-            } else {
-                instance.score = __raw_score;
-            }
-        }
-
-        ctx.pushErrors(errors);
-
-        return instance;
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
     }
-    static validateField<K extends keyof AllMacrosTestClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
-    static validateField(): Array<{ field: string; message: string }> {
-        return [];
-    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "name" in o && "email" in o && "secretToken" in o && "isActive" in o && "score" in o;
+}
 
-    static validateFields(partial: { readonly [K in keyof AllMacrosTestClass]?: unknown }): Array<{ field: string; message: string }>;
-    static validateFields(): Array<{ field: string; message: string }> {
-        return [];
+static is(obj: unknown): obj is AllMacrosTestClass {
+    if (obj instanceof AllMacrosTestClass) {
+        return true;
     }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return "id" in o && "name" in o && "email" in o && "secretToken" in o && "isActive" in o && "score" in o;
+    if (!AllMacrosTestClass.hasShape(obj)) {
+        return false;
     }
-
-    static is(obj: unknown): obj is AllMacrosTestClass {
-        if (obj instanceof AllMacrosTestClass) {
-            return true;
-        }
-        if (!AllMacrosTestClass.hasShape(obj)) {
-            return false;
-        }
-        const result = AllMacrosTestClass.decode(obj);
-        return result.success;
-    }
+    const result = AllMacrosTestClass.decode(obj);
+    return result.success;
+}
 }
 
 export function allMacrosTestClassToString(value: AllMacrosTestClass): string {
@@ -266,14 +272,14 @@ export function allMacrosTestClassToString(value: AllMacrosTestClass): string {
 }
 
 export function allMacrosTestClassClone(value: AllMacrosTestClass): AllMacrosTestClass {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.id = value.id;
-    cloned.name = value.name;
-    cloned.email = value.email;
-    cloned.secretToken = value.secretToken;
-    cloned.isActive = value.isActive;
-    cloned.score = value.score;
-    return cloned;
+    return __mf_instanceWith(value, ({
+	id: value.id,
+	name: value.name,
+	email: value.email,
+	secretToken: value.secretToken,
+	isActive: value.isActive,
+	score: value.score
+}));
 }
 
 export function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
@@ -296,32 +302,68 @@ export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
 export function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = allMacrosTestClassEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return allMacrosTestClassEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function allMacrosTestClassEncodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "AllMacrosTestClass",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.name = value.name;
-    result.email = value.email;
-    result.secretToken = value.secretToken;
-    result.isActive = value.isActive;
-    result.score = value.score;
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("email")) {
+
+        if (value.email !== undefined) {
+            result.email = value.email;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("secretToken")) {
+
+        if (value.secretToken !== undefined) {
+            result.secretToken = value.secretToken;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("isActive")) {
+
+        if (value.isActive !== undefined) {
+            result.isActive = value.isActive;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("score")) {
+
+        if (value.score !== undefined) {
+            result.score = value.score;
+        }
+    }
 
     return result;
 }
@@ -334,6 +376,16 @@ export function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptio
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function allMacrosTestClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
     return AllMacrosTestClass.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function allMacrosTestClassHasShape(value: unknown): boolean {
+    return AllMacrosTestClass.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function allMacrosTestClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Partial<AllMacrosTestClass> | __mf_PendingRef {
+    return AllMacrosTestClass.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
@@ -396,6 +448,8 @@ export declare class AllMacrosTestClass {
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AllMacrosTestClass> | __mf_PendingRef;
 	static validateField<K extends keyof AllMacrosTestClass>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
@@ -413,8 +467,10 @@ export declare function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMa
 export declare function allMacrosTestClassHashCode(value: AllMacrosTestClass): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string;
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function allMacrosTestClassEncodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -428,6 +484,10 @@ export declare function allMacrosTestClassDecode(input: unknown, opts?: __mf_Dec
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function allMacrosTestClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function allMacrosTestClassHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function allMacrosTestClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Partial<AllMacrosTestClass> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function allMacrosTestClassIs(value: unknown): value is AllMacrosTestClass;
 export declare const testInstance: unknown;
@@ -438,22 +498,22 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 262..711
-original 449..450 -> expanded 9181..9182
-original 450..695 -> expanded 13607..13852
-generated 0..262 <- imports
-generated 711..825 <- Debug
-generated 825..945 <- Clone
-generated 945..1074 <- PartialEq
-generated 1074..1188 <- Hash
-generated 1188..1867 <- Encode
-generated 1867..9181 <- Decode
-generated 9182..9610 <- Debug
-generated 9610..9987 <- Clone
-generated 9987..10275 <- PartialEq
-generated 10275..11117 <- Hash
-generated 11117..12463 <- Encode
-generated 12463..13607 <- Decode
+original 0..449 -> expanded 564..1013
+original 449..450 -> expanded 10679..10680
+original 450..695 -> expanded 17161..17406
+generated 0..564 <- imports
+generated 1013..1127 <- Debug
+generated 1127..1247 <- Clone
+generated 1247..1376 <- PartialEq
+generated 1376..1490 <- Hash
+generated 1490..2169 <- Encode
+generated 2169..10679 <- Decode
+generated 10680..11108 <- Debug
+generated 11108..11379 <- Clone
+generated 11379..11667 <- PartialEq
+generated 11667..12509 <- Hash
+generated 12509..15229 <- Encode
+generated 15229..17161 <- Decode
 
 ## Metadata
 

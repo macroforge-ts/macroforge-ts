@@ -17,8 +17,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, DecodeOptions as __mf_DecodeOptions, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 export class Account {
     name: string = "";
@@ -42,146 +42,151 @@ export class Account {
         return accountEncodeWithContext(value, ctx);
     }
 
-    constructor(props: { name: string; balance: number }) {
-        this.name = props.name;
-        this.balance = props.balance;
-    }
+constructor(props: { name: string; balance: number }) {
+    this.name = props.name;
+    this.balance = props.balance;
+}
 
-    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
-        try {
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
-            const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-            const ctx = __mf_DecodeContext.create();
-            const resultOrRef = Account.decodeWithContext(data, ctx);
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = Account.decodeWithContext(data, ctx);
 
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message: "Account.decode: root cannot be a forward reference"
-    	}]
-    });
-            }
-
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return ({
-    	success: false,
-    	errors: __errors
-    });
-            }
-
+        if (__mf_PendingRef.is(resultOrRef)) {
             return ({
-    	success: true,
-    	value: resultOrRef
-    });
-        } catch (e) {
-            if (e instanceof __mf_DecodeError) {
-                return ({
-    	success: false,
-    	errors: e.errors
-    });
-            }
-            const message = e instanceof Error ? e.message : String(e);
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Account.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
             return ({
-    	success: false,
-    	errors: [{
-    		field: "_root",
-    		message
-    	}]
-    });
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Account> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Account> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Account.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Account | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
+        errors.push({ field: "balance", message: "missing required field" });
+    }
+    const instance = Object.create(Account.prototype) as Account;
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "Account.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+        const __raw_balance = obj["balance"] as number;
+
+        if (!(typeof __raw_balance === "number")) {
+            errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
+        } else {
+            instance.balance = __raw_balance;
         }
     }
 
-    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
-        if (typeof value === "object" && value !== null && "__ref" in value) {
-            if (typeof value.__ref !== "number") {
-                throw new __mf_DecodeError([{ field: "__ref", message: "Account.decodeWithContext: __ref must be a number" }]);
-            }
-            return ctx.getOrDefer(value.__ref) as Account | __mf_PendingRef;
-        }
+    ctx.pushErrors(errors);
 
-        if (typeof value !== "object" || value === null || Array.isArray(value)) {
-            throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
-        }
+    return instance;
+}
+static validateField<K extends keyof Account>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{ field: string; message: string }> = [];
-        if (!("name" in obj)) {
-            errors.push({ field: "name", message: "missing required field" });
-        }
-        if (!("balance" in obj)) {
-            errors.push({ field: "balance", message: "missing required field" });
-        }
+static validateFields(partial: { readonly [K in keyof Account]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
 
-        const instance = Object.create(Account.prototype) as Account;
-
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-
-        ctx.trackForFreeze(instance);
-
-        {
-            const __raw_name = obj["name"] as string;
-
-            if (!(typeof __raw_name === "string")) {
-                errors.push({ field: "name", message: __raw_name == null ? "Account.name is required" : "expected string" });
-            } else {
-                instance.name = __raw_name;
-            }
-        }
-        {
-            const __raw_balance = obj["balance"] as number;
-
-            if (!(typeof __raw_balance === "number")) {
-                errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
-            } else {
-                instance.balance = __raw_balance;
-            }
-        }
-
-        ctx.pushErrors(errors);
-
-        return instance;
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
     }
-    static validateField<K extends keyof Account>(field: K, value: unknown): Array<{ field: string; message: string }>;
-    static validateField(): Array<{ field: string; message: string }> {
-        return [];
-    }
+    const o = obj as Record<string, unknown>;
+    return "name" in o && "balance" in o;
+}
 
-    static validateFields(partial: { readonly [K in keyof Account]?: unknown }): Array<{ field: string; message: string }>;
-    static validateFields(): Array<{ field: string; message: string }> {
-        return [];
+static is(obj: unknown): obj is Account {
+    if (obj instanceof Account) {
+        return true;
     }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return "name" in o && "balance" in o;
+    if (!Account.hasShape(obj)) {
+        return false;
     }
-
-    static is(obj: unknown): obj is Account {
-        if (obj instanceof Account) {
-            return true;
-        }
-        if (!Account.hasShape(obj)) {
-            return false;
-        }
-        const result = Account.decode(obj);
-        return result.success;
-    }
+    const result = Account.decode(obj);
+    return result.success;
+}
 }
 
 export function accountDefaultValue(): Account {
@@ -192,28 +197,44 @@ export function accountDefaultValue(): Account {
 export function accountEncode(value: Account, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = accountEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return accountEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Account",
         __id,
     };
 
-    
-    result.name = value.name;
-    result.balance = value.balance;
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("balance")) {
+
+        if (value.balance !== undefined) {
+            result.balance = value.balance;
+        }
+    }
 
     return result;
 }
@@ -226,6 +247,16 @@ export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
     return Account.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function accountHasShape(value: unknown): boolean {
+    return Account.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function accountDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Account>): Partial<Account> | __mf_PendingRef {
+    return Account.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
@@ -260,6 +291,8 @@ export declare class Account {
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Account> | __mf_PendingRef;
 	static validateField<K extends keyof Account>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
@@ -274,8 +307,10 @@ export declare class Account {
 export declare function accountDefaultValue(): Account;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function accountEncode(value: Account, keepMetadata?: boolean): string;
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -289,6 +324,10 @@ export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Account | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function accountHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function accountDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Account>): Partial<Account> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function accountIs(value: unknown): value is Account;
 
@@ -298,16 +337,16 @@ export declare function accountIs(value: unknown): value is Account;
 
 ## Mapping
 
-original 39..111 -> expanded 262..334
-original 111..112 -> expanded 6072..6073
-original 112..113 -> expanded 8349..8350
-generated 0..262 <- imports
-generated 334..530 <- Default
-generated 530..1165 <- Encode
-generated 1165..6072 <- Decode
-generated 6073..6160 <- Default
-generated 6160..7304 <- Encode
-generated 7304..8349 <- Decode
+original 39..111 -> expanded 483..555
+original 111..112 -> expanded 6924..6925
+original 112..113 -> expanded 10737..10738
+generated 0..483 <- imports
+generated 555..751 <- Default
+generated 751..1386 <- Encode
+generated 1386..6924 <- Decode
+generated 6925..7012 <- Default
+generated 7012..8970 <- Encode
+generated 8970..10737 <- Decode
 
 ## Metadata
 

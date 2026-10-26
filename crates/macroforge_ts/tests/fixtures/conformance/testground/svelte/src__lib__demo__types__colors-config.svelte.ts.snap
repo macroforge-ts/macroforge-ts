@@ -16,7 +16,7 @@ import { cardinalDecodeWithContext, cardinalHasShape, cardinalDefaultValue } fro
 import { customDecodeWithContext, customHasShape, customDefaultValue } from "./custom.svelte";
 import { gradientDecodeWithContext, gradientHasShape, gradientDefaultValue } from "./gradient.svelte";
 import { ordinalDecodeWithContext, ordinalHasShape, ordinalDefaultValue } from "./ordinal.svelte";
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,8 +43,7 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 export function colorsConfigEncode(value: ColorsConfig, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = colorsConfigEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -533,15 +532,15 @@ export declare const ColorsConfig: {
 
 ## Mapping
 
-original 0..257 -> expanded 860..1117
-original 306..407 -> expanded 1117..1218
-original 407..408 -> expanded 15406..15407
-generated 0..860 <- imports
-generated 1218..1315 <- Default
-generated 1315..2643 <- Encode
-generated 2643..8694 <- Decode
-generated 8694..14540 <- Gigaform
-generated 14540..15406 <- __convenience_const
+original 0..257 -> expanded 956..1213
+original 306..407 -> expanded 1213..1314
+original 407..408 -> expanded 15450..15451
+generated 0..956 <- imports
+generated 1314..1411 <- Default
+generated 1411..2687 <- Encode
+generated 2687..8738 <- Decode
+generated 8738..14584 <- Gigaform
+generated 14584..15450 <- __convenience_const
 
 ## Metadata
 

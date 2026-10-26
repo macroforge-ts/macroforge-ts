@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -36,28 +36,44 @@ export function viewedDefaultValue(): Viewed {
 export function viewedEncode(value: Viewed, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = viewedEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function viewedEncodeWithContext(value: Viewed, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return viewedEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function viewedEncodePartialWithContext(value: Partial<Viewed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Viewed>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Viewed",
         __id,
     };
 
-    
-    result.durationSeconds = value.durationSeconds;
-    result.source = value.source;
+    if (__fields === undefined || __fields.keeps("durationSeconds")) {
+        if (value.durationSeconds !== undefined) {
+
+            result.durationSeconds = value.durationSeconds;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("source")) {
+        if (value.source !== undefined) {
+
+            result.source = value.source;
+        }
+    }
 
     return result;
 }
@@ -116,7 +132,13 @@ export function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Viewed | __mf_PendingRef {
+export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Viewed | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Viewed> | __mf_PendingRef;
+export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Viewed> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Viewed.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Viewed.decodeWithContext: __ref must be a number" }]);
@@ -130,22 +152,22 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("durationSeconds" in obj)) {
+    if ((__fields === undefined || __fields.requires("durationSeconds")) && !("durationSeconds" in obj)) {
         errors.push({ field: "durationSeconds", message: "missing required field" });
     }
-    if (!("source" in obj)) {
+    if ((__fields === undefined || __fields.requires("source")) && !("source" in obj)) {
         errors.push({ field: "source", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("durationSeconds")) || (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
         const __raw_durationSeconds = obj["durationSeconds"] as number | null;
 
         if (!(typeof __raw_durationSeconds === "number" || __raw_durationSeconds === null)) {
@@ -154,7 +176,7 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
             instance.durationSeconds = __raw_durationSeconds;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("source")) || (__fields.keeps("source") && obj["source"] !== undefined)) {
         const __raw_source = obj["source"] as string | null;
 
         if (!(typeof __raw_source === "string" || __raw_source === null)) {
@@ -167,6 +189,11 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     ctx.pushErrors(errors);
 
     return instance as Viewed;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function viewedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Viewed>): Partial<Viewed> | __mf_PendingRef {
+    return viewedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function viewedValidateField<K extends keyof Viewed>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function viewedValidateField(): Array<{ field: string; message: string }> {
@@ -322,8 +349,10 @@ export const Viewed: {
   readonly defaultValue: typeof viewedDefaultValue;
   readonly encode: typeof viewedEncode;
   readonly encodeWithContext: typeof viewedEncodeWithContext;
+  readonly encodePartialWithContext: typeof viewedEncodePartialWithContext;
   readonly decode: typeof viewedDecode;
   readonly decodeWithContext: typeof viewedDecodeWithContext;
+  readonly decodePartialWithContext: typeof viewedDecodePartialWithContext;
   readonly validateField: typeof viewedValidateField;
   readonly validateFields: typeof viewedValidateFields;
   readonly hasShape: typeof viewedHasShape;
@@ -334,8 +363,10 @@ export const Viewed: {
   defaultValue: viewedDefaultValue,
   encode: viewedEncode,
   encodeWithContext: viewedEncodeWithContext,
+  encodePartialWithContext: viewedEncodePartialWithContext,
   decode: viewedDecode,
   decodeWithContext: viewedDecodeWithContext,
+  decodePartialWithContext: viewedDecodePartialWithContext,
   validateField: viewedValidateField,
   validateFields: viewedValidateFields,
   hasShape: viewedHasShape,
@@ -356,6 +387,8 @@ export declare function viewedDefaultValue(): Viewed;
 export declare function viewedEncode(value: Viewed, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function viewedEncodeWithContext(value: Viewed, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function viewedEncodePartialWithContext(value: Partial<Viewed>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Viewed>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -369,6 +402,10 @@ export declare function viewedDecode(input: unknown, opts?: __mf_DecodeOptions):
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Viewed | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Viewed> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function viewedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Viewed>): Partial<Viewed> | __mf_PendingRef;
 export declare function viewedValidateField<K extends keyof Viewed>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -418,8 +455,10 @@ export declare const Viewed: {
 	readonly defaultValue: typeof viewedDefaultValue;
 	readonly encode: typeof viewedEncode;
 	readonly encodeWithContext: typeof viewedEncodeWithContext;
+	readonly encodePartialWithContext: typeof viewedEncodePartialWithContext;
 	readonly decode: typeof viewedDecode;
 	readonly decodeWithContext: typeof viewedDecodeWithContext;
+	readonly decodePartialWithContext: typeof viewedDecodePartialWithContext;
 	readonly validateField: typeof viewedValidateField;
 	readonly validateFields: typeof viewedValidateFields;
 	readonly hasShape: typeof viewedHasShape;
@@ -434,15 +473,15 @@ export declare const Viewed: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..198 -> expanded 479..570
-original 198..199 -> expanded 11869..11870
-generated 0..421 <- imports
-generated 570..693 <- Default
-generated 693..1841 <- Encode
-generated 1841..6155 <- Decode
-generated 6155..10929 <- Gigaform
-generated 10929..11869 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..198 -> expanded 700..791
+original 198..199 -> expanded 14855..14856
+generated 0..642 <- imports
+generated 791..914 <- Default
+generated 914..2902 <- Encode
+generated 2902..8869 <- Decode
+generated 8869..13643 <- Gigaform
+generated 13643..14855 <- __convenience_const
 
 ## Metadata
 

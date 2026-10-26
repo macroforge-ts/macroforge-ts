@@ -24,8 +24,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 type Contact = /** @endec(email) */ string | number;
 
@@ -184,7 +184,13 @@ export function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Phone | __mf_PendingRef {
+export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Phone | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Phone> | __mf_PendingRef;
+export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Phone> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Phone.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Phone.decodeWithContext: __ref must be a number" }]);
@@ -198,19 +204,19 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("digits" in obj)) {
+    if ((__fields === undefined || __fields.requires("digits")) && !("digits" in obj)) {
         errors.push({ field: "digits", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("digits")) || (__fields.keeps("digits") && obj["digits"] !== undefined)) {
         const __raw_digits = obj["digits"] as string;
 
         if (!(typeof __raw_digits === "string")) {
@@ -223,6 +229,11 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     ctx.pushErrors(errors);
 
     return instance as Phone;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function phoneDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Phone>): Partial<Phone> | __mf_PendingRef {
+    return phoneDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function phoneValidateField<K extends keyof Phone>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function phoneValidateField(): Array<{ field: string; message: string }> {
@@ -248,6 +259,7 @@ export function phoneIs(obj: unknown): obj is Phone {
 const Phone: {
   readonly decode: typeof phoneDecode;
   readonly decodeWithContext: typeof phoneDecodeWithContext;
+  readonly decodePartialWithContext: typeof phoneDecodePartialWithContext;
   readonly validateField: typeof phoneValidateField;
   readonly validateFields: typeof phoneValidateFields;
   readonly hasShape: typeof phoneHasShape;
@@ -255,6 +267,7 @@ const Phone: {
 } = {
   decode: phoneDecode,
   decodeWithContext: phoneDecodeWithContext,
+  decodePartialWithContext: phoneDecodePartialWithContext,
   validateField: phoneValidateField,
   validateFields: phoneValidateFields,
   hasShape: phoneHasShape,
@@ -438,6 +451,10 @@ export declare function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): 
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Phone | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Phone> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function phoneDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Phone>): Partial<Phone> | __mf_PendingRef;
 export declare function phoneValidateField<K extends keyof Phone>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -472,19 +489,19 @@ export {};
 
 ## Mapping
 
-original 22..75 -> expanded 225..278
-original 75..77 -> expanded 3328..3330
-original 99..137 -> expanded 3330..3368
-original 137..139 -> expanded 7644..7646
-original 161..239 -> expanded 7646..7724
-original 239..240 -> expanded 12495..12496
-generated 0..225 <- imports
-generated 278..3002 <- Decode
-generated 3002..3328 <- __convenience_const
-generated 3368..7152 <- Decode
-generated 7152..7644 <- __convenience_const
-generated 7724..12151 <- Decode
-generated 12151..12495 <- __convenience_const
+original 22..75 -> expanded 350..403
+original 75..77 -> expanded 3453..3455
+original 99..137 -> expanded 3455..3493
+original 137..139 -> expanded 9330..9332
+original 161..239 -> expanded 9332..9410
+original 239..240 -> expanded 14181..14182
+generated 0..350 <- imports
+generated 403..3127 <- Decode
+generated 3127..3453 <- __convenience_const
+generated 3493..8704 <- Decode
+generated 8704..9330 <- __convenience_const
+generated 9410..13837 <- Decode
+generated 13837..14181 <- __convenience_const
 
 ## Metadata
 

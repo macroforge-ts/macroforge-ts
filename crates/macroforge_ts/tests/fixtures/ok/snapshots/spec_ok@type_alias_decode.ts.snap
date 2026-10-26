@@ -17,8 +17,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type Settings = {
     theme: string;
@@ -79,7 +79,13 @@ export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
@@ -93,22 +99,22 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("theme" in obj)) {
+    if ((__fields === undefined || __fields.requires("theme")) && !("theme" in obj)) {
         errors.push({ field: "theme", message: "missing required field" });
     }
-    if (!("language" in obj)) {
+    if ((__fields === undefined || __fields.requires("language")) && !("language" in obj)) {
         errors.push({ field: "language", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("theme")) || (__fields.keeps("theme") && obj["theme"] !== undefined)) {
         const __raw_theme = obj["theme"] as string;
 
         if (!(typeof __raw_theme === "string")) {
@@ -117,7 +123,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.theme = __raw_theme;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("language")) || (__fields.keeps("language") && obj["language"] !== undefined)) {
         const __raw_language = obj["language"] as string;
 
         if (!(typeof __raw_language === "string")) {
@@ -130,6 +136,11 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     ctx.pushErrors(errors);
 
     return instance as Settings;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef {
+    return settingsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function settingsValidateField(): Array<{ field: string; message: string }> {
@@ -155,6 +166,7 @@ export function settingsIs(obj: unknown): obj is Settings {
 const Settings: {
   readonly decode: typeof settingsDecode;
   readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
   readonly validateField: typeof settingsValidateField;
   readonly validateFields: typeof settingsValidateFields;
   readonly hasShape: typeof settingsHasShape;
@@ -162,6 +174,7 @@ const Settings: {
 } = {
   decode: settingsDecode,
   decodeWithContext: settingsDecodeWithContext,
+  decodePartialWithContext: settingsDecodePartialWithContext,
   validateField: settingsValidateField,
   validateFields: settingsValidateFields,
   hasShape: settingsHasShape,
@@ -187,6 +200,10 @@ export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef;
 export declare function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -205,11 +222,11 @@ export {};
 
 ## Mapping
 
-original 22..84 -> expanded 225..287
-original 84..85 -> expanded 5127..5128
-generated 0..225 <- imports
-generated 287..4596 <- Decode
-generated 4596..5127 <- __convenience_const
+original 22..84 -> expanded 350..412
+original 84..85 -> expanded 7031..7032
+generated 0..350 <- imports
+generated 412..6360 <- Decode
+generated 6360..7031 <- __convenience_const
 
 ## Metadata
 

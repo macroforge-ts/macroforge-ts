@@ -20,8 +20,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type ContactInfo = {
     /** @endec(email) */
@@ -85,7 +85,13 @@ export function contactInfoDecode(input: unknown, opts?: __mf_DecodeOptions): { 
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ContactInfo | __mf_PendingRef {
+export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ContactInfo | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ContactInfo> | __mf_PendingRef;
+export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ContactInfo> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ContactInfo.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ContactInfo.decodeWithContext: __ref must be a number" }]);
@@ -99,22 +105,22 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("primaryEmail" in obj)) {
+    if ((__fields === undefined || __fields.requires("primaryEmail")) && !("primaryEmail" in obj)) {
         errors.push({ field: "primaryEmail", message: "missing required field" });
     }
-    if (!("address" in obj)) {
+    if ((__fields === undefined || __fields.requires("address")) && !("address" in obj)) {
         errors.push({ field: "address", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("primaryEmail")) || (__fields.keeps("primaryEmail") && obj["primaryEmail"] !== undefined)) {
         const __raw_primaryEmail = obj["primaryEmail"] as string;
 
         if (!(typeof __raw_primaryEmail === "string")) {
@@ -126,7 +132,7 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.primaryEmail = __raw_primaryEmail;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("address")) || (__fields.keeps("address") && obj["address"] !== undefined)) {
         const __raw_address = obj["address"] as string;
 
         if (!(typeof __raw_address === "string")) {
@@ -143,6 +149,11 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     ctx.pushErrors(errors);
 
     return instance as ContactInfo;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function contactInfoDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ContactInfo>): Partial<ContactInfo> | __mf_PendingRef {
+    return contactInfoDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function contactInfoValidateField<K extends keyof ContactInfo>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -194,6 +205,7 @@ export function contactInfoIs(obj: unknown): obj is ContactInfo {
 const ContactInfo: {
   readonly decode: typeof contactInfoDecode;
   readonly decodeWithContext: typeof contactInfoDecodeWithContext;
+  readonly decodePartialWithContext: typeof contactInfoDecodePartialWithContext;
   readonly validateField: typeof contactInfoValidateField;
   readonly validateFields: typeof contactInfoValidateFields;
   readonly hasShape: typeof contactInfoHasShape;
@@ -201,6 +213,7 @@ const ContactInfo: {
 } = {
   decode: contactInfoDecode,
   decodeWithContext: contactInfoDecodeWithContext,
+  decodePartialWithContext: contactInfoDecodePartialWithContext,
   validateField: contactInfoValidateField,
   validateFields: contactInfoValidateFields,
   hasShape: contactInfoHasShape,
@@ -228,6 +241,10 @@ export declare function contactInfoDecode(input: unknown, opts?: __mf_DecodeOpti
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ContactInfo | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ContactInfo> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function contactInfoDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ContactInfo>): Partial<ContactInfo> | __mf_PendingRef;
 export declare function contactInfoValidateField<K extends keyof ContactInfo>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -246,11 +263,11 @@ export {};
 
 ## Mapping
 
-original 22..167 -> expanded 225..370
-original 167..168 -> expanded 7948..7949
-generated 0..225 <- imports
-generated 370..7378 <- Decode
-generated 7378..7948 <- __convenience_const
+original 22..167 -> expanded 350..495
+original 167..168 -> expanded 9909..9910
+generated 0..350 <- imports
+generated 495..9193 <- Decode
+generated 9193..9909 <- __convenience_const
 
 ## Metadata
 

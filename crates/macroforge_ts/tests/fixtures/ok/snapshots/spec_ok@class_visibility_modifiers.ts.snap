@@ -38,6 +38,7 @@ true
 
 ## Output
 
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -70,11 +71,11 @@ class Account {
 }
 
 export function accountClone(value: Account): Account {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.username = value.username;
-    cloned.password = value.password;
-    cloned.apiKey = value.apiKey;
-    return cloned;
+    return __mf_instanceWith(value, ({
+	username: value.username,
+	password: value.password,
+	apiKey: value.apiKey
+}));
 }
 
 ## DTS
@@ -98,12 +99,13 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 62..574 -> expanded 41..553
-original 574..575 -> expanded 640..641
-original 575..576 -> expanded 893..894
-generated 553..640 <- Clone
-generated 641..893 <- Clone
+original 0..41 -> expanded 81..122
+original 62..574 -> expanded 122..634
+original 574..575 -> expanded 721..722
+original 575..576 -> expanded 901..902
+generated 0..81 <- imports
+generated 634..721 <- Clone
+generated 722..901 <- Clone
 
 ## Metadata
 

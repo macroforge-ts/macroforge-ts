@@ -33,17 +33,18 @@ When an object is encoded:
 
 ## Type-Specific Encoding
 
-| Type                                      | Encoding Strategy                                                                |
-| ----------------------------------------- | -------------------------------------------------------------------------------- |
-| Primitives                                | Direct value                                                                     |
-| `Date`                                    | `toISOString()`                                                                  |
-| Arrays                                    | For primitive-like element types, pass through; for `Date`/`Date                 |
-| `Map<K,V>`                                | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date |
-| `Set<T>`                                  | Convert to array; element handling matches `Array<T>`                            |
-| `Record<K,V>`                             | For primitive-like values, pass through; for `Date`/`Date                        |
-| Wrappers (`Partial<T>`, `Pick<T,K>`, ...) | Encode based on the inner type `T`                                               |
-| Nullable                                  | Include `null` explicitly; non-null values follow the inner type's strategy      |
-| Objects                                   | Call the type's `nameEncodeWithContext` function                                 |
+| Type                                           | Encoding Strategy                                                                                                                  |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Primitives                                     | Direct value                                                                                                                       |
+| `Date`                                         | `toISOString()`                                                                                                                    |
+| Arrays, readonly or not                        | For primitive-like element types, pass through; for `Date`/`Date                                                                   |
+| `Map<K,V>`, `ReadonlyMap<K,V>`                 | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date                                                   |
+| `Set<T>`, `ReadonlySet<T>`                     | Convert to array; element handling matches `Array<T>`                                                                              |
+| `Record<K,V>`                                  | For primitive-like values, pass through; for `Date`/`Date                                                                          |
+| `Required<T>`, `Readonly<T>`, `NonNullable<T>` | Encode as the inner type `T`                                                                                                       |
+| `Partial<T>`, `Pick<T,K>`, `Omit<T,K>`         | Call `nameEncodePartialWithContext`, which encodes the fields the value has and, for a `Pick` or `Omit`, only those the type keeps |
+| Nullable                                       | Include `null` explicitly; non-null values follow the inner type's strategy                                                        |
+| Objects                                        | Call the type's `nameEncodeWithContext` function                                                                                   |
 
 Note: which strategy applies is resolved **statically** from the field's declared TypeScript type at
 expansion time: there is no runtime feature detection.
@@ -75,7 +76,11 @@ class User {
 ```
 
 ```typescript after
-import { EncodeContext } from '@macroforge/core/endec';
+import {
+    EncodeContext as __mf_EncodeContext,
+    encodedText as __mf_encodedText,
+    encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata
+} from '@macroforge/core/endec';
 
 class User {
     id: number;
@@ -109,11 +114,9 @@ class User {
 ): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = userEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(
-        __raw,
-        (key, val) => key === '__type' || key === '__id' ? undefined : val
-    );
+    return keepMetadata
+        ? __mf_encodedText(__raw)
+        : __mf_encodedTextWithoutMetadata(__raw, '__type');
 } /** @internal Encodes with an existing context for nested/cyclic object graphs.
 @param value - The value to encode
 @param ctx - The encoding context */
@@ -139,6 +142,8 @@ export function userEncodeWithContext(
 }
 ```
 
-## Required Import
+## Required Imports
 
-The generated code automatically imports `EncodeContext` from `@macroforge/core/endec`.
+The generated code automatically imports `EncodeContext` and the helpers that give an encoded
+value's JSON text from `@macroforge/core/endec`. `encode` throws a `TypeError` for a value JSON
+cannot represent, such as a top-level `undefined`.

@@ -19,20 +19,21 @@ Names use **camelCase** conversion (e.g., `UserSettings` -> `userSettingsDefault
 
 The macro uses Rust-like default semantics:
 
-| Type              | Default Value                                                                     |
-| ----------------- | --------------------------------------------------------------------------------- |
-| `string`          | `""` (empty string)                                                               |
-| `number`          | `0`                                                                               |
-| `boolean`         | `false`                                                                           |
-| `bigint`          | `0n`                                                                              |
-| `T[]`             | `[]` (empty array)                                                                |
-| `Array<T>`        | `[]` (empty array)                                                                |
-| `Map<K,V>`        | `new Map()`                                                                       |
-| `Set<T>`          | `new Set()`                                                                       |
-| `Date`            | `new Date()` (current time)                                                       |
-| `T \| null`       | `null`                                                                            |
-| Unions (`A \| B`) | Default of the first primitive or literal member, else the first member's default |
-| `CustomType`      | `customTypeDefaultValue()` (recursive standalone-function call)                   |
+| Type                                  | Default Value                                                                     |
+| ------------------------------------- | --------------------------------------------------------------------------------- |
+| `string`                              | `""` (empty string)                                                               |
+| `number`                              | `0`                                                                               |
+| `boolean`                             | `false`                                                                           |
+| `bigint`                              | `0n`                                                                              |
+| `T[]`, `Array<T>`, `ReadonlyArray<T>` | `[]` (empty array), whatever its elements admit                                   |
+| `[A, B]`                              | A tuple of each element's default                                                 |
+| `Map<K,V>`, `ReadonlyMap<K,V>`        | `new Map()`                                                                       |
+| `Set<T>`, `ReadonlySet<T>`            | `new Set()`                                                                       |
+| `Date`                                | `new Date()` (current time)                                                       |
+| `T \| null`                           | `null`                                                                            |
+| `T \| undefined`                      | `undefined`                                                                       |
+| Unions (`A \| B`)                     | Default of the first primitive or literal member, else the first member's default |
+| `CustomType`                          | `customTypeDefaultValue()` (recursive standalone-function call)                   |
 
 ## Field-Level Options
 

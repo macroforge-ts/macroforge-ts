@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
  * Stress test for aliased imports and tree-shaking.
  *
@@ -96,7 +96,13 @@ export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions):
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef {
+export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<UserWithDecode> | __mf_PendingRef;
+export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<UserWithDecode> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "UserWithDecode.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserWithDecode.decodeWithContext: __ref must be a number" }]);
@@ -110,25 +116,25 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
-    if (!("age" in obj)) {
+    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
         errors.push({ field: "age", message: "missing required field" });
     }
-    if (!("email" in obj)) {
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -137,7 +143,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.name = __raw_name;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -146,7 +152,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.age = __raw_age;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -159,6 +165,11 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
     ctx.pushErrors(errors);
 
     return instance as UserWithDecode;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function userWithDecodeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof UserWithDecode>): Partial<UserWithDecode> | __mf_PendingRef {
+    return userWithDecodeDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function userWithDecodeValidateField<K extends keyof UserWithDecode>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function userWithDecodeValidateField(): Array<{ field: string; message: string }> {
@@ -184,6 +195,7 @@ export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
 export const UserWithDecode: {
   readonly decode: typeof userWithDecodeDecode;
   readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
+  readonly decodePartialWithContext: typeof userWithDecodeDecodePartialWithContext;
   readonly validateField: typeof userWithDecodeValidateField;
   readonly validateFields: typeof userWithDecodeValidateFields;
   readonly hasShape: typeof userWithDecodeHasShape;
@@ -191,6 +203,7 @@ export const UserWithDecode: {
 } = {
   decode: userWithDecodeDecode,
   decodeWithContext: userWithDecodeDecodeWithContext,
+  decodePartialWithContext: userWithDecodeDecodePartialWithContext,
   validateField: userWithDecodeValidateField,
   validateFields: userWithDecodeValidateFields,
   hasShape: userWithDecodeHasShape,
@@ -290,7 +303,13 @@ export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef {
+export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<FullFeaturedType> | __mf_PendingRef;
+export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<FullFeaturedType> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "FullFeaturedType.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "FullFeaturedType.decodeWithContext: __ref must be a number" }]);
@@ -304,25 +323,25 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("value" in obj)) {
+    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    if (!("score" in obj)) {
+    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
         errors.push({ field: "score", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as number;
 
         if (!(typeof __raw_id === "number")) {
@@ -331,7 +350,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as string;
 
         if (!(typeof __raw_value === "string")) {
@@ -340,7 +359,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
             instance.value = __raw_value;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -353,6 +372,11 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
     ctx.pushErrors(errors);
 
     return instance as FullFeaturedType;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function fullFeaturedTypeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof FullFeaturedType>): Partial<FullFeaturedType> | __mf_PendingRef {
+    return fullFeaturedTypeDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function fullFeaturedTypeValidateField<K extends keyof FullFeaturedType>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function fullFeaturedTypeValidateField(): Array<{ field: string; message: string }> {
@@ -397,6 +421,7 @@ export function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeatu
 export const FullFeaturedType: {
   readonly decode: typeof fullFeaturedTypeDecode;
   readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
+  readonly decodePartialWithContext: typeof fullFeaturedTypeDecodePartialWithContext;
   readonly validateField: typeof fullFeaturedTypeValidateField;
   readonly validateFields: typeof fullFeaturedTypeValidateFields;
   readonly hasShape: typeof fullFeaturedTypeHasShape;
@@ -406,6 +431,7 @@ export const FullFeaturedType: {
 } = {
   decode: fullFeaturedTypeDecode,
   decodeWithContext: fullFeaturedTypeDecodeWithContext,
+  decodePartialWithContext: fullFeaturedTypeDecodePartialWithContext,
   validateField: fullFeaturedTypeValidateField,
   validateFields: fullFeaturedTypeValidateFields,
   hasShape: fullFeaturedTypeHasShape,
@@ -474,7 +500,13 @@ export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { succes
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef {
+export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<TypeA> | __mf_PendingRef;
+export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<TypeA> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "TypeA.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TypeA.decodeWithContext: __ref must be a number" }]);
@@ -488,19 +520,19 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("fieldA" in obj)) {
+    if ((__fields === undefined || __fields.requires("fieldA")) && !("fieldA" in obj)) {
         errors.push({ field: "fieldA", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("fieldA")) || (__fields.keeps("fieldA") && obj["fieldA"] !== undefined)) {
         const __raw_fieldA = obj["fieldA"] as string;
 
         if (!(typeof __raw_fieldA === "string")) {
@@ -513,6 +545,11 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     ctx.pushErrors(errors);
 
     return instance as TypeA;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function typeADecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof TypeA>): Partial<TypeA> | __mf_PendingRef {
+    return typeADecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function typeAValidateField<K extends keyof TypeA>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function typeAValidateField(): Array<{ field: string; message: string }> {
@@ -538,6 +575,7 @@ export function typeAIs(obj: unknown): obj is TypeA {
 export const TypeA: {
   readonly decode: typeof typeADecode;
   readonly decodeWithContext: typeof typeADecodeWithContext;
+  readonly decodePartialWithContext: typeof typeADecodePartialWithContext;
   readonly validateField: typeof typeAValidateField;
   readonly validateFields: typeof typeAValidateFields;
   readonly hasShape: typeof typeAHasShape;
@@ -545,6 +583,7 @@ export const TypeA: {
 } = {
   decode: typeADecode,
   decodeWithContext: typeADecodeWithContext,
+  decodePartialWithContext: typeADecodePartialWithContext,
   validateField: typeAValidateField,
   validateFields: typeAValidateFields,
   hasShape: typeAHasShape,
@@ -610,7 +649,13 @@ export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef {
+export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<TypeB> | __mf_PendingRef;
+export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<TypeB> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "TypeB.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TypeB.decodeWithContext: __ref must be a number" }]);
@@ -624,19 +669,19 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("fieldB" in obj)) {
+    if ((__fields === undefined || __fields.requires("fieldB")) && !("fieldB" in obj)) {
         errors.push({ field: "fieldB", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("fieldB")) || (__fields.keeps("fieldB") && obj["fieldB"] !== undefined)) {
         const __raw_fieldB = obj["fieldB"] as number;
 
         if (!(typeof __raw_fieldB === "number")) {
@@ -649,6 +694,11 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     ctx.pushErrors(errors);
 
     return instance as TypeB;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function typeBDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof TypeB>): Partial<TypeB> | __mf_PendingRef {
+    return typeBDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function typeBValidateField<K extends keyof TypeB>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function typeBValidateField(): Array<{ field: string; message: string }> {
@@ -674,6 +724,7 @@ export function typeBIs(obj: unknown): obj is TypeB {
 export const TypeB: {
   readonly decode: typeof typeBDecode;
   readonly decodeWithContext: typeof typeBDecodeWithContext;
+  readonly decodePartialWithContext: typeof typeBDecodePartialWithContext;
   readonly validateField: typeof typeBValidateField;
   readonly validateFields: typeof typeBValidateFields;
   readonly hasShape: typeof typeBHasShape;
@@ -681,6 +732,7 @@ export const TypeB: {
 } = {
   decode: typeBDecode,
   decodeWithContext: typeBDecodeWithContext,
+  decodePartialWithContext: typeBDecodePartialWithContext,
   validateField: typeBValidateField,
   validateFields: typeBValidateFields,
   hasShape: typeBHasShape,
@@ -751,6 +803,10 @@ export declare function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeO
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<UserWithDecode> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function userWithDecodeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof UserWithDecode>): Partial<UserWithDecode> | __mf_PendingRef;
 export declare function userWithDecodeValidateField<K extends keyof UserWithDecode>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -764,6 +820,7 @@ export declare function userWithDecodeIs(obj: unknown): obj is UserWithDecode;
 export declare const UserWithDecode: {
 	readonly decode: typeof userWithDecodeDecode;
 	readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
+	readonly decodePartialWithContext: typeof userWithDecodeDecodePartialWithContext;
 	readonly validateField: typeof userWithDecodeValidateField;
 	readonly validateFields: typeof userWithDecodeValidateFields;
 	readonly hasShape: typeof userWithDecodeHasShape;
@@ -797,6 +854,10 @@ export declare function fullFeaturedTypeDecode(input: unknown, opts?: __mf_Decod
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<FullFeaturedType> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function fullFeaturedTypeDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof FullFeaturedType>): Partial<FullFeaturedType> | __mf_PendingRef;
 export declare function fullFeaturedTypeValidateField<K extends keyof FullFeaturedType>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -812,6 +873,7 @@ export declare function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: F
 export declare const FullFeaturedType: {
 	readonly decode: typeof fullFeaturedTypeDecode;
 	readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
+	readonly decodePartialWithContext: typeof fullFeaturedTypeDecodePartialWithContext;
 	readonly validateField: typeof fullFeaturedTypeValidateField;
 	readonly validateFields: typeof fullFeaturedTypeValidateFields;
 	readonly hasShape: typeof fullFeaturedTypeHasShape;
@@ -835,6 +897,10 @@ export declare function typeADecode(input: unknown, opts?: __mf_DecodeOptions): 
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<TypeA> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function typeADecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof TypeA>): Partial<TypeA> | __mf_PendingRef;
 export declare function typeAValidateField<K extends keyof TypeA>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -848,6 +914,7 @@ export declare function typeAIs(obj: unknown): obj is TypeA;
 export declare const TypeA: {
 	readonly decode: typeof typeADecode;
 	readonly decodeWithContext: typeof typeADecodeWithContext;
+	readonly decodePartialWithContext: typeof typeADecodePartialWithContext;
 	readonly validateField: typeof typeAValidateField;
 	readonly validateFields: typeof typeAValidateFields;
 	readonly hasShape: typeof typeAHasShape;
@@ -869,6 +936,10 @@ export declare function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): 
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<TypeB> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function typeBDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof TypeB>): Partial<TypeB> | __mf_PendingRef;
 export declare function typeBValidateField<K extends keyof TypeB>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -882,6 +953,7 @@ export declare function typeBIs(obj: unknown): obj is TypeB;
 export declare const TypeB: {
 	readonly decode: typeof typeBDecode;
 	readonly decodeWithContext: typeof typeBDecodeWithContext;
+	readonly decodePartialWithContext: typeof typeBDecodePartialWithContext;
 	readonly validateField: typeof typeBValidateField;
 	readonly validateFields: typeof typeBValidateFields;
 	readonly hasShape: typeof typeBHasShape;
@@ -904,36 +976,36 @@ export declare function verifyImports(): void;
 
 ## Mapping
 
-original 0..745 -> expanded 225..970
-original 767..857 -> expanded 970..1060
-original 857..921 -> expanded 6500..6564
-original 958..1034 -> expanded 6564..6640
-original 1034..1084 -> expanded 7517..7567
-original 1129..1221 -> expanded 7567..7659
-original 1221..1291 -> expanded 14180..14250
-original 1313..1360 -> expanded 14250..14297
-original 1360..1362 -> expanded 18580..18582
-original 1384..1431 -> expanded 18582..18629
-original 1431..1433 -> expanded 22912..22914
-original 1470..1517 -> expanded 22914..22961
-original 1517..2163 -> expanded 23566..24212
-generated 0..225 <- imports
-generated 1060..5884 <- Decode
-generated 5884..6500 <- __convenience_const
-generated 6640..6818 <- PartialEq
-generated 6818..7285 <- PartialOrd
-generated 7285..7517 <- __convenience_const
-generated 7659..12531 <- Decode
-generated 12531..12728 <- PartialEq
-generated 12728..13338 <- PartialOrd
-generated 13338..14180 <- __convenience_const
-generated 14297..18081 <- Decode
-generated 18081..18580 <- __convenience_const
-generated 18629..22413 <- Decode
-generated 22413..22912 <- __convenience_const
-generated 22961..23087 <- PartialEq
-generated 23087..23379 <- PartialOrd
-generated 23379..23566 <- __convenience_const
+original 0..745 -> expanded 350..1095
+original 767..857 -> expanded 1095..1185
+original 857..921 -> expanded 8623..8687
+original 958..1034 -> expanded 8687..8763
+original 1034..1084 -> expanded 9640..9690
+original 1129..1221 -> expanded 9690..9782
+original 1221..1291 -> expanded 18323..18393
+original 1313..1360 -> expanded 18393..18440
+original 1360..1362 -> expanded 24284..24286
+original 1384..1431 -> expanded 24286..24333
+original 1431..1433 -> expanded 30177..30179
+original 1470..1517 -> expanded 30179..30226
+original 1517..2163 -> expanded 30831..31477
+generated 0..350 <- imports
+generated 1185..7855 <- Decode
+generated 7855..8623 <- __convenience_const
+generated 8763..8941 <- PartialEq
+generated 8941..9408 <- PartialOrd
+generated 9408..9640 <- __convenience_const
+generated 9782..16518 <- Decode
+generated 16518..16715 <- PartialEq
+generated 16715..17325 <- PartialOrd
+generated 17325..18323 <- __convenience_const
+generated 18440..23651 <- Decode
+generated 23651..24284 <- __convenience_const
+generated 24333..29544 <- Decode
+generated 29544..30177 <- __convenience_const
+generated 30226..30352 <- PartialEq
+generated 30352..30644 <- PartialOrd
+generated 30644..30831 <- __convenience_const
 
 ## Metadata
 

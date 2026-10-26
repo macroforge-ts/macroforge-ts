@@ -12,7 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
 
     
     export interface CardLabels {
@@ -29,27 +30,38 @@ export function cardLabelsDefaultValue(): CardLabels {
 export function cardLabelsEncode(value: CardLabels, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = cardLabelsEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function cardLabelsEncodeWithContext(value: CardLabels, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return cardLabelsEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function cardLabelsEncodePartialWithContext(value: Partial<CardLabels>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CardLabels>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "CardLabels",
         __id,
     };
 
-    
-    result.heading = value.heading;
+    if (__fields === undefined || __fields.keeps("heading")) {
+
+        if (value.heading !== undefined) {
+            result.heading = value.heading;
+        }
+    }
 
     return result;
 }
@@ -58,10 +70,12 @@ export const CardLabels: {
   readonly defaultValue: typeof cardLabelsDefaultValue;
   readonly encode: typeof cardLabelsEncode;
   readonly encodeWithContext: typeof cardLabelsEncodeWithContext;
+  readonly encodePartialWithContext: typeof cardLabelsEncodePartialWithContext;
 } = {
   defaultValue: cardLabelsDefaultValue,
   encode: cardLabelsEncode,
-  encodeWithContext: cardLabelsEncodeWithContext
+  encodeWithContext: cardLabelsEncodeWithContext,
+  encodePartialWithContext: cardLabelsEncodePartialWithContext
 };
 
 ## DTS
@@ -74,10 +88,13 @@ export declare function cardLabelsDefaultValue(): CardLabels;
 export declare function cardLabelsEncode(value: CardLabels, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function cardLabelsEncodeWithContext(value: CardLabels, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function cardLabelsEncodePartialWithContext(value: Partial<CardLabels>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CardLabels>): Record<string, unknown>;
 export declare const CardLabels: {
 	readonly defaultValue: typeof cardLabelsDefaultValue;
 	readonly encode: typeof cardLabelsEncode;
 	readonly encodeWithContext: typeof cardLabelsEncodeWithContext;
+	readonly encodePartialWithContext: typeof cardLabelsEncodePartialWithContext;
 };
 
 ## Diagnostics
@@ -86,13 +103,13 @@ export declare const CardLabels: {
 
 ## Mapping
 
-original 0..5 -> expanded 78..83
-original 36..101 -> expanded 83..148
-original 101..102 -> expanded 1689..1690
-generated 0..78 <- imports
-generated 148..247 <- Default
-generated 247..1369 <- Encode
-generated 1369..1689 <- __convenience_const
+original 0..5 -> expanded 302..307
+original 36..101 -> expanded 307..372
+original 101..102 -> expanded 2768..2769
+generated 0..302 <- imports
+generated 372..471 <- Default
+generated 471..2304 <- Encode
+generated 2304..2768 <- __convenience_const
 
 ## Metadata
 

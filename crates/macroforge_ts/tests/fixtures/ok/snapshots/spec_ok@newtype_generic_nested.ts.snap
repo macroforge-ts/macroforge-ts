@@ -16,7 +16,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_3: unique symbol;
@@ -27,7 +27,7 @@ export type Id<T> = string & { readonly [__mf_newtype_1]: true };
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function idEncode<T>(value: Id<T>, keepMetadata?: boolean): string;
 export function idEncode<T>(value: Id<T>): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -160,19 +160,19 @@ export {};
 
 ## Mapping
 
-original 30..51 -> expanded 366..387
-original 67..68 -> expanded 431..432
-original 68..89 -> expanded 3293..3314
-original 115..117 -> expanded 3396..3398
-generated 0..231 <- imports
-generated 231..276 <- $Newtype
-generated 276..321 <- $Newtype
-generated 321..366 <- $Newtype
-generated 387..431 <- $Newtype
-generated 432..1130 <- Encode
-generated 1130..2849 <- Decode
-generated 2849..3293 <- __convenience_const
-generated 3314..3396 <- $Newtype
+original 30..51 -> expanded 399..420
+original 67..68 -> expanded 464..465
+original 68..89 -> expanded 3328..3349
+original 115..117 -> expanded 3431..3433
+generated 0..264 <- imports
+generated 264..309 <- $Newtype
+generated 309..354 <- $Newtype
+generated 354..399 <- $Newtype
+generated 420..464 <- $Newtype
+generated 465..1165 <- Encode
+generated 1165..2884 <- Decode
+generated 2884..3328 <- __convenience_const
+generated 3349..3431 <- $Newtype
 
 ## Metadata
 

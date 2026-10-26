@@ -9,63 +9,130 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::value::decode_raw_value;
+use crate::builtin::derive::common::{js_string, rendered};
 use crate::builtin::derive::endec::TypeCategory;
 use crate::builtin::derive::endec::decode::helpers::nested_decode_fn_name;
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::decode::validation::generate_field_validations;
 use crate::builtin::return_types::DECODE_ERROR;
 
+/// Which of a type's fields the decoder being generated reads.
+#[derive(Clone, Copy)]
+pub(in crate::builtin::derive::endec::decode) enum Required {
+    /// Every field, each required as its type says.
+    All,
+    /// Those the `__fields` requirement in scope keeps, when the caller gave
+    /// one: the decoder also decodes a `Partial`, `Pick` or `Omit` of its type.
+    Selected,
+}
+
+/// The condition under which the call being generated requires `field`.
+pub(in crate::builtin::derive::endec::decode) fn requires(field: &DecodeField) -> Expr {
+    let name = js_string(&field.field_name);
+    rendered(ts_template! { (__fields === undefined || __fields.requires(@{name})) }).into()
+}
+
+/// The condition under which the call being generated reads `field` at all.
+fn keeps(field: &DecodeField) -> Expr {
+    let name = js_string(&field.field_name);
+    rendered(ts_template! { (__fields === undefined || __fields.keeps(@{name})) }).into()
+}
+
 /// Decodes each regular field from its JSON key, then each flattened field
 /// from the whole object. `owner` names the decoded type in messages.
 pub(in crate::builtin::derive::endec::decode) fn decode_fields(
     fields: &[DecodeField],
     owner: &str,
+    required: Required,
 ) -> TsStream {
     let regular = fields
         .iter()
         .filter(|field| !field.flatten)
-        .map(|field| decode_field(field, owner));
+        .map(|field| decode_field(field, owner, required));
     let flattened = fields
         .iter()
         .filter(|field| field.flatten)
-        .map(decode_flattened_field);
+        .map(|field| when_kept(field, required, decode_flattened_field(field)));
     TsStream::merge_all(regular.chain(flattened))
 }
 
 /// One regular field: its `decodeWith` function, or its raw value decoded by
 /// type. An optional field is decoded only when present, else its default.
-fn decode_field(field: &DecodeField, owner: &str) -> TsStream {
-    if let Some(fn_expr) = &field.decode_with {
-        let custom = decode_with(field, fn_expr, owner);
-        return if field.optional {
+/// A field the call does not keep is not read, so a value never carries a
+/// field its shape lacks, and one it keeps without requiring is decoded only
+/// when present and gets no default.
+fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStream {
+    let present: Expr = rendered(ts_template! {
+        ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined)
+    })
+    .into();
+    let decoded = match &field.decode_with {
+        Some(fn_expr) => decode_with(field, fn_expr, owner),
+        None => {
+            let raw_var_ident: Ident = ts_ident!(format!("__raw_{}", field.field_name));
+            let value = decode_raw_value(field, owner);
             ts_template! {
-                if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                    {$typescript custom}
-                }
-            }
-        } else {
-            custom
-        };
-    }
-    let raw_var_ident: Ident = ts_ident!(format!("__raw_{}", field.field_name));
-    let value = decode_raw_value(field, owner);
-    if field.optional {
-        ts_template! {
-            if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                 const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
                 {$typescript value}
             }
-            {#if let Some(default_expr) = &field.default_expr}
-                if (!("@{field.json_key}" in obj) || obj["@{field.json_key}"] === undefined) {
-                    instance.@{field.field_ident} = @{default_expr};
-                }
-            {/if}
         }
-    } else {
-        ts_template! {
+    };
+    let default_expr = field
+        .default_expr
+        .as_ref()
+        .filter(|_| field.decode_with.is_none());
+    if field.optional {
+        let defaulted: Expr = match required {
+            Required::All => rendered(ts_template! { !@{&present} }),
+            Required::Selected => {
+                let is_required = requires(field);
+                rendered(ts_template! { @{is_required} && !@{&present} })
+            }
+        }
+        .into();
+        return when_kept(
+            field,
+            required,
+            ts_template! {
+                if (@{&present}) {
+                    {$typescript decoded}
+                }
+                {#if let Some(default_expr) = default_expr}
+                    if (@{defaulted}) {
+                        instance.@{field.field_ident} = @{default_expr};
+                    }
+                {/if}
+            },
+        );
+    }
+    match required {
+        Required::All => ts_template! {
             {
-                const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
-                {$typescript value}
+                {$typescript decoded}
+            }
+        },
+        Required::Selected => {
+            let is_required = requires(field);
+            let name = js_string(&field.field_name);
+            ts_template! {
+                if (@{is_required} || (__fields.keeps(@{name}) && obj["@{field.json_key}"] !== undefined)) {
+                    {$typescript decoded}
+                }
+            }
+        }
+    }
+}
+
+/// `statements`, run only when the call keeps `field`.
+fn when_kept(field: &DecodeField, required: Required, statements: TsStream) -> TsStream {
+    match required {
+        Required::All => statements,
+        Required::Selected => {
+            let is_kept = keeps(field);
+            ts_template! {
+                if (@{is_kept}) {
+                    {$typescript statements}
+                }
             }
         }
     }

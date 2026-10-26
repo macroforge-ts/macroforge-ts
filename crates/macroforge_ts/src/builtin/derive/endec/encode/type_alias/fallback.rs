@@ -5,6 +5,7 @@ use crate::ast::Expr;
 use crate::macros::ts_template;
 use crate::ts_syn::{MacroforgeError, TsStream};
 
+use super::super::text::encode_text_body;
 use super::{AliasEncode, view};
 
 /// Encodes a tuple element by element and an alias of another type as that
@@ -17,19 +18,16 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
         fn_encode_ident,
         fn_encode_internal_ident,
         encode_context_ident,
-        encode_context_expr,
         ..
     } = alias;
     let fn_encode_internal_expr: Expr = fn_encode_internal_ident.clone().into();
+    let encode_text = encode_text_body(&fn_encode_internal_expr, "__type");
     let mut result = if let Some(params) = &type_params_ident {
         let (body, reads_context) = encode_body(alias)?;
         ts_template! {
             /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
             export function @{fn_encode_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean): string {
-                const ctx = @{encode_context_expr}.create();
-                const __raw = @{fn_encode_internal_expr}(value, ctx);
-                if (keepMetadata) return JSON.stringify(__raw);
-                return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                {$typescript encode_text}
             }
 
             /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
@@ -49,10 +47,7 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
         ts_template! {
             /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
             export function @{fn_encode_ident}(value: @{full_type_ident}, keepMetadata?: boolean): string {
-                const ctx = @{encode_context_expr}.create();
-                const __raw = @{fn_encode_internal_expr}(value, ctx);
-                if (keepMetadata) return JSON.stringify(__raw);
-                return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                {$typescript encode_text}
             }
 
             /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */

@@ -51,13 +51,19 @@ pub(super) fn debug_value_expr(
             Some(function) => rendered(ts_template! { @{function}(@{value}) }),
             None => return structural_debug(value),
         },
-        ValueType::Array(_) => {
+        ValueType::Array(element) => {
             match derived_function(
                 resolved.and_then(collection_element_type),
                 registry,
                 "Debug",
                 "ToString",
             ) {
+                // The element's own `toString` takes no `null` or `undefined`.
+                Some(function) if classify_value_type(element, None).nullable => {
+                    rendered(ts_template! {
+                        "[" + @{value}.map((item) => item == null ? String(item) : @{function}(item)).join(", ") + "]"
+                    })
+                }
                 Some(function) => {
                     rendered(ts_template! { "[" + @{value}.map(@{function}).join(", ") + "]" })
                 }

@@ -2,6 +2,7 @@
 
 use super::foreign_types::{ForeignTypeMatch, register_foreign_type_import};
 use super::helpers::find_top_level_comma;
+use crate::builtin::derive::common::{array_element_type, parse_generic_type};
 use crate::host::ForeignTypeConfig;
 use crate::host::import_registry::with_registry;
 use crate::ts_syn::abi::ir::is_primitive_keyword;
@@ -13,7 +14,8 @@ pub enum TypeCategory {
     /// `string`, `number`, `boolean`, `bigint`, `null`, `undefined`, and
     /// string literal types (`"foo"`, `'bar'`)
     Primitive,
-    /// `T[]` or `Array<T>`; contains the element type string
+    /// `T[]`, `Array<T>` or a readonly form of either; contains the element
+    /// type string, without the parentheses a union element is written in
     Array(String),
     /// A union containing `undefined` (e.g. `T | undefined`); contains the
     /// remaining members re-joined with ` | ` (so `A | B | undefined` yields
@@ -24,15 +26,16 @@ pub enum TypeCategory {
     Nullable(String),
     /// The built-in `Date` type
     Date,
-    /// `Map<K, V>`; contains the key and value type strings
+    /// `Map<K, V>` or `ReadonlyMap<K, V>`; contains the key and value type strings
     Map(String, String),
-    /// `Set<T>`; contains the element type string
+    /// `Set<T>` or `ReadonlySet<T>`; contains the element type string
     Set(String),
     /// `Record<K, V>`; contains the key and value type strings
     Record(String, String),
-    /// Wrapper types like Partial<T>, Required<T>, Readonly<T>, Pick<T, K>, Omit<T, K>, NonNullable<T>
-    /// These don't change the runtime value structure, so we encode based on the inner type.
-    /// Contains the inner type name (e.g., "User" for Partial<User>)
+    /// Wrapper types like Partial<T>, Required<T>, Readonly<T>, Pick<T, K>, Omit<T, K>, NonNullable<T>.
+    /// Their values are the inner type's, whole or lacking some fields, as
+    /// [`WrapperFields`] tells. Contains the inner type name (e.g., "User" for
+    /// Partial<User>)
     Wrapper(String),
     /// A user-defined class/interface/alias name (uppercase, not a recognized
     /// built-in); contains the base name with any generic arguments stripped
@@ -42,6 +45,64 @@ pub enum TypeCategory {
     /// lowercase identifiers, and utility types with no encoding strategy
     /// (`Exclude`, `ReturnType`, `Promise`, ...)
     Unknown,
+}
+
+/// Which of its inner type's fields a wrapper type's values have.
+#[derive(Debug, Clone, PartialEq)]
+pub enum WrapperFields {
+    /// `Required<T>`, `Readonly<T>` and `NonNullable<T>`: all of them, so the
+    /// inner type's own coders apply.
+    Whole,
+    /// `Partial<T>`: any of them.
+    Any,
+    /// `Pick<T, K>`: the fields `K` names.
+    Only(Vec<String>),
+    /// `Omit<T, K>`: every field but those `K` names.
+    Except(Vec<String>),
+}
+
+impl WrapperFields {
+    /// The fields of the wrapper type `ts_type`. `None` when it is not a
+    /// wrapper type. An error when it is a `Pick` or `Omit` whose keys are
+    /// not written as string literals, since nothing then says which fields
+    /// a value has.
+    pub fn of(ts_type: &str) -> Option<Result<Self, String>> {
+        let trimmed = ts_type.trim();
+        let (base, args) = parse_generic_type(trimmed).filter(|_| trimmed.ends_with('>'))?;
+        match base {
+            "Required" | "Readonly" | "NonNullable" => Some(Ok(Self::Whole)),
+            "Partial" => Some(Ok(Self::Any)),
+            "Pick" | "Omit" => {
+                let keys = &args[find_top_level_comma(args)? + 1..];
+                let names: Option<Vec<String>> = split_top_level_union(keys)
+                    .unwrap_or_else(|| vec![keys.trim()])
+                    .into_iter()
+                    .map(|key| {
+                        let key = key.trim();
+                        ['"', '\'']
+                            .into_iter()
+                            .find_map(|quote| key.strip_prefix(quote)?.strip_suffix(quote))
+                            .map(str::to_string)
+                    })
+                    .collect();
+                Some(match names {
+                    Some(names) if base == "Pick" => Ok(Self::Only(names)),
+                    Some(names) => Ok(Self::Except(names)),
+                    None => Err(format!(
+                        "`{trimmed}` needs its keys written as string literals: `{}` does not say which fields a value has",
+                        keys.trim()
+                    )),
+                })
+            }
+            _ => None,
+        }
+    }
+
+    /// Whether a value may lack fields of the inner type, so that type's
+    /// partial coders apply.
+    pub fn is_partial(&self) -> bool {
+        !matches!(self, Self::Whole)
+    }
 }
 
 /// How many classified types a thread keeps. A project's field types repeat
@@ -99,29 +160,20 @@ impl TypeCategory {
             return Self::Date;
         }
 
-        // Handle Array<T> or T[]
-        if trimmed.starts_with("Array<") && trimmed.ends_with('>') {
-            let inner = &trimmed[6..trimmed.len() - 1];
-            return Self::Array(inner.to_string());
+        // A collection's readonly form has the same values at runtime.
+        if let Some(element) = array_element_type(trimmed) {
+            return Self::Array(element.to_string());
         }
-        if let Some(inner) = trimmed.strip_suffix("[]") {
-            return Self::Array(inner.to_string());
-        }
-
-        // Handle Map<K, V>
-        if trimmed.starts_with("Map<") && trimmed.ends_with('>') {
-            let inner = &trimmed[4..trimmed.len() - 1];
-            if let Some(comma_pos) = find_top_level_comma(inner) {
-                let key = inner[..comma_pos].trim().to_string();
-                let value = inner[comma_pos + 1..].trim().to_string();
-                return Self::Map(key, value);
+        match parse_generic_type(trimmed).filter(|_| trimmed.ends_with('>')) {
+            Some(("Map" | "ReadonlyMap", args)) => {
+                if let Some(comma_pos) = find_top_level_comma(args) {
+                    let key = args[..comma_pos].trim().to_string();
+                    let value = args[comma_pos + 1..].trim().to_string();
+                    return Self::Map(key, value);
+                }
             }
-        }
-
-        // Handle Set<T>
-        if trimmed.starts_with("Set<") && trimmed.ends_with('>') {
-            let inner = &trimmed[4..trimmed.len() - 1];
-            return Self::Set(inner.to_string());
+            Some(("Set" | "ReadonlySet", element)) => return Self::Set(element.to_string()),
+            _ => {}
         }
 
         // Handle Record<K, V>

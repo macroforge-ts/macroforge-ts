@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
+import { structuralDebug as __mf_structuralDebug, instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
 /** @derive(Debug, Clone) */
 export class Store {
     items: string[];
@@ -40,10 +40,10 @@ export function storeToString(value: Store): string {
 }
 
 export function storeClone(value: Store): Store {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.items = [...value.items];
-    cloned.count = value.count;
-    return cloned;
+    return __mf_instanceWith(value, ({
+	items: [...value.items],
+	count: value.count
+}));
 }
 
 ## DTS
@@ -65,14 +65,14 @@ export declare function storeClone(value: Store): Store;
 
 ## Mapping
 
-original 0..203 -> expanded 87..290
-original 203..204 -> expanded 459..460
-original 204..205 -> expanded 915..916
-generated 0..87 <- imports
-generated 290..378 <- Debug
-generated 378..459 <- Clone
-generated 460..710 <- Debug
-generated 710..915 <- Clone
+original 0..203 -> expanded 122..325
+original 203..204 -> expanded 494..495
+original 204..205 -> expanded 888..889
+generated 0..122 <- imports
+generated 325..413 <- Debug
+generated 413..494 <- Clone
+generated 495..745 <- Debug
+generated 745..888 <- Clone
 
 ## Metadata
 

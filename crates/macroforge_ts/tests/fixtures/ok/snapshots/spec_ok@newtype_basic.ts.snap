@@ -29,7 +29,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -42,7 +42,7 @@ export type Meters = number & { readonly [__mf_newtype_1]: true };
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function metersEncode(value: Meters, keepMetadata?: boolean): string;
 export function metersEncode(value: Meters): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -135,7 +135,7 @@ export type Username = string & { readonly [__mf_newtype_2]: true };
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function usernameEncode(value: Username, keepMetadata?: boolean): string;
 export function usernameEncode(value: Username): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -309,7 +309,7 @@ export type Cents = bigint & { readonly [__mf_newtype_5]: true };
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function centsEncode(value: Cents, keepMetadata?: boolean): string;
 export function centsEncode(value: Cents): string {
-    return JSON.stringify(((v) => String(v))(value));
+    return __mf_encodedText(((v) => String(v))(value));
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -552,44 +552,44 @@ export {};
 
 ## Mapping
 
-original 65..87 -> expanded 456..478
-original 103..104 -> expanded 522..523
-original 104..106 -> expanded 3840..3842
-original 209..233 -> expanded 3842..3866
-original 249..250 -> expanded 3910..3911
-original 250..252 -> expanded 7443..7445
-original 274..294 -> expanded 7445..7465
-original 311..312 -> expanded 7510..7511
-original 312..335 -> expanded 9584..9607
-original 360..363 -> expanded 9662..9665
-original 439..460 -> expanded 9665..9686
-original 476..477 -> expanded 9730..9731
-original 477..478 -> expanded 13604..13605
-generated 0..231 <- imports
-generated 231..276 <- $Newtype
-generated 276..321 <- $Newtype
-generated 321..366 <- $Newtype
-generated 366..411 <- $Newtype
-generated 411..456 <- $Newtype
-generated 478..522 <- $Newtype
-generated 523..1229 <- Encode
-generated 1229..3344 <- Decode
-generated 3344..3840 <- __convenience_const
-generated 3866..3910 <- $Newtype
-generated 3911..4633 <- Encode
-generated 4633..6743 <- Decode
-generated 6743..6829 <- Default
-generated 6829..7443 <- __convenience_const
-generated 7465..7510 <- $Newtype
-generated 7511..9278 <- Decode
-generated 9278..9584 <- __convenience_const
-generated 9607..9662 <- $Newtype
-generated 9686..9730 <- $Newtype
-generated 9731..10469 <- Encode
-generated 10469..12735 <- Decode
-generated 12735..12881 <- Hash
-generated 12881..12981 <- Debug
-generated 12981..13604 <- __convenience_const
+original 65..87 -> expanded 489..511
+original 103..104 -> expanded 555..556
+original 104..106 -> expanded 3875..3877
+original 209..233 -> expanded 3877..3901
+original 249..250 -> expanded 3945..3946
+original 250..252 -> expanded 7480..7482
+original 274..294 -> expanded 7482..7502
+original 311..312 -> expanded 7547..7548
+original 312..335 -> expanded 9621..9644
+original 360..363 -> expanded 9699..9702
+original 439..460 -> expanded 9702..9723
+original 476..477 -> expanded 9767..9768
+original 477..478 -> expanded 13643..13644
+generated 0..264 <- imports
+generated 264..309 <- $Newtype
+generated 309..354 <- $Newtype
+generated 354..399 <- $Newtype
+generated 399..444 <- $Newtype
+generated 444..489 <- $Newtype
+generated 511..555 <- $Newtype
+generated 556..1264 <- Encode
+generated 1264..3379 <- Decode
+generated 3379..3875 <- __convenience_const
+generated 3901..3945 <- $Newtype
+generated 3946..4670 <- Encode
+generated 4670..6780 <- Decode
+generated 6780..6866 <- Default
+generated 6866..7480 <- __convenience_const
+generated 7502..7547 <- $Newtype
+generated 7548..9315 <- Decode
+generated 9315..9621 <- __convenience_const
+generated 9644..9699 <- $Newtype
+generated 9723..9767 <- $Newtype
+generated 9768..10508 <- Encode
+generated 10508..12774 <- Decode
+generated 12774..12920 <- Hash
+generated 12920..13020 <- Debug
+generated 13020..13643 <- __convenience_const
 
 ## Metadata
 

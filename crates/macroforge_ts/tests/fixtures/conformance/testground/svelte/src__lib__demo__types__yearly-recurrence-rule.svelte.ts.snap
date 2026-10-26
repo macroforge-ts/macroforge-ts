@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -34,27 +34,38 @@ export function yearlyRecurrenceRuleDefaultValue(): YearlyRecurrenceRule {
 export function yearlyRecurrenceRuleEncode(value: YearlyRecurrenceRule, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = yearlyRecurrenceRuleEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function yearlyRecurrenceRuleEncodeWithContext(value: YearlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return yearlyRecurrenceRuleEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function yearlyRecurrenceRuleEncodePartialWithContext(value: Partial<YearlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "YearlyRecurrenceRule",
         __id,
     };
 
-    
-    result.quantityOfYears = value.quantityOfYears;
+    if (__fields === undefined || __fields.keeps("quantityOfYears")) {
+
+        if (value.quantityOfYears !== undefined) {
+            result.quantityOfYears = value.quantityOfYears;
+        }
+    }
 
     return result;
 }
@@ -113,7 +124,13 @@ export function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOpt
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): YearlyRecurrenceRule | __mf_PendingRef {
+export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): YearlyRecurrenceRule | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<YearlyRecurrenceRule> | __mf_PendingRef;
+export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<YearlyRecurrenceRule> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "YearlyRecurrenceRule.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "YearlyRecurrenceRule.decodeWithContext: __ref must be a number" }]);
@@ -127,19 +144,19 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("quantityOfYears" in obj)) {
+    if ((__fields === undefined || __fields.requires("quantityOfYears")) && !("quantityOfYears" in obj)) {
         errors.push({ field: "quantityOfYears", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("quantityOfYears")) || (__fields.keeps("quantityOfYears") && obj["quantityOfYears"] !== undefined)) {
         const __raw_quantityOfYears = obj["quantityOfYears"] as number;
 
         if (!(typeof __raw_quantityOfYears === "number")) {
@@ -152,6 +169,11 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     ctx.pushErrors(errors);
 
     return instance as YearlyRecurrenceRule;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function yearlyRecurrenceRuleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Partial<YearlyRecurrenceRule> | __mf_PendingRef {
+    return yearlyRecurrenceRuleDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function yearlyRecurrenceRuleValidateField<K extends keyof YearlyRecurrenceRule>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function yearlyRecurrenceRuleValidateField(): Array<{ field: string; message: string }> {
@@ -278,8 +300,10 @@ export const YearlyRecurrenceRule: {
   readonly defaultValue: typeof yearlyRecurrenceRuleDefaultValue;
   readonly encode: typeof yearlyRecurrenceRuleEncode;
   readonly encodeWithContext: typeof yearlyRecurrenceRuleEncodeWithContext;
+  readonly encodePartialWithContext: typeof yearlyRecurrenceRuleEncodePartialWithContext;
   readonly decode: typeof yearlyRecurrenceRuleDecode;
   readonly decodeWithContext: typeof yearlyRecurrenceRuleDecodeWithContext;
+  readonly decodePartialWithContext: typeof yearlyRecurrenceRuleDecodePartialWithContext;
   readonly validateField: typeof yearlyRecurrenceRuleValidateField;
   readonly validateFields: typeof yearlyRecurrenceRuleValidateFields;
   readonly hasShape: typeof yearlyRecurrenceRuleHasShape;
@@ -290,8 +314,10 @@ export const YearlyRecurrenceRule: {
   defaultValue: yearlyRecurrenceRuleDefaultValue,
   encode: yearlyRecurrenceRuleEncode,
   encodeWithContext: yearlyRecurrenceRuleEncodeWithContext,
+  encodePartialWithContext: yearlyRecurrenceRuleEncodePartialWithContext,
   decode: yearlyRecurrenceRuleDecode,
   decodeWithContext: yearlyRecurrenceRuleDecodeWithContext,
+  decodePartialWithContext: yearlyRecurrenceRuleDecodePartialWithContext,
   validateField: yearlyRecurrenceRuleValidateField,
   validateFields: yearlyRecurrenceRuleValidateFields,
   hasShape: yearlyRecurrenceRuleHasShape,
@@ -311,6 +337,8 @@ export declare function yearlyRecurrenceRuleDefaultValue(): YearlyRecurrenceRule
 export declare function yearlyRecurrenceRuleEncode(value: YearlyRecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function yearlyRecurrenceRuleEncodeWithContext(value: YearlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function yearlyRecurrenceRuleEncodePartialWithContext(value: Partial<YearlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -324,6 +352,10 @@ export declare function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_D
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): YearlyRecurrenceRule | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<YearlyRecurrenceRule> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function yearlyRecurrenceRuleDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Partial<YearlyRecurrenceRule> | __mf_PendingRef;
 export declare function yearlyRecurrenceRuleValidateField<K extends keyof YearlyRecurrenceRule>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -370,8 +402,10 @@ export declare const YearlyRecurrenceRule: {
 	readonly defaultValue: typeof yearlyRecurrenceRuleDefaultValue;
 	readonly encode: typeof yearlyRecurrenceRuleEncode;
 	readonly encodeWithContext: typeof yearlyRecurrenceRuleEncodeWithContext;
+	readonly encodePartialWithContext: typeof yearlyRecurrenceRuleEncodePartialWithContext;
 	readonly decode: typeof yearlyRecurrenceRuleDecode;
 	readonly decodeWithContext: typeof yearlyRecurrenceRuleDecodeWithContext;
+	readonly decodePartialWithContext: typeof yearlyRecurrenceRuleDecodePartialWithContext;
 	readonly validateField: typeof yearlyRecurrenceRuleValidateField;
 	readonly validateFields: typeof yearlyRecurrenceRuleValidateFields;
 	readonly hasShape: typeof yearlyRecurrenceRuleHasShape;
@@ -386,15 +420,15 @@ export declare const YearlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..178 -> expanded 479..550
-original 178..179 -> expanded 11359..11360
-generated 0..421 <- imports
-generated 550..676 <- Default
-generated 676..1874 <- Encode
-generated 1874..6087 <- Decode
-generated 6087..10097 <- Gigaform
-generated 10097..11359 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..178 -> expanded 700..771
+original 178..179 -> expanded 14273..14274
+generated 0..642 <- imports
+generated 771..897 <- Default
+generated 897..2862 <- Encode
+generated 2862..8673 <- Decode
+generated 8673..12683 <- Gigaform
+generated 12683..14273 <- __convenience_const
 
 ## Metadata
 

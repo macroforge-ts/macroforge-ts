@@ -1,10 +1,20 @@
 use crate::ast::{Expr, Ident};
 
-use super::super::TypeCategory;
 use super::super::union_guard::UnionGuard;
 use super::super::value_kind::EndecValueKind;
+use super::super::{TypeCategory, WrapperFields};
 
 use convert_case::{Case, Casing};
+
+/// Generates the EncodePartialWithContext function name for a nested
+/// encodable type, which encodes whichever of its fields a value has.
+/// For example: "User" -> "userEncodePartialWithContext"
+pub(crate) fn nested_encode_partial_fn_name(type_name: &str) -> String {
+    let base = type_name
+        .find('<')
+        .map_or(type_name, |generics| &type_name[..generics]);
+    format!("{}EncodePartialWithContext", base.to_case(Case::Camel))
+}
 
 /// Generates the EncodeWithContext function name for a nested encodable type.
 /// For example: "User" -> "userEncodeWithContext"
@@ -81,6 +91,8 @@ pub(crate) struct EncodeField {
     pub(crate) record_value_encodable_type: Option<String>,
     /// For wrapper types like Partial<T> where T is Encodable: the type name.
     pub(crate) wrapper_encodable_type: Option<String>,
+    /// For wrapper types: which of T's fields a value has.
+    pub(crate) wrapper_fields: Option<WrapperFields>,
 
     /// Custom encoding function expression (from `@endec({encodeWith: "fn"})`)
     /// When set, this function is called instead of type-based encoding.

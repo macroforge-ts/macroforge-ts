@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -39,28 +39,44 @@ export function emailDefaultValue(): Email {
 export function emailEncode(value: Email, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = emailEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function emailEncodeWithContext(value: Email, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return emailEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Email>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Email",
         __id,
     };
 
-    
-    result.canEmail = value.canEmail;
-    result.emailString = value.emailString;
+    if (__fields === undefined || __fields.keeps("canEmail")) {
+
+        if (value.canEmail !== undefined) {
+            result.canEmail = value.canEmail;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("emailString")) {
+
+        if (value.emailString !== undefined) {
+            result.emailString = value.emailString;
+        }
+    }
 
     return result;
 }
@@ -119,7 +135,13 @@ export function emailDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Email | __mf_PendingRef {
+export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Email | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Email> | __mf_PendingRef;
+export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Email> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Email.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Email.decodeWithContext: __ref must be a number" }]);
@@ -133,22 +155,22 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("canEmail" in obj)) {
+    if ((__fields === undefined || __fields.requires("canEmail")) && !("canEmail" in obj)) {
         errors.push({ field: "canEmail", message: "missing required field" });
     }
-    if (!("emailString" in obj)) {
+    if ((__fields === undefined || __fields.requires("emailString")) && !("emailString" in obj)) {
         errors.push({ field: "emailString", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("canEmail")) || (__fields.keeps("canEmail") && obj["canEmail"] !== undefined)) {
         const __raw_canEmail = obj["canEmail"] as boolean;
 
         if (!(typeof __raw_canEmail === "boolean")) {
@@ -157,7 +179,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.canEmail = __raw_canEmail;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("emailString")) || (__fields.keeps("emailString") && obj["emailString"] !== undefined)) {
         const __raw_emailString = obj["emailString"] as string;
 
         if (!(typeof __raw_emailString === "string")) {
@@ -174,6 +196,11 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     ctx.pushErrors(errors);
 
     return instance as Email;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function emailDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Email>): Partial<Email> | __mf_PendingRef {
+    return emailDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function emailValidateField<K extends keyof Email>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -342,8 +369,10 @@ export const Email: {
   readonly defaultValue: typeof emailDefaultValue;
   readonly encode: typeof emailEncode;
   readonly encodeWithContext: typeof emailEncodeWithContext;
+  readonly encodePartialWithContext: typeof emailEncodePartialWithContext;
   readonly decode: typeof emailDecode;
   readonly decodeWithContext: typeof emailDecodeWithContext;
+  readonly decodePartialWithContext: typeof emailDecodePartialWithContext;
   readonly validateField: typeof emailValidateField;
   readonly validateFields: typeof emailValidateFields;
   readonly hasShape: typeof emailHasShape;
@@ -354,8 +383,10 @@ export const Email: {
   defaultValue: emailDefaultValue,
   encode: emailEncode,
   encodeWithContext: emailEncodeWithContext,
+  encodePartialWithContext: emailEncodePartialWithContext,
   decode: emailDecode,
   decodeWithContext: emailDecodeWithContext,
+  decodePartialWithContext: emailDecodePartialWithContext,
   validateField: emailValidateField,
   validateFields: emailValidateFields,
   hasShape: emailHasShape,
@@ -376,6 +407,8 @@ export declare function emailDefaultValue(): Email;
 export declare function emailEncode(value: Email, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function emailEncodeWithContext(value: Email, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Email>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function emailDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -389,6 +422,10 @@ export declare function emailDecode(input: unknown, opts?: __mf_DecodeOptions): 
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Email | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Email> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function emailDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Email>): Partial<Email> | __mf_PendingRef;
 export declare function emailValidateField<K extends keyof Email>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -438,8 +475,10 @@ export declare const Email: {
 	readonly defaultValue: typeof emailDefaultValue;
 	readonly encode: typeof emailEncode;
 	readonly encodeWithContext: typeof emailEncodeWithContext;
+	readonly encodePartialWithContext: typeof emailEncodePartialWithContext;
 	readonly decode: typeof emailDecode;
 	readonly decodeWithContext: typeof emailDecodeWithContext;
+	readonly decodePartialWithContext: typeof emailDecodePartialWithContext;
 	readonly validateField: typeof emailValidateField;
 	readonly validateFields: typeof emailValidateFields;
 	readonly hasShape: typeof emailHasShape;
@@ -454,18 +493,18 @@ export declare const Email: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..137 -> expanded 479..509
-original 185..213 -> expanded 509..537
-original 255..260 -> expanded 537..542
-original 310..337 -> expanded 542..569
-original 337..338 -> expanded 13099..13100
-generated 0..421 <- imports
-generated 569..687 <- Default
-generated 687..1825 <- Encode
-generated 1825..7605 <- Decode
-generated 7605..12182 <- Gigaform
-generated 12182..13099 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..137 -> expanded 700..730
+original 185..213 -> expanded 730..758
+original 255..260 -> expanded 758..763
+original 310..337 -> expanded 763..790
+original 337..338 -> expanded 16056..16057
+generated 0..642 <- imports
+generated 790..908 <- Default
+generated 908..2878 <- Encode
+generated 2878..10294 <- Decode
+generated 10294..14871 <- Gigaform
+generated 14871..16056 <- __convenience_const
 
 ## Metadata
 

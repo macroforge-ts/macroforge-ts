@@ -4,13 +4,14 @@
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
-        "@macroforge/core": "0.5.0",
-        "@macroforge/shared": "0.5.0"
+        "@macroforge/core": "0.6.0",
+        "@macroforge/shared": "0.6.0"
     },
     "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
     "devDependencies": {
         "@types/node": "^26.6.2",
-        "typescript": "^5.9.3"
+        "@vtsls/language-server": "^0.3.0",
+        "typescript": "^6.0.3"
     },
     "exports": {
         ".": "./src/index.ts"
@@ -27,7 +28,7 @@
     "license": "MIT",
     "name": "@macroforge/typescript-plugin",
     "peerDependencies": {
-        "typescript": ">=5.0.0"
+        "typescript": "^5.0.0 || ^6.0.0"
     },
     "peerDependenciesMeta": {
         "typescript": {
@@ -44,5 +45,5 @@
         "test": "node --test tests/**/*.test.cjs"
     },
     "type": "module",
-    "version": "0.5.0"
+    "version": "0.6.0"
 }

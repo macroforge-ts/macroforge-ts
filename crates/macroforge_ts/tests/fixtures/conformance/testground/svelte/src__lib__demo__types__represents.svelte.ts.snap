@@ -14,8 +14,8 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -47,34 +47,60 @@ export function representsDefaultValue(): Represents {
 export function representsEncode(value: Represents, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = representsEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function representsEncodeWithContext(value: Represents, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return representsEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function representsEncodePartialWithContext(value: Partial<Represents>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Represents>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Represents",
         __id,
     };
 
-    
-    result.in = typeof value.in === "string"
-        ? value.in
-        : employeeEncodeWithContext(value.in, ctx);
-    result.out = typeof value.out === "string"
-        ? value.out
-        : accountEncodeWithContext(value.out, ctx);
-    result.id = value.id;
-    result.dateStarted = value.dateStarted;
+    if (__fields === undefined || __fields.keeps("in")) {
+
+        if (value.in !== undefined) {
+            result.in = typeof value.in === "string"
+                ? value.in
+                : employeeEncodeWithContext(value.in, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("out")) {
+
+        if (value.out !== undefined) {
+            result.out = typeof value.out === "string"
+                ? value.out
+                : accountEncodeWithContext(value.out, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("dateStarted")) {
+
+        if (value.dateStarted !== undefined) {
+            result.dateStarted = value.dateStarted;
+        }
+    }
 
     return result;
 }
@@ -133,7 +159,13 @@ export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { s
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Represents | __mf_PendingRef {
+export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Represents | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Represents> | __mf_PendingRef;
+export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Represents> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Represents.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Represents.decodeWithContext: __ref must be a number" }]);
@@ -147,28 +179,28 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("in" in obj)) {
+    if ((__fields === undefined || __fields.requires("in")) && !("in" in obj)) {
         errors.push({ field: "in", message: "missing required field" });
     }
-    if (!("out" in obj)) {
+    if ((__fields === undefined || __fields.requires("out")) && !("out" in obj)) {
         errors.push({ field: "out", message: "missing required field" });
     }
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("dateStarted" in obj)) {
+    if ((__fields === undefined || __fields.requires("dateStarted")) && !("dateStarted" in obj)) {
         errors.push({ field: "dateStarted", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("in")) || (__fields.keeps("in") && obj["in"] !== undefined)) {
         const __raw_in = obj["in"] as string | Employee;
 
         if (typeof __raw_in === "string") {
@@ -194,7 +226,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("out")) || (__fields.keeps("out") && obj["out"] !== undefined)) {
         const __raw_out = obj["out"] as string | Account;
 
         if (typeof __raw_out === "string") {
@@ -220,7 +252,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -229,7 +261,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("dateStarted")) || (__fields.keeps("dateStarted") && obj["dateStarted"] !== undefined)) {
         const __raw_dateStarted = obj["dateStarted"] as string;
 
         if (!(typeof __raw_dateStarted === "string")) {
@@ -242,6 +274,11 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     ctx.pushErrors(errors);
 
     return instance as Represents;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function representsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Represents>): Partial<Represents> | __mf_PendingRef {
+    return representsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function representsValidateField<K extends keyof Represents>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function representsValidateField(): Array<{ field: string; message: string }> {
@@ -451,8 +488,10 @@ export const Represents: {
   readonly defaultValue: typeof representsDefaultValue;
   readonly encode: typeof representsEncode;
   readonly encodeWithContext: typeof representsEncodeWithContext;
+  readonly encodePartialWithContext: typeof representsEncodePartialWithContext;
   readonly decode: typeof representsDecode;
   readonly decodeWithContext: typeof representsDecodeWithContext;
+  readonly decodePartialWithContext: typeof representsDecodePartialWithContext;
   readonly validateField: typeof representsValidateField;
   readonly validateFields: typeof representsValidateFields;
   readonly hasShape: typeof representsHasShape;
@@ -463,8 +502,10 @@ export const Represents: {
   defaultValue: representsDefaultValue,
   encode: representsEncode,
   encodeWithContext: representsEncodeWithContext,
+  encodePartialWithContext: representsEncodePartialWithContext,
   decode: representsDecode,
   decodeWithContext: representsDecodeWithContext,
+  decodePartialWithContext: representsDecodePartialWithContext,
   validateField: representsValidateField,
   validateFields: representsValidateFields,
   hasShape: representsHasShape,
@@ -489,6 +530,8 @@ export declare function representsDefaultValue(): Represents;
 export declare function representsEncode(value: Represents, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function representsEncodeWithContext(value: Represents, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function representsEncodePartialWithContext(value: Partial<Represents>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Represents>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function representsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -502,6 +545,10 @@ export declare function representsDecode(input: unknown, opts?: __mf_DecodeOptio
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Represents | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Represents> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function representsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Represents>): Partial<Represents> | __mf_PendingRef;
 export declare function representsValidateField<K extends keyof Represents>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -557,8 +604,10 @@ export declare const Represents: {
 	readonly defaultValue: typeof representsDefaultValue;
 	readonly encode: typeof representsEncode;
 	readonly encodeWithContext: typeof representsEncodeWithContext;
+	readonly encodePartialWithContext: typeof representsEncodePartialWithContext;
 	readonly decode: typeof representsDecode;
 	readonly decodeWithContext: typeof representsDecodeWithContext;
+	readonly decodePartialWithContext: typeof representsDecodePartialWithContext;
 	readonly validateField: typeof representsValidateField;
 	readonly validateFields: typeof representsValidateFields;
 	readonly hasShape: typeof representsHasShape;
@@ -573,17 +622,17 @@ export declare const Represents: {
 
 ## Mapping
 
-original 0..159 -> expanded 598..757
-original 208..243 -> expanded 757..792
-original 262..294 -> expanded 792..824
-original 313..383 -> expanded 824..894
-original 383..384 -> expanded 16348..16349
-generated 0..598 <- imports
-generated 894..1046 <- Default
-generated 1046..2437 <- Encode
-generated 2437..8785 <- Decode
-generated 8785..15316 <- Gigaform
-generated 15316..16348 <- __convenience_const
+original 0..159 -> expanded 819..978
+original 208..243 -> expanded 978..1013
+original 262..294 -> expanded 1013..1045
+original 313..383 -> expanded 1045..1115
+original 383..384 -> expanded 19964..19965
+generated 0..819 <- imports
+generated 1115..1267 <- Default
+generated 1267..3774 <- Encode
+generated 3774..12113 <- Decode
+generated 12113..18644 <- Gigaform
+generated 18644..19964 <- __convenience_const
 
 ## Metadata
 

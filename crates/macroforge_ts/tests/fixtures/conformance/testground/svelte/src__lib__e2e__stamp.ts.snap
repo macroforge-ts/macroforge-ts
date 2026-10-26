@@ -13,7 +13,7 @@ true
 ## Output
 
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 /**
@@ -35,8 +35,7 @@ export function stampedDefaultValue<T>(): Stamped<T> {
 export function stampedEncode<T>(value: Stamped<T>, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = stampedEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -201,7 +200,7 @@ export function slugDefaultValue(): Slug {
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function slugEncode(value: Slug, keepMetadata?: boolean): string;
 export function slugEncode(value: Slug): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -368,23 +367,23 @@ export {};
 
 ## Mapping
 
-original 0..251 -> expanded 491..742
-original 290..354 -> expanded 742..806
-original 354..356 -> expanded 6570..6572
-original 447..467 -> expanded 6572..6592
-original 483..484 -> expanded 6636..6637
-original 484..485 -> expanded 9899..9900
-generated 0..446 <- imports
-generated 446..491 <- $Newtype
-generated 806..913 <- Default
-generated 913..2228 <- Encode
-generated 2228..5971 <- Decode
-generated 5971..6570 <- __convenience_const
-generated 6592..6636 <- $Newtype
-generated 6637..6714 <- Default
-generated 6714..7404 <- Encode
-generated 7404..9345 <- Decode
-generated 9345..9899 <- __convenience_const
+original 0..251 -> expanded 587..838
+original 290..354 -> expanded 838..902
+original 354..356 -> expanded 6614..6616
+original 447..467 -> expanded 6616..6636
+original 483..484 -> expanded 6680..6681
+original 484..485 -> expanded 9945..9946
+generated 0..542 <- imports
+generated 542..587 <- $Newtype
+generated 902..1009 <- Default
+generated 1009..2272 <- Encode
+generated 2272..6015 <- Decode
+generated 6015..6614 <- __convenience_const
+generated 6636..6680 <- $Newtype
+generated 6681..6758 <- Default
+generated 6758..7450 <- Encode
+generated 7450..9391 <- Decode
+generated 9391..9945 <- __convenience_const
 
 ## Metadata
 

@@ -1,6 +1,6 @@
 # Command Line Interface
 
-macroforge v0.5.0
+macroforge v0.6.0
 
 Command-line interface for expanding Macroforge macros
 

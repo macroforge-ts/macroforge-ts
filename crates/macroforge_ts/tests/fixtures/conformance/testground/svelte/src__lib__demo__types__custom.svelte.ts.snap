@@ -13,8 +13,8 @@ true
 ## Output
 
 import { directionHueDecode, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -37,29 +37,40 @@ export function customDefaultValue(): Custom {
 export function customEncode(value: Custom, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = customEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return customEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Custom>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Custom",
         __id,
     };
 
-    
-    result.mappings = value.mappings.map(
-        (item) => directionHueEncodeWithContext(item, ctx)
-    );
+    if (__fields === undefined || __fields.keeps("mappings")) {
+
+        if (value.mappings !== undefined) {
+            result.mappings = value.mappings.map(
+                (item) => directionHueEncodeWithContext(item, ctx)
+            );
+        }
+    }
 
     return result;
 }
@@ -118,7 +129,13 @@ export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Custom | __mf_PendingRef {
+export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Custom | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Custom> | __mf_PendingRef;
+export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Custom> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Custom.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Custom.decodeWithContext: __ref must be a number" }]);
@@ -132,19 +149,19 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("mappings" in obj)) {
+    if ((__fields === undefined || __fields.requires("mappings")) && !("mappings" in obj)) {
         errors.push({ field: "mappings", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("mappings")) || (__fields.keeps("mappings") && obj["mappings"] !== undefined)) {
         const __raw_mappings = obj["mappings"] as Array<DirectionHue>;
 
         if (Array.isArray(__raw_mappings)) {
@@ -183,6 +200,11 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     ctx.pushErrors(errors);
 
     return instance as Custom;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function customDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Custom>): Partial<Custom> | __mf_PendingRef {
+    return customDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function customValidateField<K extends keyof Custom>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function customValidateField(): Array<{ field: string; message: string }> {
@@ -339,8 +361,10 @@ export const Custom: {
   readonly defaultValue: typeof customDefaultValue;
   readonly encode: typeof customEncode;
   readonly encodeWithContext: typeof customEncodeWithContext;
+  readonly encodePartialWithContext: typeof customEncodePartialWithContext;
   readonly decode: typeof customDecode;
   readonly decodeWithContext: typeof customDecodeWithContext;
+  readonly decodePartialWithContext: typeof customDecodePartialWithContext;
   readonly validateField: typeof customValidateField;
   readonly validateFields: typeof customValidateFields;
   readonly hasShape: typeof customHasShape;
@@ -351,8 +375,10 @@ export const Custom: {
   defaultValue: customDefaultValue,
   encode: customEncode,
   encodeWithContext: customEncodeWithContext,
+  encodePartialWithContext: customEncodePartialWithContext,
   decode: customDecode,
   decodeWithContext: customDecodeWithContext,
+  decodePartialWithContext: customDecodePartialWithContext,
   validateField: customValidateField,
   validateFields: customValidateFields,
   hasShape: customHasShape,
@@ -373,6 +399,8 @@ export declare function customDefaultValue(): Custom;
 export declare function customEncode(value: Custom, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Custom>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function customDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -386,6 +414,10 @@ export declare function customDecode(input: unknown, opts?: __mf_DecodeOptions):
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Custom | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Custom> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function customDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Custom>): Partial<Custom> | __mf_PendingRef;
 export declare function customValidateField<K extends keyof Custom>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -432,8 +464,10 @@ export declare const Custom: {
 	readonly defaultValue: typeof customDefaultValue;
 	readonly encode: typeof customEncode;
 	readonly encodeWithContext: typeof customEncodeWithContext;
+	readonly encodePartialWithContext: typeof customEncodePartialWithContext;
 	readonly decode: typeof customDecode;
 	readonly decodeWithContext: typeof customDecodeWithContext;
+	readonly decodePartialWithContext: typeof customDecodePartialWithContext;
 	readonly validateField: typeof customValidateField;
 	readonly validateFields: typeof customValidateFields;
 	readonly hasShape: typeof customHasShape;
@@ -448,15 +482,15 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 535..654
-original 168..231 -> expanded 654..717
-original 231..232 -> expanded 12884..12885
-generated 0..535 <- imports
-generated 717..809 <- Default
-generated 809..1979 <- Encode
-generated 1979..7110 <- Decode
-generated 7110..11944 <- Gigaform
-generated 11944..12884 <- __convenience_const
+original 0..119 -> expanded 756..875
+original 168..231 -> expanded 875..938
+original 231..232 -> expanded 15534..15535
+generated 0..756 <- imports
+generated 938..1030 <- Default
+generated 1030..2913 <- Encode
+generated 2913..9488 <- Decode
+generated 9488..14322 <- Gigaform
+generated 14322..15534 <- __convenience_const
 
 ## Metadata
 

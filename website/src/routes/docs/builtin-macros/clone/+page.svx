@@ -54,6 +54,8 @@ class Point {
 ```
 
 ```typescript after
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+
 class Point {
     x: number;
     y: number;
@@ -64,17 +66,15 @@ class Point {
 }
 
 export function pointClone(value: Point): Point {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.x = value.x;
-    cloned.y = value.y;
-    return cloned;
+    return __mf_instanceWith(value, { x: value.x, y: value.y });
 }
 ```
 
 ## Implementation Notes
 
-- **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve
-  the prototype chain, ensuring `instanceof` checks work correctly
+- **Classes**: `instanceWith` from `@macroforge/core/structural` copies the
+  fields onto a new object with the value's prototype, so `instanceof`
+  checks work and the constructor does not run
 - **Enums**: Simply returns the value (enums are primitives in TypeScript)
 - **Interfaces/Type Aliases**: An object literal copying each field for
   object types, element by element for fixed tuples, and

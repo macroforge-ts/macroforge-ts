@@ -16,8 +16,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
  export interface User {
     name: string;
     age: number;
@@ -77,7 +77,13 @@ export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef {
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<User> | __mf_PendingRef;
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<User> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
@@ -91,22 +97,22 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
-    if (!("age" in obj)) {
+    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
         errors.push({ field: "age", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -115,7 +121,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.name = __raw_name;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -128,6 +134,11 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     ctx.pushErrors(errors);
 
     return instance as User;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function userDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof User>): Partial<User> | __mf_PendingRef {
+    return userDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function userValidateField<K extends keyof User>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function userValidateField(): Array<{ field: string; message: string }> {
@@ -153,6 +164,7 @@ export function userIs(obj: unknown): obj is User {
 export const User: {
   readonly decode: typeof userDecode;
   readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly decodePartialWithContext: typeof userDecodePartialWithContext;
   readonly validateField: typeof userValidateField;
   readonly validateFields: typeof userValidateFields;
   readonly hasShape: typeof userHasShape;
@@ -160,6 +172,7 @@ export const User: {
 } = {
   decode: userDecode,
   decodeWithContext: userDecodeWithContext,
+  decodePartialWithContext: userDecodePartialWithContext,
   validateField: userValidateField,
   validateFields: userValidateFields,
   hasShape: userHasShape,
@@ -185,6 +198,10 @@ export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<User> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function userDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof User>): Partial<User> | __mf_PendingRef;
 export declare function userValidateField<K extends keyof User>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -198,6 +215,7 @@ export declare function userIs(obj: unknown): obj is User;
 export declare const User: {
 	readonly decode: typeof userDecode;
 	readonly decodeWithContext: typeof userDecodeWithContext;
+	readonly decodePartialWithContext: typeof userDecodePartialWithContext;
 	readonly validateField: typeof userValidateField;
 	readonly validateFields: typeof userValidateFields;
 	readonly hasShape: typeof userHasShape;
@@ -210,11 +228,11 @@ export declare const User: {
 
 ## Mapping
 
-original 22..83 -> expanded 225..286
-original 83..84 -> expanded 4923..4924
-generated 0..225 <- imports
-generated 286..4437 <- Decode
-generated 4437..4923 <- __convenience_const
+original 22..83 -> expanded 350..411
+original 83..84 -> expanded 6759..6760
+generated 0..350 <- imports
+generated 411..6141 <- Decode
+generated 6141..6759 <- __convenience_const
 
 ## Metadata
 

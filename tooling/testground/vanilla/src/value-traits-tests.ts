@@ -61,6 +61,9 @@ export type Totals = Map<string, number>;
 /** @derive(Encode) */
 export type LedgerOrNote = Ledger | string;
 
+/** @derive(Encode) */
+export type OptionalNote = string | undefined;
+
 /**
  * @derive(Encode)
  * @endec({ tag: "kind" })

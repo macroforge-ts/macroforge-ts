@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (207)
+## Types (217)
 
 Address 1397622768841615
 AddressPatch 9f24746fc3a6b7e7
@@ -15,12 +15,12 @@ BetweenBigIntValidator 31eb834618513acc
 BetweenDateValidator d69e6ff847b71392
 BetweenValidator f8c526a5a80ae39c
 Box a7e5c7d0b9fefd62
-Boxed 5d089a5ee56c30d8
+Boxed cdf917b1ea8f4942
 BuildtimeDemoResult e0b5ee7b196d163d
 CapitalizedValidator 0cdc5bc30e5492fc
 Cents 07fad5f8ee51b7e4
-Choice 68f243a402fed214
-Code e87ff64df167bf3d
+Choice 08b960747013439d
+Code afab74ee73521e34
 Color c41d29e946bcc255
 CombinedNumberValidatorsTest 23504e4f24b56ce8
 CombinedStringValidatorsTest c2da8f7c2616bb80
@@ -28,9 +28,9 @@ Contact 75765ef9c40ac818
 Container 8b373bd10e94e690
 ContainerFailure 715d38698ed87c0b
 Coordinate3D 3b67485f942cf6f2
-Counted cf79a96ef97c8193
+Counted a4330099a74b5710
 Counter 1eb850f0632697d6
-Crate 139781c04a12325d
+Crate bdc8cce060865a43
 CustomMessageTest 956faa3fc2f04c9b
 CustomNumberValidator a99392a78510f9f9
 CustomStringValidator d1785bef489c0288
@@ -119,7 +119,7 @@ InspectMacroResults 1302a64d40dc0e7f
 IntValidator c3c800236beca390
 Inventory e3375105c74fe3a2
 ItemsCountValidator 387b61307e8debdf
-Keyed 4cbb13bafaede330
+Keyed d9071681423b40c0
 Labeled fd496e80c257c7ce
 Ledger 3eb29f454733b3cf
 LedgerOrNote 4eaf746ce75c8c75
@@ -154,6 +154,7 @@ NonNegativeBigIntValidator c4286d6e1901ebe9
 NonNegativeValidator 65959ede73d00699
 NonPositiveBigIntValidator 6a4e2f118b1b78e1
 NonPositiveValidator 7a5360707749ba02
+OptionalNote 6d4efffe9e9f5347
 Outcome 86728638abaf5c8f
 Pair 65b19cdee80fadfb
 PatternValidator 7a12768c883a2dac
@@ -167,7 +168,7 @@ Probed b0812d92d42e1f3c
 ProcMacroDeriveResults de81250ee99d3447
 ProductForm 3e3b63f1c0aac5b5
 Profile f573cecf9ab867cb
-Rank b6cf255ad297cc7b
+Rank 1342c66572064b16
 Reachable 7a3c32f08927fcfd
 Reading 61202e87288a25a2
 RecursiveDeserResult 47d81d50b6c7d75a
@@ -179,16 +180,25 @@ Scores 69bd8fb442280710
 ServerStatus a6f77a8f50f170a0
 Settings d20148b5e6fe5888
 Shape b301a2505fa68f11
-Shelf 0e3c6c5c7fadee5e
+ShapeCard 849f3f772cbd6045
+ShapeDraft 200b549dea9875e7
+ShapeEvent a4a8c2ad90dce603
+ShapeFields d991fec7e2ada478
+ShapeItem f859d43b0d1a0d0e
+ShapeLevel a4ef7d8c21f5c462
+ShapeMember 86b47f45c4f33b0b
+ShapeMixed c0f77f1a1e793528
+ShapeRank 56ab594c8d581cd7
+Shelf e85a2b4363f31ac2
 Signal e7b2eef9980d83db
-Slot 510fade408d2953f
+Slot cf5405b009b27ab3
 Span 03e85be0b2397e02
 StartsWithValidator f11e86debb94e9eb
 Status 5f5a3a003501afe3
 Store 8069d3f40b42a4cd
 Subscriber b37ba2fda76cb5ed
 Tagged 6783afe0b7118678
-Tally a1155e95e7556572
+Tally dece024fae9ce058
 Timeline f4a804b77375a0c1
 Totals 8e5cc2dfe04bb84f
 TrimmedValidator 5aa4be7fe87dadd4
@@ -211,7 +221,7 @@ VanillaTestground 52b72667e2c2a6e7
 Version e87b01a404b85d13
 Wall 9742c39036e9aed2
 
-## Qualified types (210)
+## Qualified types (220)
 
 src/all-macros-test.ts::AllMacrosTestClass 0cb31a5b808f2b1e
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -250,6 +260,15 @@ src/runtime-deser-test.ts::Container 8b373bd10e94e690
 src/runtime-deser-test.ts::ContainerFailure 715d38698ed87c0b
 src/runtime-deser-test.ts::Inner 273d52255c3a1734
 src/runtime-deser-test.ts::RecursiveDeserResult 47d81d50b6c7d75a
+src/shape-tests.ts::ShapeCard 849f3f772cbd6045
+src/shape-tests.ts::ShapeDraft 200b549dea9875e7
+src/shape-tests.ts::ShapeEvent a4a8c2ad90dce603
+src/shape-tests.ts::ShapeFields d991fec7e2ada478
+src/shape-tests.ts::ShapeItem f859d43b0d1a0d0e
+src/shape-tests.ts::ShapeLevel a4ef7d8c21f5c462
+src/shape-tests.ts::ShapeMember 86b47f45c4f33b0b
+src/shape-tests.ts::ShapeMixed c0f77f1a1e793528
+src/shape-tests.ts::ShapeRank 56ab594c8d581cd7
 src/store.svelte.ts::Store 8069d3f40b42a4cd
 src/testground-globals.ts::AttributesResults fb2feb32623d818b
 src/testground-globals.ts::BuildtimeDemoResult e0b5ee7b196d163d
@@ -401,25 +420,26 @@ src/validators/union-arm-validator-tests.ts::Phone 6e7d7d5769a18c46
 src/validators/union-arm-validator-tests.ts::Reachable 7a3c32f08927fcfd
 src/value-traits-tests.ts::Amount 14afa507f4245eee
 src/value-traits-tests.ts::Badge aec4ac57e6ae27fe
-src/value-traits-tests.ts::Boxed 5d089a5ee56c30d8
-src/value-traits-tests.ts::Choice 68f243a402fed214
-src/value-traits-tests.ts::Code e87ff64df167bf3d
-src/value-traits-tests.ts::Counted cf79a96ef97c8193
-src/value-traits-tests.ts::Crate 139781c04a12325d
+src/value-traits-tests.ts::Boxed cdf917b1ea8f4942
+src/value-traits-tests.ts::Choice 08b960747013439d
+src/value-traits-tests.ts::Code afab74ee73521e34
+src/value-traits-tests.ts::Counted a4330099a74b5710
+src/value-traits-tests.ts::Crate bdc8cce060865a43
 src/value-traits-tests.ts::Inventory e3375105c74fe3a2
-src/value-traits-tests.ts::Keyed 4cbb13bafaede330
-src/value-traits-tests.ts::Labeled 209ab8ceca019d0c
+src/value-traits-tests.ts::Keyed d9071681423b40c0
+src/value-traits-tests.ts::Labeled 7117a1101432bca9
 src/value-traits-tests.ts::Ledger 3eb29f454733b3cf
 src/value-traits-tests.ts::LedgerOrNote 4eaf746ce75c8c75
 src/value-traits-tests.ts::LedgerPair f578368adb23220f
 src/value-traits-tests.ts::MainLedger 1569cf5be0eb7315
 src/value-traits-tests.ts::Moment db7f0c955cc71743
-src/value-traits-tests.ts::Rank b6cf255ad297cc7b
+src/value-traits-tests.ts::OptionalNote 6d4efffe9e9f5347
+src/value-traits-tests.ts::Rank 1342c66572064b16
 src/value-traits-tests.ts::Reading 61202e87288a25a2
 src/value-traits-tests.ts::Shape b301a2505fa68f11
-src/value-traits-tests.ts::Shelf 0e3c6c5c7fadee5e
-src/value-traits-tests.ts::Slot 510fade408d2953f
-src/value-traits-tests.ts::Tally a1155e95e7556572
+src/value-traits-tests.ts::Shelf e85a2b4363f31ac2
+src/value-traits-tests.ts::Slot cf5405b009b27ab3
+src/value-traits-tests.ts::Tally dece024fae9ce058
 src/value-traits-tests.ts::Timeline f4a804b77375a0c1
 src/value-traits-tests.ts::Totals 8e5cc2dfe04bb84f
 src/value-traits-tests.ts::Wall 9742c39036e9aed2

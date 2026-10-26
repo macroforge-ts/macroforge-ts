@@ -6,7 +6,9 @@ start using TypeScript macros.
 ## Requirements
 
 - Node.js 18 or later (or any WebAssembly-capable runtime)
-- TypeScript 5.9 or later
+- TypeScript 5.9 or 6. Type checking through `macroforge tsc` and `macroforge svelte-check`, the
+  editor plugin and generated declaration files use the compiler API, which the TypeScript 7 package
+  does not ship.
 
 ## Install the Package
 

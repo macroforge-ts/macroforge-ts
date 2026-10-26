@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
 
 class Point {
     x: number;
@@ -38,28 +39,44 @@ class Point {
 export function pointEncode(value: Point, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = pointEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return pointEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Point",
         __id,
     };
 
-    
-    result.x = value.x;
-    result.y = value.y;
+    if (__fields === undefined || __fields.keeps("x")) {
+
+        if (value.x !== undefined) {
+            result.x = value.x;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("y")) {
+
+        if (value.y !== undefined) {
+            result.y = value.y;
+        }
+    }
 
     return result;
 }
@@ -76,8 +93,10 @@ declare class Point {
 }
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
-/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
 export {};
 
 ## Diagnostics
@@ -86,12 +105,12 @@ export {};
 
 ## Mapping
 
-original 22..67 -> expanded 78..123
-original 67..68 -> expanded 750..751
-original 68..69 -> expanded 1865..1866
-generated 0..78 <- imports
-generated 123..750 <- Encode
-generated 751..1865 <- Encode
+original 22..67 -> expanded 302..347
+original 67..68 -> expanded 974..975
+original 68..69 -> expanded 2877..2878
+generated 0..302 <- imports
+generated 347..974 <- Encode
+generated 975..2877 <- Encode
 
 ## Metadata
 

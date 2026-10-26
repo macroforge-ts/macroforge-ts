@@ -699,6 +699,7 @@ describe('service', () => {
                 compilerOptions: {
                     composite: true,
                     strict: true,
+                    module: 'NodeNext',
                     moduleResolution: 'NodeNext'
                 },
                 files: ['index.ts']

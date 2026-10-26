@@ -13,8 +13,8 @@ true
 ## Output
 
 import { metersDecode, metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Consumes newtypes from another module, so the type-check covers exported
  * brands, their convenience consts and guard narrowing across files.
@@ -32,30 +32,46 @@ export interface Trip {
 export function tripEncode(value: Trip, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = tripEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function tripEncodeWithContext(value: Trip, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return tripEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Trip>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Trip",
         __id,
     };
 
-    
-    result.leg = metersEncodeWithContext(value.leg, ctx);
-    result.legs = value.legs.map(
-        (item) => metersEncodeWithContext(item, ctx)
-    );
+    if (__fields === undefined || __fields.keeps("leg")) {
+
+        if (value.leg !== undefined) {
+            result.leg = metersEncodeWithContext(value.leg, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("legs")) {
+
+        if (value.legs !== undefined) {
+            result.legs = value.legs.map(
+                (item) => metersEncodeWithContext(item, ctx)
+            );
+        }
+    }
 
     return result;
 }
@@ -114,7 +130,13 @@ export function tripDecode(input: unknown, opts?: __mf_DecodeOptions): { success
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Trip | __mf_PendingRef {
+export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Trip | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Trip> | __mf_PendingRef;
+export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Trip> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Trip.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Trip.decodeWithContext: __ref must be a number" }]);
@@ -128,22 +150,22 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("leg" in obj)) {
+    if ((__fields === undefined || __fields.requires("leg")) && !("leg" in obj)) {
         errors.push({ field: "leg", message: "missing required field" });
     }
-    if (!("legs" in obj)) {
+    if ((__fields === undefined || __fields.requires("legs")) && !("legs" in obj)) {
         errors.push({ field: "legs", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("leg")) || (__fields.keeps("leg") && obj["leg"] !== undefined)) {
         const __raw_leg = obj["leg"] as Meters;
 
         ctx.pushScope("leg");
@@ -165,7 +187,7 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("legs")) || (__fields.keeps("legs") && obj["legs"] !== undefined)) {
         const __raw_legs = obj["legs"] as Meters[];
 
         if (Array.isArray(__raw_legs)) {
@@ -205,6 +227,11 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     return instance as Trip;
 }
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function tripDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Trip>): Partial<Trip> | __mf_PendingRef {
+    return tripDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
 export function tripValidateField<K extends keyof Trip>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function tripValidateField(): Array<{ field: string; message: string }> {
     return [];
@@ -229,8 +256,10 @@ export function tripIs(obj: unknown): obj is Trip {
 export const Trip: {
   readonly encode: typeof tripEncode;
   readonly encodeWithContext: typeof tripEncodeWithContext;
+  readonly encodePartialWithContext: typeof tripEncodePartialWithContext;
   readonly decode: typeof tripDecode;
   readonly decodeWithContext: typeof tripDecodeWithContext;
+  readonly decodePartialWithContext: typeof tripDecodePartialWithContext;
   readonly validateField: typeof tripValidateField;
   readonly validateFields: typeof tripValidateFields;
   readonly hasShape: typeof tripHasShape;
@@ -238,8 +267,10 @@ export const Trip: {
 } = {
   encode: tripEncode,
   encodeWithContext: tripEncodeWithContext,
+  encodePartialWithContext: tripEncodePartialWithContext,
   decode: tripDecode,
   decodeWithContext: tripDecodeWithContext,
+  decodePartialWithContext: tripDecodePartialWithContext,
   validateField: tripValidateField,
   validateFields: tripValidateFields,
   hasShape: tripHasShape,
@@ -272,6 +303,8 @@ export interface Trip {
 export declare function tripEncode(value: Trip, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function tripEncodeWithContext(value: Trip, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function tripEncodePartialWithContext(value: Partial<Trip>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Trip>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function tripDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -285,6 +318,10 @@ export declare function tripDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Trip | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Trip> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function tripDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Trip>): Partial<Trip> | __mf_PendingRef;
 export declare function tripValidateField<K extends keyof Trip>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -298,8 +335,10 @@ export declare function tripIs(obj: unknown): obj is Trip;
 export declare const Trip: {
 	readonly encode: typeof tripEncode;
 	readonly encodeWithContext: typeof tripEncodeWithContext;
+	readonly encodePartialWithContext: typeof tripEncodePartialWithContext;
 	readonly decode: typeof tripDecode;
 	readonly decodeWithContext: typeof tripDecodeWithContext;
+	readonly decodePartialWithContext: typeof tripDecodePartialWithContext;
 	readonly validateField: typeof tripValidateField;
 	readonly validateFields: typeof tripValidateFields;
 	readonly hasShape: typeof tripHasShape;
@@ -314,12 +353,12 @@ export declare function greet(name: string): string;
 
 ## Mapping
 
-original 0..324 -> expanded 373..697
-original 324..674 -> expanded 8355..8705
-generated 0..373 <- imports
-generated 697..1899 <- Encode
-generated 1899..7705 <- Decode
-generated 7705..8355 <- __convenience_const
+original 0..324 -> expanded 594..918
+original 324..674 -> expanded 11239..11589
+generated 0..594 <- imports
+generated 918..2940 <- Encode
+generated 2940..10325 <- Decode
+generated 10325..11239 <- __convenience_const
 
 ## Metadata
 

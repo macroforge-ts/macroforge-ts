@@ -1,6 +1,6 @@
 //! How a field's type is classified for encoding and decoding.
 
-use crate::builtin::derive::endec::TypeCategory;
+use crate::builtin::derive::endec::{TypeCategory, WrapperFields};
 use crate::ts_syn::abi::ir::split_top_level_union;
 
 #[test]
@@ -34,6 +34,65 @@ fn test_type_category_array() {
         TypeCategory::from_ts_type("Array<number>"),
         TypeCategory::Array("number".into())
     );
+}
+
+#[test]
+fn test_type_category_reads_every_array_spelling_alike() {
+    for spelling in [
+        "(User | null)[]",
+        "Array<User | null>",
+        "ReadonlyArray<User | null>",
+        "readonly (User | null)[]",
+    ] {
+        assert_eq!(
+            TypeCategory::from_ts_type(spelling),
+            TypeCategory::Array("User | null".into()),
+            "{spelling}"
+        );
+    }
+    // A union that merely ends with an array member is not an array.
+    assert_eq!(
+        TypeCategory::from_ts_type("string | number[]"),
+        TypeCategory::Unknown
+    );
+}
+
+#[test]
+fn test_type_category_readonly_map_and_set() {
+    assert_eq!(
+        TypeCategory::from_ts_type("ReadonlyMap<string, number>"),
+        TypeCategory::Map("string".into(), "number".into())
+    );
+    assert_eq!(
+        TypeCategory::from_ts_type("ReadonlySet<string>"),
+        TypeCategory::Set("string".into())
+    );
+}
+
+#[test]
+fn test_wrapper_fields_tell_which_fields_a_value_has() {
+    assert_eq!(WrapperFields::of("User"), None);
+    assert_eq!(WrapperFields::of("Array<User>"), None);
+    for whole in ["Required<User>", "Readonly<User>", "NonNullable<User>"] {
+        assert_eq!(WrapperFields::of(whole), Some(Ok(WrapperFields::Whole)));
+    }
+    assert_eq!(
+        WrapperFields::of("Partial<User>"),
+        Some(Ok(WrapperFields::Any))
+    );
+    assert_eq!(
+        WrapperFields::of("Pick<User, 'id' | \"name\">"),
+        Some(Ok(WrapperFields::Only(vec!["id".into(), "name".into()])))
+    );
+    assert_eq!(
+        WrapperFields::of("Omit<Box<string, number>, 'held'>"),
+        Some(Ok(WrapperFields::Except(vec!["held".into()])))
+    );
+    // Keys behind a name say nothing here about which fields remain.
+    assert!(matches!(
+        WrapperFields::of("Pick<User, UserKeys>"),
+        Some(Err(message)) if message.contains("string literals")
+    ));
 }
 
 #[test]

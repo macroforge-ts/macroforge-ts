@@ -1,0 +1,3054 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/shape-tests.ts
+sha256 192807014153a18e90c8c2034d00e01c7d2011e71f8e07e144815353a31a6ce6
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+/**
+ * Field and alias shapes every derive has to generate type-correct code for:
+ * nullable elements, readonly collections and fields, tuples, enums of both
+ * kinds, unions that mix primitives, `null`, interfaces and classes, and
+ * values that hold only some of a type's fields.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export interface ShapeItem {
+    id: string;
+    score: number;
+}
+
+export function shapeItemToString(value: ShapeItem): string {
+    const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("score: " + String(value.score));
+    return "ShapeItem { " + parts.join(", ") + " }";
+}
+
+export function shapeItemClone(value: ShapeItem): ShapeItem {
+    return ({
+	id: value.id,
+	score: value.score
+});
+}
+
+export function shapeItemEquals(a: ShapeItem, b: ShapeItem): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.score === b.score;
+}
+
+export function shapeItemHashCode(value: ShapeItem): number {
+    let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function shapeItemPartialCompare(a: ShapeItem, b: ShapeItem): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export function shapeItemCompare(a: ShapeItem, b: ShapeItem): number {
+    if (a === b) return 0;
+    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.score < b.score ? -1 : a.score > b.score ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export function shapeItemDefaultValue(): ShapeItem {
+    return {
+        id: "",
+        score: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeItemEncode(value: ShapeItem, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeItemEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeItemEncodeWithContext(value: ShapeItem, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return shapeItemEncodePartialWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function shapeItemEncodePartialWithContext(value: Partial<ShapeItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeItem>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
+    }
+
+    const result: Record<string, unknown> = {
+        "__type": "ShapeItem",
+        __id,
+    };
+
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("score")) {
+
+        if (value.score !== undefined) {
+            result.score = value.score;
+        }
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeItemDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeItem.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeItem | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeItem> | __mf_PendingRef;
+export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ShapeItem> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeItem.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeItem.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeItem | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeItem.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
+        errors.push({ field: "score", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "ShapeItem.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+        const __raw_score = obj["score"] as number;
+
+        if (!(typeof __raw_score === "number")) {
+            errors.push({ field: "score", message: __raw_score == null ? "ShapeItem.score is required" : "expected number" });
+        } else {
+            instance.score = __raw_score;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ShapeItem;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function shapeItemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeItem>): Partial<ShapeItem> | __mf_PendingRef {
+    return shapeItemDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function shapeItemValidateField<K extends keyof ShapeItem>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function shapeItemValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function shapeItemValidateFields(partial: { readonly [K in keyof ShapeItem]?: unknown }): Array<{ field: string; message: string }>;
+export function shapeItemValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function shapeItemHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "score" in o;
+}
+
+export function shapeItemIs(obj: unknown): obj is ShapeItem {
+    return shapeItemHasShape(obj) && shapeItemDecode(obj).success;
+}
+
+export const ShapeItem: {
+  readonly toString: typeof shapeItemToString;
+  readonly clone: typeof shapeItemClone;
+  readonly equals: typeof shapeItemEquals;
+  readonly hashCode: typeof shapeItemHashCode;
+  readonly partialCompare: typeof shapeItemPartialCompare;
+  readonly compare: typeof shapeItemCompare;
+  readonly defaultValue: typeof shapeItemDefaultValue;
+  readonly encode: typeof shapeItemEncode;
+  readonly encodeWithContext: typeof shapeItemEncodeWithContext;
+  readonly encodePartialWithContext: typeof shapeItemEncodePartialWithContext;
+  readonly decode: typeof shapeItemDecode;
+  readonly decodeWithContext: typeof shapeItemDecodeWithContext;
+  readonly decodePartialWithContext: typeof shapeItemDecodePartialWithContext;
+  readonly validateField: typeof shapeItemValidateField;
+  readonly validateFields: typeof shapeItemValidateFields;
+  readonly hasShape: typeof shapeItemHasShape;
+  readonly is: typeof shapeItemIs;
+} = {
+  toString: shapeItemToString,
+  clone: shapeItemClone,
+  equals: shapeItemEquals,
+  hashCode: shapeItemHashCode,
+  partialCompare: shapeItemPartialCompare,
+  compare: shapeItemCompare,
+  defaultValue: shapeItemDefaultValue,
+  encode: shapeItemEncode,
+  encodeWithContext: shapeItemEncodeWithContext,
+  encodePartialWithContext: shapeItemEncodePartialWithContext,
+  decode: shapeItemDecode,
+  decodeWithContext: shapeItemDecodeWithContext,
+  decodePartialWithContext: shapeItemDecodePartialWithContext,
+  validateField: shapeItemValidateField,
+  validateFields: shapeItemValidateFields,
+  hasShape: shapeItemHasShape,
+  is: shapeItemIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum ShapeLevel {
+    /** @default */
+    Low = 'low',
+    High = 'high'
+}
+
+export function shapeLevelToString(value: ShapeLevel): string {
+    const key = ShapeLevel[value as unknown as keyof typeof ShapeLevel];
+    if (key !== undefined) {
+        return "ShapeLevel." + key;
+    }
+    return "ShapeLevel(" + String(value) + ")";
+}
+
+export function shapeLevelClone(value: ShapeLevel): ShapeLevel {
+    return value;
+}
+
+export function shapeLevelEquals(a: ShapeLevel, b: ShapeLevel): boolean {
+    return a === b;
+}
+
+export function shapeLevelHashCode(value: ShapeLevel): number {
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    return hash;
+}
+
+export function shapeLevelPartialCompare(a: ShapeLevel, b: ShapeLevel): number | null {
+    if (typeof a === "string" && typeof b === "string") {
+        return a.localeCompare(b);
+    }
+    return a === b ? 0 : null;
+}
+
+export function shapeLevelCompare(a: ShapeLevel, b: ShapeLevel): number {
+    if (typeof a === "string" && typeof b === "string") {
+        const cmp = a.localeCompare(b);
+        return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+    }
+    return 0;
+}
+
+export function shapeLevelDefaultValue(): ShapeLevel {
+    return ShapeLevel.Low;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function shapeLevelEncode(value: ShapeLevel): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function shapeLevelEncodeWithContext(value: ShapeLevel, ctx: __mf_EncodeContext): string | number;
+export function shapeLevelEncodeWithContext(value: ShapeLevel): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function shapeLevelDecode(input: unknown): ShapeLevel {
+    return shapeLevelDecodeWithContext(input);
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function shapeLevelDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ShapeLevel;
+export function shapeLevelDecodeWithContext(data: unknown): ShapeLevel {
+    if (ShapeLevel["Low"] === data) {
+        return ShapeLevel["Low"];
+    }
+    if (ShapeLevel["High"] === data) {
+        return ShapeLevel["High"];
+    }
+    throw new Error("Invalid ShapeLevel value: " + JSON.stringify(data));
+}
+
+export function shapeLevelIs(value: unknown): value is ShapeLevel {
+    if (ShapeLevel["Low"] === value) {
+        return true;
+    }
+    if (ShapeLevel["High"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace ShapeLevel {
+  export const toString: typeof shapeLevelToString = shapeLevelToString;
+  export const clone: typeof shapeLevelClone = shapeLevelClone;
+  export const equals: typeof shapeLevelEquals = shapeLevelEquals;
+  export const hashCode: typeof shapeLevelHashCode = shapeLevelHashCode;
+  export const partialCompare: typeof shapeLevelPartialCompare = shapeLevelPartialCompare;
+  export const compare: typeof shapeLevelCompare = shapeLevelCompare;
+  export const defaultValue: typeof shapeLevelDefaultValue = shapeLevelDefaultValue;
+  export const encode: typeof shapeLevelEncode = shapeLevelEncode;
+  export const encodeWithContext: typeof shapeLevelEncodeWithContext = shapeLevelEncodeWithContext;
+  export const decode: typeof shapeLevelDecode = shapeLevelDecode;
+  export const decodeWithContext: typeof shapeLevelDecodeWithContext = shapeLevelDecodeWithContext;
+  export const is: typeof shapeLevelIs = shapeLevelIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export enum ShapeRank {
+    /** @default */
+    One = 1,
+    Two = 2
+}
+
+export function shapeRankToString(value: ShapeRank): string {
+    const key = ShapeRank[value as unknown as keyof typeof ShapeRank];
+    if (key !== undefined) {
+        return "ShapeRank." + key;
+    }
+    return "ShapeRank(" + String(value) + ")";
+}
+
+export function shapeRankClone(value: ShapeRank): ShapeRank {
+    return value;
+}
+
+export function shapeRankEquals(a: ShapeRank, b: ShapeRank): boolean {
+    return a === b;
+}
+
+export function shapeRankHashCode(value: ShapeRank): number {
+    return value as number;
+}
+
+export function shapeRankPartialCompare(a: ShapeRank, b: ShapeRank): number | null {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return a === b ? 0 : null;
+}
+
+export function shapeRankCompare(a: ShapeRank, b: ShapeRank): number {
+    if (typeof a === "number" && typeof b === "number") {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return 0;
+}
+
+export function shapeRankDefaultValue(): ShapeRank {
+    return ShapeRank.One;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function shapeRankEncode(value: ShapeRank): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function shapeRankEncodeWithContext(value: ShapeRank, ctx: __mf_EncodeContext): string | number;
+export function shapeRankEncodeWithContext(value: ShapeRank): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function shapeRankDecode(input: unknown): ShapeRank {
+    return shapeRankDecodeWithContext(input);
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function shapeRankDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ShapeRank;
+export function shapeRankDecodeWithContext(data: unknown): ShapeRank {
+    if (ShapeRank["One"] === data) {
+        return ShapeRank["One"];
+    }
+    if (ShapeRank["Two"] === data) {
+        return ShapeRank["Two"];
+    }
+    throw new Error("Invalid ShapeRank value: " + JSON.stringify(data));
+}
+
+export function shapeRankIs(value: unknown): value is ShapeRank {
+    if (ShapeRank["One"] === value) {
+        return true;
+    }
+    if (ShapeRank["Two"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace ShapeRank {
+  export const toString: typeof shapeRankToString = shapeRankToString;
+  export const clone: typeof shapeRankClone = shapeRankClone;
+  export const equals: typeof shapeRankEquals = shapeRankEquals;
+  export const hashCode: typeof shapeRankHashCode = shapeRankHashCode;
+  export const partialCompare: typeof shapeRankPartialCompare = shapeRankPartialCompare;
+  export const compare: typeof shapeRankCompare = shapeRankCompare;
+  export const defaultValue: typeof shapeRankDefaultValue = shapeRankDefaultValue;
+  export const encode: typeof shapeRankEncode = shapeRankEncode;
+  export const encodeWithContext: typeof shapeRankEncodeWithContext = shapeRankEncodeWithContext;
+  export const decode: typeof shapeRankDecode = shapeRankDecode;
+  export const decodeWithContext: typeof shapeRankDecodeWithContext = shapeRankDecodeWithContext;
+  export const is: typeof shapeRankIs = shapeRankIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ShapeFields {
+    note: string | undefined;
+    maybe: string | null;
+    pair: [string, number];
+    nullableTexts: (string | null)[];
+    nullableItems: Array<ShapeItem | null>;
+    parenthesizedItems: (ShapeItem | null)[];
+    readonlyItems: ReadonlyArray<ShapeItem>;
+    readonlyNumbers: readonly number[];
+    readonlyTags: ReadonlySet<string>;
+    readonlyCounts: ReadonlyMap<string, number>;
+    level: ShapeLevel;
+    rank: ShapeRank;
+}
+
+export function shapeFieldsToString(value: ShapeFields): string {
+    const parts: string[] = [];
+    parts.push("note: " + String(value.note));
+    parts.push("maybe: " + String(value.maybe));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    parts.push("nullableTexts: " + __mf_structuralDebug(value.nullableTexts));
+    parts.push("nullableItems: " + "[" + value.nullableItems.map((item) => item == null ? String(item) : shapeItemToString(item)).join(", ") + "]");
+    parts.push("parenthesizedItems: " + __mf_structuralDebug(value.parenthesizedItems));
+    parts.push("readonlyItems: " + "[" + value.readonlyItems.map(shapeItemToString).join(", ") + "]");
+    parts.push("readonlyNumbers: " + __mf_structuralDebug(value.readonlyNumbers));
+    parts.push("readonlyTags: " + __mf_structuralDebug(value.readonlyTags));
+    parts.push("readonlyCounts: " + __mf_structuralDebug(value.readonlyCounts));
+    parts.push("level: " + shapeLevelToString(value.level));
+    parts.push("rank: " + shapeRankToString(value.rank));
+    return "ShapeFields { " + parts.join(", ") + " }";
+}
+
+export function shapeFieldsClone(value: ShapeFields): ShapeFields {
+    return ({
+	note: value.note,
+	maybe: value.maybe,
+	pair: __mf_structuralClone(value.pair),
+	nullableTexts: [...value.nullableTexts],
+	nullableItems: value.nullableItems.map((__item0) => __item0 == null ? __item0 : shapeItemClone(__item0)),
+	parenthesizedItems: value.parenthesizedItems.map((__item0) => __mf_structuralClone(__item0)),
+	readonlyItems: value.readonlyItems.map((__item0) => shapeItemClone(__item0)),
+	readonlyNumbers: [...value.readonlyNumbers],
+	readonlyTags: new Set(value.readonlyTags),
+	readonlyCounts: new Map(value.readonlyCounts),
+	level: shapeLevelClone(value.level),
+	rank: shapeRankClone(value.rank)
+});
+}
+
+export function shapeFieldsEquals(a: ShapeFields, b: ShapeFields): boolean {
+    if (a === b) return true;
+    return a.note === b.note && a.maybe === b.maybe && __mf_structuralEquals(a.pair, b.pair) && a.nullableTexts.length === b.nullableTexts.length && a.nullableTexts.every((__item0, __index0) => {
+	const __other0 = b.nullableTexts[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+}) && a.nullableItems.length === b.nullableItems.length && a.nullableItems.every((__item0, __index0) => {
+	const __other0 = b.nullableItems[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : shapeItemEquals(__item0, __other0);
+}) && a.parenthesizedItems.length === b.parenthesizedItems.length && a.parenthesizedItems.every((__item0, __index0) => {
+	const __other0 = b.parenthesizedItems[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+}) && a.readonlyItems.length === b.readonlyItems.length && a.readonlyItems.every((__item0, __index0) => {
+	const __other0 = b.readonlyItems[__index0];
+	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
+}) && a.readonlyNumbers.length === b.readonlyNumbers.length && a.readonlyNumbers.every((__item0, __index0) => {
+	const __other0 = b.readonlyNumbers[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+}) && a.readonlyTags.size === b.readonlyTags.size && Array.from(a.readonlyTags).every((__item0) => b.readonlyTags.has(__item0) || Array.from(b.readonlyTags).some((__other0) => __item0 === __other0)) && a.readonlyCounts.size === b.readonlyCounts.size && Array.from(a.readonlyCounts).every(([__key0, __item0]) => {
+	const __other0 = b.readonlyCounts.get(__key0);
+	return b.readonlyCounts.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
+}) && shapeLevelEquals(a.level, b.level) && shapeRankEquals(a.rank, b.rank);
+}
+
+export function shapeFieldsHashCode(value: ShapeFields): number {
+    let hash = 17;
+    hash = (hash * 31 + (value.note == null ? 0 : (value.note ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.maybe == null ? 0 : (value.maybe ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    hash = (hash * 31 + (value.nullableTexts.reduce((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : (__item0 ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.nullableItems.reduce((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : shapeItemHashCode(__item0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.parenthesizedItems.reduce((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.readonlyItems.reduce((__hash0, __item0) => __hash0 * 31 + shapeItemHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.readonlyNumbers.reduce((__hash0, __item0) => __hash0 * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1))) | 0;
+    hash = (hash * 31 + (Array.from(value.readonlyTags).reduce((__hash0, __item0) => __hash0 + (__item0 ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.readonlyCounts).reduce((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (shapeLevelHashCode(value.level))) | 0;
+    hash = (hash * 31 + (shapeRankHashCode(value.rank))) | 0;
+    return hash;
+}
+
+export function shapeFieldsDefaultValue(): ShapeFields {
+    return {
+        note: undefined,
+        maybe: null,
+        pair: ["", 0],
+        nullableTexts: [],
+        nullableItems: [],
+        parenthesizedItems: [],
+        readonlyItems: [],
+        readonlyNumbers: [],
+        readonlyTags: new Set(),
+        readonlyCounts: new Map(),
+        level: shapeLevelDefaultValue(),
+        rank: shapeRankDefaultValue(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeFieldsEncode(value: ShapeFields, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeFieldsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeFieldsEncodeWithContext(value: ShapeFields, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return shapeFieldsEncodePartialWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function shapeFieldsEncodePartialWithContext(value: Partial<ShapeFields>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeFields>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
+    }
+
+    const result: Record<string, unknown> = {
+        "__type": "ShapeFields",
+        __id,
+    };
+
+    if (__fields === undefined || __fields.keeps("note")) {
+
+        if (value.note !== undefined) {
+            result.note = value.note;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+
+            result.maybe = value.maybe;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+
+        if (value.pair !== undefined) {
+            result.pair = value.pair;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nullableTexts")) {
+
+        if (value.nullableTexts !== undefined) {
+            result.nullableTexts = value.nullableTexts;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nullableItems")) {
+
+        if (value.nullableItems !== undefined) {
+            result.nullableItems = value.nullableItems.map(
+                (item) => item === null
+                    ? item
+                    : shapeItemEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("parenthesizedItems")) {
+
+        if (value.parenthesizedItems !== undefined) {
+            result.parenthesizedItems = value.parenthesizedItems.map(
+                (item) => item === null
+                    ? item
+                    : shapeItemEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("readonlyItems")) {
+
+        if (value.readonlyItems !== undefined) {
+            result.readonlyItems = value.readonlyItems.map(
+                (item) => shapeItemEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("readonlyNumbers")) {
+
+        if (value.readonlyNumbers !== undefined) {
+            result.readonlyNumbers = value.readonlyNumbers;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("readonlyTags")) {
+
+        if (value.readonlyTags !== undefined) {
+            result.readonlyTags = Array.from(value.readonlyTags);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("readonlyCounts")) {
+
+        if (value.readonlyCounts !== undefined) {
+            result.readonlyCounts = Object.fromEntries(value.readonlyCounts.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("level")) {
+
+        if (value.level !== undefined) {
+            result.level = shapeLevelEncodeWithContext(value.level, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("rank")) {
+
+        if (value.rank !== undefined) {
+            result.rank = shapeRankEncodeWithContext(value.rank, ctx);
+        }
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeFieldsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeFields } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeFieldsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeFields.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeFields | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeFields> | __mf_PendingRef;
+export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ShapeFields> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeFields.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeFields.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeFields | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeFields.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nullableTexts")) && !("nullableTexts" in obj)) {
+        errors.push({ field: "nullableTexts", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nullableItems")) && !("nullableItems" in obj)) {
+        errors.push({ field: "nullableItems", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("parenthesizedItems")) && !("parenthesizedItems" in obj)) {
+        errors.push({ field: "parenthesizedItems", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("readonlyItems")) && !("readonlyItems" in obj)) {
+        errors.push({ field: "readonlyItems", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("readonlyNumbers")) && !("readonlyNumbers" in obj)) {
+        errors.push({ field: "readonlyNumbers", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("readonlyTags")) && !("readonlyTags" in obj)) {
+        errors.push({ field: "readonlyTags", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("readonlyCounts")) && !("readonlyCounts" in obj)) {
+        errors.push({ field: "readonlyCounts", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("level")) && !("level" in obj)) {
+        errors.push({ field: "level", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("rank")) && !("rank" in obj)) {
+        errors.push({ field: "rank", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("note")) || (__fields.keeps("note") && obj["note"] !== undefined)) {
+        const __raw_note = obj["note"] as string | undefined;
+
+        if (!(typeof __raw_note === "string" || __raw_note === undefined)) {
+            errors.push({ field: "note", message: "expected string | undefined" });
+        } else {
+            instance.note = __raw_note;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as string | null;
+
+        if (!(typeof __raw_maybe === "string" || __raw_maybe === null)) {
+            errors.push({ field: "maybe", message: "expected string | null" });
+        } else {
+            instance.maybe = __raw_maybe;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [string, number];
+
+        instance.pair = __raw_pair;
+    }
+    if ((__fields === undefined || __fields.requires("nullableTexts")) || (__fields.keeps("nullableTexts") && obj["nullableTexts"] !== undefined)) {
+        const __raw_nullableTexts = obj["nullableTexts"] as (string | null)[];
+
+        if (Array.isArray(__raw_nullableTexts)) {
+            instance.nullableTexts = __raw_nullableTexts as string | null[];
+        } else {
+            errors.push({ field: "nullableTexts", message: __raw_nullableTexts == null ? "ShapeFields.nullableTexts is required" : "expected (string | null)[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nullableItems")) || (__fields.keeps("nullableItems") && obj["nullableItems"] !== undefined)) {
+        const __raw_nullableItems = obj["nullableItems"] as Array<ShapeItem | null>;
+
+        if (Array.isArray(__raw_nullableItems)) {
+            const __arr = __raw_nullableItems.map((item: ShapeItem | null | { __ref: number }, idx) => {
+                if (item === null) {
+                    return item;
+                }
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = shapeItemDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "nullableItems[" + idx + "]"
+                                : "nullableItems[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.nullableItems = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.nullableItems, idx, (item as any).__refId);
+                }
+            });
+        } else {
+            errors.push({ field: "nullableItems", message: __raw_nullableItems == null ? "ShapeFields.nullableItems is required" : "expected Array<ShapeItem | null>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("parenthesizedItems")) || (__fields.keeps("parenthesizedItems") && obj["parenthesizedItems"] !== undefined)) {
+        const __raw_parenthesizedItems = obj["parenthesizedItems"] as (ShapeItem | null)[];
+
+        if (Array.isArray(__raw_parenthesizedItems)) {
+            const __arr = __raw_parenthesizedItems.map((item: ShapeItem | null | { __ref: number }, idx) => {
+                if (item === null) {
+                    return item;
+                }
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = shapeItemDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "parenthesizedItems[" + idx + "]"
+                                : "parenthesizedItems[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.parenthesizedItems = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.parenthesizedItems, idx, (item as any).__refId);
+                }
+            });
+        } else {
+            errors.push({ field: "parenthesizedItems", message: __raw_parenthesizedItems == null ? "ShapeFields.parenthesizedItems is required" : "expected (ShapeItem | null)[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("readonlyItems")) || (__fields.keeps("readonlyItems") && obj["readonlyItems"] !== undefined)) {
+        const __raw_readonlyItems = obj["readonlyItems"] as ReadonlyArray<ShapeItem>;
+
+        if (Array.isArray(__raw_readonlyItems)) {
+            const __arr = __raw_readonlyItems.map((item: ShapeItem | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = shapeItemDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "readonlyItems[" + idx + "]"
+                                : "readonlyItems[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.readonlyItems = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.readonlyItems, idx, (item as any).__refId);
+                }
+            });
+        } else {
+            errors.push({ field: "readonlyItems", message: __raw_readonlyItems == null ? "ShapeFields.readonlyItems is required" : "expected ReadonlyArray<ShapeItem>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("readonlyNumbers")) || (__fields.keeps("readonlyNumbers") && obj["readonlyNumbers"] !== undefined)) {
+        const __raw_readonlyNumbers = obj["readonlyNumbers"] as readonly number[];
+
+        if (Array.isArray(__raw_readonlyNumbers)) {
+            instance.readonlyNumbers = __raw_readonlyNumbers as number[];
+        } else {
+            errors.push({ field: "readonlyNumbers", message: __raw_readonlyNumbers == null ? "ShapeFields.readonlyNumbers is required" : "expected readonly number[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("readonlyTags")) || (__fields.keeps("readonlyTags") && obj["readonlyTags"] !== undefined)) {
+        const __raw_readonlyTags = obj["readonlyTags"] as Array<string>;
+
+        if (Array.isArray(__raw_readonlyTags)) {
+            instance.readonlyTags = new Set(__raw_readonlyTags as string[]);
+        } else {
+            errors.push({ field: "readonlyTags", message: __raw_readonlyTags == null ? "ShapeFields.readonlyTags is required" : "expected ReadonlySet<string>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("readonlyCounts")) || (__fields.keeps("readonlyCounts") && obj["readonlyCounts"] !== undefined)) {
+        const __raw_readonlyCounts = obj["readonlyCounts"] as Record<string, number>;
+
+        if (typeof __raw_readonlyCounts === "object" && __raw_readonlyCounts !== null) {
+            instance.readonlyCounts = new Map(
+                Object.entries(__raw_readonlyCounts).map(([k, v]) => [k as string, v as number])
+            );
+        } else {
+            errors.push({ field: "readonlyCounts", message: __raw_readonlyCounts == null ? "ShapeFields.readonlyCounts is required" : "expected ReadonlyMap<string, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("level")) || (__fields.keeps("level") && obj["level"] !== undefined)) {
+        const __raw_level = obj["level"] as ShapeLevel;
+
+        ctx.pushScope("level");
+        try {
+            const __result = shapeLevelDecodeWithContext(__raw_level, ctx);
+            ctx.assignOrDefer(instance, "level", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "level" : "level." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+        const __raw_rank = obj["rank"] as ShapeRank;
+
+        ctx.pushScope("rank");
+        try {
+            const __result = shapeRankDecodeWithContext(__raw_rank, ctx);
+            ctx.assignOrDefer(instance, "rank", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "rank" : "rank." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ShapeFields;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function shapeFieldsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeFields>): Partial<ShapeFields> | __mf_PendingRef {
+    return shapeFieldsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function shapeFieldsValidateField<K extends keyof ShapeFields>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function shapeFieldsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function shapeFieldsValidateFields(partial: { readonly [K in keyof ShapeFields]?: unknown }): Array<{ field: string; message: string }>;
+export function shapeFieldsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function shapeFieldsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "maybe" in o && "pair" in o && "nullableTexts" in o && "nullableItems" in o && "parenthesizedItems" in o && "readonlyItems" in o && "readonlyNumbers" in o && "readonlyTags" in o && "readonlyCounts" in o && "level" in o && "rank" in o;
+}
+
+export function shapeFieldsIs(obj: unknown): obj is ShapeFields {
+    return shapeFieldsHasShape(obj) && shapeFieldsDecode(obj).success;
+}
+
+export const ShapeFields: {
+  readonly toString: typeof shapeFieldsToString;
+  readonly clone: typeof shapeFieldsClone;
+  readonly equals: typeof shapeFieldsEquals;
+  readonly hashCode: typeof shapeFieldsHashCode;
+  readonly defaultValue: typeof shapeFieldsDefaultValue;
+  readonly encode: typeof shapeFieldsEncode;
+  readonly encodeWithContext: typeof shapeFieldsEncodeWithContext;
+  readonly encodePartialWithContext: typeof shapeFieldsEncodePartialWithContext;
+  readonly decode: typeof shapeFieldsDecode;
+  readonly decodeWithContext: typeof shapeFieldsDecodeWithContext;
+  readonly decodePartialWithContext: typeof shapeFieldsDecodePartialWithContext;
+  readonly validateField: typeof shapeFieldsValidateField;
+  readonly validateFields: typeof shapeFieldsValidateFields;
+  readonly hasShape: typeof shapeFieldsHasShape;
+  readonly is: typeof shapeFieldsIs;
+} = {
+  toString: shapeFieldsToString,
+  clone: shapeFieldsClone,
+  equals: shapeFieldsEquals,
+  hashCode: shapeFieldsHashCode,
+  defaultValue: shapeFieldsDefaultValue,
+  encode: shapeFieldsEncode,
+  encodeWithContext: shapeFieldsEncodeWithContext,
+  encodePartialWithContext: shapeFieldsEncodePartialWithContext,
+  decode: shapeFieldsDecode,
+  decodeWithContext: shapeFieldsDecodeWithContext,
+  decodePartialWithContext: shapeFieldsDecodePartialWithContext,
+  validateField: shapeFieldsValidateField,
+  validateFields: shapeFieldsValidateFields,
+  hasShape: shapeFieldsHasShape,
+  is: shapeFieldsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class ShapeCard {
+    readonly title: string = '';
+    items: ShapeItem[] = [];
+
+    static toString(value: ShapeCard): string {
+        return shapeCardToString(value);
+    }
+
+    static clone(value: ShapeCard): ShapeCard {
+        return shapeCardClone(value);
+    }
+
+    static equals(a: ShapeCard, b: ShapeCard): boolean {
+        return shapeCardEquals(a, b);
+    }
+
+    static hashCode(value: ShapeCard): number {
+        return shapeCardHashCode(value);
+    }
+
+    static defaultValue(): ShapeCard {
+
+        const instance: { -readonly [Key in keyof ShapeCard]: ShapeCard[Key] } = Object.create(ShapeCard.prototype);
+        instance.title = "";
+        instance.items = [];
+        return instance;
+    }
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: ShapeCard, keepMetadata?: boolean): string {
+        return shapeCardEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: ShapeCard, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return shapeCardEncodeWithContext(value, ctx);
+    }
+
+constructor(props: { title: string; items: ShapeItem[] }) {
+    this.title = props.title;
+    this.items = props.items;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = ShapeCard.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeCard.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeCard | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeCard> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ShapeCard> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeCard.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeCard.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeCard | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeCard.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
+        errors.push({ field: "title", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
+        errors.push({ field: "items", message: "missing required field" });
+    }
+    const instance: { -readonly [Key in keyof ShapeCard]: ShapeCard[Key] } = Object.create(ShapeCard.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+        const __raw_title = obj["title"] as string;
+
+        if (!(typeof __raw_title === "string")) {
+            errors.push({ field: "title", message: __raw_title == null ? "ShapeCard.title is required" : "expected string" });
+        } else {
+            instance.title = __raw_title;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+        const __raw_items = obj["items"] as ShapeItem[];
+
+        if (Array.isArray(__raw_items)) {
+            const __arr = __raw_items.map((item: ShapeItem | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = shapeItemDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "items[" + idx + "]"
+                                : "items[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.items = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.items, idx, (item as any).__refId);
+                }
+            });
+        } else {
+            errors.push({ field: "items", message: __raw_items == null ? "ShapeCard.items is required" : "expected ShapeItem[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof ShapeCard>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof ShapeCard]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "title" in o && "items" in o;
+}
+
+static is(obj: unknown): obj is ShapeCard {
+    if (obj instanceof ShapeCard) {
+        return true;
+    }
+    if (!ShapeCard.hasShape(obj)) {
+        return false;
+    }
+    const result = ShapeCard.decode(obj);
+    return result.success;
+}
+}
+
+export function shapeCardToString(value: ShapeCard): string {
+    const parts: string[] = [];
+    parts.push("title: " + String(value.title));
+    parts.push("items: " + "[" + value.items.map(shapeItemToString).join(", ") + "]");
+    return "ShapeCard { " + parts.join(", ") + " }";
+}
+
+export function shapeCardClone(value: ShapeCard): ShapeCard {
+    return __mf_instanceWith(value, ({
+	title: value.title,
+	items: value.items.map((__item0) => shapeItemClone(__item0))
+}));
+}
+
+export function shapeCardEquals(a: ShapeCard, b: ShapeCard): boolean {
+    if (a === b) return true;
+    return a.title === b.title && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+	const __other0 = b.items[__index0];
+	return __other0 === undefined ? __item0 === undefined : shapeItemEquals(__item0, __other0);
+});
+}
+
+export function shapeCardHashCode(value: ShapeCard): number {
+    let hash = 17;
+    hash = (hash * 31 + ((value.title ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.items.reduce((__hash0, __item0) => __hash0 * 31 + shapeItemHashCode(__item0) | 0, 1))) | 0;
+    return hash;
+}
+
+export function shapeCardDefaultValue(): ShapeCard {
+    return ShapeCard.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeCardEncode(value: ShapeCard, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeCardEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeCardEncodeWithContext(value: ShapeCard, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return shapeCardEncodePartialWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function shapeCardEncodePartialWithContext(value: Partial<ShapeCard>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeCard>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
+    }
+
+    const result: Record<string, unknown> = {
+        "__type": "ShapeCard",
+        __id,
+    };
+
+    if (__fields === undefined || __fields.keeps("title")) {
+
+        if (value.title !== undefined) {
+            result.title = value.title;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("items")) {
+
+        if (value.items !== undefined) {
+            result.items = value.items.map(
+                (item) => shapeItemEncodeWithContext(item, ctx)
+            );
+        }
+    }
+
+    return result;
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function shapeCardDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ShapeCard.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeCardDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeCard | __mf_PendingRef {
+    return ShapeCard.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function shapeCardHasShape(value: unknown): boolean {
+    return ShapeCard.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function shapeCardDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeCard>): Partial<ShapeCard> | __mf_PendingRef {
+    return ShapeCard.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function shapeCardIs(value: unknown): value is ShapeCard {
+    return ShapeCard.is(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ShapeMember = ShapeItem | ShapeCard;
+
+export function shapeMemberToString(value: ShapeMember): string {
+    return "ShapeMember(" + __mf_structuralDebug(value) + ")";
+}
+
+export function shapeMemberClone(value: ShapeMember): ShapeMember {
+    return __mf_structuralClone(value);
+}
+
+export function shapeMemberEquals(a: ShapeMember, b: ShapeMember): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function shapeMemberHashCode(value: ShapeMember): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeMemberEncode(value: ShapeMember, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeMemberEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeMemberEncodeWithContext(value: ShapeMember, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeMemberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeMember } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeMemberDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeMember.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeMemberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeMember | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeMember.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeMember | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "ShapeItem") {
+                return shapeItemDecodeWithContext(value, ctx) as ShapeMember;
+            }
+            if (__typeName === "ShapeCard") {
+                return shapeCardDecodeWithContext(value, ctx) as ShapeMember;
+            }
+
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "ShapeMember.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: ShapeItem, ShapeCard"
+            }]);
+        }
+    }
+
+    const __shapeMatches: Array<string> = [];
+    if (shapeItemHasShape(value)) __shapeMatches.push("ShapeItem");
+    if (shapeCardHasShape(value)) __shapeMatches.push("ShapeCard");
+
+    if (__shapeMatches.length === 1) {
+        if (__shapeMatches[0] === "ShapeItem") {
+            return shapeItemDecodeWithContext(value, ctx) as ShapeMember;
+        }
+        if (__shapeMatches[0] === "ShapeCard") {
+            return shapeCardDecodeWithContext(value, ctx) as ShapeMember;
+        }
+    }
+
+    if (__shapeMatches.length > 1) {
+        if (__shapeMatches.includes("ShapeItem")) {
+            try {
+                return shapeItemDecodeWithContext(value, ctx) as ShapeMember;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("ShapeCard")) {
+            try {
+                return shapeCardDecodeWithContext(value, ctx) as ShapeMember;
+            } catch {                        }
+        }
+
+        throw new __mf_DecodeError([{
+            field: "_root",
+            message: "ShapeMember.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+        }]);
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "ShapeMember.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: ShapeItem, ShapeCard"
+    }]);
+}
+export function shapeMemberHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        return __typeName === "ShapeItem" || __typeName === "ShapeCard";
+                    }
+                }
+
+                let __matchCount = 0;
+                if (shapeItemHasShape(value)) __matchCount++;
+                if (shapeCardHasShape(value)) __matchCount++;
+                return __matchCount >= 1;
+}
+export function shapeMemberIs(value: unknown): value is ShapeMember {
+    return shapeMemberHasShape(value);
+}
+
+export const ShapeMember: {
+  readonly toString: typeof shapeMemberToString;
+  readonly clone: typeof shapeMemberClone;
+  readonly equals: typeof shapeMemberEquals;
+  readonly hashCode: typeof shapeMemberHashCode;
+  readonly encode: typeof shapeMemberEncode;
+  readonly encodeWithContext: typeof shapeMemberEncodeWithContext;
+  readonly decode: typeof shapeMemberDecode;
+  readonly decodeWithContext: typeof shapeMemberDecodeWithContext;
+  readonly hasShape: typeof shapeMemberHasShape;
+  readonly is: typeof shapeMemberIs;
+} = {
+  toString: shapeMemberToString,
+  clone: shapeMemberClone,
+  equals: shapeMemberEquals,
+  hashCode: shapeMemberHashCode,
+  encode: shapeMemberEncode,
+  encodeWithContext: shapeMemberEncodeWithContext,
+  decode: shapeMemberDecode,
+  decodeWithContext: shapeMemberDecodeWithContext,
+  hasShape: shapeMemberHasShape,
+  is: shapeMemberIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ShapeMixed = string | number | ShapeItem | null;
+
+export function shapeMixedToString(value: ShapeMixed): string {
+    return "ShapeMixed(" + __mf_structuralDebug(value) + ")";
+}
+
+export function shapeMixedClone(value: ShapeMixed): ShapeMixed {
+    return __mf_structuralClone(value);
+}
+
+export function shapeMixedEquals(a: ShapeMixed, b: ShapeMixed): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function shapeMixedHashCode(value: ShapeMixed): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeMixedEncode(value: ShapeMixed, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeMixedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeMixedEncodeWithContext(value: ShapeMixed, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeMixedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeMixed } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeMixedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeMixed.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeMixed | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeMixed.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeMixed | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "string") {
+        return value as ShapeMixed;
+    }
+    if (typeof value === "number") {
+        return value as ShapeMixed;
+    }
+    if (value === null) {
+        return value as ShapeMixed;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "ShapeItem") {
+                return shapeItemDecodeWithContext(value, ctx) as ShapeMixed;
+            }
+        } else {
+
+            const __shapeMatches: Array<string> = [];
+            if (shapeItemHasShape(value)) __shapeMatches.push("ShapeItem");
+            if (__shapeMatches.length === 1) {
+                if (__shapeMatches[0] === "ShapeItem") {
+                    return shapeItemDecodeWithContext(value, ctx) as ShapeMixed;
+                }
+            }
+        }
+    } else {
+
+        const __shapeMatches: Array<string> = [];
+        if (shapeItemHasShape(value)) __shapeMatches.push("ShapeItem");
+        if (__shapeMatches.length === 1) {
+            if (__shapeMatches[0] === "ShapeItem") {
+                return shapeItemDecodeWithContext(value, ctx) as ShapeMixed;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "ShapeMixed.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function shapeMixedHasShape(value: unknown): boolean {
+                if (typeof value === "string") return true;
+                if (typeof value === "number") return true;
+                if (value === null) return true;
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        if (__typeName === "ShapeItem") return true;
+                    } else {
+                        let __matchCount = 0;
+                        if (shapeItemHasShape(value)) __matchCount++;
+                        if (__matchCount === 1) return true;
+                    }
+                } else {
+
+                    let __matchCount = 0;
+                    if (shapeItemHasShape(value)) __matchCount++;
+                    if (__matchCount === 1) return true;
+                }
+                return false;
+}
+export function shapeMixedIs(value: unknown): value is ShapeMixed {
+    return shapeMixedHasShape(value);
+}
+
+export const ShapeMixed: {
+  readonly toString: typeof shapeMixedToString;
+  readonly clone: typeof shapeMixedClone;
+  readonly equals: typeof shapeMixedEquals;
+  readonly hashCode: typeof shapeMixedHashCode;
+  readonly encode: typeof shapeMixedEncode;
+  readonly encodeWithContext: typeof shapeMixedEncodeWithContext;
+  readonly decode: typeof shapeMixedDecode;
+  readonly decodeWithContext: typeof shapeMixedDecodeWithContext;
+  readonly hasShape: typeof shapeMixedHasShape;
+  readonly is: typeof shapeMixedIs;
+} = {
+  toString: shapeMixedToString,
+  clone: shapeMixedClone,
+  equals: shapeMixedEquals,
+  hashCode: shapeMixedHashCode,
+  encode: shapeMixedEncode,
+  encodeWithContext: shapeMixedEncodeWithContext,
+  decode: shapeMixedDecode,
+  decodeWithContext: shapeMixedDecodeWithContext,
+  hasShape: shapeMixedHasShape,
+  is: shapeMixedIs
+};
+
+/** @derive(Encode, Decode) */
+export interface ShapeEvent {
+    id: string;
+    at: Date;
+    tags: string[];
+    owner?: ShapeItem;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeEventEncode(value: ShapeEvent, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeEventEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeEventEncodeWithContext(value: ShapeEvent, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return shapeEventEncodePartialWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function shapeEventEncodePartialWithContext(value: Partial<ShapeEvent>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeEvent>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
+    }
+
+    const result: Record<string, unknown> = {
+        "__type": "ShapeEvent",
+        __id,
+    };
+
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+
+        if (value.at !== undefined) {
+            result.at = value.at.toISOString();
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tags")) {
+
+        if (value.tags !== undefined) {
+            result.tags = value.tags;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("owner")) {
+
+        if (value.owner !== undefined) {
+            result.owner = shapeItemEncodeWithContext(value.owner, ctx);
+        }
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeEventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeEvent } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeEventDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeEvent.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeEvent | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeEvent> | __mf_PendingRef;
+export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ShapeEvent> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeEvent.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeEvent.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeEvent | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeEvent.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
+        errors.push({ field: "tags", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "ShapeEvent.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) || (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = typeof __raw_at === "string" ? new Date(__raw_at) : __raw_at as Date;
+            instance.at = __dateVal;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+        const __raw_tags = obj["tags"] as string[];
+
+        if (Array.isArray(__raw_tags)) {
+            instance.tags = __raw_tags as string[];
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "ShapeEvent.tags is required" : "expected string[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("owner"))) {
+        if (("owner" in obj && obj["owner"] !== undefined)) {
+            const __raw_owner = obj["owner"] as ShapeItem;
+
+            ctx.pushScope("owner");
+            try {
+                const __result = shapeItemDecodeWithContext(__raw_owner, ctx);
+                ctx.assignOrDefer(instance, "owner", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "owner" : "owner." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ShapeEvent;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function shapeEventDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeEvent>): Partial<ShapeEvent> | __mf_PendingRef {
+    return shapeEventDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function shapeEventValidateField<K extends keyof ShapeEvent>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function shapeEventValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function shapeEventValidateFields(partial: { readonly [K in keyof ShapeEvent]?: unknown }): Array<{ field: string; message: string }>;
+export function shapeEventValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function shapeEventHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "at" in o && "tags" in o;
+}
+
+export function shapeEventIs(obj: unknown): obj is ShapeEvent {
+    return shapeEventHasShape(obj) && shapeEventDecode(obj).success;
+}
+
+export const ShapeEvent: {
+  readonly encode: typeof shapeEventEncode;
+  readonly encodeWithContext: typeof shapeEventEncodeWithContext;
+  readonly encodePartialWithContext: typeof shapeEventEncodePartialWithContext;
+  readonly decode: typeof shapeEventDecode;
+  readonly decodeWithContext: typeof shapeEventDecodeWithContext;
+  readonly decodePartialWithContext: typeof shapeEventDecodePartialWithContext;
+  readonly validateField: typeof shapeEventValidateField;
+  readonly validateFields: typeof shapeEventValidateFields;
+  readonly hasShape: typeof shapeEventHasShape;
+  readonly is: typeof shapeEventIs;
+} = {
+  encode: shapeEventEncode,
+  encodeWithContext: shapeEventEncodeWithContext,
+  encodePartialWithContext: shapeEventEncodePartialWithContext,
+  decode: shapeEventDecode,
+  decodeWithContext: shapeEventDecodeWithContext,
+  decodePartialWithContext: shapeEventDecodePartialWithContext,
+  validateField: shapeEventValidateField,
+  validateFields: shapeEventValidateFields,
+  hasShape: shapeEventHasShape,
+  is: shapeEventIs
+};
+
+/** @derive(Encode, Decode) */
+export interface ShapeDraft {
+    patch: Partial<ShapeEvent>;
+    header: Pick<ShapeEvent, 'id' | 'at'>;
+    rest: Omit<ShapeEvent, 'at'>;
+    card: Partial<ShapeCard>;
+    frozen: Readonly<ShapeItem>;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeDraftEncode(value: ShapeDraft, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeDraftEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeDraftEncodeWithContext(value: ShapeDraft, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return shapeDraftEncodePartialWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function shapeDraftEncodePartialWithContext(value: Partial<ShapeDraft>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeDraft>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
+    }
+
+    const result: Record<string, unknown> = {
+        "__type": "ShapeDraft",
+        __id,
+    };
+
+    if (__fields === undefined || __fields.keeps("patch")) {
+
+        if (value.patch !== undefined) {
+            result.patch = shapeEventEncodePartialWithContext(value.patch, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("header")) {
+
+        if (value.header !== undefined) {
+            result.header = shapeEventEncodePartialWithContext(value.header, ctx, { only: ["id", "at"] });
+        }
+    }
+    if (__fields === undefined || __fields.keeps("rest")) {
+
+        if (value.rest !== undefined) {
+            result.rest = shapeEventEncodePartialWithContext(value.rest, ctx, { except: ["at"] });
+        }
+    }
+    if (__fields === undefined || __fields.keeps("card")) {
+
+        if (value.card !== undefined) {
+            result.card = shapeCardEncodePartialWithContext(value.card, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("frozen")) {
+
+        if (value.frozen !== undefined) {
+            result.frozen = shapeItemEncodeWithContext(value.frozen, ctx);
+        }
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeDraftDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ShapeDraft } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeDraftDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ShapeDraft.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeDraft | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeDraft> | __mf_PendingRef;
+export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ShapeDraft> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeDraft.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ShapeDraft.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ShapeDraft | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ShapeDraft.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("patch")) && !("patch" in obj)) {
+        errors.push({ field: "patch", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("header")) && !("header" in obj)) {
+        errors.push({ field: "header", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("rest")) && !("rest" in obj)) {
+        errors.push({ field: "rest", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("card")) && !("card" in obj)) {
+        errors.push({ field: "card", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("frozen")) && !("frozen" in obj)) {
+        errors.push({ field: "frozen", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("patch")) || (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+        const __raw_patch = obj["patch"] as Partial<ShapeEvent>;
+
+        ctx.pushScope("patch");
+        try {
+            const __result = shapeEventDecodePartialWithContext(__raw_patch, ctx);
+            ctx.assignOrDefer(instance, "patch", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "patch" : "patch." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("header")) || (__fields.keeps("header") && obj["header"] !== undefined)) {
+        const __raw_header = obj["header"] as Pick<ShapeEvent, 'id' | 'at'>;
+
+        ctx.pushScope("header");
+        try {
+            const __result = shapeEventDecodePartialWithContext(__raw_header, ctx, { only: ["id", "at"] });
+            ctx.assignOrDefer(instance, "header", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "header" : "header." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("rest")) || (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+        const __raw_rest = obj["rest"] as Omit<ShapeEvent, 'at'>;
+
+        ctx.pushScope("rest");
+        try {
+            const __result = shapeEventDecodePartialWithContext(__raw_rest, ctx, { except: ["at"] });
+            ctx.assignOrDefer(instance, "rest", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "rest" : "rest." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("card")) || (__fields.keeps("card") && obj["card"] !== undefined)) {
+        const __raw_card = obj["card"] as Partial<ShapeCard>;
+
+        ctx.pushScope("card");
+        try {
+            const __result = shapeCardDecodePartialWithContext(__raw_card, ctx);
+            ctx.assignOrDefer(instance, "card", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "card" : "card." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("frozen")) || (__fields.keeps("frozen") && obj["frozen"] !== undefined)) {
+        const __raw_frozen = obj["frozen"] as Readonly<ShapeItem>;
+
+        ctx.pushScope("frozen");
+        try {
+            const __result = shapeItemDecodeWithContext(__raw_frozen, ctx);
+            ctx.assignOrDefer(instance, "frozen", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "frozen" : "frozen." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ShapeDraft;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function shapeDraftDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeDraft>): Partial<ShapeDraft> | __mf_PendingRef {
+    return shapeDraftDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function shapeDraftValidateField<K extends keyof ShapeDraft>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function shapeDraftValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function shapeDraftValidateFields(partial: { readonly [K in keyof ShapeDraft]?: unknown }): Array<{ field: string; message: string }>;
+export function shapeDraftValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function shapeDraftHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "patch" in o && "header" in o && "rest" in o && "card" in o && "frozen" in o;
+}
+
+export function shapeDraftIs(obj: unknown): obj is ShapeDraft {
+    return shapeDraftHasShape(obj) && shapeDraftDecode(obj).success;
+}
+
+export const ShapeDraft: {
+  readonly encode: typeof shapeDraftEncode;
+  readonly encodeWithContext: typeof shapeDraftEncodeWithContext;
+  readonly encodePartialWithContext: typeof shapeDraftEncodePartialWithContext;
+  readonly decode: typeof shapeDraftDecode;
+  readonly decodeWithContext: typeof shapeDraftDecodeWithContext;
+  readonly decodePartialWithContext: typeof shapeDraftDecodePartialWithContext;
+  readonly validateField: typeof shapeDraftValidateField;
+  readonly validateFields: typeof shapeDraftValidateFields;
+  readonly hasShape: typeof shapeDraftHasShape;
+  readonly is: typeof shapeDraftIs;
+} = {
+  encode: shapeDraftEncode,
+  encodeWithContext: shapeDraftEncodeWithContext,
+  encodePartialWithContext: shapeDraftEncodePartialWithContext,
+  decode: shapeDraftDecode,
+  decodeWithContext: shapeDraftDecodeWithContext,
+  decodePartialWithContext: shapeDraftDecodePartialWithContext,
+  validateField: shapeDraftValidateField,
+  validateFields: shapeDraftValidateFields,
+  hasShape: shapeDraftHasShape,
+  is: shapeDraftIs
+};
+
+## DTS
+
+/**
+* Field and alias shapes every derive has to generate type-correct code for:
+* nullable elements, readonly collections and fields, tuples, enums of both
+* kinds, unions that mix primitives, `null`, interfaces and classes, and
+* values that hold only some of a type's fields.
+*/
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export interface ShapeItem {
+	id: string;
+	score: number;
+}
+export declare function shapeItemToString(value: ShapeItem): string;
+export declare function shapeItemClone(value: ShapeItem): ShapeItem;
+export declare function shapeItemEquals(a: ShapeItem, b: ShapeItem): boolean;
+export declare function shapeItemHashCode(value: ShapeItem): number;
+export declare function shapeItemPartialCompare(a: ShapeItem, b: ShapeItem): number | null;
+export declare function shapeItemCompare(a: ShapeItem, b: ShapeItem): number;
+export declare function shapeItemDefaultValue(): ShapeItem;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeItemEncode(value: ShapeItem, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeItemEncodeWithContext(value: ShapeItem, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function shapeItemEncodePartialWithContext(value: Partial<ShapeItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeItem>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeItemDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeItem;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeItem | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeItem> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function shapeItemDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeItem>): Partial<ShapeItem> | __mf_PendingRef;
+export declare function shapeItemValidateField<K extends keyof ShapeItem>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeItemValidateFields(partial: { readonly [K in keyof ShapeItem]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeItemHasShape(obj: unknown): boolean;
+export declare function shapeItemIs(obj: unknown): obj is ShapeItem;
+export declare const ShapeItem: {
+	readonly toString: typeof shapeItemToString;
+	readonly clone: typeof shapeItemClone;
+	readonly equals: typeof shapeItemEquals;
+	readonly hashCode: typeof shapeItemHashCode;
+	readonly partialCompare: typeof shapeItemPartialCompare;
+	readonly compare: typeof shapeItemCompare;
+	readonly defaultValue: typeof shapeItemDefaultValue;
+	readonly encode: typeof shapeItemEncode;
+	readonly encodeWithContext: typeof shapeItemEncodeWithContext;
+	readonly encodePartialWithContext: typeof shapeItemEncodePartialWithContext;
+	readonly decode: typeof shapeItemDecode;
+	readonly decodeWithContext: typeof shapeItemDecodeWithContext;
+	readonly decodePartialWithContext: typeof shapeItemDecodePartialWithContext;
+	readonly validateField: typeof shapeItemValidateField;
+	readonly validateFields: typeof shapeItemValidateFields;
+	readonly hasShape: typeof shapeItemHasShape;
+	readonly is: typeof shapeItemIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum ShapeLevel {
+	/** @default */
+	Low = "low",
+	High = "high"
+}
+export declare function shapeLevelToString(value: ShapeLevel): string;
+export declare function shapeLevelClone(value: ShapeLevel): ShapeLevel;
+export declare function shapeLevelEquals(a: ShapeLevel, b: ShapeLevel): boolean;
+export declare function shapeLevelHashCode(value: ShapeLevel): number;
+export declare function shapeLevelPartialCompare(a: ShapeLevel, b: ShapeLevel): number | null;
+export declare function shapeLevelCompare(a: ShapeLevel, b: ShapeLevel): number;
+export declare function shapeLevelDefaultValue(): ShapeLevel;
+/** Encodes this enum value to a JSON string.  */
+export declare function shapeLevelEncode(value: ShapeLevel): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function shapeLevelEncodeWithContext(value: ShapeLevel, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function shapeLevelDecode(input: unknown): ShapeLevel;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function shapeLevelDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ShapeLevel;
+export declare function shapeLevelIs(value: unknown): value is ShapeLevel;
+export declare namespace ShapeLevel {
+	const toString: typeof shapeLevelToString;
+	const clone: typeof shapeLevelClone;
+	const equals: typeof shapeLevelEquals;
+	const hashCode: typeof shapeLevelHashCode;
+	const partialCompare: typeof shapeLevelPartialCompare;
+	const compare: typeof shapeLevelCompare;
+	const defaultValue: typeof shapeLevelDefaultValue;
+	const encode: typeof shapeLevelEncode;
+	const encodeWithContext: typeof shapeLevelEncodeWithContext;
+	const decode: typeof shapeLevelDecode;
+	const decodeWithContext: typeof shapeLevelDecodeWithContext;
+	const is: typeof shapeLevelIs;
+}
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export declare enum ShapeRank {
+	/** @default */
+	One = 1,
+	Two = 2
+}
+export declare function shapeRankToString(value: ShapeRank): string;
+export declare function shapeRankClone(value: ShapeRank): ShapeRank;
+export declare function shapeRankEquals(a: ShapeRank, b: ShapeRank): boolean;
+export declare function shapeRankHashCode(value: ShapeRank): number;
+export declare function shapeRankPartialCompare(a: ShapeRank, b: ShapeRank): number | null;
+export declare function shapeRankCompare(a: ShapeRank, b: ShapeRank): number;
+export declare function shapeRankDefaultValue(): ShapeRank;
+/** Encodes this enum value to a JSON string.  */
+export declare function shapeRankEncode(value: ShapeRank): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function shapeRankEncodeWithContext(value: ShapeRank, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function shapeRankDecode(input: unknown): ShapeRank;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function shapeRankDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): ShapeRank;
+export declare function shapeRankIs(value: unknown): value is ShapeRank;
+export declare namespace ShapeRank {
+	const toString: typeof shapeRankToString;
+	const clone: typeof shapeRankClone;
+	const equals: typeof shapeRankEquals;
+	const hashCode: typeof shapeRankHashCode;
+	const partialCompare: typeof shapeRankPartialCompare;
+	const compare: typeof shapeRankCompare;
+	const defaultValue: typeof shapeRankDefaultValue;
+	const encode: typeof shapeRankEncode;
+	const encodeWithContext: typeof shapeRankEncodeWithContext;
+	const decode: typeof shapeRankDecode;
+	const decodeWithContext: typeof shapeRankDecodeWithContext;
+	const is: typeof shapeRankIs;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ShapeFields {
+	note: string | undefined;
+	maybe: string | null;
+	pair: [string, number];
+	nullableTexts: (string | null)[];
+	nullableItems: Array<ShapeItem | null>;
+	parenthesizedItems: (ShapeItem | null)[];
+	readonlyItems: ReadonlyArray<ShapeItem>;
+	readonlyNumbers: readonly number[];
+	readonlyTags: ReadonlySet<string>;
+	readonlyCounts: ReadonlyMap<string, number>;
+	level: ShapeLevel;
+	rank: ShapeRank;
+}
+export declare function shapeFieldsToString(value: ShapeFields): string;
+export declare function shapeFieldsClone(value: ShapeFields): ShapeFields;
+export declare function shapeFieldsEquals(a: ShapeFields, b: ShapeFields): boolean;
+export declare function shapeFieldsHashCode(value: ShapeFields): number;
+export declare function shapeFieldsDefaultValue(): ShapeFields;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeFieldsEncode(value: ShapeFields, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeFieldsEncodeWithContext(value: ShapeFields, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function shapeFieldsEncodePartialWithContext(value: Partial<ShapeFields>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeFields>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeFieldsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeFields;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeFields | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeFields> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function shapeFieldsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeFields>): Partial<ShapeFields> | __mf_PendingRef;
+export declare function shapeFieldsValidateField<K extends keyof ShapeFields>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeFieldsValidateFields(partial: { readonly [K in keyof ShapeFields]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeFieldsHasShape(obj: unknown): boolean;
+export declare function shapeFieldsIs(obj: unknown): obj is ShapeFields;
+export declare const ShapeFields: {
+	readonly toString: typeof shapeFieldsToString;
+	readonly clone: typeof shapeFieldsClone;
+	readonly equals: typeof shapeFieldsEquals;
+	readonly hashCode: typeof shapeFieldsHashCode;
+	readonly defaultValue: typeof shapeFieldsDefaultValue;
+	readonly encode: typeof shapeFieldsEncode;
+	readonly encodeWithContext: typeof shapeFieldsEncodeWithContext;
+	readonly encodePartialWithContext: typeof shapeFieldsEncodePartialWithContext;
+	readonly decode: typeof shapeFieldsDecode;
+	readonly decodeWithContext: typeof shapeFieldsDecodeWithContext;
+	readonly decodePartialWithContext: typeof shapeFieldsDecodePartialWithContext;
+	readonly validateField: typeof shapeFieldsValidateField;
+	readonly validateFields: typeof shapeFieldsValidateFields;
+	readonly hasShape: typeof shapeFieldsHasShape;
+	readonly is: typeof shapeFieldsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class ShapeCard {
+	readonly title: string;
+	items: ShapeItem[];
+	static toString(value: ShapeCard): string;
+	static clone(value: ShapeCard): ShapeCard;
+	static equals(a: ShapeCard, b: ShapeCard): boolean;
+	static hashCode(value: ShapeCard): number;
+	static defaultValue(): ShapeCard;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: ShapeCard, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: ShapeCard, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		title: string;
+		items: ShapeItem[];
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ShapeCard;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeCard | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeCard> | __mf_PendingRef;
+	static validateField<K extends keyof ShapeCard>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof ShapeCard]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is ShapeCard;
+}
+export declare function shapeCardToString(value: ShapeCard): string;
+export declare function shapeCardClone(value: ShapeCard): ShapeCard;
+export declare function shapeCardEquals(a: ShapeCard, b: ShapeCard): boolean;
+export declare function shapeCardHashCode(value: ShapeCard): number;
+export declare function shapeCardDefaultValue(): ShapeCard;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeCardEncode(value: ShapeCard, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeCardEncodeWithContext(value: ShapeCard, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function shapeCardEncodePartialWithContext(value: Partial<ShapeCard>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeCard>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function shapeCardDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeCard;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeCardDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeCard | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function shapeCardHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function shapeCardDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeCard>): Partial<ShapeCard> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function shapeCardIs(value: unknown): value is ShapeCard;
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ShapeMember = ShapeItem | ShapeCard;
+export declare function shapeMemberToString(value: ShapeMember): string;
+export declare function shapeMemberClone(value: ShapeMember): ShapeMember;
+export declare function shapeMemberEquals(a: ShapeMember, b: ShapeMember): boolean;
+export declare function shapeMemberHashCode(value: ShapeMember): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeMemberEncode(value: ShapeMember, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeMemberEncodeWithContext(value: ShapeMember, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeMemberDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeMember;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeMemberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeMember | __mf_PendingRef;
+export declare function shapeMemberHasShape(value: unknown): boolean;
+export declare function shapeMemberIs(value: unknown): value is ShapeMember;
+export declare const ShapeMember: {
+	readonly toString: typeof shapeMemberToString;
+	readonly clone: typeof shapeMemberClone;
+	readonly equals: typeof shapeMemberEquals;
+	readonly hashCode: typeof shapeMemberHashCode;
+	readonly encode: typeof shapeMemberEncode;
+	readonly encodeWithContext: typeof shapeMemberEncodeWithContext;
+	readonly decode: typeof shapeMemberDecode;
+	readonly decodeWithContext: typeof shapeMemberDecodeWithContext;
+	readonly hasShape: typeof shapeMemberHasShape;
+	readonly is: typeof shapeMemberIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ShapeMixed = string | number | ShapeItem | null;
+export declare function shapeMixedToString(value: ShapeMixed): string;
+export declare function shapeMixedClone(value: ShapeMixed): ShapeMixed;
+export declare function shapeMixedEquals(a: ShapeMixed, b: ShapeMixed): boolean;
+export declare function shapeMixedHashCode(value: ShapeMixed): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeMixedEncode(value: ShapeMixed, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeMixedEncodeWithContext(value: ShapeMixed, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeMixedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeMixed;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeMixedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeMixed | __mf_PendingRef;
+export declare function shapeMixedHasShape(value: unknown): boolean;
+export declare function shapeMixedIs(value: unknown): value is ShapeMixed;
+export declare const ShapeMixed: {
+	readonly toString: typeof shapeMixedToString;
+	readonly clone: typeof shapeMixedClone;
+	readonly equals: typeof shapeMixedEquals;
+	readonly hashCode: typeof shapeMixedHashCode;
+	readonly encode: typeof shapeMixedEncode;
+	readonly encodeWithContext: typeof shapeMixedEncodeWithContext;
+	readonly decode: typeof shapeMixedDecode;
+	readonly decodeWithContext: typeof shapeMixedDecodeWithContext;
+	readonly hasShape: typeof shapeMixedHasShape;
+	readonly is: typeof shapeMixedIs;
+};
+/** @derive(Encode, Decode) */
+export interface ShapeEvent {
+	id: string;
+	at: Date;
+	tags: string[];
+	owner?: ShapeItem;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeEventEncode(value: ShapeEvent, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeEventEncodeWithContext(value: ShapeEvent, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function shapeEventEncodePartialWithContext(value: Partial<ShapeEvent>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeEvent>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeEventDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeEvent;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeEvent | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeEvent> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function shapeEventDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeEvent>): Partial<ShapeEvent> | __mf_PendingRef;
+export declare function shapeEventValidateField<K extends keyof ShapeEvent>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeEventValidateFields(partial: { readonly [K in keyof ShapeEvent]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeEventHasShape(obj: unknown): boolean;
+export declare function shapeEventIs(obj: unknown): obj is ShapeEvent;
+export declare const ShapeEvent: {
+	readonly encode: typeof shapeEventEncode;
+	readonly encodeWithContext: typeof shapeEventEncodeWithContext;
+	readonly encodePartialWithContext: typeof shapeEventEncodePartialWithContext;
+	readonly decode: typeof shapeEventDecode;
+	readonly decodeWithContext: typeof shapeEventDecodeWithContext;
+	readonly decodePartialWithContext: typeof shapeEventDecodePartialWithContext;
+	readonly validateField: typeof shapeEventValidateField;
+	readonly validateFields: typeof shapeEventValidateFields;
+	readonly hasShape: typeof shapeEventHasShape;
+	readonly is: typeof shapeEventIs;
+};
+/** @derive(Encode, Decode) */
+export interface ShapeDraft {
+	patch: Partial<ShapeEvent>;
+	header: Pick<ShapeEvent, "id" | "at">;
+	rest: Omit<ShapeEvent, "at">;
+	card: Partial<ShapeCard>;
+	frozen: Readonly<ShapeItem>;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeDraftEncode(value: ShapeDraft, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeDraftEncodeWithContext(value: ShapeDraft, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function shapeDraftEncodePartialWithContext(value: Partial<ShapeDraft>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ShapeDraft>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeDraftDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ShapeDraft;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ShapeDraft | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ShapeDraft> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function shapeDraftDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ShapeDraft>): Partial<ShapeDraft> | __mf_PendingRef;
+export declare function shapeDraftValidateField<K extends keyof ShapeDraft>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeDraftValidateFields(partial: { readonly [K in keyof ShapeDraft]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function shapeDraftHasShape(obj: unknown): boolean;
+export declare function shapeDraftIs(obj: unknown): obj is ShapeDraft;
+export declare const ShapeDraft: {
+	readonly encode: typeof shapeDraftEncode;
+	readonly encodeWithContext: typeof shapeDraftEncodeWithContext;
+	readonly encodePartialWithContext: typeof shapeDraftEncodePartialWithContext;
+	readonly decode: typeof shapeDraftDecode;
+	readonly decodeWithContext: typeof shapeDraftDecodeWithContext;
+	readonly decodePartialWithContext: typeof shapeDraftDecodePartialWithContext;
+	readonly validateField: typeof shapeDraftValidateField;
+	readonly validateFields: typeof shapeDraftValidateFields;
+	readonly hasShape: typeof shapeDraftHasShape;
+	readonly is: typeof shapeDraftIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..445 -> expanded 767..1212
+original 445..620 -> expanded 12376..12551
+original 620..784 -> expanded 16094..16258
+original 784..1318 -> expanded 19580..20114
+original 1318..1478 -> expanded 49991..50151
+original 1478..1479 -> expanded 58308..58309
+original 1479..1591 -> expanded 63418..63530
+original 1591..1715 -> expanded 70963..71087
+original 1715..1852 -> expanded 78076..78213
+original 1852..2088 -> expanded 88908..89144
+original 2088..2089 -> expanded 102817..102818
+generated 0..767 <- imports
+generated 1212..1454 <- Debug
+generated 1454..1572 <- Clone
+generated 1572..1725 <- PartialEq
+generated 1725..2100 <- Hash
+generated 2100..2526 <- PartialOrd
+generated 2526..2833 <- Ord
+generated 2833..2943 <- Default
+generated 2943..4905 <- Encode
+generated 4905..10795 <- Decode
+generated 10795..12376 <- __convenience_const
+generated 12551..12810 <- Debug
+generated 12810..12896 <- Clone
+generated 12896..12993 <- PartialEq
+generated 12993..13200 <- Hash
+generated 13200..13421 <- PartialOrd
+generated 13421..13663 <- Ord
+generated 13663..13748 <- Default
+generated 13748..14182 <- Encode
+generated 14182..15149 <- Decode
+generated 15149..16094 <- __convenience_const
+generated 16258..16511 <- Debug
+generated 16511..16594 <- Clone
+generated 16594..16688 <- PartialEq
+generated 16688..16781 <- Hash
+generated 16781..17007 <- PartialOrd
+generated 17007..17202 <- Ord
+generated 17202..17284 <- Default
+generated 17284..17712 <- Encode
+generated 17712..18660 <- Decode
+generated 18660..19580 <- __convenience_const
+generated 20114..21207 <- Debug
+generated 21207..21910 <- Clone
+generated 21910..23948 <- PartialEq
+generated 23948..25893 <- Hash
+generated 25893..26332 <- Default
+generated 26332..30640 <- Encode
+generated 30640..48524 <- Decode
+generated 48524..49991 <- __convenience_const
+generated 50151..50247 <- Debug
+generated 50247..50340 <- Clone
+generated 50340..50442 <- PartialEq
+generated 50442..50538 <- Hash
+generated 50538..50785 <- Default
+generated 50785..51428 <- Encode
+generated 51428..58308 <- Decode
+generated 58309..58595 <- Debug
+generated 58595..58787 <- Clone
+generated 58787..59135 <- PartialEq
+generated 59135..59471 <- Hash
+generated 59471..59564 <- Default
+generated 59564..61621 <- Encode
+generated 61621..63418 <- Decode
+generated 63530..63662 <- Debug
+generated 63662..63773 <- Clone
+generated 63773..63923 <- PartialEq
+generated 63923..64031 <- Hash
+generated 64031..65302 <- Encode
+generated 65302..70094 <- Decode
+generated 70094..70963 <- __convenience_const
+generated 71087..71216 <- Debug
+generated 71216..71324 <- Clone
+generated 71324..71471 <- PartialEq
+generated 71471..71577 <- Hash
+generated 71577..72843 <- Encode
+generated 72843..77228 <- Decode
+generated 77228..78076 <- __convenience_const
+generated 78213..80534 <- Encode
+generated 80534..87868 <- Decode
+generated 87868..88908 <- __convenience_const
+generated 89144..91845 <- Encode
+generated 91845..101777 <- Decode
+generated 101777..102817 <- __convenience_const
+
+## Metadata
+
+class ShapeCard: {"body_span":{"end":1480,"start":1415},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1391,"start":1321}}],"fields":[{"decorators":[],"initializer":"''","name":"title","optional":false,"readonly":true,"span":{"end":1449,"start":1421},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":1478,"start":1454},"ts_type":"ShapeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ShapeCard","span":{"end":1480,"start":1399},"type_params":[]}
+interface ShapeItem: {"body_span":{"end":446,"start":408},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":380,"start":289}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":425,"start":414},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":444,"start":430},"ts_type":"number"}],"heritage":[],"methods":[],"name":"ShapeItem","span":{"end":446,"start":388},"type_params":[]}
+interface ShapeFields: {"body_span":{"end":1319,"start":887},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":857,"start":787}}],"fields":[{"decorators":[],"name":"note","optional":false,"readonly":false,"span":{"end":918,"start":893},"ts_type":"string | undefined"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":944,"start":923},"ts_type":"string | null"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":972,"start":949},"ts_type":"[string, number]"},{"decorators":[],"name":"nullableTexts","optional":false,"readonly":false,"span":{"end":1010,"start":977},"ts_type":"(string | null)[]"},{"decorators":[],"name":"nullableItems","optional":false,"readonly":false,"span":{"end":1054,"start":1015},"ts_type":"Array<ShapeItem | null>"},{"decorators":[],"name":"parenthesizedItems","optional":false,"readonly":false,"span":{"end":1100,"start":1059},"ts_type":"(ShapeItem | null)[]"},{"decorators":[],"name":"readonlyItems","optional":false,"readonly":false,"span":{"end":1145,"start":1105},"ts_type":"ReadonlyArray<ShapeItem>"},{"decorators":[],"name":"readonlyNumbers","optional":false,"readonly":false,"span":{"end":1185,"start":1150},"ts_type":"readonly number[]"},{"decorators":[],"name":"readonlyTags","optional":false,"readonly":false,"span":{"end":1224,"start":1190},"ts_type":"ReadonlySet<string>"},{"decorators":[],"name":"readonlyCounts","optional":false,"readonly":false,"span":{"end":1273,"start":1229},"ts_type":"ReadonlyMap<string, number>"},{"decorators":[],"name":"level","optional":false,"readonly":false,"span":{"end":1296,"start":1278},"ts_type":"ShapeLevel"},{"decorators":[],"name":"rank","optional":false,"readonly":false,"span":{"end":1317,"start":1301},"ts_type":"ShapeRank"}],"heritage":[],"methods":[],"name":"ShapeFields","span":{"end":1319,"start":865},"type_params":[]}
+interface ShapeEvent: {"body_span":{"end":1853,"start":1777},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1748,"start":1718}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1794,"start":1783},"ts_type":"string"},{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":1808,"start":1799},"ts_type":"Date"},{"decorators":[],"name":"tags","optional":false,"readonly":false,"span":{"end":1828,"start":1813},"ts_type":"string[]"},{"decorators":[],"name":"owner","optional":true,"readonly":false,"span":{"end":1851,"start":1833},"ts_type":"ShapeItem"}],"heritage":[],"methods":[],"name":"ShapeEvent","span":{"end":1853,"start":1756},"type_params":[]}
+interface ShapeDraft: {"body_span":{"end":2089,"start":1914},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1885,"start":1855}}],"fields":[{"decorators":[],"name":"patch","optional":false,"readonly":false,"span":{"end":1947,"start":1920},"ts_type":"Partial<ShapeEvent>"},{"decorators":[],"name":"header","optional":false,"readonly":false,"span":{"end":1990,"start":1952},"ts_type":"Pick<ShapeEvent, 'id' | 'at'>"},{"decorators":[],"name":"rest","optional":false,"readonly":false,"span":{"end":2024,"start":1995},"ts_type":"Omit<ShapeEvent, 'at'>"},{"decorators":[],"name":"card","optional":false,"readonly":false,"span":{"end":2054,"start":2029},"ts_type":"Partial<ShapeCard>"},{"decorators":[],"name":"frozen","optional":false,"readonly":false,"span":{"end":2087,"start":2059},"ts_type":"Readonly<ShapeItem>"}],"heritage":[],"methods":[],"name":"ShapeDraft","span":{"end":2089,"start":1893},"type_params":[]}
+enum ShapeLevel: {"body_span":{"end":621,"start":563},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":539,"start":448}}],"is_const":false,"name":"ShapeLevel","span":{"end":621,"start":547},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":584,"start":569}}],"name":"Low","span":{"end":600,"start":589},"value":{"String":"low"}},{"decorators":[],"name":"High","span":{"end":619,"start":606},"value":{"String":"high"}}]}
+enum ShapeRank: {"body_span":{"end":785,"start":737},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":714,"start":623}}],"is_const":false,"name":"ShapeRank","span":{"end":785,"start":722},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":758,"start":743}}],"name":"One","span":{"end":770,"start":763},"value":{"Number":1.0}},{"decorators":[],"name":"Two","span":{"end":783,"start":776},"value":{"Number":2.0}}]}
+type ShapeMember: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"ShapeItem"}},{"decorators":[],"kind":{"TypeRef":"ShapeCard"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1543,"start":1482}}],"name":"ShapeMember","span":{"end":1592,"start":1551},"type_params":[]}
+type ShapeMixed: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"ShapeItem"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1655,"start":1594}}],"name":"ShapeMixed","span":{"end":1716,"start":1663},"type_params":[]}
+
+## Registry reads
+
+Name("'at'")
+Name("'id' | 'at'")
+Name("(ShapeItem | null)")
+Name("(string | null)")
+Name("Array")
+Name("Omit")
+Name("Partial")
+Name("Pick")
+Name("Readonly")
+Name("ReadonlyArray")
+Name("ReadonlyArray<ShapeItem>")
+Name("ReadonlyMap")
+Name("ReadonlyMap<string, number>")
+Name("ReadonlySet")
+Name("ReadonlySet<string>")
+Name("ShapeCard")
+Name("ShapeEvent")
+Name("ShapeItem")
+Name("ShapeLevel")
+Name("ShapeMember")
+Name("ShapeMixed")
+Name("ShapeRank")
+Name("[string, number]")
+Name("null")
+Name("number")
+Name("readonly number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

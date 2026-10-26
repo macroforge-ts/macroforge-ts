@@ -194,6 +194,14 @@ cargo install --path macroforge_ts
 
 <CodeBlock code={`macroforge tsc -p tsconfig.build.json`} lang="bash" />
 
+<p>
+    The check runs your project's own <code>typescript</code> package, version 5 or 6, with
+    your <code>tsconfig.json</code> as written. That includes
+    <code>libReplacement</code>: the code the built-in derives generate is tested against
+    TypeScript's standard library and against a stricter replacement with no
+    <code>any</code> in a value position.
+</p>
+
 <h3 id="svelte-check">macroforge svelte-check</h3>
 
 <p>

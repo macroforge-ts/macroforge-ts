@@ -28,6 +28,8 @@ true
 
 ## Output
 
+import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+
 export declare class Point {
     x: number;
     y: number;
@@ -49,10 +51,10 @@ export function pointToString(value: Point): string {
 }
 
 export function pointClone(value: Point): Point {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.x = value.x;
-    cloned.y = value.y;
-    return cloned;
+    return __mf_instanceWith(value, ({
+	x: value.x,
+	y: value.y
+}));
 }
 
 
@@ -101,19 +103,20 @@ export declare function formatPoint(point: Point): string;
 
 ## Mapping
 
-original 28..88 -> expanded 0..60
-original 88..89 -> expanded 229..230
-original 89..91 -> expanded 634..636
-original 112..157 -> expanded 636..681
-original 157..159 -> expanded 967..969
-original 231..291 -> expanded 987..1047
-generated 60..148 <- Debug
-generated 148..229 <- Clone
-generated 230..450 <- Debug
-generated 450..634 <- Clone
-generated 681..866 <- Debug
-generated 866..967 <- __convenience_const
-generated 969..987 <- deprecated
+original 28..88 -> expanded 81..141
+original 88..89 -> expanded 310..311
+original 89..91 -> expanded 653..655
+original 112..157 -> expanded 655..700
+original 157..159 -> expanded 986..988
+original 231..291 -> expanded 1006..1066
+generated 0..81 <- imports
+generated 141..229 <- Debug
+generated 229..310 <- Clone
+generated 311..531 <- Debug
+generated 531..653 <- Clone
+generated 700..885 <- Debug
+generated 885..986 <- __convenience_const
+generated 988..1006 <- deprecated
 
 ## Metadata
 

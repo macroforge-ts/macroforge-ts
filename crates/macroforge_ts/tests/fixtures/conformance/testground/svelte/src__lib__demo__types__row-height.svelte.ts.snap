@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -34,8 +34,7 @@ export function rowHeightDefaultValue(): RowHeight {
 export function rowHeightEncode(value: RowHeight, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = rowHeightEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -405,15 +404,15 @@ export declare const RowHeight: {
 
 ## Mapping
 
-original 0..58 -> expanded 460..518
-original 107..210 -> expanded 518..621
-original 210..211 -> expanded 10273..10274
-generated 0..460 <- imports
-generated 621..698 <- Default
-generated 698..2011 <- Encode
-generated 2011..3864 <- Decode
-generated 3864..9464 <- Gigaform
-generated 9464..10273 <- __convenience_const
+original 0..58 -> expanded 556..614
+original 107..210 -> expanded 614..717
+original 210..211 -> expanded 10317..10318
+generated 0..556 <- imports
+generated 717..794 <- Default
+generated 794..2055 <- Encode
+generated 2055..3908 <- Decode
+generated 3908..9508 <- Gigaform
+generated 9508..10317 <- __convenience_const
 
 ## Metadata
 

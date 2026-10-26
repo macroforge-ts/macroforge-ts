@@ -17,8 +17,8 @@ true
 
 ## Output
 
+import { encodedText as __mf_encodedText, DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
 
 enum Status {
     Active = 'active',
@@ -51,7 +51,7 @@ export function statusHashCode(value: Status): number {
 
 /** Encodes this enum value to a JSON string.  */
 export function statusEncode(value: Status): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs.  */
@@ -137,16 +137,16 @@ export {};
 
 ## Mapping
 
-original 61..126 -> expanded 161..226
-original 126..127 -> expanded 2767..2768
-generated 0..161 <- imports
-generated 226..461 <- Debug
-generated 461..535 <- Clone
-generated 535..620 <- PartialEq
-generated 620..819 <- Hash
-generated 819..1227 <- Encode
-generated 1227..2151 <- Decode
-generated 2151..2767 <- __convenience_const
+original 61..126 -> expanded 194..259
+original 126..127 -> expanded 2802..2803
+generated 0..194 <- imports
+generated 259..494 <- Debug
+generated 494..568 <- Clone
+generated 568..653 <- PartialEq
+generated 653..852 <- Hash
+generated 852..1262 <- Encode
+generated 1262..2186 <- Decode
+generated 2186..2802 <- __convenience_const
 
 ## Metadata
 

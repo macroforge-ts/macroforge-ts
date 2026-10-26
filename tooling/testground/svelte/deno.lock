@@ -4,10 +4,28 @@
     "npm:@biomejs/biome@*": "2.3.10",
     "npm:@emotion/weak-memoize@0.4": "0.4.0",
     "npm:@inlang/paraglide-js@^2.6.0": "2.7.1",
+    "npm:@jsr/gigatypes__decorators@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__dom@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2015@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2016@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2017@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2018@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2019@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2020@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2021@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2022@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2023@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2024@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es2025@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es5@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__es6@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__esnext@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__scripthost@0.1.4": "0.1.4",
+    "npm:@jsr/gigatypes__webworker@0.1.4": "0.1.4",
     "npm:@macroforge/core@*": "0.5.0",
     "npm:@macroforge/shared@*": "0.5.0",
     "npm:@macroforge/svelte-preprocessor@*": "0.5.0_svelte@5.46.1",
-    "npm:@macroforge/vite-plugin@*": "0.5.0_typescript@5.9.3_vite@7.3.0",
+    "npm:@macroforge/vite-plugin@*": "0.5.0_typescript@6.0.3_vite@7.3.0",
     "npm:@sveltejs/adapter-auto@7": "7.0.0_@sveltejs+kit@2.49.2_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.46.1_vite@7.3.0_@types+node@25.0.3",
     "npm:@sveltejs/kit@^2.49.0": "2.49.2_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.46.1_vite@7.3.0_acorn@8.15.0_@types+node@25.0.3",
     "npm:@sveltejs/vite-plugin-svelte@^6.2.1": "6.2.1_svelte@5.46.1_vite@7.3.0_@types+node@25.0.3",
@@ -19,13 +37,13 @@
     "npm:jsdom@^26.1.0": "26.1.0",
     "npm:json-schema@0.4": "0.4.0",
     "npm:runed@0.36": "0.36.0_@sveltejs+kit@2.49.2_svelte@5.46.1_@sveltejs+vite-plugin-svelte@6.2.1_vite@7.3.0_@types+node@25.0.3",
-    "npm:svelte-check@^4.7.6": "4.7.6_svelte@5.46.1_typescript@5.9.3",
+    "npm:svelte-check@^4.7.6": "4.7.6_svelte@5.46.1_typescript@6.0.3",
     "npm:svelte-toolbelt@~0.10.6": "0.10.6_svelte@5.46.1_@sveltejs+kit@2.49.2_@sveltejs+vite-plugin-svelte@6.2.1_vite@7.3.0_@types+node@25.0.3",
     "npm:svelte@^5.43.8": "5.46.1_acorn@8.15.0",
     "npm:tailwind-merge@^3.4.0": "3.4.0",
     "npm:tailwindcss@^4.1.10": "4.1.18",
     "npm:ts-deepmerge@^7.0.3": "7.0.3",
-    "npm:typescript@^5.9.3": "5.9.3",
+    "npm:typescript@^6.0.3": "6.0.3",
     "npm:vite@^7.2.2": "7.3.0_@types+node@25.0.3_picomatch@4.0.3",
     "npm:vitest@^3.2.4": "3.2.4_@types+node@25.0.3_jsdom@26.1.0_vite@7.3.0"
   },
@@ -347,6 +365,196 @@
         "@jridgewell/sourcemap-codec"
       ]
     },
+    "@jsr/gigatypes__decorators@0.1.4": {
+      "integrity": "sha512-FEQPPJmzmEnYZRr22jXIvNohvbs3HgftQ9a+Is4nnvLnu4Ymik1ZrHX9HcoMcPwUl/s/WA3e/ilI+4zwtcbctg==",
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__decorators/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__dom@0.1.4": {
+      "integrity": "sha512-Ezde5Zbj2p5lGY70IXT7oWfMUz5awpBkgJqgfauG2ycE32lul8A0UEz7kfJ6/VcidK56DOmwfjkY4hffES62tg==",
+      "dependencies": [
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__shared-es2018-asynciterable"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__dom/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2015@0.1.4": {
+      "integrity": "sha512-8C9AMf2AoWvYqGQANEWzl8Qe6OOgb8GQs8Fmqb/HI4eSddQXGxLn99xgHzr0KyQs2naLuizs5CvedNUK03/0tA==",
+      "dependencies": [
+        "@jsr/gigatypes__es5"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2015/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2016@0.1.4": {
+      "integrity": "sha512-smFtcx7/zyy0LAyolnkDDPswaPimx/AMAF2PjY/m2xPWAUKEqge38oAcixRmwSZi3HmLHMdjOjdUWvzu8FpwoA==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2016/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2017@0.1.4": {
+      "integrity": "sha512-eqCIA9W/7EEmlNt4QFUW/hD7rexYcllURYejUYnwOx9zHyVsl6eDKXScgN9CuDGCWG+SuX03FcmSH3RdGDXI+g==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2016",
+        "@jsr/gigatypes__es5",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2017/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2018@0.1.4": {
+      "integrity": "sha512-8wI1ZlEyW0HXQmyT5OPwVXBPxZjk2wfTLEZYMwIfF4Sc2V39U4bqaRu13+EaPI02ZZHuyK4fmCGpEK7kkLcTDw==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__shared-es2018-asynciterable",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2018/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2019@0.1.4": {
+      "integrity": "sha512-5KG6od1sJZo8Z4tf0yFRJ61dg+1Qhzy9BEF5/eHH1FrugyfJdW1p27qkY+gvOBupMEsLWc7Mbf3VHlSGzpGNJA==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2019/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2020@0.1.4": {
+      "integrity": "sha512-8VS83BUiPh6EpeqFsWW04KXNyAO9UIEzu+axT6ifRqzqSjTl/xzACwrgYR5e8CMTi8MzG+UL8EtjcScbkcv9fw==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__es2019",
+        "@jsr/gigatypes__es5",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2020/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2021@0.1.4": {
+      "integrity": "sha512-AAxqKY+usx+aCgpf4SmeeTJI8KF+Op4IVR0ss/sPbiWjgJWX5NLZROyZGck9gFdUF2qLHqI72HbiOOt3Fo9TEw==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2021/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2022@0.1.4": {
+      "integrity": "sha512-0rxjEmOpNoDWwp4cZfl4Ofewsg9qPj2dbEKQwNwro5u/BEaGQrTXOYjZjl48TDIUS0/GmQ4uV/r3Cxc9JPWSTQ==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2021",
+        "@jsr/gigatypes__es5",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2022/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2023@0.1.4": {
+      "integrity": "sha512-Skl6pknedd9A8DhWsYk2d6vtO7Z5zVuRhGGzVoDSG1udMRafSoIKLPHUdGCiVwULXthvCmS/GHXUkocSR74Ssg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__es2022",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2023/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2024@0.1.4": {
+      "integrity": "sha512-IIvKITDjie/RZs/+7CTY5xCRtSwCApOd1jKAYJ6Am6lLW1NgR+V2ONFAt07dSRkQLJh4RWHpnu7EOrIpns52rg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__es2023",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2024/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es2025@0.1.4": {
+      "integrity": "sha512-72lv96LtP47pYBJkiktDlvOa1HUXWasaKKR27BdwkCjMxPXeSUb7NLbNFHMBntLT3f/A0uwglTNTiMjSVLX6Dg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2018",
+        "@jsr/gigatypes__es2024",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es2025/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es5@0.1.4": {
+      "integrity": "sha512-iv/ER+ML5wJP50oS1qOPWhiB2/vo6DU9tqiSewT/TTdIyBK4QSDp0hI+ekqF+q2ux1fiPMUfq6d734+f0CgSnQ==",
+      "dependencies": [
+        "@jsr/gigatypes__decorators"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es5/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__es6@0.1.4": {
+      "integrity": "sha512-r/mxKF29C6OsOafS33adnWY6fF6mm2xNSBqbIlBdjwcBCkiCnUUoZD3Mdcv5iXf2CrQq8enA5+WnMcQpKy08Vg==",
+      "dependencies": [
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__es6/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__esnext@0.1.4": {
+      "integrity": "sha512-eit3eWpyXjHayDFrHaF7sNhnbKOB+nP0T4UuqXkqGOrUaBv8RMm4IVFvlj/6Jq5Erdk0MDgYDyXwet8+J/uwXQ==",
+      "dependencies": [
+        "@jsr/gigatypes__decorators",
+        "@jsr/gigatypes__dom",
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__es2017",
+        "@jsr/gigatypes__es2020",
+        "@jsr/gigatypes__es2021",
+        "@jsr/gigatypes__es2025",
+        "@jsr/gigatypes__scripthost",
+        "@jsr/gigatypes__shared-es2018-asynciterable",
+        "@jsr/gigatypes__webworker"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__esnext/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__scripthost@0.1.4": {
+      "integrity": "sha512-peU622W9yfEAl+rmFQY5lfM1OFau28KXMBl6hkUpUwwUd/3KlOdyb7SWiAUxsQdpw3RGf0US97ioEQeXB97YLw==",
+      "dependencies": [
+        "@jsr/gigatypes__es5"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__scripthost/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__shared-es2018-asynciterable@0.1.4": {
+      "integrity": "sha512-AAwE1HUYD8ytlPAECeP2BTLkylMQ5E/fOoh5Fe4UNEo7OTUwTwfG072sb2JZRw822Q3c3GjreqDKKgp5nx/gMQ==",
+      "dependencies": [
+        "@jsr/gigatypes__es2015"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__shared-es2018-asynciterable/0.1.4.tgz"
+    },
+    "@jsr/gigatypes__webworker@0.1.4": {
+      "integrity": "sha512-ihjBGBxqVp7FUPNFCA192NAo3nMlnPw09HU/ptyEvdPOxC0D7INdXW79YGEliCdg7mNYm0iKGv2eLm6+v60jAA==",
+      "dependencies": [
+        "@jsr/gigatypes__es2015",
+        "@jsr/gigatypes__shared-es2018-asynciterable"
+      ],
+      "tarball": "https://npm.jsr.io/~/11/@jsr/gigatypes__webworker/0.1.4.tgz"
+    },
     "@lix-js/sdk@0.4.7_kysely@0.27.6": {
       "integrity": "sha512-pRbW+joG12L0ULfMiWYosIW0plmW4AsUdiPCp+Z8rAsElJ+wJ6in58zhD3UwUcd4BNcpldEGjg6PdA7e0RgsDQ==",
       "dependencies": [
@@ -371,7 +579,7 @@
         "svelte"
       ]
     },
-    "@macroforge/vite-plugin@0.5.0_typescript@5.9.3_vite@7.3.0": {
+    "@macroforge/vite-plugin@0.5.0_typescript@6.0.3_vite@7.3.0": {
       "dependencies": [
         "@jridgewell/sourcemap-codec",
         "@macroforge/core",
@@ -1419,7 +1627,7 @@
         "inline-style-parser"
       ]
     },
-    "svelte-check@4.7.6_svelte@5.46.1_typescript@5.9.3": {
+    "svelte-check@4.7.6_svelte@5.46.1_typescript@6.0.3": {
       "integrity": "sha512-t2scM//ZuVbSY/T2w6FSBw1v9s2NEmh/g+sy1lqtosW5ylBV5AF4wFb1Ts9Kf3MbfPDUDJDZ9L436YT0SPTdvw==",
       "dependencies": [
         "@jridgewell/trace-mapping",
@@ -1527,8 +1735,8 @@
     "tslib@2.8.1": {
       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
     },
-    "typescript@5.9.3": {
-      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+    "typescript@6.0.3": {
+      "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
       "bin": true
     },
     "undici-types@7.16.0": {
@@ -1680,6 +1888,24 @@
       "dependencies": [
         "npm:@emotion/weak-memoize@0.4",
         "npm:@inlang/paraglide-js@^2.6.0",
+        "npm:@jsr/gigatypes__decorators@0.1.4",
+        "npm:@jsr/gigatypes__dom@0.1.4",
+        "npm:@jsr/gigatypes__es2015@0.1.4",
+        "npm:@jsr/gigatypes__es2016@0.1.4",
+        "npm:@jsr/gigatypes__es2017@0.1.4",
+        "npm:@jsr/gigatypes__es2018@0.1.4",
+        "npm:@jsr/gigatypes__es2019@0.1.4",
+        "npm:@jsr/gigatypes__es2020@0.1.4",
+        "npm:@jsr/gigatypes__es2021@0.1.4",
+        "npm:@jsr/gigatypes__es2022@0.1.4",
+        "npm:@jsr/gigatypes__es2023@0.1.4",
+        "npm:@jsr/gigatypes__es2024@0.1.4",
+        "npm:@jsr/gigatypes__es2025@0.1.4",
+        "npm:@jsr/gigatypes__es5@0.1.4",
+        "npm:@jsr/gigatypes__es6@0.1.4",
+        "npm:@jsr/gigatypes__esnext@0.1.4",
+        "npm:@jsr/gigatypes__scripthost@0.1.4",
+        "npm:@jsr/gigatypes__webworker@0.1.4",
         "npm:@macroforge/core@*",
         "npm:@macroforge/shared@*",
         "npm:@macroforge/svelte-preprocessor@*",
@@ -1701,7 +1927,7 @@
         "npm:tailwind-merge@^3.4.0",
         "npm:tailwindcss@^4.1.10",
         "npm:ts-deepmerge@^7.0.3",
-        "npm:typescript@^5.9.3",
+        "npm:typescript@^6.0.3",
         "npm:vite@^7.2.2",
         "npm:vitest@^3.2.4"
       ]
@@ -1725,7 +1951,7 @@
           "npm:@macroforge/shared@0.5.0"
         ],
         "peerDependencies": [
-          "npm:typescript@>=5.0.0",
+          "npm:typescript@5 || 6",
           "npm:vite@5 || 6 || 7 || 8"
         ],
         "peerDependenciesMeta": {

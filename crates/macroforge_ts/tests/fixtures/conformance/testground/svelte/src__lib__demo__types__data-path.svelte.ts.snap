@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -36,28 +36,44 @@ export function dataPathDefaultValue(): DataPath {
 export function dataPathEncode(value: DataPath, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = dataPathEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return dataPathEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "DataPath",
         __id,
     };
 
-    
-    result.path = value.path;
-    result.formatter = value.formatter;
+    if (__fields === undefined || __fields.keeps("path")) {
+
+        if (value.path !== undefined) {
+            result.path = value.path;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("formatter")) {
+        if (value.formatter !== undefined) {
+
+            result.formatter = value.formatter;
+        }
+    }
 
     return result;
 }
@@ -116,7 +132,13 @@ export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef {
+export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DataPath> | __mf_PendingRef;
+export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<DataPath> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DataPath.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DataPath.decodeWithContext: __ref must be a number" }]);
@@ -130,22 +152,22 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("path" in obj)) {
+    if ((__fields === undefined || __fields.requires("path")) && !("path" in obj)) {
         errors.push({ field: "path", message: "missing required field" });
     }
-    if (!("formatter" in obj)) {
+    if ((__fields === undefined || __fields.requires("formatter")) && !("formatter" in obj)) {
         errors.push({ field: "formatter", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("path")) || (__fields.keeps("path") && obj["path"] !== undefined)) {
         const __raw_path = obj["path"] as Array<string>;
 
         if (Array.isArray(__raw_path)) {
@@ -154,7 +176,7 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             errors.push({ field: "path", message: __raw_path == null ? "DataPath.path is required" : "expected Array<string>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("formatter")) || (__fields.keeps("formatter") && obj["formatter"] !== undefined)) {
         const __raw_formatter = obj["formatter"] as string | null;
 
         if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
@@ -167,6 +189,11 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     ctx.pushErrors(errors);
 
     return instance as DataPath;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function dataPathDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Partial<DataPath> | __mf_PendingRef {
+    return dataPathDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function dataPathValidateField<K extends keyof DataPath>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function dataPathValidateField(): Array<{ field: string; message: string }> {
@@ -330,8 +357,10 @@ export const DataPath: {
   readonly defaultValue: typeof dataPathDefaultValue;
   readonly encode: typeof dataPathEncode;
   readonly encodeWithContext: typeof dataPathEncodeWithContext;
+  readonly encodePartialWithContext: typeof dataPathEncodePartialWithContext;
   readonly decode: typeof dataPathDecode;
   readonly decodeWithContext: typeof dataPathDecodeWithContext;
+  readonly decodePartialWithContext: typeof dataPathDecodePartialWithContext;
   readonly validateField: typeof dataPathValidateField;
   readonly validateFields: typeof dataPathValidateFields;
   readonly hasShape: typeof dataPathHasShape;
@@ -342,8 +371,10 @@ export const DataPath: {
   defaultValue: dataPathDefaultValue,
   encode: dataPathEncode,
   encodeWithContext: dataPathEncodeWithContext,
+  encodePartialWithContext: dataPathEncodePartialWithContext,
   decode: dataPathDecode,
   decodeWithContext: dataPathDecodeWithContext,
+  decodePartialWithContext: dataPathDecodePartialWithContext,
   validateField: dataPathValidateField,
   validateFields: dataPathValidateFields,
   hasShape: dataPathHasShape,
@@ -364,6 +395,8 @@ export declare function dataPathDefaultValue(): DataPath;
 export declare function dataPathEncode(value: DataPath, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function dataPathEncodePartialWithContext(value: Partial<DataPath>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -377,6 +410,10 @@ export declare function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<DataPath> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function dataPathDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof DataPath>): Partial<DataPath> | __mf_PendingRef;
 export declare function dataPathValidateField<K extends keyof DataPath>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -426,8 +463,10 @@ export declare const DataPath: {
 	readonly defaultValue: typeof dataPathDefaultValue;
 	readonly encode: typeof dataPathEncode;
 	readonly encodeWithContext: typeof dataPathEncodeWithContext;
+	readonly encodePartialWithContext: typeof dataPathEncodePartialWithContext;
 	readonly decode: typeof dataPathDecode;
 	readonly decodeWithContext: typeof dataPathDecodeWithContext;
+	readonly decodePartialWithContext: typeof dataPathDecodePartialWithContext;
 	readonly validateField: typeof dataPathValidateField;
 	readonly validateFields: typeof dataPathValidateFields;
 	readonly hasShape: typeof dataPathHasShape;
@@ -442,15 +481,15 @@ export declare const DataPath: {
 
 ## Mapping
 
-original 0..58 -> expanded 443..501
-original 107..192 -> expanded 501..586
-original 192..193 -> expanded 12212..12213
-generated 0..443 <- imports
-generated 586..703 <- Default
-generated 703..1847 <- Encode
-generated 1847..6155 <- Decode
-generated 6155..11226 <- Gigaform
-generated 11226..12212 <- __convenience_const
+original 0..58 -> expanded 664..722
+original 107..192 -> expanded 722..807
+original 192..193 -> expanded 15184..15185
+generated 0..664 <- imports
+generated 807..924 <- Default
+generated 924..2900 <- Encode
+generated 2900..8847 <- Decode
+generated 8847..13918 <- Gigaform
+generated 13918..15184 <- __convenience_const
 
 ## Metadata
 

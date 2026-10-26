@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export type RecordLink<T> = /** @default */ string | T;
@@ -25,8 +25,7 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
 export function recordLinkEncode<T>(value: RecordLink<T>, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = recordLinkEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -187,13 +186,13 @@ export declare const RecordLink: {
 
 ## Mapping
 
-original 39..95 -> expanded 301..357
-original 95..96 -> expanded 4897..4898
-generated 0..301 <- imports
-generated 357..436 <- Default
-generated 436..1766 <- Encode
-generated 1766..4253 <- Decode
-generated 4253..4897 <- __convenience_const
+original 39..95 -> expanded 397..453
+original 95..96 -> expanded 4941..4942
+generated 0..397 <- imports
+generated 453..532 <- Default
+generated 532..1810 <- Encode
+generated 1810..4297 <- Decode
+generated 4297..4941 <- __convenience_const
 
 ## Metadata
 

@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
 /**
@@ -90,7 +90,13 @@ export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef {
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Profile> | __mf_PendingRef;
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Profile> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Profile.decodeWithContext: __ref must be a number" }]);
@@ -104,46 +110,43 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
-    if (!("age" in obj)) {
+    if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
         errors.push({ field: "age", message: "missing required field" });
     }
-    if (!("active" in obj)) {
+    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
         errors.push({ field: "active", message: "missing required field" });
     }
-    if (!("kind" in obj)) {
+    if ((__fields === undefined || __fields.requires("kind")) && !("kind" in obj)) {
         errors.push({ field: "kind", message: "missing required field" });
     }
-    if (!("mode" in obj)) {
+    if ((__fields === undefined || __fields.requires("mode")) && !("mode" in obj)) {
         errors.push({ field: "mode", message: "missing required field" });
     }
-    if (!("nickname" in obj)) {
+    if ((__fields === undefined || __fields.requires("nickname")) && !("nickname" in obj)) {
         errors.push({ field: "nickname", message: "missing required field" });
     }
-    if (!("rank" in obj)) {
-        errors.push({ field: "rank", message: "missing required field" });
-    }
-    if (!("height" in obj)) {
+    if ((__fields === undefined || __fields.requires("height")) && !("height" in obj)) {
         errors.push({ field: "height", message: "missing required field" });
     }
-    if (!("balance" in obj)) {
+    if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
         errors.push({ field: "balance", message: "missing required field" });
     }
-    if (!("site" in obj)) {
+    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
         errors.push({ field: "site", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -152,7 +155,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -161,7 +164,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.age = __raw_age;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
         const __raw_active = obj["active"] as boolean;
 
         if (!(typeof __raw_active === "boolean")) {
@@ -170,7 +173,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.active = __raw_active;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("kind")) || (__fields.keeps("kind") && obj["kind"] !== undefined)) {
         const __raw_kind = obj["kind"] as 'user';
 
         if (!(__raw_kind === "user")) {
@@ -179,7 +182,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.kind = __raw_kind;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("mode")) || (__fields.keeps("mode") && obj["mode"] !== undefined)) {
         const __raw_mode = obj["mode"] as 'light' | 'dark';
 
         if (!(__raw_mode === "light" || __raw_mode === "dark")) {
@@ -188,7 +191,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.mode = __raw_mode;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("nickname")) || (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
         const __raw_nickname = obj["nickname"] as string | null;
 
         if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
@@ -197,16 +200,18 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.nickname = __raw_nickname;
         }
     }
-    if ("bio" in obj && obj["bio"] !== undefined) {
-        const __raw_bio = obj["bio"] as string;
+    if ((__fields === undefined || __fields.keeps("bio"))) {
+        if (("bio" in obj && obj["bio"] !== undefined)) {
+            const __raw_bio = obj["bio"] as string;
 
-        if (!(typeof __raw_bio === "string")) {
-            errors.push({ field: "bio", message: "expected string" });
-        } else {
-            instance.bio = __raw_bio;
+            if (!(typeof __raw_bio === "string")) {
+                errors.push({ field: "bio", message: "expected string" });
+            } else {
+                instance.bio = __raw_bio;
+            }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
         const __raw_rank = obj["rank"] as number | undefined;
 
         if (!(typeof __raw_rank === "number" || __raw_rank === undefined)) {
@@ -215,7 +220,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.rank = __raw_rank;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("height")) || (__fields.keeps("height") && obj["height"] !== undefined)) {
         const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
 
         if (!(typeof __raw_height === "number")) {
@@ -224,20 +229,29 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.height = __raw_height;
         }
     }
-    try {
-        instance.balance = ((v) => BigInt(v as string))(obj["balance"]);
-    } catch (__error) {
-        errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+        try {
+            instance.balance = ((v) => BigInt(v as string))(obj["balance"]);
+        } catch (__error) {
+            errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    try {
-        instance.site = ((v) => new URL(v as string))(obj["site"]);
-    } catch (__error) {
-        errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
+        try {
+            instance.site = ((v) => new URL(v as string))(obj["site"]);
+        } catch (__error) {
+            errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
 
     ctx.pushErrors(errors);
 
     return instance as Profile;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function profileDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Profile>): Partial<Profile> | __mf_PendingRef {
+    return profileDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function profileValidateField<K extends keyof Profile>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function profileValidateField(): Array<{ field: string; message: string }> {
@@ -253,7 +267,7 @@ export function profileHasShape(obj: unknown): boolean {
         return false;
     }
     const o = obj as Record<string, unknown>;
-    return "name" in o && "age" in o && "active" in o && "kind" in o && "mode" in o && "nickname" in o && "rank" in o && "height" in o && "balance" in o && "site" in o;
+    return "name" in o && "age" in o && "active" in o && "kind" in o && "mode" in o && "nickname" in o && "height" in o && "balance" in o && "site" in o;
 }
 
 export function profileIs(obj: unknown): obj is Profile {
@@ -263,6 +277,7 @@ export function profileIs(obj: unknown): obj is Profile {
 export const Profile: {
   readonly decode: typeof profileDecode;
   readonly decodeWithContext: typeof profileDecodeWithContext;
+  readonly decodePartialWithContext: typeof profileDecodePartialWithContext;
   readonly validateField: typeof profileValidateField;
   readonly validateFields: typeof profileValidateFields;
   readonly hasShape: typeof profileHasShape;
@@ -270,6 +285,7 @@ export const Profile: {
 } = {
   decode: profileDecode,
   decodeWithContext: profileDecodeWithContext,
+  decodePartialWithContext: profileDecodePartialWithContext,
   validateField: profileValidateField,
   validateFields: profileValidateFields,
   hasShape: profileHasShape,
@@ -282,7 +298,7 @@ export type Tagged = number & { readonly __brand: 'Tagged' };
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function taggedEncode(value: Tagged, keepMetadata?: boolean): string;
 export function taggedEncode(value: Tagged): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -383,7 +399,7 @@ export type Cents = bigint & { readonly [__mf_newtype_2]: true };
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function centsEncode(value: Cents, keepMetadata?: boolean): string;
 export function centsEncode(value: Cents): string {
-    return JSON.stringify(((v) => String(v))(value));
+    return __mf_encodedText(((v) => String(v))(value));
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -522,6 +538,10 @@ export declare function profileDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Profile> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function profileDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Profile>): Partial<Profile> | __mf_PendingRef;
 export declare function profileValidateField<K extends keyof Profile>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -535,6 +555,7 @@ export declare function profileIs(obj: unknown): obj is Profile;
 export declare const Profile: {
 	readonly decode: typeof profileDecode;
 	readonly decodeWithContext: typeof profileDecodeWithContext;
+	readonly decodePartialWithContext: typeof profileDecodePartialWithContext;
 	readonly validateField: typeof profileValidateField;
 	readonly validateFields: typeof profileValidateFields;
 	readonly hasShape: typeof profileHasShape;
@@ -618,29 +639,29 @@ export {};
 
 ## Mapping
 
-original 0..373 -> expanded 352..725
-original 389..428 -> expanded 769..808
-original 428..535 -> expanded 9277..9384
-original 535..601 -> expanded 12802..12868
-original 617..618 -> expanded 12912..12913
-original 618..619 -> expanded 16563..16564
-generated 0..262 <- imports
-generated 262..307 <- $Newtype
-generated 307..352 <- $Newtype
-generated 725..769 <- $Newtype
-generated 808..8752 <- Decode
-generated 8752..9277 <- __convenience_const
-generated 9384..10090 <- Encode
-generated 10090..11873 <- Decode
-generated 11873..12059 <- Hash
-generated 12059..12162 <- Debug
-generated 12162..12802 <- __convenience_const
-generated 12868..12912 <- $Newtype
-generated 12913..13651 <- Encode
-generated 13651..15694 <- Decode
-generated 15694..15840 <- Hash
-generated 15840..15940 <- Debug
-generated 15940..16563 <- __convenience_const
+original 0..373 -> expanded 510..883
+original 389..428 -> expanded 927..966
+original 428..535 -> expanded 12591..12698
+original 535..601 -> expanded 16118..16184
+original 617..618 -> expanded 16228..16229
+original 618..619 -> expanded 19881..19882
+generated 0..420 <- imports
+generated 420..465 <- $Newtype
+generated 465..510 <- $Newtype
+generated 883..927 <- $Newtype
+generated 966..11928 <- Decode
+generated 11928..12591 <- __convenience_const
+generated 12698..13406 <- Encode
+generated 13406..15189 <- Decode
+generated 15189..15375 <- Hash
+generated 15375..15478 <- Debug
+generated 15478..16118 <- __convenience_const
+generated 16184..16228 <- $Newtype
+generated 16229..16969 <- Encode
+generated 16969..19012 <- Decode
+generated 19012..19158 <- Hash
+generated 19158..19258 <- Debug
+generated 19258..19881 <- __convenience_const
 
 ## Metadata
 

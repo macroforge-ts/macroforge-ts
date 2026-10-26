@@ -8,13 +8,15 @@ use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
-use crate::builtin::derive::endec::TypeCategory;
+use crate::builtin::derive::common::{js_string, rendered};
 use crate::builtin::derive::endec::decode::helpers::{
-    nested_decode_fn_name, nested_decode_result_fn_name, primitive_check, wrong_type_message,
+    nested_decode_fn_name, nested_decode_partial_fn_name, nested_decode_result_fn_name,
+    primitive_check, wrong_type_message,
 };
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 use crate::builtin::derive::endec::value_kind::EndecValueKind;
+use crate::builtin::derive::endec::{TypeCategory, WrapperFields};
 use crate::builtin::return_types::{DECODE_ERROR, PENDING_REF};
 
 /// Decodes `field`'s raw value, held in `__raw_{field}`, onto `instance`.
@@ -265,8 +267,8 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
 
             {:case TypeCategory::Wrapper(_)}
                 {#if let Some(inner_type_name) = &field.wrapper_encodable_type}
-                    {$let inner_deser_fn: Expr = ts_ident!(nested_decode_fn_name(inner_type_name)).into()}
-                    {$let nested = decode_nested(field, &inner_deser_fn, &raw_var_ident)}
+                    {$let decoded = wrapper_decode_call(field, inner_type_name, &raw_var_ident)}
+                    {$let nested = decode_nested_call(field, &decoded)}
                     {$typescript nested}
                 {:else}
                     instance.@{field.field_ident} = @{raw_var_ident};
@@ -361,11 +363,40 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
 /// Decodes `raw` onto the field through `decode_fn`, a nested
 /// `decodeWithContext`, reporting its errors under the field's key.
 fn decode_nested(field: &DecodeField, decode_fn: &Expr, raw: &Ident) -> TsStream {
+    let decoded: Expr = rendered(ts_template! { @{decode_fn}(@{raw}, ctx) }).into();
+    decode_nested_call(field, &decoded)
+}
+
+/// The call decoding a wrapper field's raw value through its inner type: the
+/// whole decoder, or the partial one told which fields the value has.
+fn wrapper_decode_call(field: &DecodeField, inner_type: &str, raw: &Ident) -> Expr {
+    let partial: Expr = ts_ident!(nested_decode_partial_fn_name(inner_type)).into();
+    let selection = |key: &str, names: &[String]| {
+        let names: Vec<String> = names.iter().map(|name| js_string(name)).collect();
+        let names = names.join(", ");
+        rendered(ts_template! { @{&partial}(@{raw}, ctx, { @{key}: [@{names}] }) })
+    };
+    match &field.wrapper_fields {
+        Some(WrapperFields::Any) => rendered(ts_template! { @{&partial}(@{raw}, ctx) }),
+        Some(WrapperFields::Only(names)) => selection("only", names),
+        Some(WrapperFields::Except(names)) => selection("except", names),
+        Some(WrapperFields::Whole) | None => {
+            let whole: Expr = ts_ident!(nested_decode_fn_name(inner_type)).into();
+            rendered(ts_template! { @{whole}(@{raw}, ctx) })
+        }
+    }
+    .into()
+}
+
+/// Runs `decoded`, a call decoding the field's raw value through another
+/// type's decoder, and assigns its result, with that type's errors reported
+/// under this field.
+fn decode_nested_call(field: &DecodeField, decoded: &Expr) -> TsStream {
     let decode_error_expr: Expr = ts_ident!(DECODE_ERROR).into();
     ts_template! {
         ctx.pushScope("@{field.json_key}");
         try {
-            const __result = @{decode_fn}(@{raw}, ctx);
+            const __result = @{decoded};
             ctx.assignOrDefer(instance, "@{field.field_name}", __result);
         } catch (__e) {
             if (__e instanceof @{decode_error_expr}) {

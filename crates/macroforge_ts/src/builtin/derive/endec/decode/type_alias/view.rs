@@ -13,7 +13,7 @@ use super::AliasDecode;
 use crate::builtin::derive::common::{TypeNames, tuple_element};
 use crate::builtin::derive::endec::EndecContainerOptions;
 use crate::builtin::derive::endec::decode::field::prepare::to_decode_field;
-use crate::builtin::derive::endec::decode::field::statements::decode_fields;
+use crate::builtin::derive::endec::decode::field::statements::{Required, decode_fields};
 use crate::builtin::derive::endec::decode::reference::decode_reference;
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::source_field::SourceField;
@@ -53,7 +53,7 @@ pub(super) fn tuple_view(
     let slots: Vec<(String, Expr)> = (0..layout.fixed)
         .map(|index| (format!("e{index}"), number(index)))
         .collect();
-    let field_statements = decode_fields(&layout.fields, type_name);
+    let field_statements = decode_fields(&layout.fields, type_name, Required::All);
     let reference = decode_reference(type_name, &alias.full_type_name);
     Ok(ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
@@ -134,7 +134,7 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
     let fn_has_shape_ident = ts_ident!("{}HasShape", alias.type_name.to_case(Case::Camel));
     let decode_context_ident = &alias.decode_context_ident;
     let full_type_ident = ts_ident!(alias.full_type_name.as_str());
-    let field_statements = decode_fields(&Vec::from_iter(field), alias.type_name);
+    let field_statements = decode_fields(&Vec::from_iter(field), alias.type_name, Required::All);
     let reference = decode_reference(alias.type_name, &alias.full_type_name);
     Ok(ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */

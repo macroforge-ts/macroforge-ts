@@ -2,8 +2,7 @@
     "compilerOptions": {
         "target": "ESNext",
         "module": "ESNext",
-        "baseUrl": ".",
-        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "lib": ["ESNext", "DOM"],
         "types": [],
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
@@ -15,7 +14,7 @@
         "moduleDetection": "force",
         "noEmit": true,
         "paths": {
-            "*": [".macroforge/types/*", "./*"]
+            "*": ["./.macroforge/types/*", "./*"]
         },
 
         /* Linting */

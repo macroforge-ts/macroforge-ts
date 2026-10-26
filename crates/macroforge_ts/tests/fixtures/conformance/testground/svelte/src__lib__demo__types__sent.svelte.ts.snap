@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -36,28 +36,44 @@ export function sentDefaultValue(): Sent {
 export function sentEncode(value: Sent, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = sentEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function sentEncodeWithContext(value: Sent, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return sentEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function sentEncodePartialWithContext(value: Partial<Sent>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Sent>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Sent",
         __id,
     };
 
-    
-    result.recipient = value.recipient;
-    result.method = value.method;
+    if (__fields === undefined || __fields.keeps("recipient")) {
+        if (value.recipient !== undefined) {
+
+            result.recipient = value.recipient;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("method")) {
+        if (value.method !== undefined) {
+
+            result.method = value.method;
+        }
+    }
 
     return result;
 }
@@ -116,7 +132,13 @@ export function sentDecode(input: unknown, opts?: __mf_DecodeOptions): { success
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Sent | __mf_PendingRef {
+export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Sent | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Sent> | __mf_PendingRef;
+export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Sent> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Sent.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Sent.decodeWithContext: __ref must be a number" }]);
@@ -130,22 +152,22 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("recipient" in obj)) {
+    if ((__fields === undefined || __fields.requires("recipient")) && !("recipient" in obj)) {
         errors.push({ field: "recipient", message: "missing required field" });
     }
-    if (!("method" in obj)) {
+    if ((__fields === undefined || __fields.requires("method")) && !("method" in obj)) {
         errors.push({ field: "method", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("recipient")) || (__fields.keeps("recipient") && obj["recipient"] !== undefined)) {
         const __raw_recipient = obj["recipient"] as string | null;
 
         if (!(typeof __raw_recipient === "string" || __raw_recipient === null)) {
@@ -154,7 +176,7 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.recipient = __raw_recipient;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("method")) || (__fields.keeps("method") && obj["method"] !== undefined)) {
         const __raw_method = obj["method"] as string | null;
 
         if (!(typeof __raw_method === "string" || __raw_method === null)) {
@@ -167,6 +189,11 @@ export function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     ctx.pushErrors(errors);
 
     return instance as Sent;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function sentDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Sent>): Partial<Sent> | __mf_PendingRef {
+    return sentDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function sentValidateField<K extends keyof Sent>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function sentValidateField(): Array<{ field: string; message: string }> {
@@ -318,8 +345,10 @@ export const Sent: {
   readonly defaultValue: typeof sentDefaultValue;
   readonly encode: typeof sentEncode;
   readonly encodeWithContext: typeof sentEncodeWithContext;
+  readonly encodePartialWithContext: typeof sentEncodePartialWithContext;
   readonly decode: typeof sentDecode;
   readonly decodeWithContext: typeof sentDecodeWithContext;
+  readonly decodePartialWithContext: typeof sentDecodePartialWithContext;
   readonly validateField: typeof sentValidateField;
   readonly validateFields: typeof sentValidateFields;
   readonly hasShape: typeof sentHasShape;
@@ -330,8 +359,10 @@ export const Sent: {
   defaultValue: sentDefaultValue,
   encode: sentEncode,
   encodeWithContext: sentEncodeWithContext,
+  encodePartialWithContext: sentEncodePartialWithContext,
   decode: sentDecode,
   decodeWithContext: sentDecodeWithContext,
+  decodePartialWithContext: sentDecodePartialWithContext,
   validateField: sentValidateField,
   validateFields: sentValidateFields,
   hasShape: sentHasShape,
@@ -352,6 +383,8 @@ export declare function sentDefaultValue(): Sent;
 export declare function sentEncode(value: Sent, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function sentEncodeWithContext(value: Sent, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function sentEncodePartialWithContext(value: Partial<Sent>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Sent>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function sentDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -365,6 +398,10 @@ export declare function sentDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Sent | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function sentDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Sent> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function sentDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Sent>): Partial<Sent> | __mf_PendingRef;
 export declare function sentValidateField<K extends keyof Sent>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -414,8 +451,10 @@ export declare const Sent: {
 	readonly defaultValue: typeof sentDefaultValue;
 	readonly encode: typeof sentEncode;
 	readonly encodeWithContext: typeof sentEncodeWithContext;
+	readonly encodePartialWithContext: typeof sentEncodePartialWithContext;
 	readonly decode: typeof sentDecode;
 	readonly decodeWithContext: typeof sentDecodeWithContext;
+	readonly decodePartialWithContext: typeof sentDecodePartialWithContext;
 	readonly validateField: typeof sentValidateField;
 	readonly validateFields: typeof sentValidateFields;
 	readonly hasShape: typeof sentHasShape;
@@ -430,15 +469,15 @@ export declare const Sent: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..190 -> expanded 479..562
-original 190..191 -> expanded 11275..11276
-generated 0..421 <- imports
-generated 562..675 <- Default
-generated 675..1799 <- Encode
-generated 1799..6011 <- Decode
-generated 6011..10381 <- Gigaform
-generated 10381..11275 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..190 -> expanded 700..783
+original 190..191 -> expanded 14191..14192
+generated 0..642 <- imports
+generated 783..896 <- Default
+generated 896..2840 <- Encode
+generated 2840..8663 <- Decode
+generated 8663..13033 <- Gigaform
+generated 13033..14191 <- __convenience_const
 
 ## Metadata
 
