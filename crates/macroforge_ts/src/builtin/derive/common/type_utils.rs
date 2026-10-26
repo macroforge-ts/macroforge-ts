@@ -4,8 +4,8 @@ use super::value_type::rendered;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
-    FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
-    resolve_generic_aliases, split_top_level_union,
+    EnumVariantIR, FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
+    resolve_generic_aliases, split_top_level_commas, split_top_level_union,
 };
 use crate::ts_syn::{TsStream, ts_ident};
 
@@ -123,11 +123,46 @@ pub fn is_numeric_type(ts_type: &str) -> bool {
     matches!(ts_type.trim(), "number" | "bigint")
 }
 
-/// Check if a TypeScript type is nullable (contains `| null` or `| undefined`)
-/// Like Rust's Option<T>, these types default to null.
+/// Check if a TypeScript type is nullable: a union with `null` or `undefined`
+/// among its own members. A collection of nullable elements is not.
 pub fn is_nullable_type(ts_type: &str) -> bool {
-    let normalized = ts_type.replace(' ', "");
-    normalized.contains("|null") || normalized.contains("|undefined")
+    has_union_member(ts_type, "null") || has_union_member(ts_type, "undefined")
+}
+
+/// Whether `ts_type` is a union with `member` among its own members.
+fn has_union_member(ts_type: &str, member: &str) -> bool {
+    split_top_level_union(ts_type.trim()).is_some_and(|parts| parts.contains(&member))
+}
+
+/// Which kinds of value an enum's members have, so a generator emits only the
+/// branches the enum's type has values for.
+pub struct EnumValueKinds {
+    /// A member with a string literal value.
+    pub strings: bool,
+    /// A member with a numeric value: a literal, an auto-incremented one, or
+    /// a computed one, which TypeScript types as a number.
+    pub numbers: bool,
+}
+
+impl EnumValueKinds {
+    pub fn of(variants: &[EnumVariantIR]) -> Self {
+        Self {
+            strings: variants.iter().any(|variant| variant.value.is_string()),
+            numbers: variants.iter().any(|variant| !variant.value.is_string()),
+        }
+    }
+}
+
+/// A runtime test that `value` is of the primitive type `keyword` names:
+/// `typeof` where the keyword is its own `typeof` result, and identity for
+/// `null` and `undefined`, which have no `typeof` of their own name.
+pub fn primitive_keyword_test(keyword: &str, value: &str) -> String {
+    let keyword = keyword.trim();
+    if matches!(keyword, "null" | "undefined") {
+        return rendered(ts_template! { @{value} === @{keyword} });
+    }
+    let kind = super::js_string(keyword);
+    rendered(ts_template! { typeof @{value} === @{kind} })
 }
 
 /// Check if a type name contains generic parameters (e.g., "RecordLink<Service>")
@@ -277,9 +312,30 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         return rendered(ts_template! { @{callee}() });
     }
 
-    // Nullable first (like Rust's Option::default() -> None)
-    if is_nullable_type(t) {
+    // Nullable first, like Rust's `Option::default()`: the absent value the
+    // type itself has.
+    if has_union_member(t, "null") {
         return "null".to_string();
+    }
+    if has_union_member(t, "undefined") {
+        return "undefined".to_string();
+    }
+
+    // A tuple of fixed length defaults element by element. One with an
+    // optional or rest element defaults to its required prefix.
+    if let Some(elements) = t
+        .strip_prefix('[')
+        .and_then(|inner| inner.strip_suffix(']'))
+    {
+        let defaults: Vec<String> = split_top_level_commas(elements)
+            .into_iter()
+            .filter(|source| !source.is_empty())
+            .map(tuple_element)
+            .take_while(|element| !element.rest && !element.optional)
+            .map(|element| get_type_default_resolved(element.ts_type))
+            .collect();
+        let defaults = defaults.join(", ");
+        return rendered(ts_template! { [@{defaults}] });
     }
 
     // Object literal types: { [key: string]: number }, { foo: string }, etc.
@@ -320,8 +376,8 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         "bigint" => "0n".to_string(),
         t if t.ends_with("[]") => "[]".to_string(),
         t if t.starts_with("Array<") => "[]".to_string(),
-        t if t.starts_with("Map<") => "new Map()".to_string(),
-        t if t.starts_with("Set<") => "new Set()".to_string(),
+        t if t.starts_with("Map<") || t.starts_with("ReadonlyMap<") => "new Map()".to_string(),
+        t if t.starts_with("Set<") || t.starts_with("ReadonlySet<") => "new Set()".to_string(),
         // Builtin object types
         "Date" => "new Date()".to_string(),
         "RegExp" => "new RegExp(\"\")".to_string(),

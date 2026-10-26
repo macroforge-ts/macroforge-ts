@@ -254,6 +254,17 @@ function cloneWithin(value: unknown, seen: Map<object, unknown>): unknown {
 }
 
 /**
+ * A new object with `value`'s prototype and `fields` as its own properties:
+ * an instance of `value`'s class, made without running its constructor.
+ */
+export function instanceWith<T extends object>(
+  value: T,
+  fields: { [Key in keyof T]?: T[Key] | undefined },
+): T {
+  return Object.assign(Object.create(Object.getPrototypeOf(value)), fields);
+}
+
+/**
  * A readable rendering for `Debug`: derived classes by their own `toString`,
  * primitives and built-ins as `String` renders them, collections and objects
  * by their contents. A cycle renders as `[Circular]`.

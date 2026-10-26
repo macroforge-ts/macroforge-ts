@@ -16,8 +16,8 @@ import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPe
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
 import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
 import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -77,42 +77,128 @@ export function userDefaultValue(): User {
 export function userEncode(value: User, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = userEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return userEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "User",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.email = __foreign__optionOptionEncode(value.email);
-    result.firstName = value.firstName;
-    result.lastName = value.lastName;
-    result.password = __foreign__optionOptionEncode(value.password);
-    result.metadata = __foreign__optionOptionEncode(value.metadata);
-    result.settings = settingsEncodeWithContext(value.settings, ctx);
-    result.role = userRoleEncodeWithContext(value.role, ctx);
-    result.emailVerified = value.emailVerified;
-    result.verificationToken = __foreign__optionOptionEncode(value.verificationToken);
-    result.verificationExpires = __foreign__optionOptionEncode(value.verificationExpires);
-    result.passwordResetToken = __foreign__optionOptionEncode(value.passwordResetToken);
-    result.passwordResetExpires = __foreign__optionOptionEncode(value.passwordResetExpires);
-    result.permissions = appPermissionsEncodeWithContext(value.permissions, ctx);
-    result.createdAt = __foreign__dateTimeDateTimeEncode(value.createdAt);
-    result.lastLoginAt = __foreign__optionOptionEncode(value.lastLoginAt);
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("email")) {
+
+        if (value.email !== undefined) {
+            result.email = __foreign__optionOptionEncode(value.email);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("firstName")) {
+
+        if (value.firstName !== undefined) {
+            result.firstName = value.firstName;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lastName")) {
+
+        if (value.lastName !== undefined) {
+            result.lastName = value.lastName;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("password")) {
+
+        if (value.password !== undefined) {
+            result.password = __foreign__optionOptionEncode(value.password);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("metadata")) {
+
+        if (value.metadata !== undefined) {
+            result.metadata = __foreign__optionOptionEncode(value.metadata);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("settings")) {
+
+        if (value.settings !== undefined) {
+            result.settings = settingsEncodeWithContext(value.settings, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("role")) {
+
+        if (value.role !== undefined) {
+            result.role = userRoleEncodeWithContext(value.role, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("emailVerified")) {
+
+        if (value.emailVerified !== undefined) {
+            result.emailVerified = value.emailVerified;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("verificationToken")) {
+
+        if (value.verificationToken !== undefined) {
+            result.verificationToken = __foreign__optionOptionEncode(value.verificationToken);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("verificationExpires")) {
+
+        if (value.verificationExpires !== undefined) {
+            result.verificationExpires = __foreign__optionOptionEncode(value.verificationExpires);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("passwordResetToken")) {
+
+        if (value.passwordResetToken !== undefined) {
+            result.passwordResetToken = __foreign__optionOptionEncode(value.passwordResetToken);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("passwordResetExpires")) {
+
+        if (value.passwordResetExpires !== undefined) {
+            result.passwordResetExpires = __foreign__optionOptionEncode(value.passwordResetExpires);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("permissions")) {
+
+        if (value.permissions !== undefined) {
+            result.permissions = appPermissionsEncodeWithContext(value.permissions, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("createdAt")) {
+
+        if (value.createdAt !== undefined) {
+            result.createdAt = __foreign__dateTimeDateTimeEncode(value.createdAt);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lastLoginAt")) {
+
+        if (value.lastLoginAt !== undefined) {
+            result.lastLoginAt = __foreign__optionOptionEncode(value.lastLoginAt);
+        }
+    }
 
     return result;
 }
@@ -171,7 +257,13 @@ export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef {
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<User> | __mf_PendingRef;
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<User> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
@@ -185,64 +277,64 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("email" in obj)) {
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    if (!("firstName" in obj)) {
+    if ((__fields === undefined || __fields.requires("firstName")) && !("firstName" in obj)) {
         errors.push({ field: "firstName", message: "missing required field" });
     }
-    if (!("lastName" in obj)) {
+    if ((__fields === undefined || __fields.requires("lastName")) && !("lastName" in obj)) {
         errors.push({ field: "lastName", message: "missing required field" });
     }
-    if (!("password" in obj)) {
+    if ((__fields === undefined || __fields.requires("password")) && !("password" in obj)) {
         errors.push({ field: "password", message: "missing required field" });
     }
-    if (!("metadata" in obj)) {
+    if ((__fields === undefined || __fields.requires("metadata")) && !("metadata" in obj)) {
         errors.push({ field: "metadata", message: "missing required field" });
     }
-    if (!("settings" in obj)) {
+    if ((__fields === undefined || __fields.requires("settings")) && !("settings" in obj)) {
         errors.push({ field: "settings", message: "missing required field" });
     }
-    if (!("role" in obj)) {
+    if ((__fields === undefined || __fields.requires("role")) && !("role" in obj)) {
         errors.push({ field: "role", message: "missing required field" });
     }
-    if (!("emailVerified" in obj)) {
+    if ((__fields === undefined || __fields.requires("emailVerified")) && !("emailVerified" in obj)) {
         errors.push({ field: "emailVerified", message: "missing required field" });
     }
-    if (!("verificationToken" in obj)) {
+    if ((__fields === undefined || __fields.requires("verificationToken")) && !("verificationToken" in obj)) {
         errors.push({ field: "verificationToken", message: "missing required field" });
     }
-    if (!("verificationExpires" in obj)) {
+    if ((__fields === undefined || __fields.requires("verificationExpires")) && !("verificationExpires" in obj)) {
         errors.push({ field: "verificationExpires", message: "missing required field" });
     }
-    if (!("passwordResetToken" in obj)) {
+    if ((__fields === undefined || __fields.requires("passwordResetToken")) && !("passwordResetToken" in obj)) {
         errors.push({ field: "passwordResetToken", message: "missing required field" });
     }
-    if (!("passwordResetExpires" in obj)) {
+    if ((__fields === undefined || __fields.requires("passwordResetExpires")) && !("passwordResetExpires" in obj)) {
         errors.push({ field: "passwordResetExpires", message: "missing required field" });
     }
-    if (!("permissions" in obj)) {
+    if ((__fields === undefined || __fields.requires("permissions")) && !("permissions" in obj)) {
         errors.push({ field: "permissions", message: "missing required field" });
     }
-    if (!("createdAt" in obj)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
         errors.push({ field: "createdAt", message: "missing required field" });
     }
-    if (!("lastLoginAt" in obj)) {
+    if ((__fields === undefined || __fields.requires("lastLoginAt")) && !("lastLoginAt" in obj)) {
         errors.push({ field: "lastLoginAt", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -251,12 +343,14 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.id = __raw_id;
         }
     }
-    try {
-        instance.email = __foreign__optionOptionDecode(obj["email"]);
-    } catch (__error) {
-        errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+        try {
+            instance.email = __foreign__optionOptionDecode(obj["email"]);
+        } catch (__error) {
+            errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    {
+    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
         const __raw_firstName = obj["firstName"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -268,7 +362,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.firstName = __raw_firstName;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("lastName")) || (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
         const __raw_lastName = obj["lastName"] as string;
 
         if (!(typeof __raw_lastName === "string")) {
@@ -280,17 +374,21 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.lastName = __raw_lastName;
         }
     }
-    try {
-        instance.password = __foreign__optionOptionDecode(obj["password"]);
-    } catch (__error) {
-        errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("password")) || (__fields.keeps("password") && obj["password"] !== undefined)) {
+        try {
+            instance.password = __foreign__optionOptionDecode(obj["password"]);
+        } catch (__error) {
+            errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    try {
-        instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
-    } catch (__error) {
-        errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+        try {
+            instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
+        } catch (__error) {
+            errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    {
+    if ((__fields === undefined || __fields.requires("settings")) || (__fields.keeps("settings") && obj["settings"] !== undefined)) {
         const __raw_settings = obj["settings"] as Settings;
 
         ctx.pushScope("settings");
@@ -312,7 +410,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("role")) || (__fields.keeps("role") && obj["role"] !== undefined)) {
         const __raw_role = obj["role"] as UserRole;
 
         ctx.pushScope("role");
@@ -334,7 +432,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("emailVerified")) || (__fields.keeps("emailVerified") && obj["emailVerified"] !== undefined)) {
         const __raw_emailVerified = obj["emailVerified"] as boolean;
 
         if (!(typeof __raw_emailVerified === "boolean")) {
@@ -343,27 +441,35 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.emailVerified = __raw_emailVerified;
         }
     }
-    try {
-        instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
-    } catch (__error) {
-        errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("verificationToken")) || (__fields.keeps("verificationToken") && obj["verificationToken"] !== undefined)) {
+        try {
+            instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
+        } catch (__error) {
+            errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    try {
-        instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
-    } catch (__error) {
-        errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("verificationExpires")) || (__fields.keeps("verificationExpires") && obj["verificationExpires"] !== undefined)) {
+        try {
+            instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
+        } catch (__error) {
+            errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    try {
-        instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
-    } catch (__error) {
-        errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("passwordResetToken")) || (__fields.keeps("passwordResetToken") && obj["passwordResetToken"] !== undefined)) {
+        try {
+            instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
+        } catch (__error) {
+            errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    try {
-        instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
-    } catch (__error) {
-        errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("passwordResetExpires")) || (__fields.keeps("passwordResetExpires") && obj["passwordResetExpires"] !== undefined)) {
+        try {
+            instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
+        } catch (__error) {
+            errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    {
+    if ((__fields === undefined || __fields.requires("permissions")) || (__fields.keeps("permissions") && obj["permissions"] !== undefined)) {
         const __raw_permissions = obj["permissions"] as AppPermissions;
 
         ctx.pushScope("permissions");
@@ -385,20 +491,29 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    try {
-        instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
-    } catch (__error) {
-        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+        try {
+            instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
+        } catch (__error) {
+            errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
-    try {
-        instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
-    } catch (__error) {
-        errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("lastLoginAt")) || (__fields.keeps("lastLoginAt") && obj["lastLoginAt"] !== undefined)) {
+        try {
+            instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
+        } catch (__error) {
+            errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
 
     ctx.pushErrors(errors);
 
     return instance as User;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function userDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof User>): Partial<User> | __mf_PendingRef {
+    return userDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function userValidateField<K extends keyof User>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1223,8 +1338,10 @@ export const User: {
   readonly defaultValue: typeof userDefaultValue;
   readonly encode: typeof userEncode;
   readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly encodePartialWithContext: typeof userEncodePartialWithContext;
   readonly decode: typeof userDecode;
   readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly decodePartialWithContext: typeof userDecodePartialWithContext;
   readonly validateField: typeof userValidateField;
   readonly validateFields: typeof userValidateFields;
   readonly hasShape: typeof userHasShape;
@@ -1235,8 +1352,10 @@ export const User: {
   defaultValue: userDefaultValue,
   encode: userEncode,
   encodeWithContext: userEncodeWithContext,
+  encodePartialWithContext: userEncodePartialWithContext,
   decode: userDecode,
   decodeWithContext: userDecodeWithContext,
+  decodePartialWithContext: userDecodePartialWithContext,
   validateField: userValidateField,
   validateFields: userValidateFields,
   hasShape: userHasShape,
@@ -1276,6 +1395,8 @@ export declare function userDefaultValue(): User;
 export declare function userEncode(value: User, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -1289,6 +1410,10 @@ export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<User> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function userDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof User>): Partial<User> | __mf_PendingRef;
 export declare function userValidateField<K extends keyof User>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -1380,8 +1505,10 @@ export declare const User: {
 	readonly defaultValue: typeof userDefaultValue;
 	readonly encode: typeof userEncode;
 	readonly encodeWithContext: typeof userEncodeWithContext;
+	readonly encodePartialWithContext: typeof userEncodePartialWithContext;
 	readonly decode: typeof userDecode;
 	readonly decodeWithContext: typeof userDecodeWithContext;
+	readonly decodePartialWithContext: typeof userDecodePartialWithContext;
 	readonly validateField: typeof userValidateField;
 	readonly validateFields: typeof userValidateFields;
 	readonly hasShape: typeof userHasShape;
@@ -1396,18 +1523,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..325 -> expanded 990..1315
-original 374..453 -> expanded 1315..1394
-original 494..522 -> expanded 1394..1422
-original 563..690 -> expanded 1422..1549
-original 722..1102 -> expanded 1549..1929
-original 1102..1103 -> expanded 49336..49337
-generated 0..990 <- imports
-generated 1929..2725 <- Default
-generated 2725..4852 <- Encode
-generated 4852..18102 <- Decode
-generated 18102..48442 <- Gigaform
-generated 48442..49336 <- __convenience_const
+original 0..325 -> expanded 1211..1536
+original 374..453 -> expanded 1536..1615
+original 494..522 -> expanded 1615..1643
+original 563..690 -> expanded 1643..1770
+original 722..1102 -> expanded 1770..2150
+original 1102..1103 -> expanded 57306..57307
+generated 0..1211 <- imports
+generated 2150..2946 <- Default
+generated 2946..7841 <- Encode
+generated 7841..25808 <- Decode
+generated 25808..56148 <- Gigaform
+generated 56148..57306 <- __convenience_const
 
 ## Metadata
 

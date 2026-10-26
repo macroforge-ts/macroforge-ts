@@ -23,8 +23,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 interface UserProfile {
     
@@ -91,7 +91,13 @@ export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { 
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef {
+export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<UserProfile> | __mf_PendingRef;
+export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<UserProfile> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserProfile.decodeWithContext: __ref must be a number" }]);
@@ -105,22 +111,22 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("email" in obj)) {
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    if (!("username" in obj)) {
+    if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
         errors.push({ field: "username", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -132,7 +138,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.email = __raw_email;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("username")) || (__fields.keeps("username") && obj["username"] !== undefined)) {
         const __raw_username = obj["username"] as string;
 
         if (!(typeof __raw_username === "string")) {
@@ -145,22 +151,29 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.username = __raw_username;
         }
     }
-    if ("age" in obj && obj["age"] !== undefined) {
-        const __raw_age = obj["age"] as number;
+    if ((__fields === undefined || __fields.keeps("age"))) {
+        if (("age" in obj && obj["age"] !== undefined)) {
+            const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
-            errors.push({ field: "age", message: "expected number" });
-        } else {
-            if (__raw_age != null) {
-                if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+            if (!(typeof __raw_age === "number")) {
+                errors.push({ field: "age", message: "expected number" });
+            } else {
+                if (__raw_age != null) {
+                    if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+                }
+                instance.age = __raw_age;
             }
-            instance.age = __raw_age;
         }
     }
 
     ctx.pushErrors(errors);
 
     return instance as UserProfile;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function userProfileDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof UserProfile>): Partial<UserProfile> | __mf_PendingRef {
+    return userProfileDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function userProfileValidateField<K extends keyof UserProfile>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -224,6 +237,7 @@ export function userProfileIs(obj: unknown): obj is UserProfile {
 const UserProfile: {
   readonly decode: typeof userProfileDecode;
   readonly decodeWithContext: typeof userProfileDecodeWithContext;
+  readonly decodePartialWithContext: typeof userProfileDecodePartialWithContext;
   readonly validateField: typeof userProfileValidateField;
   readonly validateFields: typeof userProfileValidateFields;
   readonly hasShape: typeof userProfileHasShape;
@@ -231,6 +245,7 @@ const UserProfile: {
 } = {
   decode: userProfileDecode,
   decodeWithContext: userProfileDecodeWithContext,
+  decodePartialWithContext: userProfileDecodePartialWithContext,
   validateField: userProfileValidateField,
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
@@ -257,6 +272,10 @@ export declare function userProfileDecode(input: unknown, opts?: __mf_DecodeOpti
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<UserProfile> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function userProfileDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof UserProfile>): Partial<UserProfile> | __mf_PendingRef;
 export declare function userProfileValidateField<K extends keyof UserProfile>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -275,14 +294,14 @@ export {};
 
 ## Mapping
 
-original 22..51 -> expanded 225..254
-original 71..96 -> expanded 254..279
-original 138..166 -> expanded 279..307
-original 189..209 -> expanded 307..327
-original 209..210 -> expanded 8664..8665
-generated 0..225 <- imports
-generated 327..8094 <- Decode
-generated 8094..8664 <- __convenience_const
+original 22..51 -> expanded 350..379
+original 71..96 -> expanded 379..404
+original 138..166 -> expanded 404..432
+original 189..209 -> expanded 432..452
+original 209..210 -> expanded 10714..10715
+generated 0..350 <- imports
+generated 452..9998 <- Decode
+generated 9998..10714 <- __convenience_const
 
 ## Metadata
 

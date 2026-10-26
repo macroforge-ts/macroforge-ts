@@ -185,19 +185,30 @@ function ensureTypeScript() {
         process.cwd() + '/',
         import.meta.url
     ];
+    /** @type {string | undefined} */
+    let versionWithoutCompilerApi;
     for (const root of roots) {
+        /** @type {typeof import('typescript')} */
+        let candidate;
         try {
-            const req = createRequire(root);
-            tsModule = req('typescript');
-            return tsModule;
+            candidate = createRequire(root)('typescript');
         } catch {
             // continue to next root
+            continue;
         }
+        // TypeScript 7's package ships only the native compiler.
+        if (typeof candidate.createProgram === 'function') {
+            tsModule = candidate;
+            return tsModule;
+        }
+        versionWithoutCompilerApi ??= candidate.version;
     }
 
     tsModule = undefined;
     console.warn(
-        '[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped.'
+        versionWithoutCompilerApi === undefined
+            ? '[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped.'
+            : `[@macroforge/vite-plugin] TypeScript ${versionWithoutCompilerApi} has no compiler API (it ships with typescript 5 and 6). Generated .d.ts files will be skipped.`
     );
     return tsModule;
 }
@@ -952,22 +963,27 @@ export async function macroforge() {
     }
 
     /**
-     * Resolves the on-disk `.cache` path for a source file's project-relative
-     * path. Sources outside the project root (e.g. a shared library pulled in
-     * from a sibling directory) yield a relPath with leading `..` segments; a
-     * naive `path.join(cacheDir, relPath)` then climbs out of the cache dir and
-     * scatters `.cache` files into a sibling tree. Fold any escape into a
-     * contained `_external/` subdir so every entry stays under cacheDir. In-root
-     * sources (no `..`) keep their existing layout, so their cache is untouched.
+     * A project-relative path as a path inside an output directory. A source
+     * outside the project root, such as a shared library in a sibling
+     * directory, has leading `..` segments that would climb out of it, so it
+     * is kept under `_external/` instead.
+     * @param {string} relPath - `path.relative(projectRoot, id)`
+     * @returns {string}
+     */
+    function containedPath(relPath) {
+        const segments = relPath.split(path.sep);
+        return segments[0] === '..'
+            ? path.join('_external', ...segments.filter((segment) => segment !== '..'))
+            : relPath;
+    }
+
+    /**
+     * The on-disk `.cache` path for a source file's project-relative path.
      * @param {string} relPath - `path.relative(projectRoot, id)`
      * @returns {string} absolute path to the `.cache` file
      */
     function cachePathFor(relPath) {
-        const segments = relPath.split(path.sep);
-        const contained = segments[0] === '..'
-            ? path.join('_external', ...segments.filter((s) => s !== '..'))
-            : relPath;
-        return path.join(cacheDir, contained + '.cache');
+        return path.join(cacheDir, containedPath(relPath) + '.cache');
     }
 
     /**
@@ -1135,7 +1151,7 @@ export async function macroforge() {
      * @returns {string}
      */
     function typesPathFor(id) {
-        const parsed = path.parse(path.relative(projectRoot, id));
+        const parsed = path.parse(containedPath(path.relative(projectRoot, id)));
         return path.join(projectRoot, typesOutputDir, parsed.dir, `${parsed.name}.d.ts`);
     }
 
@@ -1176,7 +1192,7 @@ export async function macroforge() {
      */
     function writeMetadata(id, metadata) {
         const relativePath = path.relative(projectRoot, id);
-        const parsed = path.parse(relativePath);
+        const parsed = path.parse(containedPath(relativePath));
         const outputBase = path.join(projectRoot, metadataOutputDir, parsed.dir);
         ensureDir(outputBase);
         const targetPath = path.join(outputBase, `${parsed.name}.macro-ir.json`);

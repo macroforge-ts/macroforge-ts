@@ -1,6 +1,14 @@
 use super::*;
 use crate::ts_syn::abi::DiagnosticLevel;
 
+/// The body of the generated function `name`: what follows its last
+/// signature, past any overloads, up to the next exported function.
+fn function_body<'a>(code: &'a str, name: &str) -> &'a str {
+    code.rsplit_once(&format!("export function {name}("))
+        .and_then(|(_, rest)| rest.split("export function").next())
+        .unwrap_or_default()
+}
+
 #[test]
 fn test_derive_encode_dts_output() {
     let source = r#"
@@ -490,12 +498,7 @@ export interface Crew {
         result.diagnostics
     );
 
-    let crew_encoder = result
-        .code
-        .split("export function crewEncodeWithContext")
-        .nth(1)
-        .and_then(|rest| rest.split("export function").next())
-        .unwrap_or_default();
+    let crew_encoder = function_body(&result.code, "crewEncodePartialWithContext");
     assert_eq!(
         crew_encoder.matches("memberEncodeWithContext(").count(),
         2,
@@ -520,12 +523,7 @@ export interface Crew {
         );
     }
 
-    let crew_decoder = result
-        .code
-        .split("export function crewDecodeWithContext")
-        .nth(1)
-        .and_then(|rest| rest.split("export function").next())
-        .unwrap_or_default();
+    let crew_decoder = function_body(&result.code, "crewDecodeWithContext");
     assert!(
         crew_decoder.contains("memberDecode"),
         "a member should go through its own decoder. Got:\n{}",
@@ -628,16 +626,19 @@ export interface Crew {
         result.diagnostics
     );
 
-    let crew_encoder = result
-        .code
-        .split("export function crewEncodeWithContext")
-        .nth(1)
-        .and_then(|rest| rest.split("export function").next())
-        .unwrap_or_default();
+    let crew_encoder = function_body(&result.code, "crewEncodePartialWithContext");
     assert_eq!(
         crew_encoder.matches("memberEncodeWithContext(").count(),
-        3,
-        "the lead, each member and the draft should be encoded. Got:\n{}",
+        2,
+        "the lead and each member should be encoded. Got:\n{}",
+        result.code
+    );
+    assert_eq!(
+        crew_encoder
+            .matches("memberEncodePartialWithContext(")
+            .count(),
+        1,
+        "the draft should be encoded by the fields it has. Got:\n{}",
         result.code
     );
     for field in ["members", "draft"] {
@@ -648,12 +649,7 @@ export interface Crew {
         );
     }
 
-    let crew_decoder = result
-        .code
-        .split("export function crewDecodeWithContext")
-        .nth(1)
-        .and_then(|rest| rest.split("export function").next())
-        .unwrap_or_default();
+    let crew_decoder = function_body(&result.code, "crewDecodeWithContext");
     for field in ["lead", "since", "members"] {
         assert!(
             crew_decoder.contains(&format!("instance.{field} = undefined;")),

@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -49,31 +49,62 @@ export function phoneNumberDefaultValue(): PhoneNumber {
 export function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = phoneNumberEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return phoneNumberEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "PhoneNumber",
         __id,
     };
 
-    
-    result.main = value.main;
-    result.phoneType = value.phoneType;
-    result.number = value.number;
-    result.canText = value.canText;
-    result.canCall = value.canCall;
+    if (__fields === undefined || __fields.keeps("main")) {
+
+        if (value.main !== undefined) {
+            result.main = value.main;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("phoneType")) {
+
+        if (value.phoneType !== undefined) {
+            result.phoneType = value.phoneType;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("number")) {
+
+        if (value.number !== undefined) {
+            result.number = value.number;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("canText")) {
+
+        if (value.canText !== undefined) {
+            result.canText = value.canText;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("canCall")) {
+
+        if (value.canCall !== undefined) {
+            result.canCall = value.canCall;
+        }
+    }
 
     return result;
 }
@@ -132,7 +163,13 @@ export function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { 
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PhoneNumber | __mf_PendingRef {
+export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PhoneNumber | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<PhoneNumber> | __mf_PendingRef;
+export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<PhoneNumber> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "PhoneNumber.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PhoneNumber.decodeWithContext: __ref must be a number" }]);
@@ -146,31 +183,31 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("main" in obj)) {
+    if ((__fields === undefined || __fields.requires("main")) && !("main" in obj)) {
         errors.push({ field: "main", message: "missing required field" });
     }
-    if (!("phoneType" in obj)) {
+    if ((__fields === undefined || __fields.requires("phoneType")) && !("phoneType" in obj)) {
         errors.push({ field: "phoneType", message: "missing required field" });
     }
-    if (!("number" in obj)) {
+    if ((__fields === undefined || __fields.requires("number")) && !("number" in obj)) {
         errors.push({ field: "number", message: "missing required field" });
     }
-    if (!("canText" in obj)) {
+    if ((__fields === undefined || __fields.requires("canText")) && !("canText" in obj)) {
         errors.push({ field: "canText", message: "missing required field" });
     }
-    if (!("canCall" in obj)) {
+    if ((__fields === undefined || __fields.requires("canCall")) && !("canCall" in obj)) {
         errors.push({ field: "canCall", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("main")) || (__fields.keeps("main") && obj["main"] !== undefined)) {
         const __raw_main = obj["main"] as boolean;
 
         if (!(typeof __raw_main === "boolean")) {
@@ -179,7 +216,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.main = __raw_main;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("phoneType")) || (__fields.keeps("phoneType") && obj["phoneType"] !== undefined)) {
         const __raw_phoneType = obj["phoneType"] as string;
 
         if (!(typeof __raw_phoneType === "string")) {
@@ -191,7 +228,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.phoneType = __raw_phoneType;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("number")) || (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as string;
 
         if (!(typeof __raw_number === "string")) {
@@ -203,7 +240,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.number = __raw_number;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("canText")) || (__fields.keeps("canText") && obj["canText"] !== undefined)) {
         const __raw_canText = obj["canText"] as boolean;
 
         if (!(typeof __raw_canText === "boolean")) {
@@ -212,7 +249,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.canText = __raw_canText;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("canCall")) || (__fields.keeps("canCall") && obj["canCall"] !== undefined)) {
         const __raw_canCall = obj["canCall"] as boolean;
 
         if (!(typeof __raw_canCall === "boolean")) {
@@ -225,6 +262,11 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     ctx.pushErrors(errors);
 
     return instance as PhoneNumber;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function phoneNumberDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Partial<PhoneNumber> | __mf_PendingRef {
+    return phoneNumberDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function phoneNumberValidateField<K extends keyof PhoneNumber>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -496,8 +538,10 @@ export const PhoneNumber: {
   readonly defaultValue: typeof phoneNumberDefaultValue;
   readonly encode: typeof phoneNumberEncode;
   readonly encodeWithContext: typeof phoneNumberEncodeWithContext;
+  readonly encodePartialWithContext: typeof phoneNumberEncodePartialWithContext;
   readonly decode: typeof phoneNumberDecode;
   readonly decodeWithContext: typeof phoneNumberDecodeWithContext;
+  readonly decodePartialWithContext: typeof phoneNumberDecodePartialWithContext;
   readonly validateField: typeof phoneNumberValidateField;
   readonly validateFields: typeof phoneNumberValidateFields;
   readonly hasShape: typeof phoneNumberHasShape;
@@ -508,8 +552,10 @@ export const PhoneNumber: {
   defaultValue: phoneNumberDefaultValue,
   encode: phoneNumberEncode,
   encodeWithContext: phoneNumberEncodeWithContext,
+  encodePartialWithContext: phoneNumberEncodePartialWithContext,
   decode: phoneNumberDecode,
   decodeWithContext: phoneNumberDecodeWithContext,
+  decodePartialWithContext: phoneNumberDecodePartialWithContext,
   validateField: phoneNumberValidateField,
   validateFields: phoneNumberValidateFields,
   hasShape: phoneNumberHasShape,
@@ -533,6 +579,8 @@ export declare function phoneNumberDefaultValue(): PhoneNumber;
 export declare function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -546,6 +594,10 @@ export declare function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOpti
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PhoneNumber | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<PhoneNumber> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function phoneNumberDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Partial<PhoneNumber> | __mf_PendingRef;
 export declare function phoneNumberValidateField<K extends keyof PhoneNumber>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -604,8 +656,10 @@ export declare const PhoneNumber: {
 	readonly defaultValue: typeof phoneNumberDefaultValue;
 	readonly encode: typeof phoneNumberEncode;
 	readonly encodeWithContext: typeof phoneNumberEncodeWithContext;
+	readonly encodePartialWithContext: typeof phoneNumberEncodePartialWithContext;
 	readonly decode: typeof phoneNumberDecode;
 	readonly decodeWithContext: typeof phoneNumberDecodeWithContext;
+	readonly decodePartialWithContext: typeof phoneNumberDecodePartialWithContext;
 	readonly validateField: typeof phoneNumberValidateField;
 	readonly validateFields: typeof phoneNumberValidateFields;
 	readonly hasShape: typeof phoneNumberHasShape;
@@ -620,22 +674,22 @@ export declare const PhoneNumber: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..143 -> expanded 479..515
-original 186..210 -> expanded 515..539
-original 280..285 -> expanded 539..544
-original 326..354 -> expanded 544..572
-original 397..402 -> expanded 572..577
-original 443..468 -> expanded 577..602
-original 515..542 -> expanded 602..629
-original 589..613 -> expanded 629..653
-original 613..614 -> expanded 18994..18995
-generated 0..421 <- imports
-generated 653..845 <- Default
-generated 845..2113 <- Encode
-generated 2113..9818 <- Decode
-generated 9818..17939 <- Gigaform
-generated 17939..18994 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..143 -> expanded 700..736
+original 186..210 -> expanded 736..760
+original 280..285 -> expanded 760..765
+original 326..354 -> expanded 765..793
+original 397..402 -> expanded 793..798
+original 443..468 -> expanded 798..823
+original 515..542 -> expanded 823..850
+original 589..613 -> expanded 850..874
+original 613..614 -> expanded 22959..22960
+generated 0..642 <- imports
+generated 874..1066 <- Default
+generated 1066..3569 <- Encode
+generated 3569..13491 <- Decode
+generated 13491..21612 <- Gigaform
+generated 21612..22959 <- __convenience_const
 
 ## Metadata
 

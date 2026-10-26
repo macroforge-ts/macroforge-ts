@@ -16,7 +16,8 @@ use crate::builtin::derive::endec::value_kind::{
     EndecValueKind, classify_endec_value_kind, get_encodable_type_name,
 };
 use crate::builtin::derive::endec::{
-    EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, get_foreign_types,
+    EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, WrapperFields,
+    get_foreign_types,
 };
 
 /// Converts a field into a `DecodeField`, or `None` when the field is
@@ -142,6 +143,17 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         TypeCategory::Wrapper(inner) => encodable(inner),
         _ => None,
     };
+    let wrapper_fields = match &type_cat {
+        TypeCategory::Wrapper(_) => match WrapperFields::of(&resolved_ts_type) {
+            Some(Ok(fields)) => Some(fields),
+            Some(Err(message)) => {
+                diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+                None
+            }
+            None => None,
+        },
+        _ => None,
+    };
 
     // Whatever decodes the field is called as written, so a user expression
     // or a composite arrow is parenthesized here, once.
@@ -263,6 +275,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         map_value_encodable_type,
         record_value_encodable_type,
         wrapper_encodable_type,
+        wrapper_fields,
         union_guard,
         nullable_union_guard,
         array_elem_union_guard,

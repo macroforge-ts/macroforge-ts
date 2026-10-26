@@ -8,6 +8,7 @@ use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};
 
+use super::super::text::encoded_text_helper;
 use super::AliasEncode;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
 
@@ -38,14 +39,15 @@ pub(super) fn encode_primitive_alias(
         type_name.to_case(Case::Camel),
         generic_decl
     );
+    let encoded_text = encoded_text_helper();
     let mut result = ts_template! {
         /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation */
         export function @{fn_encode_decl}(value: @{full_type_ident}, keepMetadata?: boolean): string;
         export function @{fn_encode_decl}(value: @{full_type_ident}): string {
             {#if let Some(wire_encode) = &wire_encode}
-                return JSON.stringify(@{wire_encode}(value));
+                return @{encoded_text}(@{wire_encode}(value));
             {:else}
-                return JSON.stringify(value);
+                return @{encoded_text}(value);
             {/if}
         }
 

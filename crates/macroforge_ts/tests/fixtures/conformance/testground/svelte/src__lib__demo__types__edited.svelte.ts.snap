@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -39,29 +39,50 @@ export function editedDefaultValue(): Edited {
 export function editedEncode(value: Edited, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = editedEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return editedEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function editedEncodePartialWithContext(value: Partial<Edited>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Edited>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Edited",
         __id,
     };
 
-    
-    result.fieldName = value.fieldName;
-    result.oldValue = value.oldValue;
-    result.newValue = value.newValue;
+    if (__fields === undefined || __fields.keeps("fieldName")) {
+
+        if (value.fieldName !== undefined) {
+            result.fieldName = value.fieldName;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("oldValue")) {
+        if (value.oldValue !== undefined) {
+
+            result.oldValue = value.oldValue;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("newValue")) {
+        if (value.newValue !== undefined) {
+
+            result.newValue = value.newValue;
+        }
+    }
 
     return result;
 }
@@ -120,7 +141,13 @@ export function editedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Edited | __mf_PendingRef {
+export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Edited | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Edited> | __mf_PendingRef;
+export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Edited> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Edited.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Edited.decodeWithContext: __ref must be a number" }]);
@@ -134,25 +161,25 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("fieldName" in obj)) {
+    if ((__fields === undefined || __fields.requires("fieldName")) && !("fieldName" in obj)) {
         errors.push({ field: "fieldName", message: "missing required field" });
     }
-    if (!("oldValue" in obj)) {
+    if ((__fields === undefined || __fields.requires("oldValue")) && !("oldValue" in obj)) {
         errors.push({ field: "oldValue", message: "missing required field" });
     }
-    if (!("newValue" in obj)) {
+    if ((__fields === undefined || __fields.requires("newValue")) && !("newValue" in obj)) {
         errors.push({ field: "newValue", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("fieldName")) || (__fields.keeps("fieldName") && obj["fieldName"] !== undefined)) {
         const __raw_fieldName = obj["fieldName"] as string;
 
         if (!(typeof __raw_fieldName === "string")) {
@@ -164,7 +191,7 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
             instance.fieldName = __raw_fieldName;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("oldValue")) || (__fields.keeps("oldValue") && obj["oldValue"] !== undefined)) {
         const __raw_oldValue = obj["oldValue"] as string | null;
 
         if (!(typeof __raw_oldValue === "string" || __raw_oldValue === null)) {
@@ -173,7 +200,7 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
             instance.oldValue = __raw_oldValue;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("newValue")) || (__fields.keeps("newValue") && obj["newValue"] !== undefined)) {
         const __raw_newValue = obj["newValue"] as string | null;
 
         if (!(typeof __raw_newValue === "string" || __raw_newValue === null)) {
@@ -186,6 +213,11 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     ctx.pushErrors(errors);
 
     return instance as Edited;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function editedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Edited>): Partial<Edited> | __mf_PendingRef {
+    return editedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function editedValidateField<K extends keyof Edited>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -378,8 +410,10 @@ export const Edited: {
   readonly defaultValue: typeof editedDefaultValue;
   readonly encode: typeof editedEncode;
   readonly encodeWithContext: typeof editedEncodeWithContext;
+  readonly encodePartialWithContext: typeof editedEncodePartialWithContext;
   readonly decode: typeof editedDecode;
   readonly decodeWithContext: typeof editedDecodeWithContext;
+  readonly decodePartialWithContext: typeof editedDecodePartialWithContext;
   readonly validateField: typeof editedValidateField;
   readonly validateFields: typeof editedValidateFields;
   readonly hasShape: typeof editedHasShape;
@@ -390,8 +424,10 @@ export const Edited: {
   defaultValue: editedDefaultValue,
   encode: editedEncode,
   encodeWithContext: editedEncodeWithContext,
+  encodePartialWithContext: editedEncodePartialWithContext,
   decode: editedDecode,
   decodeWithContext: editedDecodeWithContext,
+  decodePartialWithContext: editedDecodePartialWithContext,
   validateField: editedValidateField,
   validateFields: editedValidateFields,
   hasShape: editedHasShape,
@@ -413,6 +449,8 @@ export declare function editedDefaultValue(): Edited;
 export declare function editedEncode(value: Edited, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function editedEncodePartialWithContext(value: Partial<Edited>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Edited>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function editedDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -426,6 +464,10 @@ export declare function editedDecode(input: unknown, opts?: __mf_DecodeOptions):
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Edited | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Edited> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function editedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Edited>): Partial<Edited> | __mf_PendingRef;
 export declare function editedValidateField<K extends keyof Edited>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -478,8 +520,10 @@ export declare const Edited: {
 	readonly defaultValue: typeof editedDefaultValue;
 	readonly encode: typeof editedEncode;
 	readonly encodeWithContext: typeof editedEncodeWithContext;
+	readonly encodePartialWithContext: typeof editedEncodePartialWithContext;
 	readonly decode: typeof editedDecode;
 	readonly decodeWithContext: typeof editedDecodeWithContext;
+	readonly decodePartialWithContext: typeof editedDecodePartialWithContext;
 	readonly validateField: typeof editedValidateField;
 	readonly validateFields: typeof editedValidateFields;
 	readonly hasShape: typeof editedHasShape;
@@ -494,16 +538,16 @@ export declare const Edited: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..138 -> expanded 479..510
-original 179..262 -> expanded 510..593
-original 262..263 -> expanded 14148..14149
-generated 0..421 <- imports
-generated 593..734 <- Default
-generated 734..1912 <- Encode
-generated 1912..7616 <- Decode
-generated 7616..13208 <- Gigaform
-generated 13208..14148 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..138 -> expanded 700..731
+original 179..262 -> expanded 731..814
+original 262..263 -> expanded 17432..17433
+generated 0..642 <- imports
+generated 814..955 <- Default
+generated 955..3098 <- Encode
+generated 3098..10628 <- Decode
+generated 10628..16220 <- Gigaform
+generated 16220..17432 <- __convenience_const
 
 ## Metadata
 

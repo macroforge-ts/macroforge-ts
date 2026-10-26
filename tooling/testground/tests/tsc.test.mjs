@@ -9,6 +9,9 @@
  */
 
 import { assertEquals, assertStringIncludes } from '@std/assert';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { runCli, vanillaRoot } from './test-utils.mjs';
 
 // ============================================================================
@@ -77,5 +80,36 @@ Deno.test('tsc: type-checks with default tsconfig', () => {
                 nonSvelteErrors.join('\n')
             }`
         );
+    }
+});
+
+// ============================================================================
+// TypeScript without a compiler API
+// ============================================================================
+
+Deno.test('tsc: a typescript package without the compiler API is rejected by name', () => {
+    const project = mkdtempSync(join(tmpdir(), 'macroforge-tsc-native-'));
+    try {
+        writeFileSync(join(project, 'package.json'), '{ "name": "native-typescript" }');
+        writeFileSync(join(project, 'tsconfig.json'), '{ "include": ["src"] }');
+        // The main module of typescript 7: a version and nothing to compile with.
+        const typescript = join(project, 'node_modules', 'typescript');
+        mkdirSync(typescript, { recursive: true });
+        writeFileSync(
+            join(typescript, 'package.json'),
+            '{ "name": "typescript", "version": "7.0.2", "main": "version.cjs" }'
+        );
+        writeFileSync(
+            join(typescript, 'version.cjs'),
+            'exports.version = "7.0.2";\nexports.versionMajorMinor = "7.0";\n'
+        );
+
+        const result = runCli(['tsc'], { cwd: project });
+
+        assertEquals(result.status, 1, `should fail. stderr: ${result.stderr}`);
+        assertStringIncludes(result.stderr, 'typescript 7.0.2 in this project has no compiler API');
+        assertStringIncludes(result.stderr, 'needs typescript 5 or 6');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
     }
 });

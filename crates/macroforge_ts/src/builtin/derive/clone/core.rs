@@ -6,9 +6,11 @@ use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::{
     field_value_type, fixed_tuple, is_primitive_union, js_string, rendered, structural_call,
+    structural_helper,
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::abi::ir::TypeBody;
+use crate::ts_syn::abi::ir::class::FieldIR;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
@@ -20,8 +22,8 @@ use super::clone_generation::{generate_clone_expr, generate_value_clone, tuple_c
 /// This macro implementation handles four TypeScript data types:
 ///
 /// - **Classes**: Generates a static `clone(value)` wrapper method plus a standalone
-///   `{className}Clone` function that creates a new object via `Object.create()`
-///   and copies all fields
+///   `{className}Clone` function that copies all fields onto a new object with
+///   the value's prototype, without running the constructor
 /// - **Enums**: Generates a standalone function that returns the value unchanged
 /// - **Interfaces**: Generates a standalone function that creates a new object literal
 /// - **Type Aliases**: Generates a standalone function with appropriate copying strategy
@@ -58,27 +60,18 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let fn_name_ident = class_names.generic_function("Clone");
             let fn_name_expr: Expr = ts_ident!(class_names.function("Clone")).into();
 
-            // Generate type-aware clone assignments
-            let mut assignments = Vec::new();
-            for field in class.fields() {
-                let resolved = resolved_fields.and_then(|rf| rf.get(&field.name));
-                let expr = generate_clone_expr(
-                    &field.name,
-                    &field_value_type(&field.ts_type, field.optional),
-                    "value",
-                    resolved,
-                    type_registry,
-                );
-                assignments.push(ts_template! { cloned.@{&field.name} = @{expr}; });
-            }
-            let clone_body = TsStream::merge_all(assignments);
+            let literal = object_clone_literal(
+                class.fields().iter().map(CloneField::from),
+                resolved_fields,
+                type_registry,
+            );
+            let fields = parse_clone_expr(&literal, &input)?;
+            let instance_with: Expr = ts_ident!(structural_helper("instanceWith")).into();
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
                 export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    {$typescript clone_body}
-                    return cloned;
+                    return @{instance_with}(value, @{fields});
                 }
             };
 
@@ -108,7 +101,11 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let interface_ident = interface_names.full_type_ident();
             let fn_name_ident = interface_names.generic_function("Clone");
 
-            let literal = object_clone_literal(interface.fields(), resolved_fields, type_registry);
+            let literal = object_clone_literal(
+                interface.fields().iter().map(CloneField::from),
+                resolved_fields,
+                type_registry,
+            );
             let clone = parse_clone_expr(&literal, &input)?;
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{interface_ident}): @{interface_ident} {
@@ -124,8 +121,11 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 crate::builtin::derive::common::get_effective_fields(type_alias, type_registry);
             if let Some(ref effective_fields) = effective_fields {
                 // Object-like type (Object or flattened Intersection): type-aware clone
-                let literal =
-                    object_clone_literal(effective_fields, resolved_fields, type_registry);
+                let literal = object_clone_literal(
+                    effective_fields.iter().map(CloneField::from),
+                    resolved_fields,
+                    type_registry,
+                );
                 let clone = parse_clone_expr(&literal, &input)?;
                 Ok(ts_template! {
                     export function @{fn_name_ident}(value: @{type_names.full_type_ident()}): @{type_names.full_type_ident()} {
@@ -145,20 +145,46 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
     }
 }
 
+/// A field to copy, of a class or of an object shape.
+struct CloneField<'a> {
+    name: &'a str,
+    ts_type: &'a str,
+    optional: bool,
+}
+
+impl<'a> From<&'a FieldIR> for CloneField<'a> {
+    fn from(field: &'a FieldIR) -> Self {
+        Self {
+            name: &field.name,
+            ts_type: &field.ts_type,
+            optional: field.optional,
+        }
+    }
+}
+
+impl<'a> From<&'a InterfaceFieldIR> for CloneField<'a> {
+    fn from(field: &'a InterfaceFieldIR) -> Self {
+        Self {
+            name: &field.name,
+            ts_type: &field.ts_type,
+            optional: field.optional,
+        }
+    }
+}
+
 /// An object literal copying `value`'s fields, each cloned by its type. An
 /// optional field absent from `value` stays absent, so the copy has the same
 /// keys as its source.
-fn object_clone_literal(
-    fields: &[InterfaceFieldIR],
+fn object_clone_literal<'a>(
+    fields: impl Iterator<Item = CloneField<'a>>,
     resolved_fields: Option<&HashMap<String, ResolvedTypeRef>>,
     registry: &TypeRegistry,
 ) -> String {
     let entries: Vec<String> = fields
-        .iter()
         .map(|field| {
-            let name = &field.name;
+            let name = field.name;
             let resolved = resolved_fields.and_then(|fields| fields.get(name));
-            let ts_type = field_value_type(&field.ts_type, field.optional);
+            let ts_type = field_value_type(field.ts_type, field.optional);
             let clone = generate_clone_expr(name, &ts_type, "value", resolved, registry);
             if field.optional {
                 let key = js_string(name);

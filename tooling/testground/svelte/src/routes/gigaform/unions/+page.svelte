@@ -321,7 +321,8 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
         data-testid="set-invalid-variant"
         onclick={() => {
           // A variant the field's type forbids, to exercise runtime validation.
-          Reflect.apply(leadForm.fields.leadName.set, leadForm.fields.leadName, [{ invalidField: "test" }]);
+          const untyped: { set(value: unknown): void } = leadForm.fields.leadName;
+          untyped.set({ invalidField: "test" });
         }}
       >
         Set Invalid Variant

@@ -1,6 +1,6 @@
 /**
- * Setup shared by the tsc and svelte-check wrappers. Materialized next to
- * each wrapper by the CLI's `materialize_scripts`.
+ * Setup shared by the wrappers. Materialized next to each one by the CLI's
+ * `materialize_scripts`.
  */
 import fs from "node:fs";
 import { createRequire } from "node:module";
@@ -29,6 +29,25 @@ export function loadProjectModule(specifier) {
     console.error(error);
     process.exit(1);
   }
+}
+
+/**
+ * Loads the project's TypeScript, exiting when it has no compiler API. The
+ * wrappers expand macros inside the compiler's file reads, and the
+ * `typescript` package ships that API only up to version 6.
+ */
+export function loadProjectTypeScript() {
+  const ts = loadProjectModule("typescript");
+  if (typeof ts.createProgram !== "function" || ts.sys === undefined) {
+    console.error(
+      `[macroforge] error: typescript ${ts.version ?? "(unknown version)"} in this project has no compiler API`,
+    );
+    console.error(
+      "[macroforge] this command needs typescript 5 or 6: version 7 ships only the native compiler",
+    );
+    process.exit(1);
+  }
+  return ts;
 }
 
 /** Walks up from the cwd to the package root looking for a macroforge config. */

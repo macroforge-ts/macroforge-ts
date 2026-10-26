@@ -47,7 +47,7 @@
         "svelte/types/compiler/interfaces": "npm:svelte@^4.2.19/types/compiler/interfaces",
         "svelte/types/compiler/preprocess": "npm:svelte@^4.2.19/types/compiler/preprocess",
         "svelte2tsx": "npm:svelte2tsx@^0.7.45",
-        "typescript": "npm:typescript@^5.9.2",
+        "typescript": "npm:typescript@^6.0.3",
         "typescript-auto-import-cache/out/5_0/exportInfoMap": "npm:typescript-auto-import-cache@^0.3.6/out/5_0/exportInfoMap",
         "typescript-auto-import-cache/out/5_0/moduleSpecifierCache": "npm:typescript-auto-import-cache@^0.3.6/out/5_0/moduleSpecifierCache",
         "typescript-auto-import-cache/out/5_0/packageJsonCache": "npm:typescript-auto-import-cache@^0.3.6/out/5_0/packageJsonCache",
@@ -84,5 +84,5 @@
         "pretest": "node test/setup-fixtures.js",
         "test": "deno task pretest && deno run -A --node-modules-dir=manual npm:mocha --timeout 60000 \"test/**/*.test.ts\""
     },
-    "version": "0.5.0"
+    "version": "0.6.0"
 }

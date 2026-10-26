@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
@@ -31,8 +31,7 @@ export type Link = string | { id: string; label?: string };
 export function linkEncode(value: Link, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = linkEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -198,13 +197,13 @@ export declare const Link: {
 
 ## Mapping
 
-original 0..185 -> expanded 301..486
-original 215..275 -> expanded 486..546
-original 275..276 -> expanded 5078..5079
-generated 0..301 <- imports
-generated 546..1834 <- Encode
-generated 1834..4608 <- Decode
-generated 4608..5078 <- __convenience_const
+original 0..185 -> expanded 397..582
+original 215..275 -> expanded 582..642
+original 275..276 -> expanded 5122..5123
+generated 0..397 <- imports
+generated 642..1878 <- Encode
+generated 1878..4652 <- Decode
+generated 4652..5122 <- __convenience_const
 
 ## Metadata
 

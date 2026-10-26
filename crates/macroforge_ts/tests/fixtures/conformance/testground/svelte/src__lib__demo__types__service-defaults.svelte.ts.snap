@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -39,28 +39,44 @@ export function serviceDefaultsDefaultValue(): ServiceDefaults {
 export function serviceDefaultsEncode(value: ServiceDefaults, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = serviceDefaultsEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function serviceDefaultsEncodeWithContext(value: ServiceDefaults, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return serviceDefaultsEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function serviceDefaultsEncodePartialWithContext(value: Partial<ServiceDefaults>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ServiceDefaults>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "ServiceDefaults",
         __id,
     };
 
-    
-    result.price = value.price;
-    result.description = value.description;
+    if (__fields === undefined || __fields.keeps("price")) {
+
+        if (value.price !== undefined) {
+            result.price = value.price;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("description")) {
+
+        if (value.description !== undefined) {
+            result.description = value.description;
+        }
+    }
 
     return result;
 }
@@ -119,7 +135,13 @@ export function serviceDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions)
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ServiceDefaults | __mf_PendingRef {
+export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ServiceDefaults | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ServiceDefaults> | __mf_PendingRef;
+export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ServiceDefaults> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ServiceDefaults.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ServiceDefaults.decodeWithContext: __ref must be a number" }]);
@@ -133,22 +155,22 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("price" in obj)) {
+    if ((__fields === undefined || __fields.requires("price")) && !("price" in obj)) {
         errors.push({ field: "price", message: "missing required field" });
     }
-    if (!("description" in obj)) {
+    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
         errors.push({ field: "description", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("price")) || (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
         if (!(typeof __raw_price === "number")) {
@@ -157,7 +179,7 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.price = __raw_price;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
         const __raw_description = obj["description"] as string;
 
         if (!(typeof __raw_description === "string")) {
@@ -173,6 +195,11 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
     ctx.pushErrors(errors);
 
     return instance as ServiceDefaults;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function serviceDefaultsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ServiceDefaults>): Partial<ServiceDefaults> | __mf_PendingRef {
+    return serviceDefaultsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function serviceDefaultsValidateField<K extends keyof ServiceDefaults>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -340,8 +367,10 @@ export const ServiceDefaults: {
   readonly defaultValue: typeof serviceDefaultsDefaultValue;
   readonly encode: typeof serviceDefaultsEncode;
   readonly encodeWithContext: typeof serviceDefaultsEncodeWithContext;
+  readonly encodePartialWithContext: typeof serviceDefaultsEncodePartialWithContext;
   readonly decode: typeof serviceDefaultsDecode;
   readonly decodeWithContext: typeof serviceDefaultsDecodeWithContext;
+  readonly decodePartialWithContext: typeof serviceDefaultsDecodePartialWithContext;
   readonly validateField: typeof serviceDefaultsValidateField;
   readonly validateFields: typeof serviceDefaultsValidateFields;
   readonly hasShape: typeof serviceDefaultsHasShape;
@@ -352,8 +381,10 @@ export const ServiceDefaults: {
   defaultValue: serviceDefaultsDefaultValue,
   encode: serviceDefaultsEncode,
   encodeWithContext: serviceDefaultsEncodeWithContext,
+  encodePartialWithContext: serviceDefaultsEncodePartialWithContext,
   decode: serviceDefaultsDecode,
   decodeWithContext: serviceDefaultsDecodeWithContext,
+  decodePartialWithContext: serviceDefaultsDecodePartialWithContext,
   validateField: serviceDefaultsValidateField,
   validateFields: serviceDefaultsValidateFields,
   hasShape: serviceDefaultsHasShape,
@@ -374,6 +405,8 @@ export declare function serviceDefaultsDefaultValue(): ServiceDefaults;
 export declare function serviceDefaultsEncode(value: ServiceDefaults, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function serviceDefaultsEncodeWithContext(value: ServiceDefaults, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function serviceDefaultsEncodePartialWithContext(value: Partial<ServiceDefaults>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ServiceDefaults>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function serviceDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -387,6 +420,10 @@ export declare function serviceDefaultsDecode(input: unknown, opts?: __mf_Decode
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ServiceDefaults | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ServiceDefaults> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function serviceDefaultsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ServiceDefaults>): Partial<ServiceDefaults> | __mf_PendingRef;
 export declare function serviceDefaultsValidateField<K extends keyof ServiceDefaults>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -436,8 +473,10 @@ export declare const ServiceDefaults: {
 	readonly defaultValue: typeof serviceDefaultsDefaultValue;
 	readonly encode: typeof serviceDefaultsEncode;
 	readonly encodeWithContext: typeof serviceDefaultsEncodeWithContext;
+	readonly encodePartialWithContext: typeof serviceDefaultsEncodePartialWithContext;
 	readonly decode: typeof serviceDefaultsDecode;
 	readonly decodeWithContext: typeof serviceDefaultsDecodeWithContext;
+	readonly decodePartialWithContext: typeof serviceDefaultsDecodePartialWithContext;
 	readonly validateField: typeof serviceDefaultsValidateField;
 	readonly validateFields: typeof serviceDefaultsValidateFields;
 	readonly hasShape: typeof serviceDefaultsHasShape;
@@ -452,18 +491,18 @@ export declare const ServiceDefaults: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..147 -> expanded 479..519
-original 211..235 -> expanded 519..543
-original 287..292 -> expanded 543..548
-original 333..360 -> expanded 548..575
-original 360..361 -> expanded 13396..13397
-generated 0..421 <- imports
-generated 575..706 <- Default
-generated 706..1898 <- Encode
-generated 1898..7434 <- Decode
-generated 7434..12249 <- Gigaform
-generated 12249..13396 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..147 -> expanded 700..740
+original 211..235 -> expanded 740..764
+original 287..292 -> expanded 764..769
+original 333..360 -> expanded 769..796
+original 360..361 -> expanded 16505..16506
+generated 0..642 <- imports
+generated 796..927 <- Default
+generated 927..2985 <- Encode
+generated 2985..10235 <- Decode
+generated 10235..15050 <- Gigaform
+generated 15050..16505 <- __convenience_const
 
 ## Metadata
 

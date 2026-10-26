@@ -4,12 +4,14 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'fs';
 import path from 'path';
 import macroforge from '../src/index.js';
 import {
     cleanupTempDir,
     createTempDir,
+    getFixturePath,
     initializePlugin,
     invokeTransform,
     listFilesRecursively,
@@ -359,4 +361,111 @@ export { User };`
         // Directory might exist now
         assert.ok(true);
     }
+});
+
+test('skips .d.ts generation, by name, when typescript has no compiler API', (t) => {
+    // Resolved, since the spawned process reports its cwd that way.
+    const tempDir = fs.realpathSync(createTempDir());
+
+    t.after(() => cleanupTempDir(tempDir));
+
+    // A copy of the plugin outside this repository, whose own TypeScript the
+    // plugin would otherwise fall back to.
+    writeTestFile(tempDir, 'package.json', '{ "type": "module" }');
+    const pluginPath = path.join(tempDir, 'plugin', 'index.js');
+    fs.mkdirSync(path.dirname(pluginPath));
+    fs.copyFileSync(path.join(import.meta.dirname, '..', 'src', 'index.js'), pluginPath);
+    for (
+        const dependency of [
+            '@macroforge/core',
+            '@macroforge/shared',
+            '@jridgewell/sourcemap-codec'
+        ]
+    ) {
+        const link = path.join(tempDir, 'node_modules', dependency);
+        fs.mkdirSync(path.dirname(link), { recursive: true });
+        fs.symlinkSync(
+            fs.realpathSync(
+                path.join(import.meta.dirname, '..', '..', '..', 'node_modules', dependency)
+            ),
+            link
+        );
+    }
+    // The main module of typescript 7: a version and nothing to compile with.
+    writeTestFile(
+        tempDir,
+        'node_modules/typescript/package.json',
+        '{ "name": "typescript", "version": "7.0.2", "main": "version.cjs" }'
+    );
+    writeTestFile(
+        tempDir,
+        'node_modules/typescript/version.cjs',
+        'exports.version = "7.0.2";\nexports.versionMajorMinor = "7.0";\n'
+    );
+    writeTestFile(
+        tempDir,
+        'src/user.ts',
+        `/** @derive(Debug) */
+class User {
+  id: string;
+}
+export { User };`
+    );
+
+    const run = spawnSync(
+        process.execPath,
+        [
+            getFixturePath('no-compiler-api', 'transform.mjs'),
+            pluginPath,
+            path.join(tempDir, 'src/user.ts')
+        ],
+        { cwd: tempDir, encoding: 'utf8' }
+    );
+
+    assert.equal(run.status, 0, `the transform should still succeed. stderr: ${run.stderr}`);
+    assert.match(run.stdout, /userDebug|toString/, 'the macro is still expanded');
+    assert.match(run.stderr, /TypeScript 7\.0\.2 has no compiler API/);
+    assert.deepEqual(
+        listFilesRecursively(path.join(tempDir, '.macroforge', 'types')),
+        [],
+        'no declarations are written'
+    );
+});
+
+test('keeps the outputs of a source outside the project root inside the project', async (t) => {
+    const tempDir = createTempDir();
+
+    t.after(() => cleanupTempDir(tempDir));
+
+    const projectRoot = path.join(tempDir, 'apps', 'web');
+    writeTestFile(projectRoot, 'tsconfig.json', JSON.stringify({ compilerOptions: {} }));
+    writeTestFile(
+        tempDir,
+        'shared/src/user.ts',
+        `/** @derive(Debug) */
+class User {
+  id: string;
+}
+export { User };`
+    );
+
+    const plugin = await macroforge();
+    initializePlugin(plugin, projectRoot);
+
+    const id = path.join(tempDir, 'shared/src/user.ts');
+    const { error } = await invokeTransform(plugin, fs.readFileSync(id, 'utf-8'), id);
+
+    assert.equal(error, null);
+    assert.deepEqual(listFilesRecursively(path.join(projectRoot, '.macroforge', 'types')), [
+        '_external/shared/src/user.d.ts'
+    ]);
+    assert.deepEqual(listFilesRecursively(path.join(projectRoot, '.macroforge', 'meta')), [
+        '_external/shared/src/user.macro-ir.json'
+    ]);
+    assert.deepEqual(
+        fs.readdirSync(tempDir).sort(),
+        ['apps', 'shared'],
+        'nothing is written beside the project'
+    );
+    assert.deepEqual(listFilesRecursively(path.join(tempDir, 'shared')), ['src/user.ts']);
 });

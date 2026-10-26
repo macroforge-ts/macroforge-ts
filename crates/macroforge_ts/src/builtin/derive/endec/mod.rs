@@ -243,5 +243,5 @@ pub use options::{
     EndecContainerOptions, EndecFieldOptions, EndecFieldParseResult, EndecFormat, RenameAll,
     TaggingMode, decorator_validators,
 };
-pub use type_category::TypeCategory;
+pub use type_category::{TypeCategory, WrapperFields};
 pub use validators::{Validator, ValidatorSpec, extract_validators};

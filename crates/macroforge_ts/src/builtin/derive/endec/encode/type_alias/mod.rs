@@ -5,7 +5,7 @@ mod primitive;
 mod union;
 mod view;
 
-use crate::ast::{Expr, Ident};
+use crate::ast::Ident;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeParamIR, TypeRegistry};
 use crate::ts_syn::{
@@ -34,7 +34,6 @@ struct AliasEncode<'a> {
     fn_encode_ident: Ident,
     fn_encode_internal_ident: Ident,
     encode_context_ident: Ident,
-    encode_context_expr: Expr,
 }
 
 pub(super) fn handle_type_alias(
@@ -61,9 +60,7 @@ pub(super) fn handle_type_alias(
     let fn_encode_ident = ts_ident!("{}Encode", type_name.to_case(Case::Camel));
     let fn_encode_internal_ident = ts_ident!("{}EncodeWithContext", type_name.to_case(Case::Camel));
 
-    // Create Expr version of ENCODE_CONTEXT for expression positions
     let encode_context_ident = ts_ident!(ENCODE_CONTEXT);
-    let encode_context_expr: Expr = encode_context_ident.clone().into();
     let alias = AliasEncode {
         type_alias,
         type_registry,
@@ -76,7 +73,6 @@ pub(super) fn handle_type_alias(
         fn_encode_ident,
         fn_encode_internal_ident,
         encode_context_ident,
-        encode_context_expr,
     };
 
     if let Some(primitive) = type_alias.body().primitive_base() {

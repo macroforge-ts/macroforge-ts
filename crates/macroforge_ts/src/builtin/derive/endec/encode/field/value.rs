@@ -8,15 +8,55 @@ use crate::ast::Expr;
 use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
-use crate::builtin::derive::common::rendered;
-use crate::builtin::derive::endec::TypeCategory;
-use crate::builtin::derive::endec::encode::types::{EncodeField, nested_encode_fn_name};
+use crate::builtin::derive::common::{js_string, rendered};
+use crate::builtin::derive::endec::encode::types::{
+    EncodeField, nested_encode_fn_name, nested_encode_partial_fn_name,
+};
 use crate::builtin::derive::endec::union_guard::UnionGuard;
 use crate::builtin::derive::endec::value_kind::EndecValueKind;
+use crate::builtin::derive::endec::{TypeCategory, WrapperFields};
+
+/// The call encoding a wrapper field's value through its inner type: the
+/// whole encoder, or the partial one told which fields the value keeps.
+fn wrapper_encode_call(field: &EncodeField, inner_type: &str) -> Expr {
+    let partial: Expr = ts_ident!(nested_encode_partial_fn_name(inner_type)).into();
+    let value = &field.field_ident;
+    let selection = |key: &str, names: &[String]| {
+        let names: Vec<String> = names.iter().map(|name| js_string(name)).collect();
+        let names = names.join(", ");
+        rendered(ts_template! { @{&partial}(value.@{value}, ctx, { @{key}: [@{names}] }) })
+    };
+    match &field.wrapper_fields {
+        Some(WrapperFields::Any) => rendered(ts_template! { @{&partial}(value.@{value}, ctx) }),
+        Some(WrapperFields::Only(names)) => selection("only", names),
+        Some(WrapperFields::Except(names)) => selection("except", names),
+        Some(WrapperFields::Whole) | None => {
+            let whole: Expr = ts_ident!(nested_encode_fn_name(inner_type)).into();
+            rendered(ts_template! { @{whole}(value.@{value}, ctx) })
+        }
+    }
+    .into()
+}
 
 /// Encodes `field` from `value` onto `result` under its JSON key: through its
 /// `encodeWith` function, or by its type.
 pub(super) fn encode_field(field: &EncodeField) -> TsStream {
+    // A nullable field's statements tell `null` from a value. An optional
+    // one may be absent as well, and is then left out.
+    if field.optional
+        && field.encode_with.is_none()
+        && matches!(field.type_cat, TypeCategory::Nullable(_))
+    {
+        let present = encode_field(&EncodeField {
+            optional: false,
+            ..field.clone()
+        });
+        return ts_template! {
+            if (value.@{&field.field_ident} !== undefined) {
+                {$typescript present}
+            }
+        };
+    }
     ts_template! {
         {#if let Some(fn_name) = &field.encode_with}
             // Custom encoding function (encodeWith) - wrapped as IIFE for arrow functions
@@ -327,8 +367,8 @@ pub(super) fn encode_field(field: &EncodeField) -> TsStream {
                                 result.@{field.json_key_ident} = (value.@{field.field_ident} as Date).toISOString();
                             {:case _}
                                 {#if let Some(inner_type) = &field.wrapper_encodable_type}
-                                    {$let encode_with_context_fn: Expr = ts_ident!(nested_encode_fn_name(inner_type)).into()}
-                                    result.@{field.json_key_ident} = @{encode_with_context_fn}(value.@{field.field_ident}, ctx);
+                                    {$let encoded: Expr = wrapper_encode_call(field, inner_type)}
+                                    result.@{field.json_key_ident} = @{encoded};
                                 {:else}
                                     result.@{field.json_key_ident} = value.@{field.field_ident};
                                 {/if}
@@ -342,8 +382,8 @@ pub(super) fn encode_field(field: &EncodeField) -> TsStream {
                             result.@{field.json_key_ident} = (value.@{field.field_ident} as Date).toISOString();
                         {:case _}
                             {#if let Some(inner_type) = &field.wrapper_encodable_type}
-                                {$let encode_with_context_fn: Expr = ts_ident!(nested_encode_fn_name(inner_type)).into()}
-                                result.@{field.json_key_ident} = @{encode_with_context_fn}(value.@{field.field_ident}, ctx);
+                                {$let encoded: Expr = wrapper_encode_call(field, inner_type)}
+                                result.@{field.json_key_ident} = @{encoded};
                             {:else}
                                 result.@{field.json_key_ident} = value.@{field.field_ident};
                             {/if}

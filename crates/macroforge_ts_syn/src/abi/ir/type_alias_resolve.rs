@@ -350,9 +350,10 @@ fn parse_generic(type_name: &str) -> Option<(&str, &str)> {
     Some((base, args))
 }
 
-/// Split a generic-argument list on top-level commas. Nested `<>`, `()`,
-/// `[]`, `{}` depth is tracked so `Map<string, number>` yields one member.
-fn split_top_level_commas(args: &str) -> Vec<&str> {
+/// Split a generic-argument list, or a tuple's elements, on top-level commas.
+/// Nested `<>`, `()`, `[]`, `{}` depth is tracked so `Map<string, number>`
+/// yields one member.
+pub fn split_top_level_commas(args: &str) -> Vec<&str> {
     split_on_top_level(args, b',')
         .into_iter()
         .map(str::trim)

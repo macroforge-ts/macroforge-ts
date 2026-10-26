@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -36,28 +36,44 @@ export function coordinatesDefaultValue(): Coordinates {
 export function coordinatesEncode(value: Coordinates, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = coordinatesEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function coordinatesEncodeWithContext(value: Coordinates, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return coordinatesEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function coordinatesEncodePartialWithContext(value: Partial<Coordinates>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Coordinates>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Coordinates",
         __id,
     };
 
-    
-    result.lat = value.lat;
-    result.lng = value.lng;
+    if (__fields === undefined || __fields.keeps("lat")) {
+
+        if (value.lat !== undefined) {
+            result.lat = value.lat;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lng")) {
+
+        if (value.lng !== undefined) {
+            result.lng = value.lng;
+        }
+    }
 
     return result;
 }
@@ -116,7 +132,13 @@ export function coordinatesDecode(input: unknown, opts?: __mf_DecodeOptions): { 
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinates | __mf_PendingRef {
+export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinates | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Coordinates> | __mf_PendingRef;
+export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Coordinates> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Coordinates.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Coordinates.decodeWithContext: __ref must be a number" }]);
@@ -130,22 +152,22 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("lat" in obj)) {
+    if ((__fields === undefined || __fields.requires("lat")) && !("lat" in obj)) {
         errors.push({ field: "lat", message: "missing required field" });
     }
-    if (!("lng" in obj)) {
+    if ((__fields === undefined || __fields.requires("lng")) && !("lng" in obj)) {
         errors.push({ field: "lng", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("lat")) || (__fields.keeps("lat") && obj["lat"] !== undefined)) {
         const __raw_lat = obj["lat"] as number;
 
         if (!(typeof __raw_lat === "number")) {
@@ -154,7 +176,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.lat = __raw_lat;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("lng")) || (__fields.keeps("lng") && obj["lng"] !== undefined)) {
         const __raw_lng = obj["lng"] as number;
 
         if (!(typeof __raw_lng === "number")) {
@@ -167,6 +189,11 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     ctx.pushErrors(errors);
 
     return instance as Coordinates;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function coordinatesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Coordinates>): Partial<Coordinates> | __mf_PendingRef {
+    return coordinatesDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function coordinatesValidateField<K extends keyof Coordinates>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function coordinatesValidateField(): Array<{ field: string; message: string }> {
@@ -326,8 +353,10 @@ export const Coordinates: {
   readonly defaultValue: typeof coordinatesDefaultValue;
   readonly encode: typeof coordinatesEncode;
   readonly encodeWithContext: typeof coordinatesEncodeWithContext;
+  readonly encodePartialWithContext: typeof coordinatesEncodePartialWithContext;
   readonly decode: typeof coordinatesDecode;
   readonly decodeWithContext: typeof coordinatesDecodeWithContext;
+  readonly decodePartialWithContext: typeof coordinatesDecodePartialWithContext;
   readonly validateField: typeof coordinatesValidateField;
   readonly validateFields: typeof coordinatesValidateFields;
   readonly hasShape: typeof coordinatesHasShape;
@@ -338,8 +367,10 @@ export const Coordinates: {
   defaultValue: coordinatesDefaultValue,
   encode: coordinatesEncode,
   encodeWithContext: coordinatesEncodeWithContext,
+  encodePartialWithContext: coordinatesEncodePartialWithContext,
   decode: coordinatesDecode,
   decodeWithContext: coordinatesDecodeWithContext,
+  decodePartialWithContext: coordinatesDecodePartialWithContext,
   validateField: coordinatesValidateField,
   validateFields: coordinatesValidateFields,
   hasShape: coordinatesHasShape,
@@ -360,6 +391,8 @@ export declare function coordinatesDefaultValue(): Coordinates;
 export declare function coordinatesEncode(value: Coordinates, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function coordinatesEncodeWithContext(value: Coordinates, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function coordinatesEncodePartialWithContext(value: Partial<Coordinates>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Coordinates>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function coordinatesDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -373,6 +406,10 @@ export declare function coordinatesDecode(input: unknown, opts?: __mf_DecodeOpti
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinates | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Coordinates> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function coordinatesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Coordinates>): Partial<Coordinates> | __mf_PendingRef;
 export declare function coordinatesValidateField<K extends keyof Coordinates>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -422,8 +459,10 @@ export declare const Coordinates: {
 	readonly defaultValue: typeof coordinatesDefaultValue;
 	readonly encode: typeof coordinatesEncode;
 	readonly encodeWithContext: typeof coordinatesEncodeWithContext;
+	readonly encodePartialWithContext: typeof coordinatesEncodePartialWithContext;
 	readonly decode: typeof coordinatesDecode;
 	readonly decodeWithContext: typeof coordinatesDecodeWithContext;
+	readonly decodePartialWithContext: typeof coordinatesDecodePartialWithContext;
 	readonly validateField: typeof coordinatesValidateField;
 	readonly validateFields: typeof coordinatesValidateFields;
 	readonly hasShape: typeof coordinatesHasShape;
@@ -438,15 +477,15 @@ export declare const Coordinates: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..174 -> expanded 479..546
-original 174..175 -> expanded 11805..11806
-generated 0..421 <- imports
-generated 546..658 <- Default
-generated 658..1806 <- Encode
-generated 1806..6107 <- Decode
-generated 6107..10750 <- Gigaform
-generated 10750..11805 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..174 -> expanded 700..767
+original 174..175 -> expanded 14786..14787
+generated 0..642 <- imports
+generated 767..879 <- Default
+generated 879..2857 <- Encode
+generated 2857..8796 <- Decode
+generated 8796..13439 <- Gigaform
+generated 13439..14786 <- __convenience_const
 
 ## Metadata
 

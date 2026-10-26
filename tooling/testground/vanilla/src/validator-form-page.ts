@@ -28,15 +28,23 @@ function renderErrors(errors: Array<{ field: string; message: string }>): HTMLEl
     return list;
 }
 
+/**
+ * `data` with every bigint as its digits, since a bigint has no JSON form.
+ * An object with a JSON form of its own, such as a date, is left to it.
+ */
+function withBigintDigits(data: unknown): unknown {
+    if (typeof data === 'bigint') return data.toString();
+    if (Array.isArray(data)) return data.map(withBigintDigits);
+    if (typeof data !== 'object' || data === null || 'toJSON' in data) return data;
+    return Object.fromEntries(
+        Object.entries(data).map(([key, member]) => [key, withBigintDigits(member)])
+    );
+}
+
 function renderSuccess(data: unknown): HTMLElement {
     const output = document.createElement('pre');
     output.className = 'success-output';
-    // A decoded bigint has no JSON form, so it is shown by its digits.
-    output.textContent = JSON.stringify(
-        data,
-        (_key, value) => (typeof value === 'bigint' ? value.toString() : value),
-        2
-    );
+    output.textContent = JSON.stringify(withBigintDigits(data), null, 2) ?? String(data);
     return output;
 }
 

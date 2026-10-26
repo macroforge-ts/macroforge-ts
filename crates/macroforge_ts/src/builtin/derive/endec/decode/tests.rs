@@ -34,6 +34,7 @@ fn test_decode_field_has_validators() {
         map_value_encodable_type: None,
         record_value_encodable_type: None,
         wrapper_encodable_type: None,
+        wrapper_fields: None,
         union_guard: None,
         nullable_union_guard: None,
         array_elem_union_guard: None,

@@ -11,7 +11,25 @@
     "devDependencies": {
         "@macroforge/vite-plugin": "*",
         "@types/node": "^22.10.2",
-        "typescript": "^5.9.3",
+        "@typescript/lib-decorators": "jsr:@gigatypes/decorators@0.1.4",
+        "@typescript/lib-dom": "jsr:@gigatypes/dom@0.1.4",
+        "@typescript/lib-es2015": "jsr:@gigatypes/es2015@0.1.4",
+        "@typescript/lib-es2016": "jsr:@gigatypes/es2016@0.1.4",
+        "@typescript/lib-es2017": "jsr:@gigatypes/es2017@0.1.4",
+        "@typescript/lib-es2018": "jsr:@gigatypes/es2018@0.1.4",
+        "@typescript/lib-es2019": "jsr:@gigatypes/es2019@0.1.4",
+        "@typescript/lib-es2020": "jsr:@gigatypes/es2020@0.1.4",
+        "@typescript/lib-es2021": "jsr:@gigatypes/es2021@0.1.4",
+        "@typescript/lib-es2022": "jsr:@gigatypes/es2022@0.1.4",
+        "@typescript/lib-es2023": "jsr:@gigatypes/es2023@0.1.4",
+        "@typescript/lib-es2024": "jsr:@gigatypes/es2024@0.1.4",
+        "@typescript/lib-es2025": "jsr:@gigatypes/es2025@0.1.4",
+        "@typescript/lib-es5": "jsr:@gigatypes/es5@0.1.4",
+        "@typescript/lib-es6": "jsr:@gigatypes/es6@0.1.4",
+        "@typescript/lib-esnext": "jsr:@gigatypes/esnext@0.1.4",
+        "@typescript/lib-scripthost": "jsr:@gigatypes/scripthost@0.1.4",
+        "@typescript/lib-webworker": "jsr:@gigatypes/webworker@0.1.4",
+        "typescript": "^6.0.3",
         "vite": "^7.2.4"
     }
 }

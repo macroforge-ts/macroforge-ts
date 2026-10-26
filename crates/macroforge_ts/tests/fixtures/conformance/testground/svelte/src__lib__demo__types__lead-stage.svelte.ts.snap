@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,8 +35,7 @@ export function leadStageDefaultValue(): LeadStage {
 export function leadStageEncode(value: LeadStage, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = leadStageEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -437,15 +436,15 @@ export declare const LeadStage: {
 
 ## Mapping
 
-original 0..58 -> expanded 460..518
-original 107..239 -> expanded 518..650
-original 239..240 -> expanded 11382..11383
-generated 0..460 <- imports
-generated 650..725 <- Default
-generated 725..2038 <- Encode
-generated 2038..4050 <- Decode
-generated 4050..10573 <- Gigaform
-generated 10573..11382 <- __convenience_const
+original 0..58 -> expanded 556..614
+original 107..239 -> expanded 614..746
+original 239..240 -> expanded 11426..11427
+generated 0..556 <- imports
+generated 746..821 <- Default
+generated 821..2082 <- Encode
+generated 2082..4094 <- Decode
+generated 4094..10617 <- Gigaform
+generated 10617..11426 <- __convenience_const
 
 ## Metadata
 

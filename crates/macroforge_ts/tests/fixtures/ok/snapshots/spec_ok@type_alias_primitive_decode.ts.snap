@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Port = number;
@@ -26,7 +26,7 @@ type Port = number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export function portEncode(value: Port, keepMetadata?: boolean): string;
 export function portEncode(value: Port): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
@@ -231,16 +231,16 @@ export {};
 
 ## Mapping
 
-original 30..50 -> expanded 231..251
-original 50..52 -> expanded 3167..3169
-original 94..119 -> expanded 3169..3194
-original 119..120 -> expanded 5602..5603
-generated 0..231 <- imports
-generated 251..941 <- Encode
-generated 941..2704 <- Decode
-generated 2704..3167 <- __convenience_const
-generated 3194..5258 <- Decode
-generated 5258..5602 <- __convenience_const
+original 30..50 -> expanded 264..284
+original 50..52 -> expanded 3202..3204
+original 94..119 -> expanded 3204..3229
+original 119..120 -> expanded 5637..5638
+generated 0..264 <- imports
+generated 284..976 <- Encode
+generated 976..2739 <- Decode
+generated 2739..3202 <- __convenience_const
+generated 3229..5293 <- Decode
+generated 5293..5637 <- __convenience_const
 
 ## Metadata
 

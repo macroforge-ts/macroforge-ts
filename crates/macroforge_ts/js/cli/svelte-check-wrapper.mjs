@@ -23,10 +23,11 @@ import {
   expandSourceResult,
   isMacroSourceFile,
   loadProjectModule,
+  loadProjectTypeScript,
   mapSpanToSource,
 } from "./wrapper-common.mjs";
 
-const ts = loadProjectModule("typescript");
+const ts = loadProjectTypeScript();
 const macros = loadProjectModule("@macroforge/core");
 
 const plugin = new macros.NativePlugin();

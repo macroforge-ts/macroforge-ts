@@ -33,6 +33,7 @@
 import { createRequire, registerHooks } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
+import { loadProjectTypeScript } from './wrapper-common.mjs';
 
 const cwdRequire = createRequire(process.cwd() + '/package.json');
 const fsReal = cwdRequire('fs');
@@ -84,13 +85,7 @@ if (argv.includes('--macroforge-resolve-config')) {
 }
 
 // --- Read redirection -------------------------------------------------------
-let ts;
-try {
-    ts = cwdRequire('typescript');
-} catch {
-    console.error('[macroforge] error: typescript is not installed in this project');
-    process.exit(1);
-}
+const ts = loadProjectTypeScript();
 
 const inputDir = process.env.MACROFORGE_PACKAGE_INPUT;
 const expandedDir = process.env.MACROFORGE_PACKAGE_EXPANDED;

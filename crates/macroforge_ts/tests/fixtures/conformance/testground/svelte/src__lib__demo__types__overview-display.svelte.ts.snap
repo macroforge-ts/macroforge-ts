@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -30,8 +30,7 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 export function overviewDisplayEncode(value: OverviewDisplay, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = overviewDisplayEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -339,15 +338,15 @@ export declare const OverviewDisplay: {
 
 ## Mapping
 
-original 0..58 -> expanded 460..518
-original 107..171 -> expanded 518..582
-original 171..172 -> expanded 9164..9165
-generated 0..460 <- imports
-generated 582..669 <- Default
-generated 669..2012 <- Encode
-generated 2012..3734 <- Decode
-generated 3734..8241 <- Gigaform
-generated 8241..9164 <- __convenience_const
+original 0..58 -> expanded 556..614
+original 107..171 -> expanded 614..678
+original 171..172 -> expanded 9208..9209
+generated 0..556 <- imports
+generated 678..765 <- Default
+generated 765..2056 <- Encode
+generated 2056..3778 <- Decode
+generated 3778..8285 <- Gigaform
+generated 8285..9208 <- __convenience_const
 
 ## Metadata
 

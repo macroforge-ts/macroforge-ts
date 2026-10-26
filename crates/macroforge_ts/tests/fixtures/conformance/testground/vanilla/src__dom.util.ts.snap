@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/dom.util.ts
-sha256 44d67a4e38bd39279381e0c1c6607797b4d3215508634e5729ecdd03a504c4b4
+sha256 d195690b37609c26254d9ce5bbe6b84fff20f64d524aabadde51de9ddb69a2ac
 
 ## Changed
 
@@ -24,7 +24,7 @@ false
 
 ## Mapping
 
-original 0..710 -> expanded 0..710
+original 0..808 -> expanded 0..808
 
 ## Metadata
 

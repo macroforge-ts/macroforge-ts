@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export type PropValue =
@@ -45,8 +45,7 @@ export function propValueDefaultValue(): PropValue {
 export function propValueEncode(value: PropValue, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = propValueEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -402,13 +401,13 @@ export declare const PropValue: {
 
 ## Mapping
 
-original 88..410 -> expanded 301..623
-original 410..411 -> expanded 11521..11522
-generated 0..301 <- imports
-generated 623..725 <- Default
-generated 725..4245 <- Encode
-generated 4245..10346 <- Decode
-generated 10346..11521 <- __convenience_const
+original 88..410 -> expanded 397..719
+original 410..411 -> expanded 11565..11566
+generated 0..397 <- imports
+generated 719..821 <- Default
+generated 821..4289 <- Encode
+generated 4289..10390 <- Decode
+generated 10390..11565 <- __convenience_const
 
 ## Metadata
 

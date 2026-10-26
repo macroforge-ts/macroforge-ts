@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -44,30 +44,56 @@ export function addressDefaultValue(): Address {
 export function addressEncode(value: Address, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = addressEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function addressEncodeWithContext(value: Address, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return addressEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function addressEncodePartialWithContext(value: Partial<Address>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Address>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Address",
         __id,
     };
 
-    
-    result.street = value.street;
-    result.city = value.city;
-    result.state = value.state;
-    result.zipcode = value.zipcode;
+    if (__fields === undefined || __fields.keeps("street")) {
+
+        if (value.street !== undefined) {
+            result.street = value.street;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("city")) {
+
+        if (value.city !== undefined) {
+            result.city = value.city;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("state")) {
+
+        if (value.state !== undefined) {
+            result.state = value.state;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("zipcode")) {
+
+        if (value.zipcode !== undefined) {
+            result.zipcode = value.zipcode;
+        }
+    }
 
     return result;
 }
@@ -126,7 +152,13 @@ export function addressDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef {
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Address> | __mf_PendingRef;
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Address> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Address.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Address.decodeWithContext: __ref must be a number" }]);
@@ -140,28 +172,28 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("street" in obj)) {
+    if ((__fields === undefined || __fields.requires("street")) && !("street" in obj)) {
         errors.push({ field: "street", message: "missing required field" });
     }
-    if (!("city" in obj)) {
+    if ((__fields === undefined || __fields.requires("city")) && !("city" in obj)) {
         errors.push({ field: "city", message: "missing required field" });
     }
-    if (!("state" in obj)) {
+    if ((__fields === undefined || __fields.requires("state")) && !("state" in obj)) {
         errors.push({ field: "state", message: "missing required field" });
     }
-    if (!("zipcode" in obj)) {
+    if ((__fields === undefined || __fields.requires("zipcode")) && !("zipcode" in obj)) {
         errors.push({ field: "zipcode", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("street")) || (__fields.keeps("street") && obj["street"] !== undefined)) {
         const __raw_street = obj["street"] as string;
 
         if (!(typeof __raw_street === "string")) {
@@ -173,7 +205,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.street = __raw_street;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("city")) || (__fields.keeps("city") && obj["city"] !== undefined)) {
         const __raw_city = obj["city"] as string;
 
         if (!(typeof __raw_city === "string")) {
@@ -185,7 +217,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.city = __raw_city;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("state")) || (__fields.keeps("state") && obj["state"] !== undefined)) {
         const __raw_state = obj["state"] as string;
 
         if (!(typeof __raw_state === "string")) {
@@ -197,7 +229,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.state = __raw_state;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("zipcode")) || (__fields.keeps("zipcode") && obj["zipcode"] !== undefined)) {
         const __raw_zipcode = obj["zipcode"] as string;
 
         if (!(typeof __raw_zipcode === "string")) {
@@ -213,6 +245,11 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     ctx.pushErrors(errors);
 
     return instance as Address;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function addressDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Address>): Partial<Address> | __mf_PendingRef {
+    return addressDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function addressValidateField<K extends keyof Address>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -470,8 +507,10 @@ export const Address: {
   readonly defaultValue: typeof addressDefaultValue;
   readonly encode: typeof addressEncode;
   readonly encodeWithContext: typeof addressEncodeWithContext;
+  readonly encodePartialWithContext: typeof addressEncodePartialWithContext;
   readonly decode: typeof addressDecode;
   readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly decodePartialWithContext: typeof addressDecodePartialWithContext;
   readonly validateField: typeof addressValidateField;
   readonly validateFields: typeof addressValidateFields;
   readonly hasShape: typeof addressHasShape;
@@ -482,8 +521,10 @@ export const Address: {
   defaultValue: addressDefaultValue,
   encode: addressEncode,
   encodeWithContext: addressEncodeWithContext,
+  encodePartialWithContext: addressEncodePartialWithContext,
   decode: addressDecode,
   decodeWithContext: addressDecodeWithContext,
+  decodePartialWithContext: addressDecodePartialWithContext,
   validateField: addressValidateField,
   validateFields: addressValidateFields,
   hasShape: addressHasShape,
@@ -506,6 +547,8 @@ export declare function addressDefaultValue(): Address;
 export declare function addressEncode(value: Address, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function addressEncodeWithContext(value: Address, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function addressEncodePartialWithContext(value: Partial<Address>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Address>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function addressDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -519,6 +562,10 @@ export declare function addressDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Address> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function addressDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Address>): Partial<Address> | __mf_PendingRef;
 export declare function addressValidateField<K extends keyof Address>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -574,8 +621,10 @@ export declare const Address: {
 	readonly defaultValue: typeof addressDefaultValue;
 	readonly encode: typeof addressEncode;
 	readonly encodeWithContext: typeof addressEncodeWithContext;
+	readonly encodePartialWithContext: typeof addressEncodePartialWithContext;
 	readonly decode: typeof addressDecode;
 	readonly decodeWithContext: typeof addressDecodeWithContext;
+	readonly decodePartialWithContext: typeof addressDecodePartialWithContext;
 	readonly validateField: typeof addressValidateField;
 	readonly validateFields: typeof addressValidateFields;
 	readonly hasShape: typeof addressHasShape;
@@ -590,19 +639,19 @@ export declare const Address: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..139 -> expanded 479..511
-original 180..205 -> expanded 511..536
-original 246..269 -> expanded 536..559
-original 310..334 -> expanded 559..583
-original 375..398 -> expanded 583..606
-original 398..399 -> expanded 18244..18245
-generated 0..421 <- imports
-generated 606..756 <- Default
-generated 756..1956 <- Encode
-generated 1956..10792 <- Decode
-generated 10792..17281 <- Gigaform
-generated 17281..18244 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..139 -> expanded 700..732
+original 180..205 -> expanded 732..757
+original 246..269 -> expanded 757..780
+original 310..334 -> expanded 780..804
+original 375..398 -> expanded 804..827
+original 398..399 -> expanded 21801..21802
+generated 0..642 <- imports
+generated 827..977 <- Default
+generated 977..3257 <- Encode
+generated 3257..14073 <- Decode
+generated 14073..20562 <- Gigaform
+generated 20562..21801 <- __convenience_const
 
 ## Metadata
 

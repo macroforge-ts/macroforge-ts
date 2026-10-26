@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -41,29 +41,50 @@ export function numberDefaultValue(): Number {
 export function numberEncode(value: Number, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = numberEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return numberEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function numberEncodePartialWithContext(value: Partial<Number>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Number>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Number",
         __id,
     };
 
-    
-    result.countryCode = value.countryCode;
-    result.areaCode = value.areaCode;
-    result.localNumber = value.localNumber;
+    if (__fields === undefined || __fields.keeps("countryCode")) {
+
+        if (value.countryCode !== undefined) {
+            result.countryCode = value.countryCode;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("areaCode")) {
+
+        if (value.areaCode !== undefined) {
+            result.areaCode = value.areaCode;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("localNumber")) {
+
+        if (value.localNumber !== undefined) {
+            result.localNumber = value.localNumber;
+        }
+    }
 
     return result;
 }
@@ -122,7 +143,13 @@ export function numberDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Number | __mf_PendingRef {
+export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Number | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Number> | __mf_PendingRef;
+export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Number> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Number.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Number.decodeWithContext: __ref must be a number" }]);
@@ -136,25 +163,25 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("countryCode" in obj)) {
+    if ((__fields === undefined || __fields.requires("countryCode")) && !("countryCode" in obj)) {
         errors.push({ field: "countryCode", message: "missing required field" });
     }
-    if (!("areaCode" in obj)) {
+    if ((__fields === undefined || __fields.requires("areaCode")) && !("areaCode" in obj)) {
         errors.push({ field: "areaCode", message: "missing required field" });
     }
-    if (!("localNumber" in obj)) {
+    if ((__fields === undefined || __fields.requires("localNumber")) && !("localNumber" in obj)) {
         errors.push({ field: "localNumber", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("countryCode")) || (__fields.keeps("countryCode") && obj["countryCode"] !== undefined)) {
         const __raw_countryCode = obj["countryCode"] as string;
 
         if (!(typeof __raw_countryCode === "string")) {
@@ -166,7 +193,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
             instance.countryCode = __raw_countryCode;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("areaCode")) || (__fields.keeps("areaCode") && obj["areaCode"] !== undefined)) {
         const __raw_areaCode = obj["areaCode"] as string;
 
         if (!(typeof __raw_areaCode === "string")) {
@@ -178,7 +205,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
             instance.areaCode = __raw_areaCode;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("localNumber")) || (__fields.keeps("localNumber") && obj["localNumber"] !== undefined)) {
         const __raw_localNumber = obj["localNumber"] as string;
 
         if (!(typeof __raw_localNumber === "string")) {
@@ -194,6 +221,11 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     ctx.pushErrors(errors);
 
     return instance as Number;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function numberDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Number>): Partial<Number> | __mf_PendingRef {
+    return numberDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function numberValidateField<K extends keyof Number>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -410,8 +442,10 @@ export const Number: {
   readonly defaultValue: typeof numberDefaultValue;
   readonly encode: typeof numberEncode;
   readonly encodeWithContext: typeof numberEncodeWithContext;
+  readonly encodePartialWithContext: typeof numberEncodePartialWithContext;
   readonly decode: typeof numberDecode;
   readonly decodeWithContext: typeof numberDecodeWithContext;
+  readonly decodePartialWithContext: typeof numberDecodePartialWithContext;
   readonly validateField: typeof numberValidateField;
   readonly validateFields: typeof numberValidateFields;
   readonly hasShape: typeof numberHasShape;
@@ -422,8 +456,10 @@ export const Number: {
   defaultValue: numberDefaultValue,
   encode: numberEncode,
   encodeWithContext: numberEncodeWithContext,
+  encodePartialWithContext: numberEncodePartialWithContext,
   decode: numberDecode,
   decodeWithContext: numberDecodeWithContext,
+  decodePartialWithContext: numberDecodePartialWithContext,
   validateField: numberValidateField,
   validateFields: numberValidateFields,
   hasShape: numberHasShape,
@@ -445,6 +481,8 @@ export declare function numberDefaultValue(): Number;
 export declare function numberEncode(value: Number, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function numberEncodePartialWithContext(value: Partial<Number>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Number>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function numberDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -458,6 +496,10 @@ export declare function numberDecode(input: unknown, opts?: __mf_DecodeOptions):
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Number | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Number> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function numberDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Number>): Partial<Number> | __mf_PendingRef;
 export declare function numberValidateField<K extends keyof Number>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -510,8 +552,10 @@ export declare const Number: {
 	readonly defaultValue: typeof numberDefaultValue;
 	readonly encode: typeof numberEncode;
 	readonly encodeWithContext: typeof numberEncodeWithContext;
+	readonly encodePartialWithContext: typeof numberEncodePartialWithContext;
 	readonly decode: typeof numberDecode;
 	readonly decodeWithContext: typeof numberDecodeWithContext;
+	readonly decodePartialWithContext: typeof numberDecodePartialWithContext;
 	readonly validateField: typeof numberValidateField;
 	readonly validateFields: typeof numberValidateFields;
 	readonly hasShape: typeof numberHasShape;
@@ -526,18 +570,18 @@ export declare const Number: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..138 -> expanded 479..510
-original 179..209 -> expanded 510..540
-original 250..277 -> expanded 540..567
-original 318..345 -> expanded 567..594
-original 345..346 -> expanded 16350..16351
-generated 0..421 <- imports
-generated 594..736 <- Default
-generated 736..1924 <- Encode
-generated 1924..9741 <- Decode
-generated 9741..15410 <- Gigaform
-generated 15410..16350 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..138 -> expanded 700..731
+original 179..209 -> expanded 731..761
+original 250..277 -> expanded 761..788
+original 318..345 -> expanded 788..815
+original 345..346 -> expanded 19664..19665
+generated 0..642 <- imports
+generated 815..957 <- Default
+generated 957..3120 <- Encode
+generated 3120..12783 <- Decode
+generated 12783..18452 <- Gigaform
+generated 18452..19664 <- __convenience_const
 
 ## Metadata
 

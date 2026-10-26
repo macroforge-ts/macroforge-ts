@@ -19,6 +19,7 @@ true
 
 ## Output
 
+import { encodedText as __mf_encodedText } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 enum Direction {
@@ -30,7 +31,7 @@ enum Direction {
 
 /** Encodes this enum value to a JSON string.  */
 export function directionEncode(value: Direction): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs.  */
@@ -68,11 +69,11 @@ export {};
 
 ## Mapping
 
-original 22..82 -> expanded 83..143
-original 82..83 -> expanded 757..758
-generated 0..83 <- imports
-generated 143..569 <- Encode
-generated 569..757 <- __convenience_const
+original 22..82 -> expanded 157..217
+original 82..83 -> expanded 833..834
+generated 0..157 <- imports
+generated 217..645 <- Encode
+generated 645..833 <- __convenience_const
 
 ## Metadata
 

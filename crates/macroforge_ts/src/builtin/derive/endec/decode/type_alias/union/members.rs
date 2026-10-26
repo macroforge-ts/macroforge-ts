@@ -4,7 +4,7 @@ use crate::ast::{Expr, Ident};
 use crate::ts_syn::config::ForeignHandler;
 use std::rc::Rc;
 
-use crate::builtin::derive::common::{js_string, rendered};
+use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered};
 use crate::host::ForeignTypeConfig;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
@@ -424,10 +424,7 @@ impl<'a> Union<'a> {
         } else {
             primitive_types
                 .iter()
-                .map(|prim| {
-                    let kind = js_string(prim);
-                    rendered(ts_template! { typeof value === @{kind} })
-                })
+                .map(|prim| primitive_keyword_test(prim, "value"))
                 .collect::<Vec<_>>()
                 .join(" || ")
         };

@@ -21,8 +21,8 @@ import { priorityDecodeWithContext, priorityEncodeWithContext } from "./priority
 import { representsDecode, representsEncodeWithContext } from "./represents.svelte";
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -158,73 +158,239 @@ export function leadDefaultValue(): Lead {
 export function leadEncode(value: Lead, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = leadEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return leadEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Lead>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Lead",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.number = value.number;
-    result.accepted = value.accepted;
-    result.probability = value.probability;
-    result.priority = priorityEncodeWithContext(value.priority, ctx);
-    result.dueDate = value.dueDate;
-    result.closeDate = value.closeDate;
-    result.value = value.value;
-    result.stage = leadStageEncodeWithContext(value.stage, ctx);
-    result.status = value.status;
-    result.description = value.description;
-    result.nextStep = nextStepEncodeWithContext(value.nextStep, ctx);
-    result.favorite = value.favorite;
-    result.dateAdded = value.dateAdded;
-    if (value.taxRate !== null) {
-        result.taxRate = value.taxRate;
-    } else {
-        result.taxRate = null;
-    }
-    result.sector = sectorEncodeWithContext(value.sector, ctx);
-    result.leadName = accountNameEncodeWithContext(value.leadName, ctx);
-    result.phones = value.phones.map(
-        (item) => phoneNumberEncodeWithContext(item, ctx)
-    );
-    result.email = emailEncodeWithContext(value.email, ctx);
-    result.leadSource = value.leadSource;
-    result.site = typeof value.site === "string"
-        ? value.site
-        : siteEncodeWithContext(value.site, ctx);
-    result.memo = value.memo;
-    result.needsReview = value.needsReview;
-    result.hasAlert = value.hasAlert;
-    if (value.salesRep !== null) {
+    if (__fields === undefined || __fields.keeps("id")) {
 
-        result.salesRep = value.salesRep.map(
-            (item) => representsEncodeWithContext(item, ctx)
-        );
-    } else {
-        result.salesRep = null;
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
     }
-    result.color = value.color;
-    result.accountType = value.accountType;
-    result.subtype = value.subtype;
-    result.isTaxExempt = value.isTaxExempt;
-    result.paymentTerms = value.paymentTerms;
-    result.tags = value.tags;
-    result.customFields = value.customFields;
+    if (__fields === undefined || __fields.keeps("number")) {
+        if (value.number !== undefined) {
+
+            result.number = value.number;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("accepted")) {
+
+        if (value.accepted !== undefined) {
+            result.accepted = value.accepted;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("probability")) {
+
+        if (value.probability !== undefined) {
+            result.probability = value.probability;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("priority")) {
+
+        if (value.priority !== undefined) {
+            result.priority = priorityEncodeWithContext(value.priority, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("dueDate")) {
+        if (value.dueDate !== undefined) {
+
+            result.dueDate = value.dueDate;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("closeDate")) {
+        if (value.closeDate !== undefined) {
+
+            result.closeDate = value.closeDate;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("value")) {
+
+        if (value.value !== undefined) {
+            result.value = value.value;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("stage")) {
+
+        if (value.stage !== undefined) {
+            result.stage = leadStageEncodeWithContext(value.stage, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("status")) {
+
+        if (value.status !== undefined) {
+            result.status = value.status;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("description")) {
+        if (value.description !== undefined) {
+
+            result.description = value.description;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nextStep")) {
+
+        if (value.nextStep !== undefined) {
+            result.nextStep = nextStepEncodeWithContext(value.nextStep, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("favorite")) {
+
+        if (value.favorite !== undefined) {
+            result.favorite = value.favorite;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("dateAdded")) {
+        if (value.dateAdded !== undefined) {
+
+            result.dateAdded = value.dateAdded;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("taxRate")) {
+        if (value.taxRate !== undefined) {
+
+            if (value.taxRate !== null) {
+                result.taxRate = value.taxRate;
+            } else {
+                result.taxRate = null;
+            }
+        }
+    }
+    if (__fields === undefined || __fields.keeps("sector")) {
+
+        if (value.sector !== undefined) {
+            result.sector = sectorEncodeWithContext(value.sector, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("leadName")) {
+
+        if (value.leadName !== undefined) {
+            result.leadName = accountNameEncodeWithContext(value.leadName, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("phones")) {
+
+        if (value.phones !== undefined) {
+            result.phones = value.phones.map(
+                (item) => phoneNumberEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("email")) {
+
+        if (value.email !== undefined) {
+            result.email = emailEncodeWithContext(value.email, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("leadSource")) {
+        if (value.leadSource !== undefined) {
+
+            result.leadSource = value.leadSource;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("site")) {
+
+        if (value.site !== undefined) {
+            result.site = typeof value.site === "string"
+                ? value.site
+                : siteEncodeWithContext(value.site, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("memo")) {
+
+        if (value.memo !== undefined) {
+            result.memo = value.memo;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("needsReview")) {
+
+        if (value.needsReview !== undefined) {
+            result.needsReview = value.needsReview;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasAlert")) {
+
+        if (value.hasAlert !== undefined) {
+            result.hasAlert = value.hasAlert;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("salesRep")) {
+        if (value.salesRep !== undefined) {
+
+            if (value.salesRep !== null) {
+
+                result.salesRep = value.salesRep.map(
+                    (item) => representsEncodeWithContext(item, ctx)
+                );
+            } else {
+                result.salesRep = null;
+            }
+        }
+    }
+    if (__fields === undefined || __fields.keeps("color")) {
+        if (value.color !== undefined) {
+
+            result.color = value.color;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("accountType")) {
+
+        if (value.accountType !== undefined) {
+            result.accountType = value.accountType;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("subtype")) {
+
+        if (value.subtype !== undefined) {
+            result.subtype = value.subtype;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("isTaxExempt")) {
+
+        if (value.isTaxExempt !== undefined) {
+            result.isTaxExempt = value.isTaxExempt;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("paymentTerms")) {
+
+        if (value.paymentTerms !== undefined) {
+            result.paymentTerms = value.paymentTerms;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tags")) {
+
+        if (value.tags !== undefined) {
+            result.tags = value.tags;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("customFields")) {
+
+        if (value.customFields !== undefined) {
+            result.customFields = value.customFields;
+        }
+    }
 
     return result;
 }
@@ -283,7 +449,13 @@ export function leadDecode(input: unknown, opts?: __mf_DecodeOptions): { success
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Lead | __mf_PendingRef {
+export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Lead | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Lead> | __mf_PendingRef;
+export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Lead> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Lead.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Lead.decodeWithContext: __ref must be a number" }]);
@@ -297,112 +469,112 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("number" in obj)) {
+    if ((__fields === undefined || __fields.requires("number")) && !("number" in obj)) {
         errors.push({ field: "number", message: "missing required field" });
     }
-    if (!("accepted" in obj)) {
+    if ((__fields === undefined || __fields.requires("accepted")) && !("accepted" in obj)) {
         errors.push({ field: "accepted", message: "missing required field" });
     }
-    if (!("probability" in obj)) {
+    if ((__fields === undefined || __fields.requires("probability")) && !("probability" in obj)) {
         errors.push({ field: "probability", message: "missing required field" });
     }
-    if (!("priority" in obj)) {
+    if ((__fields === undefined || __fields.requires("priority")) && !("priority" in obj)) {
         errors.push({ field: "priority", message: "missing required field" });
     }
-    if (!("dueDate" in obj)) {
+    if ((__fields === undefined || __fields.requires("dueDate")) && !("dueDate" in obj)) {
         errors.push({ field: "dueDate", message: "missing required field" });
     }
-    if (!("closeDate" in obj)) {
+    if ((__fields === undefined || __fields.requires("closeDate")) && !("closeDate" in obj)) {
         errors.push({ field: "closeDate", message: "missing required field" });
     }
-    if (!("value" in obj)) {
+    if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    if (!("stage" in obj)) {
+    if ((__fields === undefined || __fields.requires("stage")) && !("stage" in obj)) {
         errors.push({ field: "stage", message: "missing required field" });
     }
-    if (!("status" in obj)) {
+    if ((__fields === undefined || __fields.requires("status")) && !("status" in obj)) {
         errors.push({ field: "status", message: "missing required field" });
     }
-    if (!("description" in obj)) {
+    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
         errors.push({ field: "description", message: "missing required field" });
     }
-    if (!("nextStep" in obj)) {
+    if ((__fields === undefined || __fields.requires("nextStep")) && !("nextStep" in obj)) {
         errors.push({ field: "nextStep", message: "missing required field" });
     }
-    if (!("favorite" in obj)) {
+    if ((__fields === undefined || __fields.requires("favorite")) && !("favorite" in obj)) {
         errors.push({ field: "favorite", message: "missing required field" });
     }
-    if (!("dateAdded" in obj)) {
+    if ((__fields === undefined || __fields.requires("dateAdded")) && !("dateAdded" in obj)) {
         errors.push({ field: "dateAdded", message: "missing required field" });
     }
-    if (!("taxRate" in obj)) {
+    if ((__fields === undefined || __fields.requires("taxRate")) && !("taxRate" in obj)) {
         errors.push({ field: "taxRate", message: "missing required field" });
     }
-    if (!("sector" in obj)) {
+    if ((__fields === undefined || __fields.requires("sector")) && !("sector" in obj)) {
         errors.push({ field: "sector", message: "missing required field" });
     }
-    if (!("leadName" in obj)) {
+    if ((__fields === undefined || __fields.requires("leadName")) && !("leadName" in obj)) {
         errors.push({ field: "leadName", message: "missing required field" });
     }
-    if (!("phones" in obj)) {
+    if ((__fields === undefined || __fields.requires("phones")) && !("phones" in obj)) {
         errors.push({ field: "phones", message: "missing required field" });
     }
-    if (!("email" in obj)) {
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    if (!("leadSource" in obj)) {
+    if ((__fields === undefined || __fields.requires("leadSource")) && !("leadSource" in obj)) {
         errors.push({ field: "leadSource", message: "missing required field" });
     }
-    if (!("site" in obj)) {
+    if ((__fields === undefined || __fields.requires("site")) && !("site" in obj)) {
         errors.push({ field: "site", message: "missing required field" });
     }
-    if (!("memo" in obj)) {
+    if ((__fields === undefined || __fields.requires("memo")) && !("memo" in obj)) {
         errors.push({ field: "memo", message: "missing required field" });
     }
-    if (!("needsReview" in obj)) {
+    if ((__fields === undefined || __fields.requires("needsReview")) && !("needsReview" in obj)) {
         errors.push({ field: "needsReview", message: "missing required field" });
     }
-    if (!("hasAlert" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasAlert")) && !("hasAlert" in obj)) {
         errors.push({ field: "hasAlert", message: "missing required field" });
     }
-    if (!("salesRep" in obj)) {
+    if ((__fields === undefined || __fields.requires("salesRep")) && !("salesRep" in obj)) {
         errors.push({ field: "salesRep", message: "missing required field" });
     }
-    if (!("color" in obj)) {
+    if ((__fields === undefined || __fields.requires("color")) && !("color" in obj)) {
         errors.push({ field: "color", message: "missing required field" });
     }
-    if (!("accountType" in obj)) {
+    if ((__fields === undefined || __fields.requires("accountType")) && !("accountType" in obj)) {
         errors.push({ field: "accountType", message: "missing required field" });
     }
-    if (!("subtype" in obj)) {
+    if ((__fields === undefined || __fields.requires("subtype")) && !("subtype" in obj)) {
         errors.push({ field: "subtype", message: "missing required field" });
     }
-    if (!("isTaxExempt" in obj)) {
+    if ((__fields === undefined || __fields.requires("isTaxExempt")) && !("isTaxExempt" in obj)) {
         errors.push({ field: "isTaxExempt", message: "missing required field" });
     }
-    if (!("paymentTerms" in obj)) {
+    if ((__fields === undefined || __fields.requires("paymentTerms")) && !("paymentTerms" in obj)) {
         errors.push({ field: "paymentTerms", message: "missing required field" });
     }
-    if (!("tags" in obj)) {
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
         errors.push({ field: "tags", message: "missing required field" });
     }
-    if (!("customFields" in obj)) {
+    if ((__fields === undefined || __fields.requires("customFields")) && !("customFields" in obj)) {
         errors.push({ field: "customFields", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -411,7 +583,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("number")) || (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as number | null;
 
         if (!(typeof __raw_number === "number" || __raw_number === null)) {
@@ -420,7 +592,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.number = __raw_number;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("accepted")) || (__fields.keeps("accepted") && obj["accepted"] !== undefined)) {
         const __raw_accepted = obj["accepted"] as boolean;
 
         if (!(typeof __raw_accepted === "boolean")) {
@@ -429,7 +601,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.accepted = __raw_accepted;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("probability")) || (__fields.keeps("probability") && obj["probability"] !== undefined)) {
         const __raw_probability = obj["probability"] as number;
 
         if (!(typeof __raw_probability === "number")) {
@@ -438,7 +610,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.probability = __raw_probability;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("priority")) || (__fields.keeps("priority") && obj["priority"] !== undefined)) {
         const __raw_priority = obj["priority"] as Priority;
 
         ctx.pushScope("priority");
@@ -460,7 +632,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("dueDate")) || (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
         const __raw_dueDate = obj["dueDate"] as string | null;
 
         if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
@@ -469,7 +641,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.dueDate = __raw_dueDate;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("closeDate")) || (__fields.keeps("closeDate") && obj["closeDate"] !== undefined)) {
         const __raw_closeDate = obj["closeDate"] as string | null;
 
         if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
@@ -478,7 +650,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.closeDate = __raw_closeDate;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
         if (!(typeof __raw_value === "number")) {
@@ -487,7 +659,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.value = __raw_value;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("stage")) || (__fields.keeps("stage") && obj["stage"] !== undefined)) {
         const __raw_stage = obj["stage"] as LeadStage;
 
         ctx.pushScope("stage");
@@ -509,7 +681,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("status")) || (__fields.keeps("status") && obj["status"] !== undefined)) {
         const __raw_status = obj["status"] as string;
 
         if (!(typeof __raw_status === "string")) {
@@ -521,7 +693,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.status = __raw_status;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
         const __raw_description = obj["description"] as string | null;
 
         if (!(typeof __raw_description === "string" || __raw_description === null)) {
@@ -530,7 +702,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.description = __raw_description;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("nextStep")) || (__fields.keeps("nextStep") && obj["nextStep"] !== undefined)) {
         const __raw_nextStep = obj["nextStep"] as NextStep;
 
         ctx.pushScope("nextStep");
@@ -552,7 +724,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("favorite")) || (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
         const __raw_favorite = obj["favorite"] as boolean;
 
         if (!(typeof __raw_favorite === "boolean")) {
@@ -561,7 +733,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.favorite = __raw_favorite;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("dateAdded")) || (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
         const __raw_dateAdded = obj["dateAdded"] as string | null;
 
         if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
@@ -570,7 +742,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.dateAdded = __raw_dateAdded;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("taxRate")) || (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
         const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
 
         if (__raw_taxRate === null) {
@@ -579,7 +751,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.taxRate = __raw_taxRate;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("sector")) || (__fields.keeps("sector") && obj["sector"] !== undefined)) {
         const __raw_sector = obj["sector"] as Sector;
 
         ctx.pushScope("sector");
@@ -601,7 +773,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("leadName")) || (__fields.keeps("leadName") && obj["leadName"] !== undefined)) {
         const __raw_leadName = obj["leadName"] as AccountName;
 
         ctx.pushScope("leadName");
@@ -623,7 +795,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
 
         if (Array.isArray(__raw_phones)) {
@@ -658,7 +830,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             errors.push({ field: "phones", message: __raw_phones == null ? "Lead.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as Email;
 
         ctx.pushScope("email");
@@ -680,7 +852,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("leadSource")) || (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
         const __raw_leadSource = obj["leadSource"] as string | null;
 
         if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
@@ -689,7 +861,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.leadSource = __raw_leadSource;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
         const __raw_site = obj["site"] as string | Site;
 
         if (typeof __raw_site === "string") {
@@ -715,7 +887,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("memo")) || (__fields.keeps("memo") && obj["memo"] !== undefined)) {
         const __raw_memo = obj["memo"] as string;
 
         if (!(typeof __raw_memo === "string")) {
@@ -727,7 +899,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.memo = __raw_memo;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("needsReview")) || (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
         const __raw_needsReview = obj["needsReview"] as boolean;
 
         if (!(typeof __raw_needsReview === "boolean")) {
@@ -736,7 +908,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.needsReview = __raw_needsReview;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasAlert")) || (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
         const __raw_hasAlert = obj["hasAlert"] as boolean;
 
         if (!(typeof __raw_hasAlert === "boolean")) {
@@ -745,7 +917,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.hasAlert = __raw_hasAlert;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("salesRep")) || (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
         const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
 
         if (__raw_salesRep === null) {
@@ -785,7 +957,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("color")) || (__fields.keeps("color") && obj["color"] !== undefined)) {
         const __raw_color = obj["color"] as string | null;
 
         if (!(typeof __raw_color === "string" || __raw_color === null)) {
@@ -794,7 +966,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.color = __raw_color;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("accountType")) || (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
         const __raw_accountType = obj["accountType"] as string;
 
         if (!(typeof __raw_accountType === "string")) {
@@ -806,7 +978,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.accountType = __raw_accountType;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("subtype")) || (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
         const __raw_subtype = obj["subtype"] as string;
 
         if (!(typeof __raw_subtype === "string")) {
@@ -818,7 +990,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.subtype = __raw_subtype;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("isTaxExempt")) || (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
         const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
 
         if (!(typeof __raw_isTaxExempt === "boolean")) {
@@ -827,7 +999,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.isTaxExempt = __raw_isTaxExempt;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("paymentTerms")) || (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
         const __raw_paymentTerms = obj["paymentTerms"] as string;
 
         if (!(typeof __raw_paymentTerms === "string")) {
@@ -839,7 +1011,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.paymentTerms = __raw_paymentTerms;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
 
         if (Array.isArray(__raw_tags)) {
@@ -848,7 +1020,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             errors.push({ field: "tags", message: __raw_tags == null ? "Lead.tags is required" : "expected Array<string>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("customFields")) || (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
         const __raw_customFields = obj["customFields"] as Array<[string, string]>;
 
         if (Array.isArray(__raw_customFields)) {
@@ -876,6 +1048,11 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     ctx.pushErrors(errors);
 
     return instance as Lead;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function leadDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Lead>): Partial<Lead> | __mf_PendingRef {
+    return leadDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function leadValidateField<K extends keyof Lead>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -2204,8 +2381,10 @@ export const Lead: {
   readonly defaultValue: typeof leadDefaultValue;
   readonly encode: typeof leadEncode;
   readonly encodeWithContext: typeof leadEncodeWithContext;
+  readonly encodePartialWithContext: typeof leadEncodePartialWithContext;
   readonly decode: typeof leadDecode;
   readonly decodeWithContext: typeof leadDecodeWithContext;
+  readonly decodePartialWithContext: typeof leadDecodePartialWithContext;
   readonly validateField: typeof leadValidateField;
   readonly validateFields: typeof leadValidateFields;
   readonly hasShape: typeof leadHasShape;
@@ -2216,8 +2395,10 @@ export const Lead: {
   defaultValue: leadDefaultValue,
   encode: leadEncode,
   encodeWithContext: leadEncodeWithContext,
+  encodePartialWithContext: leadEncodePartialWithContext,
   decode: leadDecode,
   decodeWithContext: leadDecodeWithContext,
+  decodePartialWithContext: leadDecodePartialWithContext,
   validateField: leadValidateField,
   validateFields: leadValidateFields,
   hasShape: leadHasShape,
@@ -2278,6 +2459,8 @@ export declare function leadDefaultValue(): Lead;
 export declare function leadEncode(value: Lead, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Lead>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function leadDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -2291,6 +2474,10 @@ export declare function leadDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Lead | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Lead> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function leadDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Lead>): Partial<Lead> | __mf_PendingRef;
 export declare function leadValidateField<K extends keyof Lead>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -2430,8 +2617,10 @@ export declare const Lead: {
 	readonly defaultValue: typeof leadDefaultValue;
 	readonly encode: typeof leadEncode;
 	readonly encodeWithContext: typeof leadEncodeWithContext;
+	readonly encodePartialWithContext: typeof leadEncodePartialWithContext;
 	readonly decode: typeof leadDecode;
 	readonly decodeWithContext: typeof leadDecodeWithContext;
+	readonly decodePartialWithContext: typeof leadDecodePartialWithContext;
 	readonly validateField: typeof leadValidateField;
 	readonly validateFields: typeof leadValidateFields;
 	readonly hasShape: typeof leadHasShape;
@@ -2446,57 +2635,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1279..1851
-original 621..650 -> expanded 1851..1880
-original 678..699 -> expanded 1880..1901
-original 727..759 -> expanded 1901..1933
-original 787..815 -> expanded 1933..1961
-original 883..913 -> expanded 1961..1991
-original 1106..1111 -> expanded 1991..1996
-original 1136..1165 -> expanded 1996..2025
-original 1214..1247 -> expanded 2025..2058
-original 1298..1333 -> expanded 2058..2093
-original 1397..1421 -> expanded 2093..2117
-original 1718..1723 -> expanded 2117..2122
-original 1746..1773 -> expanded 2122..2149
-original 1816..1821 -> expanded 2149..2154
-original 1862..1887 -> expanded 2154..2179
-original 1939..1976 -> expanded 2179..2216
-original 2004..2009 -> expanded 2216..2221
-original 2042..2071 -> expanded 2221..2250
-original 2118..2146 -> expanded 2250..2278
-original 2174..2209 -> expanded 2278..2313
-original 2309..2354 -> expanded 2313..2358
-original 2535..2540 -> expanded 2358..2363
-original 2570..2595 -> expanded 2363..2388
-original 2727..2759 -> expanded 2388..2420
-original 2812..2849 -> expanded 2420..2457
-original 2897..2920 -> expanded 2457..2480
-original 2991..3027 -> expanded 2480..2516
-original 3076..3081 -> expanded 2516..2521
-original 3100..3130 -> expanded 2521..2551
-original 3175..3180 -> expanded 2551..2556
-original 3221..3244 -> expanded 2556..2579
-original 3295..3326 -> expanded 2579..2610
-original 3374..3402 -> expanded 2610..2638
-original 3491..3536 -> expanded 2638..2683
-original 3564..3595 -> expanded 2683..2714
-original 3667..3672 -> expanded 2714..2719
-original 3713..3743 -> expanded 2719..2749
-original 3810..3815 -> expanded 2749..2754
-original 3856..3882 -> expanded 2754..2780
-original 3931..3962 -> expanded 2780..2811
-original 4035..4040 -> expanded 2811..2816
-original 4081..4112 -> expanded 2816..2847
-original 4153..4183 -> expanded 2847..2877
-original 4243..4288 -> expanded 2877..2922
-original 4288..4289 -> expanded 84800..84801
-generated 0..1279 <- imports
-generated 2922..3784 <- Default
-generated 3784..6627 <- Encode
-generated 6627..35885 <- Decode
-generated 35885..83906 <- Gigaform
-generated 83906..84800 <- __convenience_const
+original 0..572 -> expanded 1500..2072
+original 621..650 -> expanded 2072..2101
+original 678..699 -> expanded 2101..2122
+original 727..759 -> expanded 2122..2154
+original 787..815 -> expanded 2154..2182
+original 883..913 -> expanded 2182..2212
+original 1106..1111 -> expanded 2212..2217
+original 1136..1165 -> expanded 2217..2246
+original 1214..1247 -> expanded 2246..2279
+original 1298..1333 -> expanded 2279..2314
+original 1397..1421 -> expanded 2314..2338
+original 1718..1723 -> expanded 2338..2343
+original 1746..1773 -> expanded 2343..2370
+original 1816..1821 -> expanded 2370..2375
+original 1862..1887 -> expanded 2375..2400
+original 1939..1976 -> expanded 2400..2437
+original 2004..2009 -> expanded 2437..2442
+original 2042..2071 -> expanded 2442..2471
+original 2118..2146 -> expanded 2471..2499
+original 2174..2209 -> expanded 2499..2534
+original 2309..2354 -> expanded 2534..2579
+original 2535..2540 -> expanded 2579..2584
+original 2570..2595 -> expanded 2584..2609
+original 2727..2759 -> expanded 2609..2641
+original 2812..2849 -> expanded 2641..2678
+original 2897..2920 -> expanded 2678..2701
+original 2991..3027 -> expanded 2701..2737
+original 3076..3081 -> expanded 2737..2742
+original 3100..3130 -> expanded 2742..2772
+original 3175..3180 -> expanded 2772..2777
+original 3221..3244 -> expanded 2777..2800
+original 3295..3326 -> expanded 2800..2831
+original 3374..3402 -> expanded 2831..2859
+original 3491..3536 -> expanded 2859..2904
+original 3564..3595 -> expanded 2904..2935
+original 3667..3672 -> expanded 2935..2940
+original 3713..3743 -> expanded 2940..2970
+original 3810..3815 -> expanded 2970..2975
+original 3856..3882 -> expanded 2975..3001
+original 3931..3962 -> expanded 3001..3032
+original 4035..4040 -> expanded 3032..3037
+original 4081..4112 -> expanded 3037..3068
+original 4153..4183 -> expanded 3068..3098
+original 4243..4288 -> expanded 3098..3143
+original 4288..4289 -> expanded 97410..97411
+generated 0..1500 <- imports
+generated 3143..4005 <- Default
+generated 4005..11744 <- Encode
+generated 11744..48231 <- Decode
+generated 48231..96252 <- Gigaform
+generated 96252..97410 <- __convenience_const
 
 ## Metadata
 

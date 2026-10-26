@@ -1,0 +1,19 @@
+# fix/generated-code-type-safety changes
+
+In commit order.
+
+| Date             | Commit                                                         | Change                                                                                                                                           | Introduced            |
+| ---------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| 2026-10-12 12:45 | b12a3f02, c122c533 (fixup)                                     | [chore(deps): migrate to TypeScript 6](2026-10-12-1245-typescript-6.md)                                                                          |                       |
+| 2026-10-12 12:45 | dca9af44                                                       | [fix(cli): reject a typescript package without the compiler API](2026-10-12-1245-cli-typescript-without-compiler-api.md)                         | typescript 7.0.2      |
+| 2026-10-12 12:46 | 9e2d6d28, 5eb39647 (fixup)                                     | [fix(vite-plugin): skip declarations when typescript has no compiler API](2026-10-12-1246-vite-plugin-typescript-without-compiler-api.md)        | typescript 7.0.2      |
+| 2026-10-12 12:46 | dad9eaa5                                                       | [fix(vite-plugin): keep an outside source's declarations and metadata inside the project](2026-10-12-1246-vite-plugin-outside-source-outputs.md) | bc882ce6 (2025-11-23) |
+| 2026-10-12 12:46 | 9d52e36b                                                       | [fix(typescript-plugin): run the vtsls smoke test](2026-10-12-1246-vtsls-smoke-test.md)                                                          | 5d6d0432 (2025-12-06) |
+| 2026-10-12 12:46 | 060f8168, dec3e37c (fixup), 5560604d (fixup), 05cfe063 (fixup) | [fix(core): generate Encode and class Clone code that type-checks without lib `any`s](2026-10-12-1246-encode-clone-without-lib-any.md)           | 0decde5a (2025-11-24) |
+| 2026-10-12 12:59 | 3f381827, d75d4dd9 (fixup)                                     | [fix(core): generate type-correct, working code for eight uncovered shapes](2026-10-12-1259-uncovered-shapes.md)                                 | dafd08ef (2025-12-07) |
+| 2026-10-12 13:47 | 69d62b63                                                       | [fix(testground): run the svelte browser suite with the testground tests](2026-10-12-1347-svelte-browser-suite.md)                               | 39503eee (2026-04-12) |
+| 2026-10-12 14:23 | ee8e29b5, 7c530618 (fixup), c68d91df (fixup), 19cd9d83 (fixup) | [feat(endec): code a Partial, Pick or Omit of a type by the fields it has](2026-10-12-1423-partial-pick-omit-coders.md)                          | dafd08ef (2025-12-07) |
+| 2026-10-12 15:17 | 8a81aa85                                                       | [refactor(testground): name the stricter-library check by what it checks](2026-10-12-1517-strict-lib-naming.md)                                  |                       |
+| 2026-10-21 12:58 | fac57cc3                                                       | [fix(tooling): update the Deno lock when bumping the version](2026-10-21-1258-bump-deno-lock.md)                                                 | cca06306 (2026-09-21) |
+| 2026-10-21 12:47 | bdc8a445                                                       | [chore(release): bump every package to 0.6.0](2026-10-21-1247-version-0-6-0.md)                                                                  |                       |
+| 2026-10-25 20:36 | c4f1cc57, d587deb3                                             | [fix(tooling): regenerate the derived docs when bumping the version](2026-10-25-2036-bump-derived-docs.md)                                       | c729f98c (2026-09-22) |

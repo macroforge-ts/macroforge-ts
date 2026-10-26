@@ -167,7 +167,7 @@ pub(crate) fn registries_for_check(root: &Path, command: &str) -> Result<Option<
     Ok(Some(paths))
 }
 
-/// Setup shared by the tsc and svelte-check wrappers, imported by relative path.
+/// Setup shared by the wrappers, imported by relative path.
 const WRAPPER_COMMON_NAME: &str = "wrapper-common.mjs";
 const WRAPPER_COMMON: &str = include_str!("../../../js/cli/wrapper-common.mjs");
 
@@ -442,8 +442,8 @@ pub fn run_svelte_package_wrapper(
     no_types: bool,
     full_rebuild: bool,
 ) -> Result<()> {
-    // The wrapper is two ES modules, the entrypoint and an fs shim. Its resolve
-    // hook finds the shim by relative path, so both go into one temp dir.
+    // The wrapper's entrypoint imports the shared setup and its resolve hook
+    // finds the fs shim, both by relative path, so all go into one temp dir.
     let temp_dir = materialize_scripts(
         "svelte-package",
         &[
@@ -455,6 +455,7 @@ pub fn run_svelte_package_wrapper(
                 "svelte-package-fs-shim.mjs",
                 include_str!("../../../js/cli/svelte-package-fs-shim.mjs"),
             ),
+            (WRAPPER_COMMON_NAME, WRAPPER_COMMON),
         ],
     )?;
     let main_path = temp_dir.join("svelte-package-wrapper.mjs");

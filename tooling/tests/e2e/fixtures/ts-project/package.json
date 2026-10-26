@@ -7,6 +7,6 @@
         "@macroforge/core": "file:../../../../crates/macroforge_ts"
     },
     "devDependencies": {
-        "typescript": "^5.0.0"
+        "typescript": "^6.0.3"
     }
 }

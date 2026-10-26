@@ -21,8 +21,8 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
 
@@ -43,28 +43,44 @@ export function fooDefaultValue(): Foo {
 export function fooEncode(value: Foo, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = fooEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function fooEncodeWithContext(value: Foo, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return fooEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function fooEncodePartialWithContext(value: Partial<Foo>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Foo>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Foo",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.createdAt = __foreign__dateTimeUtcEncode(value.createdAt);
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("createdAt")) {
+
+        if (value.createdAt !== undefined) {
+            result.createdAt = __foreign__dateTimeUtcEncode(value.createdAt);
+        }
+    }
 
     return result;
 }
@@ -123,7 +139,13 @@ export function fooDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Foo | __mf_PendingRef {
+export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Foo | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Foo> | __mf_PendingRef;
+export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Foo> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Foo.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Foo.decodeWithContext: __ref must be a number" }]);
@@ -137,22 +159,22 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): F
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("createdAt" in obj)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
         errors.push({ field: "createdAt", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -161,15 +183,22 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): F
             instance.id = __raw_id;
         }
     }
-    try {
-        instance.createdAt = __foreign__dateTimeUtcDecode(obj["createdAt"]);
-    } catch (__error) {
-        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+        try {
+            instance.createdAt = __foreign__dateTimeUtcDecode(obj["createdAt"]);
+        } catch (__error) {
+            errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+        }
     }
 
     ctx.pushErrors(errors);
 
     return instance as Foo;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function fooDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Foo>): Partial<Foo> | __mf_PendingRef {
+    return fooDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function fooValidateField<K extends keyof Foo>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function fooValidateField(): Array<{ field: string; message: string }> {
@@ -196,8 +225,10 @@ export const Foo: {
   readonly defaultValue: typeof fooDefaultValue;
   readonly encode: typeof fooEncode;
   readonly encodeWithContext: typeof fooEncodeWithContext;
+  readonly encodePartialWithContext: typeof fooEncodePartialWithContext;
   readonly decode: typeof fooDecode;
   readonly decodeWithContext: typeof fooDecodeWithContext;
+  readonly decodePartialWithContext: typeof fooDecodePartialWithContext;
   readonly validateField: typeof fooValidateField;
   readonly validateFields: typeof fooValidateFields;
   readonly hasShape: typeof fooHasShape;
@@ -206,8 +237,10 @@ export const Foo: {
   defaultValue: fooDefaultValue,
   encode: fooEncode,
   encodeWithContext: fooEncodeWithContext,
+  encodePartialWithContext: fooEncodePartialWithContext,
   decode: fooDecode,
   decodeWithContext: fooDecodeWithContext,
+  decodePartialWithContext: fooDecodePartialWithContext,
   validateField: fooValidateField,
   validateFields: fooValidateFields,
   hasShape: fooHasShape,
@@ -226,6 +259,8 @@ export declare function fooDefaultValue(): Foo;
 export declare function fooEncode(value: Foo, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function fooEncodeWithContext(value: Foo, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function fooEncodePartialWithContext(value: Partial<Foo>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Foo>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function fooDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -239,6 +274,10 @@ export declare function fooDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Foo | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Foo> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function fooDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Foo>): Partial<Foo> | __mf_PendingRef;
 export declare function fooValidateField<K extends keyof Foo>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -253,8 +292,10 @@ export declare const Foo: {
 	readonly defaultValue: typeof fooDefaultValue;
 	readonly encode: typeof fooEncode;
 	readonly encodeWithContext: typeof fooEncodeWithContext;
+	readonly encodePartialWithContext: typeof fooEncodePartialWithContext;
 	readonly decode: typeof fooDecode;
 	readonly decodeWithContext: typeof fooDecodeWithContext;
+	readonly decodePartialWithContext: typeof fooDecodePartialWithContext;
 	readonly validateField: typeof fooValidateField;
 	readonly validateFields: typeof fooValidateFields;
 	readonly hasShape: typeof fooHasShape;
@@ -267,15 +308,15 @@ export declare const Foo: {
 
 ## Mapping
 
-original 0..36 -> expanded 390..426
-original 75..103 -> expanded 426..454
-original 134..181 -> expanded 454..501
-original 181..182 -> expanded 6568..6569
-generated 0..390 <- imports
-generated 501..645 <- Default
-generated 645..1785 <- Encode
-generated 1785..5853 <- Decode
-generated 5853..6568 <- __convenience_const
+original 0..36 -> expanded 611..647
+original 75..103 -> expanded 647..675
+original 134..181 -> expanded 675..722
+original 181..182 -> expanded 9475..9476
+generated 0..611 <- imports
+generated 722..866 <- Default
+generated 866..2814 <- Encode
+generated 2814..8500 <- Decode
+generated 8500..9475 <- __convenience_const
 
 ## Metadata
 

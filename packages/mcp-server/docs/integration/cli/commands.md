@@ -107,6 +107,10 @@ Bash
 macroforge tsc -p tsconfig.build.json
 ```
 
+The check runs your project's own `typescript` package, version 5 or 6, with your `tsconfig.json` as
+written. That includes `libReplacement`: the code the built-in derives generate is tested against
+TypeScript's standard library and against a stricter replacement with no `any` in a value position.
+
 ### macroforge svelte-check
 
 Runs `svelte-check` with macro expansion, so Svelte components using macros are properly

@@ -17,8 +17,8 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 interface Point {
     x: number;
@@ -79,7 +79,13 @@ export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
+export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Point> | __mf_PendingRef;
+export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Point> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
@@ -93,22 +99,22 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("x" in obj)) {
+    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
         errors.push({ field: "x", message: "missing required field" });
     }
-    if (!("y" in obj)) {
+    if ((__fields === undefined || __fields.requires("y")) && !("y" in obj)) {
         errors.push({ field: "y", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("x")) || (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
         if (!(typeof __raw_x === "number")) {
@@ -117,7 +123,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.x = __raw_x;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("y")) || (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
         if (!(typeof __raw_y === "number")) {
@@ -130,6 +136,11 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     ctx.pushErrors(errors);
 
     return instance as Point;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function pointDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Point>): Partial<Point> | __mf_PendingRef {
+    return pointDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function pointValidateField<K extends keyof Point>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function pointValidateField(): Array<{ field: string; message: string }> {
@@ -155,6 +166,7 @@ export function pointIs(obj: unknown): obj is Point {
 const Point: {
   readonly decode: typeof pointDecode;
   readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly decodePartialWithContext: typeof pointDecodePartialWithContext;
   readonly validateField: typeof pointValidateField;
   readonly validateFields: typeof pointValidateFields;
   readonly hasShape: typeof pointHasShape;
@@ -162,6 +174,7 @@ const Point: {
 } = {
   decode: pointDecode,
   decodeWithContext: pointDecodeWithContext,
+  decodePartialWithContext: pointDecodePartialWithContext,
   validateField: pointValidateField,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
@@ -187,6 +200,10 @@ export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): 
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Point> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function pointDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Point>): Partial<Point> | __mf_PendingRef;
 export declare function pointValidateField<K extends keyof Point>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -205,11 +222,11 @@ export {};
 
 ## Mapping
 
-original 22..72 -> expanded 225..275
-original 72..73 -> expanded 4886..4887
-generated 0..225 <- imports
-generated 275..4394 <- Decode
-generated 4394..4886 <- __convenience_const
+original 22..72 -> expanded 350..400
+original 72..73 -> expanded 6713..6714
+generated 0..350 <- imports
+generated 400..6087 <- Decode
+generated 6087..6713 <- __convenience_const
 
 ## Metadata
 

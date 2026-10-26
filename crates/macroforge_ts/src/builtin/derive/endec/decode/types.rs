@@ -2,7 +2,7 @@ use crate::ast::{Expr, Ident};
 
 use super::super::union_guard::UnionGuard;
 use super::super::value_kind::EndecValueKind;
-use super::super::{TypeCategory, ValidatorSpec};
+use super::super::{TypeCategory, ValidatorSpec, WrapperFields};
 use super::validation::Missing;
 use crate::builtin::derive::common::rendered;
 use crate::macros::ts_template;
@@ -88,6 +88,8 @@ pub(super) struct DecodeField {
     pub record_value_encodable_type: Option<String>,
     /// For wrapper types where T is Encodable: the type name.
     pub wrapper_encodable_type: Option<String>,
+    /// For wrapper types: which of T's fields a value has.
+    pub wrapper_fields: Option<WrapperFields>,
 
     /// Set when the field's resolved type is a two-member union of a
     /// primitive or foreign type with the `Encodable` type: the shape an
@@ -118,6 +120,13 @@ impl DecodeField {
     /// Returns true if this field has any validators that need to be applied.
     pub fn has_validators(&self) -> bool {
         !self.validators.is_empty()
+    }
+
+    /// Whether the encoded object has to carry this field's key. A field
+    /// typed `T | undefined` is encoded by leaving its key out, as JSON has
+    /// no `undefined`, so its key is no more required than an optional one's.
+    pub fn key_required(&self) -> bool {
+        !self.optional && !self.flatten && !matches!(self.type_cat, TypeCategory::Optional(_))
     }
 
     /// What a missing value means for this field: allowed for `T | null`,

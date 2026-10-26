@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { expandSync } from '@macroforge/core';
+import { encodedText, encodedTextWithoutMetadata } from '@macroforge/core/endec';
 
 // ============================================================================
 // Encode Macro Expansion Tests
@@ -729,10 +730,9 @@ describe('Import handling', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(
-            result.code.includes(
-                'import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec"'
-            ),
+        assert.match(
+            result.code,
+            /import \{[^}]*\bEncodeContext as __mf_EncodeContext\b[^}]*\} from "@macroforge\/core\/endec"/,
             'Should add EncodeContext import with __mf_ alias'
         );
     });
@@ -1404,15 +1404,42 @@ describe('Encode metadata stripping', () => {
             'Should have keepMetadata optional parameter'
         );
         assert.ok(
-            result.code.includes('if (keepMetadata) return JSON.stringify(__raw)'),
-            'Should bypass stripping when keepMetadata is true'
-        );
-        assert.ok(
             result.code.includes(
-                'key === "__type" || key === "__id" ? undefined : val'
+                'return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");'
             ),
-            'Should have JSON.stringify replacer that strips __type and __id'
+            'Should keep the metadata only when keepMetadata is true'
         );
+    });
+
+    test('the text helpers strip the tag and __id at every depth, or keep them', () => {
+        const encoded = {
+            __type: 'Account',
+            __id: 0,
+            name: 'Ada',
+            phones: [{ __type: 'PhoneNumber', __id: 1, main: true, number: '555' }],
+            owner: { __ref: 0 },
+            missing: undefined,
+            nothing: null
+        };
+
+        assert.equal(
+            encodedTextWithoutMetadata(encoded, '__type'),
+            '{"name":"Ada","phones":[{"main":true,"number":"555"}],"owner":{"__ref":0},"nothing":null}'
+        );
+        assert.equal(
+            encodedTextWithoutMetadata({ kind: 'Circle', __type: 'kept', radius: 1 }, 'kind'),
+            '{"__type":"kept","radius":1}',
+            'only the named tag field is the tag'
+        );
+        assert.equal(encodedText(encoded), JSON.stringify(encoded));
+        assert.equal(encodedText('red'), '"red"');
+    });
+
+    test('the text helpers throw for a value with no JSON text', () => {
+        for (const text of [encodedText, (value) => encodedTextWithoutMetadata(value, '__type')]) {
+            assert.throws(() => text(undefined), TypeError);
+            assert.throws(() => text({ amount: 1n }), TypeError);
+        }
     });
 
     test('encodeWithContext still includes __type and __id', () => {
@@ -1430,7 +1457,7 @@ describe('Encode metadata stripping', () => {
             'encodeWithContext should still have __type marker'
         );
         assert.ok(
-            result.code.includes('const __id = ctx.register(value)'),
+            result.code.includes('__id = ctx.register(value)'),
             'encodeWithContext should still register __id'
         );
     });

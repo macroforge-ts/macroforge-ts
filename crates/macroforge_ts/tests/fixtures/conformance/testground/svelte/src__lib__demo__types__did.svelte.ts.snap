@@ -15,8 +15,8 @@ true
 import { activityTypeDecodeWithContext, activityTypeEncodeWithContext, activityTypeDefaultValue } from "./activity-type.svelte";
 import { actorDecodeWithContext, actorEncodeWithContext } from "./actor.svelte";
 import { targetDecodeWithContext, targetEncodeWithContext } from "./target.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -53,36 +53,72 @@ export function didDefaultValue(): Did {
 export function didEncode(value: Did, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = didEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return didEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function didEncodePartialWithContext(value: Partial<Did>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Did>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Did",
         __id,
     };
 
-    
-    result.in = typeof value.in === "string"
-        ? value.in
-        : actorEncodeWithContext(value.in, ctx);
-    result.out = typeof value.out === "string"
-        ? value.out
-        : targetEncodeWithContext(value.out, ctx);
-    result.id = value.id;
-    result.activityType = activityTypeEncodeWithContext(value.activityType, ctx);
-    result.createdAt = value.createdAt;
-    result.metadata = value.metadata;
+    if (__fields === undefined || __fields.keeps("in")) {
+
+        if (value.in !== undefined) {
+            result.in = typeof value.in === "string"
+                ? value.in
+                : actorEncodeWithContext(value.in, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("out")) {
+
+        if (value.out !== undefined) {
+            result.out = typeof value.out === "string"
+                ? value.out
+                : targetEncodeWithContext(value.out, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("activityType")) {
+
+        if (value.activityType !== undefined) {
+            result.activityType = activityTypeEncodeWithContext(value.activityType, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("createdAt")) {
+
+        if (value.createdAt !== undefined) {
+            result.createdAt = value.createdAt;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("metadata")) {
+        if (value.metadata !== undefined) {
+
+            result.metadata = value.metadata;
+        }
+    }
 
     return result;
 }
@@ -141,7 +177,13 @@ export function didDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Did | __mf_PendingRef {
+export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Did | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Did> | __mf_PendingRef;
+export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Did> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Did.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Did.decodeWithContext: __ref must be a number" }]);
@@ -155,34 +197,34 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("in" in obj)) {
+    if ((__fields === undefined || __fields.requires("in")) && !("in" in obj)) {
         errors.push({ field: "in", message: "missing required field" });
     }
-    if (!("out" in obj)) {
+    if ((__fields === undefined || __fields.requires("out")) && !("out" in obj)) {
         errors.push({ field: "out", message: "missing required field" });
     }
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("activityType" in obj)) {
+    if ((__fields === undefined || __fields.requires("activityType")) && !("activityType" in obj)) {
         errors.push({ field: "activityType", message: "missing required field" });
     }
-    if (!("createdAt" in obj)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) && !("createdAt" in obj)) {
         errors.push({ field: "createdAt", message: "missing required field" });
     }
-    if (!("metadata" in obj)) {
+    if ((__fields === undefined || __fields.requires("metadata")) && !("metadata" in obj)) {
         errors.push({ field: "metadata", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("in")) || (__fields.keeps("in") && obj["in"] !== undefined)) {
         const __raw_in = obj["in"] as string | Actor;
 
         if (typeof __raw_in === "string") {
@@ -208,7 +250,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("out")) || (__fields.keeps("out") && obj["out"] !== undefined)) {
         const __raw_out = obj["out"] as string | Target;
 
         if (typeof __raw_out === "string") {
@@ -234,7 +276,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -243,7 +285,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("activityType")) || (__fields.keeps("activityType") && obj["activityType"] !== undefined)) {
         const __raw_activityType = obj["activityType"] as ActivityType;
 
         ctx.pushScope("activityType");
@@ -265,7 +307,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
             ctx.popScope();
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string;
 
         if (!(typeof __raw_createdAt === "string")) {
@@ -274,7 +316,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
             instance.createdAt = __raw_createdAt;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
         const __raw_metadata = obj["metadata"] as string | null;
 
         if (!(typeof __raw_metadata === "string" || __raw_metadata === null)) {
@@ -287,6 +329,11 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): D
     ctx.pushErrors(errors);
 
     return instance as Did;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function didDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Did>): Partial<Did> | __mf_PendingRef {
+    return didDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function didValidateField<K extends keyof Did>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function didValidateField(): Array<{ field: string; message: string }> {
@@ -574,8 +621,10 @@ export const Did: {
   readonly defaultValue: typeof didDefaultValue;
   readonly encode: typeof didEncode;
   readonly encodeWithContext: typeof didEncodeWithContext;
+  readonly encodePartialWithContext: typeof didEncodePartialWithContext;
   readonly decode: typeof didDecode;
   readonly decodeWithContext: typeof didDecodeWithContext;
+  readonly decodePartialWithContext: typeof didDecodePartialWithContext;
   readonly validateField: typeof didValidateField;
   readonly validateFields: typeof didValidateFields;
   readonly hasShape: typeof didHasShape;
@@ -586,8 +635,10 @@ export const Did: {
   defaultValue: didDefaultValue,
   encode: didEncode,
   encodeWithContext: didEncodeWithContext,
+  encodePartialWithContext: didEncodePartialWithContext,
   decode: didDecode,
   decodeWithContext: didDecodeWithContext,
+  decodePartialWithContext: didDecodePartialWithContext,
   validateField: didValidateField,
   validateFields: didValidateFields,
   hasShape: didHasShape,
@@ -615,6 +666,8 @@ export declare function didDefaultValue(): Did;
 export declare function didEncode(value: Did, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function didEncodePartialWithContext(value: Partial<Did>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Did>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function didDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -628,6 +681,10 @@ export declare function didDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Did | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Did> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function didDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Did>): Partial<Did> | __mf_PendingRef;
 export declare function didValidateField<K extends keyof Did>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -689,8 +746,10 @@ export declare const Did: {
 	readonly defaultValue: typeof didDefaultValue;
 	readonly encode: typeof didEncode;
 	readonly encodeWithContext: typeof didEncodeWithContext;
+	readonly encodePartialWithContext: typeof didEncodePartialWithContext;
 	readonly decode: typeof didDecode;
 	readonly decodeWithContext: typeof didDecodeWithContext;
+	readonly decodePartialWithContext: typeof didDecodePartialWithContext;
 	readonly validateField: typeof didValidateField;
 	readonly validateFields: typeof didValidateFields;
 	readonly hasShape: typeof didHasShape;
@@ -705,17 +764,17 @@ export declare const Did: {
 
 ## Mapping
 
-original 0..211 -> expanded 715..926
-original 260..288 -> expanded 926..954
-original 307..336 -> expanded 954..983
-original 355..483 -> expanded 983..1111
-original 483..484 -> expanded 20556..20557
-generated 0..715 <- imports
-generated 1111..1321 <- Default
-generated 1321..2782 <- Encode
-generated 2782..10302 <- Decode
-generated 10302..19685 <- Gigaform
-generated 19685..20556 <- __convenience_const
+original 0..211 -> expanded 936..1147
+original 260..288 -> expanded 1147..1175
+original 307..336 -> expanded 1175..1204
+original 355..483 -> expanded 1204..1332
+original 483..484 -> expanded 24709..24710
+generated 0..936 <- imports
+generated 1332..1542 <- Default
+generated 1542..4361 <- Encode
+generated 4361..14195 <- Decode
+generated 14195..23578 <- Gigaform
+generated 23578..24709 <- __convenience_const
 
 ## Metadata
 

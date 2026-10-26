@@ -14,7 +14,7 @@ true
 
 import { companyNameDecodeWithContext, companyNameHasShape, companyNameDefaultValue } from "./company-name.svelte";
 import { personNameDecodeWithContext, personNameHasShape, personNameDefaultValue } from "./person-name.svelte";
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,8 +35,7 @@ export function accountNameDefaultValue(): AccountName {
 export function accountNameEncode(value: AccountName, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = accountNameEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -441,15 +440,15 @@ export declare const AccountName: {
 
 ## Mapping
 
-original 0..173 -> expanded 688..861
-original 355..423 -> expanded 861..929
-original 423..424 -> expanded 12578..12579
-generated 0..688 <- imports
-generated 929..1027 <- Default
-generated 1027..2350 <- Encode
-generated 2350..7178 <- Decode
-generated 7178..11731 <- Gigaform
-generated 11731..12578 <- __convenience_const
+original 0..173 -> expanded 784..957
+original 355..423 -> expanded 957..1025
+original 423..424 -> expanded 12622..12623
+generated 0..784 <- imports
+generated 1025..1123 <- Default
+generated 1123..2394 <- Encode
+generated 2394..7222 <- Decode
+generated 7222..11775 <- Gigaform
+generated 11775..12622 <- __convenience_const
 
 ## Metadata
 

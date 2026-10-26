@@ -96,6 +96,19 @@ impl TypeNames {
     pub fn full_type_ident(&self) -> Ident {
         ts_ident!(self.full_type.as_str())
     }
+
+    /// The type an instance is filled in under, field by field, outside its
+    /// constructor: the type itself, or its writable form when a field is
+    /// `readonly`, which only a constructor may otherwise assign.
+    pub fn fillable_type_ident(&self, has_readonly_field: bool) -> Ident {
+        if !has_readonly_field {
+            return self.full_type_ident();
+        }
+        let full = self.full_type.as_str();
+        ts_ident!(rendered(
+            ts_template! { { -readonly [Key in keyof @{full}]: @{full}[Key] } }
+        ))
+    }
 }
 
 #[cfg(test)]

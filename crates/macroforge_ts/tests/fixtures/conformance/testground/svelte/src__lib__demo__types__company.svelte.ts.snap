@@ -16,8 +16,8 @@ import { colorsConfigDecodeWithContext, colorsConfigEncodeWithContext, colorsCon
 import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -112,61 +112,212 @@ export function companyDefaultValue(): Company {
 export function companyEncode(value: Company, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = companyEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return companyEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function companyEncodePartialWithContext(value: Partial<Company>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Company>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Company",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.legalName = value.legalName;
-    result.headquarters = typeof value.headquarters === "string"
-        ? value.headquarters
-        : siteEncodeWithContext(value.headquarters, ctx);
-    result.phones = value.phones.map(
-        (item) => phoneNumberEncodeWithContext(item, ctx)
-    );
-    result.fax = value.fax;
-    result.email = value.email;
-    result.website = value.website;
-    result.taxId = value.taxId;
-    result.referenceNumber = value.referenceNumber;
-    result.postalCodeLookup = value.postalCodeLookup;
-    result.timeZone = value.timeZone;
-    result.defaultTax = typeof value.defaultTax === "string"
-        ? value.defaultTax
-        : taxRateEncodeWithContext(value.defaultTax, ctx);
-    result.defaultTaxLocation = value.defaultTaxLocation;
-    result.defaultAreaCode = value.defaultAreaCode;
-    result.defaultAccountType = value.defaultAccountType;
-    result.lookupFormatting = value.lookupFormatting;
-    result.accountNameFormat = value.accountNameFormat;
-    result.merchantServiceProvider = value.merchantServiceProvider;
-    result.dateDisplayStyle = value.dateDisplayStyle;
-    result.hasAutoCommission = value.hasAutoCommission;
-    result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;
-    result.hasAutoFmsTracking = value.hasAutoFmsTracking;
-    result.hasNotifications = value.hasNotifications;
-    result.hasRequiredLeadSource = value.hasRequiredLeadSource;
-    result.hasRequiredEmail = value.hasRequiredEmail;
-    result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;
-    result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;
-    result.scheduleInterval = value.scheduleInterval;
-    result.colorsConfig = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("legalName")) {
+
+        if (value.legalName !== undefined) {
+            result.legalName = value.legalName;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("headquarters")) {
+
+        if (value.headquarters !== undefined) {
+            result.headquarters = typeof value.headquarters === "string"
+                ? value.headquarters
+                : siteEncodeWithContext(value.headquarters, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("phones")) {
+
+        if (value.phones !== undefined) {
+            result.phones = value.phones.map(
+                (item) => phoneNumberEncodeWithContext(item, ctx)
+            );
+        }
+    }
+    if (__fields === undefined || __fields.keeps("fax")) {
+
+        if (value.fax !== undefined) {
+            result.fax = value.fax;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("email")) {
+
+        if (value.email !== undefined) {
+            result.email = value.email;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("website")) {
+
+        if (value.website !== undefined) {
+            result.website = value.website;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("taxId")) {
+
+        if (value.taxId !== undefined) {
+            result.taxId = value.taxId;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("referenceNumber")) {
+
+        if (value.referenceNumber !== undefined) {
+            result.referenceNumber = value.referenceNumber;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("postalCodeLookup")) {
+
+        if (value.postalCodeLookup !== undefined) {
+            result.postalCodeLookup = value.postalCodeLookup;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("timeZone")) {
+
+        if (value.timeZone !== undefined) {
+            result.timeZone = value.timeZone;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("defaultTax")) {
+
+        if (value.defaultTax !== undefined) {
+            result.defaultTax = typeof value.defaultTax === "string"
+                ? value.defaultTax
+                : taxRateEncodeWithContext(value.defaultTax, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("defaultTaxLocation")) {
+
+        if (value.defaultTaxLocation !== undefined) {
+            result.defaultTaxLocation = value.defaultTaxLocation;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("defaultAreaCode")) {
+
+        if (value.defaultAreaCode !== undefined) {
+            result.defaultAreaCode = value.defaultAreaCode;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("defaultAccountType")) {
+
+        if (value.defaultAccountType !== undefined) {
+            result.defaultAccountType = value.defaultAccountType;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lookupFormatting")) {
+
+        if (value.lookupFormatting !== undefined) {
+            result.lookupFormatting = value.lookupFormatting;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("accountNameFormat")) {
+
+        if (value.accountNameFormat !== undefined) {
+            result.accountNameFormat = value.accountNameFormat;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("merchantServiceProvider")) {
+        if (value.merchantServiceProvider !== undefined) {
+
+            result.merchantServiceProvider = value.merchantServiceProvider;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("dateDisplayStyle")) {
+
+        if (value.dateDisplayStyle !== undefined) {
+            result.dateDisplayStyle = value.dateDisplayStyle;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasAutoCommission")) {
+
+        if (value.hasAutoCommission !== undefined) {
+            result.hasAutoCommission = value.hasAutoCommission;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasAutoDaylightSavings")) {
+
+        if (value.hasAutoDaylightSavings !== undefined) {
+            result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasAutoFmsTracking")) {
+
+        if (value.hasAutoFmsTracking !== undefined) {
+            result.hasAutoFmsTracking = value.hasAutoFmsTracking;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasNotifications")) {
+
+        if (value.hasNotifications !== undefined) {
+            result.hasNotifications = value.hasNotifications;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasRequiredLeadSource")) {
+
+        if (value.hasRequiredLeadSource !== undefined) {
+            result.hasRequiredLeadSource = value.hasRequiredLeadSource;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasRequiredEmail")) {
+
+        if (value.hasRequiredEmail !== undefined) {
+            result.hasRequiredEmail = value.hasRequiredEmail;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasSortServiceItemsAlphabetically")) {
+
+        if (value.hasSortServiceItemsAlphabetically !== undefined) {
+            result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("hasAttachOrderToAppointmentEmails")) {
+
+        if (value.hasAttachOrderToAppointmentEmails !== undefined) {
+            result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("scheduleInterval")) {
+
+        if (value.scheduleInterval !== undefined) {
+            result.scheduleInterval = value.scheduleInterval;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("colorsConfig")) {
+
+        if (value.colorsConfig !== undefined) {
+            result.colorsConfig = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
+        }
+    }
 
     return result;
 }
@@ -225,7 +376,13 @@ export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Company | __mf_PendingRef {
+export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Company | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Company> | __mf_PendingRef;
+export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Company> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Company.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Company.decodeWithContext: __ref must be a number" }]);
@@ -239,103 +396,103 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("legalName" in obj)) {
+    if ((__fields === undefined || __fields.requires("legalName")) && !("legalName" in obj)) {
         errors.push({ field: "legalName", message: "missing required field" });
     }
-    if (!("headquarters" in obj)) {
+    if ((__fields === undefined || __fields.requires("headquarters")) && !("headquarters" in obj)) {
         errors.push({ field: "headquarters", message: "missing required field" });
     }
-    if (!("phones" in obj)) {
+    if ((__fields === undefined || __fields.requires("phones")) && !("phones" in obj)) {
         errors.push({ field: "phones", message: "missing required field" });
     }
-    if (!("fax" in obj)) {
+    if ((__fields === undefined || __fields.requires("fax")) && !("fax" in obj)) {
         errors.push({ field: "fax", message: "missing required field" });
     }
-    if (!("email" in obj)) {
+    if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    if (!("website" in obj)) {
+    if ((__fields === undefined || __fields.requires("website")) && !("website" in obj)) {
         errors.push({ field: "website", message: "missing required field" });
     }
-    if (!("taxId" in obj)) {
+    if ((__fields === undefined || __fields.requires("taxId")) && !("taxId" in obj)) {
         errors.push({ field: "taxId", message: "missing required field" });
     }
-    if (!("referenceNumber" in obj)) {
+    if ((__fields === undefined || __fields.requires("referenceNumber")) && !("referenceNumber" in obj)) {
         errors.push({ field: "referenceNumber", message: "missing required field" });
     }
-    if (!("postalCodeLookup" in obj)) {
+    if ((__fields === undefined || __fields.requires("postalCodeLookup")) && !("postalCodeLookup" in obj)) {
         errors.push({ field: "postalCodeLookup", message: "missing required field" });
     }
-    if (!("timeZone" in obj)) {
+    if ((__fields === undefined || __fields.requires("timeZone")) && !("timeZone" in obj)) {
         errors.push({ field: "timeZone", message: "missing required field" });
     }
-    if (!("defaultTax" in obj)) {
+    if ((__fields === undefined || __fields.requires("defaultTax")) && !("defaultTax" in obj)) {
         errors.push({ field: "defaultTax", message: "missing required field" });
     }
-    if (!("defaultTaxLocation" in obj)) {
+    if ((__fields === undefined || __fields.requires("defaultTaxLocation")) && !("defaultTaxLocation" in obj)) {
         errors.push({ field: "defaultTaxLocation", message: "missing required field" });
     }
-    if (!("defaultAreaCode" in obj)) {
+    if ((__fields === undefined || __fields.requires("defaultAreaCode")) && !("defaultAreaCode" in obj)) {
         errors.push({ field: "defaultAreaCode", message: "missing required field" });
     }
-    if (!("defaultAccountType" in obj)) {
+    if ((__fields === undefined || __fields.requires("defaultAccountType")) && !("defaultAccountType" in obj)) {
         errors.push({ field: "defaultAccountType", message: "missing required field" });
     }
-    if (!("lookupFormatting" in obj)) {
+    if ((__fields === undefined || __fields.requires("lookupFormatting")) && !("lookupFormatting" in obj)) {
         errors.push({ field: "lookupFormatting", message: "missing required field" });
     }
-    if (!("accountNameFormat" in obj)) {
+    if ((__fields === undefined || __fields.requires("accountNameFormat")) && !("accountNameFormat" in obj)) {
         errors.push({ field: "accountNameFormat", message: "missing required field" });
     }
-    if (!("merchantServiceProvider" in obj)) {
+    if ((__fields === undefined || __fields.requires("merchantServiceProvider")) && !("merchantServiceProvider" in obj)) {
         errors.push({ field: "merchantServiceProvider", message: "missing required field" });
     }
-    if (!("dateDisplayStyle" in obj)) {
+    if ((__fields === undefined || __fields.requires("dateDisplayStyle")) && !("dateDisplayStyle" in obj)) {
         errors.push({ field: "dateDisplayStyle", message: "missing required field" });
     }
-    if (!("hasAutoCommission" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasAutoCommission")) && !("hasAutoCommission" in obj)) {
         errors.push({ field: "hasAutoCommission", message: "missing required field" });
     }
-    if (!("hasAutoDaylightSavings" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasAutoDaylightSavings")) && !("hasAutoDaylightSavings" in obj)) {
         errors.push({ field: "hasAutoDaylightSavings", message: "missing required field" });
     }
-    if (!("hasAutoFmsTracking" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasAutoFmsTracking")) && !("hasAutoFmsTracking" in obj)) {
         errors.push({ field: "hasAutoFmsTracking", message: "missing required field" });
     }
-    if (!("hasNotifications" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasNotifications")) && !("hasNotifications" in obj)) {
         errors.push({ field: "hasNotifications", message: "missing required field" });
     }
-    if (!("hasRequiredLeadSource" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasRequiredLeadSource")) && !("hasRequiredLeadSource" in obj)) {
         errors.push({ field: "hasRequiredLeadSource", message: "missing required field" });
     }
-    if (!("hasRequiredEmail" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasRequiredEmail")) && !("hasRequiredEmail" in obj)) {
         errors.push({ field: "hasRequiredEmail", message: "missing required field" });
     }
-    if (!("hasSortServiceItemsAlphabetically" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasSortServiceItemsAlphabetically")) && !("hasSortServiceItemsAlphabetically" in obj)) {
         errors.push({ field: "hasSortServiceItemsAlphabetically", message: "missing required field" });
     }
-    if (!("hasAttachOrderToAppointmentEmails" in obj)) {
+    if ((__fields === undefined || __fields.requires("hasAttachOrderToAppointmentEmails")) && !("hasAttachOrderToAppointmentEmails" in obj)) {
         errors.push({ field: "hasAttachOrderToAppointmentEmails", message: "missing required field" });
     }
-    if (!("scheduleInterval" in obj)) {
+    if ((__fields === undefined || __fields.requires("scheduleInterval")) && !("scheduleInterval" in obj)) {
         errors.push({ field: "scheduleInterval", message: "missing required field" });
     }
-    if (!("colorsConfig" in obj)) {
+    if ((__fields === undefined || __fields.requires("colorsConfig")) && !("colorsConfig" in obj)) {
         errors.push({ field: "colorsConfig", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -344,7 +501,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("legalName")) || (__fields.keeps("legalName") && obj["legalName"] !== undefined)) {
         const __raw_legalName = obj["legalName"] as string;
 
         if (!(typeof __raw_legalName === "string")) {
@@ -356,7 +513,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.legalName = __raw_legalName;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("headquarters")) || (__fields.keeps("headquarters") && obj["headquarters"] !== undefined)) {
         const __raw_headquarters = obj["headquarters"] as string | Site;
 
         if (typeof __raw_headquarters === "string") {
@@ -382,7 +539,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
 
         if (Array.isArray(__raw_phones)) {
@@ -417,7 +574,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "phones", message: __raw_phones == null ? "Company.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("fax")) || (__fields.keeps("fax") && obj["fax"] !== undefined)) {
         const __raw_fax = obj["fax"] as string;
 
         if (!(typeof __raw_fax === "string")) {
@@ -429,7 +586,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.fax = __raw_fax;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -441,7 +598,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.email = __raw_email;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("website")) || (__fields.keeps("website") && obj["website"] !== undefined)) {
         const __raw_website = obj["website"] as string;
 
         if (!(typeof __raw_website === "string")) {
@@ -453,7 +610,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.website = __raw_website;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("taxId")) || (__fields.keeps("taxId") && obj["taxId"] !== undefined)) {
         const __raw_taxId = obj["taxId"] as string;
 
         if (!(typeof __raw_taxId === "string")) {
@@ -465,7 +622,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.taxId = __raw_taxId;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("referenceNumber")) || (__fields.keeps("referenceNumber") && obj["referenceNumber"] !== undefined)) {
         const __raw_referenceNumber = obj["referenceNumber"] as number;
 
         if (!(typeof __raw_referenceNumber === "number")) {
@@ -474,7 +631,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.referenceNumber = __raw_referenceNumber;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("postalCodeLookup")) || (__fields.keeps("postalCodeLookup") && obj["postalCodeLookup"] !== undefined)) {
         const __raw_postalCodeLookup = obj["postalCodeLookup"] as string;
 
         if (!(typeof __raw_postalCodeLookup === "string")) {
@@ -486,7 +643,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.postalCodeLookup = __raw_postalCodeLookup;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("timeZone")) || (__fields.keeps("timeZone") && obj["timeZone"] !== undefined)) {
         const __raw_timeZone = obj["timeZone"] as string;
 
         if (!(typeof __raw_timeZone === "string")) {
@@ -495,7 +652,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.timeZone = __raw_timeZone;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("defaultTax")) || (__fields.keeps("defaultTax") && obj["defaultTax"] !== undefined)) {
         const __raw_defaultTax = obj["defaultTax"] as string | TaxRate;
 
         if (typeof __raw_defaultTax === "string") {
@@ -521,7 +678,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             }
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("defaultTaxLocation")) || (__fields.keeps("defaultTaxLocation") && obj["defaultTaxLocation"] !== undefined)) {
         const __raw_defaultTaxLocation = obj["defaultTaxLocation"] as string;
 
         if (!(typeof __raw_defaultTaxLocation === "string")) {
@@ -533,7 +690,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.defaultTaxLocation = __raw_defaultTaxLocation;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("defaultAreaCode")) || (__fields.keeps("defaultAreaCode") && obj["defaultAreaCode"] !== undefined)) {
         const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;
 
         if (!(typeof __raw_defaultAreaCode === "number")) {
@@ -542,7 +699,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.defaultAreaCode = __raw_defaultAreaCode;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("defaultAccountType")) || (__fields.keeps("defaultAccountType") && obj["defaultAccountType"] !== undefined)) {
         const __raw_defaultAccountType = obj["defaultAccountType"] as string;
 
         if (!(typeof __raw_defaultAccountType === "string")) {
@@ -554,7 +711,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.defaultAccountType = __raw_defaultAccountType;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("lookupFormatting")) || (__fields.keeps("lookupFormatting") && obj["lookupFormatting"] !== undefined)) {
         const __raw_lookupFormatting = obj["lookupFormatting"] as string;
 
         if (!(typeof __raw_lookupFormatting === "string")) {
@@ -566,7 +723,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.lookupFormatting = __raw_lookupFormatting;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("accountNameFormat")) || (__fields.keeps("accountNameFormat") && obj["accountNameFormat"] !== undefined)) {
         const __raw_accountNameFormat = obj["accountNameFormat"] as string;
 
         if (!(typeof __raw_accountNameFormat === "string")) {
@@ -578,7 +735,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.accountNameFormat = __raw_accountNameFormat;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("merchantServiceProvider")) || (__fields.keeps("merchantServiceProvider") && obj["merchantServiceProvider"] !== undefined)) {
         const __raw_merchantServiceProvider = obj["merchantServiceProvider"] as string | null;
 
         if (!(typeof __raw_merchantServiceProvider === "string" || __raw_merchantServiceProvider === null)) {
@@ -587,7 +744,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.merchantServiceProvider = __raw_merchantServiceProvider;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("dateDisplayStyle")) || (__fields.keeps("dateDisplayStyle") && obj["dateDisplayStyle"] !== undefined)) {
         const __raw_dateDisplayStyle = obj["dateDisplayStyle"] as string;
 
         if (!(typeof __raw_dateDisplayStyle === "string")) {
@@ -599,7 +756,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.dateDisplayStyle = __raw_dateDisplayStyle;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasAutoCommission")) || (__fields.keeps("hasAutoCommission") && obj["hasAutoCommission"] !== undefined)) {
         const __raw_hasAutoCommission = obj["hasAutoCommission"] as boolean;
 
         if (!(typeof __raw_hasAutoCommission === "boolean")) {
@@ -608,7 +765,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasAutoCommission = __raw_hasAutoCommission;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasAutoDaylightSavings")) || (__fields.keeps("hasAutoDaylightSavings") && obj["hasAutoDaylightSavings"] !== undefined)) {
         const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings"] as boolean;
 
         if (!(typeof __raw_hasAutoDaylightSavings === "boolean")) {
@@ -617,7 +774,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasAutoFmsTracking")) || (__fields.keeps("hasAutoFmsTracking") && obj["hasAutoFmsTracking"] !== undefined)) {
         const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"] as boolean;
 
         if (!(typeof __raw_hasAutoFmsTracking === "boolean")) {
@@ -626,7 +783,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasNotifications")) || (__fields.keeps("hasNotifications") && obj["hasNotifications"] !== undefined)) {
         const __raw_hasNotifications = obj["hasNotifications"] as boolean;
 
         if (!(typeof __raw_hasNotifications === "boolean")) {
@@ -635,7 +792,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasNotifications = __raw_hasNotifications;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasRequiredLeadSource")) || (__fields.keeps("hasRequiredLeadSource") && obj["hasRequiredLeadSource"] !== undefined)) {
         const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource"] as boolean;
 
         if (!(typeof __raw_hasRequiredLeadSource === "boolean")) {
@@ -644,7 +801,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasRequiredEmail")) || (__fields.keeps("hasRequiredEmail") && obj["hasRequiredEmail"] !== undefined)) {
         const __raw_hasRequiredEmail = obj["hasRequiredEmail"] as boolean;
 
         if (!(typeof __raw_hasRequiredEmail === "boolean")) {
@@ -653,7 +810,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasRequiredEmail = __raw_hasRequiredEmail;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasSortServiceItemsAlphabetically")) || (__fields.keeps("hasSortServiceItemsAlphabetically") && obj["hasSortServiceItemsAlphabetically"] !== undefined)) {
         const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically"] as boolean;
 
         if (!(typeof __raw_hasSortServiceItemsAlphabetically === "boolean")) {
@@ -662,7 +819,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("hasAttachOrderToAppointmentEmails")) || (__fields.keeps("hasAttachOrderToAppointmentEmails") && obj["hasAttachOrderToAppointmentEmails"] !== undefined)) {
         const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails"] as boolean;
 
         if (!(typeof __raw_hasAttachOrderToAppointmentEmails === "boolean")) {
@@ -671,7 +828,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("scheduleInterval")) || (__fields.keeps("scheduleInterval") && obj["scheduleInterval"] !== undefined)) {
         const __raw_scheduleInterval = obj["scheduleInterval"] as number;
 
         if (!(typeof __raw_scheduleInterval === "number")) {
@@ -680,7 +837,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.scheduleInterval = __raw_scheduleInterval;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("colorsConfig")) || (__fields.keeps("colorsConfig") && obj["colorsConfig"] !== undefined)) {
         const __raw_colorsConfig = obj["colorsConfig"] as ColorsConfig;
 
         ctx.pushScope("colorsConfig");
@@ -706,6 +863,11 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     ctx.pushErrors(errors);
 
     return instance as Company;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function companyDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Company>): Partial<Company> | __mf_PendingRef {
+    return companyDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function companyValidateField<K extends keyof Company>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -1862,8 +2024,10 @@ export const Company: {
   readonly defaultValue: typeof companyDefaultValue;
   readonly encode: typeof companyEncode;
   readonly encodeWithContext: typeof companyEncodeWithContext;
+  readonly encodePartialWithContext: typeof companyEncodePartialWithContext;
   readonly decode: typeof companyDecode;
   readonly decodeWithContext: typeof companyDecodeWithContext;
+  readonly decodePartialWithContext: typeof companyDecodePartialWithContext;
   readonly validateField: typeof companyValidateField;
   readonly validateFields: typeof companyValidateFields;
   readonly hasShape: typeof companyHasShape;
@@ -1874,8 +2038,10 @@ export const Company: {
   defaultValue: companyDefaultValue,
   encode: companyEncode,
   encodeWithContext: companyEncodeWithContext,
+  encodePartialWithContext: companyEncodePartialWithContext,
   decode: companyDecode,
   decodeWithContext: companyDecodeWithContext,
+  decodePartialWithContext: companyDecodePartialWithContext,
   validateField: companyValidateField,
   validateFields: companyValidateFields,
   hasShape: companyHasShape,
@@ -1927,6 +2093,8 @@ export declare function companyDefaultValue(): Company;
 export declare function companyEncode(value: Company, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function companyEncodePartialWithContext(value: Partial<Company>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Company>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function companyDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -1940,6 +2108,10 @@ export declare function companyDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Company | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Company> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function companyDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Company>): Partial<Company> | __mf_PendingRef;
 export declare function companyValidateField<K extends keyof Company>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -2070,8 +2242,10 @@ export declare const Company: {
 	readonly defaultValue: typeof companyDefaultValue;
 	readonly encode: typeof companyEncode;
 	readonly encodeWithContext: typeof companyEncodeWithContext;
+	readonly encodePartialWithContext: typeof companyEncodePartialWithContext;
 	readonly decode: typeof companyDecode;
 	readonly decodeWithContext: typeof companyDecodeWithContext;
+	readonly decodePartialWithContext: typeof companyDecodePartialWithContext;
 	readonly validateField: typeof companyValidateField;
 	readonly validateFields: typeof companyValidateFields;
 	readonly hasShape: typeof companyHasShape;
@@ -2086,28 +2260,28 @@ export declare const Company: {
 
 ## Mapping
 
-original 0..270 -> expanded 827..1097
-original 319..367 -> expanded 1097..1145
-original 408..436 -> expanded 1145..1173
-original 455..525 -> expanded 1173..1243
-original 566..588 -> expanded 1243..1265
-original 629..653 -> expanded 1265..1289
-original 694..720 -> expanded 1289..1315
-original 761..814 -> expanded 1315..1368
-original 855..912 -> expanded 1368..1425
-original 931..970 -> expanded 1425..1464
-original 1011..1077 -> expanded 1464..1530
-original 1118..1155 -> expanded 1530..1567
-original 1196..1231 -> expanded 1567..1602
-original 1272..1352 -> expanded 1602..1682
-original 1393..1783 -> expanded 1682..2072
-original 1783..1784 -> expanded 83628..83629
-generated 0..827 <- imports
-generated 2072..3022 <- Default
-generated 3022..5894 <- Encode
-generated 5894..39327 <- Decode
-generated 39327..82665 <- Gigaform
-generated 82665..83628 <- __convenience_const
+original 0..270 -> expanded 1048..1318
+original 319..367 -> expanded 1318..1366
+original 408..436 -> expanded 1366..1394
+original 455..525 -> expanded 1394..1464
+original 566..588 -> expanded 1464..1486
+original 629..653 -> expanded 1486..1510
+original 694..720 -> expanded 1510..1536
+original 761..814 -> expanded 1536..1589
+original 855..912 -> expanded 1589..1646
+original 931..970 -> expanded 1646..1685
+original 1011..1077 -> expanded 1685..1751
+original 1118..1155 -> expanded 1751..1788
+original 1196..1231 -> expanded 1788..1823
+original 1272..1352 -> expanded 1823..1903
+original 1393..1783 -> expanded 1903..2293
+original 1783..1784 -> expanded 96501..96502
+generated 0..1048 <- imports
+generated 2293..3243 <- Default
+generated 3243..10974 <- Encode
+generated 10974..51924 <- Decode
+generated 51924..95262 <- Gigaform
+generated 95262..96501 <- __convenience_const
 
 ## Metadata
 

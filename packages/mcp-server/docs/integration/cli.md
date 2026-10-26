@@ -1,6 +1,6 @@
 # Command Line Interface
 
-macroforge v0.5.0
+macroforge v0.6.0
 
 Command-line interface for expanding Macroforge macros
 
@@ -134,6 +134,10 @@ Bash
 ```
 macroforge tsc -p tsconfig.build.json
 ```
+
+The check runs your project's own `typescript` package, version 5 or 6, with your `tsconfig.json` as
+written. That includes `libReplacement`: the code the built-in derives generate is tested against
+TypeScript's standard library and against a stricter replacement with no `any` in a value position.
 
 ### macroforge svelte-check
 

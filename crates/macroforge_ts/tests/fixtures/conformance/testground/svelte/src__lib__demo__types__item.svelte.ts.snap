@@ -13,7 +13,7 @@ true
 ## Output
 
 import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkDefaultValue } from "./record-link.svelte";
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -35,8 +35,7 @@ export function itemDefaultValue(): Item {
 export function itemEncode(value: Item, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = itemEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -442,15 +441,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 572..785
-original 262..340 -> expanded 785..863
-original 340..341 -> expanded 12249..12250
-generated 0..572 <- imports
-generated 863..924 <- Default
-generated 924..2212 <- Encode
-generated 2212..7007 <- Decode
-generated 7007..11535 <- Gigaform
-generated 11535..12249 <- __convenience_const
+original 0..213 -> expanded 668..881
+original 262..340 -> expanded 881..959
+original 340..341 -> expanded 12293..12294
+generated 0..668 <- imports
+generated 959..1020 <- Default
+generated 1020..2256 <- Encode
+generated 2256..7051 <- Decode
+generated 7051..11579 <- Gigaform
+generated 11579..12293 <- __convenience_const
 
 ## Metadata
 

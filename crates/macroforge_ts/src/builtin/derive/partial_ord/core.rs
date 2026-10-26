@@ -3,8 +3,8 @@ use convert_case::{Case, Casing};
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::{
-    CompareFieldOptions, OrdField, Ordering, generate_field_order, generate_value_order, rendered,
-    structural_helper, tuple_compare_statements,
+    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
+    generate_value_order, rendered, structural_helper, tuple_compare_statements,
 };
 use crate::builtin::return_types::partial_ord_return_type;
 use crate::macros::{ts_macro_derive, ts_template};
@@ -88,9 +88,10 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
             Ok(standalone.merge(class_body))
         }
-        Data::Enum(_) => {
+        Data::Enum(enum_data) => {
             let enum_name = input.name();
             let fn_name_ident = ts_ident!("{}PartialCompare", enum_name.to_case(Case::Camel));
+            let value_kinds = EnumValueKinds::of(enum_data.variants());
 
             // Get return type
             let return_type = partial_ord_return_type();
@@ -98,13 +99,16 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let result = ts_template! {
                 export function @{fn_name_ident}(a: @{ts_ident!(enum_name)}, b: @{ts_ident!(enum_name)}): @{return_type_ident} {
-                    // For enums, compare by value (numeric enums) or string
-                    if (typeof a === "number" && typeof b === "number") {
-                        return a < b ? -1 : a > b ? 1 : 0;
-                    }
-                    if (typeof a === "string" && typeof b === "string") {
-                        return a.localeCompare(b);
-                    }
+                    {#if value_kinds.numbers}
+                        if (typeof a === "number" && typeof b === "number") {
+                            return a < b ? -1 : a > b ? 1 : 0;
+                        }
+                    {/if}
+                    {#if value_kinds.strings}
+                        if (typeof a === "string" && typeof b === "string") {
+                            return a.localeCompare(b);
+                        }
+                    {/if}
                     return a === b ? 0 : null;
                 }
             };

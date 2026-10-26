@@ -3,8 +3,8 @@ use convert_case::{Case, Casing};
 use crate::ast::{Expr, Ident};
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::{
-    CompareFieldOptions, OrdField, Ordering, generate_field_order, generate_value_order,
-    structural_call, tuple_compare_statements,
+    CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
+    generate_value_order, structural_call, tuple_compare_statements,
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
@@ -105,20 +105,24 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
             Ok(standalone.merge(class_body))
         }
-        Data::Enum(_) => {
+        Data::Enum(enum_data) => {
             let enum_name = input.name();
             let fn_name_ident = ts_ident!("{}Compare", enum_name.to_case(Case::Camel));
+            let value_kinds = EnumValueKinds::of(enum_data.variants());
 
             Ok(ts_template! {
                 export function @{fn_name_ident}(a: @{ts_ident!(enum_name)}, b: @{ts_ident!(enum_name)}): number {
-                    // For enums, compare by value (numeric enums) or string
-                    if (typeof a === "number" && typeof b === "number") {
-                        return a < b ? -1 : a > b ? 1 : 0;
-                    }
-                    if (typeof a === "string" && typeof b === "string") {
-                        const cmp = a.localeCompare(b);
-                        return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
-                    }
+                    {#if value_kinds.numbers}
+                        if (typeof a === "number" && typeof b === "number") {
+                            return a < b ? -1 : a > b ? 1 : 0;
+                        }
+                    {/if}
+                    {#if value_kinds.strings}
+                        if (typeof a === "string" && typeof b === "string") {
+                            const cmp = a.localeCompare(b);
+                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                        }
+                    {/if}
                     return 0;
                 }
             })

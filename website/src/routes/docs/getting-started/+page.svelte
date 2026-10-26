@@ -19,7 +19,11 @@
 
 <ul>
 	<li>Node.js 18 or later (or any WebAssembly-capable runtime)</li>
-	<li>TypeScript 5.9 or later</li>
+	<li>
+		TypeScript 5.9 or 6. Type checking through <code>macroforge tsc</code> and
+		<code>macroforge svelte-check</code>, the editor plugin and generated declaration files
+		use the compiler API, which the TypeScript 7 package does not ship.
+	</li>
 </ul>
 
 <h2 id="install">Install the Package</h2>

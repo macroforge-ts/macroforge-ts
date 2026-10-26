@@ -115,7 +115,9 @@ pub(super) fn external_type_function_import_patches(
         // These are always camelCase value references (function calls).
         let mut candidates: Vec<(String, bool)> = vec![
             (format!("{camel}EncodeWithContext"), false),
+            (format!("{camel}EncodePartialWithContext"), false),
             (format!("{camel}DecodeWithContext"), false),
+            (format!("{camel}DecodePartialWithContext"), false),
             (format!("{camel}DefaultValue"), false),
             (format!("{camel}Encode"), false),
             (format!("{camel}Decode"), false),

@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -69,36 +69,92 @@ export function taxRateDefaultValue(): TaxRate {
 export function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = taxRateEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return taxRateEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function taxRateEncodePartialWithContext(value: Partial<TaxRate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof TaxRate>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "TaxRate",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.name = value.name;
-    result.taxAgency = value.taxAgency;
-    result.zip = value.zip;
-    result.city = value.city;
-    result.county = value.county;
-    result.state = value.state;
-    result.isActive = value.isActive;
-    result.description = value.description;
-    result.taxComponents = value.taxComponents;
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("taxAgency")) {
+
+        if (value.taxAgency !== undefined) {
+            result.taxAgency = value.taxAgency;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("zip")) {
+
+        if (value.zip !== undefined) {
+            result.zip = value.zip;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("city")) {
+
+        if (value.city !== undefined) {
+            result.city = value.city;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("county")) {
+
+        if (value.county !== undefined) {
+            result.county = value.county;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("state")) {
+
+        if (value.state !== undefined) {
+            result.state = value.state;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("isActive")) {
+
+        if (value.isActive !== undefined) {
+            result.isActive = value.isActive;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("description")) {
+
+        if (value.description !== undefined) {
+            result.description = value.description;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("taxComponents")) {
+
+        if (value.taxComponents !== undefined) {
+            result.taxComponents = value.taxComponents;
+        }
+    }
 
     return result;
 }
@@ -157,7 +213,13 @@ export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef {
+export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<TaxRate> | __mf_PendingRef;
+export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<TaxRate> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "TaxRate.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TaxRate.decodeWithContext: __ref must be a number" }]);
@@ -171,46 +233,46 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
-    if (!("taxAgency" in obj)) {
+    if ((__fields === undefined || __fields.requires("taxAgency")) && !("taxAgency" in obj)) {
         errors.push({ field: "taxAgency", message: "missing required field" });
     }
-    if (!("zip" in obj)) {
+    if ((__fields === undefined || __fields.requires("zip")) && !("zip" in obj)) {
         errors.push({ field: "zip", message: "missing required field" });
     }
-    if (!("city" in obj)) {
+    if ((__fields === undefined || __fields.requires("city")) && !("city" in obj)) {
         errors.push({ field: "city", message: "missing required field" });
     }
-    if (!("county" in obj)) {
+    if ((__fields === undefined || __fields.requires("county")) && !("county" in obj)) {
         errors.push({ field: "county", message: "missing required field" });
     }
-    if (!("state" in obj)) {
+    if ((__fields === undefined || __fields.requires("state")) && !("state" in obj)) {
         errors.push({ field: "state", message: "missing required field" });
     }
-    if (!("isActive" in obj)) {
+    if ((__fields === undefined || __fields.requires("isActive")) && !("isActive" in obj)) {
         errors.push({ field: "isActive", message: "missing required field" });
     }
-    if (!("description" in obj)) {
+    if ((__fields === undefined || __fields.requires("description")) && !("description" in obj)) {
         errors.push({ field: "description", message: "missing required field" });
     }
-    if (!("taxComponents" in obj)) {
+    if ((__fields === undefined || __fields.requires("taxComponents")) && !("taxComponents" in obj)) {
         errors.push({ field: "taxComponents", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -219,7 +281,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -231,7 +293,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("taxAgency")) || (__fields.keeps("taxAgency") && obj["taxAgency"] !== undefined)) {
         const __raw_taxAgency = obj["taxAgency"] as string;
 
         if (!(typeof __raw_taxAgency === "string")) {
@@ -243,7 +305,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.taxAgency = __raw_taxAgency;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("zip")) || (__fields.keeps("zip") && obj["zip"] !== undefined)) {
         const __raw_zip = obj["zip"] as number;
 
         if (!(typeof __raw_zip === "number")) {
@@ -252,7 +314,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.zip = __raw_zip;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("city")) || (__fields.keeps("city") && obj["city"] !== undefined)) {
         const __raw_city = obj["city"] as string;
 
         if (!(typeof __raw_city === "string")) {
@@ -264,7 +326,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.city = __raw_city;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("county")) || (__fields.keeps("county") && obj["county"] !== undefined)) {
         const __raw_county = obj["county"] as string;
 
         if (!(typeof __raw_county === "string")) {
@@ -276,7 +338,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.county = __raw_county;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("state")) || (__fields.keeps("state") && obj["state"] !== undefined)) {
         const __raw_state = obj["state"] as string;
 
         if (!(typeof __raw_state === "string")) {
@@ -288,7 +350,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.state = __raw_state;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
         const __raw_isActive = obj["isActive"] as boolean;
 
         if (!(typeof __raw_isActive === "boolean")) {
@@ -297,7 +359,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.isActive = __raw_isActive;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
         const __raw_description = obj["description"] as string;
 
         if (!(typeof __raw_description === "string")) {
@@ -309,7 +371,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.description = __raw_description;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("taxComponents")) || (__fields.keeps("taxComponents") && obj["taxComponents"] !== undefined)) {
         const __raw_taxComponents = obj["taxComponents"] as { [key: string]: number };
 
         instance.taxComponents = __raw_taxComponents;
@@ -318,6 +380,11 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     ctx.pushErrors(errors);
 
     return instance as TaxRate;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function taxRateDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof TaxRate>): Partial<TaxRate> | __mf_PendingRef {
+    return taxRateDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function taxRateValidateField<K extends keyof TaxRate>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -780,8 +847,10 @@ export const TaxRate: {
   readonly defaultValue: typeof taxRateDefaultValue;
   readonly encode: typeof taxRateEncode;
   readonly encodeWithContext: typeof taxRateEncodeWithContext;
+  readonly encodePartialWithContext: typeof taxRateEncodePartialWithContext;
   readonly decode: typeof taxRateDecode;
   readonly decodeWithContext: typeof taxRateDecodeWithContext;
+  readonly decodePartialWithContext: typeof taxRateDecodePartialWithContext;
   readonly validateField: typeof taxRateValidateField;
   readonly validateFields: typeof taxRateValidateFields;
   readonly hasShape: typeof taxRateHasShape;
@@ -792,8 +861,10 @@ export const TaxRate: {
   defaultValue: taxRateDefaultValue,
   encode: taxRateEncode,
   encodeWithContext: taxRateEncodeWithContext,
+  encodePartialWithContext: taxRateEncodePartialWithContext,
   decode: taxRateDecode,
   decodeWithContext: taxRateDecodeWithContext,
+  decodePartialWithContext: taxRateDecodePartialWithContext,
   validateField: taxRateValidateField,
   validateFields: taxRateValidateFields,
   hasShape: taxRateHasShape,
@@ -824,6 +895,8 @@ export declare function taxRateDefaultValue(): TaxRate;
 export declare function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function taxRateEncodePartialWithContext(value: Partial<TaxRate>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof TaxRate>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -837,6 +910,10 @@ export declare function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<TaxRate> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function taxRateDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof TaxRate>): Partial<TaxRate> | __mf_PendingRef;
 export declare function taxRateValidateField<K extends keyof TaxRate>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -912,8 +989,10 @@ export declare const TaxRate: {
 	readonly defaultValue: typeof taxRateDefaultValue;
 	readonly encode: typeof taxRateEncode;
 	readonly encodeWithContext: typeof taxRateEncodeWithContext;
+	readonly encodePartialWithContext: typeof taxRateEncodePartialWithContext;
 	readonly decode: typeof taxRateDecode;
 	readonly decodeWithContext: typeof taxRateDecodeWithContext;
+	readonly decodePartialWithContext: typeof taxRateDecodePartialWithContext;
 	readonly validateField: typeof taxRateValidateField;
 	readonly validateFields: typeof taxRateValidateFields;
 	readonly hasShape: typeof taxRateHasShape;
@@ -928,32 +1007,32 @@ export declare const TaxRate: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..139 -> expanded 479..511
-original 167..188 -> expanded 511..532
-original 229..234 -> expanded 532..537
-original 275..298 -> expanded 537..560
-original 345..350 -> expanded 560..565
-original 391..419 -> expanded 565..593
-original 469..491 -> expanded 593..615
-original 532..537 -> expanded 615..620
-original 578..601 -> expanded 620..643
-original 644..649 -> expanded 643..648
-original 690..715 -> expanded 648..673
-original 757..762 -> expanded 673..678
-original 803..827 -> expanded 678..702
-original 872..900 -> expanded 702..730
-original 952..957 -> expanded 730..735
-original 998..1028 -> expanded 735..765
-original 1056..1061 -> expanded 765..770
-original 1080..1128 -> expanded 770..818
-original 1128..1129 -> expanded 30289..30290
-generated 0..421 <- imports
-generated 818..1099 <- Default
-generated 1099..2517 <- Encode
-generated 2517..15862 <- Decode
-generated 15862..29326 <- Gigaform
-generated 29326..30289 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..139 -> expanded 700..732
+original 167..188 -> expanded 732..753
+original 229..234 -> expanded 753..758
+original 275..298 -> expanded 758..781
+original 345..350 -> expanded 781..786
+original 391..419 -> expanded 786..814
+original 469..491 -> expanded 814..836
+original 532..537 -> expanded 836..841
+original 578..601 -> expanded 841..864
+original 644..649 -> expanded 864..869
+original 690..715 -> expanded 869..894
+original 757..762 -> expanded 894..899
+original 803..827 -> expanded 899..923
+original 872..900 -> expanded 923..951
+original 952..957 -> expanded 951..956
+original 998..1028 -> expanded 956..986
+original 1056..1061 -> expanded 986..991
+original 1080..1128 -> expanded 991..1039
+original 1128..1129 -> expanded 35748..35749
+generated 0..642 <- imports
+generated 1039..1320 <- Default
+generated 1320..4606 <- Encode
+generated 4606..21045 <- Decode
+generated 21045..34509 <- Gigaform
+generated 34509..35748 <- __convenience_const
 
 ## Metadata
 

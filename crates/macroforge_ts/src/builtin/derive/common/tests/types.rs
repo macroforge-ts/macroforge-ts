@@ -3,7 +3,7 @@
 use super::make_decorator;
 use crate::builtin::derive::common::{
     CompareFieldOptions, DefaultFieldOptions, get_type_default, has_known_default, is_generic_type,
-    is_numeric_type, is_primitive_type, parse_generic_type, tuple_element,
+    is_numeric_type, is_primitive_type, parse_generic_type, primitive_keyword_test, tuple_element,
 };
 
 #[test]
@@ -88,6 +88,10 @@ fn test_get_type_default() {
     assert_eq!(get_type_default("Array<number>"), "[]");
     assert_eq!(get_type_default("Map<string, number>"), "new Map()");
     assert_eq!(get_type_default("Set<string>"), "new Set()");
+    assert_eq!(get_type_default("ReadonlyMap<string, number>"), "new Map()");
+    assert_eq!(get_type_default("ReadonlySet<string>"), "new Set()");
+    assert_eq!(get_type_default("ReadonlyArray<string>"), "[]");
+    assert_eq!(get_type_default("readonly string[]"), "[]");
     assert_eq!(get_type_default("Date"), "new Date()");
     // Unknown types call their defaultValue() method (Prefix style)
     assert_eq!(get_type_default("User"), "userDefaultValue()");
@@ -152,10 +156,50 @@ fn test_get_type_default_union_custom_types() {
 
 #[test]
 fn test_get_type_default_nullable_union() {
-    // Nullable unions are still handled by is_nullable_type
+    // A nullable union defaults to the absent value its type has.
     assert_eq!(get_type_default("string | null"), "null");
-    assert_eq!(get_type_default("Account | undefined"), "null");
+    assert_eq!(get_type_default("Account | undefined"), "undefined");
+    assert_eq!(get_type_default("string | null | undefined"), "null");
     assert_eq!(get_type_default("string | Account | null"), "null");
+    // A collection of nullable elements is not itself nullable.
+    assert_eq!(get_type_default("(string | null)[]"), "[]");
+    assert_eq!(get_type_default("Array<Account | null>"), "[]");
+    assert_eq!(
+        get_type_default("Map<string, number | undefined>"),
+        "new Map()"
+    );
+}
+
+#[test]
+fn test_get_type_default_tuple() {
+    assert_eq!(get_type_default("[string, number]"), r#"["", 0]"#);
+    assert_eq!(
+        get_type_default("[label: string, at: Date]"),
+        r#"["", new Date()]"#
+    );
+    assert_eq!(
+        get_type_default("[Map<string, number>, [boolean, string | null]]"),
+        "[new Map(), [false, null]]"
+    );
+    assert_eq!(get_type_default("[]"), "[]");
+    // Only the required prefix has to be there.
+    assert_eq!(
+        get_type_default("[string, number?, ...boolean[]]"),
+        r#"[""]"#
+    );
+}
+
+#[test]
+fn test_primitive_keyword_test_uses_identity_for_null_and_undefined() {
+    assert_eq!(
+        primitive_keyword_test("string", "value"),
+        r#"typeof value === "string""#
+    );
+    assert_eq!(primitive_keyword_test("null", "item"), "item === null");
+    assert_eq!(
+        primitive_keyword_test("undefined", "item"),
+        "item === undefined"
+    );
 }
 
 #[test]

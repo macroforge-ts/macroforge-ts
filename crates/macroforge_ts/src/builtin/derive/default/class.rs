@@ -112,11 +112,13 @@ pub(super) fn class_default(
     // declares its own of the same names.
     let static_method = ts_ident!(format!("defaultValue{}", names.generic_decl));
     let static_call: Expr = ts_ident!(format!("defaultValue{}", names.generic_args)).into();
+    let instance_type_ident =
+        names.fillable_type_ident(class.fields().iter().any(|field| field.readonly));
     let class_body = ts_template!(Within {
         static @{static_method}(): @{full_type_ident.clone()} {
             // Like Rust's derive, a default runs no constructor: one that
             // takes arguments (such as Decode's) has nothing to give it.
-            const instance: @{full_type_ident.clone()} = Object.create(@{class_expr.clone()}.prototype);
+            const instance: @{instance_type_ident} = Object.create(@{class_expr.clone()}.prototype);
             {#for (name_ident, value_expr) in field_data}
                 instance.@{name_ident} = @{value_expr};
             {/for}

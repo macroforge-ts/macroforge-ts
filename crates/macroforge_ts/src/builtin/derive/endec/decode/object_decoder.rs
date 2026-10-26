@@ -1,20 +1,21 @@
 //! The standalone `Decode` functions of an object-shaped interface or type
-//! alias: `decode`, `decodeWithContext`, `validateField`, `validateFields`,
-//! `hasShape` and `is`.
+//! alias: `decode`, `decodeWithContext`, `decodePartialWithContext`,
+//! `validateField`, `validateFields`, `hasShape` and `is`.
 
 use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::super::EndecContainerOptions;
-use super::field::statements::decode_fields;
-use super::reference::decode_reference;
+use super::field::statements::{Required, decode_fields, requires};
+use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{TypeNames, js_string, rendered};
 use crate::builtin::return_types::{
-    DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, PENDING_REF, decode_return_type,
-    root_forward_reference_error, wrap_error, wrap_success,
+    DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE,
+    FIELD_SELECTION, PENDING_REF, decode_return_type, root_forward_reference_error, wrap_error,
+    wrap_success,
 };
 
 /// Every standalone `Decode` function of an object-shaped type.
@@ -109,16 +110,22 @@ fn decode_with_context(
         .filter(|field| !field.flatten)
         .map(|field| js_string(&field.json_key))
         .collect();
-    let required_fields: Vec<&DecodeField> = fields
-        .iter()
-        .filter(|field| !field.optional && !field.flatten)
-        .collect();
-    let field_statements = decode_fields(fields, type_name);
+    let required_fields: Vec<&DecodeField> =
+        fields.iter().filter(|field| field.key_required()).collect();
+    let field_statements = decode_fields(fields, type_name, Required::Selected);
     let returns = rendered(ts_template! { @{&names.full_type} | @{PENDING_REF} });
-    let reference = decode_reference(type_name, &returns);
-    ts_template! {
+    let reference = decode_selectable_reference(type_name, &returns);
+    let fn_decode_internal_expr: Expr = names.generic_call("DecodeWithContext").into();
+    let fn_decode_partial_ident = names.generic_function("DecodePartialWithContext");
+    let field_selection_ident = ts_ident!(FIELD_SELECTION);
+    let field_requirement_ident = ts_ident!(FIELD_REQUIREMENT_TYPE);
+    let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
+    let mut result = ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident} | @{pending_ref_ident} {
+        export function @{fn_decode_internal_ident.clone()}(value: unknown, ctx: @{&decode_context_ident}): @{&full_type_ident} | @{&pending_ref_ident};
+        /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have */
+        export function @{fn_decode_internal_ident.clone()}(value: unknown, ctx: @{&decode_context_ident}, fields: @{&field_requirement_ident}): Partial<@{&full_type_ident}> | @{&pending_ref_ident};
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{&decode_context_ident}, __fields?: @{&field_requirement_ident}): Partial<@{&full_type_ident}> | @{&pending_ref_ident} {
             {$typescript reference}
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -138,14 +145,16 @@ fn decode_with_context(
             {/if}
 
             {#for field in &required_fields}
-                if (!("@{field.json_key}" in obj)) {
+                {$let is_required: Expr = requires(field)}
+                if (@{is_required} && !("@{field.json_key}" in obj)) {
                     errors.push({ field: "@{field.json_key}", message: "missing required field" });
                 }
             {/for}
 
             const instance: any = {};
 
-            if (obj.__id !== undefined) {
+            // Only a whole value can be referred to.
+            if (__fields === undefined && obj.__id !== undefined) {
                 ctx.register(obj.__id as number, instance);
             }
 
@@ -155,9 +164,18 @@ fn decode_with_context(
 
             ctx.pushErrors(errors);
 
-            return instance as @{full_type_ident};
+            return instance as @{&full_type_ident};
         }
-    }
+
+        /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out */
+        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&full_type_ident}>): Partial<@{&full_type_ident}> | @{&pending_ref_ident} {
+            return @{fn_decode_internal_expr}(value, ctx, @{field_requirement_expr}(fields));
+        }
+    };
+    result.add_aliased_type_import("FieldSelection", crate::package::ENDEC);
+    result.add_aliased_type_import("FieldRequirement", crate::package::ENDEC);
+    result.add_aliased_import("fieldRequirement", crate::package::ENDEC);
+    result
 }
 
 /// `{camelName}ValidateField` and `{camelName}ValidateFields`: a field's
@@ -230,7 +248,7 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
     let full_type_ident = names.full_type_ident();
     let required_keys: Vec<String> = fields
         .iter()
-        .filter(|field| !field.optional && !field.flatten)
+        .filter(|field| field.key_required())
         .map(|field| {
             let key = js_string(&field.json_key);
             rendered(ts_template! { @{key} in o })

@@ -366,6 +366,16 @@ pub(super) fn nested_decode_fn_name(type_name: &str) -> String {
     format!("{}DecodeWithContext", base.to_case(Case::Camel))
 }
 
+/// Generates the DecodePartialWithContext function name for a nested
+/// decodable type, which decodes a value lacking some of its fields.
+/// For example: "User" -> "userDecodePartialWithContext"
+pub(super) fn nested_decode_partial_fn_name(type_name: &str) -> String {
+    let base = type_name
+        .find('<')
+        .map_or(type_name, |generics| &type_name[..generics]);
+    format!("{}DecodePartialWithContext", base.to_case(Case::Camel))
+}
+
 /// Generates the public Decode function name (result-returning) for a nested decodable type.
 /// For example: "User" -> "userDecode"
 pub(super) fn nested_decode_result_fn_name(type_name: &str) -> String {

@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An externally-tagged variant whose payload is a link type: encodable in
 // its own right, but carried as a bare id string as often as an object. The
@@ -37,8 +37,7 @@ export type Ref = string | { id: string };
 export function refEncode(value: Ref, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = refEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -170,8 +169,7 @@ export type Stage = 'Active' | { Invoice: Ref };
 export function stageEncode(value: Stage, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = stageEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -399,18 +397,18 @@ export declare const Stage: {
 
 ## Mapping
 
-original 0..278 -> expanded 301..579
-original 308..351 -> expanded 579..622
-original 351..353 -> expanded 5046..5048
-original 425..474 -> expanded 5048..5097
-original 474..475 -> expanded 10785..10786
-generated 0..301 <- imports
-generated 622..1905 <- Encode
-generated 1905..4589 <- Decode
-generated 4589..5046 <- __convenience_const
-generated 5097..6800 <- Encode
-generated 6800..10228 <- Decode
-generated 10228..10785 <- __convenience_const
+original 0..278 -> expanded 397..675
+original 308..351 -> expanded 675..718
+original 351..353 -> expanded 5090..5092
+original 425..474 -> expanded 5092..5141
+original 474..475 -> expanded 10777..10778
+generated 0..397 <- imports
+generated 718..1949 <- Encode
+generated 1949..4633 <- Decode
+generated 4633..5090 <- __convenience_const
+generated 5141..6792 <- Encode
+generated 6792..10220 <- Decode
+generated 10220..10777 <- __convenience_const
 
 ## Metadata
 

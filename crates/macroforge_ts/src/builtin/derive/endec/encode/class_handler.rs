@@ -8,7 +8,8 @@ use crate::ts_syn::{
 };
 
 use super::field::prepare::to_encode_field;
-use super::field::statements::encode_fields;
+use super::object_encoder::encode_with_context_functions;
+use super::text::encode_text_body;
 use super::types::EncodeField;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::endec::EndecContainerOptions;
@@ -32,11 +33,7 @@ pub(super) fn handle_class(
     // Generate function names (always prefix style)
     let fn_encode_ident = class_names.generic_function("Encode");
     let fn_encode_expr: Expr = ts_ident!(class_names.function("Encode")).into();
-    let fn_encode_internal_ident = class_names.generic_function("EncodeWithContext");
     let fn_encode_internal_call: Expr = ts_ident!(class_names.function("EncodeWithContext")).into();
-
-    // Create Expr version of ENCODE_CONTEXT for expression positions
-    let encode_context_expr: Expr = encode_context_ident.clone().into();
 
     // Collect encodable fields with diagnostic collection
     let type_params = class_names.params.clone();
@@ -62,43 +59,16 @@ pub(super) fn handle_class(
         return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
     }
 
-    let field_statements = encode_fields(&fields, tag_field);
-
-    // Generate standalone functions
-    // Clone ident for use in standalone template and later for class body
-    let fn_encode_internal_ident_standalone = fn_encode_internal_ident;
-    let fn_encode_internal_expr_standalone = fn_encode_internal_call.clone();
+    let encode_text = encode_text_body(&fn_encode_internal_call, tag_field);
+    let with_context = encode_with_context_functions(&class_names, tag_field, &fields);
     let mut standalone = ts_template! {
         /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
         export function @{fn_encode_ident}(value: @{class_ident}, keepMetadata?: boolean): string {
-            const ctx = @{encode_context_expr}.create();
-            const __raw = @{fn_encode_internal_expr_standalone}(value, ctx);
-            if (keepMetadata) return JSON.stringify(__raw);
-            return JSON.stringify(__raw, (key, val) => key === "@{tag_field}" || key === "__id" ? undefined : val);
+            {$typescript encode_text}
         }
 
-        /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
-        export function @{fn_encode_internal_ident_standalone}(value: @{class_ident}, ctx: @{encode_context_ident}): Record<string, unknown> {
-            // Check if already encoded (cycle detection)
-            const existingId = ctx.getId(value);
-            if (existingId !== undefined) {
-                return { __ref: existingId };
-            }
-
-            // Register this object
-            const __id = ctx.register(value);
-
-            const result: Record<string, unknown> = {
-                "@{tag_field}": "@{class_name}",
-                __id,
-            };
-
-            {$typescript field_statements}
-
-            return result;
-        }
+        {$typescript with_context}
     };
-    standalone.add_aliased_import("EncodeContext", crate::package::ENDEC);
 
     // Generate static wrapper methods that delegate to standalone functions
     let fn_encode_internal_expr_class = fn_encode_internal_call;

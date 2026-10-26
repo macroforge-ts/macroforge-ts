@@ -13,8 +13,8 @@ true
 ## Output
 
 import { productDefaultsDecodeWithContext, productDefaultsEncodeWithContext, productDefaultsDefaultValue } from "./product-defaults.svelte";
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -66,36 +66,92 @@ export function productDefaultValue(): Product {
 export function productEncode(value: Product, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = productEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return productEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function productEncodePartialWithContext(value: Partial<Product>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Product>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Product",
         __id,
     };
 
-    
-    result.id = value.id;
-    result.name = value.name;
-    result.quickCode = value.quickCode;
-    result.group = value.group;
-    result.subgroup = value.subgroup;
-    result.unit = value.unit;
-    result.active = value.active;
-    result.commission = value.commission;
-    result.favorite = value.favorite;
-    result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
+    if (__fields === undefined || __fields.keeps("id")) {
+
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("quickCode")) {
+
+        if (value.quickCode !== undefined) {
+            result.quickCode = value.quickCode;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("group")) {
+        if (value.group !== undefined) {
+
+            result.group = value.group;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("subgroup")) {
+        if (value.subgroup !== undefined) {
+
+            result.subgroup = value.subgroup;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("unit")) {
+        if (value.unit !== undefined) {
+
+            result.unit = value.unit;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("active")) {
+
+        if (value.active !== undefined) {
+            result.active = value.active;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("commission")) {
+
+        if (value.commission !== undefined) {
+            result.commission = value.commission;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("favorite")) {
+
+        if (value.favorite !== undefined) {
+            result.favorite = value.favorite;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("defaults")) {
+
+        if (value.defaults !== undefined) {
+            result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
+        }
+    }
 
     return result;
 }
@@ -154,7 +210,13 @@ export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef {
+export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Product> | __mf_PendingRef;
+export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Product> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Product.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Product.decodeWithContext: __ref must be a number" }]);
@@ -168,46 +230,46 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("id" in obj)) {
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
-    if (!("quickCode" in obj)) {
+    if ((__fields === undefined || __fields.requires("quickCode")) && !("quickCode" in obj)) {
         errors.push({ field: "quickCode", message: "missing required field" });
     }
-    if (!("group" in obj)) {
+    if ((__fields === undefined || __fields.requires("group")) && !("group" in obj)) {
         errors.push({ field: "group", message: "missing required field" });
     }
-    if (!("subgroup" in obj)) {
+    if ((__fields === undefined || __fields.requires("subgroup")) && !("subgroup" in obj)) {
         errors.push({ field: "subgroup", message: "missing required field" });
     }
-    if (!("unit" in obj)) {
+    if ((__fields === undefined || __fields.requires("unit")) && !("unit" in obj)) {
         errors.push({ field: "unit", message: "missing required field" });
     }
-    if (!("active" in obj)) {
+    if ((__fields === undefined || __fields.requires("active")) && !("active" in obj)) {
         errors.push({ field: "active", message: "missing required field" });
     }
-    if (!("commission" in obj)) {
+    if ((__fields === undefined || __fields.requires("commission")) && !("commission" in obj)) {
         errors.push({ field: "commission", message: "missing required field" });
     }
-    if (!("favorite" in obj)) {
+    if ((__fields === undefined || __fields.requires("favorite")) && !("favorite" in obj)) {
         errors.push({ field: "favorite", message: "missing required field" });
     }
-    if (!("defaults" in obj)) {
+    if ((__fields === undefined || __fields.requires("defaults")) && !("defaults" in obj)) {
         errors.push({ field: "defaults", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -216,7 +278,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -228,7 +290,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("quickCode")) || (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
         const __raw_quickCode = obj["quickCode"] as string;
 
         if (!(typeof __raw_quickCode === "string")) {
@@ -240,7 +302,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.quickCode = __raw_quickCode;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("group")) || (__fields.keeps("group") && obj["group"] !== undefined)) {
         const __raw_group = obj["group"] as string | null;
 
         if (!(typeof __raw_group === "string" || __raw_group === null)) {
@@ -249,7 +311,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.group = __raw_group;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("subgroup")) || (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
         const __raw_subgroup = obj["subgroup"] as string | null;
 
         if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
@@ -258,7 +320,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.subgroup = __raw_subgroup;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("unit")) || (__fields.keeps("unit") && obj["unit"] !== undefined)) {
         const __raw_unit = obj["unit"] as string | null;
 
         if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
@@ -267,7 +329,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.unit = __raw_unit;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
         const __raw_active = obj["active"] as boolean;
 
         if (!(typeof __raw_active === "boolean")) {
@@ -276,7 +338,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.active = __raw_active;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("commission")) || (__fields.keeps("commission") && obj["commission"] !== undefined)) {
         const __raw_commission = obj["commission"] as boolean;
 
         if (!(typeof __raw_commission === "boolean")) {
@@ -285,7 +347,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.commission = __raw_commission;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("favorite")) || (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
         const __raw_favorite = obj["favorite"] as boolean;
 
         if (!(typeof __raw_favorite === "boolean")) {
@@ -294,7 +356,7 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.favorite = __raw_favorite;
         }
     }
-    {
+    if ((__fields === undefined || __fields.requires("defaults")) || (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
         const __raw_defaults = obj["defaults"] as ProductDefaults;
 
         ctx.pushScope("defaults");
@@ -320,6 +382,11 @@ export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     ctx.pushErrors(errors);
 
     return instance as Product;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function productDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Product>): Partial<Product> | __mf_PendingRef {
+    return productDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function productValidateField<K extends keyof Product>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -756,8 +823,10 @@ export const Product: {
   readonly defaultValue: typeof productDefaultValue;
   readonly encode: typeof productEncode;
   readonly encodeWithContext: typeof productEncodeWithContext;
+  readonly encodePartialWithContext: typeof productEncodePartialWithContext;
   readonly decode: typeof productDecode;
   readonly decodeWithContext: typeof productDecodeWithContext;
+  readonly decodePartialWithContext: typeof productDecodePartialWithContext;
   readonly validateField: typeof productValidateField;
   readonly validateFields: typeof productValidateFields;
   readonly hasShape: typeof productHasShape;
@@ -768,8 +837,10 @@ export const Product: {
   defaultValue: productDefaultValue,
   encode: productEncode,
   encodeWithContext: productEncodeWithContext,
+  encodePartialWithContext: productEncodePartialWithContext,
   decode: productDecode,
   decodeWithContext: productDecodeWithContext,
+  decodePartialWithContext: productDecodePartialWithContext,
   validateField: productValidateField,
   validateFields: productValidateFields,
   hasShape: productHasShape,
@@ -799,6 +870,8 @@ export declare function productDefaultValue(): Product;
 export declare function productEncode(value: Product, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function productEncodePartialWithContext(value: Partial<Product>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Product>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function productDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -812,6 +885,10 @@ export declare function productDecode(input: unknown, opts?: __mf_DecodeOptions)
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Product> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function productDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Product>): Partial<Product> | __mf_PendingRef;
 export declare function productValidateField<K extends keyof Product>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -885,8 +962,10 @@ export declare const Product: {
 	readonly defaultValue: typeof productDefaultValue;
 	readonly encode: typeof productEncode;
 	readonly encodeWithContext: typeof productEncodeWithContext;
+	readonly encodePartialWithContext: typeof productEncodePartialWithContext;
 	readonly decode: typeof productDecode;
 	readonly decodeWithContext: typeof productDecodeWithContext;
+	readonly decodePartialWithContext: typeof productDecodePartialWithContext;
 	readonly validateField: typeof productValidateField;
 	readonly validateFields: typeof productValidateFields;
 	readonly hasShape: typeof productHasShape;
@@ -901,26 +980,26 @@ export declare const Product: {
 
 ## Mapping
 
-original 0..125 -> expanded 562..687
-original 174..206 -> expanded 687..719
-original 234..255 -> expanded 719..740
-original 296..301 -> expanded 740..745
-original 342..365 -> expanded 745..768
-original 412..417 -> expanded 768..773
-original 458..486 -> expanded 773..801
-original 551..582 -> expanded 801..832
-original 650..684 -> expanded 832..866
-original 748..778 -> expanded 866..896
-original 823..849 -> expanded 896..922
-original 898..928 -> expanded 922..952
-original 975..1031 -> expanded 952..1008
-original 1031..1032 -> expanded 28148..28149
-generated 0..562 <- imports
-generated 1008..1326 <- Default
-generated 1326..2781 <- Encode
-generated 2781..12916 <- Decode
-generated 12916..27185 <- Gigaform
-generated 27185..28148 <- __convenience_const
+original 0..125 -> expanded 783..908
+original 174..206 -> expanded 908..940
+original 234..255 -> expanded 940..961
+original 296..301 -> expanded 961..966
+original 342..365 -> expanded 966..989
+original 412..417 -> expanded 989..994
+original 458..486 -> expanded 994..1022
+original 551..582 -> expanded 1022..1053
+original 650..684 -> expanded 1053..1087
+original 748..778 -> expanded 1087..1117
+original 823..849 -> expanded 1117..1143
+original 898..928 -> expanded 1143..1173
+original 975..1031 -> expanded 1173..1229
+original 1031..1032 -> expanded 33601..33602
+generated 0..783 <- imports
+generated 1229..1547 <- Default
+generated 1547..4868 <- Encode
+generated 4868..18093 <- Decode
+generated 18093..32362 <- Gigaform
+generated 32362..33601 <- __convenience_const
 
 ## Metadata
 

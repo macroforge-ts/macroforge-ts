@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
 import { toExit } from "@testground/macro/gigaform";
@@ -35,27 +35,38 @@ export function lastNameDefaultValue(): LastName {
 export function lastNameEncode(value: LastName, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = lastNameEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return lastNameEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function lastNameEncodePartialWithContext(value: Partial<LastName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof LastName>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "LastName",
         __id,
     };
 
-    
-    result.name = value.name;
+    if (__fields === undefined || __fields.keeps("name")) {
+
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
 
     return result;
 }
@@ -114,7 +125,13 @@ export function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LastName | __mf_PendingRef {
+export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LastName | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<LastName> | __mf_PendingRef;
+export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<LastName> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "LastName.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LastName.decodeWithContext: __ref must be a number" }]);
@@ -128,19 +145,19 @@ export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("name" in obj)) {
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
         errors.push({ field: "name", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -156,6 +173,11 @@ export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     ctx.pushErrors(errors);
 
     return instance as LastName;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function lastNameDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof LastName>): Partial<LastName> | __mf_PendingRef {
+    return lastNameDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
 }
 export function lastNameValidateField<K extends keyof LastName>(field: K, value: unknown): Array<{ field: string; message: string }> {
     const errors: Array<{ field: string; message: string }> = [];
@@ -290,8 +312,10 @@ export const LastName: {
   readonly defaultValue: typeof lastNameDefaultValue;
   readonly encode: typeof lastNameEncode;
   readonly encodeWithContext: typeof lastNameEncodeWithContext;
+  readonly encodePartialWithContext: typeof lastNameEncodePartialWithContext;
   readonly decode: typeof lastNameDecode;
   readonly decodeWithContext: typeof lastNameDecodeWithContext;
+  readonly decodePartialWithContext: typeof lastNameDecodePartialWithContext;
   readonly validateField: typeof lastNameValidateField;
   readonly validateFields: typeof lastNameValidateFields;
   readonly hasShape: typeof lastNameHasShape;
@@ -302,8 +326,10 @@ export const LastName: {
   defaultValue: lastNameDefaultValue,
   encode: lastNameEncode,
   encodeWithContext: lastNameEncodeWithContext,
+  encodePartialWithContext: lastNameEncodePartialWithContext,
   decode: lastNameDecode,
   decodeWithContext: lastNameDecodeWithContext,
+  decodePartialWithContext: lastNameDecodePartialWithContext,
   validateField: lastNameValidateField,
   validateFields: lastNameValidateFields,
   hasShape: lastNameHasShape,
@@ -323,6 +349,8 @@ export declare function lastNameDefaultValue(): LastName;
 export declare function lastNameEncode(value: LastName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function lastNameEncodePartialWithContext(value: Partial<LastName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof LastName>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -336,6 +364,10 @@ export declare function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LastName | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<LastName> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function lastNameDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof LastName>): Partial<LastName> | __mf_PendingRef;
 export declare function lastNameValidateField<K extends keyof LastName>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -382,8 +414,10 @@ export declare const LastName: {
 	readonly defaultValue: typeof lastNameDefaultValue;
 	readonly encode: typeof lastNameEncode;
 	readonly encodeWithContext: typeof lastNameEncodeWithContext;
+	readonly encodePartialWithContext: typeof lastNameEncodePartialWithContext;
 	readonly decode: typeof lastNameDecode;
 	readonly decodeWithContext: typeof lastNameDecodeWithContext;
+	readonly decodePartialWithContext: typeof lastNameDecodePartialWithContext;
 	readonly validateField: typeof lastNameValidateField;
 	readonly validateFields: typeof lastNameValidateFields;
 	readonly hasShape: typeof lastNameHasShape;
@@ -398,16 +432,16 @@ export declare const LastName: {
 
 ## Mapping
 
-original 0..58 -> expanded 421..479
-original 107..140 -> expanded 479..512
-original 181..201 -> expanded 512..532
-original 201..202 -> expanded 10674..10675
-generated 0..421 <- imports
-generated 532..624 <- Default
-generated 624..1728 <- Encode
-generated 1728..6435 <- Decode
-generated 6435..9688 <- Gigaform
-generated 9688..10674 <- __convenience_const
+original 0..58 -> expanded 642..700
+original 107..140 -> expanded 700..733
+original 181..201 -> expanded 733..753
+original 201..202 -> expanded 13318..13319
+generated 0..642 <- imports
+generated 753..845 <- Default
+generated 845..2646 <- Encode
+generated 2646..8799 <- Decode
+generated 8799..12052 <- Gigaform
+generated 12052..13318 <- __convenience_const
 
 ## Metadata
 

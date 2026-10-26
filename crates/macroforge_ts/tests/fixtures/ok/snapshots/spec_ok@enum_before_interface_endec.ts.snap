@@ -23,8 +23,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, fieldRequirement as __mf_fieldRequirement, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export enum Stage {
     Draft = 0,
@@ -34,7 +34,7 @@ export enum Stage {
 
 /** Encodes this enum value to a JSON string.  */
 export function stageEncode(value: Stage): string {
-    return JSON.stringify(value);
+    return __mf_encodedText(value);
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs.  */
@@ -93,27 +93,38 @@ export interface Job {
 export function jobEncode(value: Job, keepMetadata?: boolean): string {
     const ctx = __mf_EncodeContext.create();
     const __raw = jobEncodeWithContext(value, ctx);
-    if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return jobEncodePartialWithContext(value, ctx);
+}
 
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function jobEncodePartialWithContext(value: Partial<Job>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Job>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
     }
-
-    const __id = ctx.register(value);
 
     const result: Record<string, unknown> = {
         "__type": "Job",
         __id,
     };
 
-    
-    result.stage = stageEncodeWithContext(value.stage, ctx);
+    if (__fields === undefined || __fields.keeps("stage")) {
+
+        if (value.stage !== undefined) {
+            result.stage = stageEncodeWithContext(value.stage, ctx);
+        }
+    }
 
     return result;
 }
@@ -172,7 +183,13 @@ export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success:
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Job | __mf_PendingRef {
+export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Job | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Job> | __mf_PendingRef;
+export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Job> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Job.decodeWithContext: __ref must be a number" }]);
@@ -186,19 +203,19 @@ export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): J
 
     const obj = value as Record<string, unknown>;
     const errors: Array<{ field: string; message: string }> = [];
-    if (!("stage" in obj)) {
+    if ((__fields === undefined || __fields.requires("stage")) && !("stage" in obj)) {
         errors.push({ field: "stage", message: "missing required field" });
     }
 
     const instance: any = {};
 
-    if (obj.__id !== undefined) {
+    if (__fields === undefined && obj.__id !== undefined) {
         ctx.register(obj.__id as number, instance);
     }
 
     ctx.trackForFreeze(instance);
 
-    {
+    if ((__fields === undefined || __fields.requires("stage")) || (__fields.keeps("stage") && obj["stage"] !== undefined)) {
         const __raw_stage = obj["stage"] as Stage;
 
         ctx.pushScope("stage");
@@ -225,6 +242,11 @@ export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): J
 
     return instance as Job;
 }
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function jobDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Job>): Partial<Job> | __mf_PendingRef {
+    return jobDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
 export function jobValidateField<K extends keyof Job>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function jobValidateField(): Array<{ field: string; message: string }> {
     return [];
@@ -249,8 +271,10 @@ export function jobIs(obj: unknown): obj is Job {
 export const Job: {
   readonly encode: typeof jobEncode;
   readonly encodeWithContext: typeof jobEncodeWithContext;
+  readonly encodePartialWithContext: typeof jobEncodePartialWithContext;
   readonly decode: typeof jobDecode;
   readonly decodeWithContext: typeof jobDecodeWithContext;
+  readonly decodePartialWithContext: typeof jobDecodePartialWithContext;
   readonly validateField: typeof jobValidateField;
   readonly validateFields: typeof jobValidateFields;
   readonly hasShape: typeof jobHasShape;
@@ -258,8 +282,10 @@ export const Job: {
 } = {
   encode: jobEncode,
   encodeWithContext: jobEncodeWithContext,
+  encodePartialWithContext: jobEncodePartialWithContext,
   decode: jobDecode,
   decodeWithContext: jobDecodeWithContext,
+  decodePartialWithContext: jobDecodePartialWithContext,
   validateField: jobValidateField,
   validateFields: jobValidateFields,
   hasShape: jobHasShape,
@@ -296,6 +322,8 @@ export interface Job {
 export declare function jobEncode(value: Job, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function jobEncodePartialWithContext(value: Partial<Job>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Job>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function jobDecode(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -309,6 +337,10 @@ export declare function jobDecode(input: unknown, opts?: __mf_DecodeOptions): {
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export declare function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Job | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Job> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function jobDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Job>): Partial<Job> | __mf_PendingRef;
 export declare function jobValidateField<K extends keyof Job>(field: K, value: unknown): Array<{
 	field: string;
 	message: string;
@@ -322,8 +354,10 @@ export declare function jobIs(obj: unknown): obj is Job;
 export declare const Job: {
 	readonly encode: typeof jobEncode;
 	readonly encodeWithContext: typeof jobEncodeWithContext;
+	readonly encodePartialWithContext: typeof jobEncodePartialWithContext;
 	readonly decode: typeof jobDecode;
 	readonly decodeWithContext: typeof jobDecodeWithContext;
+	readonly decodePartialWithContext: typeof jobDecodePartialWithContext;
 	readonly validateField: typeof jobValidateField;
 	readonly validateFields: typeof jobValidateFields;
 	readonly hasShape: typeof jobHasShape;
@@ -336,17 +370,17 @@ export declare const Job: {
 
 ## Mapping
 
-original 30..106 -> expanded 262..338
-original 106..108 -> expanded 2162..2164
-original 138..181 -> expanded 2164..2207
-original 181..182 -> expanded 8069..8070
-generated 0..262 <- imports
-generated 338..740 <- Encode
-generated 740..1795 <- Decode
-generated 1795..2162 <- __convenience_const
-generated 2207..3312 <- Encode
-generated 3312..7436 <- Decode
-generated 7436..8069 <- __convenience_const
+original 30..106 -> expanded 483..559
+original 106..108 -> expanded 2385..2387
+original 138..181 -> expanded 2387..2430
+original 181..182 -> expanded 10636..10637
+generated 0..483 <- imports
+generated 559..963 <- Encode
+generated 963..2018 <- Decode
+generated 2018..2385 <- __convenience_const
+generated 2430..4214 <- Encode
+generated 4214..9743 <- Decode
+generated 9743..10636 <- __convenience_const
 
 ## Metadata
 

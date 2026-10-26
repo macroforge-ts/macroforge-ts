@@ -3,7 +3,9 @@
 //! `RecordId | Employee`, the resolved shape of `RecordLink<Employee>`.
 
 use crate::ast::Expr;
-use crate::builtin::derive::common::{detect_primitive_encodable_union, js_string, rendered};
+use crate::builtin::derive::common::{
+    detect_primitive_encodable_union, primitive_keyword_test, rendered,
+};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::split_top_level_union;
 use crate::ts_syn::config::ForeignHandler;
@@ -13,7 +15,7 @@ use super::{TypeCategory, get_foreign_types};
 /// How a union's other member is recognised at runtime, and what it becomes.
 #[derive(Clone, Debug)]
 pub(crate) enum UnionGuard {
-    /// A primitive, recognised by `typeof` and kept as it is.
+    /// A primitive, recognised by its keyword and kept as it is.
     Primitive(String),
     /// A foreign type, recognised by its `hasShape` and converted by its
     /// `decode` or `encode` handler.
@@ -32,8 +34,7 @@ impl UnionGuard {
     pub(crate) fn test(&self, value: &Expr) -> Expr {
         match self {
             Self::Primitive(keyword) => {
-                let keyword = js_string(keyword);
-                rendered(ts_template! { typeof @{value} === @{keyword} }).into()
+                primitive_keyword_test(keyword, &rendered(ts_template! { @{value} })).into()
             }
             Self::Foreign { has_shape, .. } => {
                 rendered(ts_template! { @{has_shape}(@{value}) }).into()

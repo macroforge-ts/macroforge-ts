@@ -41,5 +41,5 @@
         "cleanbuild": "deno task clean && deno task build"
     },
     "type": "module",
-    "version": "0.5.0"
+    "version": "0.6.0"
 }
