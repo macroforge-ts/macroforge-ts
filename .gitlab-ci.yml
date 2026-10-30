@@ -33,9 +33,7 @@ default:
 
 .toolchain: &toolchain
     - pixi install --locked
-    - pixi run setup-rust
-    - pixi run setup:wasm-bindgen
-    - pixi run build:mf
+    - pixi run setup
 
 release-check:
     stage: check

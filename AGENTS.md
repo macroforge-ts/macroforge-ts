@@ -3,7 +3,7 @@
 ## Toolchain And Commands
 
 - Use Pixi and Deno, not npm or pnpm. First-time CI-equivalent setup is `pixi install --locked`,
-  `pixi run setup-rust`, `pixi run setup:wasm-bindgen`, then `pixi run build:mf`.
+  then `pixi run setup` (Rust toolchain, wasm-bindgen-cli, `mf`).
 - `mf` (`tooling/scripts`) orchestrates builds, diagnostics, tests, docs, and releases. Most `pixi`
   tasks invoke `target/debug/mf`, so run `pixi run build:mf` after changing it.
 - Build the checkout's CLI with `pixi run build:cli` before Rust, package, conformance, testground,

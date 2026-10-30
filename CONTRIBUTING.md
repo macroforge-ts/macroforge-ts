@@ -32,10 +32,11 @@ website/                         # Documentation site (SvelteKit)
 - Rust toolchain (stable, 2024 edition)
 - [wasm-pack](https://rustwasm.github.io/wasm-pack/) -- for building the WASM output
 
-Build the `mf` CLI first (many pixi tasks depend on it):
+Set up the toolchain and build the `mf` CLI first (many pixi tasks depend on it):
 
 ```bash
-pixi run build:mf
+pixi install --locked
+pixi run setup
 ```
 
 ## Building
@@ -191,6 +192,14 @@ builds from `tooling/ci/Dockerfile` on the runner's host. Rebuild it after chang
 refuse an image built from an older one. The release jobs run on `mac-docker-release`, a protected
 runner in the same `gitlab-runner` container with cache volumes of its own, so nothing a branch
 pipeline writes reaches a release build.
+
+The GitHub repository runs the same check off that machine: push a branch to `github` and open a
+pull request into `main`, and `.github/workflows/ci.yml` runs `pixi run verify --check` on a
+GitHub-hosted runner in an image built from the same Dockerfile. GitLab push-mirrors `main` to
+GitHub, keeping divergent refs, and `.github/workflows/sync-gitlab.yml` pushes `main` back to GitLab
+after every merge on GitHub through a write deploy key (the `GITLAB_DEPLOY_KEY` secret) allowed to
+push to the protected branch. Neither side force-pushes, so when both merge at once the sync fails
+until GitLab's `main` is merged into GitHub's. Releases are tagged and published from GitLab only.
 
 crates.io and npm authenticate the release jobs through trusted publishing, and JSR through the
 protected `JSR_TOKEN` CI/CD variable. npm accepts trusted publishing from GitLab-hosted runners
