@@ -179,6 +179,9 @@ pixi run verify              # Regenerate what the bump changed, then open the m
 pixi run tag                 # After the merge, on main: tag vX.Y.Z and push the tag
 ```
 
+`pixi run tag --forge github` pushes the tag to GitHub instead, whose workflows release it off the
+self-hosted machine.
+
 `pixi run bump` increments the patch version; `pixi run bump --version X.Y.Z` sets one, and
 rerunning it finishes an interrupted bump. When a release pipeline fails and needs a new commit on
 `main`, `pixi run tag --retag` moves the tag to it and pushes it again.
@@ -193,15 +196,29 @@ refuse an image built from an older one. The release jobs run on `mac-docker-rel
 runner in the same `gitlab-runner` container with cache volumes of its own, so nothing a branch
 pipeline writes reaches a release build.
 
-The GitHub repository runs the same check off that machine: push a branch to `github` and open a
-pull request into `main`, and `.github/workflows/ci.yml` runs `pixi run verify --check` on a
-GitHub-hosted runner in an image built from the same Dockerfile. GitLab push-mirrors `main` to
-GitHub, keeping divergent refs, and `.github/workflows/sync-gitlab.yml` pushes `main` back to GitLab
-after every merge on GitHub through a write deploy key (the `GITLAB_DEPLOY_KEY` secret) allowed to
-push to the protected branch. Neither side force-pushes, so when both merge at once the sync fails
-until GitLab's `main` is merged into GitHub's. Releases are tagged and published from GitLab only.
-
 crates.io and npm authenticate the release jobs through trusted publishing, and JSR through the
-protected `JSR_TOKEN` CI/CD variable. npm accepts trusted publishing from GitLab-hosted runners
-only, so the tag pipeline publishes the crates and builds the packages on `mac-docker-release`, then
-publishes the npm and JSR packages from a GitLab-hosted runner with the `mf` it built.
+protected `JSR_TOKEN` CI/CD variable. npm accepts trusted publishing from GitLab-hosted runners, not
+self-hosted ones, so the tag pipeline publishes the crates and builds the packages on
+`mac-docker-release`, then publishes the npm and JSR packages from a GitLab-hosted runner with the
+`mf` it built.
+
+### GitHub
+
+The GitHub repository runs the same pipeline on GitHub-hosted runners, in an image built from the
+same Dockerfile. A pull request into `main` runs `pixi run verify --check` (`ci.yml`), and a tag
+pushed with `pixi run tag --forge github` releases (`release.yml`) in the `release` environment.
+crates.io, npm and JSR all authenticate it through trusted publishing, so each package needs a
+GitHub publisher for `release.yml` and that environment beside its GitLab one.
+
+The two repositories mirror each other without force-pushing:
+
+- GitLab push-mirrors `main` and its tags to GitHub, keeping divergent refs. `sync-gitlab.yml`
+  pushes `main` back to GitLab after every merge on GitHub, through a write deploy key (the
+  `GITLAB_DEPLOY_KEY` secret) allowed to push the protected `main` and create `v*` tags. When both
+  sides merge at once the sync fails until GitLab's `main` is merged into GitHub's.
+- `sync-releases.yml` creates on each side the releases the other has. It runs every 30 minutes,
+  which copies a GitLab release to GitHub, and at the end of `release.yml`, which pushes the tag to
+  GitLab with `ci.skip` and creates the GitLab Release as a project service account (the
+  `GITLAB_RELEASE_TOKEN` secret). GitLab's release webhook then deploys the website either way.
+- `release.yml` skips a tag GitLab already has, since that tag came through the mirror and GitLab's
+  pipeline releases it.

@@ -1,0 +1,38 @@
+name: GitLab
+description: >-
+    Points git's SSH at the GitLab project through the sync deploy key, and
+    exports GITLAB_REPO and GITLAB_API for the steps after it.
+
+inputs:
+    deploy-key:
+        description: >-
+            The private half of a write deploy key on the GitLab project, allowed
+            to push main and create v* tags.
+        required: true
+
+runs:
+    using: composite
+    steps:
+        - name: Configure GitLab access
+          shell: bash
+          env:
+              DEPLOY_KEY: ${{ inputs.deploy-key }}
+              # gitlab.com's published ED25519 host key.
+              GITLAB_HOST_KEY: gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf
+          run: |
+              if [ -z "$DEPLOY_KEY" ]; then
+                echo "::error::The GITLAB_DEPLOY_KEY secret is not set."
+                exit 1
+              fi
+
+              key="$RUNNER_TEMP/gitlab-deploy-key"
+              known_hosts="$RUNNER_TEMP/gitlab-known-hosts"
+              install -m 600 /dev/null "$key"
+              printf '%s\n' "$DEPLOY_KEY" > "$key"
+              printf '%s\n' "$GITLAB_HOST_KEY" > "$known_hosts"
+
+              {
+                echo "GIT_SSH_COMMAND=ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$known_hosts"
+                echo "GITLAB_REPO=git@gitlab.com:macroforge-ts/macroforge-ts.git"
+                echo "GITLAB_API=https://gitlab.com/api/v4/projects/macroforge-ts%2Fmacroforge-ts"
+              } >> "$GITHUB_ENV"

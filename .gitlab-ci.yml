@@ -1,6 +1,7 @@
 # Merge requests into main run `verify`. A `vX.Y.Z` tag on main verifies again,
 # publishes every package whose version is not yet on its registry, then
-# creates the GitLab Release.
+# creates the GitLab Release. .github/workflows holds the same pipeline for
+# GitHub; a tag released there arrives here with ci.skip, so it runs nothing.
 #
 # Jobs run on the self-hosted `mac-docker` runner, in the image
 # `pixi run ci:image` builds on the runner host from tooling/ci/Dockerfile.
@@ -123,12 +124,5 @@ release:
     release:
         tag_name: $CI_COMMIT_TAG
         name: $CI_COMMIT_TAG
-        description: Published to crates.io, npm and JSR.
-        assets:
-            links:
-                - name: crates.io
-                  url: https://crates.io/crates/macroforge_ts
-                - name: npm
-                  url: https://www.npmjs.com/package/@macroforge/core
-                - name: JSR
-                  url: https://jsr.io/@macroforge/core
+        # GitHub's release workflow publishes the same notes.
+        description: tooling/ci/release-notes.md

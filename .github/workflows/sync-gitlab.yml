@@ -26,27 +26,12 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
 
+            - uses: ./.github/actions/gitlab
+              with:
+                  deploy-key: ${{ secrets.GITLAB_DEPLOY_KEY }}
+
             - name: Push main to GitLab
-              env:
-                  # A write deploy key on the GitLab project, allowed to push
-                  # to its protected main.
-                  GITLAB_DEPLOY_KEY: ${{ secrets.GITLAB_DEPLOY_KEY }}
-                  GITLAB_REPO: git@gitlab.com:macroforge-ts/macroforge-ts.git
-                  # gitlab.com's published ED25519 host key.
-                  GITLAB_HOST_KEY: gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf
               run: |
-                  if [ -z "$GITLAB_DEPLOY_KEY" ]; then
-                    echo "::error::The GITLAB_DEPLOY_KEY secret is not set."
-                    exit 1
-                  fi
-
-                  key="$RUNNER_TEMP/gitlab-deploy-key"
-                  known_hosts="$RUNNER_TEMP/gitlab-known-hosts"
-                  install -m 600 /dev/null "$key"
-                  printf '%s\n' "$GITLAB_DEPLOY_KEY" > "$key"
-                  printf '%s\n' "$GITLAB_HOST_KEY" > "$known_hosts"
-                  export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$known_hosts"
-
                   git fetch --no-tags "$GITLAB_REPO" main
                   gitlab_main="$(git rev-parse FETCH_HEAD)"
 
