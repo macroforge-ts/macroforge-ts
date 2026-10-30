@@ -1,7 +1,7 @@
 # fix(cli): ship the foreign-type handlers under svelte-package 3
 
 - **Date:** 2026-10-30 00:20
-- **Commit:** 8e1e39f9e
+- **Commit:** 857014039
 - **Area:** `macroforge svelte-package` (the CLI's packager wrapper and fs shim)
 
 ## Problem
