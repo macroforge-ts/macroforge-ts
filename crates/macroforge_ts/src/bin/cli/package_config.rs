@@ -4,7 +4,8 @@
 //! which the project's manifest maps to `.macroforge/config/`. A published
 //! package does not ship `.macroforge/`, so packaging copies the expanded
 //! config into the output under `__macroforge/config/` and points each
-//! emitted import at the copy with a relative path.
+//! emitted import at the copy with a relative path. The packager is kept from
+//! resolving the specifier itself (`svelte-package-wrapper.mjs`).
 
 use anyhow::{Context, Result, bail};
 use macroforge_ts::host::config::hoist::EXPANDED_CONFIG_DIR;
