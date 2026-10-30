@@ -6,6 +6,12 @@ use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
+/// Whether this is a GitHub Actions job allowed to request an OIDC ID token.
+/// npm and `deno publish` request and exchange one there by themselves.
+pub fn github_actions_oidc() -> bool {
+    std::env::var_os("ACTIONS_ID_TOKEN_REQUEST_URL").is_some()
+}
+
 /// Create a ureq agent with reasonable timeouts to prevent hanging
 fn agent() -> ureq::Agent {
     let config = ureq::Agent::config_builder()

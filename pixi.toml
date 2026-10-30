@@ -16,6 +16,9 @@ version = "0.1.0"
 # appends RUSTUP_HOME to ~/.zshenv. Safe to re-run.
 "setup-rust" = "bash scripts/setup-rust.sh"
 
+# Everything a fresh machine or CI job needs after `pixi install --locked`.
+setup = "pixi run setup-rust && pixi run setup:wasm-bindgen && pixi run build:mf"
+
 # Build mf tooling binary. Debug, since it only orchestrates other tools and
 # rebuilds far faster than an optimized build.
 "build:mf" = { cmd = "cargo build -p mf" }

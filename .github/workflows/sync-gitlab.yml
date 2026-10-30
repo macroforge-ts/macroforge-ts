@@ -1,0 +1,48 @@
+# GitLab is the primary remote and push-mirrors main here, skipping refs that
+# have diverged. A pull request merged here pushes main back to GitLab, so the
+# two stay equal whichever side merged last. It never force-pushes: when both
+# sides merged at once, the job fails until GitLab's main is merged in here.
+name: Sync main to GitLab
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: sync-gitlab
+    cancel-in-progress: false
+
+jobs:
+    sync:
+        if: github.repository == 'macroforge-ts/macroforge-ts'
+        runs-on: ubuntu-24.04
+        timeout-minutes: 10
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - uses: ./.github/actions/gitlab
+              with:
+                  deploy-key: ${{ secrets.GITLAB_DEPLOY_KEY }}
+
+            - name: Push main to GitLab
+              run: |
+                  git fetch --no-tags "$GITLAB_REPO" main
+                  gitlab_main="$(git rev-parse FETCH_HEAD)"
+
+                  if git merge-base --is-ancestor "$GITHUB_SHA" "$gitlab_main"; then
+                    echo "GitLab main ($gitlab_main) already contains $GITHUB_SHA."
+                    exit 0
+                  fi
+
+                  if ! git merge-base --is-ancestor "$gitlab_main" "$GITHUB_SHA"; then
+                    echo "::error::main has diverged: GitLab main ($gitlab_main) is not in $GITHUB_SHA. Merge GitLab's main into main here and this pushes again."
+                    exit 1
+                  fi
+
+                  git push "$GITLAB_REPO" "$GITHUB_SHA:refs/heads/main"

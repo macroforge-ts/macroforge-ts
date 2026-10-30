@@ -1,0 +1,39 @@
+# Releases are API objects, not refs, so neither the push mirror nor
+# sync-gitlab.yml carries them. This creates on each forge the releases the
+# other has and it lacks. GitLab's pipeline creates its release once every
+# registry has the version, and the schedule copies it here; release.yml calls
+# this directly after a release made here.
+name: Sync releases
+
+on:
+    schedule:
+        - cron: '*/30 * * * *'
+    workflow_dispatch:
+    workflow_call:
+
+permissions:
+    contents: write
+
+jobs:
+    sync:
+        if: github.repository == 'macroforge-ts/macroforge-ts'
+        runs-on: ubuntu-24.04
+        timeout-minutes: 15
+        concurrency:
+            group: sync-releases
+            cancel-in-progress: false
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - uses: ./.github/actions/gitlab
+              with:
+                  deploy-key: ${{ secrets.GITLAB_DEPLOY_KEY }}
+
+            - name: Sync the releases
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GITLAB_RELEASE_TOKEN: ${{ secrets.GITLAB_RELEASE_TOKEN }}
+              run: bash tooling/ci/sync-releases.sh

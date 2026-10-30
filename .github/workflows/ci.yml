@@ -1,0 +1,44 @@
+# Pull requests into main run `verify`, as GitLab merge requests do, on a
+# GitHub-hosted runner in the image tooling/ci/Dockerfile defines. release.yml
+# calls it to verify a tag again before publishing.
+name: CI
+
+on:
+    pull_request:
+        branches: [main]
+    workflow_call:
+
+permissions:
+    contents: read
+
+jobs:
+    verify:
+        runs-on: ubuntu-24.04
+        timeout-minutes: 180
+        concurrency:
+            group: verify-${{ github.event.pull_request.number || github.ref }}
+            cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Prepare the CI image
+              id: image
+              uses: ./.github/actions/ci-image
+
+            - name: Verify
+              run: sh tooling/ci/run-in-image.sh 'pixi install --locked && pixi run setup && pixi run verify --check'
+
+            # The container wrote the home as root; the cache action runs as
+            # the runner user and has to read all of it.
+            - name: Hand the home to the runner user
+              if: ${{ !cancelled() && steps.image.outputs.cache-hit != 'true' }}
+              run: sudo chown -R "$(id -u):$(id -g)" "$CI_HOME"
+
+            - name: Save the home cache
+              if: ${{ !cancelled() && steps.image.outputs.cache-hit != 'true' }}
+              uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ${{ env.CI_HOME }}
+                  key: ${{ steps.image.outputs.cache-key }}
