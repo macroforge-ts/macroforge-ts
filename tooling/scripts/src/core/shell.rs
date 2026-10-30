@@ -538,10 +538,28 @@ pub mod git {
         Ok(result.stdout.trim().to_string())
     }
 
-    /// Fetch one branch from origin into `FETCH_HEAD`.
-    pub fn fetch(cwd: &Path, branch: &str) -> Result<()> {
+    /// Each remote's name and fetch URL.
+    pub fn remotes(cwd: &Path) -> Result<Vec<(String, String)>> {
+        let result = Shell::new("git")
+            .args(&["remote", "-v"])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(result
+            .stdout
+            .lines()
+            .filter_map(|line| {
+                let mut fields = line.split_whitespace();
+                let name = fields.next()?;
+                let url = fields.next()?;
+                (fields.next()? == "(fetch)").then(|| (name.to_string(), url.to_string()))
+            })
+            .collect())
+    }
+
+    /// Fetch one branch from a remote into `FETCH_HEAD`.
+    pub fn fetch(cwd: &Path, remote: &str, branch: &str) -> Result<()> {
         Shell::new("git")
-            .args(&["fetch", "--quiet", "origin", branch])
+            .args(&["fetch", "--quiet", remote, branch])
             .dir(cwd)
             .run_checked()?;
         Ok(())
@@ -562,11 +580,11 @@ pub mod git {
         }
     }
 
-    /// The commit origin's tag points at, if origin has the tag.
-    pub fn remote_tag_commit(cwd: &Path, tag_name: &str) -> Result<Option<String>> {
+    /// The commit a remote's tag points at, if the remote has the tag.
+    pub fn remote_tag_commit(cwd: &Path, remote: &str, tag_name: &str) -> Result<Option<String>> {
         let reference = format!("refs/tags/{tag_name}");
         let result = Shell::new("git")
-            .args(&["ls-remote", "--tags", "origin", &reference])
+            .args(&["ls-remote", "--tags", remote, &reference])
             .dir(cwd)
             .run_checked()?;
         Ok(result.stdout.split_whitespace().next().map(str::to_string))
@@ -590,10 +608,20 @@ pub mod git {
         Ok(())
     }
 
-    /// Push a single tag to remote
-    pub fn push_tag(cwd: &Path, tag_name: &str) -> Result<()> {
+    /// Push a single tag to a remote.
+    pub fn push_tag(cwd: &Path, remote: &str, tag_name: &str) -> Result<()> {
         Shell::new("git")
-            .args(&["push", "origin", tag_name])
+            .args(&["push", remote, tag_name])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
+    }
+
+    /// Delete a tag on a remote that leaves its tags unprotected.
+    pub fn delete_remote_tag(cwd: &Path, remote: &str, tag_name: &str) -> Result<()> {
+        let reference = format!("refs/tags/{tag_name}");
+        Shell::new("git")
+            .args(&["push", "--quiet", remote, "--delete", &reference])
             .dir(cwd)
             .run_checked()?;
         Ok(())

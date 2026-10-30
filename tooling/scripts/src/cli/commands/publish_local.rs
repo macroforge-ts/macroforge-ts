@@ -41,8 +41,9 @@ enum Auth {
 enum NpmAuth {
     /// npm's own credentials: `npm login` or a token in `.npmrc`.
     Npm,
-    /// A CI OIDC ID token (`NPM_ID_TOKEN`), which npm exchanges itself while
-    /// publishing, so `npm whoami` cannot confirm it beforehand.
+    /// A CI OIDC ID token (`NPM_ID_TOKEN` on GitLab, requested by npm itself
+    /// on GitHub Actions), which npm exchanges while publishing, so
+    /// `npm whoami` cannot confirm it beforehand.
     TrustedPublishing,
 }
 
@@ -740,7 +741,8 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     } else {
         Auth::Interactive
     };
-    let npm_auth = if std::env::var_os("NPM_ID_TOKEN").is_some() {
+    let npm_auth = if std::env::var_os("NPM_ID_TOKEN").is_some() || registry::github_actions_oidc()
+    {
         NpmAuth::TrustedPublishing
     } else {
         NpmAuth::Npm
@@ -772,8 +774,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         if to_publish.iter().any(|pending| pending.needs_jsr)
             && auth == Auth::NonInteractive
             && jsr_token.is_none()
+            && !registry::github_actions_oidc()
         {
-            anyhow::bail!("JSR: JSR_TOKEN is not set");
+            anyhow::bail!(
+                "JSR: JSR_TOKEN is not set, and no GitHub Actions OIDC token is available"
+            );
         }
         println!();
     }

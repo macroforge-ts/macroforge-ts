@@ -149,11 +149,31 @@ pub struct PublishLocalArgs {
 
     /// Never prompt or log in: credentials come from the environment (npm's
     /// config or a trusted publishing `NPM_ID_TOKEN`, `CARGO_REGISTRY_TOKEN`
-    /// or a trusted publishing `CRATES_IO_ID_TOKEN`, `JSR_TOKEN`) and an auth
+    /// or a trusted publishing `CRATES_IO_ID_TOKEN`, `JSR_TOKEN`, or the OIDC
+    /// token a GitHub Actions job may request for npm and JSR) and an auth
     /// failure is an error.
     /// Implies `--yes`. For CI.
     #[arg(long)]
     pub non_interactive: bool,
+}
+
+/// A forge whose CI can release a tag pushed to it.
+#[derive(Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum Forge {
+    #[value(name = "gitlab")]
+    GitLab,
+    #[value(name = "github")]
+    GitHub,
+}
+
+impl Forge {
+    /// The host its remote's URL names.
+    pub fn host(self) -> &'static str {
+        match self {
+            Forge::GitLab => "gitlab.com",
+            Forge::GitHub => "github.com",
+        }
+    }
 }
 
 #[derive(clap::Args)]
@@ -166,8 +186,12 @@ pub struct TagArgs {
     #[arg(long)]
     pub dry_run: bool,
 
-    /// Move an existing tag to HEAD, on origin too, which reruns its release
-    /// pipeline
+    /// Move an existing tag to HEAD, on the forge too, which reruns its
+    /// release
     #[arg(long)]
     pub retag: bool,
+
+    /// The forge to push the tag to; its CI verifies and publishes the release
+    #[arg(long, value_enum, default_value = "gitlab")]
+    pub forge: Forge,
 }
