@@ -30,6 +30,20 @@ jobs:
             - name: Verify
               run: sh tooling/ci/run-in-image.sh 'pixi install --locked && pixi run setup && pixi run verify --check'
 
+            # The snapshots a failed run would record, to review and commit
+            # without rerunning the suite.
+            - name: Upload pending snapshots
+              if: failure()
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: pending-snapshots
+                  # Deno links the crate into node_modules, so each snapshot
+                  # appears there again.
+                  path: |
+                      **/*.snap.new
+                      !**/node_modules/**
+                  if-no-files-found: ignore
+
             # The container wrote the home as root; the cache action runs as
             # the runner user and has to read all of it.
             - name: Hand the home to the runner user

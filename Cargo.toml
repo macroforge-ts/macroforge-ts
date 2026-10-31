@@ -83,7 +83,7 @@ ureq = { version = "3.4.2", features = ["json"] }
 url = "2.5.8"
 walkdir = "2.5.0"
 # Must match the wasm-bindgen-cli that `pixi run setup:wasm-bindgen` installs.
-wasm-bindgen = "0.2.129"
+wasm-bindgen = "0.2.130"
 web-time = "1.1.0"
 # Only what running a wasm-bindgen macro package needs: the compiler, the
 # runtime, `gc` for wasm-bindgen's externref table, and the on-disk cache of

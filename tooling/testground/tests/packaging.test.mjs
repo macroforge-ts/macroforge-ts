@@ -8,8 +8,8 @@
  *
  * `@testground/library` exposes two build paths:
  *  - `package:unexpanded` runs svelte-package directly (the bug)
- *  - `build` runs `macroforge expand --scan --out <staging>` first, then
- *    svelte-package over the staged sources (the supported chain)
+ *  - `build` runs `macroforge svelte-package`, which serves the packager
+ *    expanded sources in place of the raw ones (the supported chain)
  */
 
 import assert from 'node:assert/strict';
@@ -198,6 +198,39 @@ test('packaging: supported build chain emits expanded runtime into dist', async 
     assert.ok(
         statSync(path.join(libraryRoot, 'dist/types/person-name.js')).size > 0,
         'packaged type module should not be empty'
+    );
+});
+
+test('packaging: a foreign type reaches the handlers shipped with the package', async () => {
+    ensureInstalled();
+    // svelte-package 3 rewrites every `#` import the manifest maps into a path
+    // relative to the source file. Left to do that for `#macroforge/config`, it
+    // points `dist/types/meeting.js` at a `.macroforge/` above the package.
+    const result = runLibraryTask('build');
+    assert.equal(
+        result.status,
+        0,
+        `build should succeed.\n${result.stdout}\n${result.stderr}`
+    );
+
+    const code = readFileSync(path.join(libraryRoot, 'dist/types/meeting.js'), 'utf8');
+    assert.match(
+        code,
+        /from ["']\.\.\/__macroforge\/config\/handlers\.js["']/,
+        `the module should import the shipped handlers:\n${code}`
+    );
+    assert.ok(
+        existsSync(path.join(libraryRoot, 'dist/__macroforge/config/handlers.js')),
+        'the expanded config should ship inside the package'
+    );
+
+    const meeting = await importDist('types/meeting.js');
+    const decoded = meeting.meetingDecode({ title: 'Kickoff', startsAt: '2026-10-29T15:00:00Z' });
+    assert.equal(decoded.success, true, `decode should succeed: ${JSON.stringify(decoded)}`);
+    assert.equal(
+        JSON.parse(meeting.meetingEncode(decoded.value)).startsAt,
+        '2026-10-29T15:00:00.000Z',
+        'the shipped handler should encode the foreign type'
     );
 });
 
@@ -418,7 +451,7 @@ test('packaging: a changed type re-expands exactly the modules that read it', ()
             assert.ok(!wasSkipped(output), `a real edit must rebuild.\n${output}`);
             assert.match(
                 output,
-                /Re-expanded 2 of 3 macro module\(s\): 1 changed file\(s\), 1 reading a changed type/
+                /Re-expanded 2 of 4 macro module\(s\): 1 changed file\(s\), 1 reading a changed type/
             );
             assert.deepEqual(reexpandedSince(before), [
                 'types/customer.svelte.ts',
@@ -453,7 +486,7 @@ test('packaging: an annotation-only change re-expands only the modules that read
 
             assert.match(
                 output,
-                /Re-expanded 2 of 3 macro module\(s\): 1 changed file\(s\), 1 reading a changed type/
+                /Re-expanded 2 of 4 macro module\(s\): 1 changed file\(s\), 1 reading a changed type/
             );
             assert.deepEqual(reexpandedSince(before), [
                 'types/customer.svelte.ts',
@@ -476,7 +509,7 @@ test('packaging: a comment-only edit re-expands only the edited module', () => {
         () => {
             const output = packageOk();
 
-            assert.match(output, /Re-expanded 1 of 3 macro module\(s\): 1 changed file\(s\)\n/);
+            assert.match(output, /Re-expanded 1 of 4 macro module\(s\): 1 changed file\(s\)\n/);
             assert.deepEqual(reexpandedSince(before), ['types/person-name.ts']);
         }
     );
@@ -493,7 +526,7 @@ test('packaging: a change to a type nothing else reads re-expands only its own m
         () => {
             const output = packageOk();
 
-            assert.match(output, /Re-expanded 1 of 3 macro module\(s\): 1 changed file\(s\)\n/);
+            assert.match(output, /Re-expanded 1 of 4 macro module\(s\): 1 changed file\(s\)\n/);
             assert.deepEqual(reexpandedSince(before), ['types/order.svelte.ts']);
         }
     );
@@ -514,7 +547,7 @@ test('packaging: an edit that leaves the type surface alone re-expands nothing',
             assert.ok(!wasSkipped(output), `a real edit must rebuild.\n${output}`);
             assert.match(
                 output,
-                /Reused all 3 expanded module\(s\): none of the 1 changed file\(s\) carry macros/
+                /Reused all 4 expanded module\(s\): none of the 1 changed file\(s\) carry macros/
             );
             assert.match(
                 readFileSync(path.join(distDir, 'index.js'), 'utf8'),
@@ -548,7 +581,7 @@ test('packaging: --full-rebuild repackages an unchanged project', () => {
         !wasSkipped(output),
         `--full-rebuild must ignore the previous build.\n${output}`
     );
-    assert.match(output, /Re-expanded all 3 macro module\(s\): no previous build to reuse/);
+    assert.match(output, /Re-expanded all 4 macro module\(s\): no previous build to reuse/);
 });
 
 test('packaging: an added source is packaged and its removal is propagated', () => {
@@ -733,7 +766,7 @@ test('packaging: a rebuilt macro binary re-expands rather than replaying the tre
 
         assert.match(
             output,
-            /Re-expanded all 3 macro module\(s\): the external macro binary changed/,
+            /Re-expanded all 4 macro module\(s\): the external macro binary changed/,
             `a rebuilt macro binary must re-expand every module.\n${output}`
         );
         assert.ok(
