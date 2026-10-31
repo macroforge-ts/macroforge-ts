@@ -1,7 +1,7 @@
 # fix(cli): ship the foreign-type handlers under svelte-package 3
 
 - **Date:** 2026-10-30 00:20
-- **Commit:** 857014039
+- **Commit:** 857014039, 6f2f4e1a6 (fixup)
 - **Area:** `macroforge svelte-package` (the CLI's packager wrapper and fs shim)
 
 ## Problem
@@ -32,7 +32,7 @@ The wrapper installs `globalThis.__macroforgeManifest`, and the fs shim serves t
 project manifest without its `#macroforge/config` entry, so the specifier reaches the post-pass
 intact. TypeScript reads the real manifest through `ts.sys`, so `.d.ts` emit still resolves the
 handlers. The testground library moves to `@sveltejs/package` 3.0.1 and gains a module with a
-foreign type.
+foreign type, and the fixup records the library's conformance goldens for it and its config.
 
 ## Verified
 
