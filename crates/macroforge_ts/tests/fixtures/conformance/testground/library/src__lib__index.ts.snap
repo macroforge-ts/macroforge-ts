@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/index.ts
-sha256 8669fd2b72228269327ba1479f083da12c40596a52b2347fc85105bdf3dc3298
+sha256 8bfe3b2fe540ae817dabb257a0b3aff8e4b3f285a3c10498d3f141abda62490d
 
 ## Changed
 

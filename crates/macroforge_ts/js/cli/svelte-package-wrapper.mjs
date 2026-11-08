@@ -14,6 +14,9 @@
  *   - .d.ts emit: svelte2tsx reads `.ts` sources through `ts.sys.readFile`,
  *     which we monkeypatch directly (a writable property on the ts.sys object).
  *
+ * The same shim shows the packager the project manifest without its
+ * `#macroforge/config` import (see `globalThis.__macroforgeManifest` below).
+ *
  * The packager still runs against the *real* input directory. Redirecting the
  * bytes rather than the path keeps `$lib` alias resolution and `.d.ts.map`
  * sources (both computed relative to the input dir) pointing at the actual
@@ -139,6 +142,31 @@ globalThis.__macroforgeExpanded = function (filePath) {
     }
     served.add(rel);
     return expanded;
+};
+
+/** The import that names the expanded config, as the generated code writes it. */
+const CONFIG_SPECIFIER = '#macroforge/config';
+const manifestPath = path.resolve(process.cwd(), 'package.json');
+
+/**
+ * Serves the project manifest without its `#macroforge/config` import.
+ *
+ * The packager rewrites each `#` import the manifest maps into a path relative
+ * to the source file in the input tree, which is wrong once the file lands in
+ * the output and its target lies outside both. The CLI ships the expanded
+ * config into the output itself and points every import of the specifier at
+ * the copy (`package_config.rs`), so the packager must leave it alone.
+ * TypeScript reads the real manifest through `ts.sys`, so `.d.ts` emit still
+ * resolves the handlers.
+ */
+globalThis.__macroforgeManifest = function (filePath) {
+    if (typeof filePath !== 'string' || path.resolve(filePath) !== manifestPath) return undefined;
+    const manifest = JSON.parse(fsReal.readFileSync(manifestPath, 'utf8'));
+    if (manifest.imports === undefined || !(CONFIG_SPECIFIER in manifest.imports)) {
+        return undefined;
+    }
+    delete manifest.imports[CONFIG_SPECIFIER];
+    return JSON.stringify(manifest);
 };
 
 // Every `.ts` module the CLI expanded is read at least once by the packager, so

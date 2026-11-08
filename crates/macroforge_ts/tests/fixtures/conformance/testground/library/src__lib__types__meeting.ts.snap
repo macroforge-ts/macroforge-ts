@@ -1,0 +1,321 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/types/meeting.ts
+sha256 4cfe9e195289fc3a9a96fd5cb53005175654f5f5274ac00050f2f3ec0aa604e1
+
+## Changed
+
+true
+
+## Output
+
+import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { DateTime } from 'effect';
+
+
+export interface Meeting {
+    title: string;
+    startsAt: DateTime.DateTime;
+}
+
+export function meetingDefaultValue(): Meeting {
+    return {
+        title: "",
+        startsAt: __foreign__dateTimeDateTimeDefault(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function meetingEncode(value: Meeting, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = meetingEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function meetingEncodeWithContext(value: Meeting, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return meetingEncodePartialWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function meetingEncodePartialWithContext(value: Partial<Meeting>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Meeting>): Record<string, unknown> {
+    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
+
+    let __id: number | undefined;
+    if (__fields === undefined) {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        __id = ctx.register(value);
+    }
+
+    const result: Record<string, unknown> = {
+        "__type": "Meeting",
+        __id,
+    };
+
+    if (__fields === undefined || __fields.keeps("title")) {
+
+        if (value.title !== undefined) {
+            result.title = value.title;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("startsAt")) {
+
+        if (value.startsAt !== undefined) {
+            result.startsAt = __foreign__dateTimeDateTimeEncode(value.startsAt);
+        }
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function meetingDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meeting } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = meetingDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Meeting.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function meetingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meeting | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function meetingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Meeting> | __mf_PendingRef;
+export function meetingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Meeting> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Meeting.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Meeting.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Meeting | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Meeting.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("title")) && !("title" in obj)) {
+        errors.push({ field: "title", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("startsAt")) && !("startsAt" in obj)) {
+        errors.push({ field: "startsAt", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+        const __raw_title = obj["title"] as string;
+
+        if (!(typeof __raw_title === "string")) {
+            errors.push({ field: "title", message: __raw_title == null ? "Meeting.title is required" : "expected string" });
+        } else {
+            instance.title = __raw_title;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("startsAt")) || (__fields.keeps("startsAt") && obj["startsAt"] !== undefined)) {
+        try {
+            instance.startsAt = __foreign__dateTimeDateTimeDecode(obj["startsAt"]);
+        } catch (__error) {
+            errors.push({ field: "startsAt", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Meeting;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function meetingDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Meeting>): Partial<Meeting> | __mf_PendingRef {
+    return meetingDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function meetingValidateField<K extends keyof Meeting>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function meetingValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function meetingValidateFields(partial: { readonly [K in keyof Meeting]?: unknown }): Array<{ field: string; message: string }>;
+export function meetingValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function meetingHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "title" in o && "startsAt" in o;
+}
+
+export function meetingIs(obj: unknown): obj is Meeting {
+    return meetingHasShape(obj) && meetingDecode(obj).success;
+}
+
+export const Meeting: {
+  readonly defaultValue: typeof meetingDefaultValue;
+  readonly encode: typeof meetingEncode;
+  readonly encodeWithContext: typeof meetingEncodeWithContext;
+  readonly encodePartialWithContext: typeof meetingEncodePartialWithContext;
+  readonly decode: typeof meetingDecode;
+  readonly decodeWithContext: typeof meetingDecodeWithContext;
+  readonly decodePartialWithContext: typeof meetingDecodePartialWithContext;
+  readonly validateField: typeof meetingValidateField;
+  readonly validateFields: typeof meetingValidateFields;
+  readonly hasShape: typeof meetingHasShape;
+  readonly is: typeof meetingIs;
+} = {
+  defaultValue: meetingDefaultValue,
+  encode: meetingEncode,
+  encodeWithContext: meetingEncodeWithContext,
+  encodePartialWithContext: meetingEncodePartialWithContext,
+  decode: meetingDecode,
+  decodeWithContext: meetingDecodeWithContext,
+  decodePartialWithContext: meetingDecodePartialWithContext,
+  validateField: meetingValidateField,
+  validateFields: meetingValidateFields,
+  hasShape: meetingHasShape,
+  is: meetingIs
+};
+
+## DTS
+
+import type { DateTime } from "effect";
+export interface Meeting {
+	title: string;
+	startsAt: DateTime.DateTime;
+}
+export declare function meetingDefaultValue(): Meeting;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function meetingEncode(value: Meeting, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function meetingEncodeWithContext(value: Meeting, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function meetingEncodePartialWithContext(value: Partial<Meeting>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Meeting>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function meetingDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meeting;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function meetingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meeting | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function meetingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Meeting> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function meetingDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Meeting>): Partial<Meeting> | __mf_PendingRef;
+export declare function meetingValidateField<K extends keyof Meeting>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function meetingValidateFields(partial: { readonly [K in keyof Meeting]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function meetingHasShape(obj: unknown): boolean;
+export declare function meetingIs(obj: unknown): obj is Meeting;
+export declare const Meeting: {
+	readonly defaultValue: typeof meetingDefaultValue;
+	readonly encode: typeof meetingEncode;
+	readonly encodeWithContext: typeof meetingEncodeWithContext;
+	readonly encodePartialWithContext: typeof meetingEncodePartialWithContext;
+	readonly decode: typeof meetingDecode;
+	readonly decodeWithContext: typeof meetingDecodeWithContext;
+	readonly decodePartialWithContext: typeof meetingDecodePartialWithContext;
+	readonly validateField: typeof meetingValidateField;
+	readonly validateFields: typeof meetingValidateFields;
+	readonly hasShape: typeof meetingHasShape;
+	readonly is: typeof meetingIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 626..667
+original 80..161 -> expanded 667..748
+original 161..162 -> expanded 9813..9814
+generated 0..626 <- imports
+generated 748..895 <- Default
+generated 895..2896 <- Encode
+generated 2896..8746 <- Decode
+generated 8746..9813 <- __convenience_const
+
+## Metadata
+
+interface Meeting: {"body_span":{"end":162,"start":107},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":81,"start":42}}],"fields":[{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":127,"start":113},"ts_type":"string"},{"decorators":[],"name":"startsAt","optional":false,"readonly":false,"span":{"end":160,"start":132},"ts_type":"DateTime.DateTime"}],"heritage":[],"methods":[],"name":"Meeting","span":{"end":162,"start":89},"type_params":[]}
+
+## Registry reads
+
+Name("DateTime.DateTime")
+
+## Buildtime dependencies
+
+(none)

@@ -210,6 +210,10 @@ pushed with `pixi run tag --forge github` releases (`release.yml`) in the `relea
 crates.io, npm and JSR all authenticate it through trusted publishing, so each package needs a
 GitHub publisher for `release.yml` and that environment beside its GitLab one.
 
+A failed `ci.yml` run uploads the snapshots it would have recorded as the `pending-snapshots`
+artifact. `gh run download <run-id> -n pending-snapshots` puts each `.snap.new` beside its golden;
+review the diff and rename the ones to accept onto their `.snap`.
+
 The two repositories mirror each other without force-pushing:
 
 - GitLab push-mirrors `main` and its tags to GitHub, keeping divergent refs. `sync-gitlab.yml`
