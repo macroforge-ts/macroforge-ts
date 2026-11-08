@@ -144,15 +144,7 @@ fn fields_from_definition_visiting(
             class
                 .fields
                 .iter()
-                .map(|field| InterfaceFieldIR {
-                    name: field.name.clone(),
-                    key: field.key,
-                    span: field.span,
-                    ts_type: field.ts_type.clone(),
-                    optional: field.optional,
-                    readonly: field.readonly,
-                    decorators: field.decorators.clone(),
-                })
+                .map(FieldIR::as_interface_field)
                 .collect(),
         ),
         TypeDefinitionIR::TypeAlias(alias) => {

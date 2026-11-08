@@ -32,6 +32,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::abi::ir::TypeParamIR;
+use crate::abi::ir::interface::InterfaceFieldIR;
 use crate::abi::{DecoratorIR, SpanIR};
 
 /// Intermediate representation of a TypeScript class declaration.
@@ -210,6 +211,20 @@ pub struct FieldIR {
 }
 
 impl FieldIR {
+    /// The field as the member an interface would declare for it, dropping
+    /// what only a class says: visibility, initializer and accessor storage.
+    pub fn as_interface_field(&self) -> InterfaceFieldIR {
+        InterfaceFieldIR {
+            name: self.name.clone(),
+            key: self.key,
+            span: self.span,
+            ts_type: self.ts_type.clone(),
+            optional: self.optional,
+            readonly: self.readonly,
+            decorators: self.decorators.clone(),
+        }
+    }
+
     /// Resets every source span, for comparing declarations by content.
     pub(crate) fn clear_spans(&mut self) {
         self.span = SpanIR::default();
