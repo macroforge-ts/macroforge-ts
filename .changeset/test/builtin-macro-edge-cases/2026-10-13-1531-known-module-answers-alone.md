@@ -1,7 +1,7 @@
 # fix(core)!: take a name a module does not export for no type declared elsewhere
 
 - **Date:** 2026-10-13 15:31
-- **Commit:** 64cfb4c5
+- **Commit:** 70054211
 - **Area:** Type registry
 
 ## Problem
@@ -22,7 +22,7 @@ exported no type of the name it fell to the lookup for a name the project declar
 ## Introduced
 
 `65c22961` (2026-04-07, "Syncing monorepo") brought the registry in with the lookup by a name
-declared once ahead of the import. `364955cf` on this branch put the import's module first and kept
+declared once ahead of the import. `64969f15` on this branch put the import's module first and kept
 the lookup by name behind it.
 
 ## Fix

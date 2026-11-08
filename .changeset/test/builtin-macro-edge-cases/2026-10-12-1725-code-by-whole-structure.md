@@ -1,7 +1,7 @@
 # fix(endec)!: code a value by the whole structure of its type
 
 - **Date:** 2026-10-12 17:25
-- **Commit:** 5a7366fa
+- **Commit:** 2a0d26f5
 - **Area:** Built-in Encode and Decode derives, endec runtime
 
 ## Problem

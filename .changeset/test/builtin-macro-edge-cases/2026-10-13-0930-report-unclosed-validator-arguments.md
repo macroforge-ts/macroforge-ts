@@ -1,7 +1,7 @@
 # fix(endec): report a validator whose arguments never close
 
 - **Date:** 2026-10-13 09:30
-- **Commit:** cb3e819a
+- **Commit:** db26fadc
 - **Area:** Endec validators
 
 ## Problem

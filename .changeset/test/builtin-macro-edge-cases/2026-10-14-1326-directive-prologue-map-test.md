@@ -1,7 +1,7 @@
 # test(vite-plugin): keep a directive prologue first and its lines mapped
 
 - **Date:** 2026-10-14 13:26
-- **Commit:** 6ca018bc
+- **Commit:** b0e1f29a
 - **Area:** Vite plugin tests
 
 ## Problem

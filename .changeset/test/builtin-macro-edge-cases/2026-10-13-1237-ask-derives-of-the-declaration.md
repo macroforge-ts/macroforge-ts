@@ -1,7 +1,7 @@
 # fix(core): ask what a type derives by the declaration its file's imports lead to
 
 - **Date:** 2026-10-13 12:37
-- **Commit:** 7cdadbe4
+- **Commit:** e9dcb729
 - **Area:** Value traits, Default, Encode and Decode, type registry lookups
 
 ## Problem

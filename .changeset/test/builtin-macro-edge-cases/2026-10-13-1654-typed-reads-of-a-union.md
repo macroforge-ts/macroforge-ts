@@ -1,7 +1,7 @@
 # fix(endec): read a tag and a member off a value without `any`
 
 - **Date:** 2026-10-13 16:54
-- **Commit:** 6469899d
+- **Commit:** 3c2c69ea
 - **Area:** Union encoders and decoders, flattened fields, variant guards
 
 ## Problem

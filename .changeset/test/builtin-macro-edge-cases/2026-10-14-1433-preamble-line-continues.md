@@ -1,7 +1,7 @@
 # fix(syn): end the preamble before a string the next line goes on with
 
 - **Date:** 2026-10-14 14:33
-- **Commit:** 61ce060d
+- **Commit:** 31eb1faf
 - **Area:** `macroforge_ts_syn`
 
 ## Problem
@@ -17,7 +17,7 @@ where the next line cannot continue the expression.
 
 ## Introduced
 
-`a01aac91` (2026-10-13, "fix(core): keep a file's preamble above the code a macro adds") read a line
+`0806fc4b` (2026-10-13, "fix(core): keep a file's preamble above the code a macro adds") read a line
 break as the end of a directive.
 
 ## Fix

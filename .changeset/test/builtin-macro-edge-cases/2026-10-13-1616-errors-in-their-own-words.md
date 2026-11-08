@@ -1,7 +1,7 @@
 # fix(core): say an error in its own words, not as a Rust value
 
 - **Date:** 2026-10-13 16:16
-- **Commit:** 98fd5a48
+- **Commit:** 3a9f7254
 - **Area:** Derive diagnostics, expansion host, CLI
 
 ## Problem

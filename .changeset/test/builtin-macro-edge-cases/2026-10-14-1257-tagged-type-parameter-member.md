@@ -1,7 +1,7 @@
 # fix(endec): code a member tagged over a type parameter by the coders handed in
 
 - **Date:** 2026-10-14 12:57
-- **Commit:** 7ea66595
+- **Commit:** 914a8253
 - **Area:** Encode and Decode of unions with a member `{ tag: 'X' } & T`
 
 ## Problem
@@ -22,7 +22,7 @@ parameters.
 
 ## Introduced
 
-`662c47a8` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
+`e6845936` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
 left uncoded"), on the branch this one is stacked on, handed a generic union its parameters' coders
 without the tagged members using them.
 

@@ -1,7 +1,7 @@
 # fix(core)!: cover the fields, enums and names the built-in derives misread
 
 - **Date:** 2026-10-12 21:45
-- **Commit:** a4c380d3
+- **Commit:** fedc3585
 - **Area:** Lowering, expansion host, shared derive helpers, built-in Debug and Default derives
 
 ## Problem

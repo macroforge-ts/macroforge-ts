@@ -1,7 +1,7 @@
 # fix(core): read an array of objects, an intersection and a union of nulls as they are
 
 - **Date:** 2026-10-18 14:07
-- **Commit:** 8b37b066
+- **Commit:** 80490061
 - **Area:** `macroforge_ts` built-in derives
 
 ## Problem
@@ -23,7 +23,7 @@ none for `null | null` and keeping a grouped union's.
 
 `dafd08ef` (2025-12-07, "Add Serialize and Deserialize derive macros for JSON support") classified a
 union's `null` and `undefined` from its own members; `1cc2f3c4` (2026-10-08, "feat(core)!: release
-0.5.0 with Rust-shaped derives and shared foreign handlers") added `array_element_type`; `3df19fb7`
+0.5.0 with Rust-shaped derives and shared foreign handlers") added `array_element_type`; `5b6d9d6f`
 (2026-10-12, "fix(core): default a Required, a Pick and an object type written in place by their
 fields") read an object by its first brace.
 

@@ -1,7 +1,7 @@
 # fix(core): expand .mts and .cts modules everywhere a .ts one is
 
 - **Date:** 2026-10-18 18:38
-- **Commit:** c19adf55
+- **Commit:** 807e3b1d
 - **Area:** `macroforge_ts` scan, CLI and expansion, `macroforge_ts_syn`, the Vite, Deno and
   TypeScript plugins, `@macroforge/shared`
 

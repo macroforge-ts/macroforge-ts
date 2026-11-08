@@ -1,7 +1,7 @@
 # fix(endec)!: refuse a tagged union member over a type with no fields
 
 - **Date:** 2026-10-13 17:08
-- **Commit:** 200d01c6
+- **Commit:** 1a66e8cf
 - **Area:** Encode and Decode of union aliases
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(typescript-plugin): report a derive in a JavaScript file
 
 - **Date:** 2026-10-14 13:24
-- **Commit:** d40cb1ff
+- **Commit:** 5feec8c2
 - **Area:** `@macroforge/typescript-plugin`
 
 ## Problem
@@ -16,7 +16,7 @@ it was.
 
 ## Introduced
 
-`b5e1beda` (2026-10-13, "fix(core)!: refuse a derive where the code it generates cannot go"), on the
+`6d28c6ea` (2026-10-13, "fix(core)!: refuse a derive where the code it generates cannot go"), on the
 branch this one is stacked on, refused the derive in a JavaScript file, which the plugin never read.
 
 ## Fix

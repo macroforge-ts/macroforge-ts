@@ -1,7 +1,7 @@
 # fix(core): read [] as the tuple of no elements
 
 - **Date:** 2026-10-13 23:13
-- **Commit:** 48b424d9
+- **Commit:** 6dc27177
 - **Area:** Clone and Decode of tuples
 
 ## Problem
@@ -25,7 +25,7 @@ check when no element of the tuple needed decoding.
 ## Introduced
 
 `array_element_type` came with `1cc2f3c4` (2026-10-08, "feat(core)!: release 0.5.0 with Rust-shaped
-derives and shared foreign handlers"); the decoder that skips a tuple came with `5a7366fa`
+derives and shared foreign handlers"); the decoder that skips a tuple came with `2a0d26f5`
 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type").
 
 ## Fix

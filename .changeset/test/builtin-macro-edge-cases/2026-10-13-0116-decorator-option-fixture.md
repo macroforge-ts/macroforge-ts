@@ -1,7 +1,7 @@
 # test(core): pin the errors for unknown decorator options
 
 - **Date:** 2026-10-13 01:16
-- **Commit:** aa81c272
+- **Commit:** bd924563
 - **Area:** Conformance fixtures and snapshots
 
 ## Problem

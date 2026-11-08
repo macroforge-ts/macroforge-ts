@@ -1,7 +1,7 @@
 # fix(shared): map every line of the source an expansion keeps
 
 - **Date:** 2026-10-14 13:12
-- **Commit:** f8d16002
+- **Commit:** b7ae8150
 - **Area:** Source maps of the Vite plugin and the Svelte preprocessor
 
 ## Problem

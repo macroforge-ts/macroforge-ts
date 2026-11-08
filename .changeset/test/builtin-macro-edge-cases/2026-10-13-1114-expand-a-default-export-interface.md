@@ -1,7 +1,7 @@
 # fix(core): expand an interface that is a default export
 
 - **Date:** 2026-10-13 11:14
-- **Commit:** 043663c7
+- **Commit:** 66419e17
 - **Area:** Lowering, expansion host
 
 ## Problem
@@ -21,7 +21,7 @@ lowered only as one nested in a namespace or a block.
 
 65c22961 (2026-04-07, "Syncing monorepo") is the earliest commit in this repository holding the
 lowering of a default-exported class without the interface beside it. The message dates from
-da8f0fda (2026-10-13, "fix(core)!: report an @derive that expands nothing or reads part of a type"),
+baa44619 (2026-10-13, "fix(core)!: report an @derive that expands nothing or reads part of a type"),
 on this branch.
 
 ## Fix

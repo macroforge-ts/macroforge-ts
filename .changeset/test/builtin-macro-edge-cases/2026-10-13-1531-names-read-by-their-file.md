@@ -1,7 +1,7 @@
 # fix(core)!: read the names in an intersection, an alias chain and a base as their file imports them
 
 - **Date:** 2026-10-13 15:31
-- **Commit:** c913537f
+- **Commit:** 60a80cbc
 - **Area:** Derive field helpers, type registry, macro context
 
 ## Problem
@@ -35,9 +35,9 @@ Each was written against `TypeRegistry::get` or the primary map, which hold one 
 - `c729f98c` (2026-09-22, "Release 0.3.0") added the alias cycle check by name.
 - `4667d955` (2026-04-29, "refactor(macroforge_ts_syn): refine type-registry resolution") wrote
   `import_specifier_for` against the primary map.
-- `bb74741f` (2026-10-12, "fix(core): make the value traits and Default reach every field of a
+- `4f7ffa55` (2026-10-12, "fix(core): make the value traits and Default reach every field of a
   type") added the heritage walks, with their visited lists kept by name.
-- `7cdadbe4` (2026-10-13, "fix(core): ask what a type derives by the declaration its file's imports
+- `e9dcb729` (2026-10-13, "fix(core): ask what a type derives by the declaration its file's imports
   lead to") added `declared_type_has_derive` with the fallback by name.
 
 ## Fix

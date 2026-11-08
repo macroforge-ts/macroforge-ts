@@ -1,7 +1,7 @@
 # fix(endec): type a decoded selection of a type's fields as written
 
 - **Date:** 2026-10-14 00:27
-- **Commit:** 54f8253f
+- **Commit:** 09ac32bf
 - **Area:** Decode of `Pick`, `Omit`, `Partial` and `Required` fields
 
 ## Problem
@@ -26,7 +26,7 @@ declares. The value the fields are decoded onto is untyped, which hid the differ
 
 ## Introduced
 
-`662c47a8` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
+`e6845936` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
 left uncoded"), on the branch this one is stacked on, decoded a selection in a collection through
 those decoders.
 

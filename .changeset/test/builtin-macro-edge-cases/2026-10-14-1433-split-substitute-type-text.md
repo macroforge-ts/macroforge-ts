@@ -1,7 +1,7 @@
 # fix(syn): split and substitute type text where TypeScript reads it
 
 - **Date:** 2026-10-14 14:33
-- **Commit:** 4ac22bf2
+- **Commit:** d83708c1
 - **Area:** `macroforge_ts_syn`
 
 ## Problem

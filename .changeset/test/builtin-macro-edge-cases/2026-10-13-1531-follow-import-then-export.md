@@ -1,7 +1,7 @@
 # fix(core): follow a type a module imports and then exports
 
 - **Date:** 2026-10-13 15:31
-- **Commit:** ada26d1e
+- **Commit:** 7bf8390d
 - **Area:** Type scan
 
 ## Problem

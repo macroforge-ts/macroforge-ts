@@ -1,7 +1,7 @@
 # fix(endec): code a union as its own encoding only where each member is one
 
 - **Date:** 2026-10-18 12:44
-- **Commit:** 43b25348
+- **Commit:** 12615f12
 - **Area:** `macroforge_ts` Encode and Decode
 
 ## Problem
@@ -22,8 +22,8 @@ own encoding.
 
 ## Introduced
 
-`5a7366fa` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type") decoded a
-literal or a union of literals by testing the raw value; `662c47a8` (2026-10-12, "fix(endec)!: code
+`2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type") decoded a
+literal or a union of literals by testing the raw value; `e6845936` (2026-10-12, "fix(endec)!: code
 what a field's type arguments, Required and shared values left uncoded") added `untold_member` and
 `structural_accepts`.
 

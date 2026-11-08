@@ -1,7 +1,7 @@
 # fix(core): let a file's own declaration answer for its name, scanned or not
 
 - **Date:** 2026-10-13 18:00
-- **Commit:** de62444c
+- **Commit:** 84bcc791
 - **Area:** Type registry, expansion host
 
 ## Problem

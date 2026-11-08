@@ -1,7 +1,7 @@
 # fix(core): default a parenthesised type as the type in it
 
 - **Date:** 2026-10-13 09:30
-- **Commit:** 754b96d4
+- **Commit:** cd5ae1d7
 - **Area:** Built-in Default derive, nullable types
 
 ## Problem

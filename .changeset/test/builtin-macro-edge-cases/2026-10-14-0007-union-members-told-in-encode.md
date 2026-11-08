@@ -1,7 +1,7 @@
 # fix(endec): tell a union's members apart in Encode by their own fields
 
 - **Date:** 2026-10-14 00:07
-- **Commit:** c2cea87f
+- **Commit:** 5b43dd16
 - **Area:** Encode of union aliases
 
 ## Problem

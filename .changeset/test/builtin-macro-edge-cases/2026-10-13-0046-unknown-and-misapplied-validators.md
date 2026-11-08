@@ -1,7 +1,7 @@
 # fix(endec)!: report an unknown validator name and a validator its field cannot take
 
 - **Date:** 2026-10-13 00:46
-- **Commit:** 3b780591
+- **Commit:** c17a7a26
 - **Area:** Built-in Decode derive, validator parsing
 
 ## Problem

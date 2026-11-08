@@ -1,7 +1,7 @@
 # fix(core)!: refuse a type nested past sixteen levels
 
 - **Date:** 2026-10-13 09:30
-- **Commit:** 601d38b0
+- **Commit:** c8f6753e
 - **Area:** Expansion host, every built-in derive
 
 ## Problem
@@ -19,7 +19,7 @@ tuple written in place, so a 2MB thread holds 28 such levels and runs out at 32.
 ## Introduced
 
 No single change: the generators have recursed over a type's nesting without a bound since they were
-written. 5a7366fa (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on
+written. 2a0d26f5 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on
 this branch, added the coder that takes the most stack a level, which the limit is measured against.
 
 ## Fix

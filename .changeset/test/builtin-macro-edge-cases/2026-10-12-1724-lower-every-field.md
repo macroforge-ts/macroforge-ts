@@ -1,7 +1,7 @@
 # fix(syn): lower every field a class or an object type declares
 
 - **Date:** 2026-10-12 17:24
-- **Commit:** 0b27fc18
+- **Commit:** a526fc18
 - **Area:** `macroforge_ts_syn` lowering, class IR
 
 ## Problem

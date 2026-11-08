@@ -1,7 +1,7 @@
 # fix(endec)!: let is say yes only to a value its decoder takes
 
 - **Date:** 2026-10-14 12:57
-- **Commit:** fd14cf53
+- **Commit:** 3d0cedf9
 - **Area:** `is` of union aliases, aliases of another type and primitive aliases
 
 ## Problem

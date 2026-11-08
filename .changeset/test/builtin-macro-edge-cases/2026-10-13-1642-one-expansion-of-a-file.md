@@ -1,7 +1,7 @@
 # fix(deno-plugin)!: report every file the watcher cannot expand, and keep no stale copy
 
 - **Date:** 2026-10-13 16:42
-- **Commit:** 51927a3c
+- **Commit:** c1ec56c8
 - **Area:** Deno plugin project expansion and watcher
 
 ## Problem
@@ -23,7 +23,7 @@ a file that is gone. Neither copy removed what an earlier run wrote.
 ## Introduced
 
 `d9f76335` (2026-04-20, "Add @macroforge/deno-plugin + four Rust-inspired attribute macros") wrote
-both functions with a copy of the steps each. `9ddf75bd` on this branch stopped a failed file from
+both functions with a copy of the steps each. `3c90e75d` on this branch stopped a failed file from
 being written, and left the copy of an earlier run where it was.
 
 ## Fix

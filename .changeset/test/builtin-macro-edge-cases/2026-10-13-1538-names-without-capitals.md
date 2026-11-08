@@ -1,7 +1,7 @@
 # fix(endec)!: code a field typed by a name without a leading capital like any other type
 
 - **Date:** 2026-10-13 15:38
-- **Commit:** aa0e9b1b
+- **Commit:** ccecf542
 - **Area:** Encode and Decode field types
 
 ## Problem
@@ -34,7 +34,7 @@ project and nothing else.
 ## Introduced
 
 `dafd08ef` (2025-12-07, "Add Serialize and Deserialize derive macros for JSON support") wrote the
-classifier with the capital-letter test. `5a7366fa` (2026-10-12, "fix(endec)!: code a value by the
+classifier with the capital-letter test. `2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the
 whole structure of its type") added the registry lookup beside it for a type named in lowercase.
 
 ## Fix

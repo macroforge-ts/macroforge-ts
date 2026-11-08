@@ -1,7 +1,7 @@
 # fix(endec): type a tuple's optional and rest elements as the tuple does
 
 - **Date:** 2026-10-13 23:12
-- **Commit:** cfd99fdb
+- **Commit:** d526ddae
 - **Area:** Encode and Decode of tuples with optional or rest elements
 
 ## Problem
@@ -30,7 +30,7 @@ wrote, which leaves out `undefined`, or not at all.
 
 ## Introduced
 
-`5a7366fa` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
+`2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
 branch this one is stacked on, wrote these coders.
 
 ## Fix

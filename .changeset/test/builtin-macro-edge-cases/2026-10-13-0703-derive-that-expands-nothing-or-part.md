@@ -1,7 +1,7 @@
 # fix(core)!: report an @derive that expands nothing or reads part of a type
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** da8f0fda
+- **Commit:** baa44619
 - **Area:** Expansion host
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(core): let a file's own declarations answer for it where the scan did not read it
 
 - **Date:** 2026-10-14 13:24
-- **Commit:** a8c20279
+- **Commit:** e3444c03
 - **Area:** Expansion of a file the scan has not read
 
 ## Problem
@@ -30,7 +30,7 @@ file's scanned entry, or to none where the scan had not read the file.
 
 ## Introduced
 
-`de62444c` (2026-10-13, "fix(core): let a file's own declaration answer for its name, scanned or
+`84bcc791` (2026-10-13, "fix(core): let a file's own declaration answer for its name, scanned or
 not"), on the branch this one is stacked on, made such a name resolve to none, where before it the
 type the project declared under it answered.
 

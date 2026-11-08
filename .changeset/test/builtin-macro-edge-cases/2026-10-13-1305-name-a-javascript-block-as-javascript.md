@@ -1,7 +1,7 @@
 # fix(svelte-preprocessor): expand a JavaScript block under a JavaScript name
 
 - **Date:** 2026-10-13 13:05
-- **Commit:** 4b31550d
+- **Commit:** f40b83c2
 - **Area:** `@macroforge/svelte-preprocessor`
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(core): read a Windows path as the module it names
 
 - **Date:** 2026-10-13 18:24
-- **Commit:** db542753
+- **Commit:** 9ac9283e
 - **Area:** Type registry
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(cli): report the errors of an expansion that changed nothing
 
 - **Date:** 2026-10-13 11:14
-- **Commit:** 2b78ebe9
+- **Commit:** 236bb4d6
 - **Area:** `macroforge expand`
 
 ## Problem
@@ -16,7 +16,7 @@ the expansion reported.
 
 ## Introduced
 
-da8f0fda (2026-10-13, "fix(core)!: report an @derive that expands nothing or reads part of a type"),
+baa44619 (2026-10-13, "fix(core)!: report an @derive that expands nothing or reads part of a type"),
 on this branch, added errors for a derive that expands nothing, which are the errors of an expansion
 that changes nothing. The command's shortcut dates from c963b3b3 (2025-12-11, "Bump macroforge
 version to 0.1.29 and improve CLI exit codes") and was right until then.

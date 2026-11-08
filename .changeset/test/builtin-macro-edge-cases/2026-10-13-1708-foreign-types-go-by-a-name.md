@@ -1,7 +1,7 @@
 # fix(core)!: refuse a foreign type whose name is no name
 
 - **Date:** 2026-10-13 17:08
-- **Commit:** 96fce39c
+- **Commit:** e7926b32
 - **Area:** Config loading
 
 ## Problem

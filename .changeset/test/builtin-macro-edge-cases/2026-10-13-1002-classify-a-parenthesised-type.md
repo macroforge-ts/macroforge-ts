@@ -1,7 +1,7 @@
 # fix(endec): read a parenthesised type as the type in it
 
 - **Date:** 2026-10-13 10:02
-- **Commit:** c8ebd4f5
+- **Commit:** bc785a95
 - **Area:** Built-in Encode and Decode derives, type classification
 
 ## Problem

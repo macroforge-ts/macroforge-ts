@@ -1,7 +1,7 @@
 # fix(core): leave out generated lines that can decide nothing
 
 - **Date:** 2026-10-13 16:25
-- **Commit:** 08e66c5c
+- **Commit:** f67f5094
 - **Area:** Decode shape tests and union decoders, PartialEq
 
 ## Problem

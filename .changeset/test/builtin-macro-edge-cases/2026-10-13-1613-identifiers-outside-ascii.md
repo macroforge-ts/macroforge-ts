@@ -1,7 +1,7 @@
 # fix(core): read a generated name outside ASCII as one identifier
 
 - **Date:** 2026-10-13 16:13
-- **Commit:** 17964c7e
+- **Commit:** fc896a5e
 - **Area:** Expansion host
 
 ## Problem

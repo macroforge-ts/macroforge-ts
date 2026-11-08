@@ -1,7 +1,7 @@
 # fix(core): scan a project through Node's fs in the WebAssembly engine
 
 - **Date:** 2026-10-14 13:07
-- **Commit:** 5a734dc3
+- **Commit:** 10d119e7
 - **Area:** `scanProjectSync` of `@macroforge/core`
 
 ## Problem

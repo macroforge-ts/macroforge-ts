@@ -1,7 +1,7 @@
 # fix(endec): say what the entries of a record hold
 
 - **Date:** 2026-10-13 11:14
-- **Commit:** 4b7645bf
+- **Commit:** 5e4feaa5
 - **Area:** Built-in Encode derive, records
 
 ## Problem
@@ -19,7 +19,7 @@ typing.
 
 ## Introduced
 
-5a7366fa (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
+2a0d26f5 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
 branch, wrote the record's encoder as a map over `Object.entries`. No type of the testground held a
 record over named keys with values that are coded, so the strict-lib suite did not meet it until one
 was added.

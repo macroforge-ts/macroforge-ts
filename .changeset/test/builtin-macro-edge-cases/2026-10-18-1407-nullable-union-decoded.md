@@ -1,7 +1,7 @@
 # fix(endec): decode a nullable union through what tells its members apart
 
 - **Date:** 2026-10-18 14:07
-- **Commit:** 21362c40
+- **Commit:** 59754ac1
 - **Area:** `macroforge_ts` Decode
 
 ## Problem
@@ -19,7 +19,7 @@ the branch of a nullable type, which carries a value it has no decoder for as it
 
 ## Introduced
 
-`662c47a8` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
+`e6845936` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
 left uncoded") sent a union to `decode_expr` only when it was the field's whole type.
 
 ## Fix

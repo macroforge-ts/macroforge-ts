@@ -1,7 +1,7 @@
 # fix(core): read a type in parentheses, or holding brackets in a string, as written
 
 - **Date:** 2026-10-14 14:49
-- **Commit:** 6016e368
+- **Commit:** c5d1136b
 - **Area:** `macroforge_ts` built-in derives
 
 ## Problem
@@ -19,12 +19,12 @@ read a type without undoing its grouping.
 
 ## Introduced
 
-`5a7366fa` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type") added the
-bracket count of `ungrouped`; `bb74741f` (2026-10-12, "fix(core): make the value traits and Default
+`2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type") added the
+bracket count of `ungrouped`; `4f7ffa55` (2026-10-12, "fix(core): make the value traits and Default
 reach every field of a type") added `tuple_body`; `2aabc445` (2026-10-08, "feat(core)!: add $Newtype
-brands and check primitive values on decode") added `tuple_element`; `662c47a8` (2026-10-12,
+brands and check primitive values on decode") added `tuple_element`; `e6845936` (2026-10-12,
 "fix(endec)!: code what a field's type arguments, Required and shared values left uncoded") added
-`structural_accepts`; `ec81c97a` (2026-10-14, "fix(endec): refuse a field typed by a name the file
+`structural_accepts`; `66056680` (2026-10-14, "fix(endec): refuse a field typed by a name the file
 neither declares nor imports") added the check of a name in `nested`.
 
 ## Fix

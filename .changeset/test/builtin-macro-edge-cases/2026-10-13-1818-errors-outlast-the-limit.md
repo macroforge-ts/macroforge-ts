@@ -1,7 +1,7 @@
 # fix(core): keep an error through the limit on diagnostics
 
 - **Date:** 2026-10-13 18:18
-- **Commit:** 09bd28cc
+- **Commit:** 74eeb4a9
 - **Area:** Expansion host
 
 ## Problem

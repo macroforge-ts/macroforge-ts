@@ -1,7 +1,7 @@
 # fix(endec)!: refuse a field whose type no coder reads
 
 - **Date:** 2026-10-13 23:13
-- **Commit:** 86ec95f4
+- **Commit:** 73be065a
 - **Area:** Encode and Decode of fields of types they cannot code
 
 ## Problem
@@ -28,7 +28,7 @@ was treated like `unknown`.
 
 ## Introduced
 
-`5a7366fa` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
+`2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
 branch this one is stacked on, wrote that arm.
 
 ## Fix

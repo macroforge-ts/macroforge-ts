@@ -1,7 +1,7 @@
 # fix(core): check a field's default by what its generic alias stands for
 
 - **Date:** 2026-10-13 07:20
-- **Commit:** 41944fdc
+- **Commit:** 91b08a68
 - **Area:** Built-in Default derive
 
 ## Problem
@@ -20,7 +20,7 @@ that writes the default resolves a generic alias to what it stands for first.
 
 ## Introduced
 
-3df19fb7 (2026-10-12, "fix(core): default a Required, a Pick and an object type written in place by
+5b6d9d6f (2026-10-12, "fix(core): default a Required, a Pick and an object type written in place by
 their fields"), on this branch, made the check know a generic type by its name. Before it, a type
 written with arguments was looked up whole, matched nothing and was let through.
 

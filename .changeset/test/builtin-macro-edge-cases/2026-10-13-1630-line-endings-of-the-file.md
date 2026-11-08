@@ -1,7 +1,7 @@
 # fix(core): write generated code in the line endings of its file
 
 - **Date:** 2026-10-13 16:30
-- **Commit:** d6cd0f71
+- **Commit:** e123b48d
 - **Area:** Patch application, generated imports, type output
 
 ## Problem

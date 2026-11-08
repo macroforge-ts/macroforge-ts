@@ -1,7 +1,7 @@
 # fix(endec): type the value a decoder fills in by its fields
 
 - **Date:** 2026-10-14 12:36
-- **Commit:** c29a76d7
+- **Commit:** 4be892ab
 - **Area:** Decode of objects, classes and tuple and alias views
 
 ## Problem

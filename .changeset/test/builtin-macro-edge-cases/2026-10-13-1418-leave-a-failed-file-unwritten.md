@@ -1,7 +1,7 @@
 # fix(deno-plugin)!: leave a file whose macros fail unwritten, and fail the command
 
 - **Date:** 2026-10-13 14:18
-- **Commit:** 9ddf75bd
+- **Commit:** 3c90e75d
 - **Area:** `@macroforge/deno-plugin`
 
 ## Problem

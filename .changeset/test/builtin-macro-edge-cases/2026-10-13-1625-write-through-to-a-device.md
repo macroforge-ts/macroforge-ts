@@ -1,7 +1,7 @@
 # fix(cli): write through to a destination that is a device
 
 - **Date:** 2026-10-13 16:25
-- **Commit:** c512c76f
+- **Commit:** 7aca530e
 - **Area:** CLI output
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(core): count a type's nesting through what an array suffix wraps
 
 - **Date:** 2026-10-14 14:34
-- **Commit:** c24e999a
+- **Commit:** 81d91f6a
 - **Area:** `macroforge_ts` expansion host
 
 ## Problem
@@ -19,8 +19,8 @@ their escape rule.
 
 ## Introduced
 
-`601d38b0` (2026-10-13, "fix(core)!: refuse a type nested past sixteen levels") added `type_depth`;
-`38729400` (2026-10-13, "fix(core)!: refuse a tuple whose rest element is not its last") added the
+`c8f6753e` (2026-10-13, "fix(core)!: refuse a type nested past sixteen levels") added `type_depth`;
+`67b3a7c8` (2026-10-13, "fix(core)!: refuse a tuple whose rest element is not its last") added the
 tuple scan.
 
 ## Fix

@@ -1,7 +1,7 @@
 # test(testground): cover directive texts, skipped fields, hostile input and module shapes
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** 6dfcf346
+- **Commit:** 0ceadbfe
 - **Area:** Testground fixtures and suites
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(core): read a spread value as a use of its parameter
 
 - **Date:** 2026-10-13 23:11
-- **Commit:** 87d2fc4c
+- **Commit:** d72aa614
 - **Area:** Parameters of generated functions
 
 ## Problem
@@ -22,7 +22,7 @@ spread is no such dot.
 
 ## Introduced
 
-`5a7366fa` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
+`2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
 branch this one is stacked on, added the scan.
 
 ## Fix

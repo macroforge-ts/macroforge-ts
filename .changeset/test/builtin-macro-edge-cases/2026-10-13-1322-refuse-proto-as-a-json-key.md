@@ -1,7 +1,7 @@
 # fix(endec)!: refuse `__proto__` as the key a field is coded under
 
 - **Date:** 2026-10-13 13:22
-- **Commit:** 1134fbbe
+- **Commit:** 30335758
 - **Area:** Built-in Encode and Decode derives, reserved keys
 
 ## Problem
@@ -17,7 +17,7 @@ prototype. A field named `__proto__` was refused; one renamed to it was not.
 
 ## Introduced
 
-662c47a8 (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
+e6845936 (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
 left uncoded") added the check of the keys a field cannot be coded under, with `__id`, `__ref` and
 the tag, and without this one.
 

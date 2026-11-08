@@ -1,7 +1,7 @@
 # fix(core): find a type imported under another name by the name it was exported as
 
 - **Date:** 2026-10-13 10:11
-- **Commit:** 9fc4d88e
+- **Commit:** 0cba024a
 - **Area:** Expansion host imports, type registry
 
 ## Problem

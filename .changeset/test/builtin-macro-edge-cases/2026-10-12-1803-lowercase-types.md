@@ -1,7 +1,7 @@
 # fix(core): import and resolve a type named in lowercase like any other
 
 - **Date:** 2026-10-12 18:03
-- **Commit:** 945d75c4
+- **Commit:** dbf994f6
 - **Area:** Expansion host, generic alias resolution
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(core)!: refuse a default that would need itself
 
 - **Date:** 2026-10-13 12:37
-- **Commit:** 5920bd04
+- **Commit:** 05d47f42
 - **Area:** Built-in Default derive
 
 ## Problem

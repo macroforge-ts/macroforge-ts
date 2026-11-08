@@ -1,7 +1,7 @@
 # fix(core)!: refuse a field Default has no value for
 
 - **Date:** 2026-10-13 23:13
-- **Commit:** a0044e84
+- **Commit:** cd7766e3
 - **Area:** Default, and Decode's defaults
 
 ## Problem
@@ -28,7 +28,7 @@ type had.
 
 ## Introduced
 
-`3df19fb7` (2026-10-12, "fix(core): default a Required, a Pick and an object type written in place
+`5b6d9d6f` (2026-10-12, "fix(core): default a Required, a Pick and an object type written in place
 by their fields"), on the branch this one is stacked on, added the check.
 
 ## Fix

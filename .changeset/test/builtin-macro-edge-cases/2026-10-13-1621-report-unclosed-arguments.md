@@ -1,7 +1,7 @@
 # fix(core)!: report a decorator whose arguments never close
 
 - **Date:** 2026-10-13 16:21
-- **Commit:** 78f49d83
+- **Commit:** 9681f05f
 - **Area:** JSDoc directives, expansion host
 
 ## Problem

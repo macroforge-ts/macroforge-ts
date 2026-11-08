@@ -1,7 +1,7 @@
 # fix(cli): write the cache manifest in the order of its paths
 
 - **Date:** 2026-10-13 18:36
-- **Commit:** 8c9eacc8
+- **Commit:** cf14a75c
 - **Area:** CLI cache
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(endec): refuse a pattern that is no regular expression
 
 - **Date:** 2026-10-13 23:13
-- **Commit:** 63a9a5b3
+- **Commit:** a7d6d0f3
 - **Area:** The `pattern` validator
 
 ## Problem

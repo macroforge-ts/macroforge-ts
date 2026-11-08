@@ -1,7 +1,7 @@
 # fix(endec): refuse a field typed by a name the file neither declares nor imports
 
 - **Date:** 2026-10-14 13:38
-- **Commit:** ec81c97a
+- **Commit:** 66056680
 - **Area:** Encode and Decode of fields typed by unknown names
 
 ## Problem
@@ -23,7 +23,7 @@ declares has.
 
 ## Introduced
 
-`5a7366fa` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
+`2a0d26f5` (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on the
 branch this one is stacked on, coded a named type through its functions wherever it stands.
 
 ## Fix

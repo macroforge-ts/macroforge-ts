@@ -1,7 +1,7 @@
 # fix(svelte-preprocessor): name the line and column of a macro error
 
 - **Date:** 2026-10-14 13:12
-- **Commit:** d80eff28
+- **Commit:** 5debbf99
 - **Area:** Errors of `@macroforge/svelte-preprocessor`
 
 ## Problem
@@ -16,7 +16,7 @@ is an offset in the script, not in the component.
 
 ## Introduced
 
-`c334416f` (2026-10-13, "fix(svelte-preprocessor)!: fail a script block whose macros fail"), on the
+`045cd406` (2026-10-13, "fix(svelte-preprocessor)!: fail a script block whose macros fail"), on the
 branch this one is stacked on, failed the block with the messages alone.
 
 ## Fix

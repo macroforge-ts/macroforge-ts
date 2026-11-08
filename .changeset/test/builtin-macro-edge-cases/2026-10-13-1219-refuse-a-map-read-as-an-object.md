@@ -1,7 +1,7 @@
 # fix(endec): refuse a Map or a Set where an object's members are read
 
 - **Date:** 2026-10-13 12:19
-- **Commit:** 628e7a82
+- **Commit:** ad80f7cb
 - **Area:** Endec runtime, `decode`
 
 ## Problem
@@ -18,7 +18,7 @@ objects.
 
 ## Introduced
 
-5a7366fa (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
+2a0d26f5 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
 branch, added the runtime decoders with the test that takes any object that is not an array.
 
 ## Fix

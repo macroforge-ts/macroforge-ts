@@ -1,7 +1,7 @@
 # fix(core)!: name a type's functions in one place, and keep the underscores its name opens with
 
 - **Date:** 2026-10-13 16:13
-- **Commit:** b54ff153
+- **Commit:** 38a847fd
 - **Area:** Derive naming, expansion host
 
 ## Problem

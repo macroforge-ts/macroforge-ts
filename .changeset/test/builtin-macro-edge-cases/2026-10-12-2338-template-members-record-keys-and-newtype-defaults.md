@@ -1,7 +1,7 @@
 # fix(core)!: read template literals, record keys, defaulted arguments and indexed accesses by type
 
 - **Date:** 2026-10-12 23:38
-- **Commit:** a8cdc70f
+- **Commit:** 5c41a8bd
 - **Area:** Built-in Hash, Default, Encode and Decode derives, endec runtime
 
 ## Problem
@@ -34,8 +34,8 @@ newtype's body and not at the type under its brand.
 ## Introduced
 
 f716dc5d (2025-12-14, "Add union type deserialization docs and field validation methods") sorts a
-union alias's members into primitives and named types. 5a7366fa (2026-10-12, "fix(endec)!: code a
-value by the whole structure of its type") wrote `decodeRecord` without a key. 662c47a8 (2026-10-12,
+union alias's members into primitives and named types. 2a0d26f5 (2026-10-12, "fix(endec)!: code a
+value by the whole structure of its type") wrote `decodeRecord` without a key. e6845936 (2026-10-12,
 "fix(endec)!: code what a field's type arguments, Required and shared values left uncoded") built a
 nested type's coders from its written arguments. This branch's own indexed access support, in the
 commit before this one, read the yielded type without its imports. 1cc2f3c4 (2026-10-08,

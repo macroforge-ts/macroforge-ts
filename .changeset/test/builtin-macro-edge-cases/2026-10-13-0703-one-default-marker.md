@@ -1,7 +1,7 @@
 # fix(core)!: refuse more than one @default marker
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** 3b4576bd
+- **Commit:** 8c6b9634
 - **Area:** Built-in Default derive
 
 ## Problem

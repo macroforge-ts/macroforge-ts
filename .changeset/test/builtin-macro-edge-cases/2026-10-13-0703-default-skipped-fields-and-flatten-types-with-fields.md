@@ -1,7 +1,7 @@
 # fix(endec)!: default a field Decode skips, and flatten only a type with fields
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** 3f5ac228
+- **Commit:** a6b3ccbc
 - **Area:** Built-in Encode and Decode derives, endec runtime
 
 ## Problem
@@ -38,7 +38,7 @@ assignment. Only the objects of derived types were tracked for freezing.
 dafd08ef (2025-12-07, "Add Serialize and Deserialize derive macros for JSON support") wrote `skip`
 to leave the field out and `flatten`'s fallback to the whole object. 773e843b (2025-12-11, "Add
 serde runtime helpers and update to v0.1.30") tracked derived objects alone for freezing. 65c22961
-(2026-04-07, "Syncing monorepo") added `format: "decimal"` for any primitive. 662c47a8 (2026-10-12,
+(2026-04-07, "Syncing monorepo") added `format: "decimal"` for any primitive. e6845936 (2026-10-12,
 "fix(endec)!: code what a field's type arguments, Required and shared values left uncoded"), on this
 branch, made the `bigint` decoder take a whole number of any size.
 

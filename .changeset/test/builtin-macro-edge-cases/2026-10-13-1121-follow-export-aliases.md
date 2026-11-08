@@ -1,7 +1,7 @@
 # fix(core): find a type by the name its module exports it under
 
 - **Date:** 2026-10-13 11:21
-- **Commit:** ad322184
+- **Commit:** 139d711b
 - **Area:** Type scan, type registry, expansion host imports
 
 ## Problem

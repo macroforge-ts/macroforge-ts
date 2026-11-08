@@ -1,7 +1,7 @@
 # test(core): expand each built-in derive over fields of generated types
 
 - **Date:** 2026-10-14 14:49
-- **Commit:** 6e80936f
+- **Commit:** 26007ef1
 - **Area:** `macroforge_ts` expansion host
 
 ## Fix

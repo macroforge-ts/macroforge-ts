@@ -1,7 +1,7 @@
 # fix(endec): read a generic's arguments past the arrows and strings they hold
 
 - **Date:** 2026-10-18 14:17
-- **Commit:** f1f60d75
+- **Commit:** 46197146
 - **Area:** `macroforge_ts` Encode and Decode
 
 ## Problem

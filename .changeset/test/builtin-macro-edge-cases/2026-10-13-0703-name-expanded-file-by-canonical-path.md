@@ -1,7 +1,7 @@
 # fix(cli): name an expanded file by its canonical path
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** a8b5f6d2
+- **Commit:** 2ecfedb4
 - **Area:** CLI
 
 ## Problem

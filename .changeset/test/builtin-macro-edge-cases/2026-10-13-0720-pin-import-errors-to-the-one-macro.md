@@ -1,7 +1,7 @@
 # fix(typescript-plugin): pin an error in the generated imports to a decorator's one macro
 
 - **Date:** 2026-10-13 07:20
-- **Commit:** 2880968b
+- **Commit:** e6f7e8da
 - **Area:** TypeScript plugin
 
 ## Problem
@@ -19,7 +19,7 @@ when it is none of them. It took a decorator's only macro just when the region h
 
 ## Introduced
 
-25112298 (2026-10-12, "fix(core): follow a value that holds itself in the value traits"), on this
+8693be36 (2026-10-12, "fix(core): follow a value that holds itself in the value traits"), on this
 branch, made `Debug`, `Clone`, `PartialEq` and `Hash` import a runtime helper, so a file deriving
 only those gained an import block. The fallback itself predates it.
 

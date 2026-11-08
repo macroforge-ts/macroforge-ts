@@ -1,7 +1,7 @@
 # fix(endec): read a nested type once a level when decoding
 
 - **Date:** 2026-10-13 09:30
-- **Commit:** 2b880c9f
+- **Commit:** 61502858
 - **Area:** Built-in Decode derive
 
 ## Problem
@@ -18,7 +18,7 @@ one came back, and then built the decoder again to use it. Each level read the l
 
 ## Introduced
 
-5a7366fa (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
+2a0d26f5 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
 branch, added the coder with the question and the build as two calls.
 
 ## Fix

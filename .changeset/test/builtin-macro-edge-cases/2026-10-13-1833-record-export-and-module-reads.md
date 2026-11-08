@@ -1,7 +1,7 @@
 # fix(core): record what a lookup through an export name or a module asked
 
 - **Date:** 2026-10-13 18:33
-- **Commit:** 447152e3
+- **Commit:** 26934d8c
 - **Area:** Type registry, expansion caches
 
 ## Problem
@@ -24,8 +24,8 @@ and would be expanded again on any change to any type.
 
 ## Introduced
 
-`364955cf` (2026-10-13, "fix(core): follow a type through the modules that export it again") added
-the search by export name, and `64cfb4c5` (2026-10-13, "fix(core)!: take a name a module does not
+`64969f15` (2026-10-13, "fix(core): follow a type through the modules that export it again") added
+the search by export name, and `70054211` (2026-10-13, "fix(core)!: take a name a module does not
 export for no type declared elsewhere") the check on the module, both on this branch.
 
 ## Fix

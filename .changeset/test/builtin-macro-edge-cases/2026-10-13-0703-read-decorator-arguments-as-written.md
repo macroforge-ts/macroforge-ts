@@ -1,7 +1,7 @@
 # fix(core)!: read a decorator's arguments as written
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** 3311ab2e
+- **Commit:** c7415b9b
 - **Area:** JSDoc directive parser, decorator option readers, expansion host
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(cli): print a type error of generated code once
 
 - **Date:** 2026-10-13 16:46
-- **Commit:** 1629c245
+- **Commit:** 7a8b1d3a
 - **Area:** `macroforge tsc`
 
 ## Problem

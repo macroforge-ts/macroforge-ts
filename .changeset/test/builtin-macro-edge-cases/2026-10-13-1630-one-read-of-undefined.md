@@ -1,7 +1,7 @@
 # fix(endec): read a collection's undefined back once
 
 - **Date:** 2026-10-13 16:30
-- **Commit:** dc1a3a02
+- **Commit:** 00b84957
 - **Area:** Decode of collection elements
 
 ## Problem
@@ -28,7 +28,7 @@ name of the value, so the expression was repeated wherever the name would have b
 
 ## Introduced
 
-`7a914a1c` (2026-10-13, "fix(endec): bring an undefined held in a collection back as one"), on this
+`f2aaff55` (2026-10-13, "fix(endec): bring an undefined held in a collection back as one"), on this
 branch, added the read as an expression put in place of the value's name.
 
 ## Fix

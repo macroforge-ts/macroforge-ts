@@ -1,7 +1,7 @@
 # fix(cli): expand again a file whose cached code is gone
 
 - **Date:** 2026-10-18 12:41
-- **Commit:** 820ceaa3
+- **Commit:** 635dc2e2
 - **Area:** `macroforge` CLI
 
 ## Problem

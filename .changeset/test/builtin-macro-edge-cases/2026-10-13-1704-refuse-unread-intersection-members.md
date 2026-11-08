@@ -1,7 +1,7 @@
 # fix(endec)!: refuse a union member that is an intersection no coder reads
 
 - **Date:** 2026-10-13 17:04
-- **Commit:** 801b0ff8
+- **Commit:** 6ee5b243
 - **Area:** Encode and Decode of union aliases
 
 ## Problem

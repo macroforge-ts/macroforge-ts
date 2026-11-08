@@ -1,7 +1,7 @@
 # fix(core): read a number literal type as TypeScript writes one
 
 - **Date:** 2026-10-13 12:37
-- **Commit:** ff425946
+- **Commit:** fa4d3214
 - **Area:** Every built-in derive, literal types
 
 ## Problem

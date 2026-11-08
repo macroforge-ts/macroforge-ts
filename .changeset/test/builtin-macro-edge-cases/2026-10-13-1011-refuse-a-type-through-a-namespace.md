@@ -1,7 +1,7 @@
 # fix(endec)!: refuse a type named through a namespace import
 
 - **Date:** 2026-10-13 10:11
-- **Commit:** feba1f5a
+- **Commit:** ca1f3e5e
 - **Area:** Built-in Encode and Decode derives
 
 ## Problem
@@ -28,7 +28,7 @@ classified as an unknown type, which is carried as it is.
 
 ## Introduced
 
-5a7366fa (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
+2a0d26f5 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
 branch, wrote the coder that carries a type it does not know as it is. A name through a namespace
 has not been followed by any version before it either.
 

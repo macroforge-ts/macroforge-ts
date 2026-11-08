@@ -1,7 +1,7 @@
 # fix(core): read a parameter as used only where generated code reads it
 
 - **Date:** 2026-10-14 14:34
-- **Commit:** 71a474ed
+- **Commit:** 3dadd894
 - **Area:** `macroforge_ts` built-in derives
 
 ## Problem
@@ -16,7 +16,7 @@ template string, or as an object key, and was then left named where it is unused
 
 ## Introduced
 
-`018f5131` (2026-10-12, "fix(core)!: derive over literal unions, empty types and an interface's
+`49148e07` (2026-10-12, "fix(core)!: derive over literal unions, empty types and an interface's
 methods as they are") added `mentions`.
 
 ## Fix

@@ -1,7 +1,7 @@
 # fix(core): count a field a subclass declares again once
 
 - **Date:** 2026-10-13 18:14
-- **Commit:** 9dd7da72
+- **Commit:** 8c19cba9
 - **Area:** Derives on classes with a superclass
 
 ## Problem
@@ -31,7 +31,7 @@ a class did not.
 
 ## Introduced
 
-`bb74741f` (2026-10-12, "fix(core): make the value traits and Default reach every field of a type"),
+`4f7ffa55` (2026-10-12, "fix(core): make the value traits and Default reach every field of a type"),
 on the branch this one is stacked on, added the fields a class inherits.
 
 ## Fix

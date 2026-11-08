@@ -1,7 +1,7 @@
 # test(testground): cover colliding keys and names, special numbers, field kinds and enums
 
 - **Date:** 2026-10-12 21:45
-- **Commit:** 7601535f
+- **Commit:** 3d1d840a
 - **Area:** Testground fixtures and suites, conformance fixtures and snapshots
 
 ## Problem

@@ -1,7 +1,7 @@
 # fix(endec)!: refuse the keys, numbers and untyped fields an encoding cannot keep
 
 - **Date:** 2026-10-12 21:45
-- **Commit:** 4b004dd9
+- **Commit:** 8c064e5c
 - **Area:** Built-in Encode and Decode derives, endec runtime
 
 ## Problem

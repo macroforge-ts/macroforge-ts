@@ -1,7 +1,7 @@
 # fix(endec)!: check a generic type's parameters in its is guard
 
 - **Date:** 2026-10-14 12:43
-- **Commit:** e1618f11
+- **Commit:** 12597d08
 - **Area:** `is` of generic types
 
 ## Problem
@@ -24,7 +24,7 @@ Nothing in a value says what its type arguments are, and `is` was given nothing 
 
 ## Introduced
 
-`662c47a8` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
+`e6845936` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and shared values
 left uncoded"), on the branch this one is stacked on, gave a generic type's coders their parameters'
 coders and left `is` without them.
 

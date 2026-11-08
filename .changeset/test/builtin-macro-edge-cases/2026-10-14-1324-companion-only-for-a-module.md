@@ -1,7 +1,7 @@
 # fix(typescript-plugin): declare a file's types once where it is no module
 
 - **Date:** 2026-10-14 13:24
-- **Commit:** 1c13aa79
+- **Commit:** 806fefe8
 - **Area:** `@macroforge/typescript-plugin`
 
 ## Problem

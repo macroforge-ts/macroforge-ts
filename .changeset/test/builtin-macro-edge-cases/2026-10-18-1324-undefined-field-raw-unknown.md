@@ -1,7 +1,7 @@
 # fix(endec): read the raw value of a field of nothing but undefined as unknown
 
 - **Date:** 2026-10-18 13:24
-- **Commit:** b3dfd16d
+- **Commit:** 18bbd5cd
 - **Area:** `macroforge_ts` Decode
 
 ## Problem

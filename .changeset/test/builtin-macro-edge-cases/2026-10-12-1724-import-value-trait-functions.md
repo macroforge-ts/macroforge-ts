@@ -1,7 +1,7 @@
 # fix(core): import a derived type's value-trait functions from its module
 
 - **Date:** 2026-10-12 17:24
-- **Commit:** 4076610d
+- **Commit:** 29ac8b14
 - **Area:** Expansion host, generated imports
 
 ## Problem

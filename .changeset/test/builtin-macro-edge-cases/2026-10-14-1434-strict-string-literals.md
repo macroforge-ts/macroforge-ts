@@ -1,7 +1,7 @@
 # fix(core): read a decorator's string literals as strict JavaScript does
 
 - **Date:** 2026-10-14 14:34
-- **Commit:** 9beecac8
+- **Commit:** 13ff715e
 - **Area:** `macroforge_ts` decorator arguments
 
 ## Problem
@@ -20,7 +20,7 @@ the first quote after the opening one as the closing one.
 ## Introduced
 
 `48fc5def` (2026-10-02, "perf: make macro expansion 3.7x faster on real projects") wrote
-`decode_escape`; `3311ab2e` (2026-10-13, "fix(core)!: read a decorator's arguments as written") read
+`decode_escape`; `c7415b9b` (2026-10-13, "fix(core)!: read a decorator's arguments as written") read
 a quoted option name.
 
 ## Fix

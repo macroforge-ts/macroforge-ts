@@ -1,7 +1,7 @@
 # fix(svelte-preprocessor): expand the module and instance scripts of a component as one scope
 
 - **Date:** 2026-10-14 13:38
-- **Commit:** 8b4d1247
+- **Commit:** e8aebc2c
 - **Area:** `@macroforge/svelte-preprocessor`
 
 ## Problem

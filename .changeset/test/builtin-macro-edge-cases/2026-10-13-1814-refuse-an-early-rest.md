@@ -1,7 +1,7 @@
 # fix(core)!: refuse a tuple whose rest element is not its last
 
 - **Date:** 2026-10-13 18:14
-- **Commit:** 38729400
+- **Commit:** 67b3a7c8
 - **Area:** Expansion host
 
 ## Problem

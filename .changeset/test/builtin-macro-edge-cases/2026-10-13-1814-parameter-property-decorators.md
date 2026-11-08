@@ -1,7 +1,7 @@
 # fix(syn): read the decorators of a constructor parameter property
 
 - **Date:** 2026-10-13 18:14
-- **Commit:** cec66405
+- **Commit:** e0c9c6a7
 - **Area:** Class lowering
 
 ## Problem
@@ -27,7 +27,7 @@ decorators: the comments above a parameter were never looked at.
 
 ## Introduced
 
-`0b27fc18` (2026-10-12, "fix(syn): lower every field a class or an object type declares"), on the
+`a526fc18` (2026-10-12, "fix(syn): lower every field a class or an object type declares"), on the
 branch this one is stacked on, began lowering parameter properties, without their decorators.
 
 ## Fix

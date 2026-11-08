@@ -1,7 +1,7 @@
 # fix(core)!: reject the members and module names a built-in derive cannot read
 
 - **Date:** 2026-10-12 18:03
-- **Commit:** f841c07d
+- **Commit:** 84120912
 - **Area:** Lowering, expansion host, shared derive helpers
 
 ## Problem
@@ -25,7 +25,7 @@ against global names, and nothing checked that the module left those names alone
 ## Introduced
 
 af0a8b4f (2026-09-28, "Remove the swc backend") wrote the oxc lowering that keeps a property only
-when its key is a static identifier. 0b27fc18 (2026-10-12, "fix(syn): lower every field a class or
+when its key is a static identifier. a526fc18 (2026-10-12, "fix(syn): lower every field a class or
 an object type declares") widened that to quoted and numeric keys and still dropped computed ones.
 The by-name reading of field types dates from 65c22961 (2026-04-07, "Syncing monorepo").
 

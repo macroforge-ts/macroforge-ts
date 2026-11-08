@@ -1,7 +1,7 @@
 # fix(tooling): rebuild the packages when bumping so the testground locks follow
 
 - **Date:** 2026-10-25 22:20
-- **Commit:** 7f2747e5
+- **Commit:** d592198a
 - **Area:** `mf bump`, `mf verify`, the testground lockfiles
 
 ## Problem

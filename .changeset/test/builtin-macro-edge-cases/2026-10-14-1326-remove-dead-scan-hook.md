@@ -1,7 +1,7 @@
 # refactor(vite-plugin): remove the scan-cache hook the WebAssembly engine ignores
 
 - **Date:** 2026-10-14 13:26
-- **Commit:** 96e45d80
+- **Commit:** 166ebcab
 - **Area:** `@macroforge/vite-plugin`
 
 ## Problem

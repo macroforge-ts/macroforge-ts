@@ -1,7 +1,7 @@
 # test(testground): cover unusual field types and the numbers decode refuses
 
 - **Date:** 2026-10-12 22:08
-- **Commit:** 08cb4595
+- **Commit:** c3298abc
 - **Area:** Testground fixtures and suites, conformance fixtures and snapshots
 
 ## Problem

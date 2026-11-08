@@ -1,7 +1,7 @@
 # test(core): derive on an empty interface in a fixture
 
 - **Date:** 2026-10-18 18:40
-- **Commit:** 3f434bea
+- **Commit:** 9cb94464
 - **Area:** testground and expansion fixtures
 
 ## Problem
@@ -16,7 +16,7 @@ file deno lint reads.
 
 ## Introduced
 
-`08cb4595` (2026-10-12, "test(testground): cover unusual field types and the numbers decode
+`c3298abc` (2026-10-12, "test(testground): cover unusual field types and the numbers decode
 refuses") added `ExoticEmpty` as an empty interface.
 
 ## Fix

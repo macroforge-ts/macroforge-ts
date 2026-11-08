@@ -1,7 +1,7 @@
 # fix(cli): keep a file whose expansion fails out of the cache and fail the build
 
 - **Date:** 2026-10-14 13:58
-- **Commit:** 5ffaef30
+- **Commit:** a7899d59
 - **Area:** `macroforge` CLI
 
 ## Problem

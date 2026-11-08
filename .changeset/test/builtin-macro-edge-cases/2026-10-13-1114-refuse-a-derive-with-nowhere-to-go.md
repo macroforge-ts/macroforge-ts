@@ -1,7 +1,7 @@
 # fix(core)!: refuse a derive where the code it generates cannot go
 
 - **Date:** 2026-10-13 11:14
-- **Commit:** b5e1beda
+- **Commit:** 6d28c6ea
 - **Area:** Expansion host, class IR
 
 ## Problem
@@ -24,7 +24,7 @@ whether a class is declared with `declare`, as the enum IR does for an enum.
 
 ## Introduced
 
-No single change: the three have not been refused by any version. a4c380d3 (2026-10-12, "fix(core)!:
+No single change: the three have not been refused by any version. fedc3585 (2026-10-12, "fix(core)!:
 cover the fields, enums and names the built-in derives misread"), on this branch, added the check
 for a `declare enum` and left the class's out.
 

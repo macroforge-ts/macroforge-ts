@@ -1,7 +1,7 @@
 # fix(endec): leave a date that is none and a number that is not finite to their validators
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** 108156e6
+- **Commit:** d04282bc
 - **Area:** Built-in Decode derive
 
 ## Problem
@@ -19,9 +19,9 @@ and a number that is not finite. A value it refuses never reaches a validator.
 
 ## Introduced
 
-Both on this branch: 662c47a8 (2026-10-12, "fix(endec)!: code what a field's type arguments,
+Both on this branch: e6845936 (2026-10-12, "fix(endec)!: code what a field's type arguments,
 Required and shared values left uncoded") made the date test refuse a `Date` that is none, and
-8090684c (2026-10-12, "fix(endec)!: refuse the numbers and types a value cannot be coded back from")
+e3719929 (2026-10-12, "fix(endec)!: refuse the numbers and types a value cannot be coded back from")
 made the number test refuse what is not finite.
 
 ## Fix

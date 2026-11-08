@@ -1,7 +1,7 @@
 # fix(core): import a project type's functions by whatever path it is imported
 
 - **Date:** 2026-10-13 11:14
-- **Commit:** 89dd3e32
+- **Commit:** 75e93641
 - **Area:** Expansion host imports
 
 ## Problem

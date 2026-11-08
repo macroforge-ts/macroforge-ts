@@ -1,7 +1,7 @@
 # fix(core): follow a type through the modules that export it again
 
 - **Date:** 2026-10-13 15:08
-- **Commit:** 364955cf
+- **Commit:** 64969f15
 - **Area:** Type scan, type registry, expansion host imports
 
 ## Problem

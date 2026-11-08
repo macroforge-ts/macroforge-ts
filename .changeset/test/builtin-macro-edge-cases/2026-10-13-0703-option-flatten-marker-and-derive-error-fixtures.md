@@ -1,7 +1,7 @@
 # test(core): pin the errors for misused options, flattens, markers and derives
 
 - **Date:** 2026-10-13 07:03
-- **Commit:** b7139c56
+- **Commit:** ef907413
 - **Area:** Conformance fixtures and snapshots
 
 ## Problem

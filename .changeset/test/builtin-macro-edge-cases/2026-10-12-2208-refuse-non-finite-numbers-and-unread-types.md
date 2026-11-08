@@ -1,7 +1,7 @@
 # fix(endec)!: refuse the numbers and types a value cannot be coded back from
 
 - **Date:** 2026-10-12 22:08
-- **Commit:** 8090684c
+- **Commit:** e3719929
 - **Area:** Built-in Encode and Decode derives, endec runtime
 
 ## Problem
@@ -24,8 +24,8 @@ type the coder did not recognise was taken to be its own encoding.
 
 ## Introduced
 
-4b004dd9 (2026-10-12, "fix(endec)!: refuse the keys, numbers and untyped fields an encoding cannot
-keep") made `encode` throw for a number JSON cannot write and left `decode` accepting it. 5a7366fa
+8c064e5c (2026-10-12, "fix(endec)!: refuse the keys, numbers and untyped fields an encoding cannot
+keep") made `encode` throw for a number JSON cannot write and left `decode` accepting it. 2a0d26f5
 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type") wrote `decodeNumber`
 and the primitive checks. 1cc2f3c4 (2026-10-08, "feat(core)!: release 0.5.0 with Rust-shaped derives
 and shared foreign handlers") wrote the alias passthrough.

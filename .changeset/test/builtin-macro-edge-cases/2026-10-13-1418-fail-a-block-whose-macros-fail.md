@@ -1,7 +1,7 @@
 # fix(svelte-preprocessor)!: fail a script block whose macros fail
 
 - **Date:** 2026-10-13 14:18
-- **Commit:** c334416f
+- **Commit:** 045cd406
 - **Area:** `@macroforge/svelte-preprocessor`
 
 ## Problem

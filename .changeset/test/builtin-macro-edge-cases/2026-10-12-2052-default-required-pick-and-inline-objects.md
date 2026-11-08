@@ -1,7 +1,7 @@
 # fix(core): default a Required, a Pick and an object type written in place by their fields
 
 - **Date:** 2026-10-12 20:52
-- **Commit:** 3df19fb7
+- **Commit:** 5b6d9d6f
 - **Area:** Built-in Default derive
 
 ## Problem

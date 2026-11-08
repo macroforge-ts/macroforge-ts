@@ -1,7 +1,7 @@
 # fix(core): read a function type from the type, not from an arrow in its text
 
 - **Date:** 2026-10-18 12:44
-- **Commit:** 7cf80075
+- **Commit:** 2f7a2968
 - **Area:** `macroforge` built-in derives
 
 ## Problem
@@ -19,9 +19,9 @@ checks looked for `=>` anywhere in the text.
 ## Introduced
 
 `1cc2f3c4` (2026-10-08, "feat(core)!: release 0.5.0 with Rust-shaped derives and shared foreign
-handlers") added the check of `classify_value_type`; `3df19fb7` (2026-10-12, "fix(core): default a
+handlers") added the check of `classify_value_type`; `5b6d9d6f` (2026-10-12, "fix(core): default a
 Required, a Pick and an object type written in place by their fields") the one of an alias's
-default; `662c47a8` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and
+default; `e6845936` (2026-10-12, "fix(endec)!: code what a field's type arguments, Required and
 shared values left uncoded") the one of `untold_member`.
 
 ## Fix

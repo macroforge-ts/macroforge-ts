@@ -1,7 +1,7 @@
 # test(testground): cover template unions, record keys, defaulted arguments and indexed accesses
 
 - **Date:** 2026-10-12 23:38
-- **Commit:** a6e37e3c
+- **Commit:** 7c7531db
 - **Area:** Testground fixtures and suites, conformance snapshots
 
 ## Problem

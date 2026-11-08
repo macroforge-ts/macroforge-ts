@@ -1,7 +1,7 @@
 # fix(core)!: take a type imported from a package for none of the project's
 
 - **Date:** 2026-10-13 15:14
-- **Commit:** 390321df
+- **Commit:** 9d26e6f4
 - **Area:** Type registry lookups
 
 ## Problem

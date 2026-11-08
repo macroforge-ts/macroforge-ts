@@ -1,7 +1,7 @@
 # fix(scripts): build the packages the testground links before installing it
 
 - **Date:** 2026-10-14 13:38
-- **Commit:** 4edf1710
+- **Commit:** c9954b65
 - **Area:** `mf test testground`
 
 ## Problem

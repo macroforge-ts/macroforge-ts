@@ -1,7 +1,7 @@
 # fix(core)!: hold NaN and an invalid date equal to themselves
 
 - **Date:** 2026-10-12 21:45
-- **Commit:** 2217dc42
+- **Commit:** d6dd40fa
 - **Area:** Built-in PartialEq, PartialOrd and Ord derives, structural runtime
 
 ## Problem

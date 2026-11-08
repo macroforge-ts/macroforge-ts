@@ -1,7 +1,7 @@
 # fix(deno-plugin): expand a project with the registry the CLI wrote for it
 
 - **Date:** 2026-10-13 18:41
-- **Commit:** c27ae6d2
+- **Commit:** dc5bf385
 - **Area:** Deno plugin project expansion and watcher
 
 ## Problem

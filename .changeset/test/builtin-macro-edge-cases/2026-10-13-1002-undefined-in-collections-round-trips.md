@@ -1,7 +1,7 @@
 # fix(endec): bring an undefined held in a collection back as one
 
 - **Date:** 2026-10-13 10:02
-- **Commit:** 7a914a1c
+- **Commit:** f2aaff55
 - **Area:** Built-in Encode and Decode derives, collections
 
 ## Problem
@@ -23,7 +23,7 @@ that holds one. Decode checked each element against its type, which takes `undef
 
 ## Introduced
 
-5a7366fa (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
+2a0d26f5 (2026-10-12, "fix(endec)!: code a value by the whole structure of its type"), on this
 branch, made Decode check every element of a collection against its type, which is where the `null`
 JSON writes became an error. The dropped entry of a `Record` and a `Map` is older: it dates from
 dafd08ef (2025-12-07, "Add Serialize and Deserialize derive macros for JSON support"), which handed

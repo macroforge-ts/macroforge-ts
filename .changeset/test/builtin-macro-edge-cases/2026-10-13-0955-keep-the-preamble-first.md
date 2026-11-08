@@ -1,7 +1,7 @@
 # fix(core): keep a file's preamble above the code a macro adds
 
 - **Date:** 2026-10-13 09:55
-- **Commit:** a01aac91
+- **Commit:** 0806fc4b
 - **Area:** Expansion host, source mapping
 
 ## Problem

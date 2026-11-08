@@ -1,7 +1,7 @@
 # fix(endec)!: code what a field's type arguments, Required and shared values left uncoded
 
 - **Date:** 2026-10-12 18:18
-- **Commit:** 662c47a8
+- **Commit:** e6845936
 - **Area:** `Encode` and `Decode` generators, `@macroforge/core/endec` runtime
 
 ## Problem

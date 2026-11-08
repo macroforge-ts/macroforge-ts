@@ -1,7 +1,7 @@
 # fix(core)!: report an option a built-in decorator does not take
 
 - **Date:** 2026-10-13 01:16
-- **Commit:** f624e809
+- **Commit:** 3915d6f6
 - **Area:** Expansion host, built-in Default derive, endec option lists
 
 ## Problem
