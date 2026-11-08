@@ -1,15 +1,17 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (3)
+## Types (4)
 
 Customer bc19a99efdeaefe8
+Meeting d79eaeacd45d2190
 Order 19b5a1dc6c3cd358
 PersonName 0a392e9146f97b4e
 
-## Qualified types (3)
+## Qualified types (4)
 
 src/lib/types/customer.svelte.ts::Customer bc19a99efdeaefe8
+src/lib/types/meeting.ts::Meeting d79eaeacd45d2190
 src/lib/types/order.svelte.ts::Order 19b5a1dc6c3cd358
 src/lib/types/person-name.ts::PersonName 0a392e9146f97b4e
 
