@@ -141,3 +141,4 @@ In commit order.
 | 2026-11-08 16:20 | 9dafd94c | [test(conformance): record main's Meeting fixture with the branch's encoding](2026-11-08-1620-meeting-fixture-goldens.md)                                                  | 33b41217 (2026-11-08) |
 | 2026-11-08 16:20 | b69871db | [fix(syn): keep the type-name classifiers macros outside the crate call](2026-11-08-1620-keep-type-name-classifiers.md)                                                    | cd7766e3 (2026-10-13) |
 | 2026-11-08 16:20 | e6648840 | [feat(syn): convert a class field to the interface member it declares](2026-11-08-1620-field-as-interface-field.md)                                                        |                       |
+| 2026-11-08 20:01 | fbe08a0d | [fix(endec)!: decode a value, and decode JSON text through fromString](2026-11-08-2001-decode-a-value-from-string-text.md)                                                 | e6845936 (2026-10-12) |
